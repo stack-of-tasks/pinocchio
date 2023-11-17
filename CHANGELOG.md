@@ -31,262 +31,262 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [2.6.20] - 2023-08-09
 
 ### What's Changed
-* Fix support of recent versions of Boost for CppAD and CppADCodeGen by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/2000
-* build(deps): bump ros-industrial/industrial_ci from afbf77f39db26785371161d5691ab435b31bb3ba to 1e0c5aff1147d50d58bf4185a55ff564c9b6e027 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/2007
-* Enabled copy and deepcopy by [@cmastalli](https://github.com/cmastalli) in https://github.com/stack-of-tasks/pinocchio/pull/1882
-* build(deps): bump ros-industrial/industrial_ci from afbf77f39db26785371161d5691ab435b31bb3ba to 9f963f67ebb889792175776c5ee00134d7bb569b by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/2013
-* Sync submodule cmake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/2029
+- Fix support of recent versions of Boost for CppAD and CppADCodeGen by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/2000
+- build(deps): bump ros-industrial/industrial_ci from afbf77f39db26785371161d5691ab435b31bb3ba to 1e0c5aff1147d50d58bf4185a55ff564c9b6e027 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/2007
+- Enabled copy and deepcopy by [@cmastalli](https://github.com/cmastalli) in https://github.com/stack-of-tasks/pinocchio/pull/1882
+- build(deps): bump ros-industrial/industrial_ci from afbf77f39db26785371161d5691ab435b31bb3ba to 9f963f67ebb889792175776c5ee00134d7bb569b by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/2013
+- Sync submodule cmake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/2029
 
 ## [2.6.19] - 2023-06-19
 
 ### What's Changed
-* Add Motion::toHomogeneousMatrix by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1946
-* The insatiable English teacher PR 🧙 by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1957
-* require C++14 for Boost >= 1.81 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1949
-* CMake: an example require python 3 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1966
-* Fix IK example in the documentation by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1963
-* Issue templates by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1971
-* build(deps): bump ros-industrial/industrial_ci from 4b78602d67127a63dce62926769d9ec4e2ce72e4 to afbf77f39db26785371161d5691ab435b31bb3ba by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1976
-* Enhance CMake packaging for Windows by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1984
-* Documentation  by [@drewhamiltonasdf](https://github.com/drewhamiltonasdf) in https://github.com/stack-of-tasks/pinocchio/pull/1986
-* Add support for ccache on Conda build by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1987
-* build(deps): bump ros-industrial/industrial_ci from 4b78602d67127a63dce62926769d9ec4e2ce72e4 to afbf77f39db26785371161d5691ab435b31bb3ba by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1988
-* Enhance compatibility with new Python versions by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1996
+- Add Motion::toHomogeneousMatrix by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1946
+- The insatiable English teacher PR 🧙 by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1957
+- require C++14 for Boost >= 1.81 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1949
+- CMake: an example require python 3 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1966
+- Fix IK example in the documentation by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1963
+- Issue templates by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1971
+- build(deps): bump ros-industrial/industrial_ci from 4b78602d67127a63dce62926769d9ec4e2ce72e4 to afbf77f39db26785371161d5691ab435b31bb3ba by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1976
+- Enhance CMake packaging for Windows by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1984
+- Documentation  by [@drewhamiltonasdf](https://github.com/drewhamiltonasdf) in https://github.com/stack-of-tasks/pinocchio/pull/1986
+- Add support for ccache on Conda build by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1987
+- build(deps): bump ros-industrial/industrial_ci from 4b78602d67127a63dce62926769d9ec4e2ce72e4 to afbf77f39db26785371161d5691ab435b31bb3ba by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1988
+- Enhance compatibility with new Python versions by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1996
 
 ### New Contributors
-* [@drewhamiltonasdf](https://github.com/drewhamiltonasdf) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1986
+- [@drewhamiltonasdf](https://github.com/drewhamiltonasdf) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1986
 
 ## [2.6.18] - 2023-04-29
 
 ### What's Changed
-* Support force in pybind11 by [@cmastalli](https://github.com/cmastalli) in https://github.com/stack-of-tasks/pinocchio/pull/1868
-* Fix some Python bindings signatures and add stub generation. by [@duburcqa](https://github.com/duburcqa) in https://github.com/stack-of-tasks/pinocchio/pull/1869
-* Fix IK example by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1875
-* Remove empty examples by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1878
-* build(deps): bump ros-industrial/industrial_ci from 6a8f546cbd31fbd5c9f77e3409265c8b39abc3d6 to 4b78602d67127a63dce62926769d9ec4e2ce72e4 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1890
-* add static-contact-dynamics example by [@PepMS](https://github.com/PepMS) in https://github.com/stack-of-tasks/pinocchio/pull/1891
-* Update documentation of `JointModel.shortname` in python bindings by [@Danfoa](https://github.com/Danfoa) in https://github.com/stack-of-tasks/pinocchio/pull/1892
-* update doc by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1898
-* Document that joints need to be added in depth-first order by [@traversaro](https://github.com/traversaro) in https://github.com/stack-of-tasks/pinocchio/pull/1899
-* fix INSTALL_RPATH on ROS & OSX by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1908
-* Python example: update joint placements after loading a URDF by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1911
-* Remove more empty sections from the docs by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1912
-* Sync submodule cmake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1914
-* update doc for fixed joint by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1920
-* doc: more information about frames on cheatsheet by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1930
-* Define operational frames in the documentation by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1929
-* Remove support of np.matrix by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1941
-* Fix other np.matrix issues by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1942
+- Support force in pybind11 by [@cmastalli](https://github.com/cmastalli) in https://github.com/stack-of-tasks/pinocchio/pull/1868
+- Fix some Python bindings signatures and add stub generation. by [@duburcqa](https://github.com/duburcqa) in https://github.com/stack-of-tasks/pinocchio/pull/1869
+- Fix IK example by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1875
+- Remove empty examples by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1878
+- build(deps): bump ros-industrial/industrial_ci from 6a8f546cbd31fbd5c9f77e3409265c8b39abc3d6 to 4b78602d67127a63dce62926769d9ec4e2ce72e4 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1890
+- add static-contact-dynamics example by [@PepMS](https://github.com/PepMS) in https://github.com/stack-of-tasks/pinocchio/pull/1891
+- Update documentation of `JointModel.shortname` in python bindings by [@Danfoa](https://github.com/Danfoa) in https://github.com/stack-of-tasks/pinocchio/pull/1892
+- update doc by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1898
+- Document that joints need to be added in depth-first order by [@traversaro](https://github.com/traversaro) in https://github.com/stack-of-tasks/pinocchio/pull/1899
+- fix INSTALL_RPATH on ROS & OSX by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1908
+- Python example: update joint placements after loading a URDF by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1911
+- Remove more empty sections from the docs by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1912
+- Sync submodule cmake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1914
+- update doc for fixed joint by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1920
+- doc: more information about frames on cheatsheet by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1930
+- Define operational frames in the documentation by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1929
+- Remove support of np.matrix by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1941
+- Fix other np.matrix issues by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1942
 
 ### New Contributors
-* [@PepMS](https://github.com/PepMS) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1891
-* [@Danfoa](https://github.com/Danfoa) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1892
+- [@PepMS](https://github.com/PepMS) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1891
+- [@Danfoa](https://github.com/Danfoa) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1892
 
 ## [2.6.17] - 2023-02-15
 
 ### What's Changed
-* Fix Jlog6 documentation by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1857
-* Add documentation to Jlog3 by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1858
-* [python/visualize] Extend visualizer features and implement them for MeshcatVisualizer by [@ManifoldFR](https://github.com/ManifoldFR) in https://github.com/stack-of-tasks/pinocchio/pull/1845
-* Second-order RNEA derivatives by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1860
-* Sync submodule CMake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1863
-* Fix support of AVX2. by [@duburcqa](https://github.com/duburcqa) in https://github.com/stack-of-tasks/pinocchio/pull/1865
+- Fix Jlog6 documentation by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1857
+- Add documentation to Jlog3 by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1858
+- [python/visualize] Extend visualizer features and implement them for MeshcatVisualizer by [@ManifoldFR](https://github.com/ManifoldFR) in https://github.com/stack-of-tasks/pinocchio/pull/1845
+- Second-order RNEA derivatives by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1860
+- Sync submodule CMake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1863
+- Fix support of AVX2. by [@duburcqa](https://github.com/duburcqa) in https://github.com/stack-of-tasks/pinocchio/pull/1865
 
 ## [2.6.16] - 2023-02-02
 
 ### What's Changed
-* Enforce testing of Python bindings by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1853
-* Fix issue with Python 3.6 by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1855
+- Enforce testing of Python bindings by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1853
+- Fix issue with Python 3.6 by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1855
 
 ## [2.6.15] - 2023-01-31
 
 ### What's Changed
-* More documentation for getJointJacobian by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1836
-* Error when integrating SE3 with the same vector given as input and output by [@duburcqa](https://github.com/duburcqa) in https://github.com/stack-of-tasks/pinocchio/pull/1775
-* Documentation for Jlog6 by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1842
-* remove useless header by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1846
-* Fix issue with recent change on master branch for ROS-CI by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1847
-* Fix issue with old version of Boost and eigenpy >= 2.9.0 by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1851
+- More documentation for getJointJacobian by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1836
+- Error when integrating SE3 with the same vector given as input and output by [@duburcqa](https://github.com/duburcqa) in https://github.com/stack-of-tasks/pinocchio/pull/1775
+- Documentation for Jlog6 by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1842
+- remove useless header by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1846
+- Fix issue with recent change on master branch for ROS-CI by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1847
+- Fix issue with old version of Boost and eigenpy >= 2.9.0 by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1851
 
 ## [2.6.14] - 2023-01-13
 
 ### What's Changed
-* Fix registration of ptr to Python by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1832
+- Fix registration of ptr to Python by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1832
 
 ## [2.6.13] - 2023-01-12
 
 ### What's Changed
-* build(deps): bump goanpeca/setup-miniconda from 1 to 2 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1790
-* Skip collision pairs between geom on same joint in appendGeometryModel by [@jmirabel](https://github.com/jmirabel) in https://github.com/stack-of-tasks/pinocchio/pull/1791
-* Fix issue with Boost 1.78 on OSX systems by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1792
-* build(deps): bump goanpeca/setup-miniconda from 1 to 2 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1793
-* Add helper functions for computing supported inertia and force by frames by [@EtienneAr](https://github.com/EtienneAr) in https://github.com/stack-of-tasks/pinocchio/pull/1796
-* Follow-up : Supported inertia by frame by [@EtienneAr](https://github.com/EtienneAr) in https://github.com/stack-of-tasks/pinocchio/pull/1797
-* build(deps): bump goanpeca/setup-miniconda from 1 to 2 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1799
-* [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1801
-* build(deps): bump goanpeca/setup-miniconda from 1 to 2 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1802
-* build(deps): bump goanpeca/setup-miniconda from 1 to 2 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1809
-* Sync submodule cmake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1811
-* Fix Python issues by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1821
-* Allow to use std::shared_ptr by [@florent-lamiraux](https://github.com/florent-lamiraux) in https://github.com/stack-of-tasks/pinocchio/pull/1822
+- build(deps): bump goanpeca/setup-miniconda from 1 to 2 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1790
+- Skip collision pairs between geom on same joint in appendGeometryModel by [@jmirabel](https://github.com/jmirabel) in https://github.com/stack-of-tasks/pinocchio/pull/1791
+- Fix issue with Boost 1.78 on OSX systems by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1792
+- build(deps): bump goanpeca/setup-miniconda from 1 to 2 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1793
+- Add helper functions for computing supported inertia and force by frames by [@EtienneAr](https://github.com/EtienneAr) in https://github.com/stack-of-tasks/pinocchio/pull/1796
+- Follow-up : Supported inertia by frame by [@EtienneAr](https://github.com/EtienneAr) in https://github.com/stack-of-tasks/pinocchio/pull/1797
+- build(deps): bump goanpeca/setup-miniconda from 1 to 2 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1799
+- [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1801
+- build(deps): bump goanpeca/setup-miniconda from 1 to 2 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1802
+- build(deps): bump goanpeca/setup-miniconda from 1 to 2 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1809
+- Sync submodule cmake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1811
+- Fix Python issues by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1821
+- Allow to use std::shared_ptr by [@florent-lamiraux](https://github.com/florent-lamiraux) in https://github.com/stack-of-tasks/pinocchio/pull/1822
 
 ## [2.6.12] - 2022-11-06
 
 ### What's Changed
-* Elevate check for ambiguous input argument to an exception by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1781
-* Fix packaging issues + sync submodule CMake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1782
-* Fix issue with clang by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1784
+- Elevate check for ambiguous input argument to an exception by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1781
+- Fix packaging issues + sync submodule CMake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1782
+- Fix issue with clang by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1784
 
 ## [2.6.11] - 2022-10-25
 
 ### What's Changed
-* URDF: fix loading relative mesh path in urdf by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1748
-* Sync submodule cmake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1750
-* Add [@note](https://github.com/note) to difference documentation by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1753
-* Configuration limits for joints and model by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1756
-* Address remaining warnings + speed-up build for BUILD_TESTING=OFF by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1764
-* Add status of ROS builds to README by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1770
-* pinocchio/visualize: Add support for cone shape in meshcat dispaly by [@whtqh](https://github.com/whtqh) in https://github.com/stack-of-tasks/pinocchio/pull/1769
-* Updates README by [@nikoandpiko](https://github.com/nikoandpiko) in https://github.com/stack-of-tasks/pinocchio/pull/1776
-* Enhance cmake packaging by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1777
+- URDF: fix loading relative mesh path in urdf by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1748
+- Sync submodule cmake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1750
+- Add [@note](https://github.com/note) to difference documentation by [@stephane-caron](https://github.com/stephane-caron) in https://github.com/stack-of-tasks/pinocchio/pull/1753
+- Configuration limits for joints and model by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1756
+- Address remaining warnings + speed-up build for BUILD_TESTING=OFF by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1764
+- Add status of ROS builds to README by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1770
+- pinocchio/visualize: Add support for cone shape in meshcat dispaly by [@whtqh](https://github.com/whtqh) in https://github.com/stack-of-tasks/pinocchio/pull/1769
+- Updates README by [@nikoandpiko](https://github.com/nikoandpiko) in https://github.com/stack-of-tasks/pinocchio/pull/1776
+- Enhance cmake packaging by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1777
 
 ### New Contributors
-* [@stephane-caron](https://github.com/stephane-caron) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1753
-* [@whtqh](https://github.com/whtqh) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1769
-* [@nikoandpiko](https://github.com/nikoandpiko) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1776
+- [@stephane-caron](https://github.com/stephane-caron) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1753
+- [@whtqh](https://github.com/whtqh) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1769
+- [@nikoandpiko](https://github.com/nikoandpiko) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1776
 
 ## [2.6.10] - 2022-09-14
 
 ### What's Changed
-* fix syntax for python 2 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1734
-* Expose `removeGeometryObject` in python binding by [@Jiayuan-Gu](https://github.com/Jiayuan-Gu) in https://github.com/stack-of-tasks/pinocchio/pull/1736
-* Fix relocalable by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1738
-* Fix relative path in urdf by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1742
-* Sync submodule CMake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1744
+- fix syntax for python 2 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1734
+- Expose `removeGeometryObject` in python binding by [@Jiayuan-Gu](https://github.com/Jiayuan-Gu) in https://github.com/stack-of-tasks/pinocchio/pull/1736
+- Fix relocalable by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1738
+- Fix relative path in urdf by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1742
+- Sync submodule CMake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1744
 
 ### New Contributors
-* [@Jiayuan-Gu](https://github.com/Jiayuan-Gu) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1736
+- [@Jiayuan-Gu](https://github.com/Jiayuan-Gu) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1736
 
 ## [2.6.9] - 2022-08-12
 
 ### What's Changed
-* build(deps): bump actions/checkout from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1669
-* build(deps): bump actions/cache from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1670
-* Sync example-robot-data by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1671
-* update to pybind11 v2.9.2 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1674
-* build(deps): bump actions/checkout from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1678
-* build(deps): bump actions/cache from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1677
-* [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1679
-* build(deps): bump actions/checkout from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1692
-* build(deps): bump actions/cache from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1691
-* Fix bug in appendModel by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1693
-* [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1695
-* Fix geometry color default value by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1699
-* Add python example appending Urdf and another model by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1698
-* SO3 diff impl use quaternion instead of rotation matrix by [@Toefinder](https://github.com/Toefinder) in https://github.com/stack-of-tasks/pinocchio/pull/1702
-* add cheat sheet to doc by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1705
-* cmake/utils: no need for python here by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1709
-* Add header only target by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1712
-* cmake: relocatable package for recent CMake versions by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1716
-* cmake: modernize header-only lib by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1718
-* ROS2/Colcon integration by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1719
-* CMake: update to eigenpy 2.7.10 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1720
-* Fix weird test failure on Conda by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1723
-* [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1727
-* ROS2 release support by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1681
-* Sync submodule CMake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1732
+- build(deps): bump actions/checkout from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1669
+- build(deps): bump actions/cache from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1670
+- Sync example-robot-data by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1671
+- update to pybind11 v2.9.2 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1674
+- build(deps): bump actions/checkout from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1678
+- build(deps): bump actions/cache from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1677
+- [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1679
+- build(deps): bump actions/checkout from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1692
+- build(deps): bump actions/cache from 2 to 3 by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/1691
+- Fix bug in appendModel by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1693
+- [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1695
+- Fix geometry color default value by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1699
+- Add python example appending Urdf and another model by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1698
+- SO3 diff impl use quaternion instead of rotation matrix by [@Toefinder](https://github.com/Toefinder) in https://github.com/stack-of-tasks/pinocchio/pull/1702
+- add cheat sheet to doc by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1705
+- cmake/utils: no need for python here by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1709
+- Add header only target by [@fabinsch](https://github.com/fabinsch) in https://github.com/stack-of-tasks/pinocchio/pull/1712
+- cmake: relocatable package for recent CMake versions by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1716
+- cmake: modernize header-only lib by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1718
+- ROS2/Colcon integration by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1719
+- CMake: update to eigenpy 2.7.10 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1720
+- Fix weird test failure on Conda by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1723
+- [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1727
+- ROS2 release support by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1681
+- Sync submodule CMake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1732
 
 ### New Contributors
-* [@fabinsch](https://github.com/fabinsch) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1698
+- [@fabinsch](https://github.com/fabinsch) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1698
 
 ## [2.6.8] - 2022-06-06
 
 ### What's Changed
-* [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1648
-* Fix integrate method for SO2 by [@Toefinder](https://github.com/Toefinder) in https://github.com/stack-of-tasks/pinocchio/pull/1652
-* [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1653
-* [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1658
-* Extend current Coriolis computations to account for Cristoffel symbol of first kind by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1665
-* Fix method play() of rviz_visualizer by [@danielcostanzi18](https://github.com/danielcostanzi18) in https://github.com/stack-of-tasks/pinocchio/pull/1667
-* chore: Included githubactions in the dependabot config by [@nathannaveen](https://github.com/nathannaveen) in https://github.com/stack-of-tasks/pinocchio/pull/1659
-* Enable ubuntu 22.04 on CI by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1668
+- [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1648
+- Fix integrate method for SO2 by [@Toefinder](https://github.com/Toefinder) in https://github.com/stack-of-tasks/pinocchio/pull/1652
+- [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1653
+- [pre-commit.ci] pre-commit autoupdate by [@pre-commit-ci](https://github.com/pre-commit-ci) in https://github.com/stack-of-tasks/pinocchio/pull/1658
+- Extend current Coriolis computations to account for Cristoffel symbol of first kind by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1665
+- Fix method play() of rviz_visualizer by [@danielcostanzi18](https://github.com/danielcostanzi18) in https://github.com/stack-of-tasks/pinocchio/pull/1667
+- chore: Included githubactions in the dependabot config by [@nathannaveen](https://github.com/nathannaveen) in https://github.com/stack-of-tasks/pinocchio/pull/1659
+- Enable ubuntu 22.04 on CI by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1668
 
 ### New Contributors
-* [@pre-commit-ci](https://github.com/pre-commit-ci) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1648
-* [@Toefinder](https://github.com/Toefinder) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1652
-* [@danielcostanzi18](https://github.com/danielcostanzi18) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1667
-* [@nathannaveen](https://github.com/nathannaveen) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1659
+- [@pre-commit-ci](https://github.com/pre-commit-ci) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1648
+- [@Toefinder](https://github.com/Toefinder) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1652
+- [@danielcostanzi18](https://github.com/danielcostanzi18) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1667
+- [@nathannaveen](https://github.com/nathannaveen) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1659
 
 ## [2.6.7] - 2022-05-03
 
 ### What's Changed
-* add dummy .pre-commit-config.yaml by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1629
-* Avoid triggering multi-line comment in Latex formula by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1630
-* Make Pinocchio v2 compatible with HPP-FCL v2 by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1631
-* Add example of collision with a point cloud by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1636
-* follow up on hpp-fcl v2 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1637
-* Fix pickling for Boost >= 1.7.4 by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1640
+- add dummy .pre-commit-config.yaml by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1629
+- Avoid triggering multi-line comment in Latex formula by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1630
+- Make Pinocchio v2 compatible with HPP-FCL v2 by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1631
+- Add example of collision with a point cloud by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1636
+- follow up on hpp-fcl v2 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1637
+- Fix pickling for Boost >= 1.7.4 by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1640
 
 ## [2.6.6] - 2022-03-22
 
 ### What's Changed
-* Support HPP-FCL for ROS binaries & introduce ROS2 ament integration by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1622
+- Support HPP-FCL for ROS binaries & introduce ROS2 ament integration by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1622
 
 ## [2.6.5] - 2022-02-14
 
 ### What's Changed
-* Fix warning issue in Python by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1546
-* RVizVisualizer update by [@EtienneAr](https://github.com/EtienneAr) in https://github.com/stack-of-tasks/pinocchio/pull/1549
-* Correct link to examples. Removed python subdirectory in the link as the directory does not exist anymore by [@olivier-stasse](https://github.com/olivier-stasse) in https://github.com/stack-of-tasks/pinocchio/pull/1561
-* Add CONTRIBUTING.md file for newcomers by [@olivier-stasse](https://github.com/olivier-stasse) in https://github.com/stack-of-tasks/pinocchio/pull/1563
-* Add list of projects based on Pinocchio by [@olivier-stasse](https://github.com/olivier-stasse) in https://github.com/stack-of-tasks/pinocchio/pull/1566
-* Fix constrained dynamics formula by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1567
-* Append "/share" to AMENT_PREFIX_PATH by [@proyan](https://github.com/proyan) in https://github.com/stack-of-tasks/pinocchio/pull/1568
-* Expose dIntegrateTransport by [@ManifoldFR](https://github.com/ManifoldFR) in https://github.com/stack-of-tasks/pinocchio/pull/1572
-* [timings] Reduce allocations in finite-difference baselines by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1583
-* [computeAllTerms] Add missing noalias to avoid temporary allocation by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1582
-* Missing `noalias` by [@duburcqa](https://github.com/duburcqa) in https://github.com/stack-of-tasks/pinocchio/pull/1585
-* [multibody/model] add joint arg validation by [@proyan](https://github.com/proyan) in https://github.com/stack-of-tasks/pinocchio/pull/1586
-* [multibody/geometry] Add method to remove an object. by [@florent-lamiraux](https://github.com/florent-lamiraux) in https://github.com/stack-of-tasks/pinocchio/pull/1588
-* Fix bug in ABAChecker by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1599
-* Update README.md by [@jmirabel](https://github.com/jmirabel) in https://github.com/stack-of-tasks/pinocchio/pull/1604
-* allow `robot_wrapper` to share data with its `viz` by [@vnghia](https://github.com/vnghia) in https://github.com/stack-of-tasks/pinocchio/pull/1606
+- Fix warning issue in Python by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1546
+- RVizVisualizer update by [@EtienneAr](https://github.com/EtienneAr) in https://github.com/stack-of-tasks/pinocchio/pull/1549
+- Correct link to examples. Removed python subdirectory in the link as the directory does not exist anymore by [@olivier-stasse](https://github.com/olivier-stasse) in https://github.com/stack-of-tasks/pinocchio/pull/1561
+- Add CONTRIBUTING.md file for newcomers by [@olivier-stasse](https://github.com/olivier-stasse) in https://github.com/stack-of-tasks/pinocchio/pull/1563
+- Add list of projects based on Pinocchio by [@olivier-stasse](https://github.com/olivier-stasse) in https://github.com/stack-of-tasks/pinocchio/pull/1566
+- Fix constrained dynamics formula by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1567
+- Append "/share" to AMENT_PREFIX_PATH by [@proyan](https://github.com/proyan) in https://github.com/stack-of-tasks/pinocchio/pull/1568
+- Expose dIntegrateTransport by [@ManifoldFR](https://github.com/ManifoldFR) in https://github.com/stack-of-tasks/pinocchio/pull/1572
+- [timings] Reduce allocations in finite-difference baselines by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1583
+- [computeAllTerms] Add missing noalias to avoid temporary allocation by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1582
+- Missing `noalias` by [@duburcqa](https://github.com/duburcqa) in https://github.com/stack-of-tasks/pinocchio/pull/1585
+- [multibody/model] add joint arg validation by [@proyan](https://github.com/proyan) in https://github.com/stack-of-tasks/pinocchio/pull/1586
+- [multibody/geometry] Add method to remove an object. by [@florent-lamiraux](https://github.com/florent-lamiraux) in https://github.com/stack-of-tasks/pinocchio/pull/1588
+- Fix bug in ABAChecker by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1599
+- Update README.md by [@jmirabel](https://github.com/jmirabel) in https://github.com/stack-of-tasks/pinocchio/pull/1604
+- allow `robot_wrapper` to share data with its `viz` by [@vnghia](https://github.com/vnghia) in https://github.com/stack-of-tasks/pinocchio/pull/1606
 
 ### New Contributors
-* [@duburcqa](https://github.com/duburcqa) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1585
-* [@vnghia](https://github.com/vnghia) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1606
+- [@duburcqa](https://github.com/duburcqa) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1585
+- [@vnghia](https://github.com/vnghia) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1606
 
 ## [2.6.4] - 2021-11-02
 
 ### What's Changed
-* Change 'typedef' to 'using', add curly braces by [@the-raspberry-pi-guy](https://github.com/the-raspberry-pi-guy) in https://github.com/stack-of-tasks/pinocchio/pull/1476
-* [CMake] set INSTALL_RPATH for python on linux by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1482
-* [visualize] captureImage() method by [@ManifoldFR](https://github.com/ManifoldFR) in https://github.com/stack-of-tasks/pinocchio/pull/1480
-* ci: update ROS CI by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1483
-* Fix issue with Pool when FCL is missing by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1485
-* fix module name by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1487
-* Add RVizVisualizer by [@EtienneAr](https://github.com/EtienneAr) in https://github.com/stack-of-tasks/pinocchio/pull/1488
-* fix reshape issues by [@kozakromch](https://github.com/kozakromch) in https://github.com/stack-of-tasks/pinocchio/pull/1489
-* Remove useless reference to L-GPL + remove of useless files by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1500
-* Update old function, remove mobile robot wrapper by [@kozakromch](https://github.com/kozakromch) in https://github.com/stack-of-tasks/pinocchio/pull/1490
-* Allows the display of {COLLISION,VISUAL} in MeshCat by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1502
-* Delete submodule travis by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1509
-* Add citation by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1511
-* badges: add PyPI by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1510
-* Add support of Convex within MeshCat + improve GeometryObject bindings by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1530
-* [python] Fix BaseVisualizer constructor. by [@jmirabel](https://github.com/jmirabel) in https://github.com/stack-of-tasks/pinocchio/pull/1533
-* [python] Add pybind11 header. by [@jmirabel](https://github.com/jmirabel) in https://github.com/stack-of-tasks/pinocchio/pull/1519
-* make copy of supports during model cast by [@rubengrandia](https://github.com/rubengrandia) in https://github.com/stack-of-tasks/pinocchio/pull/1536
-* [python] Simplify buildGeomFromUrdf and allow to build from string. by [@jmirabel](https://github.com/jmirabel) in https://github.com/stack-of-tasks/pinocchio/pull/1538
-* Sync submodule by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1542
-* Turn off automatic documentation generation by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1541
+- Change 'typedef' to 'using', add curly braces by [@the-raspberry-pi-guy](https://github.com/the-raspberry-pi-guy) in https://github.com/stack-of-tasks/pinocchio/pull/1476
+- [CMake] set INSTALL_RPATH for python on linux by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1482
+- [visualize] captureImage() method by [@ManifoldFR](https://github.com/ManifoldFR) in https://github.com/stack-of-tasks/pinocchio/pull/1480
+- ci: update ROS CI by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1483
+- Fix issue with Pool when FCL is missing by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1485
+- fix module name by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1487
+- Add RVizVisualizer by [@EtienneAr](https://github.com/EtienneAr) in https://github.com/stack-of-tasks/pinocchio/pull/1488
+- fix reshape issues by [@kozakromch](https://github.com/kozakromch) in https://github.com/stack-of-tasks/pinocchio/pull/1489
+- Remove useless reference to L-GPL + remove of useless files by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1500
+- Update old function, remove mobile robot wrapper by [@kozakromch](https://github.com/kozakromch) in https://github.com/stack-of-tasks/pinocchio/pull/1490
+- Allows the display of {COLLISION,VISUAL} in MeshCat by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1502
+- Delete submodule travis by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1509
+- Add citation by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1511
+- badges: add PyPI by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1510
+- Add support of Convex within MeshCat + improve GeometryObject bindings by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1530
+- [python] Fix BaseVisualizer constructor. by [@jmirabel](https://github.com/jmirabel) in https://github.com/stack-of-tasks/pinocchio/pull/1533
+- [python] Add pybind11 header. by [@jmirabel](https://github.com/jmirabel) in https://github.com/stack-of-tasks/pinocchio/pull/1519
+- make copy of supports during model cast by [@rubengrandia](https://github.com/rubengrandia) in https://github.com/stack-of-tasks/pinocchio/pull/1536
+- [python] Simplify buildGeomFromUrdf and allow to build from string. by [@jmirabel](https://github.com/jmirabel) in https://github.com/stack-of-tasks/pinocchio/pull/1538
+- Sync submodule by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1542
+- Turn off automatic documentation generation by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1541
 
 ### New Contributors
-* [@the-raspberry-pi-guy](https://github.com/the-raspberry-pi-guy) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1476
-* [@ManifoldFR](https://github.com/ManifoldFR) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1480
-* [@EtienneAr](https://github.com/EtienneAr) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1488
-* [@kozakromch](https://github.com/kozakromch) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1489
-* [@rubengrandia](https://github.com/rubengrandia) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1536
+- [@the-raspberry-pi-guy](https://github.com/the-raspberry-pi-guy) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1476
+- [@ManifoldFR](https://github.com/ManifoldFR) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1480
+- [@EtienneAr](https://github.com/EtienneAr) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1488
+- [@kozakromch](https://github.com/kozakromch) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1489
+- [@rubengrandia](https://github.com/rubengrandia) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1536
 
 ## [2.6.3] - 2021-07-27
 
@@ -606,10 +606,10 @@ This is mostly a maintenance release:
 
 This is mostly a maintenance release:
 
-* Fix some bugs in JointModel{Translation,Spherical} for ABA algorithm
-* Fix a duplication issue in RobotWrapper
-* Improve compatibility with recent version of Boost >= 1.67.0
-* Romeo is now loaded from the official romeo_description repository
+- Fix some bugs in JointModel{Translation,Spherical} for ABA algorithm
+- Fix a duplication issue in RobotWrapper
+- Improve compatibility with recent version of Boost >= 1.67.0
+- Romeo is now loaded from the official romeo_description repository
 
 
 
