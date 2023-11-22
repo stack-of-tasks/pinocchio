@@ -2,45 +2,6 @@
 # Copyright (c) 2015-2023 CNRS INRIA
 #
 
-macro(ADD_PYTHON_MEMORYCHECK_UNIT_TEST NAME SOURCE)
-  set(TEST_FILE_NAME memorycheck_unit_test_${NAME}.cmake)
-  set(PYTHON_TEST_SCRIPT "${PROJECT_SOURCE_DIR}/${SOURCE}")
-  configure_file(memorycheck_unit_test.cmake.in ${TEST_FILE_NAME} @ONLY)
-
-  add_test(NAME ${NAME}
-    COMMAND ${CMAKE_COMMAND} -P ${TEST_FILE_NAME})
-
-  set(MODULES "${ARGN}") # ARGN is not a variable
-  foreach(MODULE_PATH IN LISTS MODULES)
-    list(APPEND PYTHONPATH "${CMAKE_BINARY_DIR}/${MODULE_PATH}")
-  endforeach()
-
-  if(DEFINED ENV{PYTHONPATH})
-    list(APPEND PYTHONPATH "$ENV{PYTHONPATH}")
-  endif()
-
-  # get path separator to join those paths
-  execute_process(
-    COMMAND "${PYTHON_EXECUTABLE}" "-c" "import os; print(os.pathsep)"
-    OUTPUT_VARIABLE PATHSEP
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-  list(REMOVE_DUPLICATES PYTHONPATH)
-  if(WIN32)
-    # ensure that severals paths stay together as ENV variable PYTHONPATH when
-    # passed to python test via PROPERTIES
-    string(REPLACE ";" "\;" PYTHONPATH_STR "${PYTHONPATH}")
-  else(WIN32)
-    string(REPLACE ";" "${PATHSEP}" PYTHONPATH_STR "${PYTHONPATH}")
-  endif(WIN32)
-  set(ENV_VARIABLES "PYTHONPATH=${PYTHONPATH_STR}")
-  if(APPLE)
-    list(APPEND ENV_VARIABLES "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}")
-    list(APPEND ENV_VARIABLES "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}")
-  endif(APPLE)
-  set_tests_properties(${NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
-endmacro()
-
 SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings
 
