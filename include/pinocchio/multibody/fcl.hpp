@@ -148,17 +148,33 @@ struct GeometryObject
   /// \brief Position of geometry object in parent joint frame
   SE3 placement;
 
-  /// \brief Absolute path to the mesh file (if the fcl pointee is also a Mesh)
+  /// \brief Absolute path to the mesh file (if the geometry pointee is also a Mesh)
   std::string meshPath;
 
-  /// \brief Scaling vector applied to the GeometryObject::fcl object.
+  /// \brief Scaling vector applied to the GeometryObject::geometry object.
   Eigen::Vector3d meshScale;
 
   /// \brief Decide whether to override the Material.
   bool overrideMaterial;
 
-  /// \brief RGBA color value of the GeometryObject::fcl object.
+  /// \defgroup pinocchio_mesh_material Mesh material definition
+  /// Mesh material based on the Phong lighting model:
+  /// \{
+
+  /// \brief RGBA diffuse color value of the GeometryObject::geometry object.
   Eigen::Vector4d meshColor;
+
+  /// \brief RGBA emission (ambient) color value of the GeometryObject::geometry object.
+  Eigen::Vector4d meshEmissionColor;
+
+  /// \brief RGBA specular color value of the GeometryObject::geometry object.
+  Eigen::Vector4d meshSpecularColor;
+
+  /// \brief shininess associated to the specular lighting model.
+  ///
+  /// This value must normalized between 0 and 1.
+  double meshShininess;
+  /// \}
 
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
@@ -191,7 +207,10 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
                  const Eigen::Vector4d & meshColor = Eigen::Vector4d(0,0,0,1),
-                 const std::string & meshTexturePath = "")
+                 const std::string & meshTexturePath = "",
+                 const Eigen::Vector4d & meshEmissionColor = Eigen::Vector4d(0,0,0,1),
+                 const Eigen::Vector4d & meshSpecularColor = Eigen::Vector4d(0,0,0,1),
+                 double meshShininess = 0.)
   : name(name)
   , parentFrame(parent_frame)
   , parentJoint(parent_joint)
@@ -202,6 +221,9 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   , meshScale(meshScale)
   , overrideMaterial(overrideMaterial)
   , meshColor(meshColor)
+  , meshEmissionColor(meshEmissionColor)
+  , meshSpecularColor(meshSpecularColor)
+  , meshShininess(meshShininess)
   , meshTexturePath(meshTexturePath)
   , disableCollision(false)
   {}
@@ -242,6 +264,9 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   , meshScale(meshScale)
   , overrideMaterial(overrideMaterial)
   , meshColor(meshColor)
+  , meshEmissionColor(Eigen::Vector4d(0., 0., 0., 1.))
+  , meshSpecularColor(Eigen::Vector4d(0., 0., 0., 1.))
+  , meshShininess(0.)
   , meshTexturePath(meshTexturePath)
   , disableCollision(false)
   {}
