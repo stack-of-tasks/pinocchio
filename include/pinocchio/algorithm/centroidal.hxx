@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_centroidal_hxx__
@@ -317,7 +317,7 @@ namespace pinocchio
     const Block3x dAg_lin = data.dAg.template middleRows<3>(Force::LINEAR);
     Block3x dAg_ang = data.dAg.template middleRows<3>(Force::ANGULAR);
     for(Eigen::DenseIndex i = 0; i<model.nv; ++i)
-      dAg_ang.col(i) += dAg_lin.col(i).cross(data.com[0]);
+      dAg_ang.col(i) += dAg_lin.col(i).cross(data.com[0]) + Ag_lin.col(i).cross(data.vcom[0]);
     
     data.Ig.mass() = data.oYcrb[0].mass();
     data.Ig.lever().setZero();
@@ -371,7 +371,9 @@ namespace pinocchio
     const Block3x dAg_lin = data.dAg.template middleRows<3>(Force::LINEAR);
     Block3x dAg_ang = data.dAg.template middleRows<3>(Force::ANGULAR);
     for(Eigen::DenseIndex i = 0; i<model.nv; ++i)
-      dAg_ang.col(i) += dAg_lin.col(i).cross(data.com[0]);
+    {
+      dAg_ang.col(i) += dAg_lin.col(i).cross(data.com[0]) + Ag_lin.col(i).cross(data.vcom[0]);
+    }
     
     return data.dAg;
   }

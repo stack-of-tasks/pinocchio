@@ -202,8 +202,24 @@ BOOST_AUTO_TEST_CASE(test_dccrb)
     oMc.translation() = data.com[0];
     Data::Matrix6x dAg = oMc.toDualActionMatrix() * data.dAg;
     BOOST_CHECK(oMc.isApprox(oMc_ref));
-    BOOST_CHECK(dAg.isApprox(dAg_ref,sqrt(alpha)));
-    BOOST_CHECK(dAg.isApprox(dAg_ref_from_M,sqrt(alpha)));
+    BOOST_CHECK(dAg_ref.isApprox(dAg_ref_from_M, sqrt(alpha)));
+  }
+
+  // Check for dAg/dt
+    {
+    Data data(model);
+    ccrba(model,data_ref,q,v);
+    const Data::Matrix6x Ag_ref = data_ref.Ag;
+    
+    const double alpha = 1e-8;
+    Eigen::VectorXd q_plus(model.nq);
+    q_plus = integrate(model,q,alpha*v);
+    ccrba(model,data_ref,q_plus,v);
+    const Data::Matrix6x Ag_plus_ref = data_ref.Ag;
+    const Data::Matrix6x dAg_ref = (Ag_plus_ref - Ag_ref)/alpha;
+    
+    dccrba(model, data, q, v);
+    BOOST_CHECK(data.dAg.isApprox(dAg_ref,sqrt(alpha)));
   }
   
   // Compute tensor dAg/dq
@@ -240,23 +256,11 @@ BOOST_AUTO_TEST_CASE(test_dccrb)
     Data::Matrix6x dAg_ref(6,model.nv); dAg_ref.setZero();
     for(int k = 0; k < model.nv; ++k)
     {
-      dAg_ref += dAgdq[(size_t)k] * v[k];
+      dAg_ref.col(k) = dAgdq[(size_t)k] * v;
     }
     
-    Data::Matrix6x dAg_ref_bis(6,model.nv); dAg_ref_bis.setZero();
-    for(int k = 0; k < model.nv; ++k)
-    {
-      dAg_ref_bis.col(k) = dAgdq[(size_t)k] * v;
-    }
-    
-    dccrba(model, data, q, v);
-    SE3 oMc(SE3::Identity());
-    oMc.translation() = data.com[0];
-    Data::Matrix6x dAg = oMc.toDualActionMatrix() * data.dAg;
-    BOOST_CHECK(dAg.isApprox(dAg_ref,sqrt(alpha)));
-    BOOST_CHECK(dhdq.isApprox(dAg_ref_bis,sqrt(alpha)));
-    BOOST_CHECK((dAg*v).isApprox(dhdq*v,sqrt(alpha)));
-    
+    BOOST_CHECK(dhdq.isApprox(dAg_ref, sqrt(alpha)));
+    BOOST_CHECK((dAg_ref * v).isApprox(dhdq * v, sqrt(alpha)));
   }
 }
 

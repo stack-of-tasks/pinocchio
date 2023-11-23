@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Raise exception on wrong input size in `XYZQUATToSE3` Python binding function ([#2073](https://github.com/stack-of-tasks/pinocchio/pull/2073))
 - Remove memory leak in `buildGeomFromUrdf` and `buildGeomFromUrdfString` Python binding functions ([#2082]()https://github.com/stack-of-tasks/pinocchio/pull/2082)
 - Fix Panda3D viewer examples ([#2087](https://github.com/stack-of-tasks/pinocchio/pull/2087))
+- Fix centroidal dynamics derivatives with respect to time ([#2094](https://github.com/stack-of-tasks/pinocchio/pull/2094)))
 
 ### Changed
 
