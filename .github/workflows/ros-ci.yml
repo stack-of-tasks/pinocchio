@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         env:
-          - {ROS_DISTRO: melodic}
           - {ROS_DISTRO: noetic}
           - {ROS_DISTRO: rolling, BUILDER: colcon}
     env:
