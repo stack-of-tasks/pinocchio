@@ -71,7 +71,7 @@ namespace pinocchio
                    if_then_else(internal::LT, tr, Scalar(-2),
                                 if_then_else(internal::GE, R (1, 0), Scalar(0),
                                              PI_value, -PI_value), // then
-                                if_then_else(internal::GT, tr, Scalar(2) - 1e-2,
+                                if_then_else(internal::GT, tr, Scalar(2) - Scalar(1e-2),
                                              asin((R(1,0) - R(0,1)) / Scalar(2)), // then
                                              if_then_else(internal::GE, R (1, 0), Scalar(0),
                                                           acos(tr/Scalar(2)), // then

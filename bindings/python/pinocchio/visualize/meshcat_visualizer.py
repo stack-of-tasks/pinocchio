@@ -6,7 +6,6 @@ from . import BaseVisualizer
 import os
 import warnings
 import numpy as np
-from distutils.version import LooseVersion
 
 try:
     import hppfcl
@@ -162,13 +161,7 @@ def loadMesh(mesh):
             tri = call_triangles(k)
             faces[k] = [tri[i] for i in range(3)]
 
-        if LooseVersion(hppfcl.__version__) >= LooseVersion("1.7.7"):
-            vertices = call_vertices()
-        else:
-            vertices = np.empty((num_vertices, 3))
-            for k in range(num_vertices):
-                vertices[k] = call_vertices(k)
-
+        vertices = call_vertices()
         vertices = vertices.astype(np.float32)
 
     if num_tris > 0:

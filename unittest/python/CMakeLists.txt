@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2021 CNRS INRIA
+# Copyright (c) 2015-2023 CNRS INRIA
 #
 
 SET(${PROJECT_NAME}_PYTHON_TESTS
@@ -73,10 +73,24 @@ IF(urdfdom_FOUND)
     )
 ENDIF(urdfdom_FOUND)
 
+SET(${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS
+  bindings_build_geom_from_urdf_memorycheck
+  )
+
 FOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
   ADD_PYTHON_UNIT_TEST("test-py-${TEST}" "unittest/python/${TEST}.py" "bindings/python")
 ENDFOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
 
 MAKE_DIRECTORY("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
+
+IF(MEMORYCHECK_COMMAND AND MEMORYCHECK_COMMAND MATCHES ".*valgrind$")
+  FOREACH(TEST ${${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS})
+    ADD_PYTHON_MEMORYCHECK_UNIT_TEST("test-py-memory-${TEST}"
+      "unittest/python/${TEST}.py"
+      "bindings/python")
+  ENDFOREACH()
+ELSE()
+  MESSAGE(STATUS "Valgrind not found, memory checks are disabled")
+ENDIF()
 
 ADD_SUBDIRECTORY(pybind11)

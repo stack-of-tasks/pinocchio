@@ -47,30 +47,15 @@
 #include <limits>
 #include <assert.h>
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
-#if HPP_FCL_VERSION_AT_LEAST(2,0,0)
-#define PINOCCHIO_HPPFCL_USE_STD_SHARED_PTR
-#endif
-#endif
-
-#ifdef PINOCCHIO_HPPFCL_USE_STD_SHARED_PTR
 #include <memory>
-#else
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#endif
 
 #include <boost/foreach.hpp>
 
 namespace pinocchio
 {
-#ifdef PINOCCHIO_HPPFCL_USE_STD_SHARED_PTR
   using std::shared_ptr;
   using std::make_shared;
-#else
-  using boost::shared_ptr;
-  using boost::make_shared;
-#endif
+  
   struct CollisionPair
   : public std::pair<GeomIndex, GeomIndex>
   {
