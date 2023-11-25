@@ -20,6 +20,14 @@ DEFAULT_COLOR_PROFILES = {
 }
 COLOR_PRESETS = DEFAULT_COLOR_PROFILES.copy()
 
+FRAME_AXIS_POSITIONS = np.array([
+    [0, 0, 0], [1, 0, 0],
+    [0, 0, 0], [0, 1, 0],
+    [0, 0, 0], [0, 0, 1]]).astype(np.float32).T
+FRAME_AXIS_COLORS = np.array([
+    [1, 0, 0], [1, 0.6, 0],
+    [0, 1, 0], [0.6, 1, 0],
+    [0, 0, 1], [0, 0.6, 1]]).astype(np.float32).T
 
 def isMesh(geometry_object):
     """Check whether the geometry object contains a Mesh supported by MeshCat"""
@@ -485,6 +493,9 @@ class MeshcatVisualizer(BaseVisualizer):
         # Visuals
         self.viewerVisualGroupName = self.viewerRootNodeName + "/" + "visuals"
 
+        # Frames
+        self.viewerFramesGroupName = self.viewerRootNodeName + "/" + "frames"
+
         for visual in self.visual_model.geometryObjects:
             self.loadViewerGeometryObject(visual, pin.GeometryType.VISUAL, color)
         self.displayVisuals(True)
@@ -595,6 +606,39 @@ class MeshcatVisualizer(BaseVisualizer):
 
         if visibility:
             self.updatePlacements(pin.GeometryType.VISUAL)
+
+    def drawFrame(
+        self, frame_id, axis_length=0.2, axis_width=2
+    ):
+        import meshcat.geometry as mg
+        frame_name = self.model.frames[frame_id].name
+        frame_viz_name = f"{self.viewerFramesGroupName}/{frame_name}"
+        self.viewer[frame_viz_name].set_object(
+            mg.LineSegments(
+                mg.PointsGeometry(
+                    position=axis_length * FRAME_AXIS_POSITIONS,
+                    color=FRAME_AXIS_COLORS,
+                ),
+                mg.LineBasicMaterial(
+                    linewidth=axis_width,
+                    vertexColors=True,
+                ),
+            )
+        )
+        self.viewer[frame_viz_name].set_transform(
+            self.data.oMf[frame_id].homogeneous
+        )
+        
+    def drawFrames(
+        self, frame_ids=None, axis_length=0.2, axis_width=2
+    ):
+        for fid, _ in enumerate(self.model.frames):
+            if frame_ids is None or fid in frame_ids:
+                self.drawFrame(
+                    fid,
+                    axis_length=axis_length,
+                    axis_width=axis_width,
+                )
 
     def drawFrameVelocities(
         self, frame_id, v_scale=0.2, color=FRAME_VEL_COLOR
