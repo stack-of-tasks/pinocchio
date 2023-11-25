@@ -621,7 +621,7 @@ class MeshcatVisualizer(BaseVisualizer):
         self.viewer[frame_viz_name].set_transform(
             self.data.oMf[frame_id].homogeneous
         )
-        
+
     def drawFrames(
         self, frame_ids=None, axis_length=0.2, axis_width=2
     ):
