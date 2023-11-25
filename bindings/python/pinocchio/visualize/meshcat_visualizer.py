@@ -637,6 +637,7 @@ class MeshcatVisualizer(BaseVisualizer):
         """
         Updates the frame visualizations with the latest transforms from model data.
         """
+        pin.updateFramePlacements(self.model, self.data)
         for fid in self.frame_ids:
             frame_name = self.model.frames[fid].name
             frame_viz_name = f"{self.viewerFramesGroupName}/{frame_name}"
