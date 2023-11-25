@@ -485,13 +485,13 @@ class MeshcatVisualizer(BaseVisualizer):
 
         # Visuals
         self.viewerVisualGroupName = self.viewerRootNodeName + "/" + "visuals"
-
-        # Frames
-        self.viewerFramesGroupName = self.viewerRootNodeName + "/" + "frames"
-
         for visual in self.visual_model.geometryObjects:
             self.loadViewerGeometryObject(visual, pin.GeometryType.VISUAL, color)
         self.displayVisuals(True)
+
+        # Frames
+        self.viewerFramesGroupName = self.viewerRootNodeName + "/" + "frames"
+        self.displayFrames(False)
 
     def reload(self, new_geometry_object, geometry_type=None):
         """Reload a geometry_object given by its name and its type"""
@@ -525,6 +525,9 @@ class MeshcatVisualizer(BaseVisualizer):
 
         if self.display_visuals:
             self.updatePlacements(pin.GeometryType.VISUAL)
+
+        if self.display_frames:
+            self.updateFrames()
 
     def updatePlacements(self, geometry_type):
         if geometry_type == pin.GeometryType.VISUAL:
@@ -600,38 +603,46 @@ class MeshcatVisualizer(BaseVisualizer):
         if visibility:
             self.updatePlacements(pin.GeometryType.VISUAL)
 
-    def drawFrame(
-        self, frame_id, axis_length=0.2, axis_width=2
-    ):
-        import meshcat.geometry as mg
-        frame_name = self.model.frames[frame_id].name
-        frame_viz_name = f"{self.viewerFramesGroupName}/{frame_name}"
-        self.viewer[frame_viz_name].set_object(
-            mg.LineSegments(
-                mg.PointsGeometry(
-                    position=axis_length * FRAME_AXIS_POSITIONS,
-                    color=FRAME_AXIS_COLORS,
-                ),
-                mg.LineBasicMaterial(
-                    linewidth=axis_width,
-                    vertexColors=True,
-                ),
-            )
-        )
-        self.viewer[frame_viz_name].set_transform(
-            self.data.oMf[frame_id].homogeneous
-        )
+    def displayFrames(self, visibility, frame_ids=None, axis_length=0.2, axis_width=2):
+        """Set whether to display frames or not."""
+        self.display_frames = visibility
+        if visibility:
+            self.initializeFrames(frame_ids, axis_length, axis_width)
+        self.viewer[self.viewerFramesGroupName].set_property("visible", visibility)
 
-    def drawFrames(
-        self, frame_ids=None, axis_length=0.2, axis_width=2
-    ):
-        for fid, _ in enumerate(self.model.frames):
+    def initializeFrames(self, frame_ids=None, axis_length=0.2, axis_width=2):
+        """Initializes the frame objects for display."""
+        import meshcat.geometry as mg
+        self.viewer[self.viewerFramesGroupName].delete()
+        self.frame_ids = []
+
+        for fid, frame in enumerate(self.model.frames):
             if frame_ids is None or fid in frame_ids:
-                self.drawFrame(
-                    fid,
-                    axis_length=axis_length,
-                    axis_width=axis_width,
+                frame_viz_name = f"{self.viewerFramesGroupName}/{frame.name}"
+                self.viewer[frame_viz_name].set_object(
+                    mg.LineSegments(
+                        mg.PointsGeometry(
+                            position=axis_length * FRAME_AXIS_POSITIONS,
+                            color=FRAME_AXIS_COLORS,
+                        ),
+                        mg.LineBasicMaterial(
+                            linewidth=axis_width,
+                            vertexColors=True,
+                        ),
+                    )
                 )
+                self.frame_ids.append(fid)
+
+    def updateFrames(self):
+        """
+        Updates the frame visualizations with the latest transforms from model data.
+        """
+        for fid in self.frame_ids:
+            frame_name = self.model.frames[fid].name
+            frame_viz_name = f"{self.viewerFramesGroupName}/{frame_name}"
+            self.viewer[frame_viz_name].set_transform(
+                self.data.oMf[fid].homogeneous
+            )
 
     def drawFrameVelocities(
         self, frame_id, v_scale=0.2, color=FRAME_VEL_COLOR
