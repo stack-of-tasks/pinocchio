@@ -22,15 +22,15 @@ namespace pinocchio
     /// \brief Name of the kinematic element
     std::string name;
 
+    /// \brief Index of the parent joint
+    JointIndex parentJoint;
+
     /// \brief Index of the parent frame
     ///
     /// Parent frame may be unset (to the std::numeric_limits<FrameIndex>::max() value) as it is mostly used as a documentation of the tree, or in third-party libraries.
     /// The URDF parser of Pinocchio is setting it to the proper value according to the urdf link-joint tree.
     /// In particular, anchor joints of URDF would cause parent frame to be different to joint frame.
     FrameIndex parentFrame;
-
-    /// \brief Index of the parent joint
-    JointIndex parentJoint;
 
     /// \brief Position of kinematic element in parent joint frame
     SE3 placement;
@@ -40,8 +40,8 @@ namespace pinocchio
     ///
     ModelItem()
     : name()
-    , parentFrame()
     , parentJoint()
+    , parentFrame()
     , placement()
     {}
 
@@ -59,8 +59,8 @@ namespace pinocchio
               const FrameIndex parent_frame,
               const SE3 & frame_placement)
       : name(name)
-      , parentFrame(parent_frame)
       , parentJoint(parent_joint)
+      , parentFrame(parent_frame)
       , placement(frame_placement)
     {}
 
