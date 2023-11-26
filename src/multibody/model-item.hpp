@@ -64,6 +64,14 @@ namespace pinocchio
       , placement(frame_placement)
     {}
 
+    bool operator==(const ModelItem & other) const
+    {
+      return
+         name == other.name
+      && parentJoint == other.parentJoint
+      && parentFrame == other.parentFrame
+      && placement == other.placement;
+    }
 
   };
 } //namespace pinocchio
