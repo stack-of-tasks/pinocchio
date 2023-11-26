@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2021 INRIA
+// Copyright (c) 2019-2023 INRIA
 //
 
 #include "pinocchio/multibody/data.hpp"
@@ -21,6 +21,7 @@
 #include "pinocchio/serialization/geometry.hpp"
 
 #include "pinocchio/parsers/sample-models.hpp"
+
 
 #include <iostream>
 
@@ -62,6 +63,18 @@ struct call_equality_op< pinocchio::Tensor<Scalar,NumIndices,Options,IndexType> 
 #endif
 
 template<typename T>
+struct empty_contructor_algo
+{
+  static T * run() { return new T(); }
+};
+
+template<typename T>
+T * empty_contructor()
+{
+  return empty_contructor_algo<T>::run();
+}
+
+template<typename T>
 void generic_test(const T & object,
                   const std::string & filename,
                   const std::string & tag_name)
@@ -73,11 +86,13 @@ void generic_test(const T & object,
   saveToText(object,txt_filename);
   
   {
-    T object_loaded;
+    T & object_loaded = *empty_contructor<T>();
     loadFromText(object_loaded,txt_filename);
     
     // Check
     BOOST_CHECK(run_call_equality_op(object_loaded,object));
+
+    delete &object_loaded;
   }
   
   // Load and save as string stream (TXT format)
@@ -85,24 +100,28 @@ void generic_test(const T & object,
   saveToStringStream(object,ss_out);
   
   {
-    T object_loaded;
+    T & object_loaded = *empty_contructor<T>();
     std::istringstream is(ss_out.str());
     loadFromStringStream(object_loaded,is);
     
     // Check
     BOOST_CHECK(run_call_equality_op(object_loaded,object));
+
+    delete &object_loaded;
   }
   
   // Load and save as string
   std::string str_out = saveToString(object);
   
   {
-    T object_loaded;
+    T & object_loaded = *empty_contructor<T>();
     std::string str_in(str_out);
     loadFromString(object_loaded,str_in);
     
     // Check
     BOOST_CHECK(run_call_equality_op(object_loaded,object));
+
+    delete &object_loaded;
   }
   
   // Load and save as XML
@@ -110,11 +129,13 @@ void generic_test(const T & object,
   saveToXML(object,xml_filename,tag_name);
   
   {
-    T object_loaded;
+    T & object_loaded = *empty_contructor<T>();
     loadFromXML(object_loaded,xml_filename,tag_name);
     
     // Check
     BOOST_CHECK(run_call_equality_op(object_loaded,object));
+
+    delete &object_loaded;
   }
   
   // Load and save as binary
@@ -122,11 +143,13 @@ void generic_test(const T & object,
   saveToBinary(object,bin_filename);
   
   {
-    T object_loaded;
+    T & object_loaded = *empty_contructor<T>();
     loadFromBinary(object_loaded,bin_filename);
     
     // Check
     BOOST_CHECK(run_call_equality_op(object_loaded,object));
+
+    delete &object_loaded;
   }
   
   // Load and save as binary stream
@@ -134,11 +157,13 @@ void generic_test(const T & object,
   saveToBinary(object,buffer);
   
   {
-    T object_loaded;
+    T & object_loaded = *empty_contructor<T>();
     loadFromBinary(object_loaded,buffer);
     
     // Check
     BOOST_CHECK(run_call_equality_op(object_loaded,object));
+
+    delete &object_loaded;
   }
   
   // Load and save as static binary stream
@@ -146,11 +171,13 @@ void generic_test(const T & object,
   saveToBinary(object,static_buffer);
   
   {
-    T object_loaded;
+    T & object_loaded = *empty_contructor<T>();
     loadFromBinary(object_loaded,static_buffer);
     
     // Check
     BOOST_CHECK(run_call_equality_op(object_loaded,object));
+
+    delete &object_loaded;
   }
 }
 
