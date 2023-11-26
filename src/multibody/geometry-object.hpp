@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2022 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_geometry_object_hpp__
@@ -50,10 +50,6 @@ struct GeometryObject : public ModelItem<GeometryObject>
   /// \brief The FCL CollisionGeometry (might be a Mesh, a Geometry Primitive, etc.)
   CollisionGeometryPtr geometry;
 
-  /// \brief The former pointer to the FCL CollisionGeometry.
-  /// \deprecated It is now deprecated and has been renamed GeometryObject::geometry
-  PINOCCHIO_DEPRECATED CollisionGeometryPtr & fcl;
-
   /// \brief Absolute path to the mesh file (if the fcl pointee is also a Mesh)
   std::string meshPath;
 
@@ -72,8 +68,6 @@ struct GeometryObject : public ModelItem<GeometryObject>
   /// \brief If true, no collision or distance check will be done between the Geometry and any other geometry
   bool disableCollision;
 
-PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ///
   /// \brief Full constructor.
   ///
@@ -98,7 +92,7 @@ GeometryObject(const std::string &name,
                const bool overrideMaterial = false,
                const Eigen::Vector4d &meshColor = Eigen::Vector4d(0, 0, 0, 1),
                const std::string &meshTexturePath = "")
-    : Base(name, parent_joint, parent_frame, placement), geometry(collision_geometry), fcl(geometry), meshPath(meshPath), meshScale(meshScale), overrideMaterial(overrideMaterial), meshColor(meshColor), meshTexturePath(meshTexturePath), disableCollision(false)
+    : Base(name, parent_joint, parent_frame, placement), geometry(collision_geometry), meshPath(meshPath), meshScale(meshScale), overrideMaterial(overrideMaterial), meshColor(meshColor), meshTexturePath(meshTexturePath), disableCollision(false)
 {}
 
   ///
@@ -129,7 +123,6 @@ GeometryObject(const std::string &name,
                                       const std::string & meshTexturePath = "")
   : Base(name, parent_joint, parent_frame, placement)
   , geometry(collision_geometry)
-  , fcl(geometry)
   , meshPath(meshPath)
   , meshScale(meshScale)
   , overrideMaterial(overrideMaterial)
@@ -138,10 +131,6 @@ GeometryObject(const std::string &name,
   , disableCollision(false)
   {}
 
-PINOCCHIO_COMPILER_DIAGNOSTIC_POP
-
-PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ///
   /// \brief Reduced constructor.
   /// \remarks Compared to the other constructor, this one assumes that there is no parentFrame associated to the geometry.
@@ -165,7 +154,7 @@ GeometryObject(const std::string &name,
                const bool overrideMaterial = false,
                const Eigen::Vector4d &meshColor = Eigen::Vector4d(0, 0, 0, 1),
                const std::string &meshTexturePath = "")
-    : Base(name, parent_joint, std::numeric_limits<FrameIndex>::max(), placement), geometry(collision_geometry), fcl(geometry), meshPath(meshPath), meshScale(meshScale), overrideMaterial(overrideMaterial), meshColor(meshColor), meshTexturePath(meshTexturePath), disableCollision(false)
+    : Base(name, parent_joint, std::numeric_limits<FrameIndex>::max(), placement), geometry(collision_geometry), meshPath(meshPath), meshScale(meshScale), overrideMaterial(overrideMaterial), meshColor(meshColor), meshTexturePath(meshTexturePath), disableCollision(false)
 {}
 
 
@@ -194,19 +183,14 @@ GeometryObject(const std::string &name,
                                       const bool overrideMaterial = false,
                                       const Eigen::Vector4d &meshColor = Eigen::Vector4d(0, 0, 0, 1),
                                       const std::string &meshTexturePath = "")
-      : Base(name, parent_joint, std::numeric_limits<FrameIndex>::max(), placement), geometry(collision_geometry), fcl(geometry), meshPath(meshPath), meshScale(meshScale), overrideMaterial(overrideMaterial), meshColor(meshColor), meshTexturePath(meshTexturePath), disableCollision(false)
+      : Base(name, parent_joint, std::numeric_limits<FrameIndex>::max(), placement), geometry(collision_geometry), meshPath(meshPath), meshScale(meshScale), overrideMaterial(overrideMaterial), meshColor(meshColor), meshTexturePath(meshTexturePath), disableCollision(false)
   {}
 
-PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
-PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   GeometryObject(const GeometryObject & other)
-  : fcl(geometry)
   {
     *this = other;
   }
-PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   GeometryObject & operator=(const GeometryObject & other)
   {
