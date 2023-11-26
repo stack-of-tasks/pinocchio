@@ -5,12 +5,11 @@
 #ifndef __pinocchio_multibody_geometry_object_hpp__
 #define __pinocchio_multibody_geometry_object_hpp__
 
+#include "pinocchio/utils/shared-ptr.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/model-item.hpp"
 #include "pinocchio/multibody/fcl.hpp"
-
-#include <memory>
 
 namespace pinocchio
 {
@@ -232,7 +231,6 @@ GeometryObject(const std::string &name,
        name                == other.name
     && parentFrame         == other.parentFrame
     && parentJoint         == other.parentJoint
-    && *geometry.get()     == *other.geometry.get()
     && placement           == other.placement
     && meshPath            == other.meshPath
     && meshScale           == other.meshScale
@@ -240,9 +238,10 @@ GeometryObject(const std::string &name,
     && meshColor           == other.meshColor
     && meshTexturePath     == other.meshTexturePath
     && disableCollision    == other.disableCollision
+    && compare_shared_ptr(geometry,other.geometry)
     ;
   }
-  
+
   bool operator!=(const GeometryObject & other) const
   {
     return !(*this == other);
