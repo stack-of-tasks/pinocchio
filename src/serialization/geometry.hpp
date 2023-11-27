@@ -12,6 +12,10 @@
   #define HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
   #include <hpp/fcl/serialization/collision_data.h>
   #undef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
+  #include <hpp/fcl/serialization/geometric_shapes.h>
+  #include <hpp/fcl/serialization/hfield.h>
+  #include <hpp/fcl/serialization/octree.h>
+  #include <hpp/fcl/serialization/convex.h>
 #endif // PINOCCHIO_WITH_HPP_FCL
 
 #include "pinocchio/multibody/geometry.hpp"
@@ -40,6 +44,23 @@ namespace boost
       ar & make_nvp("parentJoint",model_item.parentJoint);
       ar & make_nvp("placement",model_item.placement);
     }
+
+    template<class Archive>
+    void serialize(Archive & ar,
+                   pinocchio::GeometryObject & geometry_object,
+                   const unsigned int /*version*/)
+    {
+      hpp::fcl::serialization::register_type<::hpp::fcl::CollisionGeometry>::on(ar);
+      ar & make_nvp("base",base_object<pinocchio::GeometryObject::Base>(geometry_object));
+      ar & make_nvp("geometry",geometry_object.geometry);
+      ar & make_nvp("meshPath",geometry_object.meshPath);
+      ar & make_nvp("meshScale",geometry_object.meshScale);
+      ar & make_nvp("overrideMaterial",geometry_object.overrideMaterial);
+      ar & make_nvp("meshColor",geometry_object.meshColor);
+      ar & make_nvp("meshTexturePath",geometry_object.meshTexturePath);
+      ar & make_nvp("disableCollision",geometry_object.disableCollision);
+    }
+
     template<class Archive>
     void serialize(Archive & ar,
                    pinocchio::GeometryData & geom_data,
