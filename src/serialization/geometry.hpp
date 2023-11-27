@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2023 INRIA
 //
 
 #ifndef __pinocchio_serialization_multibody_geometry_hpp__
@@ -29,7 +29,17 @@ namespace boost
     {
       ar & make_nvp("pair",base_object<pinocchio::CollisionPair::Base>(collision_pair));
     }
-  
+
+    template<class Archive, typename Derived>
+    void serialize(Archive & ar,
+                   pinocchio::ModelItem<Derived> & model_item,
+                   const unsigned int /*version*/)
+    {
+      ar & make_nvp("name",model_item.name);
+      ar & make_nvp("parentFrame",model_item.parentFrame);
+      ar & make_nvp("parentJoint",model_item.parentJoint);
+      ar & make_nvp("placement",model_item.placement);
+    }
     template<class Archive>
     void serialize(Archive & ar,
                    pinocchio::GeometryData & geom_data,
