@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2.6.21] - 2023-11-27
+
 ### Added
 
 - Add inverse dynamics (`rnea`) Python and C++ example ([#2083](https://github.com/stack-of-tasks/pinocchio/pull/2083))
@@ -811,7 +813,8 @@ The model can either be parsed from a URDF format or be created by appendending 
         • Fixed (concatenation of two consecutive bodies)
 
 
-[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.20...HEAD
+[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.21...HEAD
+[2.6.21]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.20...v2.6.21
 [2.6.20]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.19...v2.6.20
 [2.6.19]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.18...v2.6.19
 [2.6.18]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.17...v2.6.18
