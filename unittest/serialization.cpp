@@ -68,6 +68,15 @@ struct empty_contructor_algo
   static T * run() { return new T(); }
 };
 
+template<>
+struct empty_contructor_algo<pinocchio::GeometryObject>
+{
+  static pinocchio::GeometryObject * run()
+  {
+    return new pinocchio::GeometryObject("",0,0,pinocchio::SE3::Identity(),nullptr);
+  }
+};
+
 template<typename T>
 T * empty_contructor()
 {
@@ -748,6 +757,47 @@ BOOST_AUTO_TEST_CASE(test_data_serialization)
   Data data(model);
   
   generic_test(data,TEST_SERIALIZATION_FOLDER"/Data","Data");
+}
+
+BOOST_AUTO_TEST_CASE(test_collision_pair)
+{
+  using namespace pinocchio;
+
+  CollisionPair collision_pair(1,2);
+  generic_test(collision_pair,TEST_SERIALIZATION_FOLDER"/CollisionPair","CollisionPair");
+}
+
+BOOST_AUTO_TEST_CASE(test_model_item)
+{
+  using namespace pinocchio;
+
+  typedef GeometryObject::Base GeometryObject_ModelItem;
+  GeometryObject_ModelItem model_item("pinocchio",1,2,SE3::Random());
+  generic_test(model_item,TEST_SERIALIZATION_FOLDER"/ModelItem","ModelItem");
+}
+
+BOOST_AUTO_TEST_CASE(test_geometry_object)
+{
+  using namespace pinocchio;
+
+  {
+    GeometryObject geometry_object("nullptr",1,2,SE3::Random(),nullptr);
+    generic_test(geometry_object,TEST_SERIALIZATION_FOLDER"/GeometryObject","GeometryObject");
+  }
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
+  typedef GeometryObject::CollisionGeometryPtr CollisionGeometryPtr;
+  {
+    hpp::fcl::Box box(1.,2.,3.);
+    generic_test(box,TEST_SERIALIZATION_FOLDER"/Box","Box");
+  }
+
+  {
+    CollisionGeometryPtr box_ptr = CollisionGeometryPtr(new hpp::fcl::Box(1.,2.,3.));
+    GeometryObject geometry_object("box",1,2,SE3::Random(),box_ptr);
+    generic_test(geometry_object,TEST_SERIALIZATION_FOLDER"/GeometryObject","GeometryObject");
+  }
+#endif
 }
 
 BOOST_AUTO_TEST_CASE(test_geometry_data_serialization)
