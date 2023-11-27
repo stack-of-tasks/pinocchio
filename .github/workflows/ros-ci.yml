@@ -12,7 +12,6 @@ jobs:
     strategy:
       matrix:
         env:
-          - {ROS_DISTRO: melodic}
           - {ROS_DISTRO: noetic}
           - {ROS_DISTRO: rolling, BUILDER: colcon}
     env:
@@ -30,7 +29,7 @@ jobs:
       IMMEDIATE_TEST_OUTPUT: 1
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       # This step will fetch/store the directory used by ccache before/after the ci run

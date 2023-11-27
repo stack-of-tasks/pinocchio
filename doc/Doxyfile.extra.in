@@ -292,7 +292,7 @@ WARN_LOGFILE           = @CMAKE_BINARY_DIR@/doc/doxygen.log
 # with spaces.
 
 INPUT                 = @CMAKE_SOURCE_DIR@/doc \
-                        @CMAKE_SOURCE_DIR@/src
+                        @CMAKE_SOURCE_DIR@/include
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
 # should be searched for input files as well. Possible values are YES and NO.
@@ -625,7 +625,7 @@ EXPAND_AS_DEFINED      =
 # contain include files that are not input files but should be processed by
 # the preprocessor.
 
-INCLUDE_PATH          = @PROJECT_SOURCE_DIR@/src
+INCLUDE_PATH          = @PROJECT_SOURCE_DIR@/include
 
 #---------------------------------------------------------------------------
 # Configuration::additions related to external references

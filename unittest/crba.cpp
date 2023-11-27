@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 //
 
 /*
@@ -146,6 +146,15 @@ BOOST_AUTO_TEST_CASE(test_minimal_crba)
   computeJointJacobians(model,data_ref,q);
   BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
   BOOST_CHECK(data.J.isApprox(data_ref.J));
+
+  // Check double call
+  {
+    pinocchio::Data data2(model);
+    crbaMinimal(model,data2,q);
+    crbaMinimal(model,data2,q);
+
+    BOOST_CHECK(data2.Ycrb[0] == data.Ycrb[0]);
+  }
   
 }
 

@@ -211,6 +211,7 @@ namespace pinocchio
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
     typedef CrbaForwardStepMinimal<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
+    data.Ycrb[0].setZero();
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],

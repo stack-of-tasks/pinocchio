@@ -56,18 +56,11 @@ BOOST_AUTO_TEST_CASE ( build_model_simple_humanoid )
   BOOST_CHECK_EQUAL(geomModel.geometryObjects[0].geometry->getNodeType(), hpp::fcl::GEOM_CAPSULE);
 #endif
 
-#if ( HPP_FCL_MAJOR_VERSION>1 || ( HPP_FCL_MAJOR_VERSION==1 && \
-      ( HPP_FCL_MINOR_VERSION>1 || ( HPP_FCL_MINOR_VERSION==1 && \
-                                     HPP_FCL_PATCH_VERSION>3))))
-#  define PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
-#endif
-
-#if defined(PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3) && !defined(PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME)
+#ifndef PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
   BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].geometry->getNodeType(), hpp::fcl::GEOM_CONVEX);
-#undef PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
-#else // PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3 && !PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
+#else // PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
   BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].geometry->getObjectType(), hpp::fcl::OT_BVH);
-#endif // PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3 && !PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
+#endif
 #endif // PINOCCHIO_WITH_HPP_FCL
   
   pinocchio::Model model_ff;

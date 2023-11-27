@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2020 CNRS INRIA
 //
 
+#include <sstream>
+
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/spatial/se3.hpp"
 
@@ -35,23 +37,33 @@ namespace pinocchio
     template <typename TupleOrList>
     SE3 XYZQUATToSE3_bp(const TupleOrList& v)
     {
-      //bp::extract<SE3::Scalar> to_double;
+      ssize_t size = bp::len(v);
+      if(size != 7)
+      {
+        throw std::invalid_argument(
+            "Wrong size: v(" + std::to_string(size) + ") should have 7 elements");
+      }
       SE3::Quaternion q (
-          (Scalar)bp::extract<Scalar>(v[6]),
-          (Scalar)bp::extract<Scalar>(v[3]),
-          (Scalar)bp::extract<Scalar>(v[4]),
-          (Scalar)bp::extract<Scalar>(v[5]));
+          static_cast<Scalar>(bp::extract<Scalar>(v[6])),
+          static_cast<Scalar>(bp::extract<Scalar>(v[3])),
+          static_cast<Scalar>(bp::extract<Scalar>(v[4])),
+          static_cast<Scalar>(bp::extract<Scalar>(v[5])));
       SE3::Vector3 t (
-          (Scalar)bp::extract<Scalar>(v[0]),
-          (Scalar)bp::extract<Scalar>(v[1]),
-          (Scalar)bp::extract<Scalar>(v[2]));
+          static_cast<Scalar>(bp::extract<Scalar>(v[0])),
+          static_cast<Scalar>(bp::extract<Scalar>(v[1])),
+          static_cast<Scalar>(bp::extract<Scalar>(v[2])));
       return SE3 (q.matrix(), t);
     }
 
     template <typename Vector7Like>
     SE3 XYZQUATToSE3_ei(const Vector7Like& v)
     {
-      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector7Like, v, 7, 1);
+      if(v.rows() != 7 || v.cols() != 1)
+      {
+        std::ostringstream shape;
+        shape << "(" << v.rows() << ", " << v.cols() << ")";
+        throw std::invalid_argument("Wrong size: v" + shape.str() + " but should have the following shape (7, 1)");
+      }
       QuatConstMap q (v.template tail<4>().data());
       return SE3 (q.matrix(), v.template head<3>());
     }
