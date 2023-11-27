@@ -14,8 +14,6 @@
 
 #include "pinocchio/multibody/geometry.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryModel)
-
 namespace pinocchio
 {
   namespace python

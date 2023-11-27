@@ -20,8 +20,6 @@
 
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Data)
-
 namespace pinocchio
 {
   namespace python

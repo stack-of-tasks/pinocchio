@@ -17,9 +17,6 @@
 #include <eigenpy/user-type.hpp>
 #include <eigenpy/ufunc.hpp>
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Quaternion);
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::AngleAxis);
-
 namespace pinocchio
 {
   namespace python

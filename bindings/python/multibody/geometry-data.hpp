@@ -18,8 +18,6 @@
 
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
-
 namespace pinocchio
 {
   namespace python

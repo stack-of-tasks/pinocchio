@@ -12,8 +12,6 @@
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/comparable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::ContactCholeskyDecomposition)
-
 namespace pinocchio
 {
   namespace python

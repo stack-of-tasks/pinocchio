@@ -18,8 +18,6 @@
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
-//EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::BroadPhaseManagerPool)
-
 namespace pinocchio
 {
   namespace python

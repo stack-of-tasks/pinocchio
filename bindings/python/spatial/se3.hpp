@@ -23,8 +23,6 @@
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/namespace.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::SE3)
-
 namespace pinocchio
 {
   namespace python
