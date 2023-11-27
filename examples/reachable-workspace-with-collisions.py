@@ -1,11 +1,21 @@
 import meshcat.geometry as g
 import pinocchio as pin
+import numpy as np
 import sys
 from os.path import dirname, join, abspath
 import time
-import numpy as np
+import itertools
 
 from pinocchio.visualize import MeshcatVisualizer
+
+
+def XYZRPYtoSE3(xyzrpy):
+    rotate = pin.utils.rotate
+    R = rotate("x", xyzrpy[3]) @ rotate("y",
+                                        xyzrpy[4]) @ rotate("z", xyzrpy[5])
+    p = np.array(xyzrpy[:3])
+    return pin.SE3(R, p)
+
 
 # Load the URDF model.
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
@@ -21,6 +31,43 @@ robot, collision_model, visual_model = pin.buildModelsFromUrdf(
     urdf_model_path, mesh_dir
 )
 data = robot.createData()
+
+# Obstacle map
+# Capsule obstacles will be placed at these XYZ-RPY parameters
+oMobs = [
+    [0.40, 0.0, 0.30, np.pi / 2, 0, 0],
+    [-0.08, -0.0, 0.75, np.pi / 2, 0, 0],
+    [0.23, -0.0, 0.04, np.pi / 2, 0, 0],
+]
+
+# Load visual objects and add them in collision/visual models
+color = [1.0, 0.2, 0.2, 1.0]  # color of the capsules
+rad, length = 0.1, 0.4  # radius and length of capsules
+for i, xyzrpy in enumerate(oMobs):
+    obs = pin.GeometryObject.CreateCapsule(
+        rad, length)  # Pinocchio obstacle object
+    obs.meshColor = np.array(
+        [1.0, 0.2, 0.2, 1.0]
+    )  # Don't forget me, otherwise I am transparent ...
+    obs.name = "obs%d" % i  # Set object name
+    obs.parentJoint = 0  # Set object parent = 0 = universe
+    obs.placement = XYZRPYtoSE3(xyzrpy)  # Set object placement wrt parent
+    collision_model.addGeometryObject(obs)  # Add object to collision model
+    visual_model.addGeometryObject(obs)  # Add object to visual model
+
+# Collision pairs
+nobs = len(oMobs)
+nbodies = collision_model.ngeoms - nobs
+robotBodies = range(nbodies)
+envBodies = range(nbodies, nbodies + nobs)
+collision_model.removeAllCollisionPairs()
+for a, b in itertools.product(robotBodies, envBodies):
+    collision_model.addCollisionPair(pin.CollisionPair(a, b))
+
+# Geom data
+# Collision/visual models have been modified => re-generate corresponding data.
+collision_data = pin.GeometryData(collision_model)
+visual_data = pin.GeometryData(visual_model)
 
 # Start a new MeshCat server and client.
 viz = MeshcatVisualizer(robot, collision_model, visual_model)
@@ -45,11 +92,11 @@ n_samples = 5
 facet_dims = 2
 
 # To have convex hull computation or just the points of the reachable workspace and then compute it with cgal
-convex = True
+convex = False
 
 if convex:
-    verts, faces = pin.reachableWorkspaceHull(
-        robot, q0, horizon, frame, n_samples, facet_dims
+    verts, faces = pin.reachableWorkspaceWithCollisionsHull(
+        robot, collision_model, q0, horizon, frame, n_samples, facet_dims
     )
     verts = verts.T
 
@@ -92,19 +139,20 @@ else:
         # Compute alpha shape
         Q = Polyhedron_3()
         a = alpha_wrap_3(points, alpha_value, 0.01, Q)
-
         alpha_shape_vertices = np.array(
             [vertex_to_tuple(vertex.point()) for vertex in Q.vertices()])
+
         alpha_shape_faces = np.array(
             [np.array(halfedge_to_triangle(face.halfedge())) for face in Q.facets()])
 
         return alpha_shape_vertices, alpha_shape_faces
 
-    verts = pin.reachableWorkspace(
-        robot, q0, horizon, frame, n_samples, facet_dims)
+    verts = pin.reachableWorkspaceWithCollisions(
+        robot, collision_model, q0, horizon, frame, n_samples, facet_dims
+    )
     verts = verts.T
 
-    alpha = 0.2
+    alpha = 0.1
     verts, faces = alpha_shape_with_cgal(verts, alpha)
     verts = faces.reshape(-1, 3)
     faces = np.arange(len(verts)).reshape(-1, 3)

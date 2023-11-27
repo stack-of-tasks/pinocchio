@@ -22,26 +22,81 @@ namespace pinocchio
                             const Eigen::MatrixBase<ConfigVectorType> &q0,
                             const double time_horizon, 
                             const int frame_id,
+                            Eigen::MatrixXd &vertex,
+                            const ReachableSetParams &params)
+    {
+        PINOCCHIO_CHECK_ARGUMENT_SIZE(q0.size(), model.nq, "The configuration vector is not of the right size");
+
+        auto f = [](const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                          DataTpl<Scalar,Options,JointCollectionTpl> & data) -> bool
+        {
+            return true;
+        };
+
+        internal::computeVertex(model, q0, time_horizon, frame_id, f, vertex, params);
+    }
+
+    template <typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+    void reachableWorkspaceHull(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, 
+                            const Eigen::MatrixBase<ConfigVectorType> &q0,
+                            const double time_horizon, 
+                            const int frame_id,
                             ReachableSetResults &res,
+                            const ReachableSetParams &params)
+    {
+        reachableWorkspace(model, q0, time_horizon, frame_id, res.vertex, params);
+        internal::buildConvexHull(res);
+    }
+    
+#ifdef PINOCCHIO_WITH_HPP_FCL
+    template <typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+    void reachableWorkspaceWithCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, 
+                            const GeometryModel & geom_model,
+                            const Eigen::MatrixBase<ConfigVectorType> &q0,
+                            const double time_horizon, 
+                            const int frame_id,
+                            Eigen::MatrixXd &vertex,
                             const ReachableSetParams &params)
     {
         using namespace pinocchio::internal;
 
         PINOCCHIO_CHECK_ARGUMENT_SIZE(q0.size(), model.nq, "The configuration vector is not of the right size");
 
-        internal::computeVertex(model, q0, time_horizon, frame_id, res.vertex, params);
-        internal::buildConvexHull(res);
+        GeometryData geom_data(geom_model); 
 
+        auto f = [&geom_model, &geom_data](const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                           DataTpl<Scalar,Options,JointCollectionTpl> & data) -> bool
+        {   
+            updateGeometryPlacements(model,data,geom_model,geom_data);
+            return !pinocchio::computeCollisions(geom_model, geom_data, true);
+        };
+
+        internal::computeVertex(model, q0, time_horizon, frame_id, f, vertex, params);
     }
 
-    namespace internal
-    {
-
-        template <typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-        void computeVertex(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, 
+    template <typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+    void reachableWorkspaceWithCollisionsHull(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, 
+                            const GeometryModel & geom_model,
                             const Eigen::MatrixBase<ConfigVectorType> &q0,
                             const double time_horizon, 
                             const int frame_id,
+                            ReachableSetResults &res,
+                            const ReachableSetParams &params)
+    {
+        reachableWorkspaceWithCollisions(model, geom_model, q0, time_horizon, frame_id, res.vertex, params);
+        internal::buildConvexHull(res);
+
+    }
+#endif // PINOCCHIO_WITH_HPP_FCL
+
+    namespace internal
+    {
+        template <typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, class FilterFunction>
+        void computeVertex(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            const Eigen::MatrixBase<ConfigVectorType> &q0,
+                            const double time_horizon, 
+                            const int frame_id,
+                            FilterFunction config_filter,
                             Eigen::MatrixXd &vertex,
                             const ReachableSetParams &params)
         {
@@ -52,7 +107,7 @@ namespace pinocchio
             using VectorXs = typename Data::VectorXs;
 
             Data data(model);
-
+            
             // // Get limits 
             VectorXs dq_max = model.velocityLimit;
             VectorXs dq_min = -model.velocityLimit;
@@ -145,11 +200,15 @@ namespace pinocchio
                         pinocchio::integrate(model, q0, qv*time_percent, q);
                         framesForwardKinematics(model, data, q);
                         //Store operational position as a point for hull computation
-                        vertex.col(c_vertex) = data.oMf[frame_id].translation();
-                        c_vertex++;   
+                        if(config_filter(model, data))
+                        {
+                            vertex.col(c_vertex) = data.oMf[frame_id].translation();
+                            c_vertex++;  
+                        }
                     }
                 }
             }
+            vertex.conservativeResize(3, c_vertex);
         }
         
         void computeJointVel(const Eigen::VectorXd &res1, const Eigen::VectorXd &res2, const Eigen::VectorXi &comb, Eigen::VectorXd &qv)

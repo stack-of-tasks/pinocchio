@@ -5,44 +5,17 @@
 #include "pinocchio/algorithm/reachable-workspace.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/geometry.hpp"
+#include "pinocchio/parsers/urdf.hpp"
 
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-
-/// @brief Create a planar 2dof robot
-/// @param length length of the prismatic joints
-/// @return pinochio model
-static pinocchio::Model createPlanarRobot(double length)
-{
-    using namespace pinocchio;
-    typedef SE3::Vector3 Vector3;
-    typedef SE3::Matrix3 Matrix3;
-
-    Model modelR;
-    Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
-    SE3 pos(1); pos.translation() = SE3::LinearType(0, 0.,0.);
-
-    Model::JointIndex idx;
-    Eigen::VectorXd effortMax = Eigen::VectorXd::Constant(1, 0.2);
-    Eigen::VectorXd velLim = Eigen::VectorXd::Constant(1, 0.5);
-    Eigen::VectorXd posMin = Eigen::VectorXd::Zero(1);
-    
-    Eigen::VectorXd posMax = Eigen::VectorXd::Constant(1, length);
-
-    idx = modelR.addJoint(0, JointModelPX(), pos, "px", effortMax, velLim, posMin, posMax);
-    modelR.appendBodyToJoint(idx, inertia);
-    pos.translation() = SE3::LinearType(length, 0.,0.);
-    idx = modelR.addJoint(0, JointModelPY(), pos, "py", effortMax, velLim, posMin, posMax);
-    modelR.appendBodyToJoint(idx, inertia);
-    pos.translation() = SE3::LinearType(0, 0, 0.);
-    Frame f("frame_test", idx, modelR.getFrameId("py"), pos, OP_FRAME);
-    modelR.addFrame(f);
-
-    return modelR;
-}
+#ifdef PINOCCHIO_WITH_HPP_FCL
+#include <hpp/fcl/collision_object.h>
+#endif // PINOCCHIO_WITH_HPP_FCL
 
 /// @brief Create a spherical joint with a stick of length l attached to it
 /// @param length length of the stick
@@ -74,6 +47,63 @@ static pinocchio::Model createSpherical(double length)
 }
 
 
+/// @brief Create a fixture structure for boost test case. It will create a 3DOF robot with prismatic joints and initialize all variables needed for tests of the reachable workspace.
+struct robotCreationFixture{
+    robotCreationFixture()
+    {
+        using namespace pinocchio;
+        length = 1;
+        filename = PINOCCHIO_MODEL_DIR + std::string("/../unittest/models/3DOF_planar.urdf");
+        
+        pinocchio::urdf::buildModel(filename,model);
+        SE3 pos(1); pos.translation() = SE3::LinearType(0, 0.,0.);
+        Frame f("frame_test", 3, model.getFrameId("px"), pos, OP_FRAME);
+        model.addFrame(f);
+
+        q = Eigen::VectorXd::Zero(3);
+
+        param.n_samples = 5;
+        param.facet_dims = 2;
+
+        time_horizon = 0.5;
+        frame_name = model.nframes - 1;
+    }
+    // Robot model
+    pinocchio::Model model;
+    // Name of the urdf
+    std::string filename;
+    // Configuration vector for which the workspace will be computed
+    Eigen::VectorXd q;
+    // Parameter of the algorithm
+    pinocchio::ReachableSetParams param;
+    // Length of the articulation
+    double length;
+    // Time horizon for reachable workspace computation
+    double time_horizon;
+    // Frame for which the workspace will be computed
+    int frame_name;
+};
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
+/// @brief Create an obstacle to add to the geometry model
+/// @param distance where to put the object
+/// @param dimension dimension of the box
+static void addObstacle(pinocchio::GeometryModel &geom_model, const double distance, const double dimension)
+{
+    std::shared_ptr<pinocchio::fcl::CollisionGeometry> geometry = std::make_shared<pinocchio::fcl::Box>(dimension, dimension, dimension);
+    std::string geometry_object_name = "obstacle";
+    pinocchio::SE3 geomPlacement(1);
+    geomPlacement.translation() = pinocchio::SE3::LinearType(distance, 0, 0);
+
+    pinocchio::Model::JointIndex idxJ = 0;
+    pinocchio::Model::FrameIndex idxF = 0;
+
+    pinocchio::GeometryObject geometry_object(geometry_object_name,
+                                    idxJ, idxF,
+                                    geomPlacement, geometry);
+    geom_model.addGeometryObject(geometry_object);
+}
+#endif
 BOOST_AUTO_TEST_SUITE(ReachableWorkspace)
 
 /// @brief test generation combination function and compare to the output of the python function `itertools.combinations`
@@ -145,35 +175,70 @@ BOOST_AUTO_TEST_CASE(test_compute_vel_config)
 }
 
 /// @brief test of the vertex computation for a 2DOf planar robot. Verify that vertex are inside the rectangle of the joint limits.
-BOOST_AUTO_TEST_CASE(test_compute_vertex)
+BOOST_FIXTURE_TEST_CASE(test_compute_vertex, robotCreationFixture)
 {
     using namespace pinocchio;
 
-
-    double length = 1;
-    Model modelR = createPlanarRobot(length);
-
-    Eigen::VectorXd q = Eigen::VectorXd::Zero(2);
+    Eigen::VectorXd q = Eigen::VectorXd::Zero(3);
 
     Eigen::MatrixXd vertex;
 
-    ReachableSetParams param;
-    param.n_samples = 5;
-    param.facet_dims = 1;
+    double constraint = 0.2;
+    auto f_ = [this, &constraint](const Model & model,
+                                         Data & data) -> bool
+    {
+        SE3 pos = data.oMf[frame_name];
+        if(pos.translation()(0) < constraint)
+            return false;
+        else
+            return true;
+    };
 
-    double time_horizon = 0.2;
-    int frame_name = modelR.nframes - 1;
-    
-    pinocchio::internal::computeVertex(modelR, q, time_horizon, frame_name, vertex, param);
+    pinocchio::internal::computeVertex(model, q, time_horizon, frame_name, f_, vertex, param);
 
     BOOST_CHECK(vertex.rows() > 0);
     BOOST_CHECK(vertex.cols() > 0);
     for(int k=0; k < vertex.cols(); k++)
     {
+        BOOST_CHECK(vertex(0, k) <= length && vertex(0, k) >= constraint);
         BOOST_CHECK(vertex(1, k) <= length && vertex(1, k) >= 0);
-        BOOST_CHECK(vertex(0, k) >= 0 && vertex(0, k) <= length);
+        BOOST_CHECK(vertex(2, k) <= length && vertex(2, k) >= 0);
     }
 }
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
+/// @brief test of the vertex computation for a 2DOf planar robot with an obstacle in its workspace. Verify that vertex are inside the rectangle of the joint limits and that faces are computed
+BOOST_FIXTURE_TEST_CASE(test_reachable_workspace_with_collision, robotCreationFixture)
+{
+    using namespace pinocchio;
+
+    double dims = 0.1;
+    double distance = length - dims;
+
+    GeometryModel geom_model;
+    pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geom_model);
+    addObstacle(geom_model, distance, dims);
+    
+    geom_model.addAllCollisionPairs();
+    
+    ReachableSetResults res;
+
+    pinocchio::reachableWorkspaceWithCollisionsHull(model,geom_model, q, time_horizon, frame_name,  res, param);
+
+    BOOST_CHECK(res.vertex.rows() > 0);
+    BOOST_CHECK(res.faces.rows() > 0); 
+
+    for(int k=0; k < res.vertex.cols(); k++)
+    {
+        BOOST_CHECK(res.vertex(0, k) <= length && res.vertex(0, k) >= 0);
+        BOOST_CHECK(res.vertex(1, k) <= length && res.vertex(1, k) >= 0);
+        BOOST_CHECK(res.vertex(2, k) <= length && res.vertex(2, k) >= 0);
+
+        if(res.vertex(1, k) > dims/2 && res.vertex(2, k) > dims/2)
+            BOOST_CHECK(res.vertex(0, k) < distance);
+    }
+}
+#endif
 
 /// @brief test of the full pipeline for reachable workspace computation
 BOOST_AUTO_TEST_CASE(test_reachable_workspace)
@@ -195,7 +260,7 @@ BOOST_AUTO_TEST_CASE(test_reachable_workspace)
     double time_horizon = 0.2;
     int frame_name = model.nframes - 1;
 
-    pinocchio::reachableWorkspace(model, q, time_horizon, frame_name, res, param);
+    pinocchio::reachableWorkspaceHull(model, q, time_horizon, frame_name, res, param);
 
     BOOST_CHECK(res.vertex.cols() > 0);
     BOOST_CHECK(res.faces.rows() > 0);  
@@ -219,7 +284,7 @@ BOOST_AUTO_TEST_CASE(test_spherical)
     double time_horizon = 0.2;
     int frame_name = modelR.nframes - 1;
 
-    pinocchio::reachableWorkspace(modelR, q, time_horizon, frame_name, res, param);
+    pinocchio::reachableWorkspaceHull(modelR, q, time_horizon, frame_name, res, param);
 
     BOOST_CHECK(res.vertex.cols() > 0);
     BOOST_CHECK(res.faces.rows() > 0);
