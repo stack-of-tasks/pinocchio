@@ -99,6 +99,17 @@ namespace boost
 
     template<class Archive>
     void serialize(Archive & ar,
+                   pinocchio::GeometryModel & geom_model,
+                   const unsigned int /*version*/)
+    {
+      ar & make_nvp("ngeoms",geom_model.ngeoms);
+      ar & make_nvp("geometryObjects",geom_model.geometryObjects);
+      ar & make_nvp("collisionPairs",geom_model.collisionPairs);
+      ar & make_nvp("collisionPairMapping",geom_model.collisionPairMapping);
+    }
+
+    template<class Archive>
+    void serialize(Archive & ar,
                    pinocchio::GeometryData & geom_data,
                    const unsigned int /*version*/)
     {
@@ -107,6 +118,7 @@ namespace boost
       ar & make_nvp("activeCollisionPairs",geom_data.activeCollisionPairs);
       
 #ifdef PINOCCHIO_WITH_HPP_FCL
+      // TODO(jcarpent): check whether the archive has been registered with HPP_FCL module ON or OFF.
       ar & make_nvp("distanceRequests",geom_data.distanceRequests);
       ar & make_nvp("distanceResults",geom_data.distanceResults);
       ar & make_nvp("collisionRequests",geom_data.collisionRequests);
