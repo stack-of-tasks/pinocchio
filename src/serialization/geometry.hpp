@@ -62,6 +62,42 @@ namespace boost
     }
 
     template<class Archive>
+    void save_construct_data(Archive &ar, const pinocchio::GeometryObject *geometry_object_ptr,
+                             const unsigned int /*version*/)
+    {
+      hpp::fcl::serialization::register_type<::hpp::fcl::CollisionGeometry>::on(ar);
+      const pinocchio::GeometryObject & geometry_object = *geometry_object_ptr;
+      ar << make_nvp("base",base_object<pinocchio::GeometryObject::Base>(geometry_object));
+      ar << make_nvp("geometry",geometry_object.geometry);
+      ar << make_nvp("meshPath",geometry_object.meshPath);
+      ar << make_nvp("meshScale",geometry_object.meshScale);
+      ar << make_nvp("overrideMaterial",geometry_object.overrideMaterial);
+      ar << make_nvp("meshColor",geometry_object.meshColor);
+      ar << make_nvp("meshTexturePath",geometry_object.meshTexturePath);
+      ar << make_nvp("disableCollision",geometry_object.disableCollision);
+    }
+
+    template <class Archive>
+    void load_construct_data(Archive &ar, pinocchio::GeometryObject *geometry_object_ptr,
+                             const unsigned int /*version*/)
+    {
+      hpp::fcl::serialization::register_type<::hpp::fcl::CollisionGeometry>::on(ar);
+      pinocchio::GeometryObject::Base base_obj;
+      ar >> make_nvp("base",base_obj);
+
+      new (geometry_object_ptr) pinocchio::GeometryObject(base_obj.name, base_obj.parentJoint, base_obj.parentFrame, base_obj.placement, nullptr);
+      
+      pinocchio::GeometryObject & geometry_object = *geometry_object_ptr;
+      ar >> make_nvp("geometry",geometry_object.geometry);
+      ar >> make_nvp("meshPath",geometry_object.meshPath);
+      ar >> make_nvp("meshScale",geometry_object.meshScale);
+      ar >> make_nvp("overrideMaterial",geometry_object.overrideMaterial);
+      ar >> make_nvp("meshColor",geometry_object.meshColor);
+      ar >> make_nvp("meshTexturePath",geometry_object.meshTexturePath);
+      ar >> make_nvp("disableCollision",geometry_object.disableCollision);
+    }
+
+    template<class Archive>
     void serialize(Archive & ar,
                    pinocchio::GeometryData & geom_data,
                    const unsigned int /*version*/)
