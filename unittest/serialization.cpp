@@ -800,24 +800,36 @@ BOOST_AUTO_TEST_CASE(test_geometry_object)
 #endif
 }
 
-BOOST_AUTO_TEST_CASE(test_geometry_data_serialization)
+BOOST_AUTO_TEST_CASE(test_geometry_model_and_data_serialization)
 {
   using namespace pinocchio;
 
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoid(model);
-  pinocchio::Data data(model);
-  
+  Model model;
+  buildModels::humanoid(model);
+  Data data(model);
+
+  // Empty structures
+  {
+    GeometryModel geom_model;
+    generic_test(geom_model,TEST_SERIALIZATION_FOLDER"/GeometryModel","GeometryModel");
+
+    GeometryData geom_data(geom_model);
+    generic_test(geom_data,TEST_SERIALIZATION_FOLDER"/GeometryData","GeometryData");
+  }
+
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  pinocchio::GeometryModel geom_model;
-  pinocchio::buildModels::humanoidGeometries(model,geom_model);
-  pinocchio::GeometryData geom_data(geom_model);
-  
-  const Eigen::VectorXd q = pinocchio::neutral(model);
-  pinocchio::forwardKinematics(model,data,q);
-  pinocchio::updateGeometryPlacements(model,data,geom_model,geom_data,q);
-  
-  generic_test(geom_data,TEST_SERIALIZATION_FOLDER"/GeomData","GeomData");
+  {
+    pinocchio::GeometryModel geom_model;
+    pinocchio::buildModels::humanoidGeometries(model,geom_model);
+    generic_test(geom_model,TEST_SERIALIZATION_FOLDER"/GeometryModel","GeometryModel");
+    
+    pinocchio::GeometryData geom_data(geom_model);
+    const Eigen::VectorXd q = pinocchio::neutral(model);
+    pinocchio::forwardKinematics(model,data,q);
+    pinocchio::updateGeometryPlacements(model,data,geom_model,geom_data,q);
+    
+    generic_test(geom_data,TEST_SERIALIZATION_FOLDER"/GeometryData","GeometryData");
+  }
 #endif
   
   
