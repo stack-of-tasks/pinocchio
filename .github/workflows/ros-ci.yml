@@ -38,5 +38,5 @@ jobs:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}
       # Run industrial_ci
-      - uses: 'ros-industrial/industrial_ci@9e8b4aaec69f7cade96eda5cfcb3e7da57b99c6e'
+      - uses: 'ros-industrial/industrial_ci@3ed9846c96ed1e0bb36193e8e250632eaac980d0'
         env: ${{ matrix.env }}
