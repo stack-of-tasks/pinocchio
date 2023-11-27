@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Add inverse dynamics (`rnea`) Python and C++ example ([#2083](https://github.com/stack-of-tasks/pinocchio/pull/2083))
+- Add visualization of Frames in MeshCat viewer ([#2098](https://github.com/stack-of-tasks/pinocchio/pull/2098))
 
 ### Fixed
 

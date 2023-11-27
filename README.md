@@ -220,6 +220,7 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Shubham Singh](https://github.com/shubhamsingh91) (UT Austin): second-order inverse dynamics derivatives
 -   [Stéphane Caron](https://scaron.info) (Inria): core developper
 -   [Joris Vaillant](https://github.com/jorisv) (Inria): core developer and manager of the project
+-   [Sebastian Castro](https://roboticseabass.com) (PickNik Robotics): MeshCat viewer features extension
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 
