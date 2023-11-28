@@ -3,6 +3,7 @@
 //
 
 #include <sstream>
+#include <sys/types.h>
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/spatial/se3.hpp"
