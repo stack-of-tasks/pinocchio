@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- Add missing include `<sys/types.h>` for recent version of Windows compilers ([#2101](https://github.com/stack-of-tasks/pinocchio/pull/2101))
+- Use bp::ssize_t for recent version of Windows compilers ([#2102](https://github.com/stack-of-tasks/pinocchio/pull/2102))
 
 ## [2.6.21] - 2023-11-27
 
