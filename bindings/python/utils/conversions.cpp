@@ -3,7 +3,6 @@
 //
 
 #include <sstream>
-#include <sys/types.h>
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/spatial/se3.hpp"
@@ -38,7 +37,7 @@ namespace pinocchio
     template <typename TupleOrList>
     SE3 XYZQUATToSE3_bp(const TupleOrList& v)
     {
-      ssize_t size = bp::len(v);
+      bp::ssize_t size = bp::len(v);
       if(size != 7)
       {
         throw std::invalid_argument(
