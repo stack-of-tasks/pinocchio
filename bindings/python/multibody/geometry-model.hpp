@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2022 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_model_hpp__
@@ -11,6 +11,8 @@
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/registration.hpp"
+#include "pinocchio/bindings/python/utils/pickle.hpp"
+#include "pinocchio/bindings/python/serialization/serializable.hpp"
 
 #include "pinocchio/multibody/geometry.hpp"
 
@@ -118,8 +120,12 @@ namespace pinocchio
                                     bp::no_init)
           .def(GeometryModelPythonVisitor())
           .def(PrintableVisitor<GeometryModel>())
+          .def(SerializableVisitor<GeometryModel>())
           .def(CopyableVisitor<GeometryModel>())
           .def(AddressVisitor<GeometryModel>())
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+          .def_pickle(PickleFromStringSerialization<GeometryModel>())
+#endif
           ;
         }
       }

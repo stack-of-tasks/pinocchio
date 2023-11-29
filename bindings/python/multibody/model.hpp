@@ -22,6 +22,7 @@
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/std-map.hpp"
+#include "pinocchio/bindings/python/utils/pickle.hpp"
 #include "pinocchio/bindings/python/utils/pickle-map.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
@@ -31,47 +32,6 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
-
-    template<typename Model>
-    struct PickleModel : bp::pickle_suite
-    {
-      static bp::tuple getinitargs(const Model &)
-      {
-        return bp::make_tuple();
-      }
-
-      static bp::tuple getstate(const Model & model)
-      {
-        const std::string str(model.saveToString());
-        return bp::make_tuple(bp::str(str));
-      }
-
-      static void setstate(Model & model, bp::tuple tup)
-      {
-        if(bp::len(tup) == 0 || bp::len(tup) > 1)
-        {
-          throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
-                                   "The pickle data structure contains too many elements.");
-        }
-        
-        bp::object py_obj = tup[0];
-        boost::python::extract<std::string> obj_as_string(py_obj.ptr());
-        if(obj_as_string.check())
-        {
-          const std::string str = obj_as_string;
-          model.loadFromString(str);
-        }
-        else
-        {
-          throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
-                                   "The entry is not a string.");
-        }
-        
-      }
-      
-      static bool getstate_manages_dict() { return true; }
-      
-    };
     
     template<typename Model>
     struct ModelPythonVisitor
@@ -330,7 +290,7 @@ namespace pinocchio
         .def(PrintableVisitor<Model>())
         .def(CopyableVisitor<Model>())
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
-        .def_pickle(PickleModel<Model>())
+        .def_pickle(PickleFromStringSerialization<Model>())
 #endif
         ;
       }

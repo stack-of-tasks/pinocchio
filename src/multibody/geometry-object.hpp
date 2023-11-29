@@ -10,6 +10,7 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/model-item.hpp"
 #include "pinocchio/multibody/fcl.hpp"
+#include "pinocchio/serialization/serializable.hpp"
 
 namespace pinocchio
 {
@@ -29,7 +30,9 @@ struct traits<GeometryObject>
   enum { Options = context::Options};
 };
 
-struct GeometryObject : public ModelItem<GeometryObject>
+struct GeometryObject 
+: public ModelItem<GeometryObject>
+, serialization::Serializable<GeometryObject>
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

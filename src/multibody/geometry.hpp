@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2022 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_geometry_hpp__
@@ -50,6 +50,7 @@ namespace pinocchio
   
   struct GeometryModel
   : NumericalBase<GeometryModel>
+  , serialization::Serializable<GeometryModel>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
