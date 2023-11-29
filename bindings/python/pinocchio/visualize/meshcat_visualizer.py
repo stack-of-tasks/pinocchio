@@ -542,16 +542,12 @@ class MeshcatVisualizer(BaseVisualizer):
             visual_name = self.getViewerNodeName(visual, geometry_type)
             # Get mesh pose.
             M = geom_data.oMg[geom_model.getGeometryId(visual.name)]
-            # Manage scaling: force scaling even if this should be normally handled by MeshCat (but there is a bug here)
-            if isMesh(visual):
-                scale = np.asarray(visual.meshScale).flatten()
-                S = np.diag(np.concatenate((scale, [1.0])))
-                T = np.array(M.homogeneous).dot(S)
-            else:
-                T = M.homogeneous
-
-            # Update viewer configuration.
+            T = M.homogeneous
             self.viewer[visual_name].set_transform(T)
+
+            if isMesh(visual):  # Apply the scaling
+                scale = list(np.asarray(visual.meshScale).flatten())
+                self.viewer[visual_name].set_property("scale", scale)
 
         for visual in self.static_objects:
             visual_name = self.getViewerNodeName(visual, pin.GeometryType.VISUAL)
