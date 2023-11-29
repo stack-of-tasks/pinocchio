@@ -8,6 +8,7 @@
 #include "pinocchio/fwd.hpp"
 #include <math.h>
 #include <boost/math/constants/constants.hpp>
+#include <boost/type_traits/is_floating_point.hpp>
 
 namespace pinocchio
 {
