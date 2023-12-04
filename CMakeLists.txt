@@ -24,20 +24,35 @@ OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
-IF(NOT EXISTS "${JRL_CMAKE_MODULES}/base.cmake")
-  MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")
-ENDIF()
+if(NOT EXISTS "${JRL_CMAKE_MODULES}/base.cmake")
+  if(${CMAKE_VERSION} VERSION_LESS "3.14.0")
+    message(
+      FATAL_ERROR
+        "\nPlease run the following command first:\ngit submodule update --init\n"
+    )
+  else()
+    message(STATUS "JRL cmakemodules not found. Let's fetch it.")
+    include(FetchContent)
+    FetchContent_Declare(
+      "jrl-cmakemodules"
+      GIT_REPOSITORY "https://github.com/jrl-umi3218/jrl-cmakemodules.git")
+    FetchContent_MakeAvailable("jrl-cmakemodules")
+    FetchContent_GetProperties("jrl-cmakemodules" SOURCE_DIR JRL_CMAKE_MODULES)
+  endif()
+endif()
+
 
 SET(DOXYGEN_USE_MATHJAX YES)
 SET(DOXYGEN_USE_TEMPLATE_CSS YES)
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/base.cmake)
+INCLUDE("${JRL_CMAKE_MODULES}/base.cmake")
+
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/boost.cmake)
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/ide.cmake)
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/apple.cmake)
+INCLUDE("${JRL_CMAKE_MODULES}/boost.cmake")
+INCLUDE("${JRL_CMAKE_MODULES}/ide.cmake")
+INCLUDE("${JRL_CMAKE_MODULES}/apple.cmake")
 IF(APPLE) # Use the handmade approach
   SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
 ENDIF(APPLE)
