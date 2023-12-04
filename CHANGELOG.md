@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use bp::ssize_t for recent version of Windows compilers ([#2102](https://github.com/stack-of-tasks/pinocchio/pull/2102))
 - Fix missing include for Boost >= 1.83 ([#2103](https://github.com/stack-of-tasks/pinocchio/pull/2103))
 - Remove f-strings to fix install with python 2 ([#2110](https://github.com/stack-of-tasks/pinocchio/pull/2110))
+- CMake: stop exporting CppAd/cppadcodegen & fetch submodule if not available ([#2112](https://github.com/stack-of-tasks/pinocchio/pull/2112))
 
 ## [2.6.21] - 2023-11-27
 
