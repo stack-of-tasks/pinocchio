@@ -48,9 +48,9 @@ namespace pinocchio
 
     void exposeContactSolvers();
     
-#if defined(PINOCCHIO_WITH_QHULL)
+#if defined(PINOCCHIO_WITH_QHULL_SUPPORT)
     void exposeReachableWorkspace();
-#endif // defined(PINOCCHIO_WITH_QHULL)
+#endif // defined(PINOCCHIO_WITH_QHULL_SUPPORT)
     void exposeAlgorithms();
     
   } // namespace python
