@@ -7,6 +7,7 @@
 #include <pinocchio/math/quaternion.hpp>
 #include <pinocchio/spatial/se3.hpp>
 #include <pinocchio/spatial/motion.hpp>
+#include "pinocchio/spatial/explog.hpp"
 
 #include <boost/variant.hpp> // to avoid C99 warnings
 
