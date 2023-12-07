@@ -170,7 +170,7 @@ struct GeometryObject
   /// \brief RGBA specular color value of the GeometryObject::geometry object.
   Eigen::Vector4d meshSpecularColor;
 
-  /// \brief shininess associated to the specular lighting model.
+  /// \brief Shininess associated to the specular lighting model.
   ///
   /// This value must normalized between 0 and 1.
   double meshShininess;
@@ -197,6 +197,9 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
   /// \param[in] meshColor Color of the mesh [if applicable].
   /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
+  /// \param[in] meshEmissionColor Emissive color of mesh [if applicable].
+  /// \param[in] meshSpecularColor Specular color of mesh [if applicable].
+  /// \param[in] meshShininess Shininess of mesh [if applicable].
   ///
   GeometryObject(const std::string & name,
                  const FrameIndex parent_frame,
@@ -244,6 +247,9 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
   /// \param[in] meshColor Color of the mesh [if applicable].
   /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
+  /// \param[in] meshEmissionColor Emissive color of mesh [if applicable].
+  /// \param[in] meshSpecularColor Specular color of mesh [if applicable].
+  /// \param[in] meshShininess Shininess of mesh [if applicable].
   ///
   GeometryObject(const std::string & name,
                  const JointIndex parent_joint,
@@ -253,7 +259,10 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
                  const Eigen::Vector4d & meshColor = Eigen::Vector4d::Ones(),
-                 const std::string & meshTexturePath = "")
+                 const std::string & meshTexturePath = "",
+                 const Eigen::Vector4d & meshEmissionColor = Eigen::Vector4d(0,0,0,1),
+                 const Eigen::Vector4d & meshSpecularColor = Eigen::Vector4d(0,0,0,1),
+                 double meshShininess = 0.)
   : name(name)
   , parentFrame(std::numeric_limits<FrameIndex>::max())
   , parentJoint(parent_joint)
@@ -264,9 +273,9 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   , meshScale(meshScale)
   , overrideMaterial(overrideMaterial)
   , meshColor(meshColor)
-  , meshEmissionColor(Eigen::Vector4d(0., 0., 0., 1.))
-  , meshSpecularColor(Eigen::Vector4d(0., 0., 0., 1.))
-  , meshShininess(0.)
+  , meshEmissionColor(meshEmissionColor)
+  , meshSpecularColor(meshSpecularColor)
+  , meshShininess(meshShininess)
   , meshTexturePath(meshTexturePath)
   , disableCollision(false)
   {}
