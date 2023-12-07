@@ -13,6 +13,7 @@
 
 #define PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
 #define PINOCCHIO_PYTHON_NO_SERIALIZATION
+#define PINOCCHIO_PYTHON_SKIP_REACHABLE_WORKSPACE
 
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/user-type.hpp>
