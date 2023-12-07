@@ -93,5 +93,6 @@ ADD_BENCH(timings-jacobian TRUE)
 # timings-contact-dynamics
 #
 ADD_BENCH(timings-delassus-operations TRUE)
+ADD_BENCH(timings-caba TRUE)
 ADD_BENCH(timings-contact-dynamics TRUE)
 ADD_BENCH(timings-constrained-dynamics-derivatives TRUE)

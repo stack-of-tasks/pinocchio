@@ -441,6 +441,72 @@ namespace pinocchio
     /// \brief Matrix related to joint torque regressor
     MatrixXs jointTorqueRegressor;
 
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<Force>) KA;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) KA_temp;
+    PINOCCHIO_ALIGNED_STD_VECTOR(MatrixXs) LA;
+    PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) lA;
+    PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) lambdaA;
+    PINOCCHIO_ALIGNED_STD_VECTOR(int) par_cons_ind;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Motion) a_bias;
+    PINOCCHIO_ALIGNED_STD_VECTOR(MatrixXs) KAS;
+    PINOCCHIO_ALIGNED_STD_VECTOR(int) constraint_ind;
+    std::vector<Eigen::LLT<MatrixXs> > fb_osim_llt;
+    Eigen::LLT<MatrixXs> osim_llt; 
+    Matrix6 scratch_pad_matrix6;
+    Matrix6x scratch_pad_matrix6x;
+    Eigen::Matrix<Scalar,6,3,Options> scratch_pad_matrix63;
+    Vector6 scratch_pad_vector6;
+ 
+    struct PvSettings
+    {
+      PvSettings()
+      : use_early(true)
+      , use_early_base(false)
+      , max_iter(10)
+      , mu(1e-5)
+      , absolute_accuracy(1e-10)
+      , relative_accuracy(1e-10)
+      {}
+
+      // PvSettings(bool early, bool proximal, bool early_base)
+      // : use_early(early)
+      // , use_proximal(proximal)
+      // , use_early_base(early_base)
+      // {}
+      Scalar mu;
+      Scalar absolute_accuracy;
+      Scalar relative_accuracy;
+      Scalar absolute_residual;
+      Scalar relative_residual;
+      int max_iter;
+      bool use_early;
+      bool use_proximal;
+      bool use_early_base;
+    };
+
+    PvSettings pv_settings;
+
+    // For early elimination
+    PINOCCHIO_ALIGNED_STD_VECTOR(Scalar) sigma;
+    PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) w;
+    PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) w_normalized;
+    PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) KAopt;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Scalar) lAopt;
+    PINOCCHIO_ALIGNED_STD_VECTOR(int) svd_max_ind;
+    Motion scratch_pad_motion;
+
+#if defined(_MSC_VER)
+    // Eigen tensor warning: Eigen\CXX11\src/Tensor/Tensor.h(76,1): warning C4554: '&': check operator precedence for possible error
+#pragma warning(disable:4554)
+#endif
+    
+    /// \brief Tensor containing the kinematic Hessian of all the joints.
+    Tensor3x kinematic_hessians;
+
+#if defined(_MSC_VER)    
+#pragma warning(default:4554)   // C4554 enabled after tensor definition
+#endif
+    
     /// \brief Cholesky decomposition of the KKT contact matrix
     ContactCholeskyDecomposition contact_chol;
     
@@ -455,8 +521,6 @@ namespace pinocchio
 #pragma warning(disable:4554)
 #endif
 
-    /// \brief Tensor containing the kinematic Hessian of all the joints.
-    Tensor3x kinematic_hessians;
 
     /// \brief SO Partial derivative of the joint torque vector with respect to
     /// the joint configuration.
