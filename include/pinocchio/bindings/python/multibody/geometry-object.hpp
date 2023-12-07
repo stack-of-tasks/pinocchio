@@ -29,16 +29,18 @@ namespace pinocchio
       {
         cl
         .def(bp::init<std::string,FrameIndex,JointIndex,CollisionGeometryPtr,SE3,
-                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string,Eigen::Vector4d,Eigen::Vector4d,double> >
              (
              bp::args("self","name","parent_frame","parent_joint","collision_geometry",
-                      "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
+                      "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path",
+                      "mesh_emission_color", "mesh_specular_color", "mesh_shininess"),
              "Full constructor of a GeometryObject."))
         .def(bp::init<std::string,JointIndex,CollisionGeometryPtr,SE3,
-                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string,Eigen::Vector4d,Eigen::Vector4d,double> >
              (
               bp::args("self","name","parent_joint","collision_geometry",
-                       "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
+                       "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path",
+                       "mesh_emission_color", "mesh_specular_color", "mesh_shininess"),
               "Reduced constructor of a GeometryObject. This constructor does not require to specify the parent frame index."
               ))
         .def(bp::init<const GeometryObject&>
@@ -74,6 +76,18 @@ namespace pinocchio
                        "Path to the mesh texture file.")
         .def_readwrite("disableCollision", &GeometryObject::disableCollision,
                        "If true, no collision or distance check will be done between the Geometry and any other geometry.")
+        .add_property("meshEmissionColor",
+                      bp::make_getter(&GeometryObject::meshEmissionColor,
+                                      bp::return_internal_reference<>()),
+                      bp::make_setter(&GeometryObject::meshEmissionColor),
+                      "Emissive (ambient) color rgba value of the mesh")
+        .add_property("meshSpecularColor",
+                      bp::make_getter(&GeometryObject::meshSpecularColor,
+                                      bp::return_internal_reference<>()),
+                      bp::make_setter(&GeometryObject::meshSpecularColor),
+                      "Specular color rgba value of the mesh")
+        .def_readwrite("meshShininess", &GeometryObject::meshShininess,
+                       "Shininess associated to the specular lighting model (between 0 and 1).")
 
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
