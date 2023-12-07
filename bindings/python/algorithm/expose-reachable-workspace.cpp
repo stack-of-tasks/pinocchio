@@ -15,6 +15,7 @@ namespace pinocchio
     namespace bp = boost::python;
 
 
+#ifndef PINOCCHIO_PYTHON_SKIP_REACHABLE_WORKSPACE
     bp::tuple reachableWorkspaceHull_(const context::Model & model,
                                  const context::VectorXs & q0,
                                  const double time_horizon, 
@@ -84,9 +85,11 @@ namespace pinocchio
       return vertex;
     }
 #endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_PYTHON_SKIP_REACHABLE_WORKSPACE
 
     void exposeReachableWorkspace()
     {
+#ifndef PINOCCHIO_PYTHON_SKIP_REACHABLE_WORKSPACE
         using namespace Eigen;
         typedef context::Scalar Scalar;
         typedef context::VectorXs VectorXs;
@@ -101,7 +104,6 @@ namespace pinocchio
               "\ttime_horizon: time horizon for which the polytope will be computed\n"
               "\tframe_id: frame for which the polytope should be computed\n\n"
               "Returns:\n \tvertex");        
-
         bp::def("reachableWorkspaceHull",
               &reachableWorkspaceHull_,
               bp::args("model","q0","time_horizon","frame_id", "n_samples", "facet_dims"),
@@ -135,6 +137,7 @@ namespace pinocchio
               "\tframe_id: frame for which the polytope should be computed\n\n"
               "Returns:\n \t(vertex, faces)");
 #endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_PYTHON_SKIP_REACHABLE_WORKSPACE
     }
 
   }
