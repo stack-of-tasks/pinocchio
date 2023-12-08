@@ -302,6 +302,9 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     meshScale           = other.meshScale;
     overrideMaterial    = other.overrideMaterial;
     meshColor           = other.meshColor;
+    meshEmissionColor   = other.meshEmissionColor;
+    meshSpecularColor   = other.meshSpecularColor;
+    meshShininess       = other.meshShininess;
     meshTexturePath     = other.meshTexturePath;
     disableCollision   = other.disableCollision;
     return *this;

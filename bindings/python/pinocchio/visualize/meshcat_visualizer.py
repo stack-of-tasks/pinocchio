@@ -446,19 +446,28 @@ class MeshcatVisualizer(BaseVisualizer):
         elif isinstance(obj, meshcat.geometry.Geometry):
             material = meshcat.geometry.MeshPhongMaterial()
             # Set material color from URDF, converting for triplet of doubles to a single int.
+
+            def to_material_color(rgba) -> int:
+                """Convert rgba color as list into rgba color as int"""
+                return (int(rgba[0] * 255) * 256**2
+                        + int(rgba[1] * 255) * 256
+                        + int(rgba[2] * 255)
+                        )
+
             if color is None:
                 meshColor = geometry_object.meshColor
             else:
                 meshColor = color
-            material.color = (
-                int(meshColor[0] * 255) * 256**2
-                + int(meshColor[1] * 255) * 256
-                + int(meshColor[2] * 255)
-            )
             # Add transparency, if needed.
+            material.color = to_material_color(meshColor)
+
             if float(meshColor[3]) != 1.0:
                 material.transparent = True
                 material.opacity = float(meshColor[3])
+            if geometry_object.overrideMaterial:
+                material.emissive = to_material_color(geometry_object.meshEmissionColor)
+                material.specular = to_material_color(geometry_object.meshSpecularColor)
+                material.shininess = geometry_object.meshShininess*100.
             self.viewer[viewer_name].set_object(obj, material)
 
         if is_mesh:  # Apply the scaling
