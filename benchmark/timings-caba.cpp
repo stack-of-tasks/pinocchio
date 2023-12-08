@@ -57,13 +57,13 @@ int main(int argc, const char ** argv)
     else
       pinocchio::urdf::buildModel(filename,model);
 
-  const std::string RA = "RARM_LINK6";
+  const std::string RA = "gripper_right_fingertip_3_link";
   const JointIndex RA_id = model.frames[model.getFrameId(RA)].parent;
-  const std::string LA = "LARM_LINK6";
+  const std::string LA = "gripper_left_fingertip_3_link";
   const JointIndex LA_id = model.frames[model.getFrameId(LA)].parent;
-  const std::string RF = "RLEG_LINK6";
+  const std::string RF = "leg_right_6_link";
   const JointIndex RF_id = model.frames[model.getFrameId(RF)].parent;
-  const std::string LF = "LLEG_LINK6";
+  const std::string LF = "leg_left_6_link";
   const JointIndex LF_id = model.frames[model.getFrameId(LF)].parent;
 
   RigidConstraintModel ci_RF_6D(CONTACT_6D,model,RF_id,LOCAL);
@@ -75,6 +75,9 @@ int main(int argc, const char ** argv)
   RigidConstraintModel ci_RA_3D(CONTACT_3D,model,RA_id,LOCAL);
   RigidConstraintModel ci_LA_3D(CONTACT_3D,model,LA_id,LOCAL);
 
+  RigidConstraintModel ci_RA_6D(CONTACT_6D,model,RA_id,LOCAL);
+  RigidConstraintModel ci_LA_6D(CONTACT_6D,model,LA_id,LOCAL);
+
   // Define contact infos structure
   static const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_empty;
   static PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_empty;
@@ -84,19 +87,43 @@ int main(int argc, const char ** argv)
   contact_models_6D.push_back(ci_RF_6D);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D;
   contact_data_6D.push_back(RigidConstraintData(ci_RF_6D));
-  cholesky::ContactCholeskyDecomposition contact_chol_6D(model,contact_models_6D);
 
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D6D;
-  contact_models_6D6D.push_back(ci_RF_6D);
-  contact_models_6D6D.push_back(ci_LF_6D);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D6D;
-  contact_data_6D6D.push_back(RigidConstraintData(ci_RF_6D));
-  contact_data_6D6D.push_back(RigidConstraintData(ci_LF_6D));
-  cholesky::ContactCholeskyDecomposition contact_chol_6D6D(model,contact_models_6D6D);
+
+  int num_cons;
+  std::cout << "Enter number of contacts: ";
+  std::cin >> num_cons;
+
+  if (num_cons > 0)
+  { 
+    contact_models_6D6D.push_back(ci_RF_6D);
+    contact_data_6D6D.push_back(RigidConstraintData(ci_RF_6D));
+  }
+  if (num_cons > 1)
+  {
+    contact_models_6D6D.push_back(ci_LF_6D);
+    contact_data_6D6D.push_back(RigidConstraintData(ci_LF_6D));
+  }
+  if (num_cons > 2)
+  {
+    contact_models_6D6D.push_back(ci_RA_6D);
+    contact_data_6D6D.push_back(RigidConstraintData(ci_RA_6D));
+  }
+  if (num_cons > 3)
+  {
+    contact_models_6D6D.push_back(ci_LA_6D);
+    contact_data_6D6D.push_back(RigidConstraintData(ci_LA_6D));
+  }
+
+  const double mu = 1e-7;
+  int max_iter = 2;
+  std::cout << "Enter max_iter: ";
+  std::cin >> max_iter;
 
   ProximalSettings prox_settings;
-  prox_settings.max_iter = 1;
-  prox_settings.mu = 0.0;
+  prox_settings.max_iter = max_iter;
+  prox_settings.mu = mu;
   prox_settings.absolute_accuracy = 1e-10;
 
   std::cout << "nq = " << model.nq << std::endl;
@@ -124,7 +151,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
+    minimal::aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
   }
   std::cout << "ABA = \t\t"; timer.toc(std::cout,NBT);
 
@@ -133,7 +160,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    constraintDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D6D,contact_data_6D6D);
+    constraintDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D6D,contact_data_6D6D, prox_settings);
   }
   std::cout << "constraintDynamics {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
   timer.tic();
@@ -146,8 +173,8 @@ int main(int argc, const char ** argv)
 
   initPvSolver(model,data,contact_models_6D6D);
   Data::PvSettings pv_settings;
-  pv_settings.mu = 0.0;
-  pv_settings.max_iter = 1;
+  pv_settings.mu = mu;
+  pv_settings.max_iter = max_iter;
   pv_settings.use_early = false;
   timer.tic();
   SMOOTH(NBT)
@@ -156,8 +183,8 @@ int main(int argc, const char ** argv)
   }
   std::cout << "proxPV {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
 
-  pv_settings.mu = 1e-5;
-  pv_settings.max_iter = 1;
+  pv_settings.mu = mu;
+  pv_settings.max_iter = max_iter;
   pv_settings.use_early = true;
   timer.tic();
   SMOOTH(NBT)

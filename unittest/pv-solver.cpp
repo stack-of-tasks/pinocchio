@@ -154,6 +154,12 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings, pv_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
 
+  pv_settings.use_early = true;
+  pv_settings.mu = 1e-5;
+  // initPvSolver(model, data, empty_contact_models);
+  pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+
 }
 
 // BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_double_init)
@@ -468,6 +474,137 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
+}
+
+BOOST_AUTO_TEST_CASE(test_CD_3D_LOCAL_Quadruped)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  // pinocchio::urdf::buildModel("/home/ajay/mlibs/pinocchio/iiwa2.urdf", model);
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/solo_description/robots/solo.urdf");
+  pinocchio::urdf::buildModel(filename,model);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  // q = randomConfiguration(model); // resampling because previous one seems to be a challenging case
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const std::string RF = "FL_FOOT";
+   const Model::JointIndex RF_id = model.getJointId(RF);
+  const std::string LF = "lleg6_joint";
+  //  const Model::JointIndex LF_id = model.getJointId(LF);
+  
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_3D,model, RF_id,LOCAL);
+  ci_RF.joint1_placement.setRandom();
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  // RigidConstraintModel ci_LF(CONTACT_6D,model.getJointId(LF),LOCAL);
+  // ci_LF.joint1_placement.setRandom();
+  // contact_models.push_back(ci_LF);
+  // contact_datas.push_back(RigidConstraintData(ci_LF));
+  
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();
+  
+  const double mu0 = 0.0; //TODO: set to 0
+  
+  // computeAllTerms(model,data_ref,q,v);
+  // data_ref.M.triangularView<Eigen::StrictlyLower>() =
+  // data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  // Eigen::MatrixXd J_ref(constraint_dim,model.nv);
+  // J_ref.setZero();
+  // Data::Matrix6x Jtmp = Data::Matrix6x::Zero(6,model.nv);
+  
+  // getJointJacobian(model,data_ref,
+  //                  ci_RF.joint1_id,ci_RF.reference_frame,
+  //                  Jtmp);
+  // J_ref.middleRows<6>(0) = ci_RF.joint1_placement.inverse().toActionMatrix() * Jtmp;
+  
+  // Jtmp.setZero();
+  // getJointJacobian(model,data_ref,
+  //                  ci_LF.joint1_id,ci_LF.reference_frame,
+  //                  Jtmp);
+  // J_ref.middleRows<6>(6) = ci_LF.joint1_placement.inverse().toActionMatrix() * Jtmp;
+  
+  // Eigen::VectorXd rhs_ref(constraint_dim);
+  // rhs_ref.segment<6>(0) = computeAcceleration(model,data_ref,ci_RF.joint1_id,ci_RF.reference_frame,ci_RF.type,ci_RF.joint1_placement).toVector();
+  // rhs_ref.segment<6>(6) = computeAcceleration(model,data_ref,ci_LF.joint1_id,ci_LF.reference_frame,ci_LF.type,ci_LF.joint1_placement).toVector();
+  
+  // Eigen::MatrixXd KKT_matrix_ref
+  // = Eigen::MatrixXd::Zero(model.nv+constraint_dim,model.nv+constraint_dim);
+  // KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
+  // KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
+  // KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
+  
+  // forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
+  // forwardKinematics(model,data_ref,q,v,data_ref.ddq);
+  
+  // BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
+
+  ProximalSettings prox_settings(1e-12,mu0,1); // TODO: set max_iter to 1
+  // prox_settings.accuracy = 1e-10;
+  initConstraintDynamics(model,data_ref,contact_models);
+  constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
+  
+  Data::PvSettings pv_settings;
+  pv_settings.use_early = false;
+  pv_settings.mu = 0.0;
+  pv_settings.absolute_accuracy = 1e-14;
+  pv_settings.max_iter = 1;
+  initPvSolver(model,data,contact_models);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  // auto con_Residual = J_ref*data.ddq+rhs_ref;
+  // BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
+  
+  // Check that the decomposition is correct
+  // const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
+  // Eigen::MatrixXd KKT_matrix = contact_chol.matrix();
+  
+  // BOOST_CHECK(KKT_matrix.bottomRightCorner(model.nv,model.nv).isApprox(KKT_matrix_ref.bottomRightCorner(model.nv,model.nv)));
+  // BOOST_CHECK(KKT_matrix.isApprox(KKT_matrix_ref));
+  
+  // Check solutions
+  auto ddq_err = data_ref.ddq - data.ddq;
+  std::cout << "Error for iiwa = " << std::sqrt(ddq_err.dot(ddq_err)) << "\n";
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  
+  // Eigen::DenseIndex constraint_id = 0;
+  // for(size_t k = 0; k < contact_models.size(); ++k)
+  // {
+  //   const RigidConstraintModel & cmodel = contact_models[k];
+  //   const RigidConstraintData & cdata = contact_datas[k];
+    
+  //   switch(cmodel.type)
+  //   {
+  //     case pinocchio::CONTACT_3D:
+  //     {
+  //       BOOST_CHECK(cdata.contact_force.linear().isApprox(data_ref.lambda_c.segment(constraint_id,cmodel.size())));
+  //       break;
+  //     }
+        
+  //     case pinocchio::CONTACT_6D:
+  //     {
+  //       ForceRef<Data::VectorXs::FixedSegmentReturnType<6>::Type> f_ref(data_ref.lambda_c.segment<6>(constraint_id));
+  //       BOOST_CHECK(cdata.contact_force.isApprox(f_ref));
+  //       break;
+  //     }
+        
+  //     default:
+  //       break;
+  //   }
+    
+  //   constraint_id += cmodel.size();
+  // }
 }
 
 // BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_3D)

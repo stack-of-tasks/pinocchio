@@ -109,7 +109,8 @@ namespace pinocchio
           if (contact_model.type == CONTACT_6D)
             data.constraints_supported[joint_id] += 6;
           else
-            assert(false && "CONTACT_3D not implemented");
+            if (contact_model.type == CONTACT_3D)
+              data.constraints_supported[joint_id] += 3;
           break;
         case WORLD:
           assert(false && "WORLD not implemented");
@@ -167,19 +168,30 @@ namespace pinocchio
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
       const JointIndex & joint_id = contact_model.joint1_id;
-      data.KA[joint_id][3].angular_impl()[0] = 1;
-      data.KA[joint_id][4].angular_impl()[1] = 1;
-      data.KA[joint_id][5].angular_impl()[2] = 1;
-      data.KA[joint_id][0].linear_impl()[0] = 1;
-      data.KA[joint_id][1].linear_impl()[1] = 1;
-      data.KA[joint_id][2].linear_impl()[2] = 1;
-      data.KA_temp[joint_id].setIdentity();
-      // data.KA_temp[joint_id] << 0,	0,	0,	1,	0,	0,
-      //                           0,	0,	0,	0,	1,	0,
-      //                           0,	0,	0,	0,	0,	1,
-      //                           0,	1,	0,	0,	0,	0,
-      //                           0,	0,	1,	0,	0,	0,
-      //                           1,	0,	0,	0,	0,	0; 
+      if (contact_model.type == CONTACT_6D)
+      {
+        data.KA[joint_id][3].angular_impl()[0] = 1;
+        data.KA[joint_id][4].angular_impl()[1] = 1;
+        data.KA[joint_id][5].angular_impl()[2] = 1;
+        data.KA[joint_id][0].linear_impl()[0] = 1;
+        data.KA[joint_id][1].linear_impl()[1] = 1;
+        data.KA[joint_id][2].linear_impl()[2] = 1;
+        data.KA_temp[joint_id].setIdentity();
+        // data.KA_temp[joint_id] << 0,	0,	0,	1,	0,	0,
+        //                           0,	0,	0,	0,	1,	0,
+        //                           0,	0,	0,	0,	0,	1,
+        //                           0,	1,	0,	0,	0,	0,
+        //                           0,	0,	1,	0,	0,	0,
+        //                           1,	0,	0,	0,	0,	0; 
+      }
+      else if (contact_model.type == CONTACT_3D)
+      {
+        data.KA[joint_id][0].linear_impl()[0] = 1;
+        data.KA[joint_id][1].linear_impl()[1] = 1;
+        data.KA[joint_id][2].linear_impl()[2] = 1;
+        data.KA_temp[joint_id]. template topRows<3>(). template leftCols<3>().setIdentity();
+      }
+      
     } 
 
     // data.osim_ldlt.compute(data.LA[0]);
@@ -1044,7 +1056,8 @@ namespace pinocchio
         // reduced backward sweep
         for(JointIndex j=(JointIndex)model.njoints-1;j>0; --j)
         {
-          Pass4::run(model.joints[j],data.joints[j],
+          if (data.constraints_supported[j] > 0)
+            Pass4::run(model.joints[j],data.joints[j],
                  typename Pass4::ArgsType(model,data));
         }
         // outward sweep
