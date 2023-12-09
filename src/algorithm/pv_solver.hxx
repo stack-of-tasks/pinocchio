@@ -98,6 +98,7 @@ namespace pinocchio
     // typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
 
+    std::fill(data.constraints_supported.begin(), data.constraints_supported.end(), 0);
     // Getting the constrained links
     for(std::size_t i=0;i<contact_models.size();++i)
     {
@@ -107,10 +108,10 @@ namespace pinocchio
       {
         case LOCAL:
           if (contact_model.type == CONTACT_6D)
-            data.constraints_supported[joint_id] += 6;
+            data.constraints_supported[joint_id] = 6;
           else
             if (contact_model.type == CONTACT_3D)
-              data.constraints_supported[joint_id] += 3;
+              data.constraints_supported[joint_id] = 3;
           break;
         case WORLD:
           assert(false && "WORLD not implemented");
@@ -135,8 +136,6 @@ namespace pinocchio
     // size_t constraint_counter = 0;
     for (JointIndex i=0;i<(JointIndex)model.njoints;++i)
     {
-      for (int j = 0; j < data.constraints_supported[i]; j++)
-        data.KA[i].push_back(Force::Zero());
       data.lA[i] = Data::VectorXs::Zero(data.constraints_supported[i]);
       data.lambdaA[i] = Data::VectorXs::Zero(data.constraints_supported[i]);
 
@@ -160,46 +159,23 @@ namespace pinocchio
       data.KAS[i] = Data::MatrixXs::Zero( data.joints[i].S().matrix().cols(), data.constraints_supported[i]);
     }
 
-    //  data.LA[0] = Data::MatrixXs::Zero(data.constraints_supported[0], data.constraints_supported[0]);
-
-
-    // For Local / Local_world_aligned
+    // For Local 
     for(std::size_t i=0;i<contact_models.size();++i)
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
       const JointIndex & joint_id = contact_model.joint1_id;
       if (contact_model.type == CONTACT_6D)
       {
-        data.KA[joint_id][3].angular_impl()[0] = 1;
-        data.KA[joint_id][4].angular_impl()[1] = 1;
-        data.KA[joint_id][5].angular_impl()[2] = 1;
-        data.KA[joint_id][0].linear_impl()[0] = 1;
-        data.KA[joint_id][1].linear_impl()[1] = 1;
-        data.KA[joint_id][2].linear_impl()[2] = 1;
         data.KA_temp[joint_id].setIdentity();
-        // data.KA_temp[joint_id] << 0,	0,	0,	1,	0,	0,
-        //                           0,	0,	0,	0,	1,	0,
-        //                           0,	0,	0,	0,	0,	1,
-        //                           0,	1,	0,	0,	0,	0,
-        //                           0,	0,	1,	0,	0,	0,
-        //                           1,	0,	0,	0,	0,	0; 
       }
       else if (contact_model.type == CONTACT_3D)
       {
-        data.KA[joint_id][0].linear_impl()[0] = 1;
-        data.KA[joint_id][1].linear_impl()[1] = 1;
-        data.KA[joint_id][2].linear_impl()[2] = 1;
-        data.KA_temp[joint_id]. template topRows<3>(). template leftCols<3>().setIdentity();
+        auto & oMc = contact_model.joint1_placement;
+        data.KA_temp[joint_id] = oMc.toActionMatrixInverse().template topRows<3>().transpose();
       }
       
     } 
 
-    // data.osim_ldlt.compute(data.LA[0]);
-    // data.contact_chol.allocate(model,contact_models);
-    // data.primal_dual_contact_solution.resize(data.contact_chol.size());
-    // data.primal_rhs_contact.resize(data.contact_chol.constraintDim());
-
-    
     // data.lambda_c.resize(data.constraints_supported[0]);
     data.lambda_c_prox.resize(data.constraints_supported[0]);
     // data.impulse_c.resize(data.contact_chol.constraintDim());
@@ -236,8 +212,6 @@ namespace pinocchio
       data.KAopt[i] = Data::VectorXs::Zero(data.constraints_supported[i]);
     }
 
-    
-    // data.osim.setZero();
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -304,7 +278,6 @@ namespace pinocchio
                      Data & data)
     {
 
-      const double mu = data.pv_settings.mu;
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Inertia Inertia;
       typedef typename Data::Force Force;
@@ -838,7 +811,7 @@ namespace pinocchio
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of right size");
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv, "The joint torque vector is not of right size");;
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv, "The joint torque vector is not of right size");
 
     data.pv_settings = pv_settings;
     bool early_base = pv_settings.use_early_base;
@@ -867,7 +840,6 @@ namespace pinocchio
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
       const JointIndex & joint_id = contact_model.joint1_id;
-      // data.KA[joint_id][3].angular_impl()[0] = 1;
       data.lA[joint_id].setZero();
       data.LA[joint_id].setZero();
     } 

@@ -483,21 +483,26 @@ BOOST_AUTO_TEST_CASE(test_CD_3D_LOCAL_Quadruped)
   
   pinocchio::Model model;
   // pinocchio::urdf::buildModel("/home/ajay/mlibs/pinocchio/iiwa2.urdf", model);
-  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/solo_description/robots/solo.urdf");
-  pinocchio::urdf::buildModel(filename,model);
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/solo_description/robots/solo12.urdf");
+  pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(), model);
   pinocchio::Data data(model), data_ref(model);
   
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill( 1.);
   VectorXd q = randomConfiguration(model);
-  // q = randomConfiguration(model); // resampling because previous one seems to be a challenging case
-  VectorXd v = VectorXd::Random(model.nv);
+  // q = randomConfiguration(model);
+  // VectorXd v = VectorXd::Random(model.nv);
+  VectorXd v = VectorXd::Zero(model.nv);
   VectorXd tau = VectorXd::Random(model.nv);
   
-  const std::string RF = "FL_FOOT";
-   const Model::JointIndex RF_id = model.getJointId(RF);
-  const std::string LF = "lleg6_joint";
-  //  const Model::JointIndex LF_id = model.getJointId(LF);
+  const std::string RF = "FR_KFE";
+  const JointIndex RF_id = model.getJointId(RF);
+  const std::string LF = "FL_KFE";
+  const JointIndex LF_id = model.getJointId(LF);
+  const std::string LR = "HL_KFE";
+  const JointIndex LR_id = model.getJointId(LR);
+  const std::string RR = "HR_KFE";
+  const JointIndex RR_id = model.getJointId(RR);
   
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
@@ -506,50 +511,22 @@ BOOST_AUTO_TEST_CASE(test_CD_3D_LOCAL_Quadruped)
   ci_RF.joint1_placement.setRandom();
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
-  // RigidConstraintModel ci_LF(CONTACT_6D,model.getJointId(LF),LOCAL);
-  // ci_LF.joint1_placement.setRandom();
-  // contact_models.push_back(ci_LF);
-  // contact_datas.push_back(RigidConstraintData(ci_LF));
-  
-  Eigen::DenseIndex constraint_dim = 0;
-  for(size_t k = 0; k < contact_models.size(); ++k)
-    constraint_dim += contact_models[k].size();
+  RigidConstraintModel ci_LF(CONTACT_3D,model,LF_id,LOCAL);
+  ci_LF.joint1_placement.setRandom();
+  contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidConstraintData(ci_LF));
+
+  RigidConstraintModel ci_LR(CONTACT_3D,model, LR_id,LOCAL);
+  ci_LR.joint1_placement.setRandom();
+  contact_models.push_back(ci_LR);
+  contact_datas.push_back(RigidConstraintData(ci_LR));
+  RigidConstraintModel ci_RR(CONTACT_3D,model, RR_id,LOCAL);
+  ci_RR.joint1_placement.setRandom();
+  contact_models.push_back(ci_RR);
+  contact_datas.push_back(RigidConstraintData(ci_RR));
   
   const double mu0 = 0.0; //TODO: set to 0
-  
-  // computeAllTerms(model,data_ref,q,v);
-  // data_ref.M.triangularView<Eigen::StrictlyLower>() =
-  // data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
-  
-  // Eigen::MatrixXd J_ref(constraint_dim,model.nv);
-  // J_ref.setZero();
-  // Data::Matrix6x Jtmp = Data::Matrix6x::Zero(6,model.nv);
-  
-  // getJointJacobian(model,data_ref,
-  //                  ci_RF.joint1_id,ci_RF.reference_frame,
-  //                  Jtmp);
-  // J_ref.middleRows<6>(0) = ci_RF.joint1_placement.inverse().toActionMatrix() * Jtmp;
-  
-  // Jtmp.setZero();
-  // getJointJacobian(model,data_ref,
-  //                  ci_LF.joint1_id,ci_LF.reference_frame,
-  //                  Jtmp);
-  // J_ref.middleRows<6>(6) = ci_LF.joint1_placement.inverse().toActionMatrix() * Jtmp;
-  
-  // Eigen::VectorXd rhs_ref(constraint_dim);
-  // rhs_ref.segment<6>(0) = computeAcceleration(model,data_ref,ci_RF.joint1_id,ci_RF.reference_frame,ci_RF.type,ci_RF.joint1_placement).toVector();
-  // rhs_ref.segment<6>(6) = computeAcceleration(model,data_ref,ci_LF.joint1_id,ci_LF.reference_frame,ci_LF.type,ci_LF.joint1_placement).toVector();
-  
-  // Eigen::MatrixXd KKT_matrix_ref
-  // = Eigen::MatrixXd::Zero(model.nv+constraint_dim,model.nv+constraint_dim);
-  // KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
-  // KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
-  // KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
-  
-  // forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
-  // forwardKinematics(model,data_ref,q,v,data_ref.ddq);
-  
-  // BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
+
 
   ProximalSettings prox_settings(1e-12,mu0,1); // TODO: set max_iter to 1
   // prox_settings.accuracy = 1e-10;
@@ -560,24 +537,27 @@ BOOST_AUTO_TEST_CASE(test_CD_3D_LOCAL_Quadruped)
   pv_settings.use_early = false;
   pv_settings.mu = 0.0;
   pv_settings.absolute_accuracy = 1e-14;
-  pv_settings.max_iter = 1;
+  pv_settings.max_iter = 10;
   initPvSolver(model,data,contact_models);
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
-  // auto con_Residual = J_ref*data.ddq+rhs_ref;
-  // BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
-  
-  // Check that the decomposition is correct
-  // const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
-  // Eigen::MatrixXd KKT_matrix = contact_chol.matrix();
-  
-  // BOOST_CHECK(KKT_matrix.bottomRightCorner(model.nv,model.nv).isApprox(KKT_matrix_ref.bottomRightCorner(model.nv,model.nv)));
-  // BOOST_CHECK(KKT_matrix.isApprox(KKT_matrix_ref));
   
   // Check solutions
   auto ddq_err = data_ref.ddq - data.ddq;
-  std::cout << "Error for iiwa = " << std::sqrt(ddq_err.dot(ddq_err)) << "\n";
+  std::cout << "Error for solo = " << std::sqrt(ddq_err.dot(ddq_err)) << "\n";
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+
+  // initConstraintDynamics(model,data_ref,contact_models);
+  // constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
+
+  initPvSolver(model,data,contact_models);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
   
+  // Check solutions
+  auto ddq_err2 = data_ref.ddq - data.ddq;
+  std::cout << "Error for solo = " << std::sqrt(ddq_err.dot(ddq_err)) << "\n";
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
   // Eigen::DenseIndex constraint_id = 0;
   // for(size_t k = 0; k < contact_models.size(); ++k)
   // {
