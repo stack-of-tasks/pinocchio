@@ -212,6 +212,7 @@ namespace pinocchio
       data.KAopt[i] = Data::VectorXs::Zero(data.constraints_supported[i]);
     }
 
+
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>

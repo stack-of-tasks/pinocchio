@@ -456,6 +456,8 @@ namespace pinocchio
     Matrix6x scratch_pad_matrix6x;
     Eigen::Matrix<Scalar,6,3,Options> scratch_pad_matrix63;
     Vector6 scratch_pad_vector6;
+    Force scratch_pad_force;
+    TangentVectorType delta_u;                  // Joint Inertia
  
     struct PvSettings
     {

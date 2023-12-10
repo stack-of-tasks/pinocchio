@@ -117,6 +117,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   pv_settings.mu = 0.0;
   initPvSolver(model, data, empty_contact_models);
   pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings, pv_settings);
+  
   // initConstraintDynamics(model,data,empty_contact_models);
   // constraintDynamics(model,data,q,v,tau,empty_contact_models,empty_contact_datas,prox_settings);
   
@@ -324,6 +325,16 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   // Check solutions
   auto ddq_err = data_ref.ddq - data.ddq;
   std::cout << "Error for iiwa = " << std::sqrt(ddq_err.dot(ddq_err)) << "\n";
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+
+  pv_settings.use_early = true;
+  pv_settings.mu = 1e-4;
+  pv_settings.absolute_accuracy = 1e-14;
+  pv_settings.max_iter = 10;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  auto ddq_err2 = data_ref.ddq - data.ddq;
+  std::cout << "Error for iiwa = " << std::sqrt(ddq_err2.dot(ddq_err2)) << "\n";
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
   
   // Eigen::DenseIndex constraint_id = 0;
