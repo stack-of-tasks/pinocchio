@@ -34,7 +34,7 @@ jobs:
         path: ${{ env.CCACHE_DIR }}
         key: ccache-conda-${{ matrix.os }}-${{ matrix.build_type }}
 
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         activate-environment: pinocchio
         auto-update-conda: true
