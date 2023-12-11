@@ -18,7 +18,6 @@ jobs:
           - {ROS_DISTRO: humble}
     env:
       CCACHE_DIR: /github/home/.ccache             # Enable ccache
-      CTEST_OUTPUT_ON_FAILURE: ON
       # The following is a work-around for ROS tooling in conjunction with jrl-cmakemodules:
       #  - catkin_make_isolated has issues with Industrial-CI right now
       #  - colcon cannot find example-robot-data's python bindings due to ROS1 workspace integration hooks
@@ -27,7 +26,7 @@ jobs:
       # The work-around is thus to use catkin_tools for building and sourcing, and to manually specify execution of the test
       # target after completion of the regular test target. The output of this step does affect the output of the CI process.
       # Note, this does not affect projects that do not have pure CMake projects in their upstream_ws.
-      AFTER_RUN_TARGET_TEST: 'ici_with_unset_variables source /root/target_ws/install/setup.bash && cd /root/target_ws/build/pinocchio && make test'
+      AFTER_RUN_TARGET_TEST: 'ici_with_unset_variables source /root/target_ws/install/setup.bash && cd /root/target_ws/build/pinocchio && CTEST_OUTPUT_ON_FAILURE=ON make test'
       IMMEDIATE_TEST_OUTPUT: 1
     runs-on: ubuntu-latest
     steps:
