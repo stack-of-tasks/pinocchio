@@ -618,7 +618,7 @@ class MeshcatVisualizer(BaseVisualizer):
 
         for fid, frame in enumerate(self.model.frames):
             if frame_ids is None or fid in frame_ids:
-                frame_viz_name = f"{self.viewerFramesGroupName}/{frame.name}"
+                frame_viz_name = "%s/%s" % (self.viewerFramesGroupName, frame.name)
                 self.viewer[frame_viz_name].set_object(
                     mg.LineSegments(
                         mg.PointsGeometry(
@@ -640,7 +640,7 @@ class MeshcatVisualizer(BaseVisualizer):
         pin.updateFramePlacements(self.model, self.data)
         for fid in self.frame_ids:
             frame_name = self.model.frames[fid].name
-            frame_viz_name = f"{self.viewerFramesGroupName}/{frame_name}"
+            frame_viz_name = "%s/%s" % (self.viewerFramesGroupName, frame_name)
             self.viewer[frame_viz_name].set_transform(
                 self.data.oMf[fid].homogeneous
             )

@@ -24,20 +24,35 @@ OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
-IF(NOT EXISTS "${JRL_CMAKE_MODULES}/base.cmake")
-  MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")
-ENDIF()
+if(NOT EXISTS "${JRL_CMAKE_MODULES}/base.cmake")
+  if(${CMAKE_VERSION} VERSION_LESS "3.14.0")
+    message(
+      FATAL_ERROR
+        "\nPlease run the following command first:\ngit submodule update --init\n"
+    )
+  else()
+    message(STATUS "JRL cmakemodules not found. Let's fetch it.")
+    include(FetchContent)
+    FetchContent_Declare(
+      "jrl-cmakemodules"
+      GIT_REPOSITORY "https://github.com/jrl-umi3218/jrl-cmakemodules.git")
+    FetchContent_MakeAvailable("jrl-cmakemodules")
+    FetchContent_GetProperties("jrl-cmakemodules" SOURCE_DIR JRL_CMAKE_MODULES)
+  endif()
+endif()
+
 
 SET(DOXYGEN_USE_MATHJAX YES)
 SET(DOXYGEN_USE_TEMPLATE_CSS YES)
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/base.cmake)
+INCLUDE("${JRL_CMAKE_MODULES}/base.cmake")
+
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/boost.cmake)
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/ide.cmake)
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/apple.cmake)
+INCLUDE("${JRL_CMAKE_MODULES}/boost.cmake")
+INCLUDE("${JRL_CMAKE_MODULES}/ide.cmake")
+INCLUDE("${JRL_CMAKE_MODULES}/apple.cmake")
 IF(APPLE) # Use the handmade approach
   SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
 ENDIF(APPLE)
@@ -120,10 +135,10 @@ ENDIF(BUILD_WITH_URDF_SUPPORT)
 IF(BUILD_WITH_AUTODIFF_SUPPORT)
   # Check first CppADCodeGen
   IF(BUILD_WITH_CODEGEN_SUPPORT)
-    ADD_PROJECT_DEPENDENCY(cppadcg 2.4.1 REQUIRED PKG_CONFIG_REQUIRES "cppadcg >= 2.4.1") # CppADCodeGen 2.4.1 is the first version to check the minimal version of CppAD
+    FIND_PACKAGE(cppadcg 2.4.1 REQUIRED)
   ENDIF(BUILD_WITH_CODEGEN_SUPPORT)
 
-  ADD_PROJECT_DEPENDENCY(cppad 20180000.0 REQUIRED PKG_CONFIG_REQUIRES "cppad >= 20180000.0")
+  FIND_PACKAGE(cppad 20180000.0 REQUIRED)
 ENDIF(BUILD_WITH_AUTODIFF_SUPPORT)
 
 IF(BUILD_WITH_CASADI_SUPPORT)
