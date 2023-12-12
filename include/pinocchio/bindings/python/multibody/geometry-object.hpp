@@ -95,8 +95,8 @@ namespace pinocchio
                        "If true, no collision or distance check will be done between the Geometry and any other geometry.")
         .add_property("meshMaterial",
                       bp::make_getter(&GeometryObject::meshMaterial,
-                                      bp::return_internal_reference<>()),
-                      bp::make_setter(&GeometryObject::meshMaterial),
+                                      bp::return_value_policy<bp::return_by_value>()),
+                      bp::make_setter(&GeometryObject::meshMaterial, bp::return_value_policy<bp::return_by_value>()),
                       "Material associated to the mesh (applied only if overrideMaterial is True)")
 
         .def(bp::self == bp::self)
@@ -153,15 +153,6 @@ namespace pinocchio
                       "RGBA specular value of the mesh")
         .def_readwrite("meshShininess", &GeometryPhongMaterial::meshShininess,
                        "Shininess associated to the specular lighting model (between 0 and 1)");
-
-        /// This class wrap a GeometryMaterial.
-        /// This is mandatory to be able to access GeometryObject::meshMaterial.
-        bp::class_<GeometryMaterial>("GeometryMaterial", bp::init<>())
-        .def(bp::init<GeometryNoMaterial>())
-        .def(bp::init<GeometryPhongMaterial>())
-        /// content allow to go through to_python_converter and to convert
-        /// GeometryMaterial actual variant into a Python type
-        .def("content", &GeometryObjectPythonVisitor::get_content);
 
         /// Define material conversion from C++ variant to python object
         bp::to_python_converter<GeometryMaterial, VariantToObject>();
