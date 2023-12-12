@@ -69,5 +69,18 @@ class TestGeometryObjectBindings(unittest.TestCase):
         collision_data_copy = collision_data.copy()
         self.assertEqual(len(collision_data.oMg),len(collision_data_copy.oMg))
 
+    def test_material_get_set(self):
+        col = self.collision_model.geometryObjects[0]
+        self.assertTrue(isinstance(col.meshMaterial.content(), (pin.GeometryNoMaterial)))
+        col.meshMaterial = pin.GeometryPhongMaterial()
+        self.assertTrue(isinstance(col.meshMaterial.content(), (pin.GeometryPhongMaterial)))
+        col.meshMaterial.meshEmissionColor = np.array([1., 1., 1., 1.])
+        col.meshMaterial.meshSpecularColor = 1.
+        material = col.meshMaterial
+        self.assertTrue(isinstance(material.content(), (pin.GeometryPhongMaterial)))
+        # TODO make reference boost variant work
+        # self.assertEqual(material.meshEmissionColor, col.meshMaterial.meshEmissionColor)
+        # self.assertEqual(material.meshSpecular, col.meshMaterial.meshSpecular)
+
 if __name__ == '__main__':
     unittest.main()
