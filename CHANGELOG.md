@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Add `GeometryObject::meshMaterial` attribute ([#2084](https://github.com/stack-of-tasks/pinocchio/issues/2084))
+
 ### Fixed
 
 - Use bp::ssize_t for recent version of Windows compilers ([#2102](https://github.com/stack-of-tasks/pinocchio/pull/2102))
