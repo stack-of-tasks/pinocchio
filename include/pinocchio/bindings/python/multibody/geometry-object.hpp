@@ -33,7 +33,7 @@ namespace pinocchio
         template<typename T>
         result_type operator()(T & t) const
         {
-          return boost::python::incref(boost::python::object(t).ptr());
+          return bp::incref(bp::object(t).ptr());
         }
       };
 
