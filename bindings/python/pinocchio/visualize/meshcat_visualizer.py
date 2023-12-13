@@ -464,10 +464,11 @@ class MeshcatVisualizer(BaseVisualizer):
             if float(meshColor[3]) != 1.0:
                 material.transparent = True
                 material.opacity = float(meshColor[3])
-            if geometry_object.overrideMaterial:
-                material.emissive = to_material_color(geometry_object.meshEmissionColor)
-                material.specular = to_material_color(geometry_object.meshSpecularColor)
-                material.shininess = geometry_object.meshShininess*100.
+            geom_material = geometry_object.meshMaterial
+            if geometry_object.overrideMaterial and isinstance(geom_material, pin.GeometryPhongMaterial):
+                material.emissive = to_material_color(geom_material.meshEmissionColor)
+                material.specular = to_material_color(geom_material.meshSpecularColor)
+                material.shininess = geom_material.meshShininess*100.
             self.viewer[viewer_name].set_object(obj, material)
 
         if is_mesh:  # Apply the scaling
