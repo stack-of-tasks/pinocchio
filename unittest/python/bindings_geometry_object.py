@@ -78,7 +78,6 @@ class TestGeometryObjectBindings(unittest.TestCase):
         self.assertTrue(isinstance(material, (pin.GeometryPhongMaterial)))
         material.meshEmissionColor = np.array([1., 1., 1., 1.])
         material.meshShininess = 0.7
-        # TODO make reference boost variant work
         self.assertTrue((material.meshEmissionColor == col.meshMaterial.meshEmissionColor).all())
         self.assertEqual(material.meshShininess, col.meshMaterial.meshShininess)
 

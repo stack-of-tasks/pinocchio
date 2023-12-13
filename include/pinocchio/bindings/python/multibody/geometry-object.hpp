@@ -19,20 +19,74 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    /// Convert GeometryMaterial boost variant to a Python object
-    struct VariantToObject : boost::static_visitor<PyObject*>
+    namespace
     {
-      static result_type convert(GeometryMaterial const & gm)
+      /// Convert GeometryMaterial boost variant to a Python object.
+      /// This converter copy the GeometryMaterial content.
+      struct GeometryMaterialValueToObject : boost::static_visitor<PyObject*>
       {
-        return apply_visitor(VariantToObject(), gm);
-      }
+        static result_type convert(GeometryMaterial const & gm)
+        {
+          return apply_visitor(GeometryMaterialValueToObject(), gm);
+        }
 
-      template<typename T>
-      result_type operator()(T const & t) const
+        template<typename T>
+        result_type operator()(T & t) const
+        {
+          return boost::python::incref(boost::python::object(t).ptr());
+        }
+      };
+
+      /// Convert GeometryMaterial boost variant to a Python object.
+      /// This converter return the GeometryMaterial reference.
+      /// The code the create the reference holder is taken from \see boost::python::to_python_indirect.
+      struct GeometryMaterialRefToObject : boost::static_visitor<PyObject*>
       {
-        return boost::python::incref(boost::python::object(t).ptr());
-      }
-    };
+        static result_type convert(GeometryMaterial const & gm)
+        {
+          return apply_visitor(GeometryMaterialRefToObject(), gm);
+        }
+
+        template<typename T>
+        result_type operator()(T & t) const
+        {
+          return bp::detail::make_reference_holder::execute(&t);
+        }
+      };
+
+      /// Converter used in \see ReturnInternalVariant.
+      /// This is inspired by \see boost::python::reference_existing_object.
+      ///  It will call GeometryMaterialRefToObject to extract the variant reference.
+      struct GeometryMaterialConverter
+      {
+        template <class T>
+        struct apply
+        {
+          struct type
+          {
+            inline PyObject* operator()(const GeometryMaterial& gm) const
+            {
+              return GeometryMaterialRefToObject::convert(gm);
+            }
+
+#ifndef BOOST_PYTHON_NO_PY_SIGNATURES
+            inline PyTypeObject const* get_pytype()const
+            {
+              return bp::converter::registered_pytype<GeometryMaterial>::get_pytype();
+            }
+#endif
+          };
+        };
+      };
+
+      /// Variant of \see boost::python::return_internal_reference that
+      /// extract GeometryMaterial variant before converting it into a PyObject*
+      struct GeometryMaterialReturnInternalVariant : bp::return_internal_reference<> {
+       public:
+        typedef GeometryMaterialConverter result_converter;
+      };
+    }
+
 
 
     struct GeometryObjectPythonVisitor
@@ -95,8 +149,8 @@ namespace pinocchio
                        "If true, no collision or distance check will be done between the Geometry and any other geometry.")
         .add_property("meshMaterial",
                       bp::make_getter(&GeometryObject::meshMaterial,
-                                      bp::return_value_policy<bp::return_by_value>()),
-                      bp::make_setter(&GeometryObject::meshMaterial, bp::return_value_policy<bp::return_by_value>()),
+                                      GeometryMaterialReturnInternalVariant()),
+                      bp::make_setter(&GeometryObject::meshMaterial),
                       "Material associated to the mesh (applied only if overrideMaterial is True)")
 
         .def(bp::self == bp::self)
@@ -155,7 +209,7 @@ namespace pinocchio
                        "Shininess associated to the specular lighting model (between 0 and 1)");
 
         /// Define material conversion from C++ variant to python object
-        bp::to_python_converter<GeometryMaterial, VariantToObject>();
+        bp::to_python_converter<GeometryMaterial, GeometryMaterialValueToObject>();
 
         /// Define material conversion from python object to C++ object
         bp::implicitly_convertible<GeometryNoMaterial, GeometryMaterial>();
