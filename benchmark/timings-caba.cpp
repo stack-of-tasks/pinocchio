@@ -55,9 +55,10 @@ int run_solvers(pinocchio::Model model, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATO
   {
     minimal::aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
   }
-  std::cout << "ABA = \t\t"; timer.toc(std::cout,NBT);
+  std::cout << model.nv << ", " << timer.toc()/NBT << ", ";  
 
-  double mu = 1e-5;
+
+  double mu = 1e-6;
 
   ProximalSettings prox_settings;
   prox_settings.max_iter = max_iter;
@@ -70,13 +71,14 @@ int run_solvers(pinocchio::Model model, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATO
   {
     constraintDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models,contact_datas, prox_settings);
   }
-  std::cout << "constraintDynamics {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
+std::cout << timer.toc()/NBT << ", ";  
+ 
   timer.tic();
   SMOOTH(NBT)
   {
     contactABA(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models,contact_datas,prox_settings);
   }
-  std::cout << "contact ABA {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
+  std::cout << timer.toc()/NBT << ", ";  
 
 
   initPvSolver(model,data,contact_models);
@@ -89,7 +91,7 @@ int run_solvers(pinocchio::Model model, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATO
   {
     pv(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models,contact_datas, prox_settings, pv_settings);
   }
-  std::cout << "proxPV {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
+  std::cout << timer.toc()/NBT << ", ";  
 
   pv_settings.mu = mu;
   pv_settings.max_iter = max_iter;
@@ -99,10 +101,7 @@ int run_solvers(pinocchio::Model model, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATO
   {
     pv(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models,contact_datas, prox_settings, pv_settings);
   }
-  std::cout << "cABA {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
-
-
-  std::cout << "--" << std::endl;
+  std::cout << timer.toc()/NBT << "\n"; 
 
   return 0;
 }
@@ -191,13 +190,28 @@ int main(int argc, const char ** argv)
   std::string iiwa_filename = "/iiwa2.urdf";
   std::vector<std::string> iiwa_links = {"iiwa_link_7"};
   
+  std::vector<std::string> chain_names;
+  std::vector<std::string> chain_links;
+
+  for (int i = 6; i < 101; i++)
+  {
+    std::string chain_name = "/example-robot-data/robots/chain_urdf_files/chain" + std::to_string(i) + ".urdf";
+    chain_names.push_back(chain_name);
+    chain_links.push_back("link" + std::to_string(i));
+    // benchmark_contacts(chain_name, chain_links, {0}, {6}, false, 1);
+    // benchmark_contacts(chain_name, chain_links, {0}, {6}, false, 3);
+    // benchmark_contacts(chain_name, chain_links, {0}, {6}, false, 10);
+    chain_links.pop_back();
+  }
   // std::vector<int> link_names = {}
   // benchmark_contacts(talos_filename, talos_links, {0, 1}, {6, 6});
 
   benchmark_contacts(talos_filename, talos_links, {0, 1}, {6, 6}, true, 1);
   benchmark_contacts(talos_filename, talos_links, {0, 1}, {6, 6}, true, 3);
+  benchmark_contacts(talos_filename, talos_links, {0, 1}, {6, 6}, true, 10);
   benchmark_contacts(talos_filename, talos_links, {0, 1, 2, 3}, {6, 6, 6, 6}, true, 1);
   benchmark_contacts(talos_filename, talos_links, {0, 1, 2, 3}, {6, 6, 6, 6}, true, 3);
+  benchmark_contacts(talos_filename, talos_links, {0, 1, 2, 3}, {6, 6, 6, 6}, true, 10);
 
   std::cout << "\n\n Solo \n\n";
   benchmark_contacts(solo_filename, solo_links, {0, 1}, {3,3}, true, 1);
@@ -205,11 +219,12 @@ int main(int argc, const char ** argv)
   benchmark_contacts(solo_filename, solo_links, {0, 1, 2, 3}, {3,3,3,3}, true, 1);
   benchmark_contacts(solo_filename, solo_links, {0, 1, 2, 3}, {3,3,3,3}, true, 3);
 
+
   std::cout << "\n\n Iiwa \n\n";
-  benchmark_contacts(iiwa_filename, iiwa_links, {0}, {3}, true, 1);
-  benchmark_contacts(iiwa_filename, iiwa_links, {0}, {3}, true, 3);
-  benchmark_contacts(iiwa_filename, iiwa_links, {0}, {6}, true, 1);
-  benchmark_contacts(iiwa_filename, iiwa_links, {0}, {6}, true, 3);
+  benchmark_contacts(iiwa_filename, iiwa_links, {0}, {3}, false, 1);
+  benchmark_contacts(iiwa_filename, iiwa_links, {0}, {3}, false, 3);
+  benchmark_contacts(iiwa_filename, iiwa_links, {0}, {6}, false, 1);
+  benchmark_contacts(iiwa_filename, iiwa_links, {0}, {6}, false, 3);
   
   // const std::string RA = "gripper_right_fingertip_3_link";
   // const JointIndex RA_id = model.frames[model.getFrameId(RA)].parentJoint;
