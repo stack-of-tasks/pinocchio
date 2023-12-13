@@ -19,7 +19,8 @@ mesh_dir = pinocchio_model_dir
 # urdf_filename = "talos_reduced.urdf"
 # urdf_model_path = join(join(model_path,"talos_data/robots"),urdf_filename)
 urdf_filename = "solo.urdf"
-urdf_model_path = join(join(model_path, "solo_description/robots"), urdf_filename)
+urdf_model_path = join(
+    join(model_path, "solo_description/robots"), urdf_filename)
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
     urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()
@@ -48,19 +49,29 @@ viz.loadViewerModel()
 # Display a robot configuration.
 q0 = pin.neutral(model)
 viz.display(q0)
-viz.displayCollisions(True)
-viz.displayVisuals(False)
+viz.displayVisuals(True)
 
+# Create a convex shape from solo main body
 mesh = visual_model.geometryObjects[0].geometry
 mesh.buildConvexRepresentation(True)
 convex = mesh.convex
 
+# Place the convex object on the scene and display it
 if convex is not None:
     placement = pin.SE3.Identity()
     placement.translation[0] = 2.0
     geometry = pin.GeometryObject("convex", 0, convex, placement)
     geometry.meshColor = np.ones((4))
+    # Add a PhongMaterial to the convex object
+    geometry.overrideMaterial = True
+    geometry.meshMaterial = pin.GeometryPhongMaterial()
+    geometry.meshMaterial.meshEmissionColor = np.array([1., 0.1, 0.1, 1.])
+    geometry.meshMaterial.meshSpecularColor = np.array([0.1, 1., 0.1, 1.])
+    geometry.meshMaterial.meshShininess = 0.8
     visual_model.addGeometryObject(geometry)
+    # After modifying the visual_model we must rebuild
+    # associated data inside the visualizer
+    viz.rebuildData()
 
 # Display another robot.
 viz2 = MeshcatVisualizer(model, collision_model, visual_model)
@@ -72,7 +83,8 @@ viz2.display(q)
 
 # standing config
 q1 = np.array(
-    [0.0, 0.0, 0.235, 0.0, 0.0, 0.0, 1.0, 0.8, -1.6, 0.8, -1.6, -0.8, 1.6, -0.8, 1.6]
+    [0.0, 0.0, 0.235, 0.0, 0.0, 0.0, 1.0, 0.8, -
+        1.6, 0.8, -1.6, -0.8, 1.6, -0.8, 1.6]
 )
 
 v0 = np.random.randn(model.nv) * 2
