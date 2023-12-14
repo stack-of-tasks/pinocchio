@@ -76,7 +76,7 @@ namespace pinocchio
 
       while ((poAttrName = PyIter_Next(poAttrIter)) != NULL)
       {
-        std::string oAttrName = PyUnicode_AS_DATA(poAttrName);
+        std::string oAttrName((bp::extract<char const*>(poAttrName)));
 
         // Make sure we don't delete any private objects.
         if (!boost::starts_with(oAttrName, "__") || !boost::ends_with(oAttrName, "__"))
