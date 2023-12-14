@@ -9,6 +9,12 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
+/// Be carefull to include this header after fwd.hpp.
+/// fwd.hpp contains some define to change the boost::variant max size.
+/// If we don't include it before, default size is choosed that can
+/// make all the build fail.
+#include <boost/variant.hpp>
+
 #ifdef PINOCCHIO_WITH_HPP_FCL
 
   #if(WIN32)
@@ -119,6 +125,38 @@ enum GeometryType
   COLLISION
 };
 
+/// No material associated to a geometry.
+struct GeometryNoMaterial
+{
+};
+
+/// Mesh material based on the Phong lighting model.
+/// Diffuse color is stored in \p GeometryObject::meshColor.
+struct GeometryPhongMaterial
+{
+  GeometryPhongMaterial() = default;
+  GeometryPhongMaterial(const Eigen::Vector4d& meshEmissionColor,
+                        const Eigen::Vector4d& meshSpecularColor,
+                        double meshShininess)
+    : meshEmissionColor(meshEmissionColor)
+    , meshSpecularColor(meshSpecularColor)
+    , meshShininess(meshShininess)
+  {}
+
+  /// \brief RGBA emission (ambient) color value of the GeometryObject::geometry object.
+  Eigen::Vector4d meshEmissionColor{Eigen::Vector4d(0., 0., 0., 1.)};
+
+  /// \brief RGBA specular color value of the GeometryObject::geometry object.
+  Eigen::Vector4d meshSpecularColor{Eigen::Vector4d(0., 0., 0., 1.)};
+
+  /// \brief Shininess associated to the specular lighting model.
+  ///
+  /// This value must normalized between 0 and 1.
+  double meshShininess{0.};
+};
+
+typedef boost::variant<GeometryNoMaterial, GeometryPhongMaterial> GeometryMaterial;
+
 struct GeometryObject
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -148,17 +186,22 @@ struct GeometryObject
   /// \brief Position of geometry object in parent joint frame
   SE3 placement;
 
-  /// \brief Absolute path to the mesh file (if the fcl pointee is also a Mesh)
+  /// \brief Absolute path to the mesh file (if the geometry pointee is also a Mesh)
   std::string meshPath;
 
-  /// \brief Scaling vector applied to the GeometryObject::fcl object.
+  /// \brief Scaling vector applied to the GeometryObject::geometry object.
   Eigen::Vector3d meshScale;
 
   /// \brief Decide whether to override the Material.
   bool overrideMaterial;
 
-  /// \brief RGBA color value of the GeometryObject::fcl object.
+  /// \brief RGBA diffuse color value of the GeometryObject::geometry object.
   Eigen::Vector4d meshColor;
+
+  /// \brief Material associated to the mesh.
+  /// This material should be used only if overrideMaterial is set to true.
+  /// In other case, the mesh default material must be used.
+  GeometryMaterial meshMaterial;
 
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
@@ -181,6 +224,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
   /// \param[in] meshColor Color of the mesh [if applicable].
   /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
+  /// \param[in] meshMaterial Material of the mesh [if applicable].
   ///
   GeometryObject(const std::string & name,
                  const FrameIndex parent_frame,
@@ -191,7 +235,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
                  const Eigen::Vector4d & meshColor = Eigen::Vector4d(0,0,0,1),
-                 const std::string & meshTexturePath = "")
+                 const std::string & meshTexturePath = "",
+                 const GeometryMaterial& meshMaterial = GeometryNoMaterial())
   : name(name)
   , parentFrame(parent_frame)
   , parentJoint(parent_joint)
@@ -202,6 +247,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   , meshScale(meshScale)
   , overrideMaterial(overrideMaterial)
   , meshColor(meshColor)
+  , meshMaterial(meshMaterial)
   , meshTexturePath(meshTexturePath)
   , disableCollision(false)
   {}
@@ -222,6 +268,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
   /// \param[in] meshColor Color of the mesh [if applicable].
   /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
+  /// \param[in] meshMaterial Material of the mesh [if applicable].
   ///
   GeometryObject(const std::string & name,
                  const JointIndex parent_joint,
@@ -231,7 +278,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
                  const Eigen::Vector4d & meshColor = Eigen::Vector4d::Ones(),
-                 const std::string & meshTexturePath = "")
+                 const std::string & meshTexturePath = "",
+                 const GeometryMaterial& meshMaterial = GeometryNoMaterial())
   : name(name)
   , parentFrame(std::numeric_limits<FrameIndex>::max())
   , parentJoint(parent_joint)
@@ -242,6 +290,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   , meshScale(meshScale)
   , overrideMaterial(overrideMaterial)
   , meshColor(meshColor)
+  , meshMaterial(meshMaterial)
   , meshTexturePath(meshTexturePath)
   , disableCollision(false)
   {}
@@ -268,6 +317,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     meshScale           = other.meshScale;
     overrideMaterial    = other.overrideMaterial;
     meshColor           = other.meshColor;
+    meshMaterial        = other.meshMaterial;
     meshTexturePath     = other.meshTexturePath;
     disableCollision   = other.disableCollision;
     return *this;
