@@ -525,7 +525,16 @@ namespace pinocchio
       data.joint_q = this->jointConfigSelector(qs);
       data.M.translation() = data.joint_q;
     }
-    
+
+    template<typename TangentVector>
+    void calc(JointDataDerived & data,
+              const Blank,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
+    {
+      data.joint_v = this->jointVelocitySelector(vs);
+      data.v.linear() = data.joint_v;
+    }
+
     template<typename ConfigVector, typename TangentVector>
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs,

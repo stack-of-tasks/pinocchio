@@ -623,6 +623,16 @@ internal::comparison_eq(m_v, other.m_v);
       data.S.axis() = axis;
     }
 
+    template<typename TangentVector>
+    void calc(JointDataDerived & data,
+              const Blank,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
+    {
+      data.v.angularRate() = static_cast<Scalar>(vs[idx_v()]);
+      data.v.axis() = axis;
+      data.v.linearRate() = static_cast<Scalar>(vs[idx_v()]*m_pitch);
+    }
+
     template<typename ConfigVector, typename TangentVector>
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs,

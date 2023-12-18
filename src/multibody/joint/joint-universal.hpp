@@ -434,6 +434,26 @@ namespace pinocchio
          rot2.coeffRef(0,2)*axis1.x() + rot2.coeffRef(1,2)*axis1.y() + rot2.coeffRef(2,2)*axis1.z(), axis2.z();
     }
 
+    template<typename TangentVector>
+    void calc(JointDataDerived & data,
+              const Blank,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
+    {
+      data.joint_v = vs.template segment<NV>(idx_v());
+      data.v().noalias() = data.S.angularSubspace() * data.joint_v;
+
+      // TODO: need to be done
+//    #define q_dot data.joint_v
+//      Scalar tmp;
+//      tmp = (-s1+axis2.x()*axis2.x()*s1)*axis1.x() + (axis2.x()*axis2.y()*s1+axis2.z()*c1)*axis1.y() + (axis2.x()*axis2.z()*s1-axis2.y()*c1)*axis1.z();
+//      data.c()(0) = tmp * q_dot(1)*q_dot(0);
+//      tmp = (axis2.x()*axis2.y()*s1-axis2.z()*c1)*axis1.x() + (-s1+axis2.y()*axis2.y()*s1)*axis1.y() + (axis2.y()*axis2.z()*s1+axis2.x()*c1)*axis1.z();
+//      data.c()(1) = tmp * q_dot(1)*q_dot(0);
+//      tmp = (axis2.z()*axis2.x()*s1+axis2.y()*c1)*axis1.x() + (axis2.y()*axis2.z()*s1-axis2.x()*c1)*axis1.y() + (-s1+axis2.z()*axis2.z()*s1)*axis1.z();
+//      data.c()(2) = tmp * q_dot(1)*q_dot(0);
+//    #undef q_dot
+    }
+
     template<typename ConfigVector, typename TangentVector>
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs,

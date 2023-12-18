@@ -531,6 +531,20 @@ namespace pinocchio
 
     }
 
+    template<typename TangentVector>
+    void calc(JointDataDerived & data,
+              const Blank,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
+    {
+      data.joint_v = vs.template segment<NV>(idx_v());
+
+#define q_dot data.joint_v
+      data.v.vx() = q_dot(0);
+      data.v.vy() = q_dot(1);
+      data.v.wz() = q_dot(2);
+#undef q_dot
+    }
+
     template<typename ConfigVector, typename TangentVector>
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs,

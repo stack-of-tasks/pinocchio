@@ -305,10 +305,15 @@ namespace pinocchio
 
     template<typename, int, template<typename S, int O> class, typename, typename>
     friend struct JointCompositeCalcFirstOrderStep;
-    
+
     template<typename ConfigVectorType, typename TangentVectorType>
     void calc(JointDataDerived & data,
               const Eigen::MatrixBase<ConfigVectorType> & qs,
+              const Eigen::MatrixBase<TangentVectorType> & vs) const;
+
+    template<typename TangentVectorType>
+    void calc(JointDataDerived & data,
+              const Blank blank,
               const Eigen::MatrixBase<TangentVectorType> & vs) const;
     
     template<typename VectorLike, typename Matrix6Like>

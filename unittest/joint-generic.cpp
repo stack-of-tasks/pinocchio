@@ -21,6 +21,7 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
                         JointDataBase<typename JointModel::JointDataDerived> & jdata)
 {
   typedef typename LieGroup<JointModel>::type LieGroupType;
+  typedef typename JointModel::JointDataDerived JointData;
 
   std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
   
@@ -100,6 +101,18 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
 
   BOOST_CHECK_MESSAGE(IdenseS.isApprox(IsparseS),std::string(error_prefix + "- Joint YS operation "));
 
+  // Test calc
+  {
+    JointData jdata1(jdata.derived());
+
+    jmodel.calc(jdata1.derived(), q1, v1);
+    jmodel.calc(jdata1.derived(), Blank(), v2);
+
+    JointData jdata_ref(jdata.derived());
+    jmodel.calc(jdata_ref.derived(), q1, v2);
+
+    BOOST_CHECK_MESSAGE(pinocchio::JointData(jdata1).v() == pinocchio::JointData(jdata_ref).v(),std::string(error_prefix + "- joint.calc(jdata,*,v) "));
+  }
 }
 
 template<typename JointModel_> struct init;

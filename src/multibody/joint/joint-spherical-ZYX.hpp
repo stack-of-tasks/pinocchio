@@ -378,6 +378,22 @@ namespace pinocchio
       c1 * c2, -s2, Scalar(0);
     }
 
+    template<typename TangentVector>
+    void calc(JointDataDerived & data,
+              const Blank,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
+    {
+      data.joint_v = vs.template segment<NV>(idx_v());
+      data.v().noalias() = data.S.angularSubspace() * data.joint_v;
+
+      // TODO(jcarpent): to be done
+//#define q_dot data.joint_v
+//      data.c()(0) = -c1 * q_dot(0) * q_dot(1);
+//      data.c()(1) = -s1 * s2 * q_dot(0) * q_dot(1) + c1 * c2 * q_dot(0) * q_dot(2) - s2 * q_dot(1) * q_dot(2);
+//      data.c()(2) = -s1 * c2 * q_dot(0) * q_dot(1) - c1 * s2 * q_dot(0) * q_dot(2) - c2 * q_dot(1) * q_dot(2);
+//#undef q_dot
+    }
+
     template<typename ConfigVector, typename TangentVector>
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs,

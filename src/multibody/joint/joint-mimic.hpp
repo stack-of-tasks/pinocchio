@@ -504,7 +504,19 @@ namespace pinocchio
                            m_scaling,m_offset,jdata.joint_q);
       m_jmodel_ref.calc(jdata.m_jdata_ref,jdata.joint_q);
     }
-    
+
+    template<typename TangentVector>
+    EIGEN_DONT_INLINE
+    void calc(JointDataDerived & jdata,
+              const Blank blank,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
+    {
+      jdata.joint_v = m_scaling * vs.head(m_jmodel_ref.nv());
+      m_jmodel_ref.calc(jdata.m_jdata_ref,
+                        blank,
+                        jdata.joint_v);
+    }
+
     template<typename ConfigVector, typename TangentVector>
     EIGEN_DONT_INLINE
     void calc(JointDataDerived & jdata,

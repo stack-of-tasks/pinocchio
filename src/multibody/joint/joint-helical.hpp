@@ -792,6 +792,17 @@ namespace pinocchio
       data.S.h() = m_pitch;
     }
 
+    template<typename TangentVector>
+    EIGEN_DONT_INLINE
+    void calc(JointDataDerived & data,
+              const Blank,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
+    {
+      data.joint_v[0] = vs[idx_v()];
+      data.v.angularRate() = data.joint_v[0];
+      data.v.linearRate() = data.joint_v[0]*m_pitch;
+    }
+
     template<typename ConfigVector, typename TangentVector>
     EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,

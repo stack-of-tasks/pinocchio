@@ -588,6 +588,14 @@ namespace pinocchio
       toRotationMatrix(axis,data.joint_q[0],data.M.rotation());
     }
 
+    template<typename TangentVector>
+    void calc(JointDataDerived & data,
+              const Blank,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
+    {
+      data.v.angularRate() = static_cast<Scalar>(vs[idx_v()]);
+    }
+
     template<typename ConfigVector, typename TangentVector>
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs,

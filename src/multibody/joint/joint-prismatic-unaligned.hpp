@@ -561,6 +561,15 @@ namespace pinocchio
       data.M.translation().noalias() = axis * data.joint_q[0];
     }
 
+    template<typename TangentVector>
+    void calc(JointDataDerived & data,
+              const Blank,
+              const typename Eigen::MatrixBase<TangentVector> & vs) const
+    {
+      data.joint_v[0] = vs[idx_v()];
+      data.v.linearRate() = data.joint_v[0];
+    }
+
     template<typename ConfigVector, typename TangentVector>
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs,

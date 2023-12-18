@@ -151,6 +151,74 @@ namespace pinocchio
     jdata.M = jdata.iMlast.front();
   }
 
+    template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename TangentVectorType>
+  struct JointCompositeCalcFirstOrderStep<Scalar,Options,JointCollectionTpl,Blank,TangentVectorType>
+  : public fusion::JointUnaryVisitorBase< JointCompositeCalcFirstOrderStep<Scalar,Options,JointCollectionTpl,Blank,TangentVectorType> >
+  {
+    typedef JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> JointModelComposite;
+    typedef JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> JointDataComposite;
+
+    typedef boost::fusion::vector<const JointModelComposite &,
+                                  JointDataComposite &,
+                                  Blank,
+                                  const TangentVectorType &
+                                  > ArgsType;
+
+    template<typename JointModel>
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const JointModelComposite & model,
+                     JointDataComposite & data,
+                     const Blank blank,
+                     const Eigen::MatrixBase<TangentVectorType> & v)
+    {
+      const JointIndex i = jmodel.id();
+      const JointIndex succ = i+1; // successor
+
+      jmodel.calc(jdata.derived(), blank, v.derived());
+
+      if (succ == model.joints.size())
+      {
+        data.v = jdata.v();
+        data.c = jdata.c();
+      }
+      else
+      {
+        typename JointModelComposite::Motion v_tmp = data.iMlast[succ].actInv(jdata.v());
+
+        data.v += v_tmp;
+
+        data.c -= data.v.cross(v_tmp);
+        data.c += data.iMlast[succ].actInv(jdata.c());
+      }
+
+    }
+
+  };
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  template<typename TangentVectorType>
+  inline void JointModelCompositeTpl<Scalar,Options,JointCollectionTpl>
+  ::calc(JointDataDerived & jdata,
+         const Blank blank,
+         const Eigen::MatrixBase<TangentVectorType> & vs) const
+  {
+    assert(joints.size() > 0);
+    assert(jdata.joints.size() == joints.size());
+    
+    typedef JointCompositeCalcFirstOrderStep<Scalar,Options,JointCollectionTpl,Blank,TangentVectorType> Algo;
+
+    jdata.joint_v = vs.segment(idx_v(),nv());
+    for (int i=(int)(joints.size()-1); i >= 0; --i)
+    {
+      Algo::run(joints[(size_t)i],
+                jdata.joints[(size_t)i],
+                typename Algo::ArgsType(*this,jdata,blank,vs.derived()));
+    }
+    
+    jdata.M = jdata.iMlast.front();
+  }
+
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_multibody_joint_composite_hxx__

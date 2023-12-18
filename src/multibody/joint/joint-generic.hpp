@@ -231,7 +231,7 @@ namespace pinocchio
     template<typename JointModelDerived>
     bool isEqual(const JointModelBase<JointModelDerived> & other) const
     {
-      return ::pinocchio::isEqual(*this,other.derived());;
+      return ::pinocchio::isEqual(*this,other.derived());
     }
     
     template<typename JointModelDerived>
@@ -258,14 +258,20 @@ namespace pinocchio
     template<typename ConfigVector>
     void calc(JointDataDerived & data,
               const Eigen::MatrixBase<ConfigVector> & q) const
-    { calc_zero_order(*this,data,q); }
+    { calc_zero_order(*this,data,q.derived()); }
+
+    template<typename TangentVector>
+    void calc(JointDataDerived & data,
+              const Blank blank,
+              const Eigen::MatrixBase<TangentVector> & v) const
+    { calc_first_order(*this,data,blank,v.derived()); }
 
     template<typename ConfigVector, typename TangentVector>
     void calc(JointDataDerived & data,
               const Eigen::MatrixBase<ConfigVector> & q,
               const Eigen::MatrixBase<TangentVector> & v) const
-    { calc_first_order(*this,data,q,v); }
-    
+    { calc_first_order(*this,data,q.derived(),v.derived()); }
+
     template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
                   const Eigen::MatrixBase<VectorLike> & armature,

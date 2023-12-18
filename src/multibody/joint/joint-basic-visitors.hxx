@@ -101,6 +101,39 @@ namespace pinocchio
     Algo::run(jmodel, jdata, typename Algo::ArgsType(q.derived(),v.derived()));
   }
 
+  /**
+   * @brief      JointCalcFirstOrderVisitor fusion visitor
+   */
+  template<typename TangentVectorType>
+  struct JointCalcFirstOrderVisitor<Blank,TangentVectorType>
+  : fusion::JointUnaryVisitorBase< JointCalcFirstOrderVisitor<Blank,TangentVectorType> >
+  {
+    typedef boost::fusion::vector<const Blank,
+                                  const TangentVectorType &> ArgsType;
+
+    template<typename JointModel>
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Blank blank,
+                     const Eigen::MatrixBase<TangentVectorType> & v
+                     )
+    {
+      jmodel.calc(jdata.derived(),blank,v.derived());
+    }
+
+  };
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename TangentVectorType>
+  inline void calc_first_order(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
+                               JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata,
+                               const Blank blank,
+                               const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    typedef JointCalcFirstOrderVisitor<Blank,TangentVectorType> Algo;
+
+    Algo::run(jmodel, jdata, typename Algo::ArgsType(blank,v.derived()));
+  }
+
 
   /**
    * @brief      JointCalcAbaVisitor fusion visitor

@@ -93,7 +93,15 @@ namespace pinocchio
     {
       derived().calc(data,qs.derived());
     }
-    
+
+    template<typename TangentVectorType>
+    void calc(JointDataDerived & data,
+              const Blank not_used,
+              const Eigen::MatrixBase<TangentVectorType> & vs) const
+    {
+      derived().calc(data,not_used,vs.derived());
+    }
+
     template<typename ConfigVectorType, typename TangentVectorType>
     void calc(JointDataDerived & data,
               const Eigen::MatrixBase<ConfigVectorType> & qs,

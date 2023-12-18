@@ -58,7 +58,24 @@ namespace pinocchio
                                JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata,
                                const Eigen::MatrixBase<ConfigVectorType> & q,
                                const Eigen::MatrixBase<TangentVectorType> & v);
-  
+
+  /**
+   * @brief      Visit a JointModelTpl and the corresponding JointDataTpl through JointCalcFirstOrderVisitor
+   *             to compute the joint data kinematics at order one.
+   *
+   * @tparam JointCollection    Collection of Joint types.
+   * @tparam TangentVectorType  Type of the joint velocity vector.
+   *
+   * @param[in]  jmodel  The corresponding JointModelVariant to the JointDataVariant we want to update
+   * @param      jdata   The JointDataVariant we want to update
+   * @param[in]  v       The full model's (in which the joint belongs to) velocity vector
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename TangentVectorType>
+  inline void calc_first_order(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
+                               JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata,
+                               const Blank blank,
+                               const Eigen::MatrixBase<TangentVectorType> & v);
+
   
   /**
    * @brief      Visit a JointModelTpl and the corresponding JointDataTpl through JointCalcAbaVisitor to.
