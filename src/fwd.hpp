@@ -62,7 +62,10 @@ namespace pinocchio
   /// \brief Common traits structure to fully define base classes for CRTP.
   ///
   template<class C> struct traits {};
-  
+
+  /// \brief Blank type
+  struct Blank {};
+
   namespace internal
   {
     template<typename T> struct traits {};
