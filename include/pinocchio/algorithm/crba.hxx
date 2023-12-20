@@ -74,10 +74,10 @@ namespace pinocchio
 
       /* F[1:6,i] = Y*S */
       //data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
-      jmodel.jointCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
+      jmodel.jointCols(data.Fcrb[i]).noalias() = data.Ycrb[i] * jdata.S();
 
       /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
-      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]) 
+      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = jdata.S().transpose()*data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
 
       const JointIndex & parent = model.parents[i];
@@ -120,10 +120,10 @@ namespace pinocchio
       const JointIndex & i = jmodel.id();
       jmodel.calc(jdata.derived(),q.derived());
       
-      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+      data.liMi[i].noalias() = model.jointPlacements[i]*jdata.M();
       
       const JointIndex & parent = model.parents[i];
-      if (parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
+      if (parent>0) data.oMi[i].noalias() = data.oMi[parent]*data.liMi[i];
       else data.oMi[i] = data.liMi[i];
       
       jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
@@ -154,7 +154,7 @@ namespace pinocchio
       const JointIndex & i = jmodel.id();
       
       /* F[1:6,i] = Y*S */
-      jdata.U() = data.Ycrb[i] * jdata.S();
+      jdata.U().noalias() = data.Ycrb[i] * jdata.S();
       ColsBlock jF = data.Ag.template middleCols<JointModel::NV>(jmodel.idx_v());
       //        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
       
@@ -287,3 +287,4 @@ namespace pinocchio
 /// @endcond
 
 #endif // ifndef __pinocchio_crba_hxx__
+
