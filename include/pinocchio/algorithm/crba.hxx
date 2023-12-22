@@ -77,7 +77,7 @@ namespace pinocchio
       jmodel.jointCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
 
       /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
-      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]) 
+      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = jdata.S().transpose()*data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
 
       const JointIndex & parent = model.parents[i];

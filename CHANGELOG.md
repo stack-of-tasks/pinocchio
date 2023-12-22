@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix missing include for Boost >= 1.83 ([#2103](https://github.com/stack-of-tasks/pinocchio/pull/2103))
 - Remove f-strings to fix install with python 2 ([#2110](https://github.com/stack-of-tasks/pinocchio/pull/2110))
 - CMake: stop exporting CppAd/cppadcodegen & fetch submodule if not available ([#2112](https://github.com/stack-of-tasks/pinocchio/pull/2112))
+- Fix malloc issue in CRBA algo ([#2126](https://github.com/stack-of-tasks/pinocchio/pull/2126))
 
 ## [2.6.21] - 2023-11-27
 
