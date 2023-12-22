@@ -527,14 +527,14 @@ class MeshcatVisualizer(BaseVisualizer):
         "talos2": [[0.0, 1.1, 0.0], [1.2, 0.6, 1.5]],
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, model = pin.Model(), collision_model = None, visual_model = None, copy_models = False, data = None, collision_data = None, visual_data = None):
         if not import_meshcat_succeed:
             msg = ("Error while importing the viewer client.\n"
             "Check whether meshcat is properly installed (pip install --user meshcat)."
             )
             raise ImportError(msg)
 
-        super(MeshcatVisualizer, self).__init__(*args, **kwargs)
+        super(MeshcatVisualizer, self).__init__(model, collision_model, visual_model, copy_models, data, collision_data, visual_data)
         self.static_objects = []
 
     def getViewerNodeName(self, geometry_object, geometry_type):
