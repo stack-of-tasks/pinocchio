@@ -1,5 +1,4 @@
 from .. import pinocchio_pywrap_default as pin
-from ..shortcuts import buildModelsFromUrdf, createDatas
 from ..utils import npToTuple
 
 from . import BaseVisualizer
@@ -21,7 +20,7 @@ else:
 import xml.etree.ElementTree as Et
 import base64
 
-from typing import Optional, Any, Dict, Union, Type, Set
+from typing import Optional, Any, Dict, Union, Set
 
 MsgType = Dict[str, Union[str, bytes, bool, float, 'MsgType']]
 
