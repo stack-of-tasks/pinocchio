@@ -312,15 +312,6 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   pv_settings.max_iter = 1;
   initPvSolver(model,data,contact_models);
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
-  // auto con_Residual = J_ref*data.ddq+rhs_ref;
-  // BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
-  
-  // Check that the decomposition is correct
-  // const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
-  // Eigen::MatrixXd KKT_matrix = contact_chol.matrix();
-  
-  // BOOST_CHECK(KKT_matrix.bottomRightCorner(model.nv,model.nv).isApprox(KKT_matrix_ref.bottomRightCorner(model.nv,model.nv)));
-  // BOOST_CHECK(KKT_matrix.isApprox(KKT_matrix_ref));
   
   // Check solutions
   auto ddq_err = data_ref.ddq - data.ddq;
@@ -475,6 +466,18 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
 
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  pv_settings.use_early = true;
+  pv_settings.max_iter = 10;
+  pv_settings.mu = 1e-3;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  std::cout<< "Talos cABA err = " << std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq)) << std::endl;
+
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
   // Send non-zero mu and max 1 iteration and the solution should not match
   // prox_settings.mu = 1e-6;
   // pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
@@ -482,8 +485,7 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
 
   // Change max iter to 10 and now should work
   // prox_settings.max_iter = 20;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
-  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  
 
 }
 
@@ -565,7 +567,6 @@ BOOST_AUTO_TEST_CASE(test_CD_3D_LOCAL_Quadruped)
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
   
   // Check solutions
-  auto ddq_err2 = data_ref.ddq - data.ddq;
   std::cout << "Error for solo = " << std::sqrt(ddq_err.dot(ddq_err)) << "\n";
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 

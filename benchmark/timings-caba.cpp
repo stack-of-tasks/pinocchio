@@ -189,6 +189,9 @@ int main(int argc, const char ** argv)
 
   std::string iiwa_filename = "/iiwa2.urdf";
   std::vector<std::string> iiwa_links = {"iiwa_link_7"};
+
+  std::string atlas_filename = "/atlas_with_srs.urdf";
+  std::vector<std::string> atlas_links = {"l_foot", "r_foot", "sr_left_thumb_distal", "sr_left_index_finger_distal", "sr_left_middle_finger_distal", "sr_left_ring_finger_distal", "sr_left_little_finger_distal", "sr_right_thumb_distal", "sr_right_index_finger_distal", "sr_right_middle_finger_distal", "sr_right_ring_finger_distal", "sr_right_little_finger_distal"};
   
   std::vector<std::string> chain_names;
   std::vector<std::string> chain_links;
@@ -205,6 +208,16 @@ int main(int argc, const char ** argv)
   }
   // std::vector<int> link_names = {}
   // benchmark_contacts(talos_filename, talos_links, {0, 1}, {6, 6});
+
+  benchmark_contacts(atlas_filename, atlas_links, {0}, {6}, true, 1);
+   benchmark_contacts(atlas_filename, atlas_links, {0}, {6}, true, 3);
+  benchmark_contacts(atlas_filename, atlas_links, {0, 1}, {6, 6}, true, 1);
+  benchmark_contacts(atlas_filename, atlas_links, {0, 1}, {6, 6}, true, 3);
+  benchmark_contacts(atlas_filename, atlas_links, {0, 1, 2, 3, 4, 5, 6}, {6, 6, 3, 3, 3, 3, 3}, true, 1);
+  benchmark_contacts(atlas_filename, atlas_links, {0, 1, 2, 3, 4, 5, 6}, {6, 6, 3, 3, 3, 3, 3}, true, 3);
+  benchmark_contacts(atlas_filename, atlas_links, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, {6, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}, true, 1);
+  benchmark_contacts(atlas_filename, atlas_links, {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, {6, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}, true, 3);
+  std::cout << "\n\n";
 
   benchmark_contacts(talos_filename, talos_links, {0, 1}, {6, 6}, true, 1);
   benchmark_contacts(talos_filename, talos_links, {0, 1}, {6, 6}, true, 3);
@@ -225,79 +238,7 @@ int main(int argc, const char ** argv)
   benchmark_contacts(iiwa_filename, iiwa_links, {0}, {3}, false, 3);
   benchmark_contacts(iiwa_filename, iiwa_links, {0}, {6}, false, 1);
   benchmark_contacts(iiwa_filename, iiwa_links, {0}, {6}, false, 3);
-  
-  // const std::string RA = "gripper_right_fingertip_3_link";
-  // const JointIndex RA_id = model.frames[model.getFrameId(RA)].parentJoint;
-  // const std::string LA = "gripper_left_fingertip_3_link";
-  // const JointIndex LA_id = model.frames[model.getFrameId(LA)].parentJoint;
-  // const std::string RF = "leg_right_6_link";
-  // const JointIndex RF_id = model.frames[model.getFrameId(RF)].parentJoint;
-  // const std::string LF = "leg_left_6_link";
-  // const JointIndex LF_id = model.frames[model.getFrameId(LF)].parentJoint;
 
-  // RigidConstraintModel ci_RF_6D(CONTACT_6D,model,RF_id,LOCAL);
-  // RigidConstraintModel ci_RF_3D(CONTACT_3D,model,RF_id,LOCAL);
-
-  // RigidConstraintModel ci_LF_6D(CONTACT_6D,model,LF_id,LOCAL);
-  // RigidConstraintModel ci_LF_3D(CONTACT_3D,model,LF_id,LOCAL);
-
-  // RigidConstraintModel ci_RA_3D(CONTACT_3D,model,RA_id,LOCAL);
-  // RigidConstraintModel ci_LA_3D(CONTACT_3D,model,LA_id,LOCAL);
-
-  // RigidConstraintModel ci_RA_6D(CONTACT_6D,model,RA_id,LOCAL);
-  // RigidConstraintModel ci_LA_6D(CONTACT_6D,model,LA_id,LOCAL);
-
-  // // Define contact infos structure
-  // static const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_empty;
-  // static PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_empty;
-  // cholesky::ContactCholeskyDecomposition contact_chol_empty(model,contact_models_empty);
-
-  // PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D;
-  // contact_models_6D.push_back(ci_RF_6D);
-  // PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D;
-  // contact_data_6D.push_back(RigidConstraintData(ci_RF_6D));
-
-  // PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D6D;
-  // PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D6D;
-
-  // int num_cons;
-  // std::cout << "Enter number of contacts: ";
-  // std::cin >> num_cons;
-
-  // if (num_cons > 0)
-  // { 
-  //   contact_models_6D6D.push_back(ci_RF_6D);
-  //   contact_data_6D6D.push_back(RigidConstraintData(ci_RF_6D));
-  // }
-  // if (num_cons > 1)
-  // {
-  //   contact_models_6D6D.push_back(ci_LF_6D);
-  //   contact_data_6D6D.push_back(RigidConstraintData(ci_LF_6D));
-  // }
-  // if (num_cons > 2)
-  // {
-  //   contact_models_6D6D.push_back(ci_RA_6D);
-  //   contact_data_6D6D.push_back(RigidConstraintData(ci_RA_6D));
-  // }
-  // if (num_cons > 3)
-  // {
-  //   contact_models_6D6D.push_back(ci_LA_6D);
-  //   contact_data_6D6D.push_back(RigidConstraintData(ci_LA_6D));
-  // }
-
-  // const double mu = 1e-7;
-  // int max_iter = 2;
-  // std::cout << "Enter max_iter: ";
-  // std::cin >> max_iter;
-
-  // std::cout << "nq = " << model.nq << std::endl;
-  // std::cout << "nv = " << model.nv << std::endl;
-  // std::cout << "--" << std::endl;
-
-  // Data data(model);
-  // VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
-
-  // run_solvers(model, contact_models_6D6D, contact_data_6D6D, 5);
 
 
   return 0;

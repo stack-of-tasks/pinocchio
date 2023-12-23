@@ -1003,19 +1003,23 @@ namespace pinocchio
         lambda_ind += data.constraints_supported[joint_id];
       }
 
+      typedef cAbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+      for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+      {
+        if (data.constraints_supported[i] > 0)
+          Pass3::run(model.joints[i],data.joints[i],
+                   typename Pass3::ArgsType(model,data));
+      }
+
       for (int i = 1; i < pv_settings.max_iter; i++)
       { 
-        typedef cAbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
-        for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
-        {
-          Pass3::run(model.joints[i],data.joints[i],
-                     typename Pass3::ArgsType(model,data));
-        }
+        
         data.lambdaA[0].noalias() += (1/pv_settings.mu)*data.lambda_c_prox;
         // set all f[i] to zero or TODO: to external forces
         for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
         {
-          data.f[j].toVector().setZero(); //data.v[j].cross(data.h[j]);
+          if (data.constraints_supported[i] > 0)
+            data.f[j].toVector().setZero(); //data.v[j].cross(data.h[j]);
         }
         // Compute lambda_prox and update the data.f
         lambda_ind = 0;
@@ -1036,7 +1040,8 @@ namespace pinocchio
         // outward sweep
         for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
         {
-          Pass3::run(model.joints[j],data.joints[j],
+          if (data.constraints_supported[j] > 0)
+            Pass3::run(model.joints[j],data.joints[j],
                  typename Pass3::ArgsType(model,data));
         }
         lambda_ind = 0;
@@ -1052,6 +1057,13 @@ namespace pinocchio
         if(check_expression_if_real<Scalar,false>(pv_settings.absolute_residual <= pv_settings.absolute_accuracy)) // In the case where Scalar is not double, this will iterate for max_it.
         {
             // std::cout << "Iterations made: " << i + 1 << std::endl;
+            // outward sweep for joints not supporting a constraint
+            for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
+            {
+              if (data.constraints_supported[j] == 0)
+                Pass3::run(model.joints[j],data.joints[j],
+                     typename Pass3::ArgsType(model,data));
+            }
             break;
           }
         // data.lambda_c_prox.noalias() = data.lambdaA[0];
