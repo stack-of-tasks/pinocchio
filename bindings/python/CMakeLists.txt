@@ -179,6 +179,7 @@ IF(BUILD_PYTHON_INTERFACE)
 
   # --- INSTALL SCRIPTS
   SET(PYTHON_FILES
+    __init__.py
     deprecated.py
     deprecation.py
     utils.py
