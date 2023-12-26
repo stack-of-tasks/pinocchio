@@ -5,13 +5,18 @@
 #ifndef __pinocchio_algorithm_constraint_dynamics_hxx__
 #define __pinocchio_algorithm_constraint_dynamics_hxx__
 
+#include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/spatial/classic-acceleration.hpp"
 #include "pinocchio/spatial/explog.hpp"
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hxx"
-
+#include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/cholesky.hpp"
+#include "pinocchio/multibody/data.hpp"
+#include "pinocchio/spatial/se3.hpp"
+#include <Eigen/Dense>
 #include <limits>
 
 namespace pinocchio
@@ -777,7 +782,7 @@ namespace pinocchio
 
     Scalar primal_infeasibility = Scalar(0);
     int it = 0;
-    for(int it = 0; it < settings.max_iter; ++it)
+    for(it = 0; it < settings.max_iter; ++it)
     {
       // Compute contact acceleration errors and max contact errors, aka primal_infeasibility
       primal_infeasibility = Scalar(0);
@@ -866,6 +871,187 @@ namespace pinocchio
 
     settings.iter = it;
     settings.absolute_residual = primal_infeasibility;
+
+    return data.ddq;
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ModelAllocator, class DataAllocator>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  proxLTLs(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+             const Eigen::MatrixBase<ConfigVectorType> & q,
+             const Eigen::MatrixBase<TangentVectorType1> & v,
+             const Eigen::MatrixBase<TangentVectorType2> & tau,
+             const std::vector<RigidConstraintModelTpl<Scalar,Options>,ModelAllocator> & contact_models,
+             std::vector<RigidConstraintDataTpl<Scalar,Options>,DataAllocator> & contact_data,
+             ProximalSettingsTpl<Scalar> & settings)
+  {
+    using namespace Eigen;
+    
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq,
+                                   "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv,
+                                   "The joint velocity vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv,
+                                   "The joint torque vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(settings.mu >= Scalar(0)),
+                                   "mu has to be positive");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(contact_models.size(), contact_data.size(),
+                                   "contact models and data size are not the same");
+
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+
+    typedef typename Data::Motion Motion;
+
+    typedef typename Model::JointIndex JointIndex;
+    typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+    typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
+    typedef typename Data::Force Force;
+
+    // Forward pass to compute the Jacobian and the inertia matrices
+    typedef ContactABAForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+    data.tau = tau;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
+      data.of_augmented[i].setZero();
+      data.of[i] += data.oYcrb[i]*data.oa_drift[i];
+    }
+
+    // Update the inertia matrix of the constrained links
+    for(size_t k = 0; k < contact_models.size(); ++k)
+    {
+      const RigidConstraintModel & cmodel = contact_models[k];
+      RigidConstraintData & cdata = contact_data[k];
+
+      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
+
+      // Compute relative placement between the joint and the contact frame
+      SE3 & oMc = cdata.oMc1;
+      oMc = data.oMi[joint1_id] * cmodel.joint1_placement; // contact placement
+
+      typedef typename Data::Inertia Inertia;
+      typedef typename Inertia::Symmetric3 Symmetric3;
+
+      // Add contact inertia to the joint articulated inertia
+      Symmetric3 S(Symmetric3::Zero());
+      if(cmodel.type == CONTACT_6D)
+        S.setDiagonal(Symmetric3::Vector3::Constant(settings.mu));
+
+      const Inertia contact_inertia(settings.mu,oMc.translation(),S);
+      data.oYcrb[joint1_id] += contact_inertia;
+
+      typename Data::Motion & joint_velocity = data.ov[joint1_id];
+      Motion & contact1_velocity = cdata.contact1_velocity;
+      contact1_velocity = oMc.actInv(joint_velocity);
+
+      typename Data::Motion & joint_spatial_acceleration_drift = data.oa_drift[joint1_id];
+      Motion & contact_acceleration_drift = cdata.contact1_acceleration_drift;
+      contact_acceleration_drift
+      = cmodel.desired_contact_acceleration - oMc.actInv(joint_spatial_acceleration_drift);
+
+      // Handle the classic acceleration term
+      if(cmodel.type == CONTACT_3D)
+        contact_acceleration_drift.linear() -= contact1_velocity.angular().cross(contact1_velocity.linear());
+
+      // Init contact force
+    //  cdata.contact_force.setZero();
+
+      // Add the contribution of the constraints to the force vector
+      // data.of_augmented[joint1_id] = oMc.act(cdata.contact_force);
+      if(cmodel.type == CONTACT_3D)
+      {
+        data.of_augmented[joint1_id] -= settings.mu * oMc.act(Force(contact_acceleration_drift.linear(),
+                                                                    Force::Vector3::Zero()));
+      }
+      else
+      {
+        data.of_augmented[joint1_id] -= oMc.act(Force(settings.mu * contact_acceleration_drift.toVector()));
+      }
+    }
+
+    // Backward pass to compute the modified CRBA
+    typedef impl::CrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      Pass2::run(model.joints[i],
+                 typename Pass2::ArgsType(model,data));
+
+      // Compute data.oF in RNEA style to get bias forces
+      const JointIndex & parent  = model.parents[i];
+      const JointModel & jmodel = model.joints[i];
+      data.of[i] += data.of_augmented[i];
+      data.of[parent] += data.of[i];
+
+      // subtract the bias forces from the torque to get Mv_dot_free
+      jmodel.jointVelocitySelector(data.tau).noalias() -= jmodel.jointCols(data.J).transpose()*(data.of[i].toVector());
+      data.of_augmented[i].toVector().setZero();
+    }
+
+    // Factorize the CRBA
+    // crba(model, data, q);
+    pinocchio::cholesky::decompose(model, data);
+    data.ddq = pinocchio::cholesky::solve(model, data, data.tau);
+
+    data.u = data.ddq;
+    data.tau.setZero();
+    // Proximal iterations
+    for (int it = 1; it < settings.max_iter; it++)
+    {     
+      // Compute accelerations and constraint residual
+      data.oa_augmented[0].setZero();
+      for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+      {
+        const JointModel & jmodel = model.joints[i];
+        data.oa_augmented[i].toVector().noalias() = data.oa_augmented[model.parents[i]].toVector() + jmodel.jointCols(data.J)*jmodel.jointVelocitySelector(data.u);
+        data.of_augmented[i].toVector().setZero();
+        
+      }
+
+      // Check convergence
+      for(size_t k = 0; k < contact_models.size(); ++k)
+    {
+      const RigidConstraintModel & cmodel = contact_models[k];
+      RigidConstraintData & cdata = contact_data[k];
+
+      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
+
+      // Compute relative placement between the joint and the contact frame
+      SE3 & oMc = cdata.oMc1;
+      oMc = data.oMi[joint1_id] * cmodel.joint1_placement; // contact placement
+
+      Motion & contact_acceleration_drift = cdata.contact1_acceleration_drift;
+      contact_acceleration_drift
+      -= oMc.actInv(data.oa_augmented[joint1_id]);
+
+      // Add the contribution of the constraints to the force vector
+      if(cmodel.type == CONTACT_3D)
+      {
+        data.of_augmented[joint1_id] -= settings.mu * oMc.act(Force(contact_acceleration_drift.linear(),
+                                                                    Force::Vector3::Zero()));
+      }
+      else
+      {
+        data.of_augmented[joint1_id] -= oMc.act(Force(settings.mu * contact_acceleration_drift.toVector()));
+      }
+    }
+
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      const JointIndex & parent  = model.parents[i];
+      const JointModel & jmodel = model.joints[i];
+      data.of_augmented[parent] += data.of_augmented[i];
+
+      jmodel.jointVelocitySelector(data.tau).noalias() = -jmodel.jointCols(data.J).transpose()*(data.of_augmented[i].toVector());
+    }
+
+    data.u = cholesky::solve(model, data, data.tau);
+    data.ddq.noalias() += data.u;
+
+    }
 
     return data.ddq;
   }

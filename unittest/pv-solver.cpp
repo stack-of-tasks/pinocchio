@@ -160,6 +160,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   // initPvSolver(model, data, empty_contact_models);
   pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings, pv_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+  std::cout << "Error for iiwa (pv) = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
 
 }
 
@@ -327,34 +328,24 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   auto ddq_err2 = data_ref.ddq - data.ddq;
   std::cout << "Error for iiwa = " << std::sqrt(ddq_err2.dot(ddq_err2)) << "\n";
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
-  
-  // Eigen::DenseIndex constraint_id = 0;
-  // for(size_t k = 0; k < contact_models.size(); ++k)
-  // {
-  //   const RigidConstraintModel & cmodel = contact_models[k];
-  //   const RigidConstraintData & cdata = contact_datas[k];
-    
-  //   switch(cmodel.type)
-  //   {
-  //     case pinocchio::CONTACT_3D:
-  //     {
-  //       BOOST_CHECK(cdata.contact_force.linear().isApprox(data_ref.lambda_c.segment(constraint_id,cmodel.size())));
-  //       break;
-  //     }
-        
-  //     case pinocchio::CONTACT_6D:
-  //     {
-  //       ForceRef<Data::VectorXs::FixedSegmentReturnType<6>::Type> f_ref(data_ref.lambda_c.segment<6>(constraint_id));
-  //       BOOST_CHECK(cdata.contact_force.isApprox(f_ref));
-  //       break;
-  //     }
-        
-  //     default:
-  //       break;
-  //   }
-    
-  //   constraint_id += cmodel.size();
-  // }
+
+  prox_settings.max_iter = 10;
+  prox_settings.mu = 1e4;
+  proxLTLs(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+    // std::cout << "M (proxLTLs) = " <<  data.M << std::endl;
+    // std::cout << "qdd LTLs = " <<  data.ddq << std::endl;
+    // std::cout << "qdd LTL = " <<  data_ref.ddq << std::endl;
+  std::cout << "Error for iiwa (proxLTLs) = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+
+  aba(model,data_ref,q,v,tau);
+
+  prox_settings.max_iter = 1;
+  contact_models.pop_back();
+  contact_datas.pop_back();
+  proxLTLs(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+  std::cout << "Error for iiwa (proxLTLs) = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
 }
 
 
@@ -442,8 +433,24 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
    pv_settings.max_iter = 1;
   pv_settings.mu = 0.0;
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  std::cout << "Error for pv = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  // pv_settings.use_early = true;
+  //  pv_settings.max_iter = 1;
+  // pv_settings.mu = 1e-3;
+  // pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  // std::cout << "Error for pv = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
   // auto con_Residual = J_ref*data.ddq+rhs_ref;
   // BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
+
+  prox_settings.max_iter = 10;
+  prox_settings.mu = 1e4;
+  data.ddq.setZero();
+  proxLTLs(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  std::cout << "Error for proxLTLs = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+  prox_settings.mu = 0.0;
   
   // Check that the decomposition is correct
   // const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
@@ -454,7 +461,7 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
   
   // Check solutions
   // auto ddq_err = (data.ddq - data_ref.ddq).eval();
-  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  
 
   // Check the solver works the second time for new random inputs
   q = randomConfiguration(model);
@@ -462,6 +469,7 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
   tau = VectorXd::Random(model.nv);
   
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
+  pv_settings.mu = 0.0;
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
 
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
