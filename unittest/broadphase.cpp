@@ -34,6 +34,7 @@ BOOST_AUTO_TEST_CASE (test_broadphase_with_empty_models)
 BOOST_AUTO_TEST_CASE (test_broadphase)
 {
   Model model;
+  Data data(model);
   GeometryModel geom_model;
   
   hpp::fcl::CollisionGeometryPtr_t sphere_ptr(new hpp::fcl::Sphere(0.5));
@@ -50,7 +51,8 @@ BOOST_AUTO_TEST_CASE (test_broadphase)
   GeometryObject & go = geom_model.geometryObjects[obj1_index];
   
   GeometryData geom_data(geom_model);
-  
+  updateGeometryPlacements(model, data, geom_model, geom_data);
+
   BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(&model, &geom_model, &geom_data);
   BOOST_CHECK(broadphase_manager.check());
   BOOST_CHECK(sphere_ptr.get() == go.geometry.get());
