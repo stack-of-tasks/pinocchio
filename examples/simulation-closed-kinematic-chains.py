@@ -11,12 +11,10 @@ radius = 0.05
 
 mass_link_A = 10.
 length_link_A = 1.
-#shape_link_A = fcl.Box(length_link_A,width,height)
 shape_link_A = fcl.Capsule(radius,length_link_A)
 
 mass_link_B = 5.
 length_link_B = .6
-#shape_link_B = fcl.Box(length_link_B,width,height)
 shape_link_B = fcl.Capsule(radius,length_link_B)
 
 inertia_link_A = pin.Inertia.FromBox(mass_link_A,length_link_A,width,height)
@@ -88,7 +86,7 @@ constraint_model = pin.RigidConstraintModel(pin.ContactType.CONTACT_3D,model,joi
 constraint_data = constraint_model.createData()
 constraint_dim = constraint_model.size() 
 
-# First, do an inverse kinematics kinematics
+# First, do an inverse geometry
 rho = 1e-10
 mu = 1e-4
 
@@ -120,7 +118,6 @@ for k in range(N):
     alpha = 1.
     q = pin.integrate(model,q,-alpha*dq)
     y -= alpha*(-dy + y)
-    #input()
 
 q_sol = (q[:] + np.pi) % np.pi - np.pi
 viz.display(q_sol)
