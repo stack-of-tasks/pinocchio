@@ -26,7 +26,7 @@ using namespace Eigen;
 template<typename T>
 bool within(const T & elt, const std::vector<T> & vec)
 {
-  typename std::vector<T>::iterator it;
+  typename std::vector<T>::const_iterator it;
 
   it = std::find(vec.begin(), vec.end(), elt);
   if (it != vec.end())
@@ -79,6 +79,40 @@ BOOST_AUTO_TEST_CASE(contact_models)
   BOOST_CHECK(cmodel4.joint1_id == 0);
   BOOST_CHECK(cmodel4.joint1_placement.isIdentity());
   BOOST_CHECK(cmodel4.size() == 6);
+}
+
+void check_A1_and_A2(const Model & model, const Data & data, const RigidConstraintModel & cmodel, RigidConstraintData & cdata)
+{
+  const RigidConstraintModel::Matrix36 A1 = cmodel.getA1(cdata);
+  const RigidConstraintModel::Matrix36 A1_ref = cdata.oMc1.toActionMatrixInverse().topRows<3>();
+
+  BOOST_CHECK(A1.isApprox(A1_ref));
+
+  const RigidConstraintModel::Matrix36 A2 = cmodel.getA2(cdata);
+  const RigidConstraintModel::Matrix36 A2_ref = -cdata.c1Mc2.rotation() * cdata.oMc2.toActionMatrixInverse().topRows<3>();
+
+  BOOST_CHECK(A2.isApprox(A2_ref));
+
+  // Check Jacobian
+  Data::MatrixXs J_ref(3,model.nv); J_ref.setZero();
+  getConstraintJacobian(model,data,cmodel,cdata, J_ref);
+  const Data::Matrix6x J1 = getJointJacobian(model, data, cmodel.joint1_id, WORLD);
+  const Data::Matrix6x J2 = getJointJacobian(model, data, cmodel.joint2_id, WORLD);
+  const Data::Matrix3x J = A1 * J1 + A2 * J2;
+
+  BOOST_CHECK(J.isApprox(J_ref));
+
+  // Check Jacobian matrix product
+  const Eigen::DenseIndex m = 40;
+  const Data::MatrixXs mat = Data::MatrixXs::Random(model.nv,m);
+
+  Data::MatrixXs res(cmodel.size(),m); res.setZero();
+  cmodel.jacobian_matrix_product(model, data, cdata, mat, res);
+
+  const Data::MatrixXs res_ref = J_ref * mat;
+
+  BOOST_CHECK(res.isApprox(res_ref));
+
 }
 
 BOOST_AUTO_TEST_CASE(contact_models_sparsity_and_jacobians)
@@ -248,6 +282,10 @@ BOOST_AUTO_TEST_CASE(contact_models_sparsity_and_jacobians)
     Data::MatrixXs J_clm_LOCAL_sparse(3,model.nv); J_clm_LOCAL_sparse.setZero(); // TODO: change input type when all the API would be refactorized with CRTP on contact constraints
     getConstraintJacobian(model,data,clm_RF_LF_LOCAL,cld_RF_LF_LOCAL,J_clm_LOCAL_sparse);
     BOOST_CHECK(J_clm_LOCAL.isApprox(J_clm_LOCAL_sparse));
+
+    check_A1_and_A2(model, data, cm_RF_LOCAL, cd_RF_LOCAL);
+    check_A1_and_A2(model, data, cm_LF_LOCAL, cd_LF_LOCAL);
+    check_A1_and_A2(model, data, clm_RF_LF_LOCAL, cld_RF_LF_LOCAL);
   }
   
   // 3D - LOCAL_WORLD_ALIGNED
