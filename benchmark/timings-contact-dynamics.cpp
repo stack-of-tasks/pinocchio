@@ -176,6 +176,7 @@ int main(int argc, const char ** argv)
   }
   std::cout << "constraintDynamics {} = \t\t"; timer.toc(std::cout,NBT);
 
+  std::cout << "--" << std::endl;
   total_time = 0;
   SMOOTH(NBT)
   {
@@ -240,6 +241,7 @@ int main(int argc, const char ** argv)
     contactABA(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D,contact_data_6D,prox_settings);
   }
   std::cout << "contact ABA {6D} = \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "--" << std::endl;
 
   total_time = 0;
   SMOOTH(NBT)
