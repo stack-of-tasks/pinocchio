@@ -41,7 +41,7 @@ namespace pinocchio
     SE3 & c1Mc2 = constraint_data.c1Mc2;
     c1Mc2 = oMc1.actInv(oMc2);
     
-    for(Eigen::DenseIndex k = 0; k < colwise_span_indexes.size(); ++k)
+    for(size_t k = 0; k < colwise_span_indexes.size(); ++k)
     {
       const Eigen::DenseIndex col_id = colwise_span_indexes[k];
       
