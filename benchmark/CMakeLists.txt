@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2022 CNRS INRIA
+# Copyright (c) 2015-2023 CNRS INRIA
 #
 
 # ----------------------------------------------------
@@ -92,5 +92,6 @@ ADD_BENCH(timings-jacobian TRUE)
 
 # timings-contact-dynamics
 #
+ADD_BENCH(timings-delassus-operations TRUE)
 ADD_BENCH(timings-contact-dynamics TRUE)
 ADD_BENCH(timings-constrained-dynamics-derivatives TRUE)
