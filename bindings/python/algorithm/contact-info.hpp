@@ -78,8 +78,8 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<>(bp::arg("self"),
-                        "Default constructor."))
+//        .def(bp::init<>(bp::arg("self"),
+//                        "Default constructor."))
         .def(bp::init<ContactType,const Model &,JointIndex,const SE3 &,JointIndex,const SE3 &,bp::optional<ReferenceFrame> >
              ((bp::arg("self"),
                bp::arg("contact_type"),
