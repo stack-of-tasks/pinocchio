@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2019-2023 INRIA
 //
 
 #include "pinocchio/algorithm/aba.hpp"
@@ -21,6 +21,9 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#define KP 10
+#define KD 10
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
