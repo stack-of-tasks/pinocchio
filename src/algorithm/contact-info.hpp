@@ -5,9 +5,13 @@
 #ifndef __pinocchio_algorithm_contact_info_hpp__
 #define __pinocchio_algorithm_contact_info_hpp__
 
+#include <algorithm>
+
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/fwd.hpp"
+#include "pinocchio/algorithm/constraints/fwd.hpp"
 #include "pinocchio/algorithm/constraints/constraint-model-base.hpp"
+#include "pinocchio/algorithm/constraints/constraint-data-base.hpp"
 
 namespace pinocchio
 {
@@ -82,8 +86,11 @@ namespace pinocchio
     }  
   };
 
-  template<typename Scalar, int Options> struct RigidConstraintModelTpl;
-  template<typename Scalar, int Options> struct RigidConstraintDataTpl;
+  template<typename NewScalar, typename Scalar, int Options>
+  struct CastType<NewScalar,RigidConstraintModelTpl<Scalar,Options> >
+  {
+    typedef RigidConstraintModelTpl<NewScalar,Options> type;
+  };
 
   template<typename _Scalar, int _Options>
   struct traits< RigidConstraintModelTpl<_Scalar,_Options> >
@@ -114,19 +121,24 @@ namespace pinocchio
     enum { Options = _Options };
     typedef ConstraintModelBase< RigidConstraintModelTpl<_Scalar,_Options> > Base;
 
+    template<typename NewScalar, int NewOptions>
+    friend struct RigidConstraintModelTpl;
+
     using Base::base;
     using Base::colwise_sparsity;
     using Base::colwise_span_indexes;
     
     typedef RigidConstraintModelTpl ContactModel;
     typedef RigidConstraintDataTpl<Scalar,Options> ContactData;
-    
+    typedef RigidConstraintDataTpl<Scalar,Options> ConstraintData;
+
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
     typedef BaumgarteCorrectorParametersTpl<Scalar> BaumgarteCorrectorParameters;
     typedef typename Base::BooleanVector BooleanVector;
     typedef typename Base::IndexVector IndexVector;
+    typedef Eigen::Matrix<Scalar,3,6,Options> Matrix36;
 
     /// \brief Type of the contact.
     ContactType type;
@@ -158,11 +170,17 @@ namespace pinocchio
     /// \brief Corrector parameters
     BaumgarteCorrectorParameters corrector;
     
-    /// \brief Sparsity pattern associated to joint 1.
+    /// \brief Colwise sparsity pattern associated with joint 1.
     BooleanVector colwise_joint1_sparsity;
-    
-    /// \brief Sparsity pattern associated to joint 2.
+
+    /// \brief Colwise sparsity pattern associated with joint 2.
     BooleanVector colwise_joint2_sparsity;
+
+    /// \brief Jointwise span indexes associated with joint 1.
+    IndexVector joint1_span_indexes;
+
+    /// \brief Jointwise span indexes associated with joint 2.
+    IndexVector joint2_span_indexes;
 
     IndexVector loop_span_indexes;
 
@@ -171,15 +189,18 @@ namespace pinocchio
     
     /// \brief Depth of the kinematic tree for joint1 and joint2
     size_t depth_joint1, depth_joint2;
-    
-//    ///
-//    /// \brief Default constructor
-//    ///
-//    RigidConstraintModelTpl()
-//    : nv(-1)
-//    , depth_joint1(0)
-//    , depth_joint2(0)
-//    {}
+
+  protected:
+    ///
+    /// \brief Default constructor
+    ///
+    RigidConstraintModelTpl()
+    : nv(-1)
+    , depth_joint1(0)
+    , depth_joint2(0)
+    {}
+
+  public:
         
     ///
     /// \brief Contructor with from a given type, joint indexes and placements.
@@ -213,7 +234,9 @@ namespace pinocchio
     , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
-    , loop_span_indexes(model.nv)
+    , joint1_span_indexes((size_t)model.njoints)
+    , joint2_span_indexes((size_t)model.njoints)
+    , loop_span_indexes((size_t)model.nv)
     {
       init(model);
     }
@@ -245,7 +268,9 @@ namespace pinocchio
     , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
-    , loop_span_indexes(model.nv)
+    , joint1_span_indexes((size_t)model.njoints)
+    , joint2_span_indexes((size_t)model.njoints)
+    , loop_span_indexes((size_t)model.nv)
     {
       init(model);
     }
@@ -276,7 +301,9 @@ namespace pinocchio
     , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
-    , loop_span_indexes(model.nv)
+    , joint1_span_indexes((size_t)model.njoints)
+    , joint2_span_indexes((size_t)model.njoints)
+    , loop_span_indexes((size_t)model.nv)
     {
       init(model);
     }
@@ -307,10 +334,17 @@ namespace pinocchio
     , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
-    , loop_span_indexes(model.nv)
+    , joint1_span_indexes((size_t)model.njoints)
+    , joint2_span_indexes((size_t)model.njoints)
+    , loop_span_indexes((size_t)model.nv)
     {
       init(model);
     }
+
+    ///
+    /// \brief Create data storage associated to the constraint
+    ///
+    ConstraintData createData() const { return ConstraintData(*this); }
     
     ///
     /// \brief Comparison operator
@@ -333,6 +367,8 @@ namespace pinocchio
       && corrector == other.corrector
       && colwise_joint1_sparsity == other.colwise_joint1_sparsity
       && colwise_joint2_sparsity == other.colwise_joint2_sparsity
+      && joint1_span_indexes == other.joint1_span_indexes
+      && joint2_span_indexes == other.joint2_span_indexes
       && nv == other.nv
       && depth_joint1 == other.depth_joint1
       && depth_joint2 == other.depth_joint2
@@ -375,6 +411,101 @@ namespace pinocchio
       cdata.c1Mc2 = cdata.oMc1.actInv(cdata.oMc2);
     }
 
+    /// \brief Returns the constraint projector associated with joint 1.
+    /// This matrix transforms a spatial velocity expressed at the origin to the first component of the constraint associated with joint 1.
+    Matrix36 getA1(const RigidConstraintDataTpl<Scalar,Options> & cdata) const
+    {
+      Matrix36 res;
+      const SE3 & oMl = cdata.oMc1;
+      typedef typename SE3::Vector3 Vector3;
+
+#define PINOCCHIO_INTERNAL_COMPUTATION(axis_id,v3_in,res) \
+  CartesianAxis<axis_id>::cross(v3_in,v_tmp); \
+  res.col(axis_id).noalias() = oMl.rotation().transpose() * v_tmp;
+
+      res.template leftCols<3>() = oMl.rotation().transpose();
+      Vector3 v_tmp;
+      PINOCCHIO_INTERNAL_COMPUTATION(0,oMl.translation(),res.template rightCols<3>());
+      PINOCCHIO_INTERNAL_COMPUTATION(1,oMl.translation(),res.template rightCols<3>());
+      PINOCCHIO_INTERNAL_COMPUTATION(2,oMl.translation(),res.template rightCols<3>());
+
+#undef PINOCCHIO_INTERNAL_COMPUTATION
+
+      return res;
+    }
+
+    /// \brief Returns the constraint projector associated with joint 2.
+    /// This matrix transforms a spatial velocity expressed at the origin to the first component of the constraint associated with joint 2.
+    Matrix36 getA2(const RigidConstraintDataTpl<Scalar,Options> & cdata) const
+    {
+      Matrix36 res;
+      const SE3 & oM1 = cdata.oMc1;
+      const SE3 & oM2 = cdata.oMc2;
+      typedef typename SE3::Vector3 Vector3;
+
+#define PINOCCHIO_INTERNAL_COMPUTATION(axis_id,v3_in,res) \
+  CartesianAxis<axis_id>::cross(v3_in,v_tmp); \
+  res.col(axis_id).noalias() = oM1.rotation().transpose() * v_tmp;
+
+      res.template leftCols<3>() = -oM1.rotation().transpose();
+      Vector3 v_tmp;
+      PINOCCHIO_INTERNAL_COMPUTATION(0,-oM2.translation(),res.template rightCols<3>());
+      PINOCCHIO_INTERNAL_COMPUTATION(1,-oM2.translation(),res.template rightCols<3>());
+      PINOCCHIO_INTERNAL_COMPUTATION(2,-oM2.translation(),res.template rightCols<3>());
+
+#undef PINOCCHIO_INTERNAL_COMPUTATION
+
+      return res;
+    }
+
+    template<typename InputMatrix, typename OutputMatrix, template<typename,int> class JointCollectionTpl>
+    void jacobian_matrix_product(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 RigidConstraintDataTpl<Scalar,Options> & cdata,
+                                 const Eigen::MatrixBase<InputMatrix> & mat,
+                                 const Eigen::MatrixBase<OutputMatrix> & _res) const
+    {
+      typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+      typedef typename Data::Vector3 Vector3;
+      OutputMatrix & res = _res.const_cast_derived();
+
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(mat.rows(),model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(mat.cols(),res.cols());
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(res.rows(),size());
+      res.setZero();
+
+//      const Eigen::DenseIndex constraint_dim = size();
+//
+//      const Eigen::DenseIndex
+//      complexity_strategy_1 = 6 * res.cols() * 36 + constraint_dim * 36 * res.cols(),
+//      complexity_strategy_2 = 36 * constraint_dim * 6 + constraint_dim * 36 * res.cols();
+
+      const Matrix36 A1 = getA1(cdata);
+      const Matrix36 A2 = getA2(cdata);
+      for(Eigen::DenseIndex jj = 0; jj < model.nv; ++jj)
+      {
+        if(!(colwise_joint1_sparsity[jj] || colwise_joint2_sparsity[jj]))
+          continue;
+        Matrix36 A;
+        Vector3 AxSi;
+
+        typedef typename Data::Matrix6x::ConstColXpr ConstColXpr;
+        const ConstColXpr Jcol = data.J.col(jj);
+
+        if(colwise_joint1_sparsity[jj] && colwise_joint2_sparsity[jj])
+        {
+          A = A1 + A2;
+          AxSi.noalias() = A * Jcol;
+        }
+        else if(colwise_joint1_sparsity[jj])
+          AxSi.noalias() = A1 * Jcol;
+        else
+          AxSi.noalias() = A2 * Jcol;
+
+        res.noalias() += AxSi * mat.row(jj);
+      }
+    }
+
     /// \brief Evaluate the Jacobian associated to the constraint at the given state stored in data and cdata.
     /// The results Jacobian is evaluated in the jacobian input/output matrix.
     template<typename JacobianMatrix, template<typename,int> class JointCollectionTpl>
@@ -386,7 +517,7 @@ namespace pinocchio
       typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
       JacobianMatrix & jacobian_matrix = _jacobian_matrix.const_cast_derived();
       
-      const RigidConstraintModel & cmodel = *this;
+      const RigidConstraintModelTpl & cmodel = *this;
 
       const Eigen::DenseIndex constraint_dim = cmodel.size();
       const SE3 & oMc1 = cdata.oMc1;
@@ -550,6 +681,8 @@ namespace pinocchio
       static const bool default_sparsity_value = false;
       colwise_joint1_sparsity.fill(default_sparsity_value);
       colwise_joint2_sparsity.fill(default_sparsity_value);
+      joint1_span_indexes.reserve((size_t)model.njoints);
+      joint2_span_indexes.reserve((size_t)model.njoints);
 
       JointIndex current1_id = 0;
       if(joint1_id > 0)
@@ -564,6 +697,7 @@ namespace pinocchio
         if(current1_id > current2_id)
         {
           const JointModel & joint1 = model.joints[current1_id];
+          joint1_span_indexes.push_back((Eigen::DenseIndex)current1_id);
           Eigen::DenseIndex current1_col_id = joint1.idx_v();
           for(int k = 0; k < joint1.nv(); ++k,++current1_col_id)
           {
@@ -574,6 +708,7 @@ namespace pinocchio
         else
         {
           const JointModel & joint2 = model.joints[current2_id];
+          joint2_span_indexes.push_back((Eigen::DenseIndex)current2_id);
           Eigen::DenseIndex current2_col_id = joint2.idx_v();
           for(int k = 0; k < joint2.nv(); ++k,++current2_col_id)
           {
@@ -590,6 +725,8 @@ namespace pinocchio
         while(current_id > 0)
         {
           const JointModel & joint = model.joints[current_id];
+          joint1_span_indexes.push_back((Eigen::DenseIndex)current_id);
+          joint2_span_indexes.push_back((Eigen::DenseIndex)current_id);
           Eigen::DenseIndex current_row_id = joint.idx_v();
           for(int k = 0; k < joint.nv(); ++k,++current_row_id)
           {
@@ -600,24 +737,23 @@ namespace pinocchio
         }
       }
       
-      Eigen::DenseIndex colwise_span_indexes_size = 0, loop_span_indexes_size = 0;
-      Base::colwise_span_indexes.resize(model.nv);
-      loop_span_indexes.resize(model.nv);
+      std::rotate(joint1_span_indexes.rbegin(), joint1_span_indexes.rbegin() + 1, joint1_span_indexes.rend());
+      std::rotate(joint2_span_indexes.rbegin(), joint2_span_indexes.rbegin() + 1, joint2_span_indexes.rend());
+      Base::colwise_span_indexes.reserve((size_t)model.nv);
+      loop_span_indexes.reserve((size_t)model.nv);
       for(Eigen::DenseIndex col_id = 0; col_id < model.nv; ++col_id)
       {
         if(colwise_joint1_sparsity[col_id] || colwise_joint2_sparsity[col_id])
         {
-          colwise_span_indexes[colwise_span_indexes_size++] = col_id;
+          colwise_span_indexes.push_back(col_id);
           colwise_sparsity[col_id] = true;
         }
 
         if(colwise_joint1_sparsity[col_id] != colwise_joint2_sparsity[col_id])
         {
-          loop_span_indexes[loop_span_indexes_size++] = col_id;
+          loop_span_indexes.push_back(col_id);
         }
       }
-      colwise_span_indexes.conservativeResize(colwise_span_indexes_size);
-      loop_span_indexes.conservativeResize(loop_span_indexes_size);
     }
     
   };

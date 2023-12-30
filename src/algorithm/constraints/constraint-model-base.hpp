@@ -10,7 +10,7 @@
 
 namespace pinocchio {
 
-  template<typename Derived>
+  template<class Derived>
   struct ConstraintModelBase : NumericalBase<Derived>
   {
     typedef typename traits<Derived>::Scalar Scalar;
@@ -18,10 +18,17 @@ namespace pinocchio {
     typedef typename traits<Derived>::ConstraintData ConstraintData;
 
     typedef Eigen::Matrix<bool,Eigen::Dynamic,1,Options> BooleanVector;
-    typedef Eigen::Matrix<Eigen::DenseIndex,Eigen::Dynamic,1,Options> IndexVector;
+//    typedef Eigen::Matrix<Eigen::DenseIndex,Eigen::Dynamic,1,Options> IndexVector;
+    typedef std::vector<Eigen::DenseIndex> IndexVector;
 
     Derived & derived() { return static_cast<Derived&>(*this); }
     const Derived & derived() const { return static_cast<const Derived&>(*this); }
+
+    template<typename NewScalar>
+    typename CastType<NewScalar,Derived>::type cast() const
+    {
+      return derived().template cast<NewScalar>();
+    }
 
     /// \brief Evaluate the constraint values at the current state given by data and store the results in cdata.
     template<int Options, template<typename,int> class JointCollectionTpl>
@@ -52,7 +59,8 @@ namespace pinocchio {
     /// \brief Indexes of the columns spanned by the constraints.
     IndexVector colwise_span_indexes;
 
-    bool operator==(const ConstraintModelBase & other) const
+    template<typename OtherDerived>
+    bool operator==(const ConstraintModelBase<OtherDerived> & other) const
     {
       return
          name == other.name
@@ -60,7 +68,8 @@ namespace pinocchio {
       && colwise_span_indexes == other.colwise_span_indexes;
     }
 
-    ConstraintModelBase & operator=(const ConstraintModelBase & other)
+    template<typename OtherDerived>
+    ConstraintModelBase & operator=(const ConstraintModelBase<OtherDerived> & other)
     {
       name = other.name;
       colwise_sparsity = other.colwise_sparsity;
@@ -69,9 +78,12 @@ namespace pinocchio {
       return *this;
     }
 
-  protected:
+    ConstraintData createData() const
+    {
+      return derived().createData();
+    }
 
-    /// \brief Default constructor
+  protected:
     template<int Options, template<typename,int> class JointCollectionTpl>
     ConstraintModelBase(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
     : colwise_sparsity(model.nv)
@@ -80,18 +92,12 @@ namespace pinocchio {
       colwise_sparsity.fill(default_sparsity_value);
     }
 
+    /// \brief Default constructor
+    ConstraintModelBase()
+    {}
+
     ConstraintModelBase & base() { return *this; }
     const ConstraintModelBase & base() const { return *this; }
-  };
-
-  template<typename Derived>
-  struct ConstraintDataBase : NumericalBase<Derived>
-  {
-    typedef typename traits<Derived>::Scalar Scalar;
-    typedef typename traits<Derived>::ConstraintModel ConstraintModel;
-
-    Derived & derived() { return static_cast<Derived&>(*this); }
-    const Derived & derived() const { return static_cast<const Derived&>(*this); }
   };
 
 }
