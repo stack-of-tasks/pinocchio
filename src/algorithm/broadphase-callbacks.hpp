@@ -122,8 +122,17 @@ struct CollisionCallBackDefault : CollisionCallBackBase
 //      collision_request.gjk_initial_guess = fcl::GJKInitialGuess::BoundingVolumeGuess;
 //    }
 
-    const bool res = computeCollision(*geometry_model_ptr, *geometry_data_ptr, (PairIndex)pair_index, collision_request);
-    
+    bool res;
+    try
+    { 
+      res = computeCollision(*geometry_model_ptr, *geometry_data_ptr, (PairIndex)pair_index, collision_request);
+    }
+    catch (std::logic_error & e)
+    {
+      PINOCCHIO_THROW_PRETTY(std::logic_error,
+                             "Geometries with index go1: " << go1_index << " or go2: " << go2_index << " have produced an internal error within HPP-FCL.\n what:\n" << e.what());
+    }
+
     if(res && !collision)
     {
       collision = true;
