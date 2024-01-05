@@ -130,7 +130,8 @@ struct CollisionCallBackDefault : CollisionCallBackBase
     catch (std::logic_error & e)
     {
       PINOCCHIO_THROW_PRETTY(std::logic_error,
-                             "Geometries with index go1: " << go1_index << " or go2: " << go2_index << " have produced an internal error within HPP-FCL.\n what:\n" << e.what());
+                             "Geometries with index go1: " << go1_index << " or go2: " << go2_index << " have produced an internal error within HPP-FCL.\n what:\n"
+                                                           << e.what());
     }
 
     if(res && !collision)

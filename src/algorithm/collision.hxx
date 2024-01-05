@@ -43,12 +43,17 @@ namespace pinocchio
     }
     catch(std::invalid_argument & e)
     {
-      std::stringstream ss;
-      ss << "Problem when trying to check the collision of collision pair #" << pair_id << " (" << pair.first << "," << pair.second << ")" << std::endl;
-      ss << "hpp-fcl original error:\n" << e.what() << std::endl;
-      throw std::invalid_argument(ss.str());
+      PINOCCHIO_THROW_PRETTY(std::invalid_argument,
+                             "Problem when trying to check the collision of collision pair #" << pair_id << " (" << pair.first << "," << pair.second << ")" << std::endl
+                             << "hpp-fcl original error:\n" << e.what() << std::endl);
     }
-    
+    catch(std::logic_error & e)
+    {
+      PINOCCHIO_THROW_PRETTY(std::logic_error,
+                             "Problem when trying to check the collision of collision pair #" << pair_id << " (" << pair.first << "," << pair.second << ")" << std::endl
+                             << "hpp-fcl original error:\n" << e.what() << std::endl);
+    }
+
     return collision_result.isCollision();
   }
 
