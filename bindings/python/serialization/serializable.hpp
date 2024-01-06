@@ -26,9 +26,9 @@ namespace pinocchio
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         cl
         .def("saveToText",&Derived::saveToText,
-             bp::arg("filename"),"Saves *this inside a text file.")
+             bp::args("self","filename"),"Saves *this inside a text file.")
         .def("loadFromText",&Derived::loadFromText,
-             bp::arg("filename"),"Loads *this from a text file.")
+             bp::args("self","filename"),"Loads *this from a text file.")
         
         .def("saveToString",&Derived::saveToString,
              bp::arg("self"),
