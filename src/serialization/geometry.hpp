@@ -16,6 +16,7 @@
   #include <hpp/fcl/serialization/hfield.h>
   #include <hpp/fcl/serialization/octree.h>
   #include <hpp/fcl/serialization/convex.h>
+  #include <hpp/fcl/serialization/BVH_model.h>
 #endif // PINOCCHIO_WITH_HPP_FCL
 
 #include "pinocchio/multibody/geometry.hpp"
