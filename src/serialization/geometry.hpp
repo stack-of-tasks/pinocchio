@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021-2023 INRIA
+// Copyright (c) 2021-2024 INRIA
 //
 
 #ifndef __pinocchio_serialization_multibody_geometry_hpp__
@@ -50,7 +50,6 @@ namespace boost
                    pinocchio::GeometryObject & geometry_object,
                    const unsigned int /*version*/)
     {
-      hpp::fcl::serialization::register_type<::hpp::fcl::CollisionGeometry>::on(ar);
       ar & make_nvp("base",base_object<pinocchio::GeometryObject::Base>(geometry_object));
       ar & make_nvp("geometry",geometry_object.geometry);
       ar & make_nvp("meshPath",geometry_object.meshPath);
@@ -65,7 +64,6 @@ namespace boost
     void save_construct_data(Archive &ar, const pinocchio::GeometryObject *geometry_object_ptr,
                              const unsigned int /*version*/)
     {
-      hpp::fcl::serialization::register_type<::hpp::fcl::CollisionGeometry>::on(ar);
       const pinocchio::GeometryObject & geometry_object = *geometry_object_ptr;
       ar << make_nvp("base",base_object<pinocchio::GeometryObject::Base>(geometry_object));
       ar << make_nvp("geometry",geometry_object.geometry);
@@ -81,7 +79,6 @@ namespace boost
     void load_construct_data(Archive &ar, pinocchio::GeometryObject *geometry_object_ptr,
                              const unsigned int /*version*/)
     {
-      hpp::fcl::serialization::register_type<::hpp::fcl::CollisionGeometry>::on(ar);
       pinocchio::GeometryObject::Base base_obj;
       ar >> make_nvp("base",base_obj);
 
