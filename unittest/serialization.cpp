@@ -821,6 +821,17 @@ BOOST_AUTO_TEST_CASE(test_geometry_model_and_data_serialization)
   {
     pinocchio::GeometryModel geom_model;
     pinocchio::buildModels::humanoidGeometries(model,geom_model);
+    // Append new objects
+    {
+      using namespace hpp::fcl;
+      BVHModel<OBBRSS> * bvh_ptr = new BVHModel<OBBRSS>();
+//      bvh_ptr->beginModel();
+//      bvh_ptr->addSubModel(p1, t1);
+//      bvh_ptr->endModel();
+
+      GeometryObject obj_bvh("bvh",0,0,SE3::Identity(),GeometryObject::CollisionGeometryPtr(bvh_ptr));
+      geom_model.addGeometryObject(obj_bvh);
+    }
     generic_test(geom_model,TEST_SERIALIZATION_FOLDER"/GeometryModel","GeometryModel");
     
     pinocchio::GeometryData geom_data(geom_model);
