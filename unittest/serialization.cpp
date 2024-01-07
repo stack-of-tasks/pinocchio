@@ -176,7 +176,7 @@ void generic_test(const T & object,
   }
   
   // Load and save as static binary stream
-  pinocchio::serialization::StaticBuffer static_buffer(10000000);
+  pinocchio::serialization::StaticBuffer static_buffer(100000000);
   saveToBinary(object,static_buffer);
   
   {
@@ -831,6 +831,16 @@ BOOST_AUTO_TEST_CASE(test_geometry_model_and_data_serialization)
 
       GeometryObject obj_bvh("bvh",0,0,SE3::Identity(),GeometryObject::CollisionGeometryPtr(bvh_ptr));
       geom_model.addGeometryObject(obj_bvh);
+
+      const double min_altitude = -1.;
+      const double x_dim = 1., y_dim = 2.;
+      const Eigen::DenseIndex nx = 100, ny = 200;
+      const Eigen::MatrixXd heights = Eigen::MatrixXd::Random(ny, nx);
+
+      HeightField<OBBRSS> * hfield_ptr = new HeightField<OBBRSS>(x_dim, y_dim, heights, min_altitude);
+
+      GeometryObject obj_hfield("hfield",0,0,SE3::Identity(),GeometryObject::CollisionGeometryPtr(hfield_ptr));
+      geom_model.addGeometryObject(obj_hfield);
     }
     generic_test(geom_model,TEST_SERIALIZATION_FOLDER"/GeometryModel","GeometryModel");
     
