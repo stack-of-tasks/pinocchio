@@ -6,46 +6,39 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    env:
+      CCACHE_BASEDIR: "${GITHUB_WORKSPACE}"
+      CCACHE_DIR: "${GITHUB_WORKSPACE}/.ccache"
+      CCACHE_COMPRESS: true
+      CCACHE_COMPRESSLEVEL: 6
+
     strategy:
       fail-fast: false
       matrix:
-        name: [windows-latest]
-
-        include:
-          - name: windows-latest
-            os: windows-2019
+        os: ["windows-2019"]
 
     steps:
     - uses: actions/checkout@v4
-    - name: Checkout submodules
-      run: |
-        git submodule update --init
-    - uses: goanpeca/setup-miniconda@v2
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      with:
+        submodules: recursive
+
+    - uses: actions/cache@v3
+      with:
+        path: .ccache
+        key: ccache-windows-conda-vs-${{ matrix.os }}-${{ github.sha }}
+        restore-keys: ccache-windows-conda-vs-${{ matrix.os }}-
+
+    - uses: conda-incubator/setup-miniconda@v3
       with:
         activate-environment: pinocchio
-        environment-file: .github/workflows/conda/conda-env-windows.yml
-        python-version: 3.7
-    - name: Install cmake and update conda
-      run: |
-        conda install cmake -c main
-        conda list
-
-    - name: Display the path
-      run: echo %cd%
-      shell: cmd
+        auto-update-conda: true
+        environment-file: .github/workflows/conda/environment_windows.yml
+        python-version: "3.10"
+        auto-activate-base: false
 
     - name: Build Pinocchio
       shell: cmd /C CALL {0}
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       run: |
-        :: unset extra Boost envs
-        set Boost_ROOT=
-        set BOOST_ROOT_1_69_0=
-        set BOOST_ROOT_1_72_0=
-
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
         :: Create build directory
@@ -54,8 +47,9 @@ jobs:
 
         :: Configure
         cmake ^
-          -G "Visual Studio 16 2019" -T "v142" -DCMAKE_GENERATOR_PLATFORM=x64 ^
+          -G "Ninja" ^
           -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ^
           -DCMAKE_BUILD_TYPE=Release ^
           -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
           -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
@@ -66,29 +60,15 @@ jobs:
           -DINSTALL_DOCUMENTATION=ON ^
           ..
 
-        :: Build
+        :: Build and Install
         cmake --build . --config Release --target install
+        if errorlevel 1 exit 1
 
-#    - name: Start SSH session
-#      uses: luchihoratiu/debug-via-ssh@main
-#      with:
-#        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-#        SSH_PASS: ${{ secrets.SSH_PASS }}
-#
-    - name: Testing
-      shell: cmd /C CALL {0}
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-      run: |
         :: Testing
-        pushd build
-        set PATH=%PATH%;%CONDA_PREFIX%\Lib\site-packages\pinocchio
-        set PATH=%PATH%;%CONDA_PREFIX%\Library\Lib
-        set PATH=%PATH%;%CONDA_PREFIX%\Library\bin
-        .\unittest\Release\test-cpp-urdf.exe
-        .\examples\Release\example-cpp-geometry-models.exe
-        ctest --output-on-failure -C Release -V --repeat until-pass:1
+        ctest --output-on-failure -C Release -V
+        if errorlevel 1 exit 1
 
-#        :: Test Python import
-#        cd ..
-#        python -c "import pinocchio"
+        :: Test Python import
+        cd ..
+        python -c "import pinocchio"
+        if errorlevel 1 exit 1

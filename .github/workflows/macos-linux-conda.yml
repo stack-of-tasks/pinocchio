@@ -41,7 +41,7 @@ jobs:
       with:
         activate-environment: pinocchio
         auto-update-conda: true
-        environment-file: .github/workflows/conda/conda-env-macos-linux.yml
+        environment-file: .github/workflows/conda/environment_macos_linux.yml
         python-version: ${{ matrix.python-version }}
         auto-activate-base: false
 
@@ -56,6 +56,7 @@ jobs:
         cd build
 
         cmake .. \
+          -G "Ninja" \
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
           -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
