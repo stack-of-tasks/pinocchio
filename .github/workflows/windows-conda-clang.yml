@@ -68,10 +68,25 @@ jobs:
         if errorlevel 1 exit 1
 
         :: Testing
-        ctest --output-on-failure -C Release -V
+        ctest --output-on-failure -C Release
         if errorlevel 1 exit 1
 
         :: Test Python import
         cd ..
         python -c "import pinocchio"
         if errorlevel 1 exit 1
+
+  check:
+    if: always()
+    name: check-windows-conda-clang
+
+    needs:
+    - build
+
+    runs-on: Ubuntu-latest
+
+    steps:
+    - name: Decide whether the needed jobs succeeded or failed
+      uses: re-actors/alls-green@release/v1
+      with:
+        jobs: ${{ toJSON(needs) }}
