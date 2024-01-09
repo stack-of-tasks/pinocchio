@@ -41,7 +41,7 @@ jobs:
       with:
         activate-environment: pinocchio
         auto-update-conda: true
-        environment-file: .github/workflows/conda/conda-env.yml
+        environment-file: .github/workflows/conda/conda-env-macos-linux.yml
         python-version: ${{ matrix.python-version }}
         auto-activate-base: false
 
