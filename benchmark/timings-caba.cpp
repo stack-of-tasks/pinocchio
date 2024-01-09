@@ -58,12 +58,13 @@ int run_solvers(pinocchio::Model model, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATO
   std::cout << model.nv << ", " << timer.toc()/NBT << ", ";  
 
 
-  double mu = 1e-6;
+  double mu = 1e-3;
 
   ProximalSettings prox_settings;
   prox_settings.max_iter = max_iter;
   prox_settings.mu = mu;
   prox_settings.absolute_accuracy = 1e-10;
+  prox_settings.relative_accuracy = 1e-18;
 
   initConstraintDynamics(model,data,contact_models);
   timer.tic();
@@ -72,6 +73,13 @@ int run_solvers(pinocchio::Model model, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATO
     constraintDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models,contact_datas, prox_settings);
   }
 std::cout << timer.toc()/NBT << ", ";  
+
+  timer.tic();
+  SMOOTH(NBT)
+    {
+      proxLTLs(model, data, qs[_smooth], qdots[_smooth], taus[_smooth], contact_models, contact_datas, prox_settings);
+    }
+  std::cout << timer.toc()/NBT << ", ";  
  
   timer.tic();
   SMOOTH(NBT)
@@ -85,6 +93,7 @@ std::cout << timer.toc()/NBT << ", ";
   Data::PvSettings pv_settings;
   pv_settings.mu = mu;
   pv_settings.max_iter = max_iter;
+  pv_settings.absolute_accuracy = 1e-10;
   pv_settings.use_early = false;
   timer.tic();
   SMOOTH(NBT)

@@ -57,6 +57,39 @@ namespace pinocchio
     data.dac_dv.setZero();
     data.dac_da.setZero();
     data.osim.setZero();
+
+    std::fill(data.constraints_supported.begin(), data.constraints_supported.end(), 0);
+    // Getting the constrained links
+    for(std::size_t i=0;i<contact_models.size();++i)
+    {
+      const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
+      const JointIndex & joint_id = contact_model.joint1_id;
+      switch (contact_model.reference_frame)
+      {
+        case LOCAL:
+          if (contact_model.type == CONTACT_6D)
+            data.constraints_supported[joint_id] += 6;
+          else
+            if (contact_model.type == CONTACT_3D)
+              data.constraints_supported[joint_id] += 3;
+          break;
+        case WORLD:
+          assert(false && "WORLD not implemented");
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          assert(false && "LOCAL_WORLD_ALIGNED not implemented");
+          break;
+        default:
+          assert(false && "Must never happen");
+          break;
+      }
+    }
+    // Running backprop to get the count of constraints
+    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
+    {
+      const JointIndex & parent = model.parents[i];
+      data.constraints_supported[parent] += data.constraints_supported[i];
+    }
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, bool ContactMode>
@@ -997,17 +1030,21 @@ namespace pinocchio
     data.ddq = pinocchio::cholesky::solve(model, data, data.tau);
 
     data.u = data.ddq;
-    data.tau.setZero();
+    // data.tau.setZero();
     // Proximal iterations
     for (int it = 1; it < settings.max_iter; it++)
-    {     
+    { 
+      data.tau.setZero();
       // Compute accelerations and constraint residual
       data.oa_augmented[0].setZero();
       for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
       {
-        const JointModel & jmodel = model.joints[i];
-        data.oa_augmented[i].toVector().noalias() = data.oa_augmented[model.parents[i]].toVector() + jmodel.jointCols(data.J)*jmodel.jointVelocitySelector(data.u);
-        data.of_augmented[i].toVector().setZero();
+        if (data.constraints_supported[i] > 0)
+        {
+          const JointModel & jmodel = model.joints[i];
+          data.oa_augmented[i].toVector().noalias() = data.oa_augmented[model.parents[i]].toVector() + jmodel.jointCols(data.J)*jmodel.jointVelocitySelector(data.u);
+          data.of_augmented[i].toVector().setZero();
+        }
         
       }
 
@@ -1041,11 +1078,15 @@ namespace pinocchio
 
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
-      const JointIndex & parent  = model.parents[i];
-      const JointModel & jmodel = model.joints[i];
-      data.of_augmented[parent] += data.of_augmented[i];
+      if (data.constraints_supported[i] > 0)
+      {
+          
+        const JointIndex & parent  = model.parents[i];
+        const JointModel & jmodel = model.joints[i];
+        data.of_augmented[parent] += data.of_augmented[i];
 
-      jmodel.jointVelocitySelector(data.tau).noalias() = -jmodel.jointCols(data.J).transpose()*(data.of_augmented[i].toVector());
+        jmodel.jointVelocitySelector(data.tau).noalias() = -jmodel.jointCols(data.J).transpose()*(data.of_augmented[i].toVector());
+      }
     }
 
     data.u = cholesky::solve(model, data, data.tau);
