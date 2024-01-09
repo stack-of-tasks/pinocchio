@@ -25,7 +25,7 @@ jobs:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       with:
         activate-environment: pinocchio
-        environment-file: .github/workflows/conda/conda-env.yml
+        environment-file: .github/workflows/conda/conda-env-windows.yml
         python-version: 3.7
     - name: Install cmake and update conda
       run: |

@@ -4,10 +4,13 @@ on: [push,pull_request]
 
 jobs:
   pinocchio-conda:
-    name: Pinocchio on ${{ matrix.os }} in ${{ matrix.build_type }} mode with Conda
+    name: ${{ matrix.os }} - Python ${{ matrix.python-version }} ${{ matrix.build_type }} with Conda
     runs-on: ${{ matrix.os }}
     env:
-      CCACHE_DIR: ${{ matrix.CCACHE_DIR }}
+      CCACHE_BASEDIR: "${GITHUB_WORKSPACE}"
+      CCACHE_DIR: "${GITHUB_WORKSPACE}/.ccache"
+      CCACHE_COMPRESS: true
+      CCACHE_COMPRESSLEVEL: 6
       BUILD_ADVANCED_TESTING: ${{ matrix.BUILD_ADVANCED_TESTING }}
 
     strategy:
@@ -15,13 +18,12 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "macos-latest"]
         build_type: [Release, Debug]
+        python-version: ["3.8", "3.12"]
 
         include:
           - os: ubuntu-latest
-            CCACHE_DIR: /home/runner/.ccache
             BUILD_ADVANCED_TESTING: OFF
           - os: macos-latest
-            CCACHE_DIR: /Users/runner/.ccache
             BUILD_ADVANCED_TESTING: ON
 
     steps:
@@ -31,40 +33,45 @@ jobs:
 
     - uses: actions/cache@v3
       with:
-        path: ${{ env.CCACHE_DIR }}
-        key: ccache-conda-${{ matrix.os }}-${{ matrix.build_type }}
+        path: .ccache
+        key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ github.sha }}
+        restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-
 
     - uses: conda-incubator/setup-miniconda@v3
       with:
         activate-environment: pinocchio
         auto-update-conda: true
         environment-file: .github/workflows/conda/conda-env.yml
-        python-version: 3.8
+        python-version: ${{ matrix.python-version }}
+        auto-activate-base: false
 
-    - name: Install cmake and update conda
-      shell: bash -l {0}
-      run: |
-        conda activate pinocchio
-        conda install cmake ccache llvm-openmp compilers=1.4.2 -c conda-forge
-        conda list
 
     - name: Build Pinocchio
-      shell: bash -l {0}
+      shell: bash -el {0}
       run: |
-        conda activate pinocchio
+        conda list
         echo $CONDA_PREFIX
 
         mkdir build
         cd build
 
-        cmake .. -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }}  -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON -DINSTALL_DOCUMENTATION=ON -DOpenMP_ROOT=$CONDA_PREFIX
-        make
-        make build_tests
-        CTEST_OUTPUT_ON_FAILURE=1 make test
-        make install
+        cmake .. \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DBUILD_WITH_COLLISION_SUPPORT=ON \
+          -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }} \
+          -DBUILD_WITH_CASADI_SUPPORT=OFF \
+          -DPYTHON_EXECUTABLE=$(which python3) \
+          -DBUILD_WITH_OPENMP_SUPPORT=ON \
+          -DINSTALL_DOCUMENTATION=ON \
+          -DOpenMP_ROOT=$CONDA_PREFIX
+        cmake --build . -j2
+        ctest --output-on-failure
+        cmake --install .
 
     - name: Uninstall Pinocchio
-      shell: bash -l {0}
+      shell: bash -el {0}
       run: |
         cd build
-        make uninstall
+        cmake --build . --target uninstall
