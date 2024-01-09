@@ -498,7 +498,11 @@
             <geometry name="wrist_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/wrist.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_palm">
@@ -511,7 +515,11 @@
             <geometry name="palm_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/palm.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
@@ -546,7 +554,11 @@
             <geometry name="thumb_proximal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/thumb_proximal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_thumb_hub"/>
@@ -561,7 +573,11 @@
             <geometry name="thumb_middle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/thumb_middle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_thumb_distal">
@@ -574,7 +590,11 @@
             <geometry name="thumb_distal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/thumb_distal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
@@ -631,7 +651,11 @@
             <geometry name="index_finger_knuckle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/knuckle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_index_finger_proximal">
@@ -644,7 +668,11 @@
             <geometry name="index_finger_proximal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_proximal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_index_finger_middle">
@@ -657,7 +685,11 @@
             <geometry name="index_finger_middle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_middle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_index_finger_distal">
@@ -670,7 +702,11 @@
             <geometry name="index_finger_distal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_distal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
@@ -720,7 +756,11 @@
             <geometry name="middle_finger_knuckle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/knuckle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_middle_finger_proximal">
@@ -733,7 +773,11 @@
             <geometry name="middle_finger_proximal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_proximal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_middle_finger_middle">
@@ -746,7 +790,11 @@
             <geometry name="middle_finger_middle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_middle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_middle_finger_distal">
@@ -759,7 +807,11 @@
             <geometry name="middle_finger_distal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_distal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
@@ -809,7 +861,11 @@
             <geometry name="ring_finger_knuckle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/knuckle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_ring_finger_proximal">
@@ -822,7 +878,11 @@
             <geometry name="ring_finger_proximal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_proximal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_ring_finger_middle">
@@ -835,7 +895,11 @@
             <geometry name="ring_finger_middle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_middle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_ring_finger_distal">
@@ -848,7 +912,11 @@
             <geometry name="ring_finger_distal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_distal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
@@ -896,7 +964,11 @@
             <geometry name="little_finger_metacarpal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/metacarpal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_little_finger_knuckle">
@@ -911,7 +983,11 @@
             <geometry name="little_finger_knuckle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/knuckle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_little_finger_proximal">
@@ -924,7 +1000,11 @@
             <geometry name="little_finger_proximal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_proximal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_little_finger_middle">
@@ -937,7 +1017,11 @@
             <geometry name="little_finger_middle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_middle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_left_little_finger_distal">
@@ -950,7 +1034,11 @@
             <geometry name="little_finger_distal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_distal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
@@ -1009,7 +1097,11 @@
             <geometry name="wrist_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/wrist.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_palm">
@@ -1022,7 +1114,11 @@
             <geometry name="palm_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/palm.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
@@ -1057,7 +1153,11 @@
             <geometry name="thumb_proximal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/thumb_proximal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_thumb_hub"/>
@@ -1072,7 +1172,11 @@
             <geometry name="thumb_middle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/thumb_middle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_thumb_distal">
@@ -1085,7 +1189,11 @@
             <geometry name="thumb_distal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/thumb_distal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
@@ -1142,7 +1250,11 @@
             <geometry name="index_finger_knuckle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/knuckle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_index_finger_proximal">
@@ -1155,7 +1267,11 @@
             <geometry name="index_finger_proximal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_proximal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_index_finger_middle">
@@ -1168,7 +1284,11 @@
             <geometry name="index_finger_middle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_middle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_index_finger_distal">
@@ -1181,7 +1301,11 @@
             <geometry name="index_finger_distal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_distal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
@@ -1231,7 +1355,11 @@
             <geometry name="middle_finger_knuckle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/knuckle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_middle_finger_proximal">
@@ -1244,7 +1372,11 @@
             <geometry name="middle_finger_proximal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_proximal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_middle_finger_middle">
@@ -1257,7 +1389,11 @@
             <geometry name="middle_finger_middle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_middle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_middle_finger_distal">
@@ -1270,7 +1406,11 @@
             <geometry name="middle_finger_distal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_distal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
@@ -1320,7 +1460,11 @@
             <geometry name="ring_finger_knuckle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/knuckle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_ring_finger_proximal">
@@ -1333,7 +1477,11 @@
             <geometry name="ring_finger_proximal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_proximal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_ring_finger_middle">
@@ -1346,7 +1494,11 @@
             <geometry name="ring_finger_middle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_middle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_ring_finger_distal">
@@ -1359,7 +1511,11 @@
             <geometry name="ring_finger_distal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_distal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
@@ -1407,7 +1563,11 @@
             <geometry name="little_finger_metacarpal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/metacarpal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_little_finger_knuckle">
@@ -1422,7 +1582,11 @@
             <geometry name="little_finger_knuckle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/knuckle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_little_finger_proximal">
@@ -1435,7 +1599,11 @@
             <geometry name="little_finger_proximal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_proximal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_little_finger_middle">
@@ -1448,7 +1616,11 @@
             <geometry name="little_finger_middle_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_middle.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
     <link name="sr_right_little_finger_distal">
@@ -1461,7 +1633,11 @@
             <geometry name="little_finger_distal_collision">
                 <mesh filename="package://shadow_hand_ign/meshes/collision/finger_distal.stl"/>
             </geometry>
-        </collision>
+        </collision><inertial>
+            <mass value="0.648" />
+            <origin xyz="0.00529262 0.00344732 0.00313046" rpy="0 -0 0" />
+            <inertia ixx="0.00074276" ixy="3.79607e-08" ixz="-2.79549e-05" iyy="0.000688179" iyz="3.2735e-08" izz="0.00041242" />
+        </inertial>
     </link>
 
 
