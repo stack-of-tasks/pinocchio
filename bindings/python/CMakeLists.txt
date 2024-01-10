@@ -78,6 +78,8 @@ IF(BUILD_PYTHON_INTERFACE)
     SUFFIX ${PYTHON_EXT_SUFFIX}
     OUTPUT_NAME "${PYWRAP}"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bindings/python/${PROJECT_NAME}"
+    # On Windows, shared library are treat as binary
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bindings/python/${PROJECT_NAME}"
     )
 
   IF(UNIX)
