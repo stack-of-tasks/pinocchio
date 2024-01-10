@@ -285,6 +285,13 @@ FUNCTION(PREPEND_PATH_FROM_LIST list_name path_name dest_list)
   SET(${dest_list} ${list_name_} PARENT_SCOPE)
 ENDFUNCTION(PREPEND_PATH_FROM_LIST)
 
+# Define PINOCCHIO_WINDOWS_DLL_PATH environment variable on Windows
+FUNCTION(ADD_WINDOWS_DLL_PATH_TO_TEST TEST_NAME WINDOWS_DLL_PATH)
+    GET_TEST_PROPERTY(${TEST_NAME} ENVIRONMENT ENV_VARIABLES)
+    LIST(APPEND ENV_VARIABLES "PINOCCHIO_WINDOWS_DLL_PATH=${WINDOWS_DLL_PATH}")
+    SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
+ENDFUNCTION()
+
 # Enforce the preprocessed version of boost::list and boost::vector
 # This information is redundant with the content of include/pinocchio/container/boost-container-limits.hpp
 # but it avoids any compilation issue.
