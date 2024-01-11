@@ -1,10 +1,11 @@
-name: CI - Windows (v142) via Conda
+name: CI - Windows via Conda
 on:
   pull_request:
   push:
 
 jobs:
   build:
+    name: ${{ matrix.os }} - ${{ matrix.compiler }} with Conda
     runs-on: ${{ matrix.os }}
     env:
       CCACHE_BASEDIR: "${GITHUB_WORKSPACE}"
@@ -16,6 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["windows-2019"]
+        compiler: ["cl", clang-cl"]
 
     steps:
     - uses: actions/checkout@v4
@@ -25,8 +27,8 @@ jobs:
     - uses: actions/cache@v3
       with:
         path: .ccache
-        key: ccache-windows-conda-vs-${{ matrix.os }}-${{ github.sha }}
-        restore-keys: ccache-windows-conda-vs-${{ matrix.os }}-
+        key: ccache-windows-conda-${{ matrix.compiler }}-${{ matrix.os }}-${{ github.sha }}
+        restore-keys: ccache-windows-conda-${{ matrix.compiler }}-${{ matrix.os }}-
 
     - uses: conda-incubator/setup-miniconda@v3
       with:
@@ -38,14 +40,19 @@ jobs:
 
     - name: Build Pinocchio
       shell: cmd /C CALL {0}
+      env:
+        CC: ${{ matrix.compiler }}
+        CXX: ${{ matrix.compiler }}
       run: |
+        call conda list
+
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
         :: Create build directory
         mkdir build
         pushd build
 
-        :: Configure
+        :: Configure (Ninja use CC and CXX to determine the compiler)
         cmake ^
           -G "Ninja" ^
           -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
@@ -60,13 +67,16 @@ jobs:
           -DINSTALL_DOCUMENTATION=ON ^
           ..
 
-        :: Build and Install
-        cmake --build . --config Release --target install
+        :: Build
+        cmake --build .
         if errorlevel 1 exit 1
 
         :: Testing
-        ctest --output-on-failure -C Release
+        ctest --output-on-failure
         if errorlevel 1 exit 1
+
+        :: Install
+        cmake --install .
 
         :: Test Python import
         cd ..
@@ -75,7 +85,7 @@ jobs:
 
   check:
     if: always()
-    name: check-windows-conda-v142
+    name: check-windows-conda
 
     needs:
     - build
