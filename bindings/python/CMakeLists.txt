@@ -109,6 +109,7 @@ IF(BUILD_PYTHON_INTERFACE)
     romeo_wrapper.py
     explog.py
     shortcuts.py
+    windows_dll_manager.py
     )
 
   FOREACH(python ${PYTHON_FILES})
