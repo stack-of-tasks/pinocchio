@@ -58,7 +58,7 @@ int run_solvers(pinocchio::Model model, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATO
   std::cout << model.nv << ", " << timer.toc()/NBT << ", ";  
 
 
-  double mu = 1e-3;
+  double mu = 1e-1;
 
   ProximalSettings prox_settings;
   prox_settings.max_iter = max_iter;
@@ -72,13 +72,13 @@ int run_solvers(pinocchio::Model model, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATO
   {
     constraintDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models,contact_datas, prox_settings);
   }
-std::cout << timer.toc()/NBT << ", ";  
+  std::cout << timer.toc()/NBT << ", ";  
 
   timer.tic();
   SMOOTH(NBT)
-    {
-      proxLTLs(model, data, qs[_smooth], qdots[_smooth], taus[_smooth], contact_models, contact_datas, prox_settings);
-    }
+  {
+    proxLTLs(model, data, qs[_smooth], qdots[_smooth], taus[_smooth], contact_models, contact_datas, prox_settings);
+  }
   std::cout << timer.toc()/NBT << ", ";  
  
   timer.tic();
@@ -205,15 +205,38 @@ int main(int argc, const char ** argv)
   std::vector<std::string> chain_names;
   std::vector<std::string> chain_links;
 
-  for (int i = 6; i < 101; i++)
+  // for (int i = 6; i < 101; i++)
+  // {
+  //   std::string chain_name = "/example-robot-data/robots/chain_urdf_files/chain" + std::to_string(i) + ".urdf";
+  //   chain_names.push_back(chain_name);
+  //   chain_links.push_back("link" + std::to_string(i));
+  //   // benchmark_contacts(chain_name, chain_links, {0}, {6}, false, 1);
+  //   // benchmark_contacts(chain_name, chain_links, {0}, {6}, false, 3);
+  //   // benchmark_contacts(chain_name, chain_links, {0}, {6}, false, 10);
+  //   chain_links.pop_back();
+  // }
+
+  // Benchmark the binary trees
+  for (int i = 1; i < 35; i++)
   {
-    std::string chain_name = "/example-robot-data/robots/chain_urdf_files/chain" + std::to_string(i) + ".urdf";
-    chain_names.push_back(chain_name);
-    chain_links.push_back("link" + std::to_string(i));
-    // benchmark_contacts(chain_name, chain_links, {0}, {6}, false, 1);
+    std::string chain_name = "/example-robot-data/robots/binary_tree_urdfs/tree" + std::to_string(i*3) + ".urdf";
+    std::vector<size_t> link_numbers;
+    std::vector<int> link_types;
+    size_t counter = 0;
+    for (int j = i/2 + 1;  j <= i; j++)
+    {
+      chain_links.push_back("link" + std::to_string(j*3));
+      link_numbers.push_back(counter);
+      counter += 1;
+      link_types.push_back(3);
+    }
+    // chain_links.push_back("link" + std::to_string(i));
+    // benchmark_contacts(chain_name, chain_links, link_numbers, link_types, false, 1);
+    benchmark_contacts(chain_name, chain_links, link_numbers, link_types, false, 3);
     // benchmark_contacts(chain_name, chain_links, {0}, {6}, false, 3);
     // benchmark_contacts(chain_name, chain_links, {0}, {6}, false, 10);
-    chain_links.pop_back();
+    // chain_links.pop_back();
+    chain_links.clear();
   }
   // std::vector<int> link_names = {}
   // benchmark_contacts(talos_filename, talos_links, {0, 1}, {6, 6});
