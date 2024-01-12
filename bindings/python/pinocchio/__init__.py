@@ -16,10 +16,12 @@ import numpy
 # More resources on https://github.com/diffpy/pyobjcryst/issues/33
 try:
     from .pinocchio_pywrap import *
+    from .pinocchio_pywrap import __version__, __raw_version__
 except ImportError:
     import os
     import sys
     import platform
+    import contextlib
     if platform.system() == "Windows":
         __pinocchio_paths = os.getenv('PINOCCHIO_WINDOWS_DLL_PATH')
         if __pinocchio_paths is None:
@@ -28,24 +30,52 @@ except ImportError:
             __dll_paths = [os.path.join(os.path.dirname(__file__), RELATIVE_DLL_PATH)]
         else:
             __dll_paths = __pinocchio_paths.split(os.pathsep)
-        if sys.version_info >= (3, 8):
-            for p in __dll_paths:
+
+        # Restore PATH state after importing Pinocchio
+        class __PathManager(contextlib.AbstractContextManager):
+            def add_dll_directory(self, dll_dir: str):
+                os.environ["PATH"] += os.pathsep + dll_dir
+
+            def __enter__(self):
+                self.old_path = os.environ["PATH"]
+                return self
+
+            def __exit__(self):
+                os.environ["PATH"] = self.old_path
+
+        # Restore DllDirectory state after importing Pinocchio
+        class __DllDirectoryManager(contextlib.AbstractContextManager):
+            def add_dll_directory(self, dll_dir: str):
                 # add_dll_directory can fail on relative path and non
                 # existing path.
                 # Since we don't know all the fail criterion we just ignore
                 # thrown exception
                 try:
-                    os.add_dll_directory(p)
+                    self.dll_dirs.append(os.add_dll_directory(dll_dir))
                 except OSError:
                     pass
-        else:
+
+            def __enter__(self):
+                self.dll_dirs = []
+                return self
+
+            def __exit__(self, *exc_details):
+                for d in self.dll_dirs:
+                    d.close()
+
+        def __build_directory_manager():
+            if sys.version_info >= (3, 8):
+                return __DllDirectoryManager()
+            else:
+                return __PathManager()
+
+        with __build_directory_manager() as dll_dir_manager:
             for p in __dll_paths:
-                os.environ["PATH"] += os.pathsep + p
-        from .pinocchio_pywrap import *
+                dll_dir_manager.add_dll_directory(p)
+            from .pinocchio_pywrap import *
+            from .pinocchio_pywrap import __version__, __raw_version__
     else:
         raise
-
-from .pinocchio_pywrap import __version__, __raw_version__
 
 from . import utils
 from .explog import exp, log
