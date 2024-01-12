@@ -1,7 +1,6 @@
 name: pinocchio
 channels:
   - conda-forge
-  - nodefaults
 dependencies:
   - eigen=3.4.0
   - hpp-fcl
@@ -10,4 +9,7 @@ dependencies:
   - eigenpy
   - urdfdom
   - python
-  - mamba
+  - cmake
+  - ccache
+  - pkg-config
+  - ninja

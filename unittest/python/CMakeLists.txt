@@ -78,16 +78,20 @@ SET(${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS
   )
 
 FOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
-  ADD_PYTHON_UNIT_TEST("test-py-${TEST}" "unittest/python/${TEST}.py" "bindings/python")
+  SET(TEST_NAME "test-py-${TEST}")
+  ADD_PYTHON_UNIT_TEST(${TEST_NAME} "unittest/python/${TEST}.py" "bindings/python")
+  ADD_WINDOWS_DLL_PATH_TO_TEST(${TEST_NAME})
 ENDFOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
 
 MAKE_DIRECTORY("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
 
 IF(MEMORYCHECK_COMMAND AND MEMORYCHECK_COMMAND MATCHES ".*valgrind$")
   FOREACH(TEST ${${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS})
-    ADD_PYTHON_MEMORYCHECK_UNIT_TEST("test-py-memory-${TEST}"
+    SET(TEST_NAME "test-py-memory-${TEST}")
+    ADD_PYTHON_MEMORYCHECK_UNIT_TEST(${TEST_NAME}
       "unittest/python/${TEST}.py"
       "bindings/python")
+    ADD_WINDOWS_DLL_PATH_TO_TEST(${TEST_NAME})
   ENDFOREACH()
 ELSE()
   MESSAGE(STATUS "Valgrind not found, memory checks are disabled")

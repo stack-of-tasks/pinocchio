@@ -37,7 +37,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}
+          key: ccache-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}-${{ github.sha }}
+          restore-keys: ccache-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}-
       # Run industrial_ci
       - uses: 'ros-industrial/industrial_ci@3ed9846c96ed1e0bb36193e8e250632eaac980d0'
         env: ${{ matrix.env }}
