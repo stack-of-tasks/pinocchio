@@ -83,9 +83,9 @@ namespace pinocchio
     CppAD::cg::ModelCSourceGen<Scalar> & codeGenerator()
     { return *cgen_ptr; }
     
-    void compileLib()
+    void compileLib(const std::string& gccPath = "/usr/bin/gcc")
     {
-      CppAD::cg::GccCompiler<Scalar> compiler;
+      CppAD::cg::GccCompiler<Scalar> compiler(gccPath);
       std::vector<std::string> compile_options = compiler.getCompileFlags();
       compile_options[0] = "-Ofast";
       compiler.setCompileFlags(compile_options);
@@ -99,6 +99,12 @@ namespace pinocchio
       return file.good();
     }
     
+    void compileAndLoadLib(const std::string& gccPath)
+    {
+      compileLib(gccPath);
+      loadLib(false);
+    }
+
     void loadLib(const bool generate_if_not_exist = true)
     {
       if(!existLib() && generate_if_not_exist)

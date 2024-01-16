@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
   //Integrate
   CodeGenIntegrate<double> cg_integrate(model);
   cg_integrate.initLib();
-  cg_integrate.loadLib();
+  cg_integrate.compileAndLoadLib(PINOCCHIO_CXX_COMPILER);
   
   cg_integrate.evalFunction(q1,v, results_q[0]);
   pinocchio::integrate(model, q1,v,results_q[1]);
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
   //Difference
   CodeGenDifference<double> cg_difference(model);
   cg_difference.initLib();
-  cg_difference.loadLib();
+  cg_difference.compileAndLoadLib(PINOCCHIO_CXX_COMPILER);
   
   cg_difference.evalFunction(q1,q2, results_v[0]);
   pinocchio::difference(model,q1,q2,results_v[1]);
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
   //dDifference
   CodeGenDDifference<double> cg_dDifference(model);
   cg_dDifference.initLib();
-  cg_dDifference.loadLib();
+  cg_dDifference.compileAndLoadLib(PINOCCHIO_CXX_COMPILER);
   
   //ARG0
   std::vector<Eigen::MatrixXd> results_J(2,Eigen::MatrixXd::Zero(model.nv,model.nv));

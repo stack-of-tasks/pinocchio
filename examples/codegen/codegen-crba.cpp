@@ -28,7 +28,7 @@ int main(int argc, const char ** argv)
 
   // Generate the lib if it does not exist and load it afterwards.
   crba_code_gen.initLib();
-  crba_code_gen.loadLib();
+  crba_code_gen.compileAndLoadLib(PINOCCHIO_CXX_COMPILER);
 
   // Use it with a random configuration samples in the bounds of the joint limits
   VectorXd q = randomConfiguration(model);

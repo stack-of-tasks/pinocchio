@@ -37,11 +37,19 @@ namespace boost
             return ADScalar(constant_pi<Scalar>::get(n));
           }
 
+#if BOOST_VERSION >= 107700
           template <class T, T value>
           static inline ADScalar get(const std::integral_constant<T, value> &n)
           {
             return ADScalar(constant_pi<Scalar>::get(n));
           }
+#else
+          template <class T, T value>
+          static inline ADScalar get(const boost::integral_constant<T, value> &n)
+          {
+            return ADScalar(constant_pi<Scalar>::get(n));
+          }
+#endif
         };
       }
     }

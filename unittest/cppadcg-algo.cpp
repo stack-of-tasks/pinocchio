@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     // compile source code
     CppAD::cg::DynamicModelLibraryProcessor<Scalar> p(libcgen);
 
-    CppAD::cg::GccCompiler<Scalar> compiler;
+    CppAD::cg::GccCompiler<Scalar> compiler(PINOCCHIO_CXX_COMPILER);
     std::unique_ptr<CppAD::cg::DynamicLib<Scalar>> dynamicLib = p.createDynamicLibrary(compiler);
 
     // save to files (not really required)
