@@ -82,11 +82,12 @@ namespace pinocchio
 ///
 /// \brief Evaluate the collision over a set of trajectories and return whether a trajectory contains a collision
 ///
-template<typename BroadPhaseManagerDerived, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename CollisionVectorResult>
+template<typename BroadPhaseManagerDerived, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
 void computeCollisionsInParallel(const size_t num_threads,
                                  BroadPhaseManagerPoolBase<BroadPhaseManagerDerived,Scalar,Options,JointCollectionTpl> & pool,
                                  const std::vector<Eigen::MatrixXd> & trajectories,
-                                 const Eigen::MatrixBase<CollisionVectorResult> & res)
+                                 std::vector<VectorXb> & res,
+                                 const bool stopAtFirstCollisionInTrajectory = false)
 {
   typedef BroadPhaseManagerPoolBase<BroadPhaseManagerDerived,Scalar,Options,JointCollectionTpl> Pool;
   typedef typename Pool::Model Model;
@@ -100,11 +101,15 @@ void computeCollisionsInParallel(const size_t num_threads,
   const Model & model_check = models[0];
   DataVector & datas = pool.getDatas();
   BroadPhaseManagerVector & broadphase_managers = pool.getBroadPhaseManagers();
-  CollisionVectorResult & res_ = res.const_cast_derived();
 
   PINOCCHIO_CHECK_INPUT_ARGUMENT(num_threads <= pool.size(), "The pool is too small");
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(Eigen::DenseIndex(trajectories.size()), res.size());
-  res_.fill(false);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(trajectories.size(), res.size());
+
+  for(size_t k = 0; k < trajectories.size(); ++k)
+  {
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(trajectories[k].cols(), res[k].size());
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(trajectories[k].rows(), model_check.nq);
+  }
 
   set_default_omp_options(num_threads);
   const size_t batch_size = trajectories.size();
@@ -114,20 +119,18 @@ void computeCollisionsInParallel(const size_t num_threads,
   for(i = 0; i < batch_size; i++)
   {
     const int thread_id = omp_get_thread_num();
-    const Model & model = models[(size_t)thread_id];
+    const Model & model = models[size_t(thread_id)];
     Data & data = datas[(size_t)thread_id];
-    const Eigen::MatrixXd & qs = trajectories[i];
-    BroadPhaseManager & manager = broadphase_managers[(size_t)thread_id];
+    const Eigen::MatrixXd & current_traj = trajectories[i];
+    VectorXb & res_current_traj = res[i];
+    res_current_traj.fill(false);
+    BroadPhaseManager & manager = broadphase_managers[size_t(thread_id)];
 
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(qs.rows(), model_check.nq);
-    res_[Eigen::DenseIndex(i)] = false;
-    for(Eigen::DenseIndex col_id = 0; col_id < qs.cols(); ++col_id)
+    for(Eigen::DenseIndex col_id = 0; col_id < current_traj.cols(); ++col_id)
     {
-      const bool colliding = computeCollisions(model,data,manager,qs.col(col_id));
-      if(colliding)
-      {
-        res_[Eigen::DenseIndex(i)] = true; break;
-      }
+      res_current_traj[col_id] = computeCollisions(model,data,manager,current_traj.col(col_id));
+      if(res_current_traj[col_id] && stopAtFirstCollisionInTrajectory)
+        break;
     }
 
   }

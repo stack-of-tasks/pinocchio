@@ -5,6 +5,7 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/parallel/broadphase.hpp"
 #include "pinocchio/multibody/tree-broadphase-manager.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h>
@@ -40,12 +41,17 @@ namespace pinocchio
     }
 
     template<typename BroadPhaseManager>
-    VectorXb computeCollisionsInParallel_2(const size_t num_threads,
-                                           BroadPhaseManagerPoolBase<BroadPhaseManager,double> & pool,
-                                           const std::vector<Eigen::MatrixXd> & trajectories)
+    std::vector<VectorXb> computeCollisionsInParallel_2(const size_t num_threads,
+                                                        BroadPhaseManagerPoolBase<BroadPhaseManager,double> & pool,
+                                                        const std::vector<Eigen::MatrixXd> & trajectories,
+                                                        const bool stopAtFirstCollisionInTrajectory = false)
     {
-      VectorXb res(Eigen::DenseIndex(trajectories.size()));
-      computeCollisionsInParallel(num_threads, pool, trajectories, res);
+      std::vector<VectorXb> res(trajectories.size());
+      for(size_t k = 0; k < trajectories.size(); ++k)
+      {
+        res[k].resize(trajectories[k].cols());
+      }
+      computeCollisionsInParallel(num_threads, pool, trajectories, res, stopAtFirstCollisionInTrajectory);
       return res;
     }
 
@@ -65,12 +71,13 @@ namespace pinocchio
 
       bp::def("computeCollisionsInParallel",
               computeCollisionsInParallel_2<BroadPhaseManager>,
-              (bp::arg("num_thread"),bp::arg("pool"),bp::arg("trajectories")),
-              "Evaluates in parallel the batch of trajectories and returns a vector of Boolean containing the collision status for each trajectory.\n\n"
+              (bp::arg("num_thread"),bp::arg("pool"),bp::arg("trajectories"), bp::arg("stop_at_first_collision_in_trajectory") = false),
+              "Evaluates in parallel the batch of trajectories and returns a vector of vector of Boolean containing the status for each configuration contained in a given trajectory.\n\n"
               "Parameters:\n"
               "\tnum_thread: number of threads used for the computation\n"
               "\tpool: the broadphase manager pool\n"
-              "\ttrajectories: the list of joint trajectories\n");
+              "\ttrajectories: the list of joint trajectories\n"
+              "\tstop_at_first_collision_in_trajectory: if set to true, stops when encountering the first collision in a given trajectory.\n");
     }
   
     void exposeParallelBroadPhase()
