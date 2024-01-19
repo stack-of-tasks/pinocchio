@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2023 CNRS INRIA
+// Copyright (c) 2018-2024 CNRS INRIA
 //
 
 #ifndef __pinocchio_fwd_hpp__
@@ -140,6 +140,8 @@ namespace pinocchio
       -> Eigen::Ref<typename M::PlainObject const> {
       return m;
   }
+
+  typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
 }
 
 #include "pinocchio/context.hpp"
