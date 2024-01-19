@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2023 CNRS INRIA
+// Copyright (c) 2015-2024 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -167,7 +167,8 @@ namespace pinocchio
         .staticmethod("Interpolate")
         
         .def("__array__",&SE3::toHomogeneousMatrix)
-        
+        .def("__array__",&__array__)
+
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(Pickle())
 #endif
@@ -200,7 +201,12 @@ namespace pinocchio
         
       }
     private:
-      
+
+      static Matrix4 __array__(const SE3 & self, bp::object)
+      {
+        return self.toHomogeneousMatrix();
+      }
+
       struct Pickle : bp::pickle_suite
       {
         static

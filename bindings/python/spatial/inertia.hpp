@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2023 CNRS INRIA
+// Copyright (c) 2015-2024 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -162,6 +162,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         .staticmethod("FromBox")
         
         .def("__array__",(Matrix6 (Inertia::*)() const)&Inertia::matrix)
+        .def("__array__",&__array__)
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(Pickle())
 #endif
@@ -230,7 +231,12 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       }
       
     private:
-      
+
+      static Matrix6 __array__(const Inertia & self, bp::object)
+      {
+        return self.matrix();
+      }
+
       struct Pickle : bp::pickle_suite
       {
         static

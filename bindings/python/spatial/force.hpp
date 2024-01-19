@@ -134,6 +134,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         
         .def("__array__",bp::make_function((typename Force::ToVectorReturnType (Force::*)())&Force::toVector,
                                            bp::return_internal_reference<>()))
+        .def("__array__",&__array__,bp::return_internal_reference<>())
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(Pickle())
 #endif
@@ -171,6 +172,11 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
     private:
       
+      static typename Force::ToVectorConstReturnType __array__(const Force & self, bp::object)
+      {
+        return self.toVector();
+      }
+
       struct Pickle : bp::pickle_suite
       {
         static
