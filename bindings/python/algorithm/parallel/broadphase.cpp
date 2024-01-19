@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021-2022 INRIA
+// Copyright (c) 2021-2024 INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -38,7 +38,17 @@ namespace pinocchio
       computeCollisionsInParallel(num_threads, pool, q, res, stopAtFirstCollisionInConfiguration, stopAtFirstCollisionInBatch);
       return res;
     }
-  
+
+    template<typename BroadPhaseManager>
+    VectorXb computeCollisionsInParallel_2(const size_t num_threads,
+                                           BroadPhaseManagerPoolBase<BroadPhaseManager,double> & pool,
+                                           const std::vector<Eigen::MatrixXd> & trajectories)
+    {
+      VectorXb res(Eigen::DenseIndex(trajectories.size()));
+      computeCollisionsInParallel(num_threads, pool, trajectories, res);
+      return res;
+    }
+
     template<typename BroadPhaseManager>
     void exposeCase()
     {
@@ -52,6 +62,15 @@ namespace pinocchio
               "\tq: the batch of joint configurations\n"
               "\tstop_at_first_collision_in_configuration: if set to true, stops when encountering the first collision in a configuration\n"
               "\tstop_at_first_collision_in_batch: if set to true, stops when encountering the first collision in a batch.\n");
+
+      bp::def("computeCollisionsInParallel",
+              computeCollisionsInParallel_2<BroadPhaseManager>,
+              (bp::arg("num_thread"),bp::arg("pool"),bp::arg("trajectories")),
+              "Evaluates in parallel the batch of trajectories and returns a vector of Boolean containing the collision status for each trajectory.\n\n"
+              "Parameters:\n"
+              "\tnum_thread: number of threads used for the computation\n"
+              "\tpool: the broadphase manager pool\n"
+              "\ttrajectories: the list of joint trajectories\n");
     }
   
     void exposeParallelBroadPhase()
