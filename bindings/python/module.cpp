@@ -116,6 +116,14 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   exposeVersion();
   exposeDependencies();
   exposeConversions();
-  
+
+  typedef std::vector<::pinocchio::VectorXb> StdVec_VectorXb;
+  typedef std::vector<context::MatrixXs> StdVec_MatrixXs;
+
+  StdVectorPythonVisitor<StdVec_VectorXb,false>::expose("StdVec_VectorXb",
+                                                        details::overload_base_get_item_for_std_vector<StdVec_VectorXb>());
+  StdVectorPythonVisitor<StdVec_MatrixXs,false>::expose("StdVec_MatrixXs",
+                                                        details::overload_base_get_item_for_std_vector<StdVec_MatrixXs>());
+
 }
  
