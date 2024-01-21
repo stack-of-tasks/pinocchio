@@ -268,7 +268,11 @@ namespace pinocchio
       {
         allocate(model,contact_models);
       }
-      
+
+      ///
+      /// \brief Copy constructor
+      ContactCholeskyDecompositionTpl(const ContactCholeskyDecompositionTpl & copy) = default;
+
       ///
       /// \brief Memory allocation of the vectors D, Dinv, and the upper triangular matrix U.
       ///
