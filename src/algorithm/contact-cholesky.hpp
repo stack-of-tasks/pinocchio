@@ -250,7 +250,7 @@ namespace pinocchio
       /// \param[in] model Model of the kinematic tree.
       ///
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
-      ContactCholeskyDecompositionTpl(const ModelTpl<S1,O1,JointCollectionTpl> & model)
+      explicit ContactCholeskyDecompositionTpl(const ModelTpl<S1,O1,JointCollectionTpl> & model)
       {
         PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) empty_contact_models;
         allocate(model,empty_contact_models);
