@@ -37,7 +37,7 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   exposeSpecificTypeFeatures();
   
 #if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
-  StdContainerFromPythonList< std::vector<std::string> >::register_converter();
+  eigenpy::StdContainerFromPythonList< std::vector<std::string> >::register_converter();
 #endif
 
   bp::scope().attr("ScalarType") = getScalarType();
@@ -121,9 +121,9 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   typedef std::vector<context::MatrixXs> StdVec_MatrixXs;
 
   StdVectorPythonVisitor<StdVec_VectorXb,false>::expose("StdVec_VectorXb",
-                                                        details::overload_base_get_item_for_std_vector<StdVec_VectorXb>());
+                                                        eigenpy::details::overload_base_get_item_for_std_vector<StdVec_VectorXb>());
   StdVectorPythonVisitor<StdVec_MatrixXs,false>::expose("StdVec_MatrixXs",
-                                                        details::overload_base_get_item_for_std_vector<StdVec_MatrixXs>());
+                                                        eigenpy::details::overload_base_get_item_for_std_vector<StdVec_MatrixXs>());
 
 }
  

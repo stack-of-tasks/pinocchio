@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2022 CNRS INRIA
+// Copyright (c) 2016-2024 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_utils_std_aligned_vector_hpp__
@@ -28,17 +28,17 @@ namespace pinocchio
     ///
     template<class T, bool NoProxy = false, bool EnableFromPythonListConverter = true>
     struct StdAlignedVectorPythonVisitor
-    : public ::boost::python::vector_indexing_suite<typename container::aligned_vector<T>,NoProxy, internal::contains_vector_derived_policies<typename container::aligned_vector<T>,NoProxy> >
-    , public StdContainerFromPythonList< container::aligned_vector<T> >
+    : public ::boost::python::vector_indexing_suite<typename container::aligned_vector<T>,NoProxy, eigenpy::internal::contains_vector_derived_policies<typename container::aligned_vector<T>,NoProxy> >
+    , public eigenpy::StdContainerFromPythonList< container::aligned_vector<T> >
     {
       typedef container::aligned_vector<T> vector_type;
-      typedef StdContainerFromPythonList<vector_type,NoProxy> FromPythonListConverter;
+      typedef eigenpy::StdContainerFromPythonList<vector_type,NoProxy> FromPythonListConverter;
       typedef T value_type;
       
       static void expose(const std::string & class_name,
                          const std::string & doc_string = "")
       {
-        expose(class_name,doc_string,EmptyPythonVisitor());
+        expose(class_name,doc_string,eigenpy::EmptyPythonVisitor());
       }
       
       template<typename VisitorDerived>
@@ -54,7 +54,7 @@ namespace pinocchio
                          const boost::python::def_visitor<VisitorDerived> & visitor)
       {
         namespace bp = boost::python;
-        if(!register_symbolic_link_to_registered_type<vector_type>())
+        if(!eigenpy::register_symbolic_link_to_registered_type<vector_type>())
         {
           bp::class_<vector_type> cl(class_name.c_str(),doc_string.c_str());
           cl
@@ -63,13 +63,13 @@ namespace pinocchio
           .def(bp::init<size_t, const value_type &>(bp::args("self","size","value"),"Constructor from a given size and a given value."))
           .def(bp::init<const vector_type &>(bp::args("self","other"),"Copy constructor"))
           
-          .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
+          .def("tolist",&FromPythonListConverter::tolist,(bp::arg("self"),bp::arg("deep_copy") = false),
                "Returns the aligned_vector as a Python list.")
           .def(visitor)
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def_pickle(PickleVector<vector_type>())
 #endif
-          .def(CopyableVisitor<vector_type>())
+          .def(eigenpy::CopyableVisitor<vector_type>())
           ;
           
           // Register conversion

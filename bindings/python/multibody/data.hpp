@@ -224,12 +224,12 @@ namespace pinocchio
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) StdVec_Matrix6;
         
         StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_Vector3",
-                                                             details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
+                                                             eigenpy::details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
 
         StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x",
-                                                              details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
+                                                              eigenpy::details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
         StdAlignedVectorPythonVisitor<Matrix6,false>::expose("StdVec_Matrix6",
-                                                              details::overload_base_get_item_for_std_vector<StdVec_Matrix6>());
+                                                             eigenpy::details::overload_base_get_item_for_std_vector<StdVec_Matrix6>());
         StdVectorPythonVisitor<std::vector<int>,true>::expose("StdVec_int");
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         serialize<typename StdAlignedVectorPythonVisitor<Vector3,false>::vector_type>();
