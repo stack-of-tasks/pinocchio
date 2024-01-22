@@ -219,8 +219,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/parsers/sample-models.hxx
   include/pinocchio/parsers/srdf.hpp
   include/pinocchio/parsers/srdf.hxx
-  include/pinocchio/parsers/mjcf/model.hxx
-  include/pinocchio/parsers/mjcf/model.hpp
   include/pinocchio/parsers/utils.hpp
   include/pinocchio/serialization/aligned-vector.hpp
   include/pinocchio/serialization/archive.hpp
@@ -308,9 +306,9 @@ SET(${PROJECT_NAME}_SDF_SOURCES
   )
 
 SET(${PROJECT_NAME}_SDF_PUBLIC_HEADERS
-  include/pinocchio/parsers/sdf.hpp
-  include/pinocchio/parsers/sdf/model.hxx
-  include/pinocchio/parsers/sdf/geometry.hxx
+  src/parsers/sdf.hpp
+  src/parsers/sdf/model.hxx
+  src/parsers/sdf/geometry.hxx
   )
 
 SET(${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS
