@@ -306,9 +306,9 @@ SET(${PROJECT_NAME}_SDF_SOURCES
   )
 
 SET(${PROJECT_NAME}_SDF_PUBLIC_HEADERS
-  src/parsers/sdf.hpp
-  src/parsers/sdf/model.hxx
-  src/parsers/sdf/geometry.hxx
+  include/pinocchio/parsers/sdf.hpp
+  include/pinocchio/parsers/sdf/model.hxx
+  include/pinocchio/parsers/sdf/geometry.hxx
   )
 
 SET(${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS
