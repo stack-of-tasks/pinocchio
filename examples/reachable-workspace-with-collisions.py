@@ -23,12 +23,11 @@ pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 model_path = join(pinocchio_model_dir, "example-robot-data/robots")
 mesh_dir = pinocchio_model_dir
 
-urdf_filename = "panda.urdf"
-urdf_model_path = join(
-    join(model_path, "panda_description/urdf"), urdf_filename)
+urdf_path = join(model_path, "panda_description/urdf/panda.urdf")
+srdf_path = join(model_path, "panda_description/srdf/panda.srdf")
 
 robot, collision_model, visual_model = pin.buildModelsFromUrdf(
-    urdf_model_path, mesh_dir
+    urdf_path, mesh_dir
 )
 data = robot.createData()
 
@@ -55,12 +54,15 @@ for i, xyzrpy in enumerate(oMobs):
     collision_model.addGeometryObject(obs)  # Add object to collision model
     visual_model.addGeometryObject(obs)  # Add object to visual model
 
+# Auto-collision pairs
+collision_model.addAllCollisionPairs()
+pin.removeCollisionPairs(robot, collision_model, srdf_path)
+
 # Collision pairs
 nobs = len(oMobs)
 nbodies = collision_model.ngeoms - nobs
 robotBodies = range(nbodies)
 envBodies = range(nbodies, nbodies + nobs)
-collision_model.removeAllCollisionPairs()
 for a, b in itertools.product(robotBodies, envBodies):
     collision_model.addCollisionPair(pin.CollisionPair(a, b))
 
