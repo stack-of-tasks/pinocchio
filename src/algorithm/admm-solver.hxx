@@ -6,7 +6,6 @@
 #define __pinocchio_algorithm_admm_solver_hxx__
 
 #include <limits>
-#include <iostream>
 #include <iomanip>
 #include "pinocchio/algorithm/constraints/coulomb-friction-cone.hpp"
 
@@ -110,14 +109,8 @@ void computeComplementarityShift(const std::vector<CoulombFrictionConeTpl<Scalar
     const Scalar m = math::max(mu_R,mu_prox);
     const Scalar cond = L / m;
 
-    std::cout << "L: " << L << std::endl;
-    std::cout << "m: " << m << std::endl;
-    std::cout << "cond: " << cond << std::endl;
     Scalar rho = math::sqrt(m * L) * math::pow(cond,rho_power);
-    std::cout << "rho_power: " << rho_power << std::endl;
-    std::cout << "rho: " << rho << std::endl;
     Scalar prox_value = mu_prox + tau * rho;
-    std::cout << "y_sol: " << y_sol.transpose() << std::endl;
 
     int it = 0;
 
@@ -145,15 +138,8 @@ void computeComplementarityShift(const std::vector<CoulombFrictionConeTpl<Scalar
 
     Scalar y_previous_norm_inf = y_.template lpNorm<Eigen::Infinity>();
 
-    std::cout << std::setprecision(12);
-    std::cout << "x0: " << x_.transpose() << std::endl;
-    std::cout << "y0: " << y_.transpose() << std::endl;
-    std::cout << "z0: " << z_.transpose() << std::endl;
-    std::cout << "s0: " << s_.transpose() << std::endl;
-
     for(; it < Base::max_it; ++it)
     {
-      std::cout << "it: " << it << std::endl;
       y_previous = y_;
       complementarity = Scalar(0);
 
@@ -175,11 +161,6 @@ void computeComplementarityShift(const std::vector<CoulombFrictionConeTpl<Scalar
       // z-update
       z_ -= (tau*rho) * (x_ - y_);
 //      computeDualConeProjection(cones, z_, z_);
-
-      std::cout << "\tx: " << x_.transpose() << std::endl;
-      std::cout << "\ty: " << y_.transpose() << std::endl;
-      std::cout << "\tz: " << z_.transpose() << std::endl;
-      std::cout << "\ts: " << s_.transpose() << std::endl;
 
       // check termination criteria
       primal_feasibility_vector = x_ - y_;
@@ -232,7 +213,6 @@ void computeComplementarityShift(const std::vector<CoulombFrictionConeTpl<Scalar
       }
 
       y_previous_norm_inf = y_norm_inf;
-      std::cout << "------" << std::endl;
     }
 
     PINOCCHIO_EIGEN_MALLOC_ALLOWED();
