@@ -11,6 +11,7 @@
 #include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/comparable.hpp"
+#include "pinocchio/bindings/python/utils/copyable.hpp"
 
 namespace pinocchio
 {
@@ -130,6 +131,7 @@ namespace pinocchio
                                                  "Contact information container for contact dynamic algorithms.",
                                                  bp::no_init)
         .def(ContactCholeskyDecompositionPythonVisitor<ContactCholeskyDecomposition>())
+        .def(CopyableVisitor<ContactCholeskyDecomposition>())
         ;
 
         {
