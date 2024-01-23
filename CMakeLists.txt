@@ -40,7 +40,7 @@ INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/boost.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/ide.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/apple.cmake)
 IF(APPLE) # Use the handmade approach
-  IF(${CMAKE_VERSION} VERSION_LESS "3.28.0") # Need to find the right version
+  IF(${CMAKE_VERSION} VERSION_LESS "3.18.0") # Need to find the right version
     SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
   ENDIF()
 ELSEIF(UNIX)
