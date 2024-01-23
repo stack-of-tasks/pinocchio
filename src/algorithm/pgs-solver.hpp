@@ -12,7 +12,8 @@ namespace pinocchio
 
   /// \brief Projected Gauss Siedel solver
   template<typename _Scalar>
-  struct PGSContactSolverTpl : ContactSolverBaseTpl<_Scalar>
+  struct PGSContactSolverTpl 
+  : ContactSolverBaseTpl<_Scalar>
   {
     typedef _Scalar Scalar;
     typedef ContactSolverBaseTpl<Scalar> Base;
@@ -20,6 +21,7 @@ namespace pinocchio
 
     explicit PGSContactSolverTpl(const int problem_size)
     : Base(problem_size)
+    , x(problem_size)
     , x_previous(problem_size)
     {}
 
@@ -42,7 +44,7 @@ namespace pinocchio
   protected:
 
     /// \brief Previous temporary value of the optimum.
-    VectorXs x_previous;
+    VectorXs x, x_previous;
 
   }; // struct PGSContactSolverTpl
 }

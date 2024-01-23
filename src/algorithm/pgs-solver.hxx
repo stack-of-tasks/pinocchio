@@ -14,7 +14,7 @@ namespace pinocchio
   template<typename MatrixLike, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut>
   bool PGSContactSolverTpl<_Scalar>::solve(const Eigen::MatrixBase<MatrixLike> & G, const Eigen::MatrixBase<VectorLike> & g,
                                            const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
-                                           const Eigen::DenseBase<VectorLikeOut> & x_,
+                                           const Eigen::DenseBase<VectorLikeOut> & x_sol,
                                            const Scalar over_relax)
 
   {
@@ -27,18 +27,16 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(g.size(), this->getProblemSize());
     PINOCCHIO_CHECK_ARGUMENT_SIZE(G.rows(), this->getProblemSize());
     PINOCCHIO_CHECK_ARGUMENT_SIZE(G.cols(), this->getProblemSize());
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(x_.size(), this->getProblemSize());
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(x_sol.size(), this->getProblemSize());
 
     const size_t nc = cones.size(); // num constraints
-    VectorLikeOut & x = x_.const_cast_derived();
-
+    
     int it = 0;
-    Vector3 velocity; // tmp variable
-
     PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
 
     Scalar complementarity, proximal_metric;
     bool abs_prec_reached = false, rel_prec_reached = false;
+    x = x_sol;
     Scalar x_previous_norm_inf = x.template lpNorm<Eigen::Infinity>();
     for(; it < this->max_it; ++it)
     {
@@ -46,6 +44,7 @@ namespace pinocchio
       complementarity = Scalar(0);
       for(size_t cone_id = 0; cone_id < nc; ++cone_id)
       {
+        Vector3 velocity; // tmp variable
         const Eigen::DenseIndex row_id = 3*cone_id;
         const CoulombFrictionCone & cone = cones[cone_id];
 
@@ -107,6 +106,7 @@ namespace pinocchio
     this->absolute_residual = complementarity;
     this->relative_residual = proximal_metric;
     this->it = it;
+    x_sol.const_cast_derived() = x;
 
     if(abs_prec_reached || rel_prec_reached)
       return true;
