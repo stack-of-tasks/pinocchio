@@ -44,10 +44,11 @@ IF(BUILD_PYTHON_INTERFACE)
   # Do not report:
   #  -Wconversion as the BOOST_PYTHON_FUNCTION_OVERLOADS implicitly converts.
   #  -Wcomment as latex equations have multi-line comments.
-  #  -Wself-assign-overloaded as bp::self operations trigger this
-  IF(NOT WIN32)
-    TARGET_COMPILE_OPTIONS(${PYWRAP} PRIVATE -Wno-conversion -Wno-comment -Wno-self-assign-overloaded)
-  ENDIF(NOT WIN32)
+  #  -Wself-assign-overloaded as bp::self operations trigger this (Clang only)
+  SET(GNU_COMPILE_OPTIONS -Wno-conversion -Wno-comment)
+  SET(CLANG_COMPILE_OPTIONS ${GNU_COMPILE_OPTIONS} -Wno-self-assign-overloaded)
+  TARGET_COMPILE_OPTIONS(${PYWRAP} PRIVATE $<$<CXX_COMPILER_ID:GNU>:${GNU_COMPILE_OPTIONS}>
+    $<$<CXX_COMPILER_ID:Clang,AppleClang>:${CLANG_COMPILE_OPTIONS}>)
 
   SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES VERSION ${PROJECT_VERSION})
   IF(BUILD_WITH_COMMIT_VERSION)
