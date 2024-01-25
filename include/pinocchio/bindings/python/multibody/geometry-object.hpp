@@ -11,7 +11,9 @@
 
 #include "pinocchio/multibody/geometry.hpp"
 
+#if EIGENPY_VERSION_AT_MOST(2,8,1)
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryObject)
+#endif
 
 namespace pinocchio
 {
