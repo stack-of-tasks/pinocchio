@@ -7,6 +7,11 @@
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
 
+# Compute flags outside the macro to avoid recomputing it for each tests
+CXX_FLAGS_BY_COMPILER_FRONTEND(
+  MSVC _USE_MATH_DEFINES
+  OUTPUT TEST_PRIVATE_DEFINITIONS)
+
 MACRO(ADD_TEST_CFLAGS target)
   foreach(ARG ${ARGN})
     SET_PROPERTY(TARGET "test-cpp-${target}" APPEND_STRING PROPERTY COMPILE_FLAGS "${ARG} ")
@@ -25,13 +30,10 @@ MACRO(ADD_PINOCCHIO_UNIT_TEST NAME)
   SET(TEST_NAME "test-cpp-${NAME}")
   ADD_UNIT_TEST(${TEST_NAME} ${NAME}.cpp)
 
-  CXX_FLAGS_BY_COMPILER_FRONTEND(
-    MSVC _USE_MATH_DEFINES
-    OUTPUT PRIVATE_DEFINITIONS)
   SET(MODULE_NAME "${NAME}Test")
   STRING(REPLACE "-" "_" MODULE_NAME ${MODULE_NAME})
   TARGET_COMPILE_DEFINITIONS(${TEST_NAME}
-    PRIVATE ${PRIVATE_DEFINITIONS}
+    PRIVATE ${TEST_PRIVATE_DEFINITIONS}
             BOOST_TEST_DYN_LINK
             BOOST_TEST_MODULE=${MODULE_NAME}
             PINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\")
@@ -169,7 +171,8 @@ ADD_PINOCCHIO_UNIT_TEST(algo-check)
 # globally
 CXX_FLAGS_BY_COMPILER_FRONTEND(
   GNU -Wno-maybe-uninitialized -Wuse-after-free=0
-  OUTPUT LIEGROUPS_OPTIONS)
+  OUTPUT LIEGROUPS_OPTIONS
+  FILTER)
 ADD_PINOCCHIO_UNIT_TEST(liegroups)
 ADD_TEST_CFLAGS(liegroups ${LIEGROUPS_OPTIONS})
 
