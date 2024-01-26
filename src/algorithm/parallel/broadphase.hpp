@@ -128,7 +128,7 @@ void computeCollisionsInParallel(const size_t num_threads,
 
     for(Eigen::DenseIndex col_id = 0; col_id < current_traj.cols(); ++col_id)
     {
-      res_current_traj[col_id] = computeCollisions(model,data,manager,current_traj.col(col_id));
+      res_current_traj[col_id] = computeCollisions(model,data,manager,current_traj.col(col_id),true);
       if(res_current_traj[col_id] && stopAtFirstCollisionInTrajectory)
         break;
     }
