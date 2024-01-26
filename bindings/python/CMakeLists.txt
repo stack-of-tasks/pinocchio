@@ -46,7 +46,7 @@ IF(BUILD_PYTHON_INTERFACE)
   #  -Wcomment as latex equations have multi-line comments.
   #  -Wself-assign-overloaded as bp::self operations trigger this (Clang only)
   CXX_FLAGS_BY_COMPILER_FRONTEND(
-    GNU -Wno-conversion -Wno-comment
+    GNU -Wno-conversion -Wno-comment -Wno-maybe-uninitialized
     CLANG -Wno-conversion -Wno-comment -Wno-self-assign-overloaded
     OUTPUT PRIVATE_OPTIONS)
   TARGET_COMPILE_OPTIONS(${PYWRAP} PRIVATE ${PRIVATE_OPTIONS})
