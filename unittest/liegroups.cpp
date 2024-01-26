@@ -243,6 +243,8 @@ struct LieGroup_Jdifference{
     ConfigVector_t q[2], q_dv[2];
     q[0] = lg.random();
     q[1] = lg.random();
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
     TangentVector_t va, vb, dv;
     JacobianMatrix_t J[2];
     dv.setZero();
@@ -269,6 +271,7 @@ struct LieGroup_Jdifference{
         EIGEN_VECTOR_IS_APPROX (vb_va, J_dv, 1e-2);
         dv[i] = 0;
       }
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     }
 
     specificTests(lg);
@@ -374,9 +377,12 @@ struct LieGroup_Jintegrate{
 
     ConfigVector_t q_v = lg.integrate (q, v);
 
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
     JacobianMatrix_t Jq, Jv;
     lg.dIntegrate_dq (q, v, Jq);
     lg.dIntegrate_dv (q, v, Jv);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
     const Scalar eps = 1e-6;
     for (int i = 0; i < v.size(); ++i)
@@ -409,6 +415,8 @@ struct LieGroup_JintegrateJdifference{
     typedef typename T::TangentVector_t TangentVector_t;
     typedef typename T::JacobianMatrix_t JacobianMatrix_t;
 
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
     T lg;
     BOOST_TEST_MESSAGE (lg.name());
     ConfigVector_t qa, qb (lg.nq());
@@ -421,6 +429,7 @@ struct LieGroup_JintegrateJdifference{
 
     lg.template dDifference<ARG1> (qa, qb, Jd_qb);
     lg.template dIntegrate <ARG1> (qa, v , Ji_v );
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
     BOOST_CHECK_MESSAGE ((Jd_qb * Ji_v).isIdentity(),
         "Jd_qb\n" <<

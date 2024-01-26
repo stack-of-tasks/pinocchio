@@ -7,8 +7,10 @@
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
 
-MACRO(ADD_TEST_CFLAGS target flag)
-  SET_PROPERTY(TARGET "test-cpp-${target}" APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
+MACRO(ADD_TEST_CFLAGS target)
+  foreach(ARG ${ARGN})
+    SET_PROPERTY(TARGET "test-cpp-${target}" APPEND_STRING PROPERTY COMPILE_FLAGS "${ARG} ")
+  endforeach()
 ENDMACRO(ADD_TEST_CFLAGS)
 
 MACRO(ADD_PINOCCHIO_UNIT_TEST NAME)
@@ -22,11 +24,6 @@ MACRO(ADD_PINOCCHIO_UNIT_TEST NAME)
 
   SET(TEST_NAME "test-cpp-${NAME}")
   ADD_UNIT_TEST(${TEST_NAME} ${NAME}.cpp)
-
-  CXX_FLAGS_BY_COMPILER_FRONTEND(
-    GNU -Wno-maybe-uninitialized
-    OUTPUT PRIVATE_OPTIONS)
-  TARGET_COMPILE_OPTIONS(${TEST_NAME} PRIVATE ${PRIVATE_OPTIONS})
 
   CXX_FLAGS_BY_COMPILER_FRONTEND(
     MSVC _USE_MATH_DEFINES
@@ -167,7 +164,15 @@ ADD_PINOCCHIO_UNIT_TEST(finite-differences)
 ADD_PINOCCHIO_UNIT_TEST(visitor)
 ADD_PINOCCHIO_UNIT_TEST(algo-check)
 
+# Warning ignore with pragma doesn't work for
+# a part of this test, so we ignore two warning
+# globally
+CXX_FLAGS_BY_COMPILER_FRONTEND(
+  GNU -Wno-maybe-uninitialized -Wuse-after-free=0
+  OUTPUT LIEGROUPS_OPTIONS)
 ADD_PINOCCHIO_UNIT_TEST(liegroups)
+ADD_TEST_CFLAGS(liegroups ${LIEGROUPS_OPTIONS})
+
 ADD_PINOCCHIO_UNIT_TEST(cartesian-product-liegroups)
 ADD_PINOCCHIO_UNIT_TEST(regressor)
 ADD_PINOCCHIO_UNIT_TEST(version)

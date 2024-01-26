@@ -707,10 +707,13 @@ BOOST_AUTO_TEST_CASE ( test_ActOnSet )
   Motion v = Motion::Random();
 
   // Forcet SET
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   Matrix6N iF = Matrix6N::Random(),jF,jFinv,jF_ref,jFinv_ref;
   
   // forceSet::se3Action
   forceSet::se3Action(jMi,iF,jF);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   for( int k=0;k<N;++k )
     BOOST_CHECK(jMi.act(Force(iF.col(k))).toVector().isApprox(jF.col(k)));
   
