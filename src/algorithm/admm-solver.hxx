@@ -86,8 +86,8 @@ void computeComplementarityShift(const std::vector<CoulombFrictionConeTpl<Scalar
 }  // namespace internal
 
   template<typename _Scalar>
-  template<typename DelassusExpression, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut, typename VectorLikeR>
-  bool ADMMContactSolverTpl<_Scalar>::solve(DelassusExpression & delassus,
+  template<typename DelassusDerived, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut, typename VectorLikeR>
+  bool ADMMContactSolverTpl<_Scalar>::solve(DelassusOperatorBase<DelassusDerived> & _delassus,
                                             const Eigen::MatrixBase<VectorLike> & g,
                                             const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
                                             const Eigen::DenseBase<VectorLikeOut> & y_sol,
@@ -97,6 +97,8 @@ void computeComplementarityShift(const std::vector<CoulombFrictionConeTpl<Scalar
 
   {
     using namespace internal;
+
+    DelassusDerived & delassus = _delassus.derived();
 
     PINOCCHIO_CHECK_INPUT_ARGUMENT(tau <= Scalar(1) && tau > Scalar(0),"tau should lie in ]0,1].");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(mu_prox >= 0,"mu_prox should be positive.");

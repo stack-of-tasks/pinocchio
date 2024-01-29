@@ -10,6 +10,7 @@
 #include "pinocchio/math/comparison-operators.hpp"
 
 #include "pinocchio/algorithm/contact-solver-base.hpp"
+#include "pinocchio/algorithm/delassus-operator-base.hpp"
 
 namespace pinocchio
 {
@@ -69,8 +70,8 @@ namespace pinocchio
     /// \param[in] tau Over relaxation value
     ///
     /// \returns True if the problem has converged.
-    template<typename DelassusExpression, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut, typename VectorLikeR>
-    bool solve(DelassusExpression & delassus, const Eigen::MatrixBase<VectorLike> & g,
+    template<typename DelassusDerived, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut, typename VectorLikeR>
+    bool solve(DelassusOperatorBase<DelassusDerived> & delassus, const Eigen::MatrixBase<VectorLike> & g,
                const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
                const Eigen::DenseBase<VectorLikeOut> & x,
                const Scalar mu_prox,
@@ -89,14 +90,14 @@ namespace pinocchio
     /// \param[in] tau Over relaxation value
     ///
     /// \returns True if the problem has converged.
-    template<typename DelassusExpression, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut, typename VectorLikeR>
-    bool solve(DelassusExpression & delassus, const Eigen::MatrixBase<VectorLike> & g,
+    template<typename DelassusDerived, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut, typename VectorLikeR>
+    bool solve(DelassusOperatorBase<DelassusDerived> & delassus, const Eigen::MatrixBase<VectorLike> & g,
                const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
                const Eigen::DenseBase<VectorLikeOut> & x,
                const Scalar mu_prox,
                const Scalar tau = Scalar(0.99))
     {
-      return solve(delassus,g.derived(),cones,x.const_cast_derived(),mu_prox,VectorXs::Zero(problem_size),tau);
+      return solve(delassus.derived(),g.derived(),cones,x.const_cast_derived(),mu_prox,VectorXs::Zero(problem_size),tau);
     }
 
     /// \returns the primal solution of the problem
