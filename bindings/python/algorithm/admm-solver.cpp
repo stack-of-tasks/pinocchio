@@ -19,7 +19,7 @@ namespace python
   namespace bp = boost::python;
 
   typedef ADMMContactSolverTpl<context::Scalar> Solver;
-  typedef cholesky::ContactCholeskyDecompositionTpl<context::Scalar,context::Options> ContactCholeskyDecomposition;
+  typedef ContactCholeskyDecompositionTpl<context::Scalar,context::Options> ContactCholeskyDecomposition;
 
 #ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
   static bool solve_wrapper(Solver & solver, 

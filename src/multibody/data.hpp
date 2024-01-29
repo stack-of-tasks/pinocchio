@@ -89,7 +89,7 @@ namespace pinocchio
     /// \brief The type of Tensor for Kinematics and Dynamics second order derivatives
     typedef Tensor<Scalar,3,Options> Tensor3x;
 
-    typedef cholesky::ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholeskyDecomposition;
+    typedef ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholeskyDecomposition;
 
     /// \brief Vector of pinocchio::JointData associated to the pinocchio::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.

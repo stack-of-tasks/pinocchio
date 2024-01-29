@@ -38,9 +38,9 @@ namespace pinocchio
                 bp::return_value_policy<bp::return_by_value>());
         
         bp::def("computeMinv",
-                &pinocchio::cholesky::computeMinv<Scalar,Options,JointCollectionDefaultTpl>,
+                &computeMinv<Scalar,Options,JointCollectionDefaultTpl>,
                 bp::args("Model","Data"),
-                "Returns the inverse of the inverse of the joint space inertia matrix using the results of the Cholesky decomposition\n"
+                "Returns the inverse of the joint space inertia matrix using the results of the Cholesky decomposition\n"
                 "performed by cholesky.decompose. The result is stored in data.Minv.",
                 bp::return_value_policy<bp::return_by_value>());
       }

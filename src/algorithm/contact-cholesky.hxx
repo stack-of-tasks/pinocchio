@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2023 INRIA
+// Copyright (c) 2019-2024 INRIA
 //
 
 #ifndef __pinocchio_algorithm_contact_cholesky_hxx__
@@ -11,9 +11,6 @@
 
 namespace pinocchio
 {
-  
-  namespace cholesky
-  {
     
     template<typename Scalar, int Options>
     template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
@@ -689,8 +686,6 @@ namespace pinocchio
       res_.template triangularView<Eigen::StrictlyLower>()
       = res_.transpose().template triangularView<Eigen::StrictlyLower>();
     }
-    
-  } // namespace cholesky
 }
 
 #endif // ifndef __pinocchio_algorithm_contact_cholesky_hxx__

@@ -125,7 +125,7 @@ typedef JointDataCompositeTpl<Scalar> JointDataComposite;
 
 // Algorithm
 typedef ProximalSettingsTpl<Scalar> ProximalSettings;
-typedef cholesky::ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholeskyDecomposition;
+typedef ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholeskyDecomposition;
 
 typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
 typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;

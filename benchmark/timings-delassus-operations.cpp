@@ -77,13 +77,13 @@ int main(int argc, const char ** argv)
   // Define contact infos structure
   static const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_empty;
   static PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_empty;
-  cholesky::ContactCholeskyDecomposition contact_chol_empty(model,contact_models_empty);
+  ContactCholeskyDecomposition contact_chol_empty(model,contact_models_empty);
 
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D;
   contact_models_6D.push_back(ci_RF_6D);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D;
   contact_data_6D.push_back(RigidConstraintData(ci_RF_6D));
-  cholesky::ContactCholeskyDecomposition contact_chol_6D(model,contact_models_6D);
+  ContactCholeskyDecomposition contact_chol_6D(model,contact_models_6D);
 
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D6D;
   contact_models_6D6D.push_back(ci_RF_6D);
@@ -91,7 +91,7 @@ int main(int argc, const char ** argv)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D6D;
   contact_data_6D6D.push_back(RigidConstraintData(ci_RF_6D));
   contact_data_6D6D.push_back(RigidConstraintData(ci_LF_6D));
-  cholesky::ContactCholeskyDecomposition contact_chol_6D6D(model,contact_models_6D6D);
+  ContactCholeskyDecomposition contact_chol_6D6D(model,contact_models_6D6D);
 
   ProximalSettings prox_settings;
   prox_settings.max_iter = 10;
@@ -217,7 +217,7 @@ int main(int argc, const char ** argv)
     forwardDynamics(model,data,qs[_smooth], qdots[_smooth], taus[_smooth], J, gamma);
 
     timer.tic();
-    cholesky::decompose(model,data);
+    decompose(model,data);
     getKKTContactDynamicMatrixInverse(model,data,J,MJtJ_inv);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }

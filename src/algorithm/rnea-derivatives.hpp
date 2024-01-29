@@ -160,7 +160,7 @@ namespace pinocchio
   ///          to the partial derivatives of the joint torque vector with respect to the joint configuration, velocity and acceleration.
   ///          As for pinocchio::crba, only the upper triangular part of data.M is filled.
   ///
-  /// \sa pinocchio::rnea, pinocchio::crba, pinocchio::cholesky::decompose
+  /// \sa pinocchio::rnea, pinocchio::crba, pinocchio::decompose
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   void
@@ -190,7 +190,7 @@ namespace pinocchio
   ///          to the partial derivatives of the joint torque vector with respect to the joint configuration, velocity and acceleration.
   ///          As for pinocchio::crba, only the upper triangular part of data.M is filled.
   ///
-  /// \sa pinocchio::rnea, pinocchio::crba, pinocchio::cholesky::decompose
+  /// \sa pinocchio::rnea, pinocchio::crba, pinocchio::decompose
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   void
