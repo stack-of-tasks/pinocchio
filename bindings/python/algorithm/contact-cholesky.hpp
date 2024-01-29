@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020-2022 INRIA
+// Copyright (c) 2020-2024 INRIA
 //
 
 #ifndef __pinocchio_python_algorithm_contact_cholesky_hpp__
@@ -9,6 +9,7 @@
 #include "pinocchio/algorithm/contact-cholesky.hpp"
 
 #include "pinocchio/algorithm/delassus-operator-plain.hpp"
+#include "pinocchio/algorithm/delassus-operator-sparse.hpp"
 
 #include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
@@ -161,7 +162,19 @@ namespace pinocchio
           bp::class_<DelassusOperatorDense>("DelassusOperatorDense",
                                                 "Delassus Cholesky dense operator from a dense matrix.",
                                                 bp::no_init)
-         .def(bp::init<const Eigen::Ref<const context::MatrixXs>>(bp::args("self","dense_matrix"),"Build from a given dense matrix"))
+         .def(bp::init<const Eigen::Ref<const context::MatrixXs>>(bp::args("self","matrix"),"Build from a given dense matrix"))
+
+         .def(DelassusOperatorBasePythonVisitor<DelassusOperatorDense>())
+         ;
+
+        }
+
+        {
+          typedef DelassusOperatorSparseTpl<context::Scalar,context::Options> DelassusOperatorSparse;
+          bp::class_<DelassusOperatorSparse, boost::noncopyable>("DelassusOperatorSparse",
+                                             "Delassus Cholesky sparse operator from a sparse matrix.",
+                                             bp::no_init)
+         .def(bp::init<const context::SparseMatrix &>(bp::args("self","matrix"),"Build from a given sparse matrix"))
 
          .def(DelassusOperatorBasePythonVisitor<DelassusOperatorDense>())
          ;

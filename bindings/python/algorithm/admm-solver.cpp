@@ -7,6 +7,7 @@
 #include "pinocchio/algorithm/admm-solver.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hpp"
 #include "pinocchio/algorithm/delassus-operator-plain.hpp"
+#include "pinocchio/algorithm/delassus-operator-sparse.hpp"
 
 #include "pinocchio/bindings/python/algorithm/contact-solver-base.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
@@ -50,6 +51,9 @@ namespace python
          (bp::args("self","delassus","g","cones","x","mu_prox","R"),(bp::arg("tau") = context::Scalar(0.99))),
          "Solve the constrained conic problem, starting from the initial guess.")
     .def("solve",solve_wrapper<context::DelassusOperatorDense>,
+         (bp::args("self","delassus","g","cones","x","mu_prox","R"),(bp::arg("tau") = context::Scalar(0.99))),
+         "Solve the constrained conic problem, starting from the initial guess.")
+    .def("solve",solve_wrapper<context::DelassusOperatorSparse>,
          (bp::args("self","delassus","g","cones","x","mu_prox","R"),(bp::arg("tau") = context::Scalar(0.99))),
          "Solve the constrained conic problem, starting from the initial guess.")
 
