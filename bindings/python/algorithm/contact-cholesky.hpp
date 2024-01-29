@@ -8,6 +8,8 @@
 #include <eigenpy/memory.hpp>
 #include "pinocchio/algorithm/contact-cholesky.hpp"
 
+#include "pinocchio/algorithm/delassus-operator-plain.hpp"
+
 #include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/comparable.hpp"
@@ -142,7 +144,8 @@ namespace pinocchio
           bp::class_<DelassusCholeskyExpression>("DelassusCholeskyExpression",
                                                  "Delassus Cholesky expression associated to a given ContactCholeskyDecomposition object.",
                                                  bp::no_init)
-          .def(bp::init<const ContactCholeskyDecomposition &>(bp::arg("cholesky_decomposition"),"Build from a given ContactCholeskyDecomposition object.")[bp::with_custodian_and_ward<1,2>()])
+          .def(bp::init<const ContactCholeskyDecomposition &>(bp::args("self","cholesky_decomposition"),
+                                                              "Build from a given ContactCholeskyDecomposition object.")[bp::with_custodian_and_ward<1,2>()])
           .def("cholesky",
                +[](const DelassusCholeskyExpression & self) -> ContactCholeskyDecomposition & { return const_cast<ContactCholeskyDecomposition &>(self.cholesky()); },
                bp::arg("self"),
@@ -151,6 +154,18 @@ namespace pinocchio
 
           .def(DelassusOperatorBasePythonVisitor<DelassusCholeskyExpression>())
           ;
+        }
+
+        {
+          typedef DelassusOperatorDenseTpl<context::Scalar,context::Options> DelassusOperatorDense;
+          bp::class_<DelassusOperatorDense>("DelassusOperatorDense",
+                                                "Delassus Cholesky dense operator from a dense matrix.",
+                                                bp::no_init)
+         .def(bp::init<const Eigen::Ref<const context::MatrixXs>>(bp::args("self","dense_matrix"),"Build from a given dense matrix"))
+
+         .def(DelassusOperatorBasePythonVisitor<DelassusOperatorDense>())
+         ;
+
         }
       }
       

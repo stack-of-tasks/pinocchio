@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021-2022 INRIA
+// Copyright (c) 2021-2024 INRIA
 //
 
 #ifndef __pinocchio_python_context_generic_hpp__
@@ -132,6 +132,8 @@ typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
 
 typedef CoulombFrictionConeTpl<context::Scalar> CoulombFrictionCone;
 typedef DualCoulombFrictionConeTpl<context::Scalar> DualCoulombFrictionCone;
+
+typedef DelassusOperatorDenseTpl<Scalar,Options> DelassusOperatorDense;
 
 typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(CoulombFrictionCone) CoulombFrictionConeVector;
 typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(DualCoulombFrictionCone) DualCoulombFrictionConeVector;

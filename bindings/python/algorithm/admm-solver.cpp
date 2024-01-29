@@ -6,6 +6,7 @@
 
 #include "pinocchio/algorithm/admm-solver.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hpp"
+#include "pinocchio/algorithm/delassus-operator-plain.hpp"
 
 #include "pinocchio/bindings/python/algorithm/contact-solver-base.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
@@ -22,8 +23,10 @@ namespace python
   typedef ContactCholeskyDecompositionTpl<context::Scalar,context::Options> ContactCholeskyDecomposition;
 
 #ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
-  static bool solve_wrapper(Solver & solver, 
-                            ContactCholeskyDecomposition::DelassusCholeskyExpression & delassus_expression,
+
+  template<typename DelassusDerived>
+  static bool solve_wrapper(Solver & solver,
+                            DelassusDerived & delassus,
                             const context::VectorXs & g,
                             const context::CoulombFrictionConeVector & cones,
                             Eigen::Ref<context::VectorXs> x,
@@ -31,7 +34,7 @@ namespace python
                             const context::VectorXs & R,
                             const context::Scalar tau = context::Scalar(0.99))
   {
-    return solver.solve(delassus_expression,g,cones,x,mu_prox,R,tau);
+    return solver.solve(delassus,g,cones,x,mu_prox,R,tau);
   }
 #endif
 
@@ -42,7 +45,12 @@ namespace python
                        "Alternating Direction Method of Multi-pliers solver for contact dynamics.",
                        bp::init<int>(bp::args("self","problem_dim"),"Default constructor."))
     .def(ContactSolverBasePythonVisitor<Solver>())
-    .def("solve",solve_wrapper,(bp::args("self","delassus_expression","g","cones","x","mu_prox","R"),(bp::arg("tau") = context::Scalar(0.99))),
+
+    .def("solve",solve_wrapper<ContactCholeskyDecomposition::DelassusCholeskyExpression>,
+         (bp::args("self","delassus","g","cones","x","mu_prox","R"),(bp::arg("tau") = context::Scalar(0.99))),
+         "Solve the constrained conic problem, starting from the initial guess.")
+    .def("solve",solve_wrapper<context::DelassusOperatorDense>,
+         (bp::args("self","delassus","g","cones","x","mu_prox","R"),(bp::arg("tau") = context::Scalar(0.99))),
          "Solve the constrained conic problem, starting from the initial guess.")
 
     .def("setRhoPower",&Solver::setRhoPower,bp::args("self","rho_power"),
