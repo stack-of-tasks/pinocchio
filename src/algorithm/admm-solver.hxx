@@ -178,7 +178,9 @@ void computeComplementarityShift(const std::vector<CoulombFrictionConeTpl<Scalar
       else
         abs_prec_reached = false;
 
-      proximal_metric = (y_ - y_previous).template lpNorm<Eigen::Infinity>();
+      VectorXs & dy = rhs;
+      dy = y_ - y_previous;
+      proximal_metric = dy.template lpNorm<Eigen::Infinity>();
       const Scalar y_norm_inf = y_.template lpNorm<Eigen::Infinity>();
       if(check_expression_if_real<Scalar,false>(proximal_metric <= this->relative_precision * math::max(y_norm_inf,y_previous_norm_inf)))
         rel_prec_reached = true;
