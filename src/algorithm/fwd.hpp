@@ -20,6 +20,9 @@ namespace pinocchio
 
   typedef RigidConstraintModelTpl<context::Scalar,context::Options> RigidConstraintModel;
   typedef RigidConstraintDataTpl<context::Scalar,context::Options> RigidConstraintData;
+
+  template<typename Scalar, int Options = 0> struct DelassusOperatorDenseTpl;
+  typedef DelassusOperatorDenseTpl<context::Scalar,context::Options> DelassusOperatorDense;
 }
 
 
