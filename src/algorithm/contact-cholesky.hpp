@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2022 INRIA
+// Copyright (c) 2019-2024 INRIA
 //
 
 #ifndef __pinocchio_algorithm_contact_cholesky_hpp__
@@ -8,36 +8,38 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/math/matrix-block.hpp"
 #include "pinocchio/math/triangular-matrix.hpp"
+
 #include "pinocchio/algorithm/contact-info.hpp"
+#include "pinocchio/algorithm/delassus-operator-base.hpp"
 
 #include "pinocchio/math/eigenvalues.hpp"
 
 namespace pinocchio
 {
   
-  namespace cholesky
-  {
     // Forward declaration of algo
     namespace details
     {
-      template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
-      struct UvAlgo;
-      
-      template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
-      struct UtvAlgo;
-      
-      template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
-      struct UivAlgo;
-      
-      template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
-      struct UtivAlgo;
-      
-      template<typename Scalar, int Options, typename VectorLike>
-      VectorLike & inverseAlgo(const ContactCholeskyDecompositionTpl<Scalar,Options> & chol,
-                               const Eigen::DenseIndex col,
-                               const Eigen::MatrixBase<VectorLike> & vec);
+    template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
+    struct UvAlgo;
+
+    template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
+    struct UtvAlgo;
+
+    template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
+    struct UivAlgo;
+
+    template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
+    struct UtivAlgo;
+
+    template<typename Scalar, int Options, typename VectorLike>
+    VectorLike & inverseAlgo(const ContactCholeskyDecompositionTpl<Scalar,Options> & chol,
+                             const Eigen::DenseIndex col,
+                             const Eigen::MatrixBase<VectorLike> & vec);
     }
-    
+
+    template<typename _ContactCholeskyDecomposition> struct DelassusCholeskyExpressionTpl;
+
     ///
     /// \brief Contact Cholesky decomposition structure. This structure allows
     ///        to compute in a efficient and parsimonious way the Cholesky decomposition
@@ -83,157 +85,9 @@ namespace pinocchio
         Eigen::DenseIndex first_index;
         Eigen::DenseIndex size;
       };
-
-      struct DelassusCholeskyExpression
-      {
-        typedef _Scalar Scalar;
-        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::Type RowMatrixBlockXpr;
-        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType RowMatrixConstBlockXpr;
-
-        explicit DelassusCholeskyExpression(const ContactCholeskyDecompositionTpl & self)
-        : self(self)
-        {}
-        
-        template<typename MatrixIn, typename MatrixOut>
-        void applyOnTheRight(const Eigen::MatrixBase<MatrixIn> & x,
-                             const Eigen::MatrixBase<MatrixOut> & res) const
-        {
-          PINOCCHIO_CHECK_ARGUMENT_SIZE(x.rows(),self.constraintDim());
-          PINOCCHIO_CHECK_ARGUMENT_SIZE(res.rows(),self.constraintDim());
-          PINOCCHIO_CHECK_ARGUMENT_SIZE(res.cols(),x.cols());
-
-          PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
-
-          const RowMatrixConstBlockXpr U1 = self.U.topLeftCorner(self.constraintDim(), self.constraintDim());
-
-          if(x.cols() <= self.constraintDim())
-          {
-            RowMatrixBlockXpr tmp_mat = const_cast<ContactCholeskyDecompositionTpl&>(self).OSIMinv_tmp.topLeftCorner(self.constraintDim(),x.cols());
-//            tmp_mat.noalias() = U1.adjoint() * x;
-            triangularMatrixMatrixProduct<Eigen::UnitLower>(U1.adjoint(), x.derived(), tmp_mat);
-            tmp_mat.array().colwise() *= -self.D.head(self.constraintDim()).array();
-//            res.const_cast_derived().noalias() = U1 * tmp_mat;
-            triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1, tmp_mat, res.const_cast_derived());
-          }
-          else // do memory allocation
-          {
-            RowMatrix tmp_mat(x.rows(),x.cols());
-//            tmp_mat.noalias() = U1.adjoint() * x;
-            triangularMatrixMatrixProduct<Eigen::UnitLower>(U1.adjoint(), x.derived(), tmp_mat);
-            tmp_mat.array().colwise() *= -self.D.head(self.constraintDim()).array();
-//            res.const_cast_derived().noalias() = U1 * tmp_mat;
-            triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1, tmp_mat, res.const_cast_derived());
-          }
-
-          PINOCCHIO_EIGEN_MALLOC_ALLOWED();
-        }
-        
-        template<typename MatrixDerived>
-        typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived)
-        operator*(const Eigen::MatrixBase<MatrixDerived> & x) const
-        {
-          typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived) ReturnType;
-          ReturnType res(self.constraintDim(), x.cols());
-          applyOnTheRight(x.derived(),res);
-          return res;
-        }
-
-        template<typename MatrixDerived>
-        void solveInPlace(const Eigen::MatrixBase<MatrixDerived> & x) const
-        {
-          PINOCCHIO_CHECK_ARGUMENT_SIZE(x.rows(),self.constraintDim());
-
-          const Eigen::TriangularView<RowMatrixConstBlockXpr,Eigen::UnitUpper> U1
-          = self.U.topLeftCorner(self.constraintDim(),self.constraintDim()).template triangularView<Eigen::UnitUpper>();
-
-          PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
-          U1.solveInPlace(x.const_cast_derived());
-          x.const_cast_derived().array().colwise() *= -self.Dinv.head(self.constraintDim()).array();
-          U1.adjoint().solveInPlace(x);
-          PINOCCHIO_EIGEN_MALLOC_ALLOWED();
-        }
-
-        template<typename MatrixDerivedIn, typename MatrixDerivedOut>
-        void solve(const Eigen::MatrixBase<MatrixDerivedIn> & x,
-                   const Eigen::MatrixBase<MatrixDerivedOut> & res) const
-        {
-          res.const_cast_derived() = x;
-          solveInPlace(res.const_cast_derived());
-        }
-
-        template<typename MatrixDerived>
-        typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived)
-        solve(const Eigen::MatrixBase<MatrixDerived> & x) const
-        {
-          typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived) ReturnType;
-          ReturnType res(self.constraintDim(), x.cols());
-          solve(x.derived(),res);
-          return res;
-        }
-
-        /// \brief Returns the Constraint Cholesky decomposition associated to this DelassusCholeskyExpression.
-        const ContactCholeskyDecompositionTpl & cholesky() const { return self; }
-
-        template<typename VectorLike>
-        Scalar computeLargestEigenValue(const Eigen::PlainObjectBase<VectorLike> & eigenvector_est,
-                                        const int max_it = 10,
-                                        const Scalar rel_tol = 1e-8) const
-        {
-          PINOCCHIO_CHECK_ARGUMENT_SIZE(eigenvector_est.size(),size());
-          computeLargestEigenvector(*this,eigenvector_est.const_cast_derived(),max_it,rel_tol);
-          return retrieveLargestEigenvalue(eigenvector_est);
-        }
-
-        /// \brief Compute the largest eigen value associated to the underlying Delassus matrix
-        Scalar computeLargestEigenValue(const int max_it = 10,
-                                        const Scalar rel_tol = 1e-8) const
-        {
-          Vector eigenvector_est(Vector::Constant(size(),Scalar(1)/Scalar(math::sqrt(size()))));
-          computeLargestEigenvector(*this,eigenvector_est.const_cast_derived(),max_it,rel_tol);
-          return retrieveLargestEigenvalue(eigenvector_est);
-        }
-
-        Matrix matrix() const
-        {
-          return self.getInverseOperationalSpaceInertiaMatrix();
-        }
-
-        Matrix inverse() const
-        {
-          return self.getOperationalSpaceInertiaMatrix();
-        }
-
-        ///
-        /// \brief Add a damping term to the diagonal of the Delassus matrix. The damping terms should be all positives.
-        ///
-        /// \param[in] mus Vector of positive regularization factor allowing to enforce the definite positiveness of the matrix.
-        ///
-        template<typename VectorLike>
-        void updateDamping(const Eigen::MatrixBase<VectorLike> & mus)
-        {
-          const_cast<ContactCholeskyDecompositionTpl &>(self).updateDamping(mus);
-        }
-
-        ///
-        /// \brief Add a damping term to the diagonal of the Delassus matrix. The damping term should be positive.
-        ///
-        /// \param[in] mu Regularization factor allowing to enforce the definite positiveness of the matrix.
-        ///
-        void updateDamping(const Scalar & mu)
-        {
-          const_cast<ContactCholeskyDecompositionTpl &>(self).updateDamping(mu);
-        }
-
-        Eigen::DenseIndex size() const { return self.constraintDim(); }
-        Eigen::DenseIndex rows() const { return size(); }
-        Eigen::DenseIndex cols() const { return size(); }
-
-      protected:
-
-        const ContactCholeskyDecompositionTpl & self;
-      }; // DelassusCholeskyExpression
       
-      friend struct DelassusCholeskyExpression;
+      typedef DelassusCholeskyExpressionTpl<ContactCholeskyDecompositionTpl> DelassusCholeskyExpression;
+      friend struct DelassusCholeskyExpressionTpl<ContactCholeskyDecompositionTpl>;
 
       typedef std::vector<Slice> SliceVector;
       typedef std::vector<SliceVector> VectorOfSliceVector;
@@ -588,9 +442,169 @@ namespace pinocchio
       mutable RowMatrix OSIMinv_tmp, Minv_tmp;
       
     };
-    
-  } // namespace cholesky
-    
+
+    template<typename ContactCholeskyDecomposition>
+    struct traits<DelassusCholeskyExpressionTpl<ContactCholeskyDecomposition> >
+    {
+      typedef typename ContactCholeskyDecomposition::Scalar Scalar;
+      typedef typename ContactCholeskyDecomposition::Matrix Matrix;
+    };
+
+    template<typename _ContactCholeskyDecomposition>
+    struct DelassusCholeskyExpressionTpl : DelassusOperatorBase<DelassusCholeskyExpressionTpl<_ContactCholeskyDecomposition> >
+    {
+      typedef _ContactCholeskyDecomposition ContactCholeskyDecomposition;
+      typedef typename ContactCholeskyDecomposition::Scalar Scalar;
+      typedef typename ContactCholeskyDecomposition::Vector Vector;
+      typedef typename ContactCholeskyDecomposition::Matrix Matrix;
+      typedef typename ContactCholeskyDecomposition::RowMatrix RowMatrix;
+
+      typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::Type RowMatrixBlockXpr;
+      typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType RowMatrixConstBlockXpr;
+
+      explicit DelassusCholeskyExpressionTpl(const ContactCholeskyDecomposition & self)
+      : self(self)
+      {}
+
+      template<typename MatrixIn, typename MatrixOut>
+      void applyOnTheRight(const Eigen::MatrixBase<MatrixIn> & x,
+                           const Eigen::MatrixBase<MatrixOut> & res) const
+      {
+        PINOCCHIO_CHECK_ARGUMENT_SIZE(x.rows(),self.constraintDim());
+        PINOCCHIO_CHECK_ARGUMENT_SIZE(res.rows(),self.constraintDim());
+        PINOCCHIO_CHECK_ARGUMENT_SIZE(res.cols(),x.cols());
+
+        PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
+
+        const RowMatrixConstBlockXpr U1 = self.U.topLeftCorner(self.constraintDim(), self.constraintDim());
+
+        if(x.cols() <= self.constraintDim())
+        {
+          RowMatrixBlockXpr tmp_mat = const_cast<ContactCholeskyDecomposition&>(self).OSIMinv_tmp.topLeftCorner(self.constraintDim(),x.cols());
+  //            tmp_mat.noalias() = U1.adjoint() * x;
+          triangularMatrixMatrixProduct<Eigen::UnitLower>(U1.adjoint(), x.derived(), tmp_mat);
+          tmp_mat.array().colwise() *= -self.D.head(self.constraintDim()).array();
+  //            res.const_cast_derived().noalias() = U1 * tmp_mat;
+          triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1, tmp_mat, res.const_cast_derived());
+        }
+        else // do memory allocation
+        {
+          RowMatrix tmp_mat(x.rows(),x.cols());
+  //            tmp_mat.noalias() = U1.adjoint() * x;
+          triangularMatrixMatrixProduct<Eigen::UnitLower>(U1.adjoint(), x.derived(), tmp_mat);
+          tmp_mat.array().colwise() *= -self.D.head(self.constraintDim()).array();
+  //            res.const_cast_derived().noalias() = U1 * tmp_mat;
+          triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1, tmp_mat, res.const_cast_derived());
+        }
+
+        PINOCCHIO_EIGEN_MALLOC_ALLOWED();
+      }
+
+      template<typename MatrixDerived>
+      typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived)
+      operator*(const Eigen::MatrixBase<MatrixDerived> & x) const
+      {
+        typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived) ReturnType;
+        ReturnType res(self.constraintDim(), x.cols());
+        applyOnTheRight(x.derived(),res);
+        return res;
+      }
+
+      template<typename MatrixDerived>
+      void solveInPlace(const Eigen::MatrixBase<MatrixDerived> & x) const
+      {
+        PINOCCHIO_CHECK_ARGUMENT_SIZE(x.rows(),self.constraintDim());
+
+        const Eigen::TriangularView<RowMatrixConstBlockXpr,Eigen::UnitUpper> U1
+        = self.U.topLeftCorner(self.constraintDim(),self.constraintDim()).template triangularView<Eigen::UnitUpper>();
+
+        PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
+        U1.solveInPlace(x.const_cast_derived());
+        x.const_cast_derived().array().colwise() *= -self.Dinv.head(self.constraintDim()).array();
+        U1.adjoint().solveInPlace(x);
+        PINOCCHIO_EIGEN_MALLOC_ALLOWED();
+      }
+
+      template<typename MatrixDerivedIn, typename MatrixDerivedOut>
+      void solve(const Eigen::MatrixBase<MatrixDerivedIn> & x,
+                 const Eigen::MatrixBase<MatrixDerivedOut> & res) const
+      {
+        res.const_cast_derived() = x;
+        solveInPlace(res.const_cast_derived());
+      }
+
+      template<typename MatrixDerived>
+      typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived)
+      solve(const Eigen::MatrixBase<MatrixDerived> & x) const
+      {
+        typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived) ReturnType;
+        ReturnType res(self.constraintDim(), x.cols());
+        solve(x.derived(),res);
+        return res;
+      }
+
+      /// \brief Returns the Constraint Cholesky decomposition associated to this DelassusCholeskyExpression.
+      const ContactCholeskyDecomposition & cholesky() const { return self; }
+
+      template<typename VectorLike>
+      Scalar computeLargestEigenValue(const Eigen::PlainObjectBase<VectorLike> & eigenvector_est,
+                                      const int max_it = 10,
+                                      const Scalar rel_tol = 1e-8) const
+      {
+        PINOCCHIO_CHECK_ARGUMENT_SIZE(eigenvector_est.size(),size());
+        computeLargestEigenvector(*this,eigenvector_est.const_cast_derived(),max_it,rel_tol);
+        return retrieveLargestEigenvalue(eigenvector_est);
+      }
+
+      /// \brief Compute the largest eigen value associated to the underlying Delassus matrix
+      Scalar computeLargestEigenValue(const int max_it = 10,
+                                      const Scalar rel_tol = 1e-8) const
+      {
+        Vector eigenvector_est(Vector::Constant(size(),Scalar(1)/Scalar(math::sqrt(size()))));
+        computeLargestEigenvector(*this,eigenvector_est.const_cast_derived(),max_it,rel_tol);
+        return retrieveLargestEigenvalue(eigenvector_est);
+      }
+
+      Matrix matrix() const
+      {
+        return self.getInverseOperationalSpaceInertiaMatrix();
+      }
+
+      Matrix inverse() const
+      {
+        return self.getOperationalSpaceInertiaMatrix();
+      }
+
+      ///
+      /// \brief Add a damping term to the diagonal of the Delassus matrix. The damping terms should be all positives.
+      ///
+      /// \param[in] mus Vector of positive regularization factor allowing to enforce the definite positiveness of the matrix.
+      ///
+      template<typename VectorLike>
+      void updateDamping(const Eigen::MatrixBase<VectorLike> & mus)
+      {
+        const_cast<ContactCholeskyDecomposition &>(self).updateDamping(mus);
+      }
+
+      ///
+      /// \brief Add a damping term to the diagonal of the Delassus matrix. The damping term should be positive.
+      ///
+      /// \param[in] mu Regularization factor allowing to enforce the definite positiveness of the matrix.
+      ///
+      void updateDamping(const Scalar & mu)
+      {
+        const_cast<ContactCholeskyDecomposition &>(self).updateDamping(mu);
+      }
+
+      Eigen::DenseIndex size() const { return self.constraintDim(); }
+      Eigen::DenseIndex rows() const { return size(); }
+      Eigen::DenseIndex cols() const { return size(); }
+
+    protected:
+
+      const ContactCholeskyDecomposition & self;
+    }; // DelassusCholeskyExpression
+
 }
 
 #include "pinocchio/algorithm/contact-cholesky.hxx"
