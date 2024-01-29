@@ -32,6 +32,7 @@ namespace pinocchio
     , y_previous(problem_dim)
     , z_(problem_dim)
     , s_(VectorXs::Zero(problem_dim))
+    , rhs(problem_dim)
     , primal_feasibility_vector(problem_dim)
     , dual_feasibility_vector(problem_dim)
     {}
