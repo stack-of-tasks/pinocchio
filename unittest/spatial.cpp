@@ -713,7 +713,6 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   
   // forceSet::se3Action
   forceSet::se3Action(jMi,iF,jF);
-PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   for( int k=0;k<N;++k )
     BOOST_CHECK(jMi.act(Force(iF.col(k))).toVector().isApprox(jF.col(k)));
   
@@ -722,6 +721,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   
   forceSet::se3ActionInverse(jMi.inverse(),iF,jFinv);
   BOOST_CHECK(jFinv.isApprox(jF));
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   
   Matrix6N iF2 = Matrix6N::Random();
   jF_ref += jMi.toDualActionMatrix() * iF2;
@@ -765,10 +765,13 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   BOOST_CHECK(jF.isApprox(jF_ref));
   
   // Motion SET
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   Matrix6N iV = Matrix6N::Random(),jV,jV_ref,jVinv,jVinv_ref;
   
   // motionSet::se3Action
   motionSet::se3Action(jMi,iV,jV);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   for( int k=0;k<N;++k )
     BOOST_CHECK(jMi.act(Motion(iV.col(k))).toVector().isApprox(jV.col(k)));
   
