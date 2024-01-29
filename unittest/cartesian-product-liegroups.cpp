@@ -72,9 +72,12 @@ struct TestCartesianProduct
     ConfigVector q0 = lg.random();
     ConfigVector q1 = lg.random();
     TangentVector v = TangentVector_t::Random(lg.nv());
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
     ConfigVector qout_ref(lg.nq()), qout(lg.nq());
     lg.integrate(q0, v, qout_ref);
     cp.integrate(q0, v, qout);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     
     BOOST_CHECK(qout.isApprox(qout_ref));
     

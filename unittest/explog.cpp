@@ -161,8 +161,11 @@ BOOST_AUTO_TEST_CASE(Jlog3_fd)
   SE3 M(SE3::Random());
   SE3::Matrix3 R (M.rotation());
   
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   SE3::Matrix3 Jfd, Jlog;
   Jlog3 (R, Jlog);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   Jfd.setZero();
 
   Motion::Vector3 dR; dR.setZero();
@@ -334,9 +337,12 @@ BOOST_AUTO_TEST_CASE(Jlog3_quat)
   
   SE3::Matrix3 R(quat.toRotationMatrix());
   
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   SE3::Matrix3 res, res_ref;
   quaternion::Jlog3(quat,res);
   Jlog3(R,res_ref);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   
   BOOST_CHECK(res.isApprox(res_ref));
 }

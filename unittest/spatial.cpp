@@ -771,7 +771,6 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   
   // motionSet::se3Action
   motionSet::se3Action(jMi,iV,jV);
-PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   for( int k=0;k<N;++k )
     BOOST_CHECK(jMi.act(Motion(iV.col(k))).toVector().isApprox(jV.col(k)));
   
@@ -780,6 +779,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   
   motionSet::se3ActionInverse(jMi.inverse(),iV,jVinv);
   BOOST_CHECK(jVinv.isApprox(jV));
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   
   Matrix6N iV2 = Matrix6N::Random();
   jV_ref += jMi.toActionMatrix()*iV2;

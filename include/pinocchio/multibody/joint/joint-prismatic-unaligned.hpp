@@ -496,7 +496,7 @@ namespace pinocchio
     
     typedef Eigen::Matrix<Scalar,3,1,_Options> Vector3;
     
-    JointModelPrismaticUnalignedTpl() {}
+    JointModelPrismaticUnalignedTpl(): axis(Vector3::UnitX()) {}
     JointModelPrismaticUnalignedTpl(const Scalar & x,
                                     const Scalar & y,
                                     const Scalar & z)

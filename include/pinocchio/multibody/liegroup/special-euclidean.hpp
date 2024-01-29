@@ -222,9 +222,12 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
       Matrix2 R0, R1; Vector2 t0, t1;
       forwardKinematics(R0, t0, q0);
       forwardKinematics(R1, t1, q1);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       Matrix2 R (R0.transpose() * R1);
       Vector2 t (R0.transpose() * (t1 - t0));
 
@@ -236,9 +239,12 @@ namespace pinocchio
                           const Eigen::MatrixBase<ConfigR_t> & q1,
                           const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
       Matrix2 R0, R1; Vector2 t0, t1;
       forwardKinematics(R0, t0, q0);
       forwardKinematics(R1, t1, q1);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       Matrix2 R (R0.transpose() * R1);
       Vector2 t (R0.transpose() * (t1 - t0));
 

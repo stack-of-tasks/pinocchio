@@ -519,7 +519,7 @@ namespace pinocchio
     using Base::idx_v;
     using Base::setIndexes;
     
-    JointModelRevoluteUnalignedTpl() {}
+    JointModelRevoluteUnalignedTpl(): axis(Vector3::UnitX()) {}
     
     JointModelRevoluteUnalignedTpl(const Scalar & x,
                                    const Scalar & y,
