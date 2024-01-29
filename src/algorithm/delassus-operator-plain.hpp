@@ -2,44 +2,42 @@
 // Copyright (c) 2024 INRIA
 //
 
-#ifndef __pinocchio_algorithm_delassus_operator_sparse_hpp__
-#define __pinocchio_algorithm_delassus_operator_sparse_hpp__
+#ifndef __pinocchio_algorithm_delassus_operator_dense_hpp__
+#define __pinocchio_algorithm_delassus_operator_dense_hpp__
 
 #include "pinocchio/algorithm/fwd.hpp"
 #include "pinocchio/algorithm/delassus-operator-base.hpp"
 
 #include "pinocchio/math/eigenvalues.hpp"
 
-#include <Eigen/Sparse>
-#include <Eigen/SparseCholesky>
-
 namespace pinocchio {
 
 template<typename _Scalar, int _Options>
-struct traits<DelassusOperatorSparseTpl<_Scalar,_Options> >
+struct traits<DelassusOperatorDenseTpl<_Scalar,_Options> >
 {
   typedef _Scalar Scalar;
   enum { Options = _Options };
 
-  typedef Eigen::SparseMatrix<Scalar,Options> Matrix;
+  typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> Matrix;
   typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> Vector;
 };
 
 template<typename _Scalar, int _Options>
-struct DelassusOperatorSparseTpl
-: DelassusOperatorBase< DelassusOperatorSparseTpl<_Scalar,_Options> >
+struct DelassusOperatorDenseTpl
+: DelassusOperatorBase< DelassusOperatorDenseTpl<_Scalar,_Options> >
 {
   typedef _Scalar Scalar;
-  typedef DelassusOperatorSparseTpl Self;
+  typedef DelassusOperatorDenseTpl Self;
   enum { Options = _Options };
 
   typedef typename traits<Self>::Matrix Matrix;
   typedef typename traits<Self>::Vector Vector;
-  typedef Eigen::SimplicialLLT<Matrix> LLTDecomposition;
+  typedef Eigen::LLT<Matrix> LLTDecomposition;
 
   template<typename MatrixDerived>
-  explicit DelassusOperatorSparseTpl(const Eigen::SparseMatrixBase<MatrixDerived> & mat)
+  explicit DelassusOperatorDenseTpl(const Eigen::MatrixBase<MatrixDerived> & mat)
   : delassus_matrix(mat)
+  , mat_tmp(mat.rows(),mat.cols())
   , llt(mat)
   , damping(Vector::Zero(mat.rows()))
   {
@@ -67,9 +65,9 @@ struct DelassusOperatorSparseTpl
   void updateDamping(const Eigen::MatrixBase<VectorLike> & vec)
   {
     damping = vec;
-    delassus_matrix_plus_damping = delassus_matrix;
-    delassus_matrix_plus_damping += vec.asDiagonal();
-    llt.compute(delassus_matrix_plus_damping);
+    mat_tmp = delassus_matrix;
+    mat_tmp += vec.asDiagonal();
+    llt.compute(mat_tmp);
   }
 
   void updateDamping(const Scalar & mu)
@@ -81,7 +79,7 @@ struct DelassusOperatorSparseTpl
   template<typename MatrixLike>
   void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const
   {
-    llt._solve_impl(mat,mat.const_cast_derived());
+    llt.solveInPlace(mat.const_cast_derived());
   }
 
   template<typename MatrixLike>
@@ -126,11 +124,11 @@ struct DelassusOperatorSparseTpl
   Eigen::DenseIndex rows() const { return delassus_matrix.rows(); }
   Eigen::DenseIndex cols() const { return delassus_matrix.cols(); }
 
-  Matrix matrix() const
+  Matrix matrix() const 
   {
-    delassus_matrix_plus_damping = delassus_matrix;
-    delassus_matrix_plus_damping += damping.asDiagonal();
-    return delassus_matrix_plus_damping;
+    mat_tmp = delassus_matrix;
+    mat_tmp += damping.asDiagonal();
+    return mat_tmp;
   }
   
   Matrix inverse() const
@@ -143,14 +141,14 @@ struct DelassusOperatorSparseTpl
 protected:
 
   Matrix delassus_matrix;
-  mutable Matrix delassus_matrix_plus_damping;
+  mutable Matrix mat_tmp;
   LLTDecomposition llt;
   Vector damping;
 
 
-}; // struct DelassusOperatorSparseTpl
+}; // struct DelassusOperatorDenseTpl
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_algorithm_delassus_operator_sparse_hpp__
+#endif // ifndef __pinocchio_algorithm_delassus_operator_dense_hpp__
 

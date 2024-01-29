@@ -23,6 +23,8 @@ namespace pinocchio
 
   template<typename Scalar, int Options = 0> struct DelassusOperatorDenseTpl;
   typedef DelassusOperatorDenseTpl<context::Scalar,context::Options> DelassusOperatorDense;
+  template<typename Scalar, int Options = 0> struct DelassusOperatorSparseTpl;
+  typedef DelassusOperatorSparseTpl<context::Scalar,context::Options> DelassusOperatorSparse;
 }
 
 
