@@ -13,6 +13,8 @@
 #include "pinocchio/bindings/python/utils/comparable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 
+#include "pinocchio/bindings/python/algorithm/delassus-operator.hpp"
+
 namespace pinocchio
 {
   namespace python
@@ -141,38 +143,13 @@ namespace pinocchio
                                                  "Delassus Cholesky expression associated to a given ContactCholeskyDecomposition object.",
                                                  bp::no_init)
           .def(bp::init<const ContactCholeskyDecomposition &>(bp::arg("cholesky_decomposition"),"Build from a given ContactCholeskyDecomposition object.")[bp::with_custodian_and_ward<1,2>()])
-
-          .def(bp::self * bp::other<Matrix>())
-          .def("__matmul__",+[](const DelassusCholeskyExpression & self, const Matrix & other) -> Matrix { return self * other; },
-               bp::args("self","other"),
-               "Matrix multiplication between self and another matrix. Returns the result of Delassus * matrix.")
-
-          .def("solve",&DelassusCholeskyExpression::template solve<Matrix>,bp::args("self","mat"),
-               "Returns the solution x of Delassus * x = mat using the current decomposition of the Delassus matrix.")
           .def("cholesky",
                +[](const DelassusCholeskyExpression & self) -> ContactCholeskyDecomposition & { return const_cast<ContactCholeskyDecomposition &>(self.cholesky()); },
                bp::arg("self"),
                "Returns the Constraint Cholesky decomposition associated to this DelassusCholeskyExpression.",
                bp::return_internal_reference<>())
-          .def("computeLargestEigenValue",(Scalar (DelassusCholeskyExpression::*)(const int, const Scalar) const)&DelassusCholeskyExpression::computeLargestEigenValue,
-               (bp::arg("self"),bp::arg("max_it") = 10,bp::arg("prec") = Scalar(1e-8)),
-               "Compute the largest eigen value associated to the underlying Delassus matrix.")
 
-          .def("updateDamping",
-               (void (DelassusCholeskyExpression::*)(const Scalar &))&DelassusCholeskyExpression::updateDamping,
-               bp::args("self","mu"),
-               "Add a damping term to the diagonal of the Delassus matrix. The damping term should be positive.")
-          .def("updateDamping",
-               &DelassusCholeskyExpression::template updateDamping<Vector>,
-               bp::args("self","mus"),
-               "Add a damping term to the diagonal of the Delassus matrix. The damping terms should be all positive.")
-
-          .def("matrix",&DelassusCholeskyExpression::matrix,bp::arg("self"),"Returns the Delassus expression as a dense matrix.")
-          .def("inverse",&DelassusCholeskyExpression::inverse,bp::arg("self"),"Returns the inverse of the Delassus expression as a dense matrix.")
-
-          .def("size",&DelassusCholeskyExpression::size,bp::arg("self"),"Returns the size of the decomposition.")
-          .def("rows",&DelassusCholeskyExpression::rows,bp::arg("self"),"Returns the number of rows.")
-          .def("cols",&DelassusCholeskyExpression::cols,bp::arg("self"),"Returns the number of columns.")
+          .def(DelassusOperatorBasePythonVisitor<DelassusCholeskyExpression>())
           ;
         }
       }
