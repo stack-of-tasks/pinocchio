@@ -176,7 +176,7 @@ namespace pinocchio
                                              bp::no_init)
          .def(bp::init<const context::SparseMatrix &>(bp::args("self","matrix"),"Build from a given sparse matrix"))
 
-         .def(DelassusOperatorBasePythonVisitor<DelassusOperatorDense>())
+         .def(DelassusOperatorBasePythonVisitor<DelassusOperatorSparse>())
          ;
 
         }
