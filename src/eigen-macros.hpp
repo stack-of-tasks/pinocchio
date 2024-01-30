@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2020 CNRS INRIA
+// Copyright (c) 2017-2024 CNRS INRIA
 //
 
 #ifndef __pinocchio_eigen_macros_hpp__
@@ -53,10 +53,41 @@ Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::S
   #define PINOCCHIO_EIGEN_MALLOC(allowed) ::Eigen::internal::set_is_malloc_allowed(allowed)
   #define PINOCCHIO_EIGEN_MALLOC_ALLOWED() PINOCCHIO_EIGEN_MALLOC(true)
   #define PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED() PINOCCHIO_EIGEN_MALLOC(false)
+  #define PINOCCHIO_EIGEN_MALLOC_SAVE_STATUS() ::pinocchio::internal::save_eigen_malloc_status()
+  #define PINOCCHIO_EIGEN_MALLOC_RESTORE_STATUS() PINOCCHIO_EIGEN_MALLOC((::pinocchio::internal::get_saved_eigen_malloc_status()))
 #else
   #define PINOCCHIO_EIGEN_MALLOC(allowed)
   #define PINOCCHIO_EIGEN_MALLOC_ALLOWED()
   #define PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED()
+  #define PINOCCHIO_EIGEN_MALLOC_SAVE_STATUS()
+  #define PINOCCHIO_EIGEN_MALLOC_RESTORE_STATUS()
 #endif
+
+#ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
+namespace pinocchio
+{
+  namespace internal
+  {
+
+    inline bool save_or_get_malloc_status(bool update, bool new_value = false)
+    {
+      static bool value;
+      if(update)
+        value = new_value;
+      return value;
+    }
+
+    inline void save_eigen_malloc_status()
+    {
+      save_or_get_malloc_status(true, ::Eigen::internal::is_malloc_allowed());
+    }
+
+    inline bool get_saved_eigen_malloc_status()
+    {
+      return save_or_get_malloc_status(false);
+    }
+  }
+}
+#endif // ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
 
 #endif // ifndef __pinocchio_eigen_macros_hpp__
