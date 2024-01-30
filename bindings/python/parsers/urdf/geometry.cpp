@@ -29,7 +29,10 @@ namespace pinocchio
       MeshLoaderPtr mesh_loader = MeshLoaderPtr();
       if (!py_mesh_loader.is_none()) {
 #ifdef PINOCCHIO_WITH_HPP_FCL
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
         mesh_loader = bp::extract<::hpp::fcl::MeshLoaderPtr>(py_mesh_loader);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 #else
         PyErr_WarnEx(PyExc_UserWarning, "Mesh loader is ignored because Pinocchio is not built with hpp-fcl", 1);
 #endif

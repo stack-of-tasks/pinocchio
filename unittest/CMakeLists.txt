@@ -7,8 +7,15 @@
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
 
-MACRO(ADD_TEST_CFLAGS target flag)
-  SET_PROPERTY(TARGET "test-cpp-${target}" APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
+# Compute flags outside the macro to avoid recomputing it for each tests
+CXX_FLAGS_BY_COMPILER_FRONTEND(
+  MSVC _USE_MATH_DEFINES
+  OUTPUT TEST_PRIVATE_DEFINITIONS)
+
+MACRO(ADD_TEST_CFLAGS target)
+  foreach(ARG ${ARGN})
+    SET_PROPERTY(TARGET "test-cpp-${target}" APPEND_STRING PROPERTY COMPILE_FLAGS "${ARG} ")
+  endforeach()
 ENDMACRO(ADD_TEST_CFLAGS)
 
 MACRO(ADD_PINOCCHIO_UNIT_TEST NAME)
@@ -23,6 +30,14 @@ MACRO(ADD_PINOCCHIO_UNIT_TEST NAME)
   SET(TEST_NAME "test-cpp-${NAME}")
   ADD_UNIT_TEST(${TEST_NAME} ${NAME}.cpp)
 
+  SET(MODULE_NAME "${NAME}Test")
+  STRING(REPLACE "-" "_" MODULE_NAME ${MODULE_NAME})
+  TARGET_COMPILE_DEFINITIONS(${TEST_NAME}
+    PRIVATE ${TEST_PRIVATE_DEFINITIONS}
+            BOOST_TEST_DYN_LINK
+            BOOST_TEST_MODULE=${MODULE_NAME}
+            PINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\")
+
   # There is no RPATH in Windows, then we must use the PATH to find the DLL
   IF(WIN32)
     STRING(REPLACE ";" "\\\;" _PATH "$ENV{PATH}")
@@ -32,15 +47,6 @@ MACRO(ADD_PINOCCHIO_UNIT_TEST NAME)
 
   SET_TARGET_PROPERTIES(${TEST_NAME} PROPERTIES LINKER_LANGUAGE CXX)
   TARGET_INCLUDE_DIRECTORIES(${TEST_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-  ADD_TEST_CFLAGS(${NAME} "-DBOOST_TEST_DYN_LINK")
-  SET(MODULE_NAME "${NAME}Test")
-  STRING(REPLACE "-" "_" MODULE_NAME ${MODULE_NAME})
-  ADD_TEST_CFLAGS(${NAME} "-DBOOST_TEST_MODULE=${MODULE_NAME}")
-  ADD_TEST_CFLAGS(${NAME} "-DPINOCCHIO_MODEL_DIR=\\\\\"${PINOCCHIO_MODEL_DIR}\\\\\"")
-  IF(WIN32)
-    ADD_TEST_CFLAGS(${NAME} "-DNOMINMAX -D_USE_MATH_DEFINES")
-  ENDIF(WIN32)
 
   IF(NOT unit_test_HEADER_ONLY)
     TARGET_LINK_LIBRARIES(${TEST_NAME} PUBLIC ${PROJECT_NAME})
@@ -160,7 +166,16 @@ ADD_PINOCCHIO_UNIT_TEST(finite-differences)
 ADD_PINOCCHIO_UNIT_TEST(visitor)
 ADD_PINOCCHIO_UNIT_TEST(algo-check)
 
+# Warning ignore with pragma doesn't work for
+# a part of this test, so we ignore two warning
+# globally
+CXX_FLAGS_BY_COMPILER_FRONTEND(
+  GNU -Wno-maybe-uninitialized -Wuse-after-free=0
+  OUTPUT LIEGROUPS_OPTIONS
+  FILTER)
 ADD_PINOCCHIO_UNIT_TEST(liegroups)
+ADD_TEST_CFLAGS(liegroups ${LIEGROUPS_OPTIONS})
+
 ADD_PINOCCHIO_UNIT_TEST(cartesian-product-liegroups)
 ADD_PINOCCHIO_UNIT_TEST(regressor)
 ADD_PINOCCHIO_UNIT_TEST(version)

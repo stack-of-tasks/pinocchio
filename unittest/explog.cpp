@@ -161,8 +161,11 @@ BOOST_AUTO_TEST_CASE(Jlog3_fd)
   SE3 M(SE3::Random());
   SE3::Matrix3 R (M.rotation());
   
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   SE3::Matrix3 Jfd, Jlog;
   Jlog3 (R, Jlog);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   Jfd.setZero();
 
   Motion::Vector3 dR; dR.setZero();
@@ -184,12 +187,15 @@ BOOST_AUTO_TEST_CASE(Jexp3_fd)
 
   Motion::Vector3 v = log3(R);
 
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   SE3::Matrix3 Jexp_fd, Jexp;
 
   Jexp3(Motion::Vector3::Zero(), Jexp);
   BOOST_CHECK(Jexp.isIdentity());
 
   Jexp3(v, Jexp);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   Motion::Vector3 dv; dv.setZero();
   const double eps = 1e-8;
@@ -221,8 +227,11 @@ BOOST_AUTO_TEST_CASE(Jexp3_quat_fd)
   SE3::Quaternion quat; quaternion::exp3(w,quat);
   
   typedef Eigen::Matrix<Scalar,4,3> Matrix43;
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   Matrix43 Jexp3, Jexp3_fd;
   quaternion::Jexp3CoeffWise(w,Jexp3);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   SE3::Vector3 dw; dw.setZero();
   const double eps = 1e-8;
   
@@ -235,11 +244,14 @@ BOOST_AUTO_TEST_CASE(Jexp3_quat_fd)
   }
   BOOST_CHECK(Jexp3.isApprox(Jexp3_fd,sqrt(eps)));
   
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   SE3::Matrix3 Jlog;
   pinocchio::Jlog3(quat.toRotationMatrix(),Jlog);
   
   Matrix43 Jexp_quat_local;
   Jexp3QuatLocal(quat,Jexp_quat_local);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   
   
   Matrix43 Jcompositon = Jexp3 * Jlog;
@@ -274,7 +286,10 @@ BOOST_AUTO_TEST_CASE(Jexp3_quat)
   typedef Eigen::Matrix<double,7,6> Matrix76;
   Matrix76 Jexp6_fd, Jexp6_quat; Jexp6_quat.setZero();
   typedef Eigen::Matrix<double,4,3> Matrix43;
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   Matrix43 Jexp3_quat; Jexp3QuatLocal(quat,Jexp3_quat);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   SE3 M_next;
   
   Jexp6_quat.middleRows<3>(Motion::LINEAR).middleCols<3>(Motion::LINEAR) = M.rotation();
@@ -296,10 +311,13 @@ BOOST_AUTO_TEST_CASE(Jexplog3)
 {
   Motion v(Motion::Random());
   
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   Eigen::Matrix3d R (exp3(v.angular())),
     Jexp, Jlog;
   Jexp3 (v.angular(), Jexp);
   Jlog3 (R          , Jlog);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   
   BOOST_CHECK((Jlog * Jexp).isIdentity());
 
@@ -319,9 +337,12 @@ BOOST_AUTO_TEST_CASE(Jlog3_quat)
   
   SE3::Matrix3 R(quat.toRotationMatrix());
   
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   SE3::Matrix3 res, res_ref;
   quaternion::Jlog3(quat,res);
   Jlog3(R,res_ref);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   
   BOOST_CHECK(res.isApprox(res_ref));
 }
@@ -341,8 +362,11 @@ BOOST_AUTO_TEST_CASE(Jlog6_fd)
 {
   SE3 M(SE3::Random());
 
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   SE3::Matrix6 Jfd, Jlog;
   Jlog6 (M, Jlog);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   Jfd.setZero();
 
   Motion dM; dM.setZero();
@@ -363,8 +387,11 @@ BOOST_AUTO_TEST_CASE(Jlog6_of_product_fd)
   SE3 Ma(SE3::Random());
   SE3 Mb(SE3::Random());
 
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
   SE3::Matrix6 Jlog, Ja, Jb, Jfda, Jfdb;
   Jlog6 (Ma.inverse() * Mb, Jlog);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   Ja = - Jlog * (Ma.inverse() * Mb).toActionMatrixInverse();
   Jb = Jlog;
   Jfda.setZero();

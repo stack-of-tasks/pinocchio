@@ -72,15 +72,21 @@ struct TestCartesianProduct
     ConfigVector q0 = lg.random();
     ConfigVector q1 = lg.random();
     TangentVector v = TangentVector_t::Random(lg.nv());
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
     ConfigVector qout_ref(lg.nq()), qout(lg.nq());
     lg.integrate(q0, v, qout_ref);
     cp.integrate(q0, v, qout);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     
     BOOST_CHECK(qout.isApprox(qout_ref));
     
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
     TangentVector v_diff_ref(lg.nv()), v_diff(lg.nv());
     lg.difference(q0,q1,v_diff_ref);
     cp.difference(q0,q1,v_diff);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     
     BOOST_CHECK(v_diff_ref.isApprox(v_diff));
     BOOST_CHECK_EQUAL(lg.squaredDistance(q0, q1), cp.squaredDistance(q0, q1));
@@ -111,6 +117,8 @@ struct TestCartesianProduct
     BOOST_CHECK(J.isApprox(J_ref));
     
     BOOST_CHECK(cp.isSameConfiguration(q0,q0));
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
     ConfigVector q_rand;
     cp.random(q_rand);
     ConfigVector q_rand_copy = q_rand;
@@ -123,6 +131,7 @@ struct TestCartesianProduct
     const ConfigVector ub( ConfigVector::Ones(lg.nq()));
     
     cp.randomConfiguration(lb, ub, q_rand);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   }
 };
 

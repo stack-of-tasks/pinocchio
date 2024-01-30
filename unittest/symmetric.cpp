@@ -29,11 +29,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-
-#include <Eigen/StdVector>
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix3d)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(pinocchio::Symmetric3)
-
 void timeSym3(const pinocchio::Symmetric3 & S,
         const pinocchio::Symmetric3::Matrix3 & R,
         pinocchio::Symmetric3 & res)

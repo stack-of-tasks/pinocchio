@@ -39,8 +39,10 @@ namespace pinocchio
       aligned_vector(InputIterator first, InputIterator last, const allocator_type& a = allocator_type())
       : vector_base(first, last, a) {}
       aligned_vector(const aligned_vector & c) : vector_base(c) {}
-      explicit aligned_vector(size_type num, const value_type & val = value_type())
+      explicit aligned_vector(size_type num, const value_type & val)
       : vector_base(num, val) {}
+      explicit aligned_vector(size_type num)
+      : vector_base(num) {}
       aligned_vector(iterator start, iterator end) : vector_base(start, end) {}
       aligned_vector & operator=(const aligned_vector& x)
       { vector_base::operator=(x); return *this; }

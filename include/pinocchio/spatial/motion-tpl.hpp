@@ -79,11 +79,22 @@ namespace pinocchio
     : m_data(clone.toVector())
     {}
     
-    template<typename M2>
+    // Same explanation as converting constructor from MotionBase
+    template <typename M2,
+              typename std::enable_if<
+                !std::is_convertible<MotionDense<M2>, MotionTpl>::value,
+                bool>::type = true>
     explicit MotionTpl(const MotionDense<M2> & clone)
     { linear() = clone.linear(); angular() = clone.angular(); }
     
-    template<typename M2>
+    // MotionBase implement a conversion function to PlainReturnType.
+    // Usually, PlainReturnType is defined as MotionTpl.
+    // In this case, this converting constructor is redundant and
+    // create a warning with -Wconversion
+    template <typename M2,
+              typename std::enable_if<
+                !std::is_convertible<MotionBase<M2>, MotionTpl>::value,
+                bool>::type = true>
     explicit MotionTpl(const MotionBase<M2> & clone)
     { *this = clone; }
     

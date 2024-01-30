@@ -80,14 +80,21 @@ namespace pinocchio
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH  _Pragma("GCC diagnostic push")
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_POP   _Pragma("GCC diagnostic pop")
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS  _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+# if defined(__clang__)
+#  define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
+# else
+#  define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED  _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+# endif
 #elif defined (WIN32)
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH  _Pragma("warning(push)")
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_POP   _Pragma("warning(pop)")
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS  _Pragma("warning(disable : 4996)")
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
 #else
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
 #endif // __GNUC__
 
 // Handle explicitely the GCC boring warning: 'anonymous variadic macros were introduced in C++11'
