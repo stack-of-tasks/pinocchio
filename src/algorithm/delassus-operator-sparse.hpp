@@ -42,8 +42,10 @@ struct DelassusOperatorSparseTpl
   template<typename MatrixDerived>
   explicit DelassusOperatorSparseTpl(const Eigen::SparseMatrixBase<MatrixDerived> & mat)
   : delassus_matrix(mat)
+  , delassus_matrix_plus_damping(mat)
   , llt(mat)
   , damping(Vector::Zero(mat.rows()))
+  , tmp(mat.rows())
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(mat.rows(),mat.cols());
   }
@@ -68,22 +70,26 @@ struct DelassusOperatorSparseTpl
   template<typename VectorLike>
   void updateDamping(const Eigen::MatrixBase<VectorLike> & vec)
   {
+    for(Eigen::DenseIndex k = 0; k < size(); ++k)
+    {
+      delassus_matrix_plus_damping.coeffRef(k,k) += -damping[k] + vec[k];
+    }
     damping = vec;
-    delassus_matrix_plus_damping = delassus_matrix;
-    delassus_matrix_plus_damping += vec.asDiagonal();
+    PINOCCHIO_EIGEN_MALLOC_SAVE_STATUS();
+    PINOCCHIO_EIGEN_MALLOC_ALLOWED();
     llt.compute(delassus_matrix_plus_damping);
+    PINOCCHIO_EIGEN_MALLOC_RESTORE_STATUS();
   }
 
   void updateDamping(const Scalar & mu)
   {
-    damping = Vector::Constant(size(),mu);
     updateDamping(Vector::Constant(size(),mu));
   }
 
   template<typename MatrixLike>
   void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const
   {
-    llt._solve_impl(mat,mat.const_cast_derived());
+    llt._solve_impl(mat,mat.const_cast_derived(),tmp);
   }
 
   template<typename MatrixLike>
@@ -147,6 +153,7 @@ protected:
   mutable Matrix delassus_matrix_plus_damping;
   LLTDecomposition llt;
   Vector damping;
+  mutable Vector tmp;
 
 
 }; // struct DelassusOperatorSparseTpl
