@@ -30,6 +30,7 @@ namespace pinocchio
     , ratio_primal_dual(Scalar(10))
     , x_(problem_dim)
     , y_(problem_dim)
+    , x_previous(problem_dim)
     , y_previous(problem_dim)
     , z_(problem_dim)
     , s_(VectorXs::Zero(problem_dim))
@@ -117,7 +118,7 @@ namespace pinocchio
     /// \brief Primal variables (corresponds to the contact forces)
     VectorXs x_, y_;
     /// \brief Previous value of y.
-    VectorXs y_previous;
+    VectorXs x_previous, y_previous;
     /// \brief Dual varible of the ADMM (corresponds to the contact velocity or acceleration).
     VectorXs z_;
     /// \brief De Saxé shift

@@ -143,6 +143,7 @@ void computeComplementarityShift(const std::vector<CoulombFrictionConeTpl<Scalar
     for(; it < Base::max_it; ++it)
     {
       y_previous = y_;
+      x_previous = x_;
       complementarity = Scalar(0);
 
       // s-update
