@@ -23,6 +23,7 @@ struct traits<DelassusOperatorSparseTpl<_Scalar,_Options> >
 
   typedef Eigen::SparseMatrix<Scalar,Options> Matrix;
   typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> Vector;
+  typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> DenseMatrix;
 };
 
 template<typename _Scalar, int _Options>
@@ -35,6 +36,7 @@ struct DelassusOperatorSparseTpl
 
   typedef typename traits<Self>::Matrix Matrix;
   typedef typename traits<Self>::Vector Vector;
+  typedef typename traits<Self>::DenseMatrix DenseMatrix;
   typedef Eigen::SimplicialLLT<Matrix> LLTDecomposition;
 
   template<typename MatrixDerived>
@@ -98,7 +100,7 @@ struct DelassusOperatorSparseTpl
              const Eigen::MatrixBase<MatrixDerivedOut> & res) const
   {
     res.const_cast_derived() = x;
-    solveInPlace(res.const_cast_derived());
+    llt._solve_impl(x,res.const_cast_derived());
   }
 
   template<typename MatrixIn, typename MatrixOut>
@@ -133,10 +135,9 @@ struct DelassusOperatorSparseTpl
     return delassus_matrix_plus_damping;
   }
   
-  Matrix inverse() const
+  DenseMatrix inverse() const
   {
-    Matrix res = Matrix::Identity(size(),size());
-    llt.solveInPlace(res);
+    DenseMatrix res = llt.solve(DenseMatrix::Identity(size(),size()));
     return res;
   }
 
