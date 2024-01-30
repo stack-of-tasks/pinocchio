@@ -72,7 +72,6 @@ struct DelassusOperatorDenseTpl
 
   void updateDamping(const Scalar & mu)
   {
-    damping = Vector::Constant(size(),mu);
     updateDamping(Vector::Constant(size(),mu));
   }
 
