@@ -104,6 +104,8 @@ namespace pinocchio
     const VectorXs & getPrimalSolution() const { return y_; }
     /// \returns the dual solution of the problem
     const VectorXs & getDualSolution() const { return z_; }
+    /// \returns the complementarity shift
+    const VectorXs & getComplementarityShift() const { return s_; }
 
   protected:
 
