@@ -77,7 +77,7 @@ struct DelassusOperatorSparseTpl
     damping = vec;
     PINOCCHIO_EIGEN_MALLOC_SAVE_STATUS();
     PINOCCHIO_EIGEN_MALLOC_ALLOWED();
-    llt.compute(delassus_matrix_plus_damping);
+    llt.factorize(delassus_matrix_plus_damping);
     PINOCCHIO_EIGEN_MALLOC_RESTORE_STATUS();
   }
 
