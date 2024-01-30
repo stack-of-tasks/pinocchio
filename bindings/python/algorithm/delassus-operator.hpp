@@ -20,7 +20,7 @@ namespace pinocchio
     {
       typedef DelassusOperator Self;
       typedef typename DelassusOperator::Scalar Scalar;
-      typedef typename DelassusOperator::Matrix Matrix;
+      typedef context::MatrixXs Matrix;
       typedef typename DelassusOperator::Vector Vector;
 
       template<class PyClass>
