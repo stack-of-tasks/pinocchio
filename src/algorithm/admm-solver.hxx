@@ -128,8 +128,8 @@ void computeComplementarityShift(const std::vector<CoulombFrictionConeTpl<Scalar
     computeConeProjection(cones, x_, y_);
     delassus.applyOnTheRight(y_,z_); // z = G * y
     z_.noalias() += -prox_value * y_ + g;
-    computeDualConeProjection(cones, z_, z_);
-    computeComplementarityShift(cones, z_, s_);
+    //computeDualConeProjection(cones, z_, z_);
+    //computeComplementarityShift(cones, z_, s_);
 
     Scalar
     complementarity,
