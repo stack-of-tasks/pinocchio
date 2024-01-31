@@ -64,9 +64,9 @@ namespace pinocchio
     computeConeProjection(cones, x_, y_);
     delassus.applyOnTheRight(y_,z_); // z = G * y
     z_.noalias() += -prox_value * y_ + g;
-    computeDualConeProjection(cones, z_, z_);
     computeComplementarityShift(cones, z_, s_);
     z_ += s_; // Add De Saxé shift
+    computeDualConeProjection(cones, z_, z_);
 
 //    std::cout << "x_: " << x_.transpose() << std::endl;
 //    std::cout << "y_: " << y_.transpose() << std::endl;
