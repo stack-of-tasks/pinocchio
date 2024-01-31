@@ -139,8 +139,8 @@ namespace pinocchio
 
       primal_feasibility = primal_feasibility_vector.template lpNorm<Eigen::Infinity>();
       dual_feasibility = dual_feasibility_vector.template lpNorm<Eigen::Infinity>();
-//      complementarity = computeMaxConeComplementarity(cones,z_,y_);
-      complementarity = z_.dot(y_)/cones.size();
+      complementarity = computeConicComplementarity(cones,z_,y_);
+//      complementarity = z_.dot(y_)/cones.size();
 
 //      std::cout << "primal_feasibility: " << primal_feasibility << std::endl;
 //      std::cout << "dual_feasibility: " << dual_feasibility << std::endl;

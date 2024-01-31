@@ -50,17 +50,17 @@ void computeDualConeProjection(const std::vector<CoulombFrictionConeTpl<Scalar>,
 }
 
 template<typename Scalar, typename ConstraintAllocator, typename VectorLikeVelocity, typename VectorLikeForce>
-Scalar computeMaxConeComplementarity(const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
-                                     const Eigen::DenseBase<VectorLikeVelocity> & velocities,
-                                     const Eigen::DenseBase<VectorLikeForce> & forces)
+Scalar computeConicComplementarity(const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
+                                   const Eigen::DenseBase<VectorLikeVelocity> & velocities,
+                                   const Eigen::DenseBase<VectorLikeForce> & forces)
 {
   assert(velocities.size() == forces.size());
   Eigen::DenseIndex index = 0;
   Scalar complementarity = 0;
   for(const auto & cone: cones)
   {
-    const Scalar cone_complementarity = cone.computeContactComplementarity(velocities.template segment<3>(index),
-                                                                           forces.template segment<3>(index));
+    const Scalar cone_complementarity = cone.computeConicComplementarity(velocities.template segment<3>(index),
+                                                                         forces.template segment<3>(index));
     complementarity = math::max(complementarity, cone_complementarity);
     index += 3;
   }

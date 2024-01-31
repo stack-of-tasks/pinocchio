@@ -151,6 +151,13 @@ namespace pinocchio
       return math::fabs(f.dot(Vector3Plain(v + computeNormalCorrection(v))));
     }
 
+    template<typename Vector3Like1, typename Vector3Like2>
+    Scalar computeConicComplementarity(const Eigen::MatrixBase<Vector3Like1> & v,
+                                       const Eigen::MatrixBase<Vector3Like2> & f) const
+    {
+      return math::fabs(f.dot(v));
+    }
+
     /// \brief Returns the dual cone associated to this.
     DualCone dual() const { return DualCone(mu); }
 
