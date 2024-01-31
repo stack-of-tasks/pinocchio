@@ -110,7 +110,7 @@ namespace pinocchio
 
     PINOCCHIO_EIGEN_MALLOC_ALLOWED();
 
-    this->absolute_residual = complementarity;
+    this->absolute_residual = math::max(complementarity, dual_feasibility);
     this->relative_residual = proximal_metric;
     this->it = it;
     x_sol.const_cast_derived() = x;
