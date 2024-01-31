@@ -5,7 +5,6 @@
 #include "pinocchio/algorithm/contact-cholesky.hpp"
 
 namespace pinocchio {
-  namespace cholesky {
     namespace details {
       template context::VectorXs & inverseAlgo
         <context::Scalar, context::Options, context::VectorXs>
@@ -77,6 +76,5 @@ namespace pinocchio {
       <context::Scalar, context::Options>
     (const ContactCholeskyDecompositionTpl<context::Scalar, context::Options> &) const;  
         
-    }  // namespace cholesky
 
 } // namespace pinocchio

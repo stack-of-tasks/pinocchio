@@ -6,7 +6,6 @@
 #define __pinocchio_algorithm_contact_cholesky_txx__
 
 namespace pinocchio {
-  namespace cholesky {
       namespace details {
       extern template PINOCCHIO_DLLAPI context::VectorXs & inverseAlgo
         <context::Scalar, context::Options, context::VectorXs>
@@ -79,7 +78,6 @@ namespace pinocchio {
       <context::Scalar, context::Options>
     (const ContactCholeskyDecompositionTpl<context::Scalar, context::Options> &) const;  
         
-    }  // namespace cholesky
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_algorithm_contact_cholesky_txx__
