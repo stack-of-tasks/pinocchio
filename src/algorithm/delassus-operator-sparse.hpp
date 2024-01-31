@@ -15,6 +15,59 @@
 
 namespace pinocchio {
 
+namespace internal {
+
+template<typename Derived>
+struct SimplicialCholeskyWrapper : public Derived
+{
+  typedef Eigen::SimplicialCholeskyBase<Derived> Base;
+
+  using Base::m_info;
+  using Base::m_P;
+  using Base::m_Pinv;
+  using Base::m_diag;
+  using Base::m_matrix;
+  using Base::derived;
+
+  SimplicialCholeskyWrapper(const Derived & simplicial_cholesky)
+  : self(simplicial_cholesky)
+  {}
+
+  template<typename Rhs,typename Dest, typename Temporary>
+  void _solve_impl(const Eigen::MatrixBase<Rhs> &b,
+                   Eigen::MatrixBase<Dest> &dest,
+                   Eigen::MatrixBase<Temporary> &tmp) const
+  {
+    eigen_assert(m_factorizationIsOk && "The decomposition is not in a valid state for solving, you must first call either compute() or symbolic()/numeric()");
+    eigen_assert(m_matrix.rows()==b.rows());
+
+    if(m_info!=Eigen::Success)
+      return;
+
+    if(m_P.size()>0)
+      tmp.noalias() = m_P * b;
+    else
+      tmp = b;
+
+    if(m_matrix.nonZeros()>0) // otherwise L==I
+      derived().matrixL().solveInPlace(tmp);
+
+    if(m_diag.size()>0)
+      tmp = m_diag.asDiagonal().inverse() * tmp;
+
+    if (m_matrix.nonZeros()>0) // otherwise U==I
+      derived().matrixU().solveInPlace(tmp);
+
+    if(m_P.size()>0)
+      dest.noalias() = m_Pinv * tmp;
+  }
+
+  const Derived & self;
+
+}; // SimplicialCholeskyWrapper
+
+} // namespace internal
+
 template<typename _Scalar, int _Options>
 struct traits<DelassusOperatorSparseTpl<_Scalar,_Options> >
 {
@@ -89,7 +142,8 @@ struct DelassusOperatorSparseTpl
   template<typename MatrixLike>
   void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const
   {
-    llt._solve_impl(mat,mat.const_cast_derived(),tmp);
+    internal::SimplicialCholeskyWrapper<LLTDecomposition> wrapper(llt);
+    wrapper._solve_impl(mat,mat.const_cast_derived(),tmp);
   }
 
   template<typename MatrixLike>
