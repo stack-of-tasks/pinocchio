@@ -78,13 +78,14 @@ namespace pinocchio
 
         // Account for the f_tangent updated value
         velocity.noalias() = G_block.template leftCols<2>() * (f_tangent - f_tangent_previous);
+        
+        // Compute problem feasibility
         Scalar contact_complementarity = cone.computeContactComplementarity(velocity, x_segment);
         assert(contact_complementarity >= Scalar(0) && "contact_complementarity should be positive");
         complementarity = math::max(complementarity,contact_complementarity);
         velocity += cone.computeNormalCorrection(velocity);
-        Vector3 velocity_proj = cone.dual().project(velocity);
-        velocity_proj += - velocity;
-        Scalar contact_dual_feasibility = velocity_proj.template lpNorm<Eigen::Infinity>();
+        const Vector3 velocity_proj = cone.dual().project(velocity) - velocity;
+        Scalar contact_dual_feasibility = velocity_proj.norm();
         dual_feasibility = math::max(dual_feasibility,contact_dual_feasibility);
       }
 
