@@ -29,10 +29,6 @@ struct SimplicialCholeskyWrapper : public Derived
   using Base::m_matrix;
   using Base::derived;
 
-  SimplicialCholeskyWrapper(const Derived & simplicial_cholesky)
-  : self(simplicial_cholesky)
-  {}
-
   template<typename Rhs,typename Dest, typename Temporary>
   void _solve_impl(const Eigen::MatrixBase<Rhs> &b,
                    Eigen::MatrixBase<Dest> &dest,
@@ -61,8 +57,6 @@ struct SimplicialCholeskyWrapper : public Derived
     if(m_P.size()>0)
       dest.noalias() = m_Pinv * tmp;
   }
-
-  const Derived & self;
 
 }; // SimplicialCholeskyWrapper
 
@@ -145,7 +139,9 @@ struct DelassusOperatorSparseTpl
   template<typename MatrixLike>
   void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const
   {
-    internal::SimplicialCholeskyWrapper<LLTDecomposition> wrapper(llt);
+    typedef internal::SimplicialCholeskyWrapper<LLTDecomposition> WrapperLLT;
+
+    const WrapperLLT & wrapper = reinterpret_cast<const WrapperLLT &>(llt);
     wrapper._solve_impl(mat,mat.const_cast_derived(),tmp);
   }
 
