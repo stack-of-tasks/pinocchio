@@ -2,6 +2,10 @@
 // Copyright (c) 2024 INRIA
 //
 
+#include <eigenpy/memory.hpp>
+#include <eigenpy/eigen-from-python.hpp>
+#include <eigenpy/eigen-to-python.hpp>
+
 #include "pinocchio/bindings/python/fwd.hpp"
 
 #include "pinocchio/algorithm/admm-solver.hpp"
@@ -11,8 +15,8 @@
 
 #include "pinocchio/bindings/python/algorithm/contact-solver-base.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
-#include <eigenpy/eigen-from-python.hpp>
-#include <eigenpy/eigen-to-python.hpp>
+#include "pinocchio/bindings/python/utils/macros.hpp"
+
 
 namespace pinocchio
 {
@@ -21,6 +25,7 @@ namespace python
   namespace bp = boost::python;
 
   typedef ADMMContactSolverTpl<context::Scalar> Solver;
+  typedef Solver::PowerIterationAlgo PowerIterationAlgo;
   typedef context::Scalar Scalar;
   typedef context::VectorXs VectorXs;
   typedef const Eigen::Ref<const VectorXs> ConstRefVectorXs;
@@ -132,7 +137,29 @@ namespace python
     .def("computeRhoPower",&Solver::computeRhoPower,bp::args("L","m","rho"),
          "Compute the  scaling spectral factor of the ADMM penalty term from the current largest and lowest Eigen values and the ADMM penalty term.")
     .staticmethod("computeRhoPower")
+
+    .def("getPowerIterationAlgo",
+         &Solver::getPowerIterationAlgo,
+         bp::arg("self"),
+         bp::return_internal_reference<>())
     ;
+
+    {
+      typedef PowerIterationAlgo::Vector Vector;
+      typedef PINOCCHIO_EIGEN_REF_TYPE(VectorXs) RefVector;
+
+      bp::class_<PowerIterationAlgo>("PowerIterationAlgo","",
+                                     bp::init<Eigen::DenseIndex, int, Scalar>((bp::arg("self"),
+                                                                               bp::arg("max_it") = 10,
+                                                                               bp::arg("rel_tol") = 1e-8),
+                                                                              "Default constructor"))
+
+      .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,principal_eigen_vector,"Principal eigen vector.")
+      .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,max_it,"Maximum number of iterations.")
+      .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,rel_tol,"Relative tolerance.")
+      .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,largest_eigen_value,"Largest eigen value.")
+      ;
+    }
 #endif
   }
 
