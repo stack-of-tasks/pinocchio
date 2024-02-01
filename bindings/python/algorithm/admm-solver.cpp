@@ -22,6 +22,8 @@ namespace python
 
   typedef ADMMContactSolverTpl<context::Scalar> Solver;
   typedef context::Scalar Scalar;
+  typedef context::VectorXs VectorXs;
+  typedef const Eigen::Ref<const VectorXs> ConstRefVectorXs;
   typedef ContactCholeskyDecompositionTpl<context::Scalar,context::Options> ContactCholeskyDecomposition;
 
 #ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
@@ -31,10 +33,12 @@ namespace python
                             DelassusDerived & delassus,
                             const context::VectorXs & g,
                             const context::CoulombFrictionConeVector & cones,
-                            Eigen::Ref<context::VectorXs> x,
-                            const context::VectorXs & R)
+                            const context::VectorXs & R,
+                            const boost::optional<ConstRefVectorXs> primal_solution = boost::none,
+                            const boost::optional<ConstRefVectorXs> dual_solution = boost::none,
+                            bool compute_largest_eigen_values = true)
   {
-    return solver.solve(delassus,g,cones,x,R);
+    return solver.solve(delassus,g,cones,R,primal_solution,dual_solution,compute_largest_eigen_values);
   }
 
   template<typename DelassusDerived>
@@ -65,14 +69,23 @@ namespace python
     .def(ContactSolverBasePythonVisitor<Solver>())
 
     .def("solve",solve_wrapper<ContactCholeskyDecomposition::DelassusCholeskyExpression>,
-         (bp::args("self","delassus","g","cones","x","R")),
-         "Solve the constrained conic problem, starting from the initial guess.")
+         (bp::args("self","delassus","g","cones","R"),
+          bp::arg("primal_solution") = boost::none,
+          bp::arg("dual_solution") = boost::none,
+          bp::arg("compute_largest_eigen_values") = true),
+         "Solve the constrained conic problem, starting from the optional initial guess.")
     .def("solve",solve_wrapper<context::DelassusOperatorDense>,
-         (bp::args("self","delassus","g","cones","x","R")),
-         "Solve the constrained conic problem, starting from the initial guess.")
+         (bp::args("self","delassus","g","cones","R"),
+          bp::arg("primal_solution") = boost::none,
+          bp::arg("dual_solution") = boost::none,
+          bp::arg("compute_largest_eigen_values") = true),
+         "Solve the constrained conic problem, starting from the optional initial guess.")
     .def("solve",solve_wrapper<context::DelassusOperatorSparse>,
-         (bp::args("self","delassus","g","cones","x","R")),
-         "Solve the constrained conic problem, starting from the initial guess.")
+         (bp::args("self","delassus","g","cones","R"),
+          bp::arg("primal_solution") = boost::none,
+          bp::arg("dual_solution") = boost::none,
+          bp::arg("compute_largest_eigen_values") = true),
+         "Solve the constrained conic problem, starting from the optional initial guess.")
 
     .def("setRho",&Solver::setRho,bp::args("self","rho"),
          "Set the ADMM penalty value.")
