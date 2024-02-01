@@ -45,7 +45,7 @@ namespace python
                             bool compute_largest_eigen_values = true,
                             bool stat_record = false)
   {
-    return solver.solve(delassus,g,cones,R,primal_solution,dual_solution,compute_largest_eigen_values);
+    return solver.solve(delassus,g,cones,R,primal_solution,dual_solution,compute_largest_eigen_values, stat_record);
   }
 
   template<typename DelassusDerived>
