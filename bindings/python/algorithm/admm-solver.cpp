@@ -26,6 +26,7 @@ namespace python
 
   typedef ADMMContactSolverTpl<context::Scalar> Solver;
   typedef Solver::PowerIterationAlgo PowerIterationAlgo;
+  typedef Solver::SolverStats SolverStats;
   typedef context::Scalar Scalar;
   typedef context::VectorXs VectorXs;
   typedef const Eigen::Ref<const VectorXs> ConstRefVectorXs;
@@ -41,7 +42,8 @@ namespace python
                             const context::VectorXs & R,
                             const boost::optional<ConstRefVectorXs> primal_solution = boost::none,
                             const boost::optional<ConstRefVectorXs> dual_solution = boost::none,
-                            bool compute_largest_eigen_values = true)
+                            bool compute_largest_eigen_values = true,
+                            bool stat_record = false)
   {
     return solver.solve(delassus,g,cones,R,primal_solution,dual_solution,compute_largest_eigen_values);
   }
@@ -77,19 +79,22 @@ namespace python
          (bp::args("self","delassus","g","cones","R"),
           bp::arg("primal_solution") = boost::none,
           bp::arg("dual_solution") = boost::none,
-          bp::arg("compute_largest_eigen_values") = true),
+          bp::arg("compute_largest_eigen_values") = true,
+          bp::arg("stat_record") = false),
          "Solve the constrained conic problem, starting from the optional initial guess.")
     .def("solve",solve_wrapper<context::DelassusOperatorDense>,
          (bp::args("self","delassus","g","cones","R"),
           bp::arg("primal_solution") = boost::none,
           bp::arg("dual_solution") = boost::none,
-          bp::arg("compute_largest_eigen_values") = true),
+          bp::arg("compute_largest_eigen_values") = true,
+          bp::arg("stat_record") = false),
          "Solve the constrained conic problem, starting from the optional initial guess.")
     .def("solve",solve_wrapper<context::DelassusOperatorSparse>,
          (bp::args("self","delassus","g","cones","R"),
           bp::arg("primal_solution") = boost::none,
           bp::arg("dual_solution") = boost::none,
-          bp::arg("compute_largest_eigen_values") = true),
+          bp::arg("compute_largest_eigen_values") = true,
+          bp::arg("stat_record") = false),
          "Solve the constrained conic problem, starting from the optional initial guess.")
 
     .def("setRho",&Solver::setRho,bp::args("self","rho"),
@@ -142,6 +147,11 @@ namespace python
          &Solver::getPowerIterationAlgo,
          bp::arg("self"),
          bp::return_internal_reference<>())
+
+    .def("getStats",
+         &Solver::getStats,
+         bp::arg("self"),
+         bp::return_internal_reference<>())
     ;
 
     {
@@ -157,6 +167,22 @@ namespace python
       .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,largest_eigen_value,"Largest eigen value.")
       .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,it,"Number of iterations performed by the algorithm.")
       .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,convergence_criteria,"Convergence criteria to quit the algorithm.")
+      ;
+    }
+
+    {
+      bp::class_<SolverStats>("SolverStats","",
+                              bp::init<int>((bp::arg("self"),
+                                             bp::arg("max_it")),
+                                            "Default constructor"))
+      .def("reset",&SolverStats::reset,bp::arg("self"),"Reset the stasts.")
+      .def("size",&SolverStats::size,bp::arg("self"),"Size of the vectors stored in the structure.")
+
+      .PINOCCHIO_ADD_PROPERTY_READONLY(SolverStats,primal_feasibility,"")
+      .PINOCCHIO_ADD_PROPERTY_READONLY(SolverStats,dual_feasibility,"")
+      .PINOCCHIO_ADD_PROPERTY_READONLY(SolverStats,complementarity,"")
+      .PINOCCHIO_ADD_PROPERTY_READONLY(SolverStats,it,"Number of iterations performed by the algorithm.")
+      .PINOCCHIO_ADD_PROPERTY_READONLY(SolverStats,cholesky_update_count,"Number of Cholesky updates performed by the algorithm.")
       ;
     }
 #endif
