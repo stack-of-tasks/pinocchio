@@ -89,9 +89,13 @@ namespace pinocchio
     {
       x_ = primal_guess.get();
     }
+    else if(!is_initialized)
+    {
+      x_.setZero();
+    }
     else
     {
-      x_ = y_;
+      x_ = y_; // takes the current value stored in the solver
     }
 
     // Init y
