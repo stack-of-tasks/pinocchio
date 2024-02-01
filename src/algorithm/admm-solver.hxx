@@ -21,40 +21,50 @@ namespace pinocchio
                                             const Eigen::MatrixBase<VectorLike> & g,
                                             const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
                                             const Eigen::DenseBase<VectorLikeOut> & y_sol,
-                                            const Scalar mu_prox,
                                             const Eigen::MatrixBase<VectorLikeR> & R,
-                                            const Scalar tau)
+                                            bool compute_largest_eigen_values)
 
   {
     using namespace internal;
 
     DelassusDerived & delassus = _delassus.derived();
 
+    const Scalar mu_R = R.minCoeff();
     PINOCCHIO_CHECK_INPUT_ARGUMENT(tau <= Scalar(1) && tau > Scalar(0),"tau should lie in ]0,1].");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(mu_prox >= 0,"mu_prox should be positive.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT((R.array() >= 0).all(),"mu_prox should be positive.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(mu_R >= Scalar(0),"R should be a positive vector.");
 //    PINOCCHIO_CHECK_INPUT_ARGUMENT(math::max(R.maxCoeff(),mu_prox) >= 0,"mu_prox and mu_R cannot be both equal to zero.");
 
-    const Scalar mu_R = R.maxCoeff();
-
-    const Scalar L = delassus.computeLargestEigenValue(20); // Largest eigen_value estimate.
-    const Scalar m = math::max(mu_R,mu_prox);
+    if(compute_largest_eigen_values)
+    {
+//      const Scalar L = delassus.computeLargestEigenValue(20); // Largest eigen_value estimate.
+      power_iteration_algo.run(delassus);
+    }
+    const Scalar L = power_iteration_algo.largest_eigen_value;
+    const Scalar m = mu_prox + mu_R;
     const Scalar cond = L / m;
+    const Scalar rho_increment = std::pow(cond,rho_power_factor);
 
 //    std::cout << std::setprecision(12);
 
-    Scalar rho = math::sqrt(m * L) * math::pow(cond,rho_power);
-    Scalar prox_value = mu_prox + tau * rho;
+    Scalar rho;
+    if(!is_initialized)
+    {
+      rho = computeRho(L,m,rho_power);
+    }
+
 
 //    std::cout << "L: " << L << std::endl;
 //    std::cout << "m: " << m << std::endl;
 //    std::cout << "prox_value: " << prox_value << std::endl;
 
-    int it = 0;
+
+    is_initialized = true;
 
     PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
 
     // Update the cholesky decomposition
+    Scalar prox_value = mu_prox + tau * rho;
     rhs = R + VectorXs::Constant(this->problem_size,prox_value);
     delassus.updateDamping(rhs);
     cholesky_update_count = 1;
@@ -80,7 +90,7 @@ namespace pinocchio
     bool abs_prec_reached = false, rel_prec_reached = false;
 
     Scalar y_previous_norm_inf = y_.template lpNorm<Eigen::Infinity>();
-
+    int it = 0;
     for(; it < Base::max_it; ++it)
     {
 //      std::cout << "---" << std::endl;
@@ -165,18 +175,15 @@ namespace pinocchio
         break;
 
       // Account for potential update of rho
-      const Scalar rho_power_factor = 0.05;
       bool update_delassus_factorization = false;
       if(primal_feasibility > ratio_primal_dual * dual_feasibility)
       {
-        rho *= math::pow(cond,rho_power_factor);
-        rho_power += rho_power_factor;
+        rho *= rho_increment;
         update_delassus_factorization = true;
       }
       else if(dual_feasibility > ratio_primal_dual * primal_feasibility)
       {
-        rho *= math::pow(cond,-rho_power_factor);
-        rho_power -= rho_power_factor;
+        rho /= rho_increment;
         update_delassus_factorization = true;
       }
 
@@ -200,6 +207,10 @@ namespace pinocchio
     this->relative_residual = proximal_metric;
     this->it = it;
     y_sol.const_cast_derived() = y_;
+
+    // Save values
+    this->rho_power = computeRhoPower(L,m,rho);
+    this->rho = rho;
 
 //    if(abs_prec_reached || rel_prec_reached)
     if(abs_prec_reached)
