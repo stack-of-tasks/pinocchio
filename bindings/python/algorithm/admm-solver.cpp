@@ -145,9 +145,6 @@ namespace python
     ;
 
     {
-      typedef PowerIterationAlgo::Vector Vector;
-      typedef PINOCCHIO_EIGEN_REF_TYPE(VectorXs) RefVector;
-
       bp::class_<PowerIterationAlgo>("PowerIterationAlgo","",
                                      bp::init<Eigen::DenseIndex, int, Scalar>((bp::arg("self"),
                                                                                bp::arg("max_it") = 10,
@@ -158,6 +155,8 @@ namespace python
       .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,max_it,"Maximum number of iterations.")
       .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,rel_tol,"Relative tolerance.")
       .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,largest_eigen_value,"Largest eigen value.")
+      .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,it,"Number of iterations performed by the algorithm.")
+      .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,convergence_criteria,"Convergence criteria to quit the algorithm.")
       ;
     }
 #endif

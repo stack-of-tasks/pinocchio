@@ -45,7 +45,8 @@ namespace pinocchio
 
         eigenvalue_est = principal_eigen_vector.norm();
 
-        if (check_expression_if_real<Scalar, false>(math::fabs(eigenvalue_est_prev - eigenvalue_est) <= rel_tol))
+        convergence_criteria = math::fabs(eigenvalue_est_prev - eigenvalue_est);
+        if (check_expression_if_real<Scalar, false>(convergence_criteria <= rel_tol * math::max(math::fabs(eigenvalue_est_prev),math::fabs(eigenvalue_est))))
           break;
       }
 
@@ -70,6 +71,7 @@ namespace pinocchio
     Scalar largest_eigen_value;
     int max_it;
     Scalar rel_tol;
+    Scalar convergence_criteria;
 
   protected:
 
