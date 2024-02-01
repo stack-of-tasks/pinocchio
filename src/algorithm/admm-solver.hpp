@@ -104,7 +104,7 @@ namespace pinocchio
                                   Scalar rho_power = Scalar(0.2),
                                   Scalar rho_power_factor = Scalar(0.05),
                                   Scalar ratio_primal_dual = Scalar(10),
-                                  int max_it_largest_eigen_value_solver = 10)
+                                  int max_it_largest_eigen_value_solver = 20)
     : Base(problem_dim)
     , is_initialized(false)
     , mu_prox(mu_prox)
