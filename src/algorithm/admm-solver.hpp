@@ -55,35 +55,46 @@ namespace pinocchio
 //      boost::optional<VectorXs> L_vector;
 //    };
 //
-//    struct SolverStats
-//    {
-//      explicit SolverStats(const int max_it)
-//      : it(0)
-//      , cholesky_update_count(0)
-//      , stats(false)
-//      {
-//        primal_feasibility_history.reserve(size_t(max_it));
-//        dual_feasibility_history.reserve(size_t(max_it));
-//        complementarity_history.reserve(size_t(max_it));
-//      }
-//
-//      /// \brief Number of total iterations.
-//      int it;
-//
-//      /// \brief Number of Cholesky updates.
-//      int cholesky_update_count;
-//
-//      /// \brief History of primal feasibility values.
-//      std::vector<Scalar> primal_feasibility_history;
-//
-//      /// \brief History of dual feasibility values.
-//      std::vector<Scalar> dual_feasibility_history;
-//
-//      /// \brief History of complementarity values.
-//      std::vector<Scalar> complementarity_history;
-//
-////      bool save_stats;
-//    };
+    struct SolverStats
+    {
+      explicit SolverStats(const int max_it)
+      : it(0)
+      , cholesky_update_count(0)
+      {
+        primal_feasibility.reserve(size_t(max_it));
+        dual_feasibility.reserve(size_t(max_it));
+        complementarity.reserve(size_t(max_it));
+      }
+
+      void reset()
+      {
+        primal_feasibility.clear();
+        dual_feasibility.clear();
+        complementarity.clear();
+        it = 0;
+        cholesky_update_count = 0;
+      }
+
+      size_t size() const
+      {
+        return primal_feasibility.size();
+      }
+
+      /// \brief Number of total iterations.
+      int it;
+
+      /// \brief Number of Cholesky updates.
+      int cholesky_update_count;
+
+      /// \brief History of primal feasibility values.
+      std::vector<Scalar> primal_feasibility;
+
+      /// \brief History of dual feasibility values.
+      std::vector<Scalar> dual_feasibility;
+
+      /// \brief History of complementarity values.
+      std::vector<Scalar> complementarity;
+    };
 //
 //    struct SolverResults
 //    {
@@ -124,6 +135,7 @@ namespace pinocchio
     , rhs(problem_dim)
     , primal_feasibility_vector(VectorXs::Zero(problem_dim))
     , dual_feasibility_vector(VectorXs::Zero(problem_dim))
+    , stats(Base::max_it)
     {
       power_iteration_algo.max_it = max_it_largest_eigen_value_solver;
     }
@@ -199,7 +211,8 @@ namespace pinocchio
                const Eigen::MatrixBase<VectorLikeR> & R,
                const boost::optional<ConstRefVectorXs> primal_guess = boost::none,
                const boost::optional<ConstRefVectorXs> dual_guess = boost::none,
-               bool compute_largest_eigen_values = true);
+               bool compute_largest_eigen_values = true,
+               bool stat_record = false);
 
     ///
     /// \brief Solve the constrained conic problem composed of problem data (G,g,cones) and starting from the initial guess.
@@ -250,6 +263,11 @@ namespace pinocchio
       return power_iteration_algo;
     }
 
+    SolverStats & getStats()
+    {
+      return stats;
+    }
+
   protected:
 
     bool is_initialized;
@@ -287,6 +305,9 @@ namespace pinocchio
     VectorXs rhs, primal_feasibility_vector, dual_feasibility_vector;
 
     int cholesky_update_count;
+
+    /// \brief Stats of the solver
+    SolverStats stats;
 
   }; // struct ADMMContactSolverTpl
 }

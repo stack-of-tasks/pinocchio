@@ -23,7 +23,8 @@ namespace pinocchio
                                             const Eigen::MatrixBase<VectorLikeR> & R,
                                             const boost::optional<ConstRefVectorXs> primal_guess,
                                             const boost::optional<ConstRefVectorXs> dual_guess,
-                                            bool compute_largest_eigen_values)
+                                            bool compute_largest_eigen_values,
+                                            bool stat_record)
 
   {
     using namespace internal;
@@ -47,6 +48,12 @@ namespace pinocchio
     const Scalar cond = L / m;
     const Scalar rho_increment = std::pow(cond,rho_power_factor);
 
+    Scalar
+    complementarity,
+    proximal_metric, // proximal metric between two successive iterates.
+    primal_feasibility,
+    dual_feasibility;
+
 //    std::cout << std::setprecision(12);
 
     Scalar rho;
@@ -60,7 +67,7 @@ namespace pinocchio
 //      rho = this->rho;
 //    }
 //    rho = computeRho(L,m,rho_power);
-    is_initialized = true;
+
 
 //    std::cout << "L: " << L << std::endl;
 //    std::cout << "m: " << m << std::endl;
@@ -108,11 +115,19 @@ namespace pinocchio
 //    std::cout << "y_: " << y_.transpose() << std::endl;
 //    std::cout << "z_: " << z_.transpose() << std::endl;
 
-    Scalar
-    complementarity,
-    proximal_metric, // proximal metric between two successive iterates.
-    primal_feasibility,
-    dual_feasibility;
+    if(stat_record)
+    {
+      stats.reset();
+
+      // Compute initial problem primal and dual feasibility
+      primal_feasibility_vector = x_ - y_;
+      primal_feasibility = primal_feasibility_vector.template lpNorm<Eigen::Infinity>();
+    }
+
+    is_initialized = true;
+    
+    // End of Initialization phase
+
     bool abs_prec_reached = false, rel_prec_reached = false;
 
     Scalar y_previous_norm_inf = y_.template lpNorm<Eigen::Infinity>();
@@ -178,6 +193,13 @@ namespace pinocchio
       complementarity = computeConicComplementarity(cones,z_,y_);
 //      complementarity = z_.dot(y_)/cones.size();
 
+      if(stat_record)
+      {
+        stats.primal_feasibility.push_back(primal_feasibility);
+        stats.dual_feasibility.push_back(dual_feasibility);
+        stats.complementarity.push_back(complementarity);
+      }
+
 //      std::cout << "primal_feasibility: " << primal_feasibility << std::endl;
 //      std::cout << "dual_feasibility: " << dual_feasibility << std::endl;
 //      std::cout << "complementarity: " << complementarity << std::endl;
@@ -239,6 +261,12 @@ namespace pinocchio
     // Save values
 //    this->rho_power = computeRhoPower(L,m,rho);
     this->rho = rho;
+
+    if(stat_record)
+    {
+      stats.it = it;
+      stats.cholesky_update_count = cholesky_update_count;
+    }
 
 //    if(abs_prec_reached || rel_prec_reached)
     if(abs_prec_reached)
