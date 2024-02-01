@@ -245,6 +245,11 @@ namespace pinocchio
       return rho_power;
     }
 
+    PowerIterationAlgo & getPowerIterationAlgo()
+    {
+      return power_iteration_algo;
+    }
+
   protected:
 
     bool is_initialized;
