@@ -235,14 +235,16 @@ namespace pinocchio
       bool update_delassus_factorization = false;
       if(primal_feasibility > ratio_primal_dual * dual_feasibility)
       {
-        rho *= math::pow(cond,rho_power_factor);
-        rho_power += rho_power_factor;
+        rho *= rho_increment;
+//        rho *= math::pow(cond,rho_power_factor);
+//        rho_power += rho_power_factor;
         update_delassus_factorization = true;
       }
       else if(dual_feasibility > ratio_primal_dual * primal_feasibility)
       {
-        rho *= math::pow(cond,-rho_power_factor);
-        rho_power -= rho_power_factor;
+        rho /= rho_increment;
+//        rho *= math::pow(cond,-rho_power_factor);
+//        rho_power -= rho_power_factor;
         update_delassus_factorization = true;
       }
 
@@ -268,7 +270,7 @@ namespace pinocchio
 //    y_sol.const_cast_derived() = y_;
 
     // Save values
-//    this->rho_power = computeRhoPower(L,m,rho);
+    this->rho_power = computeRhoPower(L,m,rho);
     this->rho = rho;
 
     if(stat_record)
