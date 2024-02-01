@@ -14,6 +14,7 @@
 #include "pinocchio/bindings/python/serialization/serialization.hpp"
 
 #include <eigenpy/eigenpy.hpp>
+#include <eigenpy/optional.hpp>
 
 namespace bp = boost::python;
 using namespace pinocchio::python;
@@ -35,7 +36,11 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   
   exposeEigenTypes();
   exposeSpecificTypeFeatures();
-  
+
+  eigenpy::OptionalConverter<context::VectorXs, boost::optional>::registration();
+  eigenpy::OptionalConverter<Eigen::Ref<context::VectorXs>, boost::optional>::registration();
+  eigenpy::OptionalConverter<const Eigen::Ref<const context::VectorXs>, boost::optional>::registration();
+
 #if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
   eigenpy::StdContainerFromPythonList< std::vector<std::string> >::register_converter();
 #endif
