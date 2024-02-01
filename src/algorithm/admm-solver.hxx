@@ -16,12 +16,13 @@ namespace pinocchio
 {
 
   template<typename _Scalar>
-  template<typename DelassusDerived, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut, typename VectorLikeR>
+  template<typename DelassusDerived, typename VectorLike, typename ConstraintAllocator, typename VectorLikeR>
   bool ADMMContactSolverTpl<_Scalar>::solve(DelassusOperatorBase<DelassusDerived> & _delassus,
                                             const Eigen::MatrixBase<VectorLike> & g,
                                             const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
-                                            const Eigen::DenseBase<VectorLikeOut> & y_sol,
                                             const Eigen::MatrixBase<VectorLikeR> & R,
+                                            const boost::optional<ConstRefVectorXs> primal_guess,
+                                            const boost::optional<ConstRefVectorXs> dual_guess,
                                             bool compute_largest_eigen_values)
 
   {
@@ -52,14 +53,17 @@ namespace pinocchio
     {
       rho = computeRho(L,m,rho_power);
     }
-
+    else
+    {
+      rho = this->rho;
+    }
+    is_initialized = true;
 
 //    std::cout << "L: " << L << std::endl;
 //    std::cout << "m: " << m << std::endl;
 //    std::cout << "prox_value: " << prox_value << std::endl;
 
 
-    is_initialized = true;
 
     PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
 
@@ -70,13 +74,30 @@ namespace pinocchio
     cholesky_update_count = 1;
 
     // Initial update of the variables
-    x_ = y_sol;
+    // Init x
+    if(primal_guess)
+    {
+      x_ = primal_guess.get();
+    }
+    else
+    { /* Use internal guess */}
+
+    // Init y
     computeConeProjection(cones, x_, y_);
-    delassus.applyOnTheRight(y_,z_); // z = G * y
-    z_.noalias() += -prox_value * y_ + g;
-    computeComplementarityShift(cones, z_, s_);
-    z_ += s_; // Add De Saxé shift
-    computeDualConeProjection(cones, z_, z_);
+
+    // Init z
+    if(dual_guess)
+    {
+      z_ = dual_guess.get();
+    }
+    else
+    {
+      delassus.applyOnTheRight(y_,z_); // z = G * y
+      z_.noalias() += -prox_value * y_ + g;
+      computeComplementarityShift(cones, z_, s_);
+      z_ += s_; // Add De Saxé shift
+      computeDualConeProjection(cones, z_, z_);
+    }
 
 //    std::cout << "x_: " << x_.transpose() << std::endl;
 //    std::cout << "y_: " << y_.transpose() << std::endl;
@@ -206,7 +227,7 @@ namespace pinocchio
     this->absolute_residual = math::max(primal_feasibility,math::max(complementarity,dual_feasibility));
     this->relative_residual = proximal_metric;
     this->it = it;
-    y_sol.const_cast_derived() = y_;
+//    y_sol.const_cast_derived() = y_;
 
     // Save values
     this->rho_power = computeRhoPower(L,m,rho);

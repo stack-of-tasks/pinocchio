@@ -13,6 +13,8 @@
 #include "pinocchio/algorithm/contact-solver-base.hpp"
 #include "pinocchio/algorithm/delassus-operator-base.hpp"
 
+#include <boost/optional.hpp>
+
 namespace pinocchio
 {
   template<typename _Scalar>
@@ -22,6 +24,7 @@ namespace pinocchio
     typedef _Scalar Scalar;
     typedef ContactSolverBaseTpl<_Scalar> Base;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1> VectorXs;
+    typedef const Eigen::Ref<const VectorXs> ConstRefVectorXs;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> MatrixXs;
     typedef PowerIterationAlgoTpl<VectorXs> PowerIterationAlgo;
 
@@ -112,21 +115,21 @@ namespace pinocchio
     , ratio_primal_dual(ratio_primal_dual)
     , max_it_largest_eigen_value_solver(max_it_largest_eigen_value_solver)
     , power_iteration_algo(problem_dim)
-    , x_(problem_dim)
-    , y_(problem_dim)
-    , x_previous(problem_dim)
-    , y_previous(problem_dim)
-    , z_(problem_dim)
+    , x_(VectorXs::Zero(problem_dim))
+    , y_(VectorXs::Zero(problem_dim))
+    , x_previous(VectorXs::Zero(problem_dim))
+    , y_previous(VectorXs::Zero(problem_dim))
+    , z_(VectorXs::Zero(problem_dim))
     , s_(VectorXs::Zero(problem_dim))
     , rhs(problem_dim)
-    , primal_feasibility_vector(problem_dim)
-    , dual_feasibility_vector(problem_dim)
+    , primal_feasibility_vector(VectorXs::Zero(problem_dim))
+    , dual_feasibility_vector(VectorXs::Zero(problem_dim))
     {
       power_iteration_algo.max_it = max_it_largest_eigen_value_solver;
     }
 
     /// \brief Set the ADMM penalty value.
-    void setRho(const Scalar rho_power)
+    void setRho(const Scalar rho)
     {
       this->rho = rho;
     }
@@ -189,12 +192,13 @@ namespace pinocchio
     /// \param[in] tau Over relaxation value
     ///
     /// \returns True if the problem has converged.
-    template<typename DelassusDerived, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut, typename VectorLikeR>
-    bool solve(DelassusOperatorBase<DelassusDerived> & delassus, 
+    template<typename DelassusDerived, typename VectorLike, typename ConstraintAllocator, typename VectorLikeR>
+    bool solve(DelassusOperatorBase<DelassusDerived> & delassus,
                const Eigen::MatrixBase<VectorLike> & g,
                const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
-               const Eigen::DenseBase<VectorLikeOut> & x,
                const Eigen::MatrixBase<VectorLikeR> & R,
+               const boost::optional<ConstRefVectorXs> primal_guess = boost::none,
+               const boost::optional<ConstRefVectorXs> dual_guess = boost::none,
                bool compute_largest_eigen_values = true);
 
     ///
