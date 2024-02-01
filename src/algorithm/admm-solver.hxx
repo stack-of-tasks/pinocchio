@@ -116,8 +116,8 @@ namespace pinocchio
     bool abs_prec_reached = false, rel_prec_reached = false;
 
     Scalar y_previous_norm_inf = y_.template lpNorm<Eigen::Infinity>();
-    int it = 0;
-    for(; it < Base::max_it; ++it)
+    int it = 1;
+    for(; it <= Base::max_it; ++it)
     {
 //      std::cout << "---" << std::endl;
 //      std::cout << "it: " << it << std::endl;
