@@ -160,16 +160,20 @@ namespace pinocchio
 //      std::cout << "x_: " << x_.transpose() << std::endl;
 
       // z-update
+//      const Scalar alpha = 1.;
 //      z_ -= (tau*rho) * (x_ - y_);
 //      std::cout << "intermediate z_: " << z_.transpose() << std::endl;
 
       // y-update
+//      rhs *= alpha;
+//      rhs += (1-alpha)*y_previous;
       rhs -= z_/(tau*rho);
       computeConeProjection(cones, rhs, y_);
 //      std::cout << "y_: " << y_.transpose() << std::endl;
 
       // z-update
       z_ -= (tau*rho) * (x_ - y_);
+//      z_ -= (tau*rho) * (x_ * alpha + (1-alpha)*y_previous - y_);
 //      std::cout << "z_: " << z_.transpose() << std::endl;
 //      computeDualConeProjection(cones, z_, z_);
 
