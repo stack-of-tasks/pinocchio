@@ -72,7 +72,7 @@ template<typename _Scalar, int _Options>
 struct traits<DelassusOperatorSparseTpl<_Scalar,_Options> >
 {
   typedef _Scalar Scalar;
-  enum { Options = _Options };
+  enum { Options = _Options, RowsAtCompileTime = Eigen::Dynamic  };
 
   typedef Eigen::SparseMatrix<Scalar,Options> Matrix;
   typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> Vector;
@@ -85,7 +85,10 @@ struct DelassusOperatorSparseTpl
 {
   typedef _Scalar Scalar;
   typedef DelassusOperatorSparseTpl Self;
-  enum { Options = _Options };
+  enum {
+    Options = _Options,
+    RowsAtCompileTime = traits<DelassusOperatorSparseTpl>::RowsAtCompileTime
+  };
 
   typedef typename traits<Self>::Matrix Matrix;
   typedef typename traits<Self>::Vector Vector;

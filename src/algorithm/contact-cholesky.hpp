@@ -446,6 +446,7 @@ namespace pinocchio
     template<typename ContactCholeskyDecomposition>
     struct traits<DelassusCholeskyExpressionTpl<ContactCholeskyDecomposition> >
     {
+      enum { RowsAtCompileTime = Eigen::Dynamic };
       typedef typename ContactCholeskyDecomposition::Scalar Scalar;
       typedef typename ContactCholeskyDecomposition::Matrix Matrix;
     };
@@ -461,6 +462,8 @@ namespace pinocchio
 
       typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::Type RowMatrixBlockXpr;
       typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType RowMatrixConstBlockXpr;
+
+      enum { RowsAtCompileTime = traits<DelassusCholeskyExpressionTpl>::RowsAtCompileTime };
 
       explicit DelassusCholeskyExpressionTpl(const ContactCholeskyDecomposition & self)
       : self(self)
