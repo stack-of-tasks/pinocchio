@@ -21,6 +21,7 @@ namespace python
   namespace bp = boost::python;
 
   typedef ADMMContactSolverTpl<context::Scalar> Solver;
+  typedef context::Scalar Scalar;
   typedef ContactCholeskyDecompositionTpl<context::Scalar,context::Options> ContactCholeskyDecomposition;
 
 #ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
@@ -31,11 +32,19 @@ namespace python
                             const context::VectorXs & g,
                             const context::CoulombFrictionConeVector & cones,
                             Eigen::Ref<context::VectorXs> x,
-                            const context::Scalar mu_prox,
-                            const context::VectorXs & R,
-                            const context::Scalar tau = context::Scalar(0.99))
+                            const context::VectorXs & R)
   {
-    return solver.solve(delassus,g,cones,x,mu_prox,R,tau);
+    return solver.solve(delassus,g,cones,x,R);
+  }
+
+  template<typename DelassusDerived>
+  static bool solve_wrapper2(Solver & solver,
+                             DelassusDerived & delassus,
+                             const context::VectorXs & g,
+                             const context::CoulombFrictionConeVector & cones,
+                             Eigen::Ref<context::VectorXs> x)
+  {
+    return solver.solve(delassus,g,cones,x);
   }
 #endif
 
@@ -44,23 +53,51 @@ namespace python
 #ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
     bp::class_<Solver>("ADMMContactSolver",
                        "Alternating Direction Method of Multi-pliers solver for contact dynamics.",
-                       bp::init<int>(bp::args("self","problem_dim"),"Default constructor."))
+                       bp::init<int, Scalar, Scalar, Scalar, Scalar, Scalar, int>((bp::arg("self"),
+                                                                                   bp::arg("problem_dim"),
+                                                                                   bp::arg("mu_prox") = Scalar(1e-6),
+                                                                                   bp::arg("tau") = Scalar(0.5),
+                                                                                   bp::arg("rho_power") = Scalar(0.2),
+                                                                                   bp::arg("rho_power_factor") = Scalar(0.05),
+                                                                                   bp::arg("ratio_primal_dual") = Scalar(10),
+                                                                                   bp::arg("max_it_largest_eigen_value_solver") = 10),
+                                                                     "Default constructor."))
     .def(ContactSolverBasePythonVisitor<Solver>())
 
     .def("solve",solve_wrapper<ContactCholeskyDecomposition::DelassusCholeskyExpression>,
-         (bp::args("self","delassus","g","cones","x","mu_prox","R"),(bp::arg("tau") = context::Scalar(0.99))),
+         (bp::args("self","delassus","g","cones","x","R")),
          "Solve the constrained conic problem, starting from the initial guess.")
     .def("solve",solve_wrapper<context::DelassusOperatorDense>,
-         (bp::args("self","delassus","g","cones","x","mu_prox","R"),(bp::arg("tau") = context::Scalar(0.99))),
+         (bp::args("self","delassus","g","cones","x","R")),
          "Solve the constrained conic problem, starting from the initial guess.")
     .def("solve",solve_wrapper<context::DelassusOperatorSparse>,
-         (bp::args("self","delassus","g","cones","x","mu_prox","R"),(bp::arg("tau") = context::Scalar(0.99))),
+         (bp::args("self","delassus","g","cones","x","R")),
          "Solve the constrained conic problem, starting from the initial guess.")
+
+    .def("setRho",&Solver::setRho,bp::args("self","rho"),
+         "Set the ADMM penalty value.")
+    .def("getRho",&Solver::getRho,bp::arg("self"),
+         "Get the ADMM penalty value.")
 
     .def("setRhoPower",&Solver::setRhoPower,bp::args("self","rho_power"),
          "Set the power associated to the problem conditionning.")
     .def("getRhoPower",&Solver::getRhoPower,bp::arg("self"),
          "Get the power associated to the problem conditionning.")
+
+    .def("setRhoPowerFactor",&Solver::setRhoPowerFactor,bp::args("self","rho_power_factor"),
+         "Set the power factor associated to the problem conditionning.")
+    .def("getRhoPowerFactor",&Solver::getRhoPowerFactor,bp::arg("self"),
+         "Get the power factor associated to the problem conditionning.")
+
+    .def("setTau",&Solver::setTau,bp::args("self","tau"),
+         "Set the tau linear scaling factor.")
+    .def("getTau",&Solver::getTau,bp::arg("self"),
+         "Get the tau linear scaling factor.")
+
+    .def("setProximalValue",&Solver::setProximalValue,bp::args("self","mu"),
+         "Set the proximal value.")
+    .def("getProximalValue",&Solver::getProximalValue,bp::arg("self"),
+         "Get the proximal value.")
 
     .def("setRatioPrimalDual",&Solver::setRatioPrimalDual,bp::args("self","ratio_primal_dual"),
          "Set the primal/dual ratio.")
@@ -75,6 +112,13 @@ namespace python
 
     .def("getCholeskyUpdateCount",&Solver::getCholeskyUpdateCount,bp::arg("self"),
          "Returns the number of updates of the Cholesky factorization due to rho updates.")
+
+    .def("computeRho",&Solver::computeRho,bp::args("L","m","rho_power"),
+         "Compute the penalty ADMM value from the current largest and lowest Eigen values and the scaling spectral factor.")
+    .staticmethod("computeRho")
+    .def("computeRhoPower",&Solver::computeRhoPower,bp::args("L","m","rho"),
+         "Compute the  scaling spectral factor of the ADMM penalty term from the current largest and lowest Eigen values and the ADMM penalty term.")
+    .staticmethod("computeRhoPower")
     ;
 #endif
   }
