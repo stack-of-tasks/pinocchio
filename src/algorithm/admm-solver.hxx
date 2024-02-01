@@ -81,7 +81,9 @@ namespace pinocchio
       x_ = primal_guess.get();
     }
     else
-    { /* Use internal guess */}
+    {
+      x_ = y_;
+    }
 
     // Init y
     computeConeProjection(cones, x_, y_);
