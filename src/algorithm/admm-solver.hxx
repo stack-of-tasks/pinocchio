@@ -202,6 +202,7 @@ namespace pinocchio
         stats.primal_feasibility.push_back(primal_feasibility);
         stats.dual_feasibility.push_back(dual_feasibility);
         stats.complementarity.push_back(complementarity);
+        stats.rho.push_back(rho);
       }
 
 //      std::cout << "primal_feasibility: " << primal_feasibility << std::endl;
