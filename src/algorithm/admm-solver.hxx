@@ -41,7 +41,8 @@ namespace pinocchio
 //      const Scalar L = delassus.computeLargestEigenValue(20); // Largest eigen_value estimate.
       power_iteration_algo.run(delassus);
     }
-    const Scalar L = power_iteration_algo.largest_eigen_value;
+//    const Scalar L = power_iteration_algo.largest_eigen_value;
+    const Scalar L = delassus.computeLargestEigenValue(20);
     const Scalar m = mu_prox + mu_R;
     const Scalar cond = L / m;
     const Scalar rho_increment = std::pow(cond,rho_power_factor);
@@ -49,15 +50,16 @@ namespace pinocchio
 //    std::cout << std::setprecision(12);
 
     Scalar rho;
-    if(!is_initialized)
-    {
-      rho = computeRho(L,m,rho_power);
-    }
-    else
-    {
-      rho = this->rho;
-      rho = computeRho(L,m,rho_power);
-    }
+    rho = computeRho(L,m,rho_power);
+//    if(!is_initialized)
+//    {
+//      rho = computeRho(L,m,rho_power);
+//    }
+//    else
+//    {
+//      rho = this->rho;
+//    }
+//    rho = computeRho(L,m,rho_power);
     is_initialized = true;
 
 //    std::cout << "L: " << L << std::endl;
@@ -202,12 +204,14 @@ namespace pinocchio
       bool update_delassus_factorization = false;
       if(primal_feasibility > ratio_primal_dual * dual_feasibility)
       {
-        rho *= rho_increment;
+        rho *= math::pow(cond,rho_power_factor);
+        rho_power += rho_power_factor;
         update_delassus_factorization = true;
       }
       else if(dual_feasibility > ratio_primal_dual * primal_feasibility)
       {
-        rho /= rho_increment;
+        rho *= math::pow(cond,-rho_power_factor);
+        rho_power -= rho_power_factor;
         update_delassus_factorization = true;
       }
 
@@ -233,7 +237,7 @@ namespace pinocchio
 //    y_sol.const_cast_derived() = y_;
 
     // Save values
-    this->rho_power = computeRhoPower(L,m,rho);
+//    this->rho_power = computeRhoPower(L,m,rho);
     this->rho = rho;
 
 //    if(abs_prec_reached || rel_prec_reached)
