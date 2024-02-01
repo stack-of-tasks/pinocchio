@@ -56,6 +56,7 @@ namespace pinocchio
     else
     {
       rho = this->rho;
+      rho = computeRho(L,m,rho_power);
     }
     is_initialized = true;
 
