@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 INRIA
+// Copyright (c) 2022-2024 INRIA
 //
 
 #ifndef __pinocchio_math_eigenvalues_hpp__
@@ -11,6 +11,71 @@
 namespace pinocchio
 {
 
+  /// \brief Compute the largest eigen values and the associated principle eigen vector via power iteration
+  template<typename _Vector>
+  struct PowerIterationAlgoTpl
+  {
+    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(_Vector) Vector;
+    typedef typename Vector::Scalar Scalar;
+
+    explicit PowerIterationAlgoTpl(const Eigen::DenseIndex size,
+                                   const int max_it = 10,
+                                   const Scalar rel_tol = 1e-8)
+    : principal_eigen_vector(size)
+    , max_it(max_it)
+    , rel_tol(rel_tol)
+    , principal_eigen_vector_prev(size)
+    {
+      reset();
+    }
+
+    template<typename MatrixLike>
+    void run(const MatrixLike & mat)
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(max_it >= 1);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(rel_tol > Scalar(0));
+      Scalar eigenvalue_est = principal_eigen_vector.norm();
+
+      for(int it = 0; it < max_it; ++it)
+      {
+        const Scalar eigenvalue_est_prev = eigenvalue_est;
+        principal_eigen_vector /= eigenvalue_est;
+        principal_eigen_vector_prev = principal_eigen_vector;
+        principal_eigen_vector.noalias() = mat * principal_eigen_vector_prev;
+
+        eigenvalue_est = principal_eigen_vector.norm();
+
+        if (check_expression_if_real<Scalar, false>(math::fabs(eigenvalue_est_prev - eigenvalue_est) <= rel_tol))
+          break;
+      }
+
+      largest_eigen_value = eigenvalue_est;
+    }
+
+    template<typename MatrixLike, typename VectorLike>
+    void run(const MatrixLike & mat,
+             const Eigen::PlainObjectBase<VectorLike> & eigenvector_est)
+    {
+      principal_eigen_vector = eigenvector_est;
+      run(mat);
+    }
+
+    void reset()
+    {
+      principal_eigen_vector.fill(Scalar(1)/math::sqrt(Scalar(principal_eigen_vector.size())));
+      largest_eigen_value = std::numeric_limits<Scalar>::min();
+    }
+
+    Vector principal_eigen_vector;
+    Scalar largest_eigen_value;
+    int max_it;
+    Scalar rel_tol;
+
+  protected:
+
+    Vector principal_eigen_vector_prev;
+  }; // struct PowerIterationAlgoTpl
+
   ///
   /// \brief Compute the lagest eigenvector of a given matrix according to a given eigenvector estimate.
   ///
@@ -21,25 +86,9 @@ namespace pinocchio
                             const int max_it = 10,
                             const typename MatrixLike::Scalar rel_tol = 1e-8)
   {
-    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(VectorLike) VectorPlain;
-    typedef typename MatrixLike::Scalar Scalar;
-
-    VectorLike & eigenvector_est = _eigenvector_est.const_cast_derived();
-    VectorPlain eigenvector_prev(eigenvector_est); // to avoid memory allocation
-    Scalar eigenvalue_est = eigenvector_est.norm();
-
-    for(int it = 0; it < max_it; ++it)
-    {
-      const Scalar eigenvalue_est_prev = eigenvalue_est;
-      eigenvector_est /= eigenvalue_est;
-      eigenvector_prev = eigenvector_est;
-      eigenvector_est.noalias() = mat * eigenvector_prev;
-
-      eigenvalue_est = eigenvector_est.norm();
-
-      if (check_expression_if_real<Scalar, false>(math::fabs(eigenvalue_est_prev - eigenvalue_est) <= rel_tol))
-        break;
-    }
+    PowerIterationAlgoTpl<VectorLike> algo(mat.rows(),max_it,rel_tol);
+    algo.run(mat,_eigenvector_est.derived());
+    _eigenvector_est.const_cast_derived() = algo.principal_eigen_vector;
   }
 
   ///
@@ -52,13 +101,9 @@ namespace pinocchio
                             const typename MatrixLike::Scalar rel_tol = 1e-8)
   {
     typedef Eigen::Matrix<typename MatrixLike::Scalar, MatrixLike::RowsAtCompileTime, 1> Vector;
-    typedef typename MatrixLike::Scalar Scalar;
-    const Scalar constant_value = Scalar(1)/math::sqrt(Scalar(mat.rows()));
-    Vector eigenvector_est(Vector::Constant(mat.rows(),constant_value));
-
-    computeLargestEigenvector(mat, eigenvector_est, max_it, rel_tol);
-
-    return eigenvector_est;
+    PowerIterationAlgoTpl<Vector> algo(mat.rows(),max_it,rel_tol);
+    algo.run(mat);
+    return algo.principal_eigen_vector;
   }
 
   ///
