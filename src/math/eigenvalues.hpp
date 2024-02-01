@@ -23,6 +23,7 @@ namespace pinocchio
                                    const Scalar rel_tol = 1e-8)
     : principal_eigen_vector(size)
     , max_it(max_it)
+    , it(0)
     , rel_tol(rel_tol)
     , principal_eigen_vector_prev(size)
     {
@@ -36,7 +37,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_INPUT_ARGUMENT(rel_tol > Scalar(0));
       Scalar eigenvalue_est = principal_eigen_vector.norm();
 
-      for(int it = 0; it < max_it; ++it)
+      for(it = 0; it < max_it; ++it)
       {
         const Scalar eigenvalue_est_prev = eigenvalue_est;
         principal_eigen_vector /= eigenvalue_est;
@@ -70,6 +71,7 @@ namespace pinocchio
     Vector principal_eigen_vector;
     Scalar largest_eigen_value;
     int max_it;
+    int it;
     Scalar rel_tol;
     Scalar convergence_criteria;
 
