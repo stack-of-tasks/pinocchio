@@ -142,8 +142,9 @@ namespace pinocchio
 //      std::cout << "it: " << it << std::endl;
 //      std::cout << "tau*rho: " << tau*rho << std::endl;
 
-      y_previous = y_;
       x_previous = x_;
+      y_previous = y_;
+      z_previous = z_;
       complementarity = Scalar(0);
 
       // s-update

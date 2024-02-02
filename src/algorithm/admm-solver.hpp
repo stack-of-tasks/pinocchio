@@ -135,6 +135,7 @@ namespace pinocchio
     , y_(VectorXs::Zero(problem_dim))
     , x_previous(VectorXs::Zero(problem_dim))
     , y_previous(VectorXs::Zero(problem_dim))
+    , z_previous(VectorXs::Zero(problem_dim))
     , z_(VectorXs::Zero(problem_dim))
     , s_(VectorXs::Zero(problem_dim))
     , rhs(problem_dim)
@@ -301,7 +302,7 @@ namespace pinocchio
     /// \brief Primal variables (corresponds to the contact forces)
     VectorXs x_, y_;
     /// \brief Previous value of y.
-    VectorXs x_previous, y_previous;
+    VectorXs x_previous, y_previous, z_previous;
     /// \brief Dual varible of the ADMM (corresponds to the contact velocity or acceleration).
     VectorXs z_;
     /// \brief De Saxé shift
