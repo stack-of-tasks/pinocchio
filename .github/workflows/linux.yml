@@ -33,7 +33,10 @@ jobs:
         os: [ubuntu-22.04,ubuntu-20.04]
 
     env:
-      CCACHE_DIR: /github/home/.ccache
+      CCACHE_BASEDIR: "${GITHUB_WORKSPACE}"
+      CCACHE_DIR: "${GITHUB_WORKSPACE}/.ccache"
+      CCACHE_COMPRESS: true
+      CCACHE_COMPRESSLEVEL: 6
 
     steps:
     - uses: actions/checkout@v4
@@ -44,9 +47,9 @@ jobs:
     - name: Setup ccache
       uses: actions/cache@v4
       with:
-        key: ${{ matrix.os }}
-        path: ${{ env.CCACHE_DIR }}
-        max-size: 5G
+        path: .ccache
+        key: ccache-linux-${{ matrix.os }}-${{ github.sha }}
+        restore-keys: ccache-linux-${{ matrix.os }}-
 
     # extract branch name
     - name: Get branch name (merge)
@@ -90,8 +93,11 @@ jobs:
         cd casadi
         mkdir build && cd build
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_EXAMPLES=OFF
-        sudo make install
+        cmake .. \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DWITH_EXAMPLES=OFF
+        sudo make -j2 install
         cd ../..
         rm -rf casadi
         cd ..
@@ -102,14 +108,21 @@ jobs:
         export PYTHON3_DOT_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
         export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python$PYTHON3_DOT_VERSION/site-packages
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
-        export MAKEFLAGS="-j1"
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
 
         mkdir build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=ON -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON -DINSTALL_DOCUMENTATION=ON
-        make
-        make build_tests
+        cmake .. \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DBUILD_WITH_COLLISION_SUPPORT=ON \
+          -DBUILD_ADVANCED_TESTING=ON \
+          -DBUILD_WITH_CASADI_SUPPORT=ON \
+          -DPYTHON_EXECUTABLE=$(which python3) \
+          -DBUILD_WITH_OPENMP_SUPPORT=ON \
+          -DINSTALL_DOCUMENTATION=ON
+        make -j2
+        make -j2 build_tests
         export CTEST_OUTPUT_ON_FAILURE=1
         make test
         sudo make install
@@ -123,15 +136,19 @@ jobs:
         mkdir build
         cd build
         export CMAKE_PREFIX_PATH=/usr/local
-        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
-        make
+        cmake .. \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DPYTHON_EXECUTABLE=$(which python3)
+        make -j2
         ./run_rnea
         ./load_urdf
         cd ../../pkgconfig
         mkdir build
         cd build
-        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
-        make
+        cmake .. \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DPYTHON_EXECUTABLE=$(which python3)
+        make -j2
         ./run_rnea
         cd ../../external
         export PINOCCHIO_GIT_REPOSITORY="file://"$GITHUB_WORKSPACE
@@ -140,15 +157,19 @@ jobs:
         git tag $PINOCCHIO_GIT_TAG
         mkdir build
         cd build
-        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
-        make
+        cmake .. \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DPYTHON_EXECUTABLE=$(which python3)
+        make -j2
         ./run_rnea
         ./load_urdf
         cd ../../pinocchio_header
         mkdir build
         cd build
-        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
-        make
+        cmake .. \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DPYTHON_EXECUTABLE=$(which python3)
+        make -j2
         ./run_fk
 
 
