@@ -10,6 +10,7 @@ on:
       - 'CITATION.*'
       - 'COPYING.LESSER'
       - 'colcon.pkg'
+      - '.pre-commit-config.yaml'
   pull_request:
     paths-ignore:
       - 'doc/**'
@@ -19,6 +20,7 @@ on:
       - 'CITATION.*'
       - 'COPYING.LESSER'
       - 'colcon.pkg'
+      - '.pre-commit-config.yaml'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
