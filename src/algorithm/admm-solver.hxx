@@ -35,7 +35,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT(tau <= Scalar(1) && tau > Scalar(0),"tau should lie in ]0,1].");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(mu_prox >= 0,"mu_prox should be positive.");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(mu_R >= Scalar(0),"R should be a positive vector.");
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(mu_R.size(),size());
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(R.size(),problem_size);
 //    PINOCCHIO_CHECK_INPUT_ARGUMENT(math::max(R.maxCoeff(),mu_prox) >= 0,"mu_prox and mu_R cannot be both equal to zero.");
 
     if(compute_largest_eigen_values)
@@ -89,7 +89,7 @@ namespace pinocchio
     if(primal_guess)
     {
       x_ = primal_guess.get();
-      PINOCCHIO_CHECK_ARGUMENT_SIZE(x_.size(),size());
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(x_.size(),problem_size);
     }
     else if(!is_initialized)
     {
@@ -107,7 +107,7 @@ namespace pinocchio
     if(dual_guess)
     {
       z_ = dual_guess.get();
-      PINOCCHIO_CHECK_ARGUMENT_SIZE(z_.size(),size());
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(z_.size(),problem_size);
     }
     else if(!is_initialized)
     {
