@@ -18,7 +18,7 @@ def create_pin_cube_model(j0='freeflyer'):
         raise ValueError("Unknown joint type")
 
     jointCube = model.addJoint(0, j0, pin.SE3.Identity(), "joint0")
-    M = pin.SE3(np.eye(3), np.matrix([0.0, 0.0, 0.0]).T)
+    M = pin.SE3.Identity()
     model.appendBodyToJoint(jointCube, pin.Inertia.FromBox(1, 0.8, 0.4, 0.2), M)
     return model
 
