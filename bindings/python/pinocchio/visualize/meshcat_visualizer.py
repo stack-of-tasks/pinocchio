@@ -496,8 +496,9 @@ class MeshcatVisualizer(BaseVisualizer):
 
         # Visuals
         self.viewerVisualGroupName = self.viewerRootNodeName + "/" + "visuals"
-        for visual in self.visual_model.geometryObjects:
-            self.loadViewerGeometryObject(visual, pin.GeometryType.VISUAL, color)
+        if self.visual_model is not None:
+            for visual in self.visual_model.geometryObjects:
+                self.loadViewerGeometryObject(visual, pin.GeometryType.VISUAL, color)
         self.displayVisuals(True)
 
         # Frames
