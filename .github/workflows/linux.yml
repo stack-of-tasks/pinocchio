@@ -1,6 +1,24 @@
 name: CI - Linux via APT
 
-on: [push,pull_request]
+on:
+  push:
+    paths-ignore:
+      - 'doc/**'
+      - '.gitlab-ci.yml'
+      - '.gitignore'
+      - '*.md'
+      - 'CITATION.*'
+      - 'COPYING.LESSER'
+      - 'colcon.xml'
+  pull_request:
+    paths-ignore:
+      - 'doc/**'
+      - '.gitlab-ci.yml'
+      - '.gitignore'
+      - '*.md'
+      - 'CITATION.*'
+      - 'COPYING.LESSER'
+      - 'colcon.xml'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

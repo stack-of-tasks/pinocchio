@@ -5,7 +5,23 @@
 name: CI - Linux via ROS
 
 # This determines when this workflow is run
-on: [push, pull_request] # on all pushes and PRs
+on:
+  push:
+    paths-ignore:
+      - 'doc/**'
+      - '.gitlab-ci.yml'
+      - '.gitignore'
+      - '*.md'
+      - 'CITATION.*'
+      - 'COPYING.LESSER'
+  pull_request:
+    paths-ignore:
+      - 'doc/**'
+      - '.gitlab-ci.yml'
+      - '.gitignore'
+      - '*.md'
+      - 'CITATION.*'
+      - 'COPYING.LESSER'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

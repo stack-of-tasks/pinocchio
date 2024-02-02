@@ -1,7 +1,23 @@
 name: CI - Windows via Conda
 on:
-  pull_request:
   push:
+    paths-ignore:
+      - 'doc/**'
+      - '.gitlab-ci.yml'
+      - '.gitignore'
+      - '*.md'
+      - 'CITATION.*'
+      - 'COPYING.LESSER'
+      - 'colcon.xml'
+  pull_request:
+    paths-ignore:
+      - 'doc/**'
+      - '.gitlab-ci.yml'
+      - '.gitignore'
+      - '*.md'
+      - 'CITATION.*'
+      - 'COPYING.LESSER'
+      - 'colcon.xml'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
