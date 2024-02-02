@@ -18,7 +18,8 @@ namespace python
   typedef PGSContactSolverTpl<context::Scalar> Solver;
 
 #ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
-  static bool solve_wrapper(Solver & solver, const context::MatrixXs & G,
+  template<typename DelassusMatrixType>
+  static bool solve_wrapper(Solver & solver, const DelassusMatrixType & G,
                             const context::VectorXs & g, const context::CoulombFrictionConeVector & cones,
                             Eigen::Ref<context::VectorXs> x,
                             const context::Scalar over_relax = 1)
@@ -35,9 +36,12 @@ namespace python
                        bp::init<int>(bp::args("self","problem_dim"),
                                      "Default constructor."))
     .def(ContactSolverBasePythonVisitor<Solver>())
-    .def("solve",solve_wrapper,(bp::args("self","G","g","cones","x"),(bp::arg("over_relax") = context::Scalar(1))),
+    .def("solve",solve_wrapper<context::MatrixXs>,(bp::args("self","G","g","cones","x"),(bp::arg("over_relax") = context::Scalar(1))),
+         "Solve the constrained conic problem composed of problem data (G,g,cones) and starting from the initial guess.")
+    .def("solve",solve_wrapper<context::SparseMatrix>,(bp::args("self","G","g","cones","x"),(bp::arg("over_relax") = context::Scalar(1))),
          "Solve the constrained conic problem composed of problem data (G,g,cones) and starting from the initial guess.")
     ;
+
 #endif
   }
 
