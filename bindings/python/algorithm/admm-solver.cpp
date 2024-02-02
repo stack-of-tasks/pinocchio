@@ -88,6 +88,14 @@ namespace python
     return internal::computeReprojectionError(cones, forces, velocities);
   }
 
+  static context::VectorXs computeComplementarityShift_wrapper(const context::CoulombFrictionConeVector & cones,
+                                                               const context::VectorXs & velocities)
+  {
+    context::VectorXs res(velocities.size());
+    internal::computeComplementarityShift(cones, velocities,res);
+    return res;
+  }
+
   void exposeADMMContactSolver()
   {
 #ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
@@ -198,6 +206,10 @@ namespace python
     bp::def("computeReprojectionError",computeReprojectionError_wrapper,
             bp::args("cones","forces","velocities"),
             "Compute the reprojection error.");
+
+    bp::def("computeComplementarityShift",computeComplementarityShift_wrapper,
+            bp::args("cones","velocities"),
+            "Compute the complementarity shift associated to the De Saxé function.");
 
     {
       bp::class_<PowerIterationAlgo>("PowerIterationAlgo","",
