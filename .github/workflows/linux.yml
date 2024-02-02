@@ -9,7 +9,7 @@ on:
       - '*.md'
       - 'CITATION.*'
       - 'COPYING.LESSER'
-      - 'colcon.xml'
+      - 'colcon.pkg'
   pull_request:
     paths-ignore:
       - 'doc/**'
@@ -18,7 +18,7 @@ on:
       - '*.md'
       - 'CITATION.*'
       - 'COPYING.LESSER'
-      - 'colcon.xml'
+      - 'colcon.pkg'
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
