@@ -38,7 +38,7 @@ jobs:
       CCACHE_BASEDIR: "${GITHUB_WORKSPACE}"
       CCACHE_DIR: "${GITHUB_WORKSPACE}/.ccache"
       CCACHE_COMPRESS: true
-      CCACHE_COMPRESSLEVEL: 6
+      CCACHE_COMPRESSLEVEL: 5
 
     steps:
     - uses: actions/checkout@v4

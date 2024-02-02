@@ -32,7 +32,7 @@ jobs:
       CCACHE_BASEDIR: "${GITHUB_WORKSPACE}"
       CCACHE_DIR: "${GITHUB_WORKSPACE}/.ccache"
       CCACHE_COMPRESS: true
-      CCACHE_COMPRESSLEVEL: 6
+      CCACHE_COMPRESSLEVEL: 5
 
     strategy:
       fail-fast: false
