@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove a lot of warnings ([#2139](https://github.com/stack-of-tasks/pinocchio/pull/2139))
 
 ### Added
-- Add example to visualize floating base velocity [#2143](https://github.com/stack-of-tasks/pinocchio/pull/2143)
+- Add `examples/floating-base-velocity-viewer.py` to visualize floating base velocity [#2143](https://github.com/stack-of-tasks/pinocchio/pull/2143)
 
 ## [2.7.0] - 2024-01-23
 
