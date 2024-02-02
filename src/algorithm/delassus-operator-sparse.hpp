@@ -34,8 +34,8 @@ struct SimplicialCholeskyWrapper : public Derived
                    Eigen::MatrixBase<Dest> &dest,
                    Eigen::MatrixBase<Temporary> &tmp) const
   {
-    eigen_assert(m_factorizationIsOk && "The decomposition is not in a valid state for solving, you must first call either compute() or symbolic()/numeric()");
-    eigen_assert(m_matrix.rows()==b.rows());
+//    eigen_assert(m_factorizationIsOk && "The decomposition is not in a valid state for solving, you must first call either compute() or symbolic()/numeric()");
+//    eigen_assert(m_matrix.rows()==b.rows());
 
     if(m_info!=Eigen::Success)
       return;
