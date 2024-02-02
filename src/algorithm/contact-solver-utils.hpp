@@ -8,6 +8,7 @@
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
 #include "pinocchio/algorithm/constraints/coulomb-friction-cone.hpp"
+#include "pinocchio/algorithm/delassus-operator-base.hpp"
 
 namespace pinocchio
 {
@@ -82,6 +83,66 @@ void computeComplementarityShift(const std::vector<CoulombFrictionConeTpl<Scalar
     index += 3;
   }
 }
+
+template<typename Scalar, typename ConstraintAllocator, typename VectorLikeIn>
+Scalar computePrimalFeasibility(const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
+                                const Eigen::DenseBase<VectorLikeIn> & forces)
+{
+  typedef CoulombFrictionConeTpl<Scalar> Cone;
+  typedef typename Cone::Vector3 Vector3;
+
+  Eigen::DenseIndex index = 0;
+  Scalar norm = 0;
+  for(const auto & cone: cones)
+  {
+    const Vector3 df_projected = cone.project(forces.template segment<3>(index)) - forces.template segment<3>(index);
+    norm = math::max(norm, df_projected.norm());
+    index += 3;
+  }
+
+  return norm;
+}
+
+template<typename Scalar, typename ConstraintAllocator, typename ForceVector, typename VelocityVector>
+Scalar computeReprojectionError(const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
+                                const Eigen::DenseBase<ForceVector> & forces,
+                                const Eigen::DenseBase<VelocityVector> & velocities)
+{
+  typedef CoulombFrictionConeTpl<Scalar> Cone;
+  typedef typename Cone::Vector3 Vector3;
+
+  Eigen::DenseIndex index = 0;
+  Scalar norm = 0;
+  for(const auto & cone: cones)
+  {
+    const Vector3 df_projected = forces.template segment<3>(index) - cone.project(forces.template segment<3>(index) - velocities.template segment<3>(index));
+    norm = math::max(norm, df_projected.norm());
+    index += 3;
+  }
+
+  return norm;
+}
+
+//template<typename Scalar, typename ConstraintAllocator, typename VectorLikeIn>
+//Scalar computeDualFeasibility(DelassusOperatorBase<DelassusDerived> & delassus, 
+//                              const Eigen::MatrixBase<VectorLike> & g,
+//                              const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
+//                              const Eigen::DenseBase<VectorLikeIn> & forces)
+//{
+//  typedef CoulombFrictionConeTpl<Scalar> Cone;
+//  typedef typename Cone::Vector3 Vector3;
+//
+//  Eigen::DenseIndex index = 0;
+//  Scalar norm = 0;
+//  for(const auto & cone: cones)
+//  {
+//    const Vector3 df_projected = cone.project(forces.template segment<3>(index)) - forces.template segment<3>(index);
+//    norm = math::max(complementarity, df_projected.norm());
+//    index += 3;
+//  }
+//
+//  return norm;
+//}
 
 }  // namespace internal
 
