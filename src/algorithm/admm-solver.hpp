@@ -14,6 +14,7 @@
 #include "pinocchio/algorithm/delassus-operator-base.hpp"
 
 #include <boost/optional.hpp>
+#include <hpp/fcl/timings.h>
 
 namespace pinocchio
 {
@@ -27,6 +28,9 @@ namespace pinocchio
     typedef const Eigen::Ref<const VectorXs> ConstRefVectorXs;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> MatrixXs;
     typedef PowerIterationAlgoTpl<VectorXs> PowerIterationAlgo;
+
+    typedef hpp::fcl::CPUTimes CPUTimes;
+    typedef hpp::fcl::Timer Timer;
 
     using Base::problem_size;
 
@@ -142,6 +146,7 @@ namespace pinocchio
     , primal_feasibility_vector(VectorXs::Zero(problem_dim))
     , dual_feasibility_vector(VectorXs::Zero(problem_dim))
     , stats(Base::max_it)
+    , timer(false)
     {
       power_iteration_algo.max_it = max_it_largest_eigen_value_solver;
     }
@@ -274,6 +279,11 @@ namespace pinocchio
       return stats;
     }
 
+    CPUTimes getCPUTimes() const
+    {
+      return timer.elapsed();
+    }
+
   protected:
 
     bool is_initialized;
@@ -314,6 +324,8 @@ namespace pinocchio
 
     /// \brief Stats of the solver
     SolverStats stats;
+
+    Timer timer;
 
   }; // struct ADMMContactSolverTpl
 }
