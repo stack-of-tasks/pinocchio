@@ -106,13 +106,17 @@ namespace pinocchio
     {
       z_ = dual_guess.get();
     }
-    else
+    else if(!is_initialized)
     {
       delassus.applyOnTheRight(y_,z_); // z = G * y
       z_.noalias() += -prox_value * y_ + g;
       computeComplementarityShift(cones, z_, s_);
       z_ += s_; // Add De Saxé shift
       computeDualConeProjection(cones, z_, z_);
+    }
+    else
+    {
+      // Keep z from the previous iteration
     }
 
 //    std::cout << "x_: " << x_.transpose() << std::endl;
