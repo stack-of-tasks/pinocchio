@@ -6,6 +6,9 @@ name: CI - Linux via ROS
 
 # This determines when this workflow is run
 on: [push, pull_request] # on all pushes and PRs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   CI:
