@@ -110,7 +110,8 @@ jobs:
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
           -DCMAKE_BUILD_TYPE=Release \
           -DWITH_EXAMPLES=OFF
-        sudo make -j2 install
+        make -j2
+        sudo make install
         cd ../..
         rm -rf casadi
         cd ..
