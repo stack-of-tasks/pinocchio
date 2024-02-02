@@ -20,6 +20,7 @@ namespace pinocchio
   {
     typedef _Scalar Scalar;
     typedef DualCoulombFrictionConeTpl<Scalar> DualCone;
+    typedef Eigen::Matrix<Scalar,3,1> Vector3;
 
     /// \brief Default constructor
     ///
