@@ -53,6 +53,7 @@ namespace pinocchio
     complementarity,
     proximal_metric, // proximal metric between two successive iterates.
     primal_feasibility,
+    dual_feasibility_ncp,
     dual_feasibility;
 
 //    std::cout << std::setprecision(12);
@@ -231,8 +232,20 @@ namespace pinocchio
 
       if(stat_record)
       {
+        VectorXs tmp(rhs);
+        delassus.applyOnTheRight(y_,rhs);
+        rhs.noalias() += g - prox_value * y_;
+        computeComplementarityShift(cones, rhs, tmp);
+        rhs.noalias() += tmp;
+
+        internal::computeDualConeProjection(cones,rhs,tmp);
+        tmp -= rhs;
+
+        dual_feasibility_ncp = tmp.template lpNorm<Eigen::Infinity>();
+
         stats.primal_feasibility.push_back(primal_feasibility);
         stats.dual_feasibility.push_back(dual_feasibility);
+        stats.dual_feasibility_ncp.push_back(dual_feasibility_ncp);
         stats.complementarity.push_back(complementarity);
         stats.rho.push_back(rho);
       }

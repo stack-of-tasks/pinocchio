@@ -67,6 +67,7 @@ namespace pinocchio
       {
         primal_feasibility.reserve(size_t(max_it));
         dual_feasibility.reserve(size_t(max_it));
+        dual_feasibility_ncp.reserve(size_t(max_it));
         complementarity.reserve(size_t(max_it));
         rho.reserve(size_t(max_it));
       }
@@ -76,6 +77,7 @@ namespace pinocchio
         primal_feasibility.clear();
         dual_feasibility.clear();
         complementarity.clear();
+        dual_feasibility_ncp.clear();
         rho.clear();
         it = 0;
         cholesky_update_count = 0;
@@ -97,6 +99,7 @@ namespace pinocchio
 
       /// \brief History of dual feasibility values.
       std::vector<Scalar> dual_feasibility;
+      std::vector<Scalar> dual_feasibility_ncp;
 
       /// \brief History of complementarity values.
       std::vector<Scalar> complementarity;
