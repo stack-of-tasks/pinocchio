@@ -59,6 +59,35 @@ namespace python
   }
 #endif
 
+  static context::VectorXs computeConeProjection_wrapper(const context::CoulombFrictionConeVector & cones,
+                                                         const context::VectorXs & forces)
+  {
+    context::VectorXs res(forces.size());
+    internal::computeConeProjection(cones, forces, res);
+    return res;
+  }
+
+  static context::VectorXs computeDualConeProjection_wrapper(const context::CoulombFrictionConeVector & cones,
+                                                             const context::VectorXs & velocities)
+  {
+    context::VectorXs res(velocities.size());
+    internal::computeDualConeProjection(cones, velocities, res);
+    return res;
+  }
+
+  static context::Scalar computePrimalFeasibility_wrapper(const context::CoulombFrictionConeVector & cones,
+                                                          const context::VectorXs & forces)
+  {
+    return internal::computePrimalFeasibility(cones, forces);
+  }
+
+  static context::Scalar computeReprojectionError_wrapper(const context::CoulombFrictionConeVector & cones,
+                                                          const context::VectorXs & forces,
+                                                          const context::VectorXs & velocities)
+  {
+    return internal::computeReprojectionError(cones, forces, velocities);
+  }
+
   void exposeADMMContactSolver()
   {
 #ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
@@ -153,6 +182,22 @@ namespace python
          bp::arg("self"),
          bp::return_internal_reference<>())
     ;
+
+    bp::def("computeConeProjection",computeConeProjection_wrapper,
+            bp::args("cones","forces"),
+            "Project a vector on the cartesian product of cones.");
+
+    bp::def("computeDualConeProjection",computeDualConeProjection_wrapper,
+            bp::args("cones","velocities"),
+            "Project a vector on the cartesian product of dual cones.");
+
+    bp::def("computePrimalFeasibility",computePrimalFeasibility_wrapper,
+            bp::args("cones","forces"),
+            "Compute the primal feasibility.");
+
+    bp::def("computeReprojectionError",computeReprojectionError_wrapper,
+            bp::args("cones","forces","velocities"),
+            "Compute the reprojection error.");
 
     {
       bp::class_<PowerIterationAlgo>("PowerIterationAlgo","",
