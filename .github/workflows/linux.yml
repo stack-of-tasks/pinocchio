@@ -75,13 +75,26 @@ jobs:
       run: |
         sudo rm -rf /usr/local/share/boost/1.69.0
         export PYTHON3_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+str(sys.version_info.minor))")
-        export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils"
-        export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py"$PYTHON3_VERSION"-eigenpy python3-numpy"
-        export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-py"$PYTHON3_VERSION"-hpp-fcl"
+        export APT_DEPENDENCIES="doxygen \
+                                 ccache \
+                                 curl \
+                                 cppcheck \
+                                 libomp-dev \
+                                 libomp5 \
+                                 libboost-system-dev \
+                                 libboost-test-dev \
+                                 libboost-filesystem-dev \
+                                 libboost-program-options-dev \
+                                 libeigen3-dev \
+                                 liburdfdom-dev \
+                                 texlive-font-utils \
+                                 libboost-python-dev \
+                                 robotpkg-py${PYTHON3_VERSION}-eigenpy \
+                                 python3-numpy \
+                                 robotpkg-py${PYTHON3_VERSION}-hpp-fcl"
         echo $APT_DEPENDENCIES
         sudo apt-get update -qq
-        sudo apt-get install -qq curl cppcheck ${APT_DEPENDENCIES}
-        sudo apt install libomp-dev libomp5
+        sudo apt-get install -qq ${APT_DEPENDENCIES}
     - name: Free disk space
       run: |
         sudo apt clean
@@ -92,7 +105,6 @@ jobs:
         git clone https://github.com/casadi/casadi.git -b 3.5.0 --depth 1
         cd casadi
         mkdir build && cd build
-        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         cmake .. \
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
           -DCMAKE_BUILD_TYPE=Release \
@@ -108,7 +120,6 @@ jobs:
         export PYTHON3_DOT_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
         export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python$PYTHON3_DOT_VERSION/site-packages
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
-        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
 
         mkdir build
         cd build
