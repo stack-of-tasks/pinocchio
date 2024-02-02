@@ -12,7 +12,7 @@ namespace pinocchio
 {
   template<typename _Scalar>
   template<typename MatrixLike, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut>
-  bool PGSContactSolverTpl<_Scalar>::solve(const Eigen::MatrixBase<MatrixLike> & G, const Eigen::MatrixBase<VectorLike> & g,
+  bool PGSContactSolverTpl<_Scalar>::solve(const MatrixLike & G, const Eigen::MatrixBase<VectorLike> & g,
                                            const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
                                            const Eigen::DenseBase<VectorLikeOut> & x_sol,
                                            const Scalar over_relax)
@@ -49,7 +49,7 @@ namespace pinocchio
         const Eigen::DenseIndex row_id = 3*cone_id;
         const CoulombFrictionCone & cone = cones[cone_id];
 
-        const auto G_block = G.template block<3,3>(row_id, row_id);
+        const auto G_block = G.template block<3,3>(row_id, row_id,3,3);
         auto x_segment = x.template segment<3>(row_id);
 
         velocity.noalias() = G.template middleRows<3>(row_id) * x + g.template segment<3>(row_id);
@@ -57,14 +57,14 @@ namespace pinocchio
         // Normal update
         Scalar & fz = x_segment.coeffRef(2);
         const Scalar fz_previous = fz;
-        fz -= Scalar(over_relax/G_block(2,2)) * velocity[2];
+        fz -= Scalar(over_relax/G_block.coeff(2,2)) * velocity[2];
         fz = math::max(Scalar(0), fz);
 
         // Account for the fz updated value
-        velocity.noalias() += G_block.col(2) * (fz - fz_previous);
+        velocity += G_block.col(2) * (fz - fz_previous);
 
         // Tangential update
-        const Scalar min_D_tangent = math::min(G_block(0,0),G_block(1,1));
+        const Scalar min_D_tangent = math::min(G_block.coeff(0,0),G_block.coeff(1,1));
         auto f_tangent = x_segment.template head<2>();
         const Vector2 f_tangent_previous = f_tangent;
 

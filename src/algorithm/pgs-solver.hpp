@@ -36,7 +36,7 @@ namespace pinocchio
     ///
     /// \returns True if the problem has converged.
     template<typename MatrixLike, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut>
-    bool solve(const Eigen::MatrixBase<MatrixLike> & G, const Eigen::MatrixBase<VectorLike> & g,
+    bool solve(const MatrixLike & G, const Eigen::MatrixBase<VectorLike> & g,
                const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
                const Eigen::DenseBase<VectorLikeOut> & x,
                const Scalar over_relax = Scalar(1));
