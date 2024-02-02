@@ -38,11 +38,8 @@ def create_model(joint0_type='freeflyer'):
     geom_model = create_pin_geometry_cube_model(model)
     return model, geom_model
 
-def pin_step(model, vizer, v_index_increment, dt = 0.1, enable_gravity=True):
 
-    if not enable_gravity:
-        model.gravity.setZero()
-
+def pin_step(model, vizer, v_index_increment, dt=0.1):
     q = pin.neutral(model)
     v = np.zeros(model.nv)
     v[v_index_increment] += 1.
@@ -81,7 +78,6 @@ if __name__ == "__main__":
 
         for i in range(model.nv):
             print(f"v[{i}] += 1")
-            q_next = pin_step(model, vizer, i, dt=0.2, enable_gravity=False)
+            q_next = pin_step(model, vizer, i, dt=0.2)
             vizer.display(q_next)
             sleep(2)
-
