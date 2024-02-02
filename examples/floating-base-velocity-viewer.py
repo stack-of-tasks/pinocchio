@@ -43,9 +43,6 @@ def pin_step(model, vizer, v_index_increment, dt = 0.1, enable_gravity=True):
     if not enable_gravity:
         model.gravity.setZero()
 
-    data = model.createData()
-
-    tau = np.zeros(model.nv)
     q = pin.neutral(model)
     v = np.zeros(model.nv)
     v[v_index_increment] += 1.
@@ -55,12 +52,10 @@ def pin_step(model, vizer, v_index_increment, dt = 0.1, enable_gravity=True):
 
     sleep(1)
 
-    a = pin.aba(model, data, q, v, tau)
-    v_next = v + a * dt
-    q_next = pin.integrate(model, q, v_next * dt)
+    q_next = pin.integrate(model, q, v * dt)
 
-    print(f"{a=}, {q_next=}, {v_next=}")
-    return q_next, v_next
+    print(f"{q_next=}")
+    return q_next
 
 
 if __name__ == "__main__":
@@ -86,7 +81,7 @@ if __name__ == "__main__":
 
         for i in range(model.nv):
             print(f"v[{i}] += 1")
-            q_next, v_next = pin_step(model, vizer, i, dt=0.2, enable_gravity=False)
+            q_next = pin_step(model, vizer, i, dt=0.2, enable_gravity=False)
             vizer.display(q_next)
             sleep(2)
 
