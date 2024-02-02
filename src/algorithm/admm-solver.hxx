@@ -42,8 +42,8 @@ namespace pinocchio
 //      const Scalar L = delassus.computeLargestEigenValue(20); // Largest eigen_value estimate.
       power_iteration_algo.run(delassus);
     }
-//    const Scalar L = power_iteration_algo.largest_eigen_value;
-    const Scalar L = delassus.computeLargestEigenValue(20);
+    const Scalar L = power_iteration_algo.largest_eigen_value;
+//    const Scalar L = delassus.computeLargestEigenValue(20);
     const Scalar m = mu_prox + mu_R;
     const Scalar cond = L / m;
     const Scalar rho_increment = std::pow(cond,rho_power_factor);
@@ -140,6 +140,7 @@ namespace pinocchio
 
     Scalar y_previous_norm_inf = y_.template lpNorm<Eigen::Infinity>();
     int it = 1;
+    Scalar res;
     for(; it <= Base::max_it; ++it)
     {
 //      std::cout << "---" << std::endl;
@@ -156,12 +157,7 @@ namespace pinocchio
 
 //      std::cout << "s_: " << s_.transpose() << std::endl;
 
-      // x-update
-      rhs = -(g + s_ - (rho*tau) * y_ - mu_prox * x_ - z_);
-//      x_ = rhs;
-      delassus.solveInPlace(rhs);
-//      std::cout << "residual = " << (delassus * rhs - x_).template lpNorm<Eigen::Infinity>() << std::endl;
-      x_ = rhs;
+
 //      std::cout << "x_: " << x_.transpose() << std::endl;
 
       // z-update
@@ -169,15 +165,34 @@ namespace pinocchio
 //      z_ -= (tau*rho) * (x_ - y_);
 //      std::cout << "intermediate z_: " << z_.transpose() << std::endl;
 
+      // x-update
+      rhs = -(g + s_ - (rho*tau) * y_ - mu_prox * x_ - z_);
+      const VectorXs rhs_copy = rhs;
+//      x_ = rhs;
+      delassus.solveInPlace(rhs);
+      VectorXs tmp = delassus * rhs - rhs_copy;
+      res = math::max(res,tmp.template lpNorm<Eigen::Infinity>());
+//      std::cout << "residual = " << (delassus * rhs - x_).template lpNorm<Eigen::Infinity>() << std::endl;
+      x_ = rhs;
+
       // y-update
 //      rhs *= alpha;
 //      rhs += (1-alpha)*y_previous;
+      rhs = x_;
       rhs -= z_/(tau*rho);
       computeConeProjection(cones, rhs, y_);
 //      std::cout << "y_: " << y_.transpose() << std::endl;
 
+
+
       // z-update
       z_ -= (tau*rho) * (x_ - y_);
+//      const Scalar gamma = Scalar(it) / Scalar(it + 300);
+
+//      z_ += gamma * (z_ - z_previous).eval();
+//      x_ += gamma * (x_ - x_previous).eval();
+//      computeConeProjection(cones, y_, y_);
+
 //      z_ -= (tau*rho) * (x_ * alpha + (1-alpha)*y_previous - y_);
 //      std::cout << "z_: " << z_.transpose() << std::endl;
 //      computeDualConeProjection(cones, z_, z_);
@@ -200,6 +215,10 @@ namespace pinocchio
         dual_feasibility_vector.noalias() += mu_prox * dx;
       }
 
+//      delassus.applyOnTheRight(x_,dual_feasibility_vector);
+//      dual_feasibility_vector.noalias() += g;
+//      computeComplementarityShift(cones, z_, s_);
+//      dual_feasibility_vector.noalias() += s_ - prox_value * x_ - z_;
 
       primal_feasibility = primal_feasibility_vector.template lpNorm<Eigen::Infinity>();
       dual_feasibility = dual_feasibility_vector.template lpNorm<Eigen::Infinity>();
@@ -272,6 +291,7 @@ namespace pinocchio
     this->absolute_residual = math::max(primal_feasibility,math::max(complementarity,dual_feasibility));
     this->relative_residual = proximal_metric;
     this->it = it;
+//    std::cout << "max linalg res: " << res << std::endl;
 //    y_sol.const_cast_derived() = y_;
 
     // Save values
