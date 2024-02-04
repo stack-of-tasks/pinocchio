@@ -542,7 +542,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         {
           size_t constraint = data.constraints_on_joint[i][0];
           RigidConstraintData & cdata = contact_data[constraint];
-          data.extended_motion_propagator[i][0].template leftCols<6>(). template topRows<6>() =
+          data.extended_motion_propagator[i][0] =
              cdata.extended_motion_propagators_joint1[0];
         }
         else
