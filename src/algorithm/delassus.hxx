@@ -9,8 +9,6 @@
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/model.hpp"
 #include "pinocchio/multibody/fwd.hpp"
-#include <cassert>
-#include <cstddef>
 
 namespace pinocchio
 {

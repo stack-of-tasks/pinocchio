@@ -677,7 +677,6 @@ namespace pinocchio
     
     return joint1_id;
   }
-  
 
 } // namespace pinocchio
 
