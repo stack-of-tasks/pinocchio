@@ -212,22 +212,6 @@ namespace python
             "Compute the complementarity shift associated to the De Saxé function.");
 
     {
-      bp::class_<PowerIterationAlgo>("PowerIterationAlgo","",
-                                     bp::init<Eigen::DenseIndex, int, Scalar>((bp::arg("self"),
-                                                                               bp::arg("max_it") = 10,
-                                                                               bp::arg("rel_tol") = 1e-8),
-                                                                              "Default constructor"))
-
-      .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,principal_eigen_vector,"Principal eigen vector.")
-      .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,max_it,"Maximum number of iterations.")
-      .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,rel_tol,"Relative tolerance.")
-      .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,largest_eigen_value,"Largest eigen value.")
-      .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,it,"Number of iterations performed by the algorithm.")
-      .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,convergence_criteria,"Convergence criteria to quit the algorithm.")
-      ;
-    }
-
-    {
       bp::class_<SolverStats>("SolverStats","",
                               bp::init<int>((bp::arg("self"),
                                              bp::arg("max_it")),
@@ -242,6 +226,29 @@ namespace python
       .PINOCCHIO_ADD_PROPERTY_READONLY(SolverStats,rho,"")
       .PINOCCHIO_ADD_PROPERTY_READONLY(SolverStats,it,"Number of iterations performed by the algorithm.")
       .PINOCCHIO_ADD_PROPERTY_READONLY(SolverStats,cholesky_update_count,"Number of Cholesky updates performed by the algorithm.")
+      ;
+    }
+
+    {
+      typedef PowerIterationAlgoTpl<context::VectorXs> PowerIterationAlgo;
+      bp::class_<PowerIterationAlgo>("PowerIterationAlgo","",
+                                     bp::init<Eigen::DenseIndex,int,Scalar>((bp::arg("self"),
+                                                                             bp::arg("size"),
+                                                                             bp::arg("max_it") = 10,
+                                                                             bp::arg("rel_tol") = 1e-8),
+                                                                            "Default constructor"))
+      .def("run",&PowerIterationAlgo::run<context::MatrixXs>,bp::arg("self"),"")
+      .def("lowest",&PowerIterationAlgo::lowest<context::MatrixXs>,(bp::arg("self"),bp::arg("compute_largest") = true),"")
+      .def("reset",&PowerIterationAlgo::reset,bp::arg("self"))
+
+      .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,principal_eigen_vector,"")
+      .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,lowest_eigen_vector,"")
+      .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,max_it,"")
+      .PINOCCHIO_ADD_PROPERTY(PowerIterationAlgo,rel_tol,"")
+      .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,largest_eigen_value,"")
+      .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,lowest_eigen_value,"")
+      .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,it,"")
+      .PINOCCHIO_ADD_PROPERTY_READONLY(PowerIterationAlgo,convergence_criteria,"")
       ;
     }
 #endif
