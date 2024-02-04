@@ -21,6 +21,9 @@
 #include "pinocchio/serialization/serializable.hpp"
 
 #include <Eigen/Cholesky>
+#include <Eigen/StdVector>
+#include <Eigen/src/Core/util/Constants.h>
+#include <cstddef>
 
 namespace pinocchio
 {
@@ -66,6 +69,7 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
     
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
@@ -445,6 +449,21 @@ namespace pinocchio
     /// \brief Default constructor
     ///
     DataTpl() {}
+
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<Matrix6>) extended_motion_propagator; // Stores force propagator to the base link
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) spatial_inv_inertia; // Stores spatial inverse inertia
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_descendant;
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_ancestor; 
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) constraints_supported_dim;
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::set<size_t>) constraints_supported;
+    std::vector<size_t> joints_supporting_constraints;
+    std::vector<size_t> accumulation_joints;
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<size_t>) constraints_on_joint;
+    Matrix6 scratch_pad1;
+    Matrix6 scratch_pad2;
+    Vector6 scratch_pad_vector;
+    Vector6 scratch_pad_vector2;
+    
 
   private:
     void computeLastChild(const Model & model);
