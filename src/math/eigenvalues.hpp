@@ -11,7 +11,7 @@
 namespace pinocchio
 {
 
-  /// \brief Compute the largest eigen values and the associated principle eigen vector via power iteration
+  /// \brief Compute the largest eigenvalues and the associated principle eigenvector via power iteration
   template<typename _Vector>
   struct PowerIterationAlgoTpl
   {

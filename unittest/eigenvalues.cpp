@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test_random_matrix)
     const Eigen::EigenSolver<Eigen::MatrixXd> eigen_solver(sym_mat,true);
     BOOST_CHECK(eigen_solver.info() == Eigen::Success);
 
-    // Sort eigen values
+    // Sort eigenvalues
     Eigen::VectorXd sorted_eigen_values = eigen_solver.eigenvalues().real();
     std::sort(sorted_eigen_values.data(), sorted_eigen_values.data() + sorted_eigen_values.size());
 

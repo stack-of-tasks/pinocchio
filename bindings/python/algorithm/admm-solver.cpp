@@ -174,10 +174,10 @@ namespace python
          "Returns the number of updates of the Cholesky factorization due to rho updates.")
 
     .def("computeRho",&Solver::computeRho,bp::args("L","m","rho_power"),
-         "Compute the penalty ADMM value from the current largest and lowest Eigen values and the scaling spectral factor.")
+         "Compute the penalty ADMM value from the current largest and lowest eigenvalues and the scaling spectral factor.")
     .staticmethod("computeRho")
     .def("computeRhoPower",&Solver::computeRhoPower,bp::args("L","m","rho"),
-         "Compute the  scaling spectral factor of the ADMM penalty term from the current largest and lowest Eigen values and the ADMM penalty term.")
+         "Compute the  scaling spectral factor of the ADMM penalty term from the current largest and lowest eigenvalues and the ADMM penalty term.")
     .staticmethod("computeRhoPower")
 
     .def("getPowerIterationAlgo",
