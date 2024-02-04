@@ -34,6 +34,8 @@ namespace pinocchio
     int it = 0;
     PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
 
+    timer.start();
+
     Scalar complementarity, proximal_metric, dual_feasibility;
     bool abs_prec_reached = false, rel_prec_reached = false;
     x = x_sol;
@@ -108,6 +110,8 @@ namespace pinocchio
 
       x_previous_norm_inf = x_norm_inf;
     }
+
+    timer.stop();
 
     PINOCCHIO_EIGEN_MALLOC_ALLOWED();
 

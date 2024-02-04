@@ -45,6 +45,7 @@ namespace pinocchio
 
     /// \brief Previous temporary value of the optimum.
     VectorXs x, x_previous;
+    using Base::timer;
 
   }; // struct PGSContactSolverTpl
 }

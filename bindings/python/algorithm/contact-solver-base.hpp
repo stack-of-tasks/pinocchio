@@ -46,6 +46,10 @@ public:
            "Returns the value of the absolute residual value corresponding to the contact complementary conditions.")
       .def("getRelativeConvergenceResidual",&Solver::getRelativeConvergenceResidual,bp::arg("self"),
            "Returns the value of the relative residual value corresponding to the difference between two successive iterates (infinity norms).")
+
+      .def("getCPUTimes",
+           &Solver::getCPUTimes,
+           bp::arg("self"))
     ;
 #endif
   }

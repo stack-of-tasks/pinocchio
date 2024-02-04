@@ -189,10 +189,6 @@ namespace python
          &Solver::getStats,
          bp::arg("self"),
          bp::return_internal_reference<>())
-
-    .def("getCPUTimes",
-         &Solver::getCPUTimes,
-         bp::arg("self"))
     ;
 
     bp::def("computeConeProjection",computeConeProjection_wrapper,

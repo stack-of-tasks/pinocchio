@@ -8,6 +8,8 @@
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
 
+#include <hpp/fcl/timings.h>
+
 namespace pinocchio
 {
 
@@ -16,11 +18,15 @@ namespace pinocchio
   {
     typedef _Scalar Scalar;
 
+    typedef hpp::fcl::CPUTimes CPUTimes;
+    typedef hpp::fcl::Timer Timer;
+
     explicit ContactSolverBaseTpl(const int problem_size)
     : problem_size(problem_size)
     , max_it(1000), it(0)
     , absolute_precision(Scalar(1e-6)), relative_precision(Scalar(1e-6))
     , absolute_residual(Scalar(-1)), relative_residual(Scalar(-1))
+    , timer(false)
     {}
 
     /// \brief Returns the size of the problem
@@ -61,6 +67,11 @@ namespace pinocchio
     /// \brief Returns the value of the relative residual value corresponding to the difference between two successive iterates (infinity norms).
     Scalar getRelativeConvergenceResidual() const { return relative_residual; }
 
+    CPUTimes getCPUTimes() const
+    {
+      return timer.elapsed();
+    }
+
   protected:
 
     /// \brief Size of the problem
@@ -77,6 +88,8 @@ namespace pinocchio
     Scalar absolute_residual;
     /// \brief Relative convergence residual value
     Scalar relative_residual;
+
+    Timer timer;
 
   }; // struct ContactSolverBaseTpl
 
