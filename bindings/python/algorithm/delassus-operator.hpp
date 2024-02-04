@@ -34,9 +34,13 @@ namespace pinocchio
 
         .def("solve",&DelassusOperator::template solve<Matrix>,bp::args("self","mat"),
              "Returns the solution x of Delassus * x = mat using the current decomposition of the Delassus matrix.")
-        .def("computeLargestEigenValue",(Scalar (DelassusOperator::*)(const int, const Scalar) const)&DelassusOperator::computeLargestEigenValue,
-             (bp::arg("self"),bp::arg("max_it") = 10,bp::arg("prec") = Scalar(1e-8)),
-             "Compute the largest eigen value associated to the underlying Delassus matrix.")
+
+        .def("computeLargestEigenValue",(Scalar (DelassusOperator::*)(const bool, const int, const Scalar) const)&DelassusOperator::computeLargestEigenValue,
+             (bp::arg("self"),bp::arg("reset") = true, bp::arg("max_it") = 10,bp::arg("prec") = Scalar(1e-8)),
+             "Compute the largest eigenvalue associated to the underlying Delassus matrix.")
+        .def("computeLowestEigenValue",(Scalar (DelassusOperator::*)(const bool, const bool, const int, const Scalar) const)&DelassusOperator::computeLowestEigenValue,
+             (bp::arg("self"),bp::arg("reset") = true,bp::arg("compute_largest") = true, bp::arg("max_it") = 10,bp::arg("prec") = Scalar(1e-8)),
+             "Compute the lowest eigenvalue associated to the underlying Delassus matrix.")
 
         .def("updateDamping",
              (void (DelassusOperator::*)(const Scalar &))&DelassusOperator::updateDamping,

@@ -12,8 +12,6 @@
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/delassus-operator-base.hpp"
 
-#include "pinocchio/math/eigenvalues.hpp"
-
 namespace pinocchio
 {
   
@@ -449,16 +447,20 @@ namespace pinocchio
       enum { RowsAtCompileTime = Eigen::Dynamic };
       typedef typename ContactCholeskyDecomposition::Scalar Scalar;
       typedef typename ContactCholeskyDecomposition::Matrix Matrix;
+      typedef typename ContactCholeskyDecomposition::Vector Vector;
     };
 
     template<typename _ContactCholeskyDecomposition>
-    struct DelassusCholeskyExpressionTpl : DelassusOperatorBase<DelassusCholeskyExpressionTpl<_ContactCholeskyDecomposition> >
+    struct DelassusCholeskyExpressionTpl 
+    : DelassusOperatorBase<DelassusCholeskyExpressionTpl<_ContactCholeskyDecomposition> >
     {
       typedef _ContactCholeskyDecomposition ContactCholeskyDecomposition;
       typedef typename ContactCholeskyDecomposition::Scalar Scalar;
       typedef typename ContactCholeskyDecomposition::Vector Vector;
       typedef typename ContactCholeskyDecomposition::Matrix Matrix;
       typedef typename ContactCholeskyDecomposition::RowMatrix RowMatrix;
+      typedef DelassusCholeskyExpressionTpl<_ContactCholeskyDecomposition> Self;
+      typedef DelassusOperatorBase<Self> Base;
 
       typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::Type RowMatrixBlockXpr;
       typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType RowMatrixConstBlockXpr;
@@ -466,7 +468,8 @@ namespace pinocchio
       enum { RowsAtCompileTime = traits<DelassusCholeskyExpressionTpl>::RowsAtCompileTime };
 
       explicit DelassusCholeskyExpressionTpl(const ContactCholeskyDecomposition & self)
-      : self(self)
+      : Base(self.constraintDim())
+      , self(self)
       {}
 
       template<typename MatrixIn, typename MatrixOut>
@@ -548,25 +551,6 @@ namespace pinocchio
 
       /// \brief Returns the Constraint Cholesky decomposition associated to this DelassusCholeskyExpression.
       const ContactCholeskyDecomposition & cholesky() const { return self; }
-
-      template<typename VectorLike>
-      Scalar computeLargestEigenValue(const Eigen::PlainObjectBase<VectorLike> & eigenvector_est,
-                                      const int max_it = 10,
-                                      const Scalar rel_tol = 1e-8) const
-      {
-        PINOCCHIO_CHECK_ARGUMENT_SIZE(eigenvector_est.size(),size());
-        computeLargestEigenvector(*this,eigenvector_est.const_cast_derived(),max_it,rel_tol);
-        return retrieveLargestEigenvalue(eigenvector_est);
-      }
-
-      /// \brief Compute the largest eigen value associated to the underlying Delassus matrix
-      Scalar computeLargestEigenValue(const int max_it = 10,
-                                      const Scalar rel_tol = 1e-8) const
-      {
-        Vector eigenvector_est(Vector::Constant(size(),Scalar(1)/Scalar(math::sqrt(size()))));
-        computeLargestEigenvector(*this,eigenvector_est.const_cast_derived(),max_it,rel_tol);
-        return retrieveLargestEigenvalue(eigenvector_est);
-      }
 
       Matrix matrix() const
       {

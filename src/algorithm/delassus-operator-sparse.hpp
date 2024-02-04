@@ -8,8 +8,6 @@
 #include "pinocchio/algorithm/fwd.hpp"
 #include "pinocchio/algorithm/delassus-operator-base.hpp"
 
-#include "pinocchio/math/eigenvalues.hpp"
-
 #include <Eigen/Sparse>
 #include <Eigen/SparseCholesky>
 
@@ -88,33 +86,18 @@ struct DelassusOperatorSparseTpl
   typedef typename traits<Self>::Vector Vector;
   typedef typename traits<Self>::DenseMatrix DenseMatrix;
   typedef Eigen::SimplicialLLT<Matrix> LLTDecomposition;
+  typedef DelassusOperatorBase<Self> Base;
 
   template<typename MatrixDerived>
   explicit DelassusOperatorSparseTpl(const Eigen::SparseMatrixBase<MatrixDerived> & mat)
-  : delassus_matrix(mat)
+  : Base(mat.rows())
+  , delassus_matrix(mat)
   , delassus_matrix_plus_damping(mat)
   , llt(mat)
   , damping(Vector::Zero(mat.rows()))
   , tmp(mat.rows())
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(mat.rows(),mat.cols());
-  }
-
-  template<typename VectorLike>
-  Scalar computeLargestEigenValue(const Eigen::PlainObjectBase<VectorLike> & eigenvector_est,
-                                  const int max_it = 10,
-                                  const Scalar rel_tol = Scalar(1e-8)) const
-  {
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(eigenvector_est.size(),size());
-    computeLargestEigenvector(*this,eigenvector_est.const_cast_derived(),max_it,rel_tol);
-    return retrieveLargestEigenvalue(eigenvector_est);
-  }
-
-  Scalar computeLargestEigenValue(const int max_it = 10, const Scalar rel_tol = Scalar(1e-8)) const
-  {
-    Vector eigenvector_est(Vector::Constant(size(),Scalar(1)/Scalar(math::sqrt(size()))));
-    computeLargestEigenvector(*this,eigenvector_est.const_cast_derived(),max_it,rel_tol);
-    return retrieveLargestEigenvalue(eigenvector_est);
   }
 
   template<typename VectorLike>
