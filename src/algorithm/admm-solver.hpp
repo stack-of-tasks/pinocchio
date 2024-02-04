@@ -14,7 +14,6 @@
 #include "pinocchio/algorithm/delassus-operator-base.hpp"
 
 #include <boost/optional.hpp>
-#include <hpp/fcl/timings.h>
 
 namespace pinocchio
 {
@@ -28,9 +27,6 @@ namespace pinocchio
     typedef const Eigen::Ref<const VectorXs> ConstRefVectorXs;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> MatrixXs;
     typedef PowerIterationAlgoTpl<VectorXs> PowerIterationAlgo;
-
-    typedef hpp::fcl::CPUTimes CPUTimes;
-    typedef hpp::fcl::Timer Timer;
 
     using Base::problem_size;
 
@@ -53,9 +49,9 @@ namespace pinocchio
 //      /// \brief Proximal value
 //      Scalar mu_prox;
 //
-//      /// \brief Largest eigen value
+//      /// \brief Largest eigenvalue
 //      boost::optional<Scalar> L_value;
-//      /// \brief Largest eigen vector
+//      /// \brief Largest eigenvector
 //      boost::optional<VectorXs> L_vector;
 //    };
 //
@@ -113,9 +109,9 @@ namespace pinocchio
 //      explicit SolverResults(const int problem_dim, const int max_it)
 //      : L_vector(problem_dim)
 //
-//      /// \brief Largest eigen value
+//      /// \brief Largest eigenvalue
 //      Scalar L_value;
-//      /// \brief Largest eigen vector
+//      /// \brief Largest eigenvector
 //      VectorXs L_vector;
 //
 //      SolverStats stats;
@@ -149,7 +145,6 @@ namespace pinocchio
     , primal_feasibility_vector(VectorXs::Zero(problem_dim))
     , dual_feasibility_vector(VectorXs::Zero(problem_dim))
     , stats(Base::max_it)
-    , timer(false)
     {
       power_iteration_algo.max_it = max_it_largest_eigen_value_solver;
     }
@@ -255,7 +250,7 @@ namespace pinocchio
     /// \returns the complementarity shift
     const VectorXs & getComplementarityShift() const { return s_; }
 
-    /// \brief Compute the penalty ADMM value from the current largest and lowest Eigen values and the scaling spectral factor.
+    /// \brief Compute the penalty ADMM value from the current largest and lowest eigenvalues and the scaling spectral factor.
     static inline Scalar computeRho(const Scalar L, const Scalar m, const Scalar rho_power)
     {
       const Scalar cond = L / m;
@@ -263,7 +258,7 @@ namespace pinocchio
       return rho;
     }
 
-    /// \brief Compute the  scaling spectral factor of the ADMM penalty term from the current largest and lowest Eigen values and the ADMM penalty term.
+    /// \brief Compute the  scaling spectral factor of the ADMM penalty term from the current largest and lowest eigenvalues and the ADMM penalty term.
     static inline Scalar computeRhoPower(const Scalar L, const Scalar m, const Scalar rho)
     {
       const Scalar cond = L / m;
@@ -280,11 +275,6 @@ namespace pinocchio
     SolverStats & getStats()
     {
       return stats;
-    }
-
-    CPUTimes getCPUTimes() const
-    {
-      return timer.elapsed();
     }
 
   protected:
@@ -328,8 +318,7 @@ namespace pinocchio
     /// \brief Stats of the solver
     SolverStats stats;
 
-    Timer timer;
-
+    using Base::timer;
   }; // struct ADMMContactSolverTpl
 }
 
