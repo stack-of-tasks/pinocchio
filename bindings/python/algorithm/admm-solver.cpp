@@ -10,7 +10,7 @@
 
 #include "pinocchio/algorithm/admm-solver.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hpp"
-#include "pinocchio/algorithm/delassus-operator-plain.hpp"
+#include "pinocchio/algorithm/delassus-operator-dense.hpp"
 #include "pinocchio/algorithm/delassus-operator-sparse.hpp"
 
 #include "pinocchio/bindings/python/algorithm/contact-solver-base.hpp"
