@@ -27,7 +27,7 @@ jobs:
       # Note, this does not affect projects that do not have pure CMake projects in their upstream_ws.
       BUILDER: catkin_tools
       AFTER_RUN_TARGET_TEST: 'ici_with_unset_variables source /root/target_ws/install/setup.bash && cd /root/target_ws/build/pinocchio && make test'
-      CTEST_OUTPUT_ON_FAILURE: 1
+      IMMEDIATE_TEST_OUTPUT: 1
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -39,5 +39,5 @@ jobs:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}
       # Run industrial_ci
-      - uses: 'ros-industrial/industrial_ci@6a8f546cbd31fbd5c9f77e3409265c8b39abc3d6'
+      - uses: 'ros-industrial/industrial_ci@4b78602d67127a63dce62926769d9ec4e2ce72e4'
         env: ${{ matrix.env }}

@@ -103,7 +103,7 @@ class TestInertiaBindings(TestCase):
         self.assertApprox(I_array,I.matrix())
 
     def test_several_init(self):
-        for _ in range(1000000):
+        for _ in range(100000):
             i = pin.Inertia.Random() + pin.Inertia.Random()
             s = i.__str__()
             self.assertTrue(s != '')

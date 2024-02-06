@@ -35,9 +35,8 @@ jobs:
     - name: Install cmake and update conda
       shell: bash -l {0}
       run: |
-        conda activate pinocchio-linux
-        conda install cmake -c main
-        mamba install llvm-openmp compilers=1.4.2 -c conda-forge
+        conda activate pinocchio
+        mamba install cmake llvm-openmp compilers=1.4.2 -c conda-forge
         conda list
 
     - name: Build Pinocchio

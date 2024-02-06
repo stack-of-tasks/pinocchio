@@ -246,6 +246,7 @@ namespace pinocchio
     /// \remarks This method does not add a Frame of same name to the vector of frames.
     ///         Use Model::addJointFrame.
     /// \remarks The inertia supported by the joint is set to Zero.
+    /// \remark Joints need to be added to the tree in a depth-first order.
     ///
     /// \tparam JointModelDerived The type of the joint model.
     ///

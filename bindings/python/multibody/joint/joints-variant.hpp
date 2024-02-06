@@ -5,7 +5,10 @@
 #ifndef __pinocchio_python_joints_variant_hpp__
 #define __pinocchio_python_joints_variant_hpp__
 
-#include "pinocchio/utils/string.hpp"
+#include <boost/algorithm/string/replace.hpp>
+
+#include <boost/python.hpp>
+
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-models.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-datas.hpp"
@@ -16,6 +19,14 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+
+    template<typename T>
+    std::string sanitizedClassname()
+    {
+        std::string className = boost::replace_all_copy(T::classname(), "<", "_");
+        boost::replace_all(className, ">", "");
+        return className;
+    }
 
     template<typename VariantType>
     struct JointVariantVisitor : boost::static_visitor<PyObject *>
@@ -37,12 +48,9 @@ namespace pinocchio
       template<class T>
       void operator()(T)
       {
-        std::string classname = T::classname();
-        replace(classname,"<","_");
-        replace(classname,">","");
         expose_joint_data<T>(
-            bp::class_<T>(classname.c_str(),
-                          classname.c_str(),
+            bp::class_<T>(sanitizedClassname<T>().c_str(),
+                          sanitizedClassname<T>().c_str(),
                           bp::init<>())
             .def(JointDataBasePythonVisitor<T>())
             .def(PrintableVisitor<T>())
@@ -56,12 +64,9 @@ namespace pinocchio
       template<class T>
       void operator()(T)
       {
-        std::string classname = T::classname();
-        replace(classname,"<","_");
-        replace(classname,">","");
         expose_joint_model<T>(
-            bp::class_<T>(classname.c_str(),
-                          classname.c_str(),
+            bp::class_<T>(sanitizedClassname<T>().c_str(),
+                          sanitizedClassname<T>().c_str(),
                           bp::no_init)
             .def(JointModelBasePythonVisitor<T>())
             .def(PrintableVisitor<T>())

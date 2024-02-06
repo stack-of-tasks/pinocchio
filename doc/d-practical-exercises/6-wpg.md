@@ -27,10 +27,10 @@ verbose output of BFGS. For example, the robot can track a target moving
 vertically using the following example:
 
 ```py
-cost.Mdes = se3.SE3(eye(3), np.matrix([0.2, 0, 0.1 + t / 100.]))  # Reference target at time 0.
+cost.Mdes = se3.SE3(eye(3), np.array([0.2, 0, 0.1 + t / 100.]))  # Reference target at time 0.
 q = np.copy(robot.q0)
 for t in range(100):
-    cost.Mdes.translation = np.matrix([0.2, 0, 0.1 + t / 100.])
+    cost.Mdes.translation = np.array([0.2, 0, 0.1 + t / 100.])
     q = fmin_bfgs(cost, q, maxiter=10, disp=False)
     robot.display(q)
 ```

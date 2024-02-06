@@ -55,7 +55,7 @@ adjdual = lambda nu: np.bmat([[ skew(nu[3:]),zero([3,3])],[skew(nu[:3]),skew(nu[
 adjdual.__doc__ = "Force pre-cross product adjdual(a) = -adj(a)' "
 
 td = np.tensordot
-quad = lambda H,v: np.matrix(td(td(H,v,[2,0]),v,[1,0])).T
+quad = lambda H,v: np.array(td(td(H,v,[2,0]),v,[1,0]))
 quad.__doc__ = '''Tensor product v'*H*v, with H.shape = [ nop, nv, nv ]'''
 
 def np_prettyprint(sarg = '{: 0.5f}',eps=5e-7):

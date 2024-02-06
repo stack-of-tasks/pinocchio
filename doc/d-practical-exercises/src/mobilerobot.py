@@ -19,17 +19,17 @@ class MobileRobotWrapper(RobotWrapper):
     def __init__(self, urdf, pkgs):
         self.initFromURDF(urdf, pkgs, pin.JointModelPlanar())
         
-        M0 = pin.SE3(eye(3), np.matrix([.0, .0, .6]).T)
+        M0 = pin.SE3(eye(3), np.array([.0, .0, .6]))
         self.model.jointPlacements[2] = M0 * self.model.jointPlacements[2]
         self.visual_model.geometryObjects[0].placement = M0 * self.visual_model.geometryObjects[0].placement
         self.visual_data.oMg[0] = M0 * self.visual_data.oMg[0]
 
         # Placement of the "mobile" frame wrt basis center.
-        basisMop = pin.SE3(eye(3), np.matrix([.3, .0, .1]).T)
+        basisMop = pin.SE3(eye(3), np.array([.3, .0, .1]))
         self.model.addFrame(pin.Frame('mobile', 1, 1, basisMop, pin.FrameType.OP_FRAME))
 
         # Placement of the tool frame wrt end effector frame (located at the center of the wrist)
-        effMop = pin.SE3(eye(3), np.matrix([.0, .08, .095]).T)
+        effMop = pin.SE3(eye(3), np.maarraytrix([.0, .08, .095]))
         self.model.addFrame(pin.Frame('tool', 6, 6, effMop, pin.FrameType.OP_FRAME))
 
         # Create data again after setting frames

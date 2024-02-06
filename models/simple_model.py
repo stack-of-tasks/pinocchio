@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2022 CNRS INRIA
+# Copyright (c) 2016-2023 CNRS INRIA
 #
 
 import pinocchio as pin
@@ -11,7 +11,7 @@ DENSITY = 1
 
 def placement(x=0, y=0, z=0, rx=0, ry=0, rz=0):
     m = pin.SE3.Identity()
-    m.translation = np.matrix([[float(i)] for i in [x, y, z]])
+    m.translation = np.array([x, y, z])
     m.rotation *= rotate('x', rx)
     m.rotation *= rotate('y', ry)
     m.rotation *= rotate('z', rz)

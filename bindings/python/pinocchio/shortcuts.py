@@ -22,6 +22,10 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
         model, visual_model    = buildModelsFromUrdf(filename[, ...], geometry_types=pin.GeometryType.VISUAL)      # only load the model and the visual model
 
         model = buildModelsFromUrdf(filename[, ...], geometry_types=[])  # equivalent to buildModelFromUrdf(filename[, root_joint])
+
+    Remark:
+        Remark: In the URDF format, a joint of type fixed can be defined.
+        For efficiency reasons, it is treated as operational frame and not as a joint of the model.
     """
     if geometry_types is None:
         geometry_types = [pin.GeometryType.COLLISION,pin.GeometryType.VISUAL]
