@@ -140,13 +140,13 @@ namespace pinocchio
     inline void copy(::casadi::Matrix<Scalar> const & src,
                      Eigen::MatrixBase<MT> & dst)
     {
-      Eigen::Index const m = src.size1();
-      Eigen::Index const n = src.size2();
+      Eigen::DenseIndex const m = src.size1();
+      Eigen::DenseIndex const n = src.size2();
       
       dst.resize(m, n);
       
-      for (Eigen::Index i = 0; i < m; ++i)
-        for (Eigen::Index j = 0; j < n; ++j)
+      for (Eigen::DenseIndex i = 0; i < m; ++i)
+        for (Eigen::DenseIndex j = 0; j < n; ++j)
           dst(i, j) = src(i, j);
     }
 
@@ -188,13 +188,13 @@ namespace pinocchio
     inline void copy(Eigen::MatrixBase<MT> const & src,
                      ::casadi::Matrix<Scalar> & dst)
     {
-      Eigen::Index const m = src.rows();
-      Eigen::Index const n = src.cols();
+      Eigen::DenseIndex const m = src.rows();
+      Eigen::DenseIndex const n = src.cols();
       
       dst.resize(m, n);
       
-      for (Eigen::Index i = 0; i < m; ++i)
-        for (Eigen::Index j = 0; j < n; ++j)
+      for (Eigen::DenseIndex i = 0; i < m; ++i)
+        for (Eigen::DenseIndex j = 0; j < n; ++j)
           dst(i, j) = src(i, j);
     }
     
@@ -206,8 +206,8 @@ namespace pinocchio
       typedef typename MatrixDerived::Scalar SX;
       
       MatrixDerived & eig_mat_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixDerived,eig_mat);
-      for (Eigen::Index i = 0; i < eig_mat.rows(); ++i)
-        for (Eigen::Index j = 0; j < eig_mat.cols(); ++j)
+      for (Eigen::DenseIndex i = 0; i < eig_mat.rows(); ++i)
+        for (Eigen::DenseIndex j = 0; j < eig_mat.cols(); ++j)
           eig_mat_(i, j) = SX::sym(name + "_" + std::to_string(i) + "_" + std::to_string(j));
     }
   

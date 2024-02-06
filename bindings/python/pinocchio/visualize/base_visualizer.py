@@ -3,7 +3,14 @@ from ..shortcuts import buildModelsFromUrdf, createDatas
 
 import time
 import numpy as np
-from pathlib import Path
+import os.path as osp
+
+try:
+    import imageio
+    IMAGEIO_SUPPORT = True
+except ImportError:
+    IMAGEIO_SUPPORT = False
+
 
 class BaseVisualizer(object):
     """Pinocchio visualizers are employed to easily display a model at a given configuration.
@@ -12,7 +19,18 @@ class BaseVisualizer(object):
     """
     _video_writer = None
 
-    def __init__(self, model = pin.Model(), collision_model = None, visual_model = None, copy_models = False, data = None, collision_data = None, visual_data = None):
+    _video_writer = None
+
+    def __init__(
+        self,
+        model=pin.Model(),
+        collision_model=None,
+        visual_model=None,
+        copy_models=False,
+        data=None,
+        collision_data=None,
+        visual_data=None,
+    ):
         """Construct a display from the given model, collision model, and visual model.
         If copy_models is True, the models are copied. Otherwise, they are simply kept as a reference."""
 
@@ -43,11 +61,13 @@ class BaseVisualizer(object):
     def rebuildData(self):
         """Re-build the data objects. Needed if the models were modified.
         Warning: this will delete any information stored in all data objects."""
-        self.data, self.collision_data, self.visual_data = createDatas(self.model, self.collision_model, self.visual_model)
+        self.data, self.collision_data, self.visual_data = createDatas(
+            self.model, self.collision_model, self.visual_model
+        )
 
     def getViewerNodeName(self, geometry_object, geometry_type):
         """Return the name of the geometry object inside the viewer."""
-        pass 
+        pass
 
     def initViewer(self, *args, **kwargs):
         """Init the viewer by loading the gui and creating a window."""
@@ -57,12 +77,12 @@ class BaseVisualizer(object):
         """Create the scene displaying the robot meshes in the viewer"""
         pass
 
-    def reload(self, new_geometry_object, geometry_type = None):
-        """ Reload a geometry_object given by its type"""
+    def reload(self, new_geometry_object, geometry_type=None):
+        """Reload a geometry_object given by its type"""
         pass
 
     def clean(self):
-        """ Delete all the objects from the whole scene """
+        """Delete all the objects from the whole scene"""
         pass
 
     def display(self, q=None):
@@ -112,43 +132,70 @@ class BaseVisualizer(object):
         """Draw current frame velocities."""
         raise NotImplementedError()
 
+    def disableCameraControl(self):
+        raise NotImplementedError()
+
+    def enableCameraControl(self):
+        raise NotImplementedError()
+
+    def drawFrameVelocities(self, *args, **kwargs):
+        """Draw current frame velocities."""
+        raise NotImplementedError()
+
     def sleep(self, dt):
         time.sleep(dt)
 
-    def play(self, qs, dt=None, callback=None, **kwargs):
+    def has_video_writer(self):
+        return self._video_writer is not None
+
+    def play(self, q_trajectory, dt=None, callback=None, capture=False, **kwargs):
         """Play a trajectory with given time step. Optionally capture RGB images and returns them."""
-        nsteps = len(qs)
-        capture = self._video_writer is not None
+        nsteps = len(q_trajectory)
+        if not capture:
+            capture = self.has_video_writer()
+
+        imgs = []
         for i in range(nsteps):
             t0 = time.time()
-            self.display(qs[i])
+            self.display(q_trajectory[i])
             if callback is not None:
                 callback(i, **kwargs)
             if capture:
                 img_arr = self.captureImage()
-                self._video_writer.append_data(img_arr)
+                if not self.has_video_writer():
+                    imgs.append(img_arr)
+                else:
+                    self._video_writer.append_data(img_arr)
             t1 = time.time()
             elapsed_time = t1 - t0
             if dt is not None and elapsed_time < dt:
                 self.sleep(dt - elapsed_time)
+        if capture and not self.has_video_writer():
+            return imgs
 
-    def create_video_ctx(self, filename: str = None, fps=30, directory=None, **kwargs):
+    def create_video_ctx(self, filename=None, fps=30, directory=None, **kwargs):
         """Create a video recording context, generating the output filename if necessary.
 
         Code inspired from https://github.com/petrikvladimir/RoboMeshCat.
         """
+        if not IMAGEIO_SUPPORT:
+            import warnings, contextlib
+            warnings.warn("Video context cannot be created because imageio is not available.", UserWarning)
+            return contextlib.nullcontext()
         if filename is None:
             if directory is None:
                 from tempfile import gettempdir
+
                 directory = gettempdir()
             f_fmt = "%Y%m%d_%H%M%S"
             ext = "mp4"
-            filename = Path(directory).joinpath(time.strftime(f"{f_fmt}.{ext}"))
-        return VideoContext(self, fps, filename, **kwargs)
+            filename = time.strftime("{}.{}".format(f_fmt, ext))
+            filename = osp.join(directory, filename)
+        return VideoContext(self, fps, filename)
+
 
 class VideoContext:
-    def __init__(self, viz: BaseVisualizer, fps: int, filename: str, **kwargs):
-        import imageio
+    def __init__(self, viz, fps, filename, **kwargs):
         self.viz = viz
         self.vid_writer = imageio.get_writer(filename, fps=fps, **kwargs)
 
@@ -160,4 +207,5 @@ class VideoContext:
         self.vid_writer.close()
         self.viz._video_writer = None
 
-__all__ = ['BaseVisualizer']
+
+__all__ = ["BaseVisualizer"]

@@ -71,6 +71,9 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
     typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
     
+    typedef Eigen::Matrix<Scalar, 6, 1, Options> Vector6c;
+    typedef Eigen::Matrix<Scalar, 1, 6, Eigen::RowMajor | Options> Vector6r;
+
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
     
@@ -220,7 +223,15 @@ namespace pinocchio
     /// \brief Time variation of Composite Rigid Body Inertia expressed in the world frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) doYcrb;
     
-    /// \brief The joint accelerations computed by ABA
+    /// \brief Temporary for derivative algorithms
+    Matrix6 Itmp;
+    
+    /// \brief Temporary for derivative algorithms
+    Matrix6 M6tmp;
+    RowMatrix6 M6tmpR;
+    RowMatrix6 M6tmpR2;
+      
+    /// \brief The joint accelerations computed from ABA
     TangentVectorType ddq;
     
     // ABA internal data
@@ -311,7 +322,18 @@ namespace pinocchio
     
     /// \brief Derivative of the Jacobian with respect to the time.
     Matrix6x dJ;
-    
+
+      /// \brief Second derivative of the Jacobian with respect to the time.
+    Matrix6x ddJ;
+
+    /// \brief psidot Derivative of Jacobian w.r.t to the parent body moving
+    /// v(p(j)) x Sj
+    Matrix6x psid;
+
+    /// \brief psiddot Second Derivative of Jacobian w.r.t to the parent body
+    /// moving a(p(j)) x Sj + v(p(j)) x psidj
+    Matrix6x psidd;
+
     /// \brief Variation of the spatial velocity set with respect to the joint configuration.
     Matrix6x dVdq;
     
@@ -417,18 +439,6 @@ namespace pinocchio
     /// \brief Matrix related to joint torque regressor
     MatrixXs jointTorqueRegressor;
 
-#if defined(_MSC_VER)
-    // Eigen tensor warning: Eigen\CXX11\src/Tensor/Tensor.h(76,1): warning C4554: '&': check operator precedence for possible error
-#pragma warning(disable:4554)
-#endif
-    
-    /// \brief Tensor containing the kinematic Hessian of all the joints.
-    Tensor3x kinematic_hessians;
-
-#if defined(_MSC_VER)    
-#pragma warning(default:4554)   // C4554 enabled after tensor definition
-#endif
-    
     /// \brief Cholesky decomposition of the KKT contact matrix
     ContactCholeskyDecomposition contact_chol;
     
@@ -437,7 +447,51 @@ namespace pinocchio
     
     /// \brief Primal RHS in contact dynamic equations
     VectorXs primal_rhs_contact;
-    
+
+#if defined(_MSC_VER)
+    // Eigen tensor warning: Eigen\CXX11\src/Tensor/Tensor.h(76,1): warning C4554: '&': check operator precedence for possible error
+#pragma warning(disable:4554)
+#endif
+
+    /// \brief Tensor containing the kinematic Hessian of all the joints.
+    Tensor3x kinematic_hessians;
+
+    /// \brief SO Partial derivative of the joint torque vector with respect to
+    /// the joint configuration.
+    Tensor3x d2tau_dqdq;
+
+    /// \brief SO Partial derivative of the joint torque vector with respect to
+    /// the joint velocity.
+    Tensor3x d2tau_dvdv;
+
+    /// \brief SO Cross-Partial derivative of the joint torque vector with
+    /// respect to the joint configuration/velocity.
+    Tensor3x d2tau_dqdv;
+
+    /// \brief SO Cross-Partial derivative of the joint torque vector with
+    /// respect to the joint acceleration/configuration. This also equals to the
+    /// First Order partial derivative of the Mass Matrix w.r.t joint
+    /// configuration
+    Tensor3x d2tau_dadq;
+
+#if defined(_MSC_VER)
+#pragma warning(default:4554)   // C4554 enabled after tensor definition
+#endif
+
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<Matrix6>) extended_motion_propagator; // Stores force propagator to the base link
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) spatial_inv_inertia; // Stores spatial inverse inertia
+    std::vector<size_t> accumulation_descendant;
+    std::vector<size_t> accumulation_ancestor;
+    std::vector<size_t> constraints_supported_dim;
+    std::vector<std::set<size_t>> constraints_supported;
+    std::vector<size_t> joints_supporting_constraints;
+    std::vector<size_t> accumulation_joints;
+    std::vector<std::vector<size_t>> constraints_on_joint;
+    Matrix6 scratch_pad1;
+    Matrix6 scratch_pad2;
+    Vector6 scratch_pad_vector;
+    Vector6 scratch_pad_vector2;
+
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
     ///
@@ -449,20 +503,6 @@ namespace pinocchio
     /// \brief Default constructor
     ///
     DataTpl() {}
-
-    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<Matrix6>) extended_motion_propagator; // Stores force propagator to the base link
-    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) spatial_inv_inertia; // Stores spatial inverse inertia
-    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_descendant;
-    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_ancestor; 
-    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) constraints_supported_dim;
-    PINOCCHIO_ALIGNED_STD_VECTOR(std::set<size_t>) constraints_supported;
-    std::vector<size_t> joints_supporting_constraints;
-    std::vector<size_t> accumulation_joints;
-    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<size_t>) constraints_on_joint;
-    Matrix6 scratch_pad1;
-    Matrix6 scratch_pad2;
-    Vector6 scratch_pad_vector;
-    Vector6 scratch_pad_vector2;
     
 
   private:

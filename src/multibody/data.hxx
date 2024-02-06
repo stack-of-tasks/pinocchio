@@ -82,6 +82,9 @@ namespace pinocchio
   , nvSubtree_fromRow((std::size_t)model.nv,-1)
   , J(Matrix6x::Zero(6,model.nv))
   , dJ(Matrix6x::Zero(6,model.nv))
+  , ddJ(Matrix6x::Zero(6, model.nv))
+  , psid(Matrix6x::Zero(6, model.nv))
+  , psidd(Matrix6x::Zero(6, model.nv))
   , dVdq(Matrix6x::Zero(6,model.nv))
   , dAdq(Matrix6x::Zero(6,model.nv))
   , dAdv(Matrix6x::Zero(6,model.nv))
@@ -122,8 +125,16 @@ namespace pinocchio
   , scratch_pad2(Matrix6::Zero())
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
   , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
-#else
-  , kinematic_hessians(6,model.nv,model.nv)
+  , d2tau_dqdq(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
+  , d2tau_dvdv(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
+  , d2tau_dqdv(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
+  , d2tau_dadq(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
+ #else
+   , kinematic_hessians(6,model.nv,model.nv)
+   , d2tau_dqdq(model.nv,model.nv,model.nv)
+   , d2tau_dvdv(model.nv,model.nv,model.nv)
+   , d2tau_dqdv(model.nv,model.nv,model.nv)
+   , d2tau_dadq(model.nv,model.nv,model.nv)
 #endif
   {
     typedef typename Model::JointIndex JointIndex;
@@ -147,6 +158,11 @@ namespace pinocchio
     a_gf[0] = -model.gravity;
     
     kinematic_hessians.setZero();
+    d2tau_dqdq.setZero();
+    d2tau_dvdv.setZero();
+    d2tau_dqdv.setZero();
+    d2tau_dadq.setZero();
+
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -294,6 +310,9 @@ namespace pinocchio
     && data1.nvSubtree_fromRow == data2.nvSubtree_fromRow
     && data1.J == data2.J
     && data1.dJ == data2.dJ
+    && data1.ddJ == data2.ddJ
+    && data1.psid == data2.psid
+    && data1.psidd == data2.psidd
     && data1.dVdq == data2.dVdq
     && data1.dAdq == data2.dAdq
     && data1.dAdv == data2.dAdv
@@ -336,11 +355,11 @@ namespace pinocchio
     ;
     
     // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a boolean
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    typedef Eigen::Map<const typename Data::VectorXs> MapVectorXs;
-    value &=
-       MapVectorXs(data1.kinematic_hessians.data(),data1.kinematic_hessians.size())
-    == MapVectorXs(data2.kinematic_hessians.data(),data2.kinematic_hessians.size());
+    value &= Tensor<bool, 0>((data1.kinematic_hessians == data2.kinematic_hessians).all())(0)
+    && Tensor<bool, 0>((data1.d2tau_dqdq == data2.d2tau_dqdq).all())(0)
+    && Tensor<bool, 0>((data1.d2tau_dvdv == data2.d2tau_dvdv).all())(0)
+    && Tensor<bool, 0>((data1.d2tau_dqdv == data2.d2tau_dqdv).all())(0)
+    && Tensor<bool, 0>((data1.d2tau_dadq == data2.d2tau_dadq).all())(0);
 
     return value;
   }

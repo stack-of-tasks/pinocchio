@@ -12,16 +12,18 @@ from pinocchio.visualize import MeshcatVisualizer
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
+pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 
-model_path = join(pinocchio_model_dir,"example-robot-data/robots")
+model_path = join(pinocchio_model_dir, "example-robot-data/robots")
 mesh_dir = pinocchio_model_dir
 # urdf_filename = "talos_reduced.urdf"
 # urdf_model_path = join(join(model_path,"talos_data/robots"),urdf_filename)
 urdf_filename = "solo.urdf"
 urdf_model_path = join(join(model_path,"solo_description/robots"),urdf_filename)
 
-model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
+model, collision_model, visual_model = pin.buildModelsFromUrdf(
+    urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()
+)
 
 # Start a new MeshCat server and client.
 # Note: the server can also be started separately using the "meshcat-server" command in a terminal:
@@ -33,7 +35,9 @@ try:
     viz = MeshcatVisualizer(model, collision_model, visual_model)
     viz.initViewer(open=True)
 except ImportError as err:
-    print("Error while initializing the viewer. It seems you should install Python meshcat")
+    print(
+        "Error while initializing the viewer. It seems you should install Python meshcat"
+    )
     print(err)
     sys.exit(0)
 
@@ -52,8 +56,8 @@ convex = mesh.convex
 
 if convex is not None:
     placement = pin.SE3.Identity()
-    placement.translation[0] = 2.
-    geometry = pin.GeometryObject("convex",0,convex,placement)
+    placement.translation[0] = 2.0
+    geometry = pin.GeometryObject("convex", 0, convex, placement)
     geometry.meshColor = np.ones((4))
     visual_model.addGeometryObject(geometry)
 
@@ -71,7 +75,7 @@ if convex is not None:
 # Display another robot.
 viz2 = MeshcatVisualizer(model, collision_model, visual_model)
 viz2.initViewer(viz.viewer)
-viz2.loadViewerModel(rootNodeName = "pinocchio2")
+viz2.loadViewerModel(rootNodeName="pinocchio2")
 q = q0.copy()
 q[1] = 1.0
 viz2.display(q)
