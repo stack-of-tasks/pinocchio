@@ -184,201 +184,209 @@ if import_meshcat_succeed:
                 u"heightSegments": self.heightSegments,
             }
 
-def loadOctree(octree: hppfcl.OcTree):
-    boxes = octree.toBoxes()
+if WITH_HPP_FCL_BINDINGS and hppfcl.WITH_OCTOMAP:
+    def loadOctree(octree: hppfcl.OcTree):
+        boxes = octree.toBoxes()
 
-    if len(boxes) == 0:
-        return
-    bs = boxes[0][3] / 2.
-    num_boxes = len(boxes)
+        if len(boxes) == 0:
+            return
+        bs = boxes[0][3] / 2.
+        num_boxes = len(boxes)
 
-    box_corners = np.array([
-        [bs,bs,bs],
-        [bs,bs,-bs],
-        [bs,-bs,bs],
-        [bs,-bs,-bs],
-        [-bs,bs,bs],
-        [-bs,bs,-bs],
-        [-bs,-bs,bs],
-        [-bs,-bs,-bs],
-        ])
+        box_corners = np.array([
+            [bs,bs,bs],
+            [bs,bs,-bs],
+            [bs,-bs,bs],
+            [bs,-bs,-bs],
+            [-bs,bs,bs],
+            [-bs,bs,-bs],
+            [-bs,-bs,bs],
+            [-bs,-bs,-bs],
+            ])
 
-    all_points = np.empty((8*num_boxes,3))
-    all_faces = np.empty((12*num_boxes,3),dtype=np.int)
-    face_id = 0
-    for box_id, box_properties in enumerate(boxes):
-        box_center = box_properties[:3]
-
-        corners = box_corners + box_center
-        point_range = range(box_id*8,(box_id + 1) * 8)
-        all_points[point_range,:] = corners 
-
-        A = box_id*8
-        B = A+1
-        C = B+1 
-        D = C+1 
-        E = D+1 
-        F = E+1 
-        G = F+1 
-        H = G+1 
-
-        all_faces[face_id  ] = np.array([C,D,B])
-        all_faces[face_id+1] = np.array([B,A,C])
-        all_faces[face_id+2] = np.array([A,B,F])
-        all_faces[face_id+3] = np.array([F,E,A])
-        all_faces[face_id+4] = np.array([E,F,H])
-        all_faces[face_id+5] = np.array([H,G,E])
-        all_faces[face_id+6] = np.array([G,H,D])
-        all_faces[face_id+7] = np.array([D,C,G])
-        # # top
-        all_faces[face_id+8] = np.array([A,E,G])
-        all_faces[face_id+9] = np.array([G,C,A])
-        # # bottom
-        all_faces[face_id+10] = np.array([B,H,F])
-        all_faces[face_id+11] = np.array([H,B,D])
-
-        face_id += 12
-
-    colors = np.empty((all_points.shape[0],3))
-    colors[:] = np.ones(3)
-    mesh = mg.TriangularMeshGeometry(all_points, all_faces, colors)
-    return mesh
-
-
-def loadMesh(mesh):
-
-    if isinstance(mesh,(hppfcl.HeightFieldOBBRSS, hppfcl.HeightFieldAABB)):
-        heights = mesh.getHeights()
-        x_grid = mesh.getXGrid()
-        y_grid = mesh.getYGrid()
-        min_height = mesh.getMinHeight()
-
-        X, Y = np.meshgrid(x_grid, y_grid)
-
-        nx = len(x_grid) - 1
-        ny = len(y_grid) - 1
-
-        num_cells = (nx) * (ny) * 2 + (nx + ny) * 4 + 2
-
-        num_vertices = X.size
-        num_tris = num_cells
-
-        faces = np.empty((num_tris, 3), dtype=int)
-        vertices = np.vstack(
-            (
-                np.stack(
-                    (
-                        X.reshape(num_vertices),
-                        Y.reshape(num_vertices),
-                        heights.reshape(num_vertices),
-                    ),
-                    axis=1,
-                ),
-                np.stack(
-                    (
-                        X.reshape(num_vertices),
-                        Y.reshape(num_vertices),
-                        np.full(num_vertices, min_height),
-                    ),
-                    axis=1,
-                ),
-            )
-        )
-
+        all_points = np.empty((8*num_boxes,3))
+        all_faces = np.empty((12*num_boxes,3),dtype=np.int)
         face_id = 0
-        for y_id in range(ny):
-            for x_id in range(nx):
-                p0 = x_id + y_id * (nx + 1)
-                p1 = p0 + 1
-                p2 = p1 + nx + 1
-                p3 = p2 - 1
+        for box_id, box_properties in enumerate(boxes):
+            box_center = box_properties[:3]
 
-                faces[face_id] = np.array([p0, p3, p1])
-                face_id += 1
-                faces[face_id] = np.array([p3, p2, p1])
-                face_id += 1
+            corners = box_corners + box_center
+            point_range = range(box_id*8,(box_id + 1) * 8)
+            all_points[point_range,:] = corners 
 
-                if y_id == 0:
-                    p0_low = p0 + num_vertices
-                    p1_low = p1 + num_vertices
+            A = box_id*8
+            B = A+1
+            C = B+1 
+            D = C+1 
+            E = D+1 
+            F = E+1 
+            G = F+1 
+            H = G+1 
 
-                    faces[face_id] = np.array([p0, p1_low, p0_low])
+            all_faces[face_id  ] = np.array([C,D,B])
+            all_faces[face_id+1] = np.array([B,A,C])
+            all_faces[face_id+2] = np.array([A,B,F])
+            all_faces[face_id+3] = np.array([F,E,A])
+            all_faces[face_id+4] = np.array([E,F,H])
+            all_faces[face_id+5] = np.array([H,G,E])
+            all_faces[face_id+6] = np.array([G,H,D])
+            all_faces[face_id+7] = np.array([D,C,G])
+            # # top
+            all_faces[face_id+8] = np.array([A,E,G])
+            all_faces[face_id+9] = np.array([G,C,A])
+            # # bottom
+            all_faces[face_id+10] = np.array([B,H,F])
+            all_faces[face_id+11] = np.array([H,B,D])
+
+            face_id += 12
+
+        colors = np.empty((all_points.shape[0],3))
+        colors[:] = np.ones(3)
+        mesh = mg.TriangularMeshGeometry(all_points, all_faces, colors)
+        return mesh
+else:
+    def loadOctree(octree):
+        raise NotImplementedError("loadOctree need hppfcl with octomap support")
+
+
+if WITH_HPP_FCL_BINDINGS:
+    def loadMesh(mesh):
+
+        if isinstance(mesh,(hppfcl.HeightFieldOBBRSS, hppfcl.HeightFieldAABB)):
+            heights = mesh.getHeights()
+            x_grid = mesh.getXGrid()
+            y_grid = mesh.getYGrid()
+            min_height = mesh.getMinHeight()
+
+            X, Y = np.meshgrid(x_grid, y_grid)
+
+            nx = len(x_grid) - 1
+            ny = len(y_grid) - 1
+
+            num_cells = (nx) * (ny) * 2 + (nx + ny) * 4 + 2
+
+            num_vertices = X.size
+            num_tris = num_cells
+
+            faces = np.empty((num_tris, 3), dtype=int)
+            vertices = np.vstack(
+                (
+                    np.stack(
+                        (
+                            X.reshape(num_vertices),
+                            Y.reshape(num_vertices),
+                            heights.reshape(num_vertices),
+                        ),
+                        axis=1,
+                    ),
+                    np.stack(
+                        (
+                            X.reshape(num_vertices),
+                            Y.reshape(num_vertices),
+                            np.full(num_vertices, min_height),
+                        ),
+                        axis=1,
+                    ),
+                )
+            )
+
+            face_id = 0
+            for y_id in range(ny):
+                for x_id in range(nx):
+                    p0 = x_id + y_id * (nx + 1)
+                    p1 = p0 + 1
+                    p2 = p1 + nx + 1
+                    p3 = p2 - 1
+
+                    faces[face_id] = np.array([p0, p3, p1])
                     face_id += 1
-                    faces[face_id] = np.array([p0, p1, p1_low])
+                    faces[face_id] = np.array([p3, p2, p1])
                     face_id += 1
 
-                if y_id == ny - 1:
-                    p2_low = p2 + num_vertices
-                    p3_low = p3 + num_vertices
+                    if y_id == 0:
+                        p0_low = p0 + num_vertices
+                        p1_low = p1 + num_vertices
 
-                    faces[face_id] = np.array([p3, p3_low, p2_low])
-                    face_id += 1
-                    faces[face_id] = np.array([p3, p2_low, p2])
-                    face_id += 1
+                        faces[face_id] = np.array([p0, p1_low, p0_low])
+                        face_id += 1
+                        faces[face_id] = np.array([p0, p1, p1_low])
+                        face_id += 1
 
-                if x_id == 0:
-                    p0_low = p0 + num_vertices
-                    p3_low = p3 + num_vertices
+                    if y_id == ny - 1:
+                        p2_low = p2 + num_vertices
+                        p3_low = p3 + num_vertices
 
-                    faces[face_id] = np.array([p0, p3_low, p3])
-                    face_id += 1
-                    faces[face_id] = np.array([p0, p0_low, p3_low])
-                    face_id += 1
+                        faces[face_id] = np.array([p3, p3_low, p2_low])
+                        face_id += 1
+                        faces[face_id] = np.array([p3, p2_low, p2])
+                        face_id += 1
 
-                if x_id == nx - 1:
-                    p1_low = p1 + num_vertices
-                    p2_low = p2 + num_vertices
+                    if x_id == 0:
+                        p0_low = p0 + num_vertices
+                        p3_low = p3 + num_vertices
 
-                    faces[face_id] = np.array([p1, p2_low, p2])
-                    face_id += 1
-                    faces[face_id] = np.array([p1, p1_low, p2_low])
-                    face_id += 1
+                        faces[face_id] = np.array([p0, p3_low, p3])
+                        face_id += 1
+                        faces[face_id] = np.array([p0, p0_low, p3_low])
+                        face_id += 1
 
-        # Last face
-        p0 = num_vertices
-        p1 = p0 + nx
-        p2 = 2 * num_vertices - 1
-        p3 = p2 - nx
+                    if x_id == nx - 1:
+                        p1_low = p1 + num_vertices
+                        p2_low = p2 + num_vertices
 
-        faces[face_id] = np.array([p0, p1, p2])
-        face_id += 1
-        faces[face_id] = np.array([p0, p2, p3])
-        face_id += 1
+                        faces[face_id] = np.array([p1, p2_low, p2])
+                        face_id += 1
+                        faces[face_id] = np.array([p1, p1_low, p2_low])
+                        face_id += 1
 
-    elif isinstance(mesh, (hppfcl.Convex, hppfcl.BVHModelBase)):
-        if isinstance(mesh, hppfcl.BVHModelBase):
-            num_vertices = mesh.num_vertices
-            num_tris = mesh.num_tris
+            # Last face
+            p0 = num_vertices
+            p1 = p0 + nx
+            p2 = 2 * num_vertices - 1
+            p3 = p2 - nx
 
-            call_triangles = mesh.tri_indices
-            call_vertices = mesh.vertices
+            faces[face_id] = np.array([p0, p1, p2])
+            face_id += 1
+            faces[face_id] = np.array([p0, p2, p3])
+            face_id += 1
 
-        elif isinstance(mesh, hppfcl.Convex):
-            num_vertices = mesh.num_points
-            num_tris = mesh.num_polygons
+        elif isinstance(mesh, (hppfcl.Convex, hppfcl.BVHModelBase)):
+            if isinstance(mesh, hppfcl.BVHModelBase):
+                num_vertices = mesh.num_vertices
+                num_tris = mesh.num_tris
 
-            call_triangles = mesh.polygons
-            call_vertices = mesh.points
+                call_triangles = mesh.tri_indices
+                call_vertices = mesh.vertices
 
-        faces = np.empty((num_tris, 3), dtype=int)
-        for k in range(num_tris):
-            tri = call_triangles(k)
-            faces[k] = [tri[i] for i in range(3)]
+            elif isinstance(mesh, hppfcl.Convex):
+                num_vertices = mesh.num_points
+                num_tris = mesh.num_polygons
 
-        vertices = call_vertices()
-        vertices = vertices.astype(np.float32)
+                call_triangles = mesh.polygons
+                call_vertices = mesh.points
 
-    if num_tris > 0:
-        mesh = mg.TriangularMeshGeometry(vertices, faces)
-    else:
-        mesh = mg.Points(
-            mg.PointsGeometry(
-                vertices.T, color=np.repeat(np.ones((3, 1)), num_vertices, axis=1)
-            ),
-            mg.PointsMaterial(size=0.002),
-        )
+            faces = np.empty((num_tris, 3), dtype=int)
+            for k in range(num_tris):
+                tri = call_triangles(k)
+                faces[k] = [tri[i] for i in range(3)]
 
-    return mesh
+            vertices = call_vertices()
+            vertices = vertices.astype(np.float32)
+
+        if num_tris > 0:
+            mesh = mg.TriangularMeshGeometry(vertices, faces)
+        else:
+            mesh = mg.Points(
+                mg.PointsGeometry(
+                    vertices.T, color=np.repeat(np.ones((3, 1)), num_vertices, axis=1)
+                ),
+                mg.PointsMaterial(size=0.002),
+            )
+
+        return mesh
+else:
+    def loadMesh(mesh):
+        raise NotImplementedError("loadMesh need hppfcl")
 
 
 def loadPrimitive(geometry_object):
@@ -399,28 +407,30 @@ def loadPrimitive(geometry_object):
     )
 
     geom = geometry_object.geometry
-    if isinstance(geom, hppfcl.Capsule):
-        if hasattr(mg, "TriangularMeshGeometry"):
-            obj = createCapsule(2.0 * geom.halfLength, geom.radius)
-        else:
+    obj = None
+    if WITH_HPP_FCL_BINDINGS and isinstance(geom, hppfcl.ShapeBase):
+        if isinstance(geom, hppfcl.Capsule):
+            if hasattr(mg, "TriangularMeshGeometry"):
+                obj = createCapsule(2.0 * geom.halfLength, geom.radius)
+            else:
+                obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
+        elif isinstance(geom, hppfcl.Cylinder):
             obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
-    elif isinstance(geom, hppfcl.Cylinder):
-        obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
-    elif isinstance(geom, hppfcl.Cone):
-        obj = RotatedCylinder(2.0 * geom.halfLength, 0, geom.radius, 0)
-    elif isinstance(geom, hppfcl.Box):
-        obj = mg.Box(npToTuple(2.0 * geom.halfSide))
-    elif isinstance(geom, hppfcl.Sphere):
-        obj = mg.Sphere(geom.radius)
-    elif isinstance(geom, hppfcl.ConvexBase):
-        obj = loadMesh(geom)
-    else:
+        elif isinstance(geom, hppfcl.Cone):
+            obj = RotatedCylinder(2.0 * geom.halfLength, 0, geom.radius, 0)
+        elif isinstance(geom, hppfcl.Box):
+            obj = mg.Box(npToTuple(2.0 * geom.halfSide))
+        elif isinstance(geom, hppfcl.Sphere):
+            obj = mg.Sphere(geom.radius)
+        elif isinstance(geom, hppfcl.ConvexBase):
+            obj = loadMesh(geom)
+
+    if obj is None:
         msg = "Unsupported geometry type for %s (%s)" % (
             geometry_object.name,
             type(geom),
         )
         warnings.warn(msg, category=UserWarning, stacklevel=2)
-        obj = None
 
     return obj
 
@@ -616,49 +626,46 @@ class MeshcatVisualizer(BaseVisualizer):
 
         # Cones need to be rotated
 
-        geom: hppfcl.ShapeBase = geometry_object.geometry
-        if isinstance(geom, hppfcl.Capsule):
-            if hasattr(mg, 'TriangularMeshGeometry'):
-                obj = createCapsule(2. * geom.halfLength, geom.radius)
-            else:
+        geom = geometry_object.geometry
+        obj = None
+        if WITH_HPP_FCL_BINDINGS and isinstance(geom, hppfcl.ShapeBase):
+            if isinstance(geom, hppfcl.Capsule):
+                if hasattr(mg, 'TriangularMeshGeometry'):
+                    obj = createCapsule(2. * geom.halfLength, geom.radius)
+                else:
+                    obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
+            elif isinstance(geom, hppfcl.Cylinder):
                 obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
-        elif isinstance(geom, hppfcl.Cylinder):
-            obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
-        elif isinstance(geom, hppfcl.Cone):
-            obj = RotatedCylinder(2. * geom.halfLength, 0, geom.radius, 0)
-        elif isinstance(geom, hppfcl.Box):
-            obj = mg.Box(npToTuple(2. * geom.halfSide))
-        elif isinstance(geom, hppfcl.Sphere):
-            obj = mg.Sphere(geom.radius)
-        elif isinstance(geom, hppfcl.Plane):
-            To = np.eye(4)
-            To[:3, 3] = geom.d * geom.n
-            TranslatedPlane = type("TranslatedPlane", (mg.Plane,), {"intrinsic_transform": lambda self: To})
-            sx = geometry_object.meshScale[0] * 10
-            sy = geometry_object.meshScale[1] * 10
-            obj = TranslatedPlane(sx, sy)
-        elif isinstance(geom, hppfcl.Ellipsoid):
-            obj = mg.Ellipsoid(geom.radii)
-        elif isinstance(geom, (hppfcl.Plane,hppfcl.Halfspace)):
-            plane_transform : pin.SE3 = pin.SE3.Identity()
-            # plane_transform.translation[:] = geom.d # Does not work
-            plane_transform.rotation = pin.Quaternion.FromTwoVectors(pin.ZAxis,geom.n).toRotationMatrix()
-            TransformedPlane = type("TransformedPlane", (Plane,), {"intrinsic_transform": lambda self: plane_transform.homogeneous })
-            obj = TransformedPlane(1000,1000)
-        elif isinstance(geom, hppfcl.ConvexBase):
-            obj = loadMesh(geom)
-        else:
+            elif isinstance(geom, hppfcl.Cone):
+                obj = RotatedCylinder(2. * geom.halfLength, 0, geom.radius, 0)
+            elif isinstance(geom, hppfcl.Box):
+                obj = mg.Box(npToTuple(2. * geom.halfSide))
+            elif isinstance(geom, hppfcl.Sphere):
+                obj = mg.Sphere(geom.radius)
+            elif isinstance(geom, hppfcl.Plane):
+                To = np.eye(4)
+                To[:3, 3] = geom.d * geom.n
+                TranslatedPlane = type("TranslatedPlane", (mg.Plane,), {"intrinsic_transform": lambda self: To})
+                sx = geometry_object.meshScale[0] * 10
+                sy = geometry_object.meshScale[1] * 10
+                obj = TranslatedPlane(sx, sy)
+            elif isinstance(geom, hppfcl.Ellipsoid):
+                obj = mg.Ellipsoid(geom.radii)
+            elif isinstance(geom, (hppfcl.Plane,hppfcl.Halfspace)):
+                plane_transform : pin.SE3 = pin.SE3.Identity()
+                # plane_transform.translation[:] = geom.d # Does not work
+                plane_transform.rotation = pin.Quaternion.FromTwoVectors(pin.ZAxis,geom.n).toRotationMatrix()
+                TransformedPlane = type("TransformedPlane", (Plane,), {"intrinsic_transform": lambda self: plane_transform.homogeneous })
+                obj = TransformedPlane(1000,1000)
+            elif isinstance(geom, hppfcl.ConvexBase):
+                obj = loadMesh(geom)
+
+        if obj is None:
             msg = "Unsupported geometry type for %s (%s)" % (geometry_object.name, type(geom) )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
             obj = None
 
-    def setBackgroundColor(
-        self, preset_name="gray"
-    ):  # pylint: disable=arguments-differ
-        """Set the background."""
-        col_top, col_bot = COLOR_PRESETS[preset_name]
-        self._node_background.set_property("top_color", col_top)
-        self._node_background.set_property("bottom_color", col_bot)
+        return obj
 
     def loadMeshFromFile(self, geometry_object):
 
@@ -690,24 +697,24 @@ class MeshcatVisualizer(BaseVisualizer):
 
         is_mesh = False
         try:
-            if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
-                obj = self.loadPrimitive(geometry_object)
-            elif WITH_HPP_FCL_BINDINGS and hppfcl.WITH_OCTOMAP and isinstance(geometry_object.geometry, hppfcl.OcTree):
-                obj = loadOctree(geometry_object.geometry)
-            elif hasMeshFileInfo(geometry_object):
+            obj = None
+            if WITH_HPP_FCL_BINDINGS:
+                if isinstance(geometry_object.geometry, hppfcl.ShapeBase):
+                    obj = self.loadPrimitive(geometry_object)
+                elif hppfcl.WITH_OCTOMAP and isinstance(geometry_object.geometry, hppfcl.OcTree):
+                    obj = loadOctree(geometry_object.geometry)
+                elif isinstance(geometry_object.geometry, (hppfcl.BVHModelBase,hppfcl.HeightFieldOBBRSS,hppfcl.HeightFieldAABB)):
+                    obj = loadMesh(geometry_object.geometry)
+            if obj is None and hasMeshFileInfo(geometry_object):
                 obj = self.loadMeshFromFile(geometry_object)
                 is_mesh = True
-            elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, (hppfcl.BVHModelBase,hppfcl.HeightFieldOBBRSS,hppfcl.HeightFieldAABB)):
-                obj = loadMesh(geometry_object.geometry)
-            else:
+            if obj is None:
                 msg = (
                     "The geometry object named "
                     + geometry_object.name
                     + " is not supported by Pinocchio/MeshCat for vizualization."
                 )
                 warnings.warn(msg, category=UserWarning, stacklevel=2)
-                return
-            if obj is None:
                 return
         except Exception as e:
             msg = "Error while loading geometry object: %s\nError message:\n%s" % (
@@ -843,7 +850,7 @@ class MeshcatVisualizer(BaseVisualizer):
                 T = np.array(M.homogeneous).dot(S)
             else:
                 geom = visual.geometry
-                if isinstance(geom,(hppfcl.Plane, hppfcl.Halfspace)):
+                if WITH_HPP_FCL_BINDINGS and isinstance(geom,(hppfcl.Plane, hppfcl.Halfspace)):
                     T = M
                     T.translation += M.rotation @ (geom.d * geom.n)
                     T = T.homogeneous
