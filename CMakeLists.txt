@@ -25,7 +25,8 @@ SET(CMAKE_VERBOSE_MAKEFILE True)
 OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
 
 # Check if the submodule cmake have been initialized
-IF(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/cmake/base.cmake")
+set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
+IF(NOT EXISTS "${JRL_CMAKE_MODULES}/base.cmake")
   MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")
 ENDIF()
 
@@ -186,6 +187,16 @@ SET(BOOST_REQUIRED_COMPONENTS filesystem serialization system)
 SET_BOOST_DEFAULT_OPTIONS()
 EXPORT_BOOST_DEFAULT_OPTIONS()
 ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
+
+IF(Boost_VERSION_STRING VERSION_LESS 1.81)
+    IF(BUILD_WITH_URDF_SUPPORT AND ${urdfdom_VERSION} VERSION_GREATER "0.4.2")
+      CHECK_MINIMAL_CXX_STANDARD(11 ENFORCE)
+      MESSAGE(STATUS "Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard.")
+    ENDIF()
+ELSE()
+  # Boost.Math will be C++14 starting in July 2023 (Boost 1.82 release)
+  CHECK_MINIMAL_CXX_STANDARD(14 ENFORCE)
+ENDIF()
 
 IF(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "The Python bindings of Pinocchio will be compiled along the main library. If you want to disable this feature, please set the option BUILD_PYTHON_INTERFACE to OFF.")

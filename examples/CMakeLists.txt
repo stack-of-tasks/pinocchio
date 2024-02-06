@@ -85,8 +85,12 @@ IF(BUILD_PYTHON_INTERFACE)
         collisions
         collision-with-point-clouds
         append-urdf-model-with-another-model
-        static-contact-dynamics
         )
+      IF(PYTHON_VERSION_MAJOR EQUAL 3)
+        LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES
+          static-contact-dynamics
+          )
+      ENDIF()
     ENDIF(BUILD_WITH_URDF_SUPPORT)
   ENDIF(BUILD_WITH_COLLISION_SUPPORT)
 

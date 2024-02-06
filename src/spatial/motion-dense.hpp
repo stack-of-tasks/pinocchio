@@ -58,6 +58,15 @@ namespace pinocchio
       
       return X;
     }
+
+    HomogeneousMatrixType toHomogeneousMatrix_impl() const
+    {
+      HomogeneousMatrixType M;
+      M.template block<3,3>(0, 0) = skew(angular());
+      M.template block<3,1>(0, 3) = linear();
+      M.template block<1,4>(3, 0).setZero();
+      return M;
+    }
     
     template<typename D2>
     bool isEqual_impl(const MotionDense<D2> & other) const

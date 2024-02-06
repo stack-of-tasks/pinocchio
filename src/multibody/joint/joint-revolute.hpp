@@ -37,6 +37,7 @@ namespace pinocchio
     enum { Options = _Options };
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
     typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
+    typedef Eigen::Matrix<Scalar,4,4,Options> Matrix4;
     typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6) ToVectorConstReturnType;
     typedef typename PINOCCHIO_EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
@@ -45,6 +46,7 @@ namespace pinocchio
     typedef const Vector3 ConstAngularType;
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
+    typedef Matrix4 HomogeneousMatrixType;
     typedef MotionTpl<Scalar,Options> MotionPlain;
     typedef MotionPlain PlainReturnType;
     enum {

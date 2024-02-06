@@ -19,8 +19,10 @@ namespace pinocchio
       Options = Vector6::Options
     };
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,4,4,Options> Matrix4;
     typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef Matrix6 ActionMatrixType;
+    typedef Matrix4 HomogeneousMatrixType;
     typedef typename Vector6ArgType::template FixedSegmentReturnType<3>::Type LinearType;
     typedef typename Vector6ArgType::template FixedSegmentReturnType<3>::Type AngularType;
     typedef typename Vector6ArgType::template ConstFixedSegmentReturnType<3>::Type ConstLinearType;

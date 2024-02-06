@@ -43,6 +43,21 @@ namespace pinocchio
     ActionMatrixType toActionMatrix() const { return derived().toActionMatrix_impl(); }
     ActionMatrixType toDualActionMatrix() const { return derived().toDualActionMatrix_impl(); }
     operator Matrix6() const { return toActionMatrix(); }
+
+    /**
+     * @brief The homogeneous representation of the motion vector \f$ \xi \f$.
+     *
+     * With \f$ \hat{\xi} = \left( \begin{array}{cc} \omega & v \\ 0 & 0 \\ \end{array} \right) \f$,
+     * \f[
+     * {}^a\dot{M}_b = \hat{\xi} {}^aM_b
+     * \f]
+     *
+     * @note This function is provided for completeness, but it is not the best
+     * way to use Motion quantities in terms of sparsity exploitation and
+     * general efficiency. For integration, the recommended way is to use
+     * Motion vectors along with the \ref integrate function.
+     */
+    HomogeneousMatrixType toHomogeneousMatrix() const { return derived().toHomogeneousMatrix_impl(); }
     
     void setZero() { derived().setZero(); }
     
