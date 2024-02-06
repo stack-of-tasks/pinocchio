@@ -114,15 +114,6 @@ namespace pinocchio
   , staticRegressor(Matrix3x::Zero(3,4*(model.njoints-1)))
   , bodyRegressor(BodyRegressorType::Zero())
   , jointTorqueRegressor(MatrixXs::Zero(model.nv,10*(model.njoints-1)))
-  , constraints_supported_dim((std::size_t)model.njoints,0)
-  , accumulation_ancestor((std::size_t)model.njoints,0)
-  , accumulation_descendant((std::size_t)model.njoints,0)
-  , extended_motion_propagator((std::size_t)model.njoints, {Matrix6::Zero()})
-  , spatial_inv_inertia((std::size_t)model.njoints, Matrix6::Zero())
-  , constraints_on_joint((std::size_t)model.njoints, std::vector<size_t>(0, 0))
-  , constraints_supported((std::size_t)model.njoints)
-  , scratch_pad1(Matrix6::Zero())
-  , scratch_pad2(Matrix6::Zero())
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
   , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
   , d2tau_dqdq(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
@@ -130,12 +121,21 @@ namespace pinocchio
   , d2tau_dqdv(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
   , d2tau_dadq(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
  #else
-   , kinematic_hessians(6,model.nv,model.nv)
-   , d2tau_dqdq(model.nv,model.nv,model.nv)
-   , d2tau_dvdv(model.nv,model.nv,model.nv)
-   , d2tau_dqdv(model.nv,model.nv,model.nv)
-   , d2tau_dadq(model.nv,model.nv,model.nv)
+  , kinematic_hessians(6,model.nv,model.nv)
+  , d2tau_dqdq(model.nv,model.nv,model.nv)
+  , d2tau_dvdv(model.nv,model.nv,model.nv)
+  , d2tau_dqdv(model.nv,model.nv,model.nv)
+  , d2tau_dadq(model.nv,model.nv,model.nv)
 #endif
+  , extended_motion_propagator((std::size_t)model.njoints, {Matrix6::Zero()})
+  , spatial_inv_inertia((std::size_t)model.njoints, Matrix6::Zero())
+  , accumulation_descendant((std::size_t)model.njoints,0)
+  , accumulation_ancestor((std::size_t)model.njoints,0)
+  , constraints_supported_dim((std::size_t)model.njoints,0)
+  , constraints_supported((std::size_t)model.njoints)
+  , constraints_on_joint((std::size_t)model.njoints)
+  , scratch_pad1(Matrix6::Zero())
+  , scratch_pad2(Matrix6::Zero())
   {
     typedef typename Model::JointIndex JointIndex;
     
