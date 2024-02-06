@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(contact_6D)
   contact_models.push_back(ci_RA_6D);
   contact_data.push_back(RigidConstraintData(ci_RA_6D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(contact_6D6D)
   contact_models.push_back(ci_LA_6D);
   contact_data.push_back(RigidConstraintData(ci_LA_6D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(contact_6D4)
   contact_models.push_back(ci_LF_6D);
   contact_data.push_back(RigidConstraintData(ci_LF_6D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(contact_6D_repeated)
   contact_models.push_back(ci_RA_6D);
   contact_data.push_back(RigidConstraintData(ci_RA_6D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(contact_6D_repeated_6D3)
   contact_models.push_back(ci_LF_6D);
   contact_data.push_back(RigidConstraintData(ci_LF_6D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE(contact_3D)
   contact_models.push_back(ci_RA_3D);
   contact_data.push_back(RigidConstraintData(ci_RA_3D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -345,7 +345,7 @@ BOOST_AUTO_TEST_CASE(contact_3D3D)
   contact_models.push_back(ci_LA_3D);
   contact_data.push_back(RigidConstraintData(ci_LA_3D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -397,7 +397,7 @@ BOOST_AUTO_TEST_CASE(contact_3D4)
   contact_models.push_back(ci_LF_3D);
   contact_data.push_back(RigidConstraintData(ci_LF_3D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -439,7 +439,7 @@ BOOST_AUTO_TEST_CASE(contact_3D_repeated)
   contact_models.push_back(ci_RA_3D);
   contact_data.push_back(RigidConstraintData(ci_RA_3D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -486,7 +486,7 @@ BOOST_AUTO_TEST_CASE(contact_3D_repeated4)
   contact_models.push_back(ci_RA_3D);
   contact_data.push_back(RigidConstraintData(ci_RA_3D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -549,7 +549,7 @@ BOOST_AUTO_TEST_CASE(contact_3D_repeated4_6D4)
   contact_models.push_back(ci_LF_6D);
   contact_data.push_back(RigidConstraintData(ci_LF_6D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -594,7 +594,7 @@ BOOST_AUTO_TEST_CASE(contact_3D_ancestors)
   contact_models.push_back(ci_LA_3D);
   contact_data.push_back(RigidConstraintData(ci_LA_3D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -638,7 +638,7 @@ BOOST_AUTO_TEST_CASE(contact_3D_6D_ancestor)
   contact_models.push_back(ci_LA_6D);
   contact_data.push_back(RigidConstraintData(ci_LA_6D));
 
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
@@ -692,7 +692,7 @@ BOOST_AUTO_TEST_CASE(contact_3D_6D_ancestor_6D4)
   contact_models.push_back(ci_LF_6D);
   contact_data.push_back(RigidConstraintData(ci_LF_6D));
   
-  ContactCholeskyDecomposition contact_chol(model,contact_models);
+  pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
   
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
   VectorXd q = randomConfiguration(model);
