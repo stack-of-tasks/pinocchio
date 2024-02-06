@@ -36,7 +36,7 @@ int main()
   pinocchio::Model model;
   pinocchio::urdf::buildModel(romeo_filename, pinocchio::JointModelFreeFlyer(),model);
   pinocchio::GeometryModel geom_model; pinocchio::urdf::buildGeom(model, romeo_filename, COLLISION, geom_model, package_dirs);
-#ifdef PINOCCHIO_WITH_HPP_FCL  
+#ifdef PINOCCHIO_WITH_HPP_FCL
   geom_model.addAllCollisionPairs();
 #endif // PINOCCHIO_WITH_HPP_FCL
    

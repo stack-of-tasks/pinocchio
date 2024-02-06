@@ -27,7 +27,7 @@ namespace pinocchio
               "Update the placement of the collision objects according to the current joint placement stored in data."
               );
 
-#ifdef PINOCCHIO_WITH_HPP_FCL       
+#ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def("computeCollision",
               static_cast<bool (*)(const GeometryModel &,GeometryData &, const PairIndex, fcl::CollisionRequest &)>(computeCollision),
               bp::args("geometry_model", "geometry_data", "pair_index", "collision_request"),

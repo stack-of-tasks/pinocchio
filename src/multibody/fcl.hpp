@@ -53,7 +53,7 @@
 namespace pinocchio
 {
 
-#ifndef PINOCCHIO_WITH_HPP_FCL  
+#ifndef PINOCCHIO_WITH_HPP_FCL
 
   namespace fcl
   {

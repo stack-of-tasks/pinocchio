@@ -12,6 +12,17 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/array.hpp>
 
+// Workaround a bug in GCC >= 7 and C++17
+// ref. https://gitlab.com/libeigen/eigen/-/issues/1676
+#ifdef __GNUC__
+#if __GNUC__ >= 7 && __cplusplus >= 201703L
+namespace boost { namespace serialization { struct U; } }
+namespace Eigen { namespace internal {
+template<> struct traits<boost::serialization::U> {enum {Flags=0};};
+} }
+#endif
+#endif
+
 namespace boost
 {
   namespace serialization

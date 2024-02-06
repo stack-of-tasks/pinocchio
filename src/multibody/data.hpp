@@ -23,7 +23,9 @@
 #include <Eigen/Cholesky>
 #include <Eigen/StdVector>
 #include <Eigen/src/Core/util/Constants.h>
+
 #include <cstddef>
+#include <set>
 
 namespace pinocchio
 {

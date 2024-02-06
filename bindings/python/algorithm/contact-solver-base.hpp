@@ -47,9 +47,11 @@ public:
       .def("getRelativeConvergenceResidual",&Solver::getRelativeConvergenceResidual,bp::arg("self"),
            "Returns the value of the relative residual value corresponding to the difference between two successive iterates (infinity norms).")
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
       .def("getCPUTimes",
            &Solver::getCPUTimes,
            bp::arg("self"))
+#endif // PINOCCHIO_WITH_HPP_FCL
     ;
 #endif
   }

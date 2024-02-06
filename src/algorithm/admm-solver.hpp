@@ -318,7 +318,9 @@ namespace pinocchio
     /// \brief Stats of the solver
     SolverStats stats;
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
     using Base::timer;
+#endif // PINOCCHIO_WITH_HPP_FCL
   }; // struct ADMMContactSolverTpl
 }
 

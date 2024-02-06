@@ -7,6 +7,7 @@
 
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
   #define HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
@@ -22,6 +23,7 @@
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/serialization/aligned-vector.hpp"
 #include "pinocchio/serialization/spatial.hpp"
+#include "pinocchio/serialization/fcl.hpp"
 
 namespace boost
 {

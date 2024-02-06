@@ -8,7 +8,9 @@
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
 #include <hpp/fcl/timings.h>
+#endif // PINOCCHIO_WITH_HPP_FCL
 
 namespace pinocchio
 {
@@ -18,15 +20,19 @@ namespace pinocchio
   {
     typedef _Scalar Scalar;
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
     typedef hpp::fcl::CPUTimes CPUTimes;
     typedef hpp::fcl::Timer Timer;
+#endif // PINOCCHIO_WITH_HPP_FCL
 
     explicit ContactSolverBaseTpl(const int problem_size)
     : problem_size(problem_size)
     , max_it(1000), it(0)
     , absolute_precision(Scalar(1e-6)), relative_precision(Scalar(1e-6))
     , absolute_residual(Scalar(-1)), relative_residual(Scalar(-1))
+#ifdef PINOCCHIO_WITH_HPP_FCL
     , timer(false)
+#endif // PINOCCHIO_WITH_HPP_FCL
     {}
 
     /// \brief Returns the size of the problem
@@ -67,10 +73,12 @@ namespace pinocchio
     /// \brief Returns the value of the relative residual value corresponding to the difference between two successive iterates (infinity norms).
     Scalar getRelativeConvergenceResidual() const { return relative_residual; }
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
     CPUTimes getCPUTimes() const
     {
       return timer.elapsed();
     }
+#endif // PINOCCHIO_WITH_HPP_FCL
 
   protected:
 
@@ -89,7 +97,9 @@ namespace pinocchio
     /// \brief Relative convergence residual value
     Scalar relative_residual;
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
     Timer timer;
+#endif // PINOCCHIO_WITH_HPP_FCL
 
   }; // struct ContactSolverBaseTpl
 

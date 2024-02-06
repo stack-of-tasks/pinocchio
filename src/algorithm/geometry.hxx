@@ -42,7 +42,7 @@ namespace pinocchio
       else            geom_data.oMg[i] =  geom_model.geometryObjects[i].placement;
     }
   }
-#ifdef PINOCCHIO_WITH_HPP_FCL  
+#ifdef PINOCCHIO_WITH_HPP_FCL
 
   /* --- COLLISIONS ----------------------------------------------------------------- */
   /* --- COLLISIONS ----------------------------------------------------------------- */

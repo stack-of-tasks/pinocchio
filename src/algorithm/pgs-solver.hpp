@@ -45,7 +45,9 @@ namespace pinocchio
 
     /// \brief Previous temporary value of the optimum.
     VectorXs x, x_previous;
+#ifdef PINOCCHIO_WITH_HPP_FCL
     using Base::timer;
+#endif // PINOCCHIO_WITH_HPP_FCL
 
   }; // struct PGSContactSolverTpl
 }

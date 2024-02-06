@@ -17,6 +17,8 @@
 
 #include <eigenpy/eigen-typedef.hpp>
 
+#include <Eigen/Sparse>
+
 namespace pinocchio {
 namespace python {
 

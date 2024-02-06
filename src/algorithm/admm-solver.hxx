@@ -145,7 +145,9 @@ namespace pinocchio
     Scalar y_previous_norm_inf = y_.template lpNorm<Eigen::Infinity>();
     int it = 1;
     Scalar res;
+#ifdef PINOCCHIO_WITH_HPP_FCL
     timer.start();
+#endif // PINOCCHIO_WITH_HPP_FCL
     for(; it <= Base::max_it; ++it)
     {
 //      std::cout << "---" << std::endl;
@@ -321,7 +323,9 @@ namespace pinocchio
       stats.cholesky_update_count = cholesky_update_count;
     }
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
     timer.stop();
+#endif // PINOCCHIO_WITH_HPP_FCL
 
 //    if(abs_prec_reached || rel_prec_reached)
     if(abs_prec_reached)
