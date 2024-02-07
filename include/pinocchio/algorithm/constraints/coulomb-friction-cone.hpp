@@ -8,6 +8,7 @@
 #include "pinocchio/algorithm/constraints/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
+#include <cmath>
 
 namespace pinocchio
 {
@@ -98,6 +99,24 @@ namespace pinocchio
       }
 
     }
+
+    /// \brief Project a vector x onto the cone with a matric specified by the diagonal matrix R.
+    ///
+    /// \param[in] x a 3d vector to project.
+    /// \param[in] R a 3d vector representing the diagonal of the weights matrix. The tangential components (the first two) of R should be equal. 
+    ///
+    template<typename Vector3Like>
+    typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)
+    weightedProject(const Eigen::MatrixBase<Vector3Like> & x, const Eigen::MatrixBase<Vector3Like> & R) const
+    {
+      assert(mu >= 0 && "mu must be positive");
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like) Vector3Plain;
+      Scalar weighted_mu = mu * std::sqrt(R(0)/R(2));
+      CoulombFrictionConeTpl weighted_cone(weighted_mu);
+      Vector3Plain R_sqrt = R.cwiseSqrt();
+      return (weighted_cone.project((R_sqrt.array()*x.array()).matrix()).array()/R_sqrt.array()).matrix();
+    }    
 
     /// \brief Compute the complementary shift associted to the Coulomb friction cone for complementarity satisfaction in complementary problems.
     ///
