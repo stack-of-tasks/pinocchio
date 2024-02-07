@@ -33,7 +33,7 @@ struct DelassusOperatorBase
     if(reset)
       power_iteration_algo.reset();
 
-    power_iteration_algo.run(*this);
+    power_iteration_algo.run(derived());
 
     return power_iteration_algo.largest_eigen_value;
   }
@@ -51,7 +51,7 @@ struct DelassusOperatorBase
       power_iteration_algo.reset();
     power_iteration_algo.principal_eigen_vector = largest_eigenvector_est;
 
-    power_iteration_algo.run(*this);
+    power_iteration_algo.run(derived());
 
     return power_iteration_algo.largest_eigen_value;
   }
@@ -66,7 +66,7 @@ struct DelassusOperatorBase
     if(reset)
       power_iteration_algo.reset();
 
-    power_iteration_algo.lowest(*this,compute_largest);
+    power_iteration_algo.lowest(derived(),compute_largest);
 
     return power_iteration_algo.lowest_eigen_value;
   }
@@ -89,7 +89,7 @@ struct DelassusOperatorBase
     power_iteration_algo.principal_eigen_vector = largest_eigenvector_est;
     power_iteration_algo.lowest_eigen_vector = lowest_eigenvector_est;
 
-    power_iteration_algo.lowest(*this,compute_largest);
+    power_iteration_algo.lowest(derived(),compute_largest);
 
     return power_iteration_algo.lowest_eigen_value;
   }
