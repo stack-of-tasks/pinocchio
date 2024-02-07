@@ -102,12 +102,12 @@ namespace pinocchio
       
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
-      
-      ColsBlock J_cols = data.J.template middleCols<JointModel::NV>(jmodel.idx_v());
-      ColsBlock dJ_cols = data.dJ.template middleCols<JointModel::NV>(jmodel.idx_v());
-      ColsBlock Ag_cols = data.Ag.template middleCols<JointModel::NV>(jmodel.idx_v());
-      ColsBlock dAg_cols = data.dAg.template middleCols<JointModel::NV>(jmodel.idx_v());
-      
+
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
+      ColsBlock dAg_cols = jmodel.jointCols(data.dAg);
+
       // Calc Ag = Y * S
       motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
       
