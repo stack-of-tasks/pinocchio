@@ -111,7 +111,7 @@ namespace pinocchio
                      const std::string & filename,
                      const GeometryType type,
                      const std::string & rootLinkName,
-                     const fcl::MeshLoaderPtr & meshLoader)
+                     const hpp::fcl::MeshLoaderPtr & meshLoader)
     {
       std::vector<std::string> hints;
       GeometryModel geometry_model;
@@ -125,7 +125,7 @@ namespace pinocchio
 		     const GeometryType type,
 		     GeometryModel & geometry_model,
                      const std::string & rootLinkName,
-		     const fcl::MeshLoaderPtr & meshLoader)
+		     const hpp::fcl::MeshLoaderPtr & meshLoader)
     {
       std::vector<std::string> hints;
       pinocchio::sdf::buildGeom(model,filename,type,geometry_model,rootLinkName,hints,meshLoader);
@@ -138,7 +138,7 @@ namespace pinocchio
 		     const GeometryType type,
                      const std::string & rootLinkName,
 		     const std::vector<std::string> & package_dirs,
-		     const fcl::MeshLoaderPtr & meshLoader)
+		     const hpp::fcl::MeshLoaderPtr & meshLoader)
     {
       GeometryModel geometry_model;
       pinocchio::sdf::buildGeom(model,filename,type,geometry_model,rootLinkName,package_dirs,meshLoader);
@@ -152,7 +152,7 @@ namespace pinocchio
 		     GeometryModel & geometry_model,
                      const std::string & rootLinkName,
 		     const std::vector<std::string> & package_dirs,
-		     const fcl::MeshLoaderPtr & meshLoader)
+		     const hpp::fcl::MeshLoaderPtr & meshLoader)
     {
       pinocchio::sdf::buildGeom(model,filename,type,geometry_model,rootLinkName,package_dirs,meshLoader);
       return geometry_model;
@@ -164,7 +164,7 @@ namespace pinocchio
 		     const GeometryType type,
                      const std::string & rootLinkName,
 		     const std::string & package_dir,
-		     const fcl::MeshLoaderPtr & meshLoader)
+		     const hpp::fcl::MeshLoaderPtr & meshLoader)
     {
       GeometryModel geometry_model;
       pinocchio::sdf::buildGeom(model,filename,type,geometry_model,rootLinkName,package_dir,meshLoader);
@@ -178,7 +178,7 @@ namespace pinocchio
 		     GeometryModel & geometry_model,
                      const std::string & rootLinkName,
 		     const std::string & package_dir,
-		     const fcl::MeshLoaderPtr & meshLoader)
+		     const hpp::fcl::MeshLoaderPtr & meshLoader)
     {
       pinocchio::sdf::buildGeom(model,filename,type,geometry_model,rootLinkName,package_dir,meshLoader);
       return geometry_model;
@@ -282,7 +282,7 @@ namespace pinocchio
               );
       
       bp::def("buildGeomFromSdf",
-              static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType, const std::string &, const std::vector<std::string> &, const fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
+              static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType, const std::string &, const std::vector<std::string> &, const hpp::fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
               bp::args("model","sdf_filename","geom_type","root_link_name","package_dirs","mesh_loader"),
               "Parse the SDF file given as input looking for the geometry of the given input model and\n"
               "return a GeometryModel containing either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL).\n"
@@ -295,7 +295,7 @@ namespace pinocchio
               );
       
       bp::def("buildGeomFromSdf",
-              static_cast <GeometryModel & (*) (const Model &, const std::string &, const GeometryType, GeometryModel &, const std::string &, const std::vector<std::string> &, const fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
+              static_cast <GeometryModel & (*) (const Model &, const std::string &, const GeometryType, GeometryModel &, const std::string &, const std::vector<std::string> &, const hpp::fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
               bp::args("model","sdf_filename","geom_type","geom_model","root_link_name","package_dirs","mesh_loader"),
               "Parse the SDF file given as input looking for the geometry of the given input model and\n"
               "and store either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL) in the geom_model given as input.\n"
@@ -310,7 +310,7 @@ namespace pinocchio
               );
 
       bp::def("buildGeomFromSdf",
-              static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType, const std::string &, const std::string &, const fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
+              static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType, const std::string &, const std::string &, const hpp::fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
               bp::args("model","sdf_filename","geom_type","root_link_name","package_dir","mesh_loader"),
               "Parse the SDF file given as input looking for the geometry of the given input model and\n"
               "return a GeometryModel containing either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL).\n"
@@ -323,7 +323,7 @@ namespace pinocchio
               );
 
       bp::def("buildGeomFromSdf",
-              static_cast <GeometryModel & (*) (const Model &, const std::string &, const GeometryType, GeometryModel &, const std::string &, const std::string &, const fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
+              static_cast <GeometryModel & (*) (const Model &, const std::string &, const GeometryType, GeometryModel &, const std::string &, const std::string &, const hpp::fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
               bp::args("model","sdf_filename","geom_type","geom_model","root_link_name","package_dir","mesh_loader"),
               "Parse the SDF file given as input looking for the geometry of the given input model and\n"
               "and store either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL) in the geom_model given as input.\n"
@@ -338,7 +338,7 @@ namespace pinocchio
               );
       
       bp::def("buildGeomFromSdf",
-              static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType, const std::string &, const fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
+              static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType, const std::string &, const hpp::fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
               bp::args("model","sdf_filename","geom_type","root_link_name","mesh_loader"),
               "Parse the SDF file given as input looking for the geometry of the given input model and\n"
               "return a GeometryModel containing either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL).\n"
@@ -352,7 +352,7 @@ namespace pinocchio
               );
       
       bp::def("buildGeomFromSdf",
-              static_cast <GeometryModel & (*) (const Model &, const std::string &, const GeometryType, GeometryModel &, const std::string &, const fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
+              static_cast <GeometryModel & (*) (const Model &, const std::string &, const GeometryType, GeometryModel &, const std::string &, const hpp::fcl::MeshLoaderPtr&)> (pinocchio::python::buildGeomFromSdf),
               bp::args("model","sdf_filename","geom_type","geom_model","root_link_name","mesh_loader"),
               "Parse the SDF file given as input looking for the geometry of the given input model and\n"
               "and store either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL) in the geom_model given as input.\n"

@@ -9,8 +9,6 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/sdf.hpp"
 
-#include <hpp/fcl/collision_object.h>
-
 #include <boost/test/unit_test.hpp>
 
 
