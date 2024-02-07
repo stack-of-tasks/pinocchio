@@ -74,21 +74,6 @@ struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> >
   }
 };
 
-template <typename Scalar, int Options>
-struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
-{
-  typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointModel;
-
-  static JointModel run()
-  {
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized(),Vector3::Random().normalized());
-
-    jmodel.setIndexes(0, 0, 0);
-    return jmodel;
-  }
-};
-
 template<typename Scalar, int Options, template<typename,int> class JointCollection>
 struct init<pinocchio::JointModelTpl<Scalar,Options,JointCollection> >
 {
@@ -137,21 +122,49 @@ struct init<pinocchio::JointModelMimic<JointModel_> >
   }
 };
 
-template<typename Scalar, int Options>
-struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar,Options> >
+template <typename Scalar, int Options>
+struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
 {
-  typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar,Options> JointModel;
-  
+  typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointModel;
+
   static JointModel run()
   {
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-    
+    JointModel jmodel(XAxis::vector(),YAxis::vector());
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, int axis>
+struct init<pinocchio::JointModelHelicalTpl<Scalar,Options,axis> >
+{
+  typedef pinocchio::JointModelHelicalTpl<Scalar,Options,axis> JointModel;
+
+  static JointModel run()
+  {
+    JointModel jmodel(static_cast<Scalar>(0.5));
+
     jmodel.setIndexes(0,0,0);
     return jmodel;
   }
 };
-  
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar,Options> JointModel;
+
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
 BOOST_AUTO_TEST_SUITE(joint_model_base_test)
 
 template<typename TestDerived>

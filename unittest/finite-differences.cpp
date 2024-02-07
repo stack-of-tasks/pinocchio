@@ -137,7 +137,7 @@ struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
   static JointModel run()
   {
     typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized(), Vector3::Random().normalized());
+    JointModel jmodel(XAxis::vector(),YAxis::vector());
 
     jmodel.setIndexes(0, 0, 0);
     return jmodel;
