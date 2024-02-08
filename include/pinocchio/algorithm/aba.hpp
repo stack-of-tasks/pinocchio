@@ -11,7 +11,6 @@
 
 namespace pinocchio
 {
-
   ///
   /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
   ///

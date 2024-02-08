@@ -272,6 +272,5 @@ IF(BUILD_PYTHON_INTERFACE)
       ${_source_headers_root}/pybind11-all.hpp
       USE_STAMP_FILE
       COMMENT "Generating documentation of the PyBind11 helpers.")
-    CMAKE_POLICY(POP)
   ENDIF()
 ENDIF(BUILD_PYTHON_INTERFACE)

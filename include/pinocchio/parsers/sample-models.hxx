@@ -317,7 +317,7 @@ namespace pinocchio
       if(usingFF)
       {
         ffidx = model.addJoint(0,typename JC::JointModelFreeFlyer(),
-                               SE3::Identity(),"freeflyer_joint");
+                               SE3::Identity(),"root_joint");
         model.lowerPositionLimit.template segment<4>(3).fill(-1.);
         model.upperPositionLimit.template segment<4>(3).fill( 1.);
       }
@@ -325,7 +325,7 @@ namespace pinocchio
       {
         typename JC::JointModelComposite jff((typename JC::JointModelTranslation()));
         jff.addJoint(typename JC::JointModelSphericalZYX());
-        ffidx = model.addJoint(0,jff,SE3::Identity(),"freeflyer_joint");
+        ffidx = model.addJoint(0,jff,SE3::Identity(),"root_joint");
       }
       model.appendBodyToJoint(ffidx,Ijoint);
       model.addJointFrame(ffidx);

@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2021 CNRS INRIA
 //
 
+#include <sstream>
+
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/spatial/se3.hpp"
 
@@ -40,6 +42,14 @@ namespace pinocchio
       template <typename TupleOrList>
       static SE3 toSE3fromTupleOrList(const TupleOrList & v)
       {
+
+        ssize_t size = bp::len(v);
+        if (size != 7)
+        {
+          throw std::invalid_argument(
+              "Wrong size: v(" + std::to_string(size) + ") should have 7 elements");
+        }
+
         //bp::extract<SE3::Scalar> to_double;
 	const Scalar& v0 = bp::extract<Scalar>(v[0]);
 	const Scalar& v1 = bp::extract<Scalar>(v[1]);
@@ -54,16 +64,37 @@ namespace pinocchio
         return SE3(q.matrix(), t);
       }
 
+    template <typename Vector7Like>
+    SE3 XYZQUATToSE3_ei(const Vector7Like& v)
+    {
+      if(v.rows() != 7 || v.cols() != 1)
+      {
+        std::ostringstream shape;
+        shape << "(" << v.rows() << ", " << v.cols() << ")";
+        throw std::invalid_argument("Wrong size: v" + shape.str() + " but should have the following shape (7, 1)");
+      }
+      QuatConstMap q (v.template tail<4>().data());
+      return SE3 (q.matrix(), v.template head<3>());
+    }
+
       template <typename Vector7Like>
       static SE3 toSE3(const Vector7Like & v)
       {
+        if (v.rows() != 7 || v.cols() != 1)
+        {
+          std::ostringstream shape;
+          shape << "(" << v.rows() << ", " << v.cols() << ")";
+          throw std::invalid_argument("Wrong size: v" + shape.str() + " but should have the following shape (7, 1)");
+        }
+        
         PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector7Like, v, 7, 1);
         QuatConstMap q(v.template tail<4>().data());
         return SE3(q.matrix(), v.template head<3>());
       }
-      
+
       static void expose()
       {
+
         const char* doc1 = "Convert the input SE3 object to a numpy array.";
         bp::def("SE3ToXYZQUAT"     , fromSE3     , "M", doc1);
         const char* doc1_tuple = "Convert the input SE3 object to a 7D tuple of floats [X,Y,Z,x,y,z,w].";

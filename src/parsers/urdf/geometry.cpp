@@ -110,12 +110,6 @@ namespace pinocchio
       }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-# if ( HPP_FCL_MAJOR_VERSION>1 || ( HPP_FCL_MAJOR_VERSION==1 && \
-      ( HPP_FCL_MINOR_VERSION>1 || ( HPP_FCL_MINOR_VERSION==1 && \
-                                     HPP_FCL_PATCH_VERSION>3))))
-#  define PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
-# endif
-
       /**
        * @brief      Get a fcl::CollisionObject from a URDF geometry, searching
        *             for it in specified package directories
@@ -160,18 +154,14 @@ namespace pinocchio
           retrieveMeshScale(urdf_mesh, meshScale);
           
           // Create FCL mesh by parsing Collada file.
-#ifdef PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
           hpp::fcl::BVHModelPtr_t bvh = meshLoader->load (meshPath, scale);
           bool convex = tree.isMeshConvex (linkName, geomName);
           if (convex) {
             bvh->buildConvexRepresentation (false);
-            geometry = bvh->convex;
+            geometry = shared_ptr<fcl::CollisionGeometry>(bvh->convex.get(), [bvh](...) mutable { bvh->convex.reset(); });
           } else {
-            geometry = bvh;
+            geometry = shared_ptr<fcl::CollisionGeometry>(bvh.get(), [bvh](...) mutable { bvh.reset(); });
           }
-#else
-          geometry = meshLoader->load (meshPath, scale);
-#endif
         }
 
         // Handle the case where collision geometry is a cylinder
