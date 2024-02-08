@@ -14,7 +14,7 @@ namespace pinocchio
   void BroadPhaseManagerTpl<Manager>::update(bool compute_local_aabb)
   {
     const GeometryModel & geom_model = getGeometryModel();
-    assert(geom_model.ngeoms == pinocchio::Index(collision_object_inflation.size()));
+    assert(selected_geometry_objects.size() == size_t(collision_object_inflation.size()));
 
     GeometryData & geom_data = getGeometryData();
 
