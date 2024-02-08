@@ -150,8 +150,8 @@ BOOST_AUTO_TEST_CASE(test_minimal_crba)
   // Check double call
   {
     pinocchio::Data data2(model);
-    crbaMinimal(model,data2,q);
-    crbaMinimal(model,data2,q);
+    pinocchio::minimal::crba(model, data2, q);
+    pinocchio::minimal::crba(model,data2,q);
 
     BOOST_CHECK(data2.Ycrb[0] == data.Ycrb[0]);
   }

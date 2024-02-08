@@ -158,9 +158,9 @@ namespace pinocchio
           bool convex = tree.isMeshConvex (linkName, geomName);
           if (convex) {
             bvh->buildConvexRepresentation (false);
-            geometry = shared_ptr<fcl::CollisionGeometry>(bvh->convex.get(), [bvh](...) mutable { bvh->convex.reset(); });
+            geometry = std::shared_ptr<fcl::CollisionGeometry>(bvh->convex.get(), [bvh](...) mutable { bvh->convex.reset(); });
           } else {
-            geometry = shared_ptr<fcl::CollisionGeometry>(bvh.get(), [bvh](...) mutable { bvh.reset(); });
+            geometry = std::shared_ptr<fcl::CollisionGeometry>(bvh.get(), [bvh](...) mutable { bvh.reset(); });
           }
         }
 
