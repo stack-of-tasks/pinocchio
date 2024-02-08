@@ -78,8 +78,8 @@ BOOST_AUTO_TEST_CASE(vsPXRX)
   BOOST_CHECK((dataPXRX.liMi[2]*dataPXRX.liMi[1]).isApprox(dataHX.liMi[1]));
   BOOST_CHECK(dataPXRX.Ycrb[2].matrix().isApprox(dataHX.Ycrb[1].matrix()));
   BOOST_CHECK((dataPXRX.liMi[2].actInv(dataPXRX.f[1])).toVector().isApprox(dataHX.f[1].toVector()));   
-  BOOST_CHECK(dataPXRX.nle.isApprox(dataHX.nle));
-  BOOST_CHECK(dataPXRX.com[0].isApprox(dataHX.com[0]));  
+  BOOST_CHECK((Eigen::Matrix<double,1,1>(dataPXRX.nle.dot(Eigen::VectorXd::Ones(2)))).isApprox(dataHX.nle));
+  BOOST_CHECK(dataPXRX.com[0].isApprox(dataHX.com[0]));
 
   // InverseDynamics == rnea
   tauHX = rnea(modelHX, dataHX, q_hx, v_hx, aHX);
