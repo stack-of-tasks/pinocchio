@@ -264,8 +264,6 @@ IF(BUILD_PYTHON_INTERFACE)
     SET(DOXYGEN_GENERATE_HTML YES)
     SET(DOXYGEN_GENERATE_LATEX NO)
     SET(DOXYGEN_PROJECT_NAME "Pinocchio PyBind11 helpers.")
-    CMAKE_POLICY(PUSH)
-    CMAKE_POLICY(SET CMP0054 NEW)
     SET(_source_headers_root "../../include/${PROJECT_NAME}/bindings/python")
     DOXYGEN_ADD_DOCS(doc_pybind11
       ${_source_headers_root}/pybind11.hpp
