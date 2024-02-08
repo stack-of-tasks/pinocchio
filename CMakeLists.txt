@@ -57,12 +57,6 @@ IF(CMAKE_VERSION VERSION_GREATER "3.12")
   CMAKE_POLICY(SET CMP0074 NEW)
 ENDIF()
 
-IF(WIN32)
-  SET(LINK copy_if_different)
-ELSE(WIN32)
-  SET(LINK create_symlink)
-ENDIF(WIN32)
-
 # --- OPTIONS ----------------------------------------
 OPTION(BUILD_BENCHMARK "Build the benchmarks" OFF)
 OPTION(BUILD_UTILS "Build the utils" OFF)
@@ -87,6 +81,7 @@ OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differe
 OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
 OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
 OPTION(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
+OPTION(BUILD_WITH_QHULL_SUPPORT "Build the library with the QHULL support" OFF)
 cmake_dependent_option(LINK_PYTHON_INTERFACE_TO_OPENMP "Link OpenMP to the Python interface" ON BUILD_WITH_OPENMP_SUPPORT OFF)
 cmake_dependent_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT "Build the Python interface with Boost.Multiprecision MPFR support" OFF BUILD_PYTHON_INTERFACE OFF)
 cmake_dependent_option(BUILD_WITH_LIBPYTHON "Link to libpython to embed an interpreter for the python_parser feature" ON
@@ -98,6 +93,10 @@ OPTION(CHECK_RUNTIME_MALLOC "Check if some memory allocations are performed at r
 
 OPTION(ENABLE_TEMPLATE_INSTANTIATION "Template instantiation of the main library" ON)
 
+# Variable containing all the cflags definition relative to build
+# options
+set(CFLAGS_OPTIONS)
+
 IF(BUILD_WITH_COLLISION_SUPPORT)
   SET(BUILD_WITH_HPP_FCL_SUPPORT TRUE)
 ENDIF()
@@ -107,6 +106,11 @@ IF(BUILD_WITH_CODEGEN_SUPPORT)
 ENDIF()
 IF(BUILD_WITH_AUTODIFF_SUPPORT)
   SET(BUILD_WITH_CPPAD_SUPPORT TRUE)
+ENDIF()
+
+IF(BUILD_WITH_QHULL_SUPPORT)
+  ADD_DEFINITIONS(-DPINOCCHIO_WITH_QHULL_SUPPORT)
+  LIST(APPEND CFLAGS_OPTIONS "-DPINOCCHIO_WITH_QHULL_SUPPORT")
 ENDIF()
 
 IF(INITIALIZE_WITH_NAN)
@@ -123,6 +127,7 @@ ENDIF(CHECK_RUNTIME_MALLOC)
 IF(ENABLE_TEMPLATE_INSTANTIATION)
   MESSAGE(STATUS "Template instantiation of the main library")
   ADD_DEFINITIONS(-DPINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION)
+  LIST(APPEND CFLAGS_OPTIONS "-DPINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION")
 ENDIF(ENABLE_TEMPLATE_INSTANTIATION)
 
 MACRO(TAG_LIBRARY_VERSION target)
@@ -181,6 +186,11 @@ ENDIF(BUILD_WITH_CASADI_SUPPORT)
 IF(BUILD_WITH_OPENMP_SUPPORT)
   FIND_PACKAGE(OpenMP REQUIRED)
 ENDIF(BUILD_WITH_OPENMP_SUPPORT)
+
+IF(BUILD_WITH_QHULL_SUPPORT)
+  FIND_PACKAGE(Qhull COMPONENTS qhullcpp qhull_r REQUIRED)
+  MESSAGE(STATUS "Found Qhull.")
+ENDIF()
 
 SET(BOOST_REQUIRED_COMPONENTS filesystem serialization system)
 
@@ -244,181 +254,103 @@ IF(BUILD_WITH_HPP_FCL_SUPPORT)
   ENDIF(BUILD_PYTHON_INTERFACE)
 ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
 
+# Sources definition
+INCLUDE(sources.cmake)
+
+# Template instantiation sources
+IF(ENABLE_TEMPLATE_INSTANTIATION)
+  LIST(APPEND ${PROJECT_NAME}_CORE_SOURCES ${${PROJECT_NAME}_TEMPLATE_INSTANTIATION_SOURCES})
+  LIST(APPEND ${PROJECT_NAME}_CORE_PUBLIC_HEADERS ${${PROJECT_NAME}_TEMPLATE_INSTANTIATION_PUBLIC_HEADERS})
+ENDIF()
+
+# URDF sources
+IF(BUILD_WITH_URDF_SUPPORT)
+  LIST(APPEND ${PROJECT_NAME}_CORE_SOURCES ${${PROJECT_NAME}_URDF_SOURCES})
+  LIST(APPEND ${PROJECT_NAME}_CORE_PUBLIC_HEADERS ${${PROJECT_NAME}_URDF_PUBLIC_HEADERS})
+ENDIF(BUILD_WITH_URDF_SUPPORT)
+
+# SDF sources
+IF(BUILD_WITH_SDF_SUPPORT)
+  LIST(APPEND ${PROJECT_NAME}_CORE_SOURCES ${${PROJECT_NAME}_SDF_SOURCES})
+  LIST(APPEND ${PROJECT_NAME}_CORE_PUBLIC_HEADERS ${${PROJECT_NAME}_SDF_PUBLIC_HEADERS})
+ENDIF(BUILD_WITH_SDF_SUPPORT)
+
+# QHULL sources
+IF(BUILD_WITH_QHULL_SUPPORT)
+  LIST(APPEND ${PROJECT_NAME}_CORE_SOURCES ${${PROJECT_NAME}_QHULL_SOURCES})
+  LIST(APPEND ${PROJECT_NAME}_CORE_PUBLIC_HEADERS ${${PROJECT_NAME}_QHULL_PUBLIC_HEADERS})
+  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+    ${${PROJECT_NAME}_BINDINGS_PYTHON_QHULL_SOURCES})
+ENDIF()
+
+# LibPython sources
+IF(BUILD_WITH_LIBPYTHON)
+  LIST(APPEND ${PROJECT_NAME}_CORE_PUBLIC_HEADERS
+    ${${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS})
+  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+    ${${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_SOURCES})
+  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
+    ${${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_PUBLIC_HEADERS})
+ENDIF(BUILD_WITH_LIBPYTHON)
+
+# HPP-FCL sources
+IF(BUILD_WITH_HPP_FCL_SUPPORT)
+  LIST(APPEND ${PROJECT_NAME}_CORE_PUBLIC_HEADERS
+    ${${PROJECT_NAME}_HPP_FCL_PUBLIC_HEADERS})
+  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+    ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_SOURCES})
+  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
+    ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PUBLIC_HEADERS})
+ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
+
+# OpenMP and HPP-FCL+OpenMP sources
+IF(BUILD_WITH_OPENMP_SUPPORT)
+  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+    ${${PROJECT_NAME}_BINDINGS_PYTHON_OPENMP_SOURCES})
+  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
+    ${${PROJECT_NAME}_BINDINGS_PYTHON_OPENMP_PUBLIC_HEADERS})
+  IF(BUILD_WITH_HPP_FCL_SUPPORT)
+    LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+      ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_SOURCES})
+    LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
+      ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_PUBLIC_HEADERS})
+  ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
+ENDIF()
+
+# List headers to install
+LIST(APPEND ${PROJECT_NAME}_HEADERS
+  ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS}
+  )
+IF(BUILD_PYTHON_INTERFACE)
+  LIST(APPEND ${PROJECT_NAME}_HEADERS
+    ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS}
+    )
+ENDIF(BUILD_PYTHON_INTERFACE)
+
+# Macros to update sources path in subdirs
+FUNCTION(REMOVE_PATH_FROM_LIST list_name path_name dest_list)
+  SET(list_name_)
+  FOREACH(header ${${list_name}})
+    STRING(REGEX REPLACE "^${path_name}" "" header ${header})
+    LIST(APPEND list_name_ ${header})
+  ENDFOREACH(header ${list_name_})
+  SET(${dest_list} ${list_name_} PARENT_SCOPE)
+ENDFUNCTION(REMOVE_PATH_FROM_LIST)
+
+FUNCTION(PREPEND_PATH_FROM_LIST list_name path_name dest_list)
+  SET(list_name_)
+  FOREACH(header ${${list_name}})
+    SET(header "${path_name}/${header}")
+    LIST(APPEND list_name_ ${header})
+  ENDFOREACH(header ${list_name_})
+  SET(${dest_list} ${list_name_} PARENT_SCOPE)
+ENDFUNCTION(PREPEND_PATH_FROM_LIST)
+
 # Enforce the preprocessed version of boost::list and boost::vector
 # This information is redundant with the content of include/pinocchio/container/boost-container-limits.hpp
 # but it avoids any compilation issue.
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_LIST_SIZE=30)
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_VECTOR_SIZE=30)
-
-# ----------------------------------------------------
-# --- INCLUDE ----------------------------------------
-# ----------------------------------------------------
-FILE(GLOB_RECURSE HEADERS
-     ${PROJECT_SOURCE_DIR}/src/*.hpp
-     ${PROJECT_SOURCE_DIR}/src/*.hxx
-     )
-
-IF(NOT BUILD_WITH_URDF_SUPPORT)
-  LIST(REMOVE_ITEM HEADERS
-    ${PROJECT_SOURCE_DIR}/src/parsers/urdf.hpp
-    ${PROJECT_SOURCE_DIR}/src/parsers/urdf/model.hxx
-    ${PROJECT_SOURCE_DIR}/src/parsers/urdf/geometry.hxx
-    ${PROJECT_SOURCE_DIR}/src/parsers/urdf/utils.hpp
-    ${PROJECT_SOURCE_DIR}/src/parsers/urdf/types.hpp
-    )
-ENDIF(NOT BUILD_WITH_URDF_SUPPORT)
-
-IF(NOT BUILD_WITH_SDF_SUPPORT)
-  LIST(REMOVE_ITEM HEADERS
-    ${PROJECT_SOURCE_DIR}/src/parsers/sdf.hpp
-    ${PROJECT_SOURCE_DIR}/src/parsers/sdf/model.hxx
-    ${PROJECT_SOURCE_DIR}/src/parsers/sdf/geometry.hxx
-    )
-ENDIF(NOT BUILD_WITH_SDF_SUPPORT)
-
-
-IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
-  LIST(REMOVE_ITEM HEADERS
-    ${PROJECT_SOURCE_DIR}/src/spatial/fcl-pinocchio-conversions.hpp
-    )
-ENDIF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
-
-LIST(APPEND HEADERS macros.hpp)
-
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/core")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/math")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/spatial")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/liegroup")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/pool")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/visitor")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/sdf")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/utils")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/serialization")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm/constraints")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm/constraints/visitors")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm/utils")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm/parallel")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/container")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/codegen")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/casadi")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/casadi/math")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/casadi/spatial")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/casadi/utils")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/cppad")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/cppad/spatial")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/cppad/math")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/cppad/algorithm")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/cppad/utils")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/cppad/multibody")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/cppad/multibody/joint")
-
-IF(ENABLE_TEMPLATE_INSTANTIATION)
-  LIST(APPEND ${PROJECT_NAME}_TEMPLATE_SOURCES
-    algorithm/aba-derivatives.cpp
-    algorithm/aba.cpp
-    algorithm/center-of-mass-derivatives.cpp
-    algorithm/center-of-mass.cpp
-    algorithm/centroidal-derivatives.cpp
-    algorithm/centroidal.cpp
-    algorithm/cholesky.cpp
-    algorithm/compute-all-terms.cpp
-    algorithm/constrained-dynamics-derivatives.cpp
-    algorithm/constrained-dynamics.cpp
-    algorithm/crba.cpp
-    algorithm/energy.cpp
-    algorithm/frames-derivatives.cpp
-    algorithm/frames.cpp
-    algorithm/geometry.cpp
-    algorithm/jacobian.cpp
-    algorithm/joint-configuration.cpp
-    algorithm/kinematics-derivatives.cpp
-    algorithm/kinematics.cpp
-    algorithm/model.cpp
-    algorithm/regressor.cpp
-    algorithm/rnea-derivatives.cpp
-    algorithm/rnea.cpp
-    algorithm/proximal.cpp
-    algorithm/contact-dynamics.cpp
-    algorithm/contact-cholesky.cpp
-    algorithm/contact-jacobian.cpp
-    algorithm/impulse-dynamics.cpp
-    parsers/sample-models.cpp
-    multibody/data.cpp
-    multibody/model.cpp
-    )
-  LIST(APPEND ${PROJECT_NAME}_TEMPLATE_DECLARATIONS
-    algorithm/aba-derivatives.txx
-    algorithm/aba.txx
-    algorithm/center-of-mass-derivatives.txx
-    algorithm/center-of-mass.txx
-    algorithm/centroidal-derivatives.txx
-    algorithm/centroidal.txx
-    algorithm/cholesky.txx
-    algorithm/compute-all-terms.txx
-    algorithm/constrained-dynamics-derivatives.txx
-    algorithm/constrained-dynamics.txx
-    algorithm/crba.txx
-    algorithm/energy.txx
-    algorithm/frames-derivatives.txx
-    algorithm/frames.txx
-    algorithm/geometry.txx
-    algorithm/jacobian.txx
-    algorithm/joint-configuration.txx
-    algorithm/kinematics-derivatives.txx
-    algorithm/kinematics.txx
-    algorithm/model.txx
-    algorithm/regressor.txx
-    algorithm/rnea-derivatives.txx
-    algorithm/rnea.txx
-    algorithm/proximal.txx
-    algorithm/contact-dynamics.txx
-    algorithm/contact-cholesky.txx
-    algorithm/contact-jacobian.txx
-    algorithm/impulse-dynamics.txx
-    parsers/sample-models.txx
-    multibody/data.txx
-    multibody/model.txx
-    )
-  SET_SOURCE_FILES_PROPERTIES(${${PROJECT_NAME}_TEMPLATE_DECLARATIONS} PROPERTIES LANGUAGE CXX)
-  SET_SOURCE_FILES_PROPERTIES(${${PROJECT_NAME}_TEMPLATE_SOURCES} PROPERTIES LANGUAGE CXX)
-
-  LIST(APPEND ${PROJECT_NAME}_SOURCES ${${PROJECT_NAME}_TEMPLATE_SOURCES})
-  LIST(APPEND HEADERS ${${PROJECT_NAME}_TEMPLATE_DECLARATIONS})
-
-  # Gcc does not accept txx as c++ files. Find a workaround for ADD_DEFITINOS with only txx files
-  # IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  #   ADD_DEFINITIONS("-x c++")
-  # ENDIF()
-
-ENDIF() # PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
-
-
-SET(HEADERS_)
-FOREACH(header ${HEADERS})
-  STRING(REGEX REPLACE "${PROJECT_SOURCE_DIR}/src/" "" header ${header})
-  LIST(APPEND HEADERS_ ${header})
-  GET_FILENAME_COMPONENT(headerName ${header} NAME)
-  GET_FILENAME_COMPONENT(headerPath ${header} PATH)
-  EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
-    ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
-    ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/${header})
-  INSTALL(FILES ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
-          DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${headerPath}
-          PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
-ENDFOREACH(header)
-SET(HEADERS ${HEADERS_})
-
-LIST(APPEND HEADERS
-     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/config.hpp
-     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/deprecated.hpp
-     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/warning.hpp)
 
 # --- MAIN LIBRARY -------------------------------------------------------------
 ADD_SUBDIRECTORY(src)
@@ -472,13 +404,16 @@ IF(BUILD_PYTHON_INTERFACE)
   EXPORT_VARIABLE(PINOCCHIO_WITH_PYTHON_INTERFACE ON)
   SET(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_WITH_PYTHON_INTERFACE \"\")")
 ENDIF()
+IF(BUILD_WITH_QHULL_SUPPORT)
+  EXPORT_VARIABLE(PINOCCHIO_USE_QHULL ON)
+  SET(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_QHULL \"\")")
+ENDIF()
 
 PKG_CONFIG_APPEND_LIBS(${PROJECT_NAME})
 PKG_CONFIG_APPEND_BOOST_LIBS(${BOOST_REQUIRED_COMPONENTS})
 
-FOREACH(cflags ${CFLAGS_DEPENDENCIES})
-  PKG_CONFIG_APPEND_CFLAGS(${cflags})
-ENDFOREACH(cflags ${CFLAGS_DEPENDENCIES})
+PKG_CONFIG_APPEND_CFLAGS("${CFLAGS_DEPENDENCIES}")
+PKG_CONFIG_APPEND_CFLAGS("${CFLAGS_OPTIONS}")
 
 # Install catkin package.xml
 INSTALL(FILES package.xml DESTINATION share/${PROJECT_NAME})

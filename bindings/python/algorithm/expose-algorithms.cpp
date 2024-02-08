@@ -48,6 +48,11 @@ namespace pinocchio
       exposeCones();
 
       exposeContactSolvers();
+
+#if defined(PINOCCHIO_WITH_QHULL_SUPPORT)
+      exposeReachableWorkspace();
+#endif // defined(PINOCCHIO_WITH_QHULL_SUPPORT)
+
     }
     
   } // namespace python

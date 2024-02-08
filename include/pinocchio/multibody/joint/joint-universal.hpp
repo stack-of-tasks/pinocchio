@@ -10,6 +10,7 @@
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint-motion-subspace.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/utils/check.hpp"
 
 #include "pinocchio/math/matrix.hpp"
 #include "pinocchio/math/rotation.hpp"
@@ -379,7 +380,7 @@ namespace pinocchio
     {
       assert(isUnitary(axis1) && "First Rotation axis is not unitary");
       assert(isUnitary(axis2) && "Second Rotation axis is not unitary");
-      assert(axis1.dot(axis2)==0 && "Axii are not orthogonal");
+      assert(check_expression_if_real<Scalar>(axis1.dot(axis2) == 0) && "Axii are not orthogonal");
     }
     
     template<typename Vector3Like>
@@ -392,7 +393,7 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
       assert(isUnitary(axis1) && "First Rotation axis is not unitary");
       assert(isUnitary(axis2) && "Second Rotation axis is not unitary");
-      assert(axis1.dot(axis2)==0 && "Axii are not orthogonal");
+      assert(check_expression_if_real<Scalar>(axis1.dot(axis2) == 0) && "Axii are not orthogonal");
     }
 
     JointDataDerived createData() const { return JointDataDerived(); }

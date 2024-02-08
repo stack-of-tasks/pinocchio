@@ -76,7 +76,7 @@ namespace pinocchio
                 "\n\t- JointModelFreeFlyer: Joint enabling 3D rotation and translations." 
                 )
         
-#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
 #endif
@@ -126,7 +126,7 @@ namespace pinocchio
                &JointDataDerived::shortname,
                bp::arg("self"))
         
-#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
           .def(bp::self == bp::self)
           .def(bp::self != bp::self)
 #endif

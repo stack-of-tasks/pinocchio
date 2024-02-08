@@ -1,18 +1,19 @@
 //
-// Copyright (c) 2022 INRIA
+// Copyright (c) 2021 INRIA
 //
 
-#ifndef __pinocchio_python_context_cppadcg_hpp__
-#define __pinocchio_python_context_cppadcg_hpp__
+#ifndef __pinocchio_python_context_cppad_hpp__
+#define __pinocchio_python_context_cppad_hpp__
 
-#include "pinocchio/codegen/cppadcg.hpp"
+#include "pinocchio/autodiff/cppad.hpp"
 
-#define PINOCCHIO_PYTHON_SCALAR_TYPE ::CppAD::AD<CppAD::cg::CG<double> >
+#define PINOCCHIO_PYTHON_SCALAR_TYPE ::CppAD::AD<double>
 #include "pinocchio/bindings/python/context/generic.hpp"
 #undef PINOCCHIO_PYTHON_SCALAR_TYPE
 
 #define PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
 #define PINOCCHIO_PYTHON_NO_SERIALIZATION
+#define PINOCCHIO_PYTHON_SKIP_REACHABLE_WORKSPACE
 
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/user-type.hpp>
@@ -43,10 +44,10 @@ namespace pinocchio
       template<typename T> struct has_operator_equal;
   
       template<typename BaseScalar>
-      struct has_operator_equal< ::CppAD::AD<CppAD::cg::CG<BaseScalar> > > : boost::false_type   {};
+      struct has_operator_equal< ::CppAD::AD<BaseScalar> > : boost::false_type   {};
       
     }
   }
 }
 
-#endif // #ifndef __pinocchio_python_context_cppadcg_hpp__
+#endif // #ifndef __pinocchio_python_context_cppad_hpp__

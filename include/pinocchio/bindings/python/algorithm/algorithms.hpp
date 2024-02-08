@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2022 CNRS INRIA
+// Copyright (c) 2016-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_algorithms_hpp__
@@ -48,6 +48,9 @@ namespace pinocchio
 
     void exposeContactSolvers();
     
+#if defined(PINOCCHIO_WITH_QHULL_SUPPORT)
+    void exposeReachableWorkspace();
+#endif // defined(PINOCCHIO_WITH_QHULL_SUPPORT)
     void exposeAlgorithms();
     
   } // namespace python

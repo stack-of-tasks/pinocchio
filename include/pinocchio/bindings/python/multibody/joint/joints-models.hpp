@@ -221,7 +221,7 @@ namespace pinocchio
             "Add a joint to the vector of joints.",
            bp::return_internal_reference<>())
       
-#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
       .def(bp::self == bp::self)
       .def(bp::self != bp::self)
 #endif

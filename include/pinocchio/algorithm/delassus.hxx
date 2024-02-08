@@ -755,7 +755,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     
     
     const Scalar mu_inv_square = mu_inv * mu_inv;
-    assert(mu_inv_square != std::numeric_limits<Scalar>::infinity() && "mu_inv**2 is equal to infinity.");
+    assert(check_expression_if_real<Scalar>(mu_inv_square != std::numeric_limits<Scalar>::infinity()) && "mu_inv**2 is equal to infinity.");
     damped_delassus_inverse *= -mu_inv;
     damped_delassus_inverse.diagonal().array() += Scalar(1);
     if(not scaled)
