@@ -82,8 +82,9 @@ struct CollisionCallBackDefault : CollisionCallBackBase
   
   bool collide(hpp::fcl::CollisionObject* o1, hpp::fcl::CollisionObject* o2)
   {
-    assert(stopAtFirstCollision && collision && "must never happened");
-    
+
+    assert(!stop() && "must never happened");
+
     CollisionObject & co1 = reinterpret_cast<CollisionObject&>(*o1);
     CollisionObject & co2 = reinterpret_cast<CollisionObject&>(*o2);
     
