@@ -9,6 +9,8 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/aba-derivatives.hxx
   include/pinocchio/algorithm/aba.hpp
   include/pinocchio/algorithm/aba.hxx
+  include/pinocchio/algorithm/admm-solver.hpp
+  include/pinocchio/algorithm/admm-solver.hxx
   include/pinocchio/algorithm/broadphase-callbacks.hpp
   include/pinocchio/algorithm/broadphase-callbacks.hxx
   include/pinocchio/algorithm/broadphase.hpp
@@ -33,6 +35,7 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/constrained-dynamics-derivatives.hxx
   include/pinocchio/algorithm/constrained-dynamics.hpp
   include/pinocchio/algorithm/constrained-dynamics.hxx
+  include/pinocchio/algorithm/constrained-problem-data.hpp
   include/pinocchio/algorithm/constraints/coulomb-friction-cone.hpp
   include/pinocchio/algorithm/constraints/fwd.hpp
   include/pinocchio/algorithm/contact-cholesky.hpp
@@ -44,6 +47,8 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/contact-info.hpp
   include/pinocchio/algorithm/contact-jacobian.hpp
   include/pinocchio/algorithm/contact-jacobian.hxx
+  include/pinocchio/algorithm/contact-solver-base.hpp
+  include/pinocchio/algorithm/contact-solver-utils.hpp
   include/pinocchio/algorithm/context.hpp
   include/pinocchio/algorithm/copy.hpp
   include/pinocchio/algorithm/crba.hpp
@@ -51,6 +56,11 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/default-check.hpp
   include/pinocchio/algorithm/delassus.hpp
   include/pinocchio/algorithm/delassus.hxx
+  include/pinocchio/algorithm/delassus-operartor-ref.hpp
+  include/pinocchio/algorithm/delassus-operator-base.hpp
+  include/pinocchio/algorithm/delassus-operator-dense.hpp
+  include/pinocchio/algorithm/delassus-operator-rigid-body.hpp
+  include/pinocchio/algorithm/delassus-operator-sparse.hpp
   include/pinocchio/algorithm/distance.hpp
   include/pinocchio/algorithm/distance.hxx
   include/pinocchio/algorithm/dynamics.hpp
@@ -91,6 +101,8 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/rnea-derivatives.hxx
   include/pinocchio/algorithm/rnea.hpp
   include/pinocchio/algorithm/rnea.hxx
+  include/pinocchio/algorithm/rnea-second-order-derivatives.hpp
+  include/pinocchio/algorithm/rnea-second-order-derivatives.hxx
   include/pinocchio/algorithm/utils/force.hpp
   include/pinocchio/algorithm/utils/motion.hpp
   include/pinocchio/autodiff/casadi-algo.hpp
@@ -278,13 +290,14 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/utils/file-io.hpp
   include/pinocchio/utils/helpers.hpp
   include/pinocchio/utils/openmp.hpp
+  include/pinocchio/utils/shared-ptr.hpp
   include/pinocchio/utils/static-if.hpp
   include/pinocchio/utils/string-generator.hpp
   include/pinocchio/utils/string.hpp
   include/pinocchio/utils/timer2.hpp
   include/pinocchio/utils/timer.hpp
   include/pinocchio/utils/version.hpp
-  )
+)
 
 SET(${PROJECT_NAME}_URDF_SOURCES
   src/parsers/urdf/model.cpp
