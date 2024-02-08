@@ -271,7 +271,7 @@ internal::comparison_eq(m_v, other.m_v);
     { 
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector1Like,1);
       assert(v.size() == 1);
-      return JointMotion(m_axis,v[0],v[0]*m_pitch);
+      return JointMotion(m_axis,v[0],Scalar(v[0]*m_pitch));
     }
     
     template<typename S1, int O1>

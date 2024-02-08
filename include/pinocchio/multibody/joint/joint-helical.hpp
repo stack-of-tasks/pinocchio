@@ -156,8 +156,8 @@ namespace pinocchio
     const Scalar & displacement() const { return m_displacement; }
     Scalar & displacement() { return m_displacement; }
     
-    template<typename OtherScalar>
-    void setValues(const OtherScalar & sin, const OtherScalar & cos, const OtherScalar & displacement)
+    template<typename Scalar1, typename Scalar2, typename Scalar3>
+    void setValues(const Scalar1 & sin, const Scalar2 & cos, const Scalar3 & displacement)
     { m_sin = sin; m_cos = cos; m_displacement = displacement;}
 
     LinearType translation() const
