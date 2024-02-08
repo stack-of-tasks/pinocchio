@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2022 CNRS INRIA
+// Copyright (c) 2018-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_autodiff_cppad_hpp__

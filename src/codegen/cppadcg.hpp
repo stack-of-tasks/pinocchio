@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2022 CNRS INRIA
+// Copyright (c) 2018-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_codegen_ccpadcg_hpp__
@@ -93,7 +93,13 @@ namespace Eigen
 namespace CppAD
 {
   template <class Scalar>
-  bool isfinite(const cg::CG<Scalar> & x) { return std::isfinite(x.getValue()); }
+  bool isfinite(const AD<Scalar> & x) { return isfinite(Value(x)); }
+
+  namespace cg
+  {
+    template <class Scalar>
+    bool isfinite(const CG<Scalar> &x) { return std::isfinite(x.getValue()); }
+  }
 }
 
 namespace CppAD { namespace cg {
