@@ -485,6 +485,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
   bindings/python/algorithm/expose-centroidal.cpp
   bindings/python/algorithm/expose-aba.cpp
   bindings/python/algorithm/expose-algorithms.cpp
+  bindings/python/algorithm/admm-solver.cpp
   bindings/python/algorithm/pgs-solver.cpp
   bindings/python/algorithm/expose-com.cpp
   bindings/python/algorithm/expose-frames.cpp
