@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     // compile source code
     DynamicModelLibraryProcessor<double> p(libcgen);
     
-    GccCompiler<double> compiler;
+    GccCompiler<double> compiler(PINOCCHIO_CXX_COMPILER);
     std::unique_ptr<DynamicLib<double>> dynamicLib = p.createDynamicLibrary(compiler);
     
     // save to files (not really required)

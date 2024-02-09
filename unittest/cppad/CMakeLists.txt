@@ -5,9 +5,8 @@
 # Automatic differentiation
 MACRO(ADD_CPPAD_UNIT_TEST name)
   INCLUDE_DIRECTORIES(SYSTEM ${cppad_INCLUDE_DIR})
-  ADD_PINOCCHIO_UNIT_TEST(${name} PACKAGES cppad)
+  ADD_PINOCCHIO_UNIT_TEST(${name} PACKAGES ${cppad_LIBRARY})
   ADD_DEPENDENCIES(test-cpp-cppad test-cpp-cppad-${name})
-  TARGET_LINK_LIBRARIES(test-cpp-cppad-${name} PUBLIC ${cppad_LIBRARY})
 ENDMACRO()
 
 IF(BUILD_WITH_AUTODIFF_SUPPORT)

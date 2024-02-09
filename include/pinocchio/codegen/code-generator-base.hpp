@@ -85,13 +85,13 @@ namespace pinocchio
     CppAD::cg::ModelCSourceGen<Scalar> & codeGenerator()
     { return *cgen_ptr; }
     
-    void compileLib(const std::string & compile_options = "-Ofast")
+    void compileLib(const std::string& gcc_path = "/usr/bin/gcc", const std::string& compile_options = "-Ofast")
     {
-      CppAD::cg::GccCompiler<Scalar> compiler;
+      CppAD::cg::GccCompiler<Scalar> compiler(gcc_path);
       std::vector<std::string> compile_flags = compiler.getCompileFlags();
       compile_flags[0] = compile_options;
       compiler.setCompileFlags(compile_flags);
-      dynamicLibManager_ptr->createDynamicLibrary(compiler,false);
+      dynamicLibManager_ptr->createDynamicLibrary(compiler, false);
     }
     
     bool existLib() const
@@ -101,10 +101,16 @@ namespace pinocchio
       return file.good();
     }
     
-    void loadLib(const bool generate_if_not_exist = true, const std::string & compile_options = "-Ofast")
+    void compileAndLoadLib(const std::string& gcc_path)
+    {
+      compileLib(gcc_path);
+      loadLib(false);
+    }
+
+    void loadLib(const bool generate_if_not_exist = true, const std::string& gcc_path = "/usr/bin/gcc", const std::string& compile_options = "-Ofast")
     {
       if(!existLib() && generate_if_not_exist)
-        compileLib(compile_options);
+        compileLib(gcc_path, compile_options);
       
       const auto it = dynamicLibManager_ptr->getOptions().find("dlOpenMode");
       if (it == dynamicLibManager_ptr->getOptions().end())

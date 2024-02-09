@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2.7.0] - 2024-01-23
+
+### Added
+- Add `GeometryObject::meshMaterial` attribute ([#2084](https://github.com/stack-of-tasks/pinocchio/issues/2084))
+
+### Fixed
+
+- Use bp::ssize_t for recent version of Windows compilers ([#2102](https://github.com/stack-of-tasks/pinocchio/pull/2102))
+- Fix missing include for Boost >= 1.83 ([#2103](https://github.com/stack-of-tasks/pinocchio/pull/2103))
+- Remove f-strings to fix install with python 2 ([#2110](https://github.com/stack-of-tasks/pinocchio/pull/2110))
+- CMake: stop exporting CppAd/cppadcodegen & fetch submodule if not available ([#2112](https://github.com/stack-of-tasks/pinocchio/pull/2112))
+- Fix malloc issue in CRBA algo ([#2126](https://github.com/stack-of-tasks/pinocchio/pull/2126))
+- Fix build cppad and cppadcg with Boost < 1.77 ([#2132](https://github.com/stack-of-tasks/pinocchio/pull/2132))
+
 ## [2.6.21] - 2023-11-27
 
 ### Added
@@ -813,7 +827,8 @@ The model can either be parsed from a URDF format or be created by appendending 
         • Fixed (concatenation of two consecutive bodies)
 
 
-[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.21...HEAD
+[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v2.7.0...HEAD
+[2.7.0]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.21...v2.7.0
 [2.6.21]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.20...v2.6.21
 [2.6.20]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.19...v2.6.20
 [2.6.19]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.18...v2.6.19

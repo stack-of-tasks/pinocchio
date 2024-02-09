@@ -722,19 +722,30 @@ class MeshcatVisualizer(BaseVisualizer):
         elif isinstance(obj, (mg.Geometry, mg.ReferenceSceneElement)):
             material = mg.MeshPhongMaterial()
             # Set material color from URDF, converting for triplet of doubles to a single int.
+
+            def to_material_color(rgba) -> int:
+                """Convert rgba color as list into rgba color as int"""
+                return (int(rgba[0] * 255) * 256**2
+                        + int(rgba[1] * 255) * 256
+                        + int(rgba[2] * 255)
+                        )
+
             if color is None:
                 meshColor = geometry_object.meshColor
             else:
                 meshColor = color
-            material.color = (
-                int(meshColor[0] * 255) * 256**2
-                + int(meshColor[1] * 255) * 256
-                + int(meshColor[2] * 255)
-            )
             # Add transparency, if needed.
+            material.color = to_material_color(meshColor)
+
             if float(meshColor[3]) != 1.0:
                 material.transparent = True
                 material.opacity = float(meshColor[3])
+
+            geom_material = geometry_object.meshMaterial
+            if geometry_object.overrideMaterial and isinstance(geom_material, pin.GeometryPhongMaterial):
+                material.emissive = to_material_color(geom_material.meshEmissionColor)
+                material.specular = to_material_color(geom_material.meshSpecularColor)
+                material.shininess = geom_material.meshShininess*100.
 
             if isinstance(obj, DaeMeshGeometry):
                 obj.path = meshcat_node.path
@@ -746,7 +757,7 @@ class MeshcatVisualizer(BaseVisualizer):
 
         if is_mesh:  # Apply the scaling
             scale = list(np.asarray(geometry_object.meshScale).flatten())
-            meshcat_node.set_property("scale",scale)
+            meshcat_node.set_property("scale", scale)
 
     def loadViewerModel(self, rootNodeName="pinocchio", color=None):
         """Load the robot in a MeshCat viewer.
@@ -905,7 +916,7 @@ class MeshcatVisualizer(BaseVisualizer):
 
         for fid, frame in enumerate(self.model.frames):
             if frame_ids is None or fid in frame_ids:
-                frame_viz_name = f"{self.viewerFramesGroupName}/{frame.name}"
+                frame_viz_name = "%s/%s" % (self.viewerFramesGroupName, frame.name)
                 self.viewer[frame_viz_name].set_object(
                     mg.LineSegments(
                         mg.PointsGeometry(
@@ -927,7 +938,7 @@ class MeshcatVisualizer(BaseVisualizer):
         pin.updateFramePlacements(self.model, self.data)
         for fid in self.frame_ids:
             frame_name = self.model.frames[fid].name
-            frame_viz_name = f"{self.viewerFramesGroupName}/{frame_name}"
+            frame_viz_name = "%s/%s" % (self.viewerFramesGroupName, frame_name)
             self.viewer[frame_viz_name].set_transform(
                 self.data.oMf[fid].homogeneous
             )

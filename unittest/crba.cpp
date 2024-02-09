@@ -10,6 +10,10 @@
  *
  */
 
+#ifndef EIGEN_RUNTIME_NO_MALLOC 
+  #define EIGEN_RUNTIME_NO_MALLOC
+#endif
+
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/crba.hpp"
@@ -180,6 +184,25 @@ BOOST_AUTO_TEST_CASE(test_roto_inertia_effects)
   
   BOOST_CHECK(data.M.isApprox(data_ref.M));
 }
+
+#ifndef NDEBUG
+
+BOOST_AUTO_TEST_CASE(test_crba_malloc)
+{
+  using namespace pinocchio;
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+
+  model.addJoint(size_t(model.njoints-1), pinocchio::JointModelRevoluteUnaligned(SE3::Vector3::UnitX()), SE3::Random(), "revolute_unaligned");
+  pinocchio::Data data(model);
+
+  const Eigen::VectorXd q = pinocchio::neutral(model);
+  Eigen::internal::set_is_malloc_allowed(false);
+  crba(model, data, q);
+  Eigen::internal::set_is_malloc_allowed(true);
+}
+
+#endif
 
 BOOST_AUTO_TEST_SUITE_END ()
 

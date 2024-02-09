@@ -1,0 +1,17 @@
+name: pinocchio
+channels:
+  - conda-forge
+dependencies:
+  - eigen=3.4.0
+  - hpp-fcl
+  - numpy
+  - boost
+  - eigenpy
+  - urdfdom
+  - python
+  - cmake
+  - ccache
+  - pkg-config
+  - ninja
+  - llvm-openmp
+  - cxx-compiler

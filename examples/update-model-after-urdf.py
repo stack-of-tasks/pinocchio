@@ -23,7 +23,7 @@ known_offsets = {"knee": 0.072, "wheel": 0.065}
 
 
 def check_limb_lengths(limb_length: float) -> bool:
-    print(f"Checking that limbs are {limb_length} m long... ", end="")
+    print("Checking that limbs are %s m long... " % limb_length, end="")
     for side in ("left", "right"):
         for joint in ("knee", "wheel"):
             joint_id = model.getJointId(f"{side}_{joint}")

@@ -43,7 +43,7 @@ namespace pinocchio
       static SE3 toSE3fromTupleOrList(const TupleOrList & v)
       {
 
-        ssize_t size = bp::len(v);
+        bp::ssize_t size = bp::len(v);
         if (size != 7)
         {
           throw std::invalid_argument(

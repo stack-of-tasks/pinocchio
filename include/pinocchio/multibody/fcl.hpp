@@ -93,7 +93,6 @@ namespace pinocchio
 
 #endif // PINOCCHIO_WITH_HPP_FCL
 
-
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_multibody_fcl_hpp__

@@ -15,12 +15,12 @@
   <build_depend>doxygen</build_depend>
   <doc_depend>doxygen</doc_depend>
   <doc_depend>texlive-latex-base</doc_depend>
+  <!-- Required for the environment variables (ROS_VERSION, ROS_DISTRO) to be available -->
+  <depend>ros_environment</depend>
   <!-- The following tags are recommended by REP-136 -->
   <exec_depend condition="$ROS_VERSION == 1">catkin</exec_depend>
-  <depend condition="$ROS_PYTHON_VERSION == 2">python</depend>
-  <depend condition="$ROS_PYTHON_VERSION == 3">python3</depend>
-  <depend condition="$ROS_PYTHON_VERSION == 2">python-numpy</depend>
-  <depend condition="$ROS_PYTHON_VERSION == 3">python3-numpy</depend>
+  <depend>python3</depend>
+  <depend>python3-numpy</depend>
   <depend>liburdfdom-dev</depend>
   <depend>eigen</depend>
   <depend>boost</depend>

@@ -103,6 +103,8 @@ FUNCTION(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
     SUFFIX ${PYTHON_EXT_SUFFIX}
     OUTPUT_NAME "${PYTHON_LIB_NAME}"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bindings/python/${PROJECT_NAME}"
+    # On Windows, shared library are treat as binary
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bindings/python/${PROJECT_NAME}"
     )
 
   IF(UNIX AND NOT APPLE)
@@ -189,6 +191,7 @@ IF(BUILD_PYTHON_INTERFACE)
     romeo_wrapper.py
     explog.py
     shortcuts.py
+    windows_dll_manager.py
     )
 
   FOREACH(python ${PYTHON_FILES})

@@ -37,19 +37,19 @@ namespace boost
             return CGScalar(constant_pi<Scalar>::get(n));
           }
 
-          template <class T, T v>
-          static inline CGScalar get(const std::integral_constant<T,v> & n)
+#if BOOST_VERSION >= 107700
+          template <class T, T value>
+          static inline CGScalar get(const std::integral_constant<T, value> &n)
           {
             return CGScalar(constant_pi<Scalar>::get(n));
           }
-
-          template <class T, T v>
-          static inline CGScalar get(const boost::integral_constant<T,v> & n)
+#else
+          template <class T, T value>
+          static inline CGScalar get(const boost::integral_constant<T, value> &n)
           {
             return CGScalar(constant_pi<Scalar>::get(n));
           }
-
-          
+#endif
         };
       }
     }
@@ -92,22 +92,12 @@ namespace Eigen
 
 namespace CppAD
 {
-  template <class Scalar>
-  bool isfinite(const AD<Scalar> & x) { return isfinite(Value(x)); }
-
   namespace cg
   {
     template <class Scalar>
     bool isfinite(const CG<Scalar> &x) { return std::isfinite(x.getValue()); }
   }
 }
-
-namespace CppAD { namespace cg {
-
-template <class Scalar>
-bool isfinite(const CG<Scalar> & x) { return ::CppAD::isfinite(x); }
-
-}}
 
 namespace pinocchio
 {

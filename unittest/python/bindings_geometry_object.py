@@ -69,5 +69,17 @@ class TestGeometryObjectBindings(unittest.TestCase):
         collision_data_copy = collision_data.copy()
         self.assertEqual(len(collision_data.oMg),len(collision_data_copy.oMg))
 
+    def test_material_get_set(self):
+        col = self.collision_model.geometryObjects[0]
+        self.assertTrue(isinstance(col.meshMaterial, (pin.GeometryNoMaterial)))
+        col.meshMaterial = pin.GeometryPhongMaterial()
+        self.assertTrue(isinstance(col.meshMaterial, (pin.GeometryPhongMaterial)))
+        material = col.meshMaterial
+        self.assertTrue(isinstance(material, (pin.GeometryPhongMaterial)))
+        material.meshEmissionColor = np.array([1., 1., 1., 1.])
+        material.meshShininess = 0.7
+        self.assertTrue((material.meshEmissionColor == col.meshMaterial.meshEmissionColor).all())
+        self.assertEqual(material.meshShininess, col.meshMaterial.meshShininess)
+
 if __name__ == '__main__':
     unittest.main()
