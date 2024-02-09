@@ -107,14 +107,14 @@ namespace pinocchio
        *
        * @return     A shared pointer on the geometry converted as a fcl::CollisionGeometry
        */
-      std::shared_ptr<hpp::fcl::CollisionGeometry>
+      std::shared_ptr<fcl::CollisionGeometry>
       static retrieveCollisionGeometry(::hpp::fcl::MeshLoaderPtr& meshLoader,
                                        const ::sdf::ElementPtr sdf_geometry,
                                        const std::vector<std::string> & package_dirs,
                                        std::string & meshPath,
                                        Eigen::Vector3d & meshScale)
       {
-        std::shared_ptr<hpp:fcl::CollisionGeometry> geometry;
+        std::shared_ptr<fcl::CollisionGeometry> geometry;
 
         // Handle the case where collision geometry is a mesh
         if (sdf_geometry->HasElement("mesh"))
