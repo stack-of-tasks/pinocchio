@@ -932,7 +932,7 @@ class MeshcatVisualizer(BaseVisualizer):
                 self.data.oMf[fid].homogeneous
             )
 
-     def drawFrameVelocities(self, frame_id: int, v_scale=0.2, color=FRAME_VEL_COLOR):
+    def drawFrameVelocities(self, frame_id: int, v_scale=0.2, color=FRAME_VEL_COLOR):
         pin.updateFramePlacement(self.model, self.data, frame_id)
         vFr = pin.getFrameVelocity(
             self.model, self.data, frame_id, pin.LOCAL_WORLD_ALIGNED
