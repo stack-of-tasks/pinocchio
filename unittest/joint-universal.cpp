@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(vsRandomAxis)
   axis2 << -1., 0., 0.;
 
   Model modelUniversal, modelRandomAxis;
-  Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+  Inertia inertia = Inertia::Random();
 
   JointModelUniversal joint_model_U(axis1, axis2);
   addJointAndBody(modelUniversal,joint_model_U,0,SE3::Identity(),"universal",inertia);
