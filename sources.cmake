@@ -428,6 +428,8 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
   include/pinocchio/bindings/python/spatial/se3.hpp
   include/pinocchio/bindings/python/algorithm/contact-info.hpp
   include/pinocchio/bindings/python/algorithm/contact-cholesky.hpp
+  include/pinocchio/bindings/python/algorithm/contact-solver-base.hpp
+  include/pinocchio/bindings/python/algorithm/delassus-operator.hpp
   include/pinocchio/bindings/python/algorithm/proximal.hpp
   include/pinocchio/bindings/python/algorithm/algorithms.hpp
   include/pinocchio/bindings/python/algorithm/constraints/coulomb-friction-cone.hpp
@@ -445,6 +447,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
   include/pinocchio/bindings/python/utils/address.hpp
   include/pinocchio/bindings/python/utils/copyable.hpp
   include/pinocchio/bindings/python/utils/registration.hpp
+  include/pinocchio/bindings/python/utils/pickle.hpp
   include/pinocchio/bindings/python/utils/pickle-map.hpp
   include/pinocchio/bindings/python/utils/list.hpp
   include/pinocchio/bindings/python/utils/std-aligned-vector.hpp
