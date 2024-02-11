@@ -63,7 +63,7 @@ namespace python
                                                          const context::VectorXs & forces)
   {
     context::VectorXs res(forces.size());
-    internal::computeConeProjection(cones, forces, res);
+    ::pinocchio::internal::computeConeProjection(cones, forces, res);
     return res;
   }
 
@@ -71,28 +71,28 @@ namespace python
                                                              const context::VectorXs & velocities)
   {
     context::VectorXs res(velocities.size());
-    internal::computeDualConeProjection(cones, velocities, res);
+    ::pinocchio::internal::computeDualConeProjection(cones, velocities, res);
     return res;
   }
 
   static context::Scalar computePrimalFeasibility_wrapper(const context::CoulombFrictionConeVector & cones,
                                                           const context::VectorXs & forces)
   {
-    return internal::computePrimalFeasibility(cones, forces);
+    return ::pinocchio::internal::computePrimalFeasibility(cones, forces);
   }
 
   static context::Scalar computeReprojectionError_wrapper(const context::CoulombFrictionConeVector & cones,
                                                           const context::VectorXs & forces,
                                                           const context::VectorXs & velocities)
   {
-    return internal::computeReprojectionError(cones, forces, velocities);
+    return ::pinocchio::internal::computeReprojectionError(cones, forces, velocities);
   }
 
   static context::VectorXs computeComplementarityShift_wrapper(const context::CoulombFrictionConeVector & cones,
                                                                const context::VectorXs & velocities)
   {
     context::VectorXs res(velocities.size());
-    internal::computeComplementarityShift(cones, velocities,res);
+    ::pinocchio::internal::computeComplementarityShift(cones, velocities,res);
     return res;
   }
 

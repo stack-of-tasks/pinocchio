@@ -23,8 +23,8 @@ public:
   template<class PyClass>
   void visit(PyClass& cl) const
   {
-    cl
 #ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
+    cl
       .def("getIterationCount",&Solver::getIterationCount,bp::arg("self"),
            "Get the number of iterations achieved by the PGS algorithm.")
       .def("setMaxIterations",&Solver::setMaxIterations,bp::args("self","max_it"),
