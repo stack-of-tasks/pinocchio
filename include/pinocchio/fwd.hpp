@@ -14,6 +14,8 @@ namespace pinocchio {}
   #undef near
 #endif
 
+#include <cassert>
+
 #include "pinocchio/macros.hpp"
 #include "pinocchio/deprecation.hpp"
 #include "pinocchio/warning.hpp"
