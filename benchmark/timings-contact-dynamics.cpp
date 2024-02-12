@@ -138,7 +138,7 @@ int main(int argc, const char ** argv)
   {
     crba(model,data,qs[_smooth]);
     timer.tic();
-    decompose(model,data);
+    cholesky::decompose(model,data);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
   std::cout << "Sparse Cholesky = \t\t" << (total_time/NBT)
@@ -221,7 +221,7 @@ int main(int argc, const char ** argv)
     forwardDynamics(model,data,qs[_smooth], qdots[_smooth], taus[_smooth], J, gamma);
 
     timer.tic();
-    decompose(model,data);
+    cholesky::decompose(model,data);
     getKKTContactDynamicMatrixInverse(model,data,J,MJtJ_inv);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
@@ -286,7 +286,7 @@ int main(int argc, const char ** argv)
     forwardDynamics(model,data,qs[_smooth], qdots[_smooth], taus[_smooth], J, gamma);
 
     timer.tic();
-    decompose(model,data);
+    cholesky::decompose(model,data);
     getKKTContactDynamicMatrixInverse(model,data,J,MJtJ_inv);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
