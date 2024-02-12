@@ -176,7 +176,7 @@ namespace pinocchio
       // See quaternion::firstOrderNormalize for equations.
       const Scalar norm2 = out.squaredNorm();
       out *= (3 - norm2) / 2;
-      assert (isNormalized(out));
+      assert (pinocchio::isNormalized(out));
     }
     
     template <class Config_t, class Jacobian_t>
