@@ -56,4 +56,3 @@ else:
 from .robot_wrapper import RobotWrapper
 from .deprecated import *
 from .shortcuts import *
-from . import visualize
