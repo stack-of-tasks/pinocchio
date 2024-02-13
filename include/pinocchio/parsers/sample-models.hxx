@@ -88,7 +88,7 @@ namespace pinocchio
         model.inertias[joint_id] = Iarm;
         model.addBodyFrame(pre+"upperarm_body",joint_id);
       
-        joint_id = addJointAndBody(model,typename JC::JointModelRY(),model.names[joint_id],pre+"elbow",Id4);
+        joint_id = addJointAndBody(model,typename JC::JointModelRY(),model.names[joint_id],pre+"elbow",Marm);
         model.inertias[joint_id] = Iarm;
         model.addBodyFrame(pre+"lowerarm_body",joint_id);
         model.addBodyFrame(pre+"elbow_body",joint_id);
