@@ -45,9 +45,6 @@ namespace pinocchio
         .def("setIndexes",
              &JointModelDerived::setIndexes,
              bp::args("self","joint_id","idx_q","idx_v"))
-        .def("shortname",
-             &JointModelDerived::shortname,
-             bp::arg("self"))
         .def("classname",&JointModelDerived::classname)
         .staticmethod("classname")
         .def("calc",&calc0,
