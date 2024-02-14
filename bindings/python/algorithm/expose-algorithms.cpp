@@ -25,6 +25,7 @@ namespace pinocchio
       exposeConstraintDynamics();
       exposeConstraintDynamicsDerivatives();
       exposeContactDynamics();
+      exposeContactInverseDynamics();
       exposeDelassus();
       exposeCAT();
       exposeJacobian();
