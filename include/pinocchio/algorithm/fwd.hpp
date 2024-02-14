@@ -23,9 +23,8 @@ namespace pinocchio
 
   template<typename Scalar, int Options = 0> struct DelassusOperatorDenseTpl;
   typedef DelassusOperatorDenseTpl<context::Scalar,context::Options> DelassusOperatorDense;
-  template<typename Scalar, int Options = 0> struct DelassusOperatorSparseTpl;
+  template<typename Scalar, int Options = 0, class SparseCholeskyDecomposition = Eigen::SimplicialLLT<Eigen::SparseMatrix<Scalar,Options>> > struct DelassusOperatorSparseTpl;
   typedef DelassusOperatorSparseTpl<context::Scalar,context::Options> DelassusOperatorSparse;
 }
-
 
 #endif // ifndef __pinocchio_algorithm_fwd_hpp__

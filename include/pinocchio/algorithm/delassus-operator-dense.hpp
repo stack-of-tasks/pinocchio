@@ -33,7 +33,7 @@ struct DelassusOperatorDenseTpl
 
   typedef typename traits<Self>::Matrix Matrix;
   typedef typename traits<Self>::Vector Vector;
-  typedef Eigen::LLT<Matrix> LLTDecomposition;
+  typedef Eigen::LLT<Matrix> CholeskyDecomposition;
   typedef DelassusOperatorBase<Self> Base;
 
   template<typename MatrixDerived>
@@ -127,7 +127,7 @@ protected:
 
   Matrix delassus_matrix;
   mutable Matrix mat_tmp;
-  LLTDecomposition llt;
+  CholeskyDecomposition llt;
   Vector damping;
 
 

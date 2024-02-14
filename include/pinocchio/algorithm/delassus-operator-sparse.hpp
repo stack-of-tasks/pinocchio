@@ -8,9 +8,6 @@
 #include "pinocchio/algorithm/fwd.hpp"
 #include "pinocchio/algorithm/delassus-operator-base.hpp"
 
-#include <Eigen/Sparse>
-#include <Eigen/SparseCholesky>
-
 namespace pinocchio {
 
 namespace internal {
@@ -60,32 +57,34 @@ struct SimplicialCholeskyWrapper : public Derived
 
 } // namespace internal
 
-template<typename _Scalar, int _Options>
-struct traits<DelassusOperatorSparseTpl<_Scalar,_Options> >
+template<typename _Scalar, int _Options, class _SparseCholeskyDecomposition>
+struct traits<DelassusOperatorSparseTpl<_Scalar,_Options,_SparseCholeskyDecomposition> >
 {
+  typedef _SparseCholeskyDecomposition CholeskyDecomposition;
+  typedef typename CholeskyDecomposition::MatrixType SparseMatrix;
   typedef _Scalar Scalar;
-  enum { Options = _Options, RowsAtCompileTime = Eigen::Dynamic  };
-
-  typedef Eigen::SparseMatrix<Scalar,Options> Matrix;
+  
+  enum { Options = _Options, RowsAtCompileTime = Eigen::Dynamic };
+  
   typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> Vector;
   typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> DenseMatrix;
 };
 
-template<typename _Scalar, int _Options>
+template<typename _Scalar, int _Options, class SparseCholeskyDecomposition>
 struct DelassusOperatorSparseTpl
-: DelassusOperatorBase< DelassusOperatorSparseTpl<_Scalar,_Options> >
+: DelassusOperatorBase< DelassusOperatorSparseTpl<_Scalar,_Options,SparseCholeskyDecomposition> >
 {
-  typedef _Scalar Scalar;
   typedef DelassusOperatorSparseTpl Self;
+  typedef typename traits<Self>::Scalar Scalar;
   enum {
-    Options = _Options,
-    RowsAtCompileTime = traits<DelassusOperatorSparseTpl>::RowsAtCompileTime
+    Options = traits<Self>::Options,
+    RowsAtCompileTime = traits<Self>::RowsAtCompileTime
   };
 
-  typedef typename traits<Self>::Matrix Matrix;
+  typedef typename traits<Self>::SparseMatrix SparseMatrix;
   typedef typename traits<Self>::Vector Vector;
   typedef typename traits<Self>::DenseMatrix DenseMatrix;
-  typedef Eigen::SimplicialLLT<Matrix> LLTDecomposition;
+  typedef SparseCholeskyDecomposition CholeskyDecomposition;
   typedef DelassusOperatorBase<Self> Base;
 
   template<typename MatrixDerived>
@@ -122,7 +121,7 @@ struct DelassusOperatorSparseTpl
   template<typename MatrixLike>
   void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const
   {
-    typedef internal::SimplicialCholeskyWrapper<LLTDecomposition> WrapperLLT;
+    typedef internal::SimplicialCholeskyWrapper<CholeskyDecomposition> WrapperLLT;
 
     const WrapperLLT & wrapper = reinterpret_cast<const WrapperLLT &>(llt);
     wrapper._solve_impl(mat,mat.const_cast_derived(),tmp);
@@ -170,7 +169,7 @@ struct DelassusOperatorSparseTpl
   Eigen::DenseIndex rows() const { return delassus_matrix.rows(); }
   Eigen::DenseIndex cols() const { return delassus_matrix.cols(); }
 
-  Matrix matrix() const
+  SparseMatrix matrix() const
   {
     delassus_matrix_plus_damping = delassus_matrix;
     delassus_matrix_plus_damping += damping.asDiagonal();
@@ -185,9 +184,9 @@ struct DelassusOperatorSparseTpl
 
 protected:
 
-  Matrix delassus_matrix;
-  mutable Matrix delassus_matrix_plus_damping;
-  LLTDecomposition llt;
+  SparseMatrix delassus_matrix;
+  mutable SparseMatrix delassus_matrix_plus_damping;
+  CholeskyDecomposition llt;
   Vector damping;
   mutable Vector tmp;
 
