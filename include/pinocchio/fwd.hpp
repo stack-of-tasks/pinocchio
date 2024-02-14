@@ -40,6 +40,8 @@ namespace pinocchio {}
 #endif
   
 #include <Eigen/Core>
+#include <Eigen/Sparse>
+#include <Eigen/SparseCholesky>
 
 #ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
   #ifdef EIGEN_RUNTIME_NO_MALLOC_WAS_NOT_DEFINED
