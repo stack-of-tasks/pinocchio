@@ -165,7 +165,7 @@ namespace pinocchio
     getConstraintsJacobian(model, data, contact_models, contact_datas, J);
     context::VectorXs v_ref, c_ref, tau_c;
     v_ref = v + dt*a;
-    c_ref = J* v_ref; //TODO should rather use the displacement
+    c_ref.noalias() = J* v_ref; //TODO should rather use the displacement
     boost::optional<context::VectorXs> impulse_guess = boost::none;
     if (lambda_guess){
       data.impulse_c = lambda_guess.get();

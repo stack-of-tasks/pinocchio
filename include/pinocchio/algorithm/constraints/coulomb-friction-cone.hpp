@@ -112,10 +112,13 @@ namespace pinocchio
       assert(mu >= 0 && "mu must be positive");
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
       typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like) Vector3Plain;
-      Scalar weighted_mu = mu * std::sqrt(R(0)/R(2));
+      assert(R(2) > 0 && "R(2) must be strictly positive");
+      Scalar weighted_mu = mu * math::sqrt(R(0)/R(2));
       CoulombFrictionConeTpl weighted_cone(weighted_mu);
       Vector3Plain R_sqrt = R.cwiseSqrt();
-      return (weighted_cone.project((R_sqrt.array()*x.array()).matrix()).array()/R_sqrt.array()).matrix();
+      Vector3Plain R_sqrt_times_x = (R_sqrt.array()*x.array()).matrix();
+      Vector3Plain res = (weighted_cone.project(R_sqrt_times_x).array()/R_sqrt.array()).matrix();
+      return res;
     }    
 
     /// \brief Compute the complementary shift associted to the Coulomb friction cone for complementarity satisfaction in complementary problems.
