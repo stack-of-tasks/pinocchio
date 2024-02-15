@@ -142,6 +142,8 @@ typedef DelassusOperatorSparseTpl<Scalar,Options> DelassusOperatorSparse;
 
 typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(CoulombFrictionCone) CoulombFrictionConeVector;
 typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(DualCoulombFrictionCone) DualCoulombFrictionConeVector;
+typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) RigidConstraintModelVector;
+typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) RigidConstraintDataVector;
 
 // Pool
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP

@@ -41,14 +41,14 @@ namespace pinocchio
   ///
   /// \return The desired joint torques stored in data.tau.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename VectorLikeC, typename ConstraintAllocator, typename VectorLikeR, typename VectorLikeGamma,typename VectorLikeImp>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename VectorLikeC, typename VectorLikeR, typename VectorLikeGamma,typename VectorLikeImp>
   const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   computeContactImpulses(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<VectorLikeC> & c_ref,
-       const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
-       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) & contact_datas,
-       const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
+       const context::RigidConstraintModelVector & contact_models,
+       context::RigidConstraintDataVector & contact_datas,
+       const context::CoulombFrictionConeVector & cones,
        const Eigen::MatrixBase<VectorLikeR> & R,
        const Eigen::MatrixBase<VectorLikeGamma> & constraint_correction,
        ProximalSettingsTpl<Scalar> & settings,
@@ -145,7 +145,7 @@ namespace pinocchio
   ///
   /// \return The desired joint torques stored in data.tau.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ConstraintAllocator, typename VectorLikeR, typename VectorLikeGamma,typename VectorLikeLam>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename VectorLikeR, typename VectorLikeGamma,typename VectorLikeLam>
   const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   contactInverseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        DataTpl<Scalar,Options,JointCollectionTpl> & data, 
@@ -153,9 +153,9 @@ namespace pinocchio
        const Eigen::MatrixBase<TangentVectorType1> & v,
        const Eigen::MatrixBase<TangentVectorType2> & a,
        Scalar dt,
-       const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
-       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) & contact_datas,
-       const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
+       const context::RigidConstraintModelVector & contact_models,
+       context::RigidConstraintDataVector & contact_datas,
+       const context::CoulombFrictionConeVector & cones,
        const Eigen::MatrixBase<VectorLikeR> & R,
        const Eigen::MatrixBase<VectorLikeGamma> & constraint_correction,
        ProximalSettingsTpl<Scalar> & settings,
