@@ -8,7 +8,6 @@
 #include "pinocchio/algorithm/constraints/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
-#include <cmath>
 
 namespace pinocchio
 {

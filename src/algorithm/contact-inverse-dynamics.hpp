@@ -60,7 +60,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(contact_datas.size(), n_contacts);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(settings.mu >= Scalar(0)),
                                    "mu has to be positive");
-    context::MatrixXs J; // TODO: malloc
+    context::MatrixXs J = context::MatrixXs::Zero(model.nv, problem_size); // TODO: malloc
     getConstraintsJacobian(model, data, contact_models, contact_datas, J);
     context::VectorXs c_ref_cor, desaxce_correction, R_prox, impulse_c_prev, dimpulse_c; // TODO: malloc
     R_prox = R + context::VectorXs::Constant(problem_size,settings.mu);
