@@ -58,9 +58,9 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(constraint_correction.size(), problem_size);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(contact_models.size(), n_contacts);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(contact_datas.size(), n_contacts);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(settings.mu >= Scalar(0)),
-                                   "mu has to be positive");
-    context::MatrixXs J = context::MatrixXs::Zero(model.nv, problem_size); // TODO: malloc
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(settings.mu > Scalar(0)),
+                                   "mu has to be strictly positive");
+    context::MatrixXs J = context::MatrixXs::Zero(problem_size,model.nv); // TODO: malloc
     getConstraintsJacobian(model, data, contact_models, contact_datas, J);
     context::VectorXs c_ref_cor, desaxce_correction, R_prox, impulse_c_prev, dimpulse_c; // TODO: malloc
     R_prox = R + context::VectorXs::Constant(problem_size,settings.mu);
@@ -78,8 +78,8 @@ namespace pinocchio
     Scalar complementarity, dual_feasibility;
     bool abs_prec_reached = false, rel_prec_reached = false;
     const size_t nc = cones.size(); // num constraints
-    int it = 1;
-    for(; it <= settings.max_iter; ++it)
+    settings.iter = 1;
+    for(; settings.iter <= settings.max_iter; ++settings.iter)
     {
       impulse_c_prev = data.impulse_c;
       for(size_t cone_id = 0; cone_id < nc; ++cone_id)
@@ -89,9 +89,10 @@ namespace pinocchio
         auto impulse_segment = data.impulse_c.template segment<3>(row_id);
         auto impulse_prev_segment = impulse_c_prev.template segment<3>(row_id);
         auto R_prox_segment = R_prox.template segment<3>(row_id);
-        auto desaxce_segment = desaxce_correction.template segment<3>(row_id);
+        // context::Vector3 desaxce_segment;
+        // auto desaxce_segment = desaxce_correction.template segment<3>(row_id);
         auto c_ref_segment = c_ref.template segment<3>(row_id);
-        desaxce_segment = cone.computeNormalCorrection(c_ref_segment + (R.template segment<3>(row_id).array()*impulse_segment.array()).matrix());
+        context::Vector3 desaxce_segment = cone.computeNormalCorrection(c_ref_segment + (R.template segment<3>(row_id).array()*impulse_segment.array()).matrix());
         impulse_segment = -((c_ref_segment + desaxce_segment -settings.mu * impulse_prev_segment).array()/R_prox_segment.array()).matrix();
         impulse_segment = cone.weightedProject(impulse_segment, R_prox_segment);
       }
@@ -161,7 +162,7 @@ namespace pinocchio
        const boost::optional<VectorLikeLam> &lambda_guess= boost::none){
     int problem_size  = R.size();
     int n_contacts = (int) problem_size/3;
-    context::MatrixXs J;
+    context::MatrixXs J = context::MatrixXs::Zero(problem_size,model.nv); // TODO: malloc
     getConstraintsJacobian(model, data, contact_models, contact_datas, J);
     context::VectorXs v_ref, c_ref, tau_c;
     v_ref = v + dt*a;
@@ -185,7 +186,7 @@ namespace pinocchio
 
 
 // #if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
-// #include "pinocchio/algorithm/rnea.txx"
+// #include "pinocchio/algorithm/contact-inverse-dynamics.txx"
 // #endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_contact_inverse_dynamics_hpp__
