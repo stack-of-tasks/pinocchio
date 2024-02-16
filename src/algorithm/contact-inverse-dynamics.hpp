@@ -175,9 +175,22 @@ namespace pinocchio
     }
     computeContactImpulses(model, data, c_ref, contact_models, contact_datas, cones, R, constraint_correction, settings, impulse_guess);
     data.lambda_c = data.impulse_c/dt;
-    tau_c.noalias() = J.transpose()*data.lambda_c; //TODO should rather use the displacement
-    rnea(model, data, q, v, a);
-    data.tau -= tau_c;
+    container::aligned_vector<context::Force> fext(model.njoints);
+    for(int i; i<model.njoints; i++){
+      fext[i] = context::Force::Zero();
+    }
+    for(int i; i<n_contacts; i++){
+      const RigidConstraintModel & cmodel = contact_models[i];
+      const Eigen::DenseIndex row_id = 3*i;
+      auto lambda_segment = data.lambda_c.template segment<3>(row_id);
+      RigidConstraintData::Matrix6 actInv_transpose1 = cmodel.joint1_placement.toActionMatrixInverse();
+      actInv_transpose1.transposeInPlace();
+      fext[cmodel.joint1_id] += context::Force(actInv_transpose1.leftCols<3>() * lambda_segment);
+      RigidConstraintData::Matrix6 actInv_transpose2 = cmodel.joint2_placement.toActionMatrixInverse();
+      actInv_transpose2.transposeInPlace();
+      fext[cmodel.joint2_id] += context::Force(actInv_transpose2.leftCols<3>() * lambda_segment);
+    }
+    rnea(model, data, q, v, a, fext);
     return data.tau;
   }
   
