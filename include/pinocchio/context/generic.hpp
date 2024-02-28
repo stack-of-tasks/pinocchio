@@ -20,6 +20,9 @@ namespace pinocchio {
   template<typename _Scalar, int _Options> struct RigidConstraintModelTpl;
   template<typename _Scalar, int _Options> struct RigidConstraintDataTpl;
 
+  template<typename _Scalar> struct CoulombFrictionConeTpl;
+  template<typename _Scalar> struct DualCoulombFrictionConeTpl;
+
   namespace context {
     typedef PINOCCHIO_SCALAR_TYPE Scalar;
     enum { Options = 0 };
@@ -34,9 +37,14 @@ namespace pinocchio {
     typedef ModelTpl<Scalar, Options> Model;
     typedef DataTpl<Scalar, Options> Data;
 
+    typedef CoulombFrictionConeTpl<Scalar> CoulombFrictionCone;
+    typedef DualCoulombFrictionConeTpl<Scalar> DualCoulombFrictionCone;
+
     typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
     typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
-
+    
+    typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(CoulombFrictionCone) CoulombFrictionConeVector;
+    typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(DualCoulombFrictionCone) DualCoulombFrictionConeVector;
     typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) RigidConstraintModelVector;
     typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) RigidConstraintDataVector;
 
