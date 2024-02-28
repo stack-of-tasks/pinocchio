@@ -12,6 +12,7 @@
 #endif
 
 #include <boost/multiprecision/number.hpp>
+#include <boost/multiprecision/random.hpp>
 #include <Eigen/Dense>
 
 namespace pinocchio
@@ -112,12 +113,36 @@ namespace Eigen
     {
       return digits10_imp(boost::mpl::bool_ < std::numeric_limits<Real>::digits10 && (std::numeric_limits<Real>::digits10 != INT_MAX) ? true : false > ());
     }
+    
+    constexpr static inline int digits() { return internal::default_digits_impl<self_type>::run(); }
+    constexpr static inline int max_digits10() { return internal::default_max_digits10_impl<self_type>::run(); }
   };
 
   template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>
   struct NumTraits<boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4> > : public NumTraits<typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type>
   {
   };
+  
+#if EIGEN_VERSION_AT_LEAST(3,4,90)
+// Fix random generator number in 3.4.90. TODO(jcarpent): Yet, we should wait for Eigen 3.5.0 to the proper fix in Eigen/src/Core/MathFunctions.h.
+  namespace internal
+  {
+    template <class Backend, boost::multiprecision::expression_template_option ExpressionTemplates>
+    struct random_default_impl<boost::multiprecision::number<Backend, ExpressionTemplates>, false, false>
+    {
+      typedef boost::multiprecision::number<Backend, ExpressionTemplates> Scalar;
+      
+      static inline Scalar run(const Scalar& x, const Scalar& y)
+      {
+        return x + (y-x) * Scalar(std::rand()) / Scalar(RAND_MAX);
+      }
+      static inline Scalar run()
+      {
+        return run(Scalar(NumTraits<Scalar>::IsSigned ? -1 : 0), Scalar(1));
+      }
+    };
+  }
+#endif
 
 #if EIGEN_VERSION_AT_LEAST(3,2,93)
 #define BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(A)                                                                                                                                                                           \
