@@ -8,11 +8,17 @@
 #include "pinocchio/bindings/python/fwd.hpp"
 #include <eigenpy/std-vector.hpp>
 
+#include <type_traits>
+
 namespace eigenpy {
 
-template<typename Derived>
-struct has_operator_equal< ::pinocchio::NumericalBase<Derived> > : has_operator_equal<typename ::pinocchio::NumericalBase<Derived>::Scalar>
-{};
+  template<typename Derived>
+  struct has_operator_equal< Derived, typename std::enable_if<std::is_base_of<::pinocchio::NumericalBase<Derived>, Derived>::value, Derived>::type> : has_operator_equal<typename ::pinocchio::NumericalBase<Derived>::Scalar>
+  {};
+
+  template<typename _Scalar, int _Rows, int _Cols, int _Options>
+  struct has_operator_equal< Eigen::Matrix<_Scalar, _Rows, _Cols, _Options> > : has_operator_equal<typename Eigen::Matrix<_Scalar, _Rows, _Cols, _Options>::Scalar>
+  {};
 
 } // namespace eigenpy
 

@@ -452,8 +452,8 @@ namespace pinocchio
       ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
       motionSet::motionAction(data.ov[i],J_cols,dJ_cols);
       
-      data.B[i] = data.oYcrb[i].variation(0.5*data.ov[i]);
-      addForceCrossMatrix(0.5*data.oh[i],data.B[i]);
+      data.B[i] = data.oYcrb[i].variation(Scalar(0.5)*data.ov[i]);
+      addForceCrossMatrix(Scalar(0.5)*data.oh[i],data.B[i]);
     }
     
     template<typename ForceDerived, typename M6>
@@ -620,8 +620,8 @@ namespace pinocchio
     {
       typedef typename Data::Inertia Inertia;
       const Inertia oY = data.oMi[i].act(model.inertias[i]);
-      data.B[i] = oY.variation(0.5*data.ov[i]);
-      Pass1::addForceCrossMatrix(0.5*data.oh[i],data.B[i]);
+      data.B[i] = oY.variation(Scalar(0.5)*data.ov[i]);
+      Pass1::addForceCrossMatrix(Scalar(0.5)*data.oh[i],data.B[i]);
     }
     
     typedef GetCoriolisMatrixBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;

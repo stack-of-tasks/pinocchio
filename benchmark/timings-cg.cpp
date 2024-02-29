@@ -70,8 +70,8 @@ int main(int argc, const char ** argv)
   const std::string LF = "LLEG_ANKLE_R";
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D6D;
 
-  RigidConstraintModel ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
-  RigidConstraintModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getFrameId(RF),WORLD);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getFrameId(LF),WORLD);
   contact_models_6D6D.push_back(ci_RF);
   contact_models_6D6D.push_back(ci_LF);
 

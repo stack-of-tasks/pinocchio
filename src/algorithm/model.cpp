@@ -2,6 +2,10 @@
 // Copyright (c) 2022 INRIA
 //
 
+#include "pinocchio/spatial/fwd.hpp"
+
+#ifndef PINOCCHIO_SKIP_ALGORITHM_MODEL
+
 #include "pinocchio/algorithm/model.hpp"
 
 namespace pinocchio {
@@ -38,3 +42,5 @@ namespace pinocchio {
     <context::Scalar, context::Options, JointCollectionDefaultTpl>
   (const context::Model &, JointIndex, JointIndex, size_t &, size_t &);
 } // namespace pinocchio
+
+#endif // PINOCCHIO_SKIP_ALGORITHM_MODEL

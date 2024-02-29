@@ -18,6 +18,9 @@ namespace pinocchio
 {
     namespace python
     {
+
+#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
+
       typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintModel) RigidConstraintModelVector;
       typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintData) RigidConstraintDataVector;
     
@@ -43,7 +46,9 @@ namespace pinocchio
     {
         return constraintDynamics(model, data, q, v, tau, contact_models, contact_datas);
     }
-    
+
+#endif // PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
+
     
       void exposeConstraintDynamics()
       {
@@ -58,18 +63,20 @@ namespace pinocchio
           .value("CONTACT_UNDEFINED",CONTACT_UNDEFINED)
           ;
         }
-        
-        ContactCholeskyDecompositionPythonVisitor<context::ContactCholeskyDecomposition>::expose();
-        
+
+        ProximalSettingsPythonVisitor<context::ProximalSettings>::expose();
+
+#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
+
         RigidConstraintModelPythonVisitor<context::RigidConstraintModel>::expose();
         RigidConstraintDataPythonVisitor<context::RigidConstraintData>::expose();
-        
+
         StdVectorPythonVisitor<RigidConstraintModelVector>::expose("StdVec_RigidConstraintModel");
         
         StdVectorPythonVisitor<RigidConstraintDataVector>::expose("StdVec_RigidConstraintData");
-        
-        ProximalSettingsPythonVisitor<context::ProximalSettings>::expose();
-        
+
+        ContactCholeskyDecompositionPythonVisitor<context::ContactCholeskyDecomposition>::expose();
+
         bp::def("initConstraintDynamics",
                 &initConstraintDynamics<context::Scalar,context::Options,JointCollectionDefaultTpl,typename RigidConstraintModelVector::allocator_type>,
                 bp::args("model","data","contact_models"),
@@ -89,6 +96,8 @@ namespace pinocchio
                 "Computes the forward dynamics with contact constraints according to a given list of Contact information.\n"
                 "When using constraintDynamics for the first time, you should call first initConstraintDynamics to initialize the internal memory used in the algorithm.\n"
                 "This function returns joint acceleration of the system. The contact forces are stored in the list data.contact_forces.");
+
+#endif // PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
       }
     }
 }

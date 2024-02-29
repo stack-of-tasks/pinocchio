@@ -5,6 +5,8 @@
 #ifndef __pinocchio_algorithm_constrained_dynamics_txx__
 #define __pinocchio_algorithm_constrained_dynamics_txx__
 
+#ifndef PINOCCHIO_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
+
 namespace pinocchio {
 
     extern template PINOCCHIO_DLLAPI void initConstraintDynamics
@@ -24,5 +26,7 @@ namespace pinocchio {
       (const context::Model &, context::Data &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &, const context::RigidConstraintModelVector &, context::RigidConstraintDataVector &);
 
 } // namespace pinocchio
+
+#endif // PINOCCHIO_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
 
 #endif // ifndef __pinocchio_algorithm_constrained_dynamics_txx__

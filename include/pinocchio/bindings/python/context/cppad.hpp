@@ -34,20 +34,4 @@ namespace pinocchio
   }
 }
 
-namespace pinocchio
-{
-  namespace python
-  {
-    namespace internal
-    {
-  
-      template<typename T> struct has_operator_equal;
-  
-      template<typename BaseScalar>
-      struct has_operator_equal< ::CppAD::AD<BaseScalar> > : boost::false_type   {};
-      
-    }
-  }
-}
-
 #endif // #ifndef __pinocchio_python_context_cppad_hpp__

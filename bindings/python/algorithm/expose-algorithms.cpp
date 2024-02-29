@@ -49,9 +49,9 @@ namespace pinocchio
 
       exposeContactSolvers();
 
-#if defined(PINOCCHIO_WITH_QHULL_SUPPORT)
+#if defined(PINOCCHIO_WITH_WORKSPACE_SUPPORT)
       exposeReachableWorkspace();
-#endif // defined(PINOCCHIO_WITH_QHULL_SUPPORT)
+#endif // defined(PINOCCHIO_WITH_WORKSPACE_SUPPORT)
 
     }
     

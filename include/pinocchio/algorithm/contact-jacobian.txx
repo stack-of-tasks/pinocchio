@@ -5,6 +5,8 @@
 #ifndef __pinocchio_algorithm_contact_jacobian_txx__
 #define __pinocchio_algorithm_contact_jacobian_txx__
 
+#ifndef PINOCCHIO_SKIP_ALGORITHM_CONTACT_JACOBIAN
+
 namespace pinocchio {
   // extern template PINOCCHIO_DLLAPI void getConstraintJacobian 
   //   <context::Scalar, context::Options, JointCollectionDefaultTpl, context::Matrix6xs>
@@ -15,5 +17,7 @@ namespace pinocchio {
   // (const context::Model &, context::Data &, const context::RigidConstraintModelVector &, context::RigidConstraintDataVector &, const Eigen::MatrixBase<context::Matrix6xs> &);
   
 } // namespace pinocchio
+
+#endif // PINOCCHIO_SKIP_ALGORITHM_CONTACT_JACOBIAN
 
 #endif // ifndef __pinocchio_algorithm_contact_jacobian_txx__

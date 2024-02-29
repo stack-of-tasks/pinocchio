@@ -10,14 +10,17 @@
 
 namespace pinocchio
 {
-  inline hpp::fcl::Transform3f toFclTransform3f(const SE3 & m)
+  template <typename Scalar>
+  inline hpp::fcl::Transform3f toFclTransform3f(const SE3Tpl<Scalar> & m)
   {
-    return hpp::fcl::Transform3f(m.rotation(), m.translation());
+    SE3Tpl<double,0> m_ = m.template cast<double>();
+    return hpp::fcl::Transform3f(m_.rotation(), m_.translation());
   }
 
   inline SE3 toPinocchioSE3(const hpp::fcl::Transform3f & tf)
   {
-    return SE3(tf.getRotation(), tf.getTranslation());
+    typedef SE3::Scalar Scalar;
+    return SE3(tf.getRotation().cast<Scalar>(), tf.getTranslation().cast<Scalar>());
   }
 
 } // namespace pinocchio

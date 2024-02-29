@@ -5,6 +5,8 @@
 #ifndef __pinocchio_algorithm_cholesky_txx__
 #define __pinocchio_algorithm_cholesky_txx__
 
+#ifndef PINOCCHIO_SKIP_ALGORITHM_CHOLESKY
+
 namespace pinocchio {
     namespace cholesky {
 
@@ -50,5 +52,7 @@ namespace pinocchio {
 
     } // namespace cholesky
 } // namespace pinocchio
+
+#endif // PINOCCHIO_SKIP_ALGORITHM_CHOLESKY
 
 #endif // ifndef __pinocchio_algorithm_cholesky_txx__

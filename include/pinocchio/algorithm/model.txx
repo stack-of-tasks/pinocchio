@@ -5,6 +5,8 @@
 #ifndef __pinocchio_algorithm_model_txx__
 #define __pinocchio_algorithm_model_txx__
 
+#ifndef PINOCCHIO_SKIP_ALGORITHM_MODEL
+
 namespace pinocchio {
 
   extern template PINOCCHIO_DLLAPI void appendModel
@@ -40,5 +42,7 @@ namespace pinocchio {
     (const context::Model &, JointIndex, JointIndex, size_t &, size_t &);
 
 } // namespace pinocchio
+
+#endif // PINOCCHIO_SKIP_ALGORITHM_MODEL
 
 #endif // ifndef __pinocchio_algorithm_model_txx__

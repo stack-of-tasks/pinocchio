@@ -1,9 +1,14 @@
+import sys
+from os.path import dirname, join, abspath
+
 import casadi
 import numpy as np
 
 import pinocchio as pin
 import pinocchio.casadi as cpin
 
+path = join(dirname(dirname(abspath(__file__))), 'models', 'example-robot-data', 'python')
+sys.path.append(path)
 import example_robot_data
 
 # Problem parameters

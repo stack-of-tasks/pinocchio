@@ -351,7 +351,7 @@ namespace pinocchio
 
           FrameIndex frame_id;
           UrdfGeomVisitorBase::Frame frame = visitor.getBodyFrame (link_name, frame_id);
-          const SE3 & body_placement = frame.placement;
+          const SE3 & body_placement = frame.placement.cast<SE3::Scalar>();
 
           std::size_t objectId = 0;
           for (typename VectorSharedT::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)

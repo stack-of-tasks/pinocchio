@@ -84,17 +84,6 @@ FUNCTION(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
     TARGET_LINK_LIBRARIES(${PYTHON_LIB_NAME} PUBLIC ${PYTHON_LIBRARY})
   ENDIF(WIN32)
 
-  IF(NOT ${scalar_name} STREQUAL "default")
-    MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}/${scalar_name}")
-    SET(python_file "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/pinocchio/${scalar_name}/__init__.py")
-    PYTHON_BUILD(${PROJECT_NAME}/${scalar_name} "__init__.py")
-    INSTALL(FILES
-      ${python_file}
-      DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}/${scalar_name})
-
-    # Append content to the main __init__.py
-    FILE(APPEND ${MAIN_PYTHON_INIT} "from . import ${scalar_name}\n")
-  ENDIF()
   SET(${PYWRAP}_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})
 
   SET_TARGET_PROPERTIES(${PYTHON_LIB_NAME}
@@ -117,7 +106,27 @@ FUNCTION(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
     EXPORT ${TARGETS_EXPORT_NAME}
     DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}
     )
+ENDFUNCTION()
 
+FUNCTION(INSTALL_PYTHON_FILES)
+  SET(options)
+  SET(oneValueArgs MODULE)
+  SET(multiValueArgs FILES)
+  CMAKE_PARSE_ARGUMENTS(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}"
+                        ${ARGN})
+
+  SET(SOURCE_PATH ${PROJECT_NAME})
+  SET(INSTALL_PATH ${PINOCCHIO_PYTHON_INSTALL_DIR})
+  IF(ARGS_MODULE)
+    SET(SOURCE_PATH ${SOURCE_PATH}/${ARGS_MODULE})
+    SET(INSTALL_PATH ${INSTALL_PATH}/${ARGS_MODULE})
+  ENDIF()
+
+  FOREACH(f ${ARGS_FILES})
+    PYTHON_BUILD(${SOURCE_PATH} ${f})
+    INSTALL(FILES ${SOURCE_PATH}/${f}
+            DESTINATION ${INSTALL_PATH})
+  ENDFOREACH()
 ENDFUNCTION()
 
 IF(BUILD_PYTHON_INTERFACE)
@@ -135,10 +144,6 @@ IF(BUILD_PYTHON_INTERFACE)
   ENDIF()
   SET(PINOCCHIO_PYTHON_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})
 
-  # First generate the __init__.py file
-  SET(MAIN_PYTHON_INIT "${CMAKE_CURRENT_BINARY_DIR}/pinocchio/__init__.py")
-  CONFIGURE_FILE("${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/pinocchio/__init__.py" ${MAIN_PYTHON_INIT})
-
   PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE(default)
   SET(PYTHON_LIB_NAME "${PYWRAP}_default")
   SET(STUBGEN_DEPENDENCIES "${PYWRAP}_default")
@@ -149,6 +154,11 @@ IF(BUILD_PYTHON_INTERFACE)
     TARGET_INCLUDE_DIRECTORIES(${PYWRAP}_cppad SYSTEM PUBLIC ${cppad_INCLUDE_DIR})
     TARGET_LINK_LIBRARIES(${PYWRAP}_cppad PUBLIC ${cppad_LIBRARY})
     LIST(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppad")
+
+    # --- INSTALL SCRIPTS
+    INSTALL_PYTHON_FILES(MODULE cppad
+      FILES
+        __init__.py)
   ENDIF(BUILD_WITH_AUTODIFF_SUPPORT)
 
   IF(BUILD_WITH_CODEGEN_SUPPORT)
@@ -157,12 +167,22 @@ IF(BUILD_PYTHON_INTERFACE)
     TARGET_INCLUDE_DIRECTORIES(${PYWRAP}_cppadcg SYSTEM PUBLIC ${cppadcg_INCLUDE_DIR})
     TARGET_LINK_LIBRARIES(${PYWRAP}_cppadcg PUBLIC ${cppadcg_LIBRARY} ${cppad_LIBRARY})
     LIST(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppadcg")
+
+    # --- INSTALL SCRIPTS
+    INSTALL_PYTHON_FILES(MODULE cppadcg
+      FILES
+        __init__.py)
   ENDIF(BUILD_WITH_CODEGEN_SUPPORT)
 
   IF(BUILD_WITH_CASADI_SUPPORT)
     PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE(casadi)
     TARGET_LINK_LIBRARIES(${PYWRAP}_casadi PUBLIC casadi)
     LIST(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_casadi")
+
+    # --- INSTALL SCRIPTS
+    INSTALL_PYTHON_FILES(MODULE casadi
+      FILES
+        __init__.py)
   ENDIF(BUILD_WITH_CASADI_SUPPORT)
 
   IF(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
@@ -173,16 +193,15 @@ IF(BUILD_PYTHON_INTERFACE)
     target_link_libraries(${PYWRAP}_mpfr PRIVATE gmp mpfr)
     SET_PROPERTY(TARGET ${PYWRAP}_mpfr PROPERTY CXX_STANDARD 11)
     LIST(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_mpfr")
+
+    # --- INSTALL SCRIPTS
+    INSTALL_PYTHON_FILES(MODULE mpfr
+      FILES
+        __init__.py)
   ENDIF(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
 
-  PYTHON_BUILD_FILE(${MAIN_PYTHON_INIT})
-  INSTALL(FILES
-      "${MAIN_PYTHON_INIT}c"
-      DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}
-    )
-
   # --- INSTALL SCRIPTS
-  SET(PYTHON_FILES
+  INSTALL_PYTHON_FILES(FILES
     __init__.py
     deprecated.py
     deprecation.py
@@ -191,33 +210,24 @@ IF(BUILD_PYTHON_INTERFACE)
     romeo_wrapper.py
     explog.py
     shortcuts.py
-    windows_dll_manager.py
-    )
+    windows_dll_manager.py)
 
-  FOREACH(python ${PYTHON_FILES})
-    PYTHON_BUILD(${PROJECT_NAME} ${python})
-    INSTALL(FILES
-      "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/pinocchio/${python}"
-      DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}
-    )
-  ENDFOREACH(python)
+  # --- INSTALL DERIVATIVE SCRIPTS
+  INSTALL_PYTHON_FILES(MODULE derivative
+    FILES
+      xm.py
+      dcrba.py
+      lambdas.py)
 
   # --- INSTALL VISUALIZATION SCRIPTS
-  SET(PYTHON_VISUALIZE_FILES
-    __init__.py
-    base_visualizer.py
-    gepetto_visualizer.py
-    meshcat_visualizer.py
-    panda3d_visualizer.py
-    rviz_visualizer.py
-    )
-
-  FOREACH(python ${PYTHON_VISUALIZE_FILES})
-    PYTHON_BUILD(${PROJECT_NAME}/visualize ${python})
-    INSTALL(FILES
-      "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/pinocchio/visualize/${python}"
-      DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}/visualize)
-  ENDFOREACH(python)
+  INSTALL_PYTHON_FILES(MODULE visualize
+    FILES
+      __init__.py
+      base_visualizer.py
+      gepetto_visualizer.py
+      meshcat_visualizer.py
+      panda3d_visualizer.py
+      rviz_visualizer.py)
 
   # --- STUBS --- #
   IF(GENERATE_PYTHON_STUBS)

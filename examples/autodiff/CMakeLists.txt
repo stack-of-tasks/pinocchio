@@ -18,7 +18,7 @@ IF(BUILD_WITH_AUTODIFF_SUPPORT)
        )
 
     FOREACH(EXAMPLE ${${PROJECT_NAME}_AUTODIFF_PYTHON_EXAMPLES})
-      ADD_PYTHON_UNIT_TEST("example-py-${EXAMPLE}" "examples/${EXAMPLE}.py" "bindings/python")
+      ADD_PYTHON_UNIT_TEST("example-py-${EXAMPLE}" "examples/autodiff/${EXAMPLE}.py" "bindings/python")
     ENDFOREACH(EXAMPLE ${${PROJECT_NAME}_AUTODIFF_PYTHON_EXAMPLES})
   ENDIF(BUILD_PYTHON_INTERFACE)
 

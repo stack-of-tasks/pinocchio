@@ -30,6 +30,7 @@ namespace pinocchio
         // using the rpy scope
         bp::scope current_scope = getOrCreatePythonNamespace("linalg");
 
+#ifndef PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
         bp::def("computeLargestEigenvector",
                 (context::VectorXs (*)(const context::MatrixXs &, const int, const context::Scalar))&computeLargestEigenvector<context::MatrixXs>,
                 (bp::arg("mat"),bp::arg("max_it") = 10, bp::arg("rel_tol") = 1e-8),
@@ -38,6 +39,7 @@ namespace pinocchio
         bp::def("retrieveLargestEigenvalue",&retrieveLargestEigenvalue<context::MatrixXs>,
                 bp::arg("eigenvector"),
                 "Compute the lagest eigenvalue of a given matrix. This is taking the eigenvector computed by the function computeLargestEigenvector.");
+#endif // PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
 
         bp::def("inv",&inv<context::MatrixXs>,"Computes the inverse of a matrix.");
 #ifdef PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE

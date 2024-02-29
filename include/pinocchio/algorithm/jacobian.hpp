@@ -5,7 +5,6 @@
 #ifndef __pinocchio_algorithm_jacobian_hpp__
 #define __pinocchio_algorithm_jacobian_hpp__
 
-#include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 

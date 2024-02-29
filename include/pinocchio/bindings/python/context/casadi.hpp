@@ -14,6 +14,9 @@
 #define PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
 #define PINOCCHIO_PYTHON_NO_SERIALIZATION
 #define PINOCCHIO_PYTHON_SKIP_REACHABLE_WORKSPACE
+#define PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
+
+#define PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
 
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/user-type.hpp>
@@ -434,13 +437,12 @@ namespace pinocchio { namespace python {
 
 }}
 
-namespace pinocchio { namespace python { namespace internal {
-  
-  template<typename T> struct has_operator_equal;
+namespace eigenpy {
   
   template<typename Scalar>
   struct has_operator_equal<::casadi::Matrix<Scalar> > : boost::false_type
   {};
-}}}
+
+}
 
 #endif // #ifndef __pinocchio_python_context_casadi_hpp__

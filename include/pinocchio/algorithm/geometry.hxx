@@ -122,7 +122,7 @@ namespace pinocchio
       const Model::JointIndex i = geom_object.parentJoint;
       assert (i<geom_data.radius.size());
 
-      double radius = geom_data.radius[i] * geom_data.radius[i];
+      Scalar radius = geom_data.radius[i] * geom_data.radius[i];
 
       // The radius is simply the one of the 8 corners of the AABB cube, expressed 
       // in the joint frame, whose norm is the highest.

@@ -2,6 +2,10 @@
 // Copyright (c) 2022 INRIA
 //
 
+#include "pinocchio/spatial/fwd.hpp"
+
+#ifndef PINOCCHIO_SKIP_PARSERS_SAMPLE_MODELS
+
 #include "pinocchio/parsers/sample-models.hpp"
 
 namespace pinocchio {
@@ -20,3 +24,5 @@ namespace pinocchio {
     
   } // namespace buildModels
 } // namespace pinocchio 
+
+#endif // PINOCCHIO_SKIP_PARSERS_SAMPLE_MODELS

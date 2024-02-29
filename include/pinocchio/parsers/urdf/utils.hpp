@@ -5,6 +5,7 @@
 #ifndef __pinocchio_parsers_urdf_utils_hpp__
 #define __pinocchio_parsers_urdf_utils_hpp__
 
+#include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include <urdf_model/pose.h>
 

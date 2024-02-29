@@ -102,8 +102,6 @@ namespace pinocchio
     
   };
 
-  typedef ProximalSettingsTpl<double> ProximalSettings;
-  
 }
 
 #if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION

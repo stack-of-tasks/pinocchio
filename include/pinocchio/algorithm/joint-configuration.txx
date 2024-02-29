@@ -111,6 +111,8 @@ namespace pinocchio {
     <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs>
     (const context::Model &, const Eigen::MatrixBase<context::VectorXs> &);
 
+#ifndef PINOCCHIO_SKIP_CASADI_UNSUPPORTED
+
   extern template PINOCCHIO_DLLAPI bool isNormalized
     <LieGroupMap, context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs>
     (const context::Model &, const Eigen::MatrixBase<context::VectorXs> &, const context::Scalar &);
@@ -134,6 +136,8 @@ namespace pinocchio {
   extern template PINOCCHIO_DLLAPI void integrateCoeffWiseJacobian
     <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::MatrixXs>
     (const context::Model &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::MatrixXs> &);
+
+#endif // PINOCCHIO_SKIP_CASADI_UNSUPPORTED
 
   extern template PINOCCHIO_DLLAPI context::VectorXs integrate
     <LieGroupMap, context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::VectorXs>

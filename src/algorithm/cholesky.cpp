@@ -2,7 +2,12 @@
 // Copyright (c) 2022 INRIA
 //
 
+#include "pinocchio/spatial/fwd.hpp"
+
+#ifndef PINOCCHIO_SKIP_ALGORITHM_CHOLESKY
+
 #include "pinocchio/algorithm/cholesky.hpp"
+
 
 namespace pinocchio {
     namespace cholesky {
@@ -48,3 +53,5 @@ namespace pinocchio {
     (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
     } // namespace cholesky
 } // namespace pinocchio
+
+#endif // PINOCCHIO_SKIP_ALGORITHM_CHOLESKY
