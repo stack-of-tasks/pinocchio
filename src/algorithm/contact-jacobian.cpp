@@ -2,6 +2,10 @@
 // Copyright (c) 2022 INRIA
 //
 
+#include "pinocchio/spatial/fwd.hpp"
+
+#ifndef PINOCCHIO_SKIP_ALGORITHM_CONTACT_JACOBIAN
+
 #include "pinocchio/algorithm/contact-jacobian.hpp"
 
 namespace pinocchio {
@@ -14,3 +18,5 @@ namespace pinocchio {
   (const context::Model &, const context::Data &, const context::RigidConstraintModelVector &, context::RigidConstraintDataVector &, const Eigen::MatrixBase<context::MatrixXs> &);
 
 } // namespace pinocchio
+
+#endif // PINOCCHIO_SKIP_ALGORITHM_CONTACT_JACOBIAN

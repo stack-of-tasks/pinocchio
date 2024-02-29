@@ -27,10 +27,6 @@ namespace pinocchio {}
 
 #include "pinocchio/container/boost-container-limits.hpp"
 
-#define PINOCCHIO_SCALAR_TYPE_DEFAULT double
-#ifndef PINOCCHIO_SCALAR_TYPE
-#define PINOCCHIO_SCALAR_TYPE PINOCCHIO_SCALAR_TYPE_DEFAULT
-#endif
 
 #ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
   #ifndef EIGEN_RUNTIME_NO_MALLOC
@@ -131,19 +127,6 @@ namespace pinocchio
   /// \brief Return type undefined
   ///        This is an helper structure to help internal diagnosis.
   struct ReturnTypeNotDefined;
-
-  // Read and write
-  template <typename Derived>
-  Eigen::Ref<typename Derived::PlainObject> make_ref(const Eigen::MatrixBase<Derived> & x){
-      return Eigen::Ref<typename Derived::PlainObject>(x.const_cast_derived());
-  }
-
-  // Read-only
-  template <typename M>
-  auto make_const_ref(Eigen::MatrixBase<M> const & m)
-      -> Eigen::Ref<typename M::PlainObject const> {
-      return m;
-  }
 
   typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
 }

@@ -92,7 +92,7 @@ Scalar computePrimalFeasibility(const std::vector<CoulombFrictionConeTpl<Scalar>
   typedef typename Cone::Vector3 Vector3;
 
   Eigen::DenseIndex index = 0;
-  Scalar norm = 0;
+  Scalar norm(0);
   for(const auto & cone: cones)
   {
     const Vector3 df_projected = cone.project(forces.template segment<3>(index)) - forces.template segment<3>(index);
@@ -112,7 +112,7 @@ Scalar computeReprojectionError(const std::vector<CoulombFrictionConeTpl<Scalar>
   typedef typename Cone::Vector3 Vector3;
 
   Eigen::DenseIndex index = 0;
-  Scalar norm = 0;
+  Scalar norm(0);
   for(const auto & cone: cones)
   {
     const Vector3 df_projected = forces.template segment<3>(index) - cone.project(forces.template segment<3>(index) - velocities.template segment<3>(index));

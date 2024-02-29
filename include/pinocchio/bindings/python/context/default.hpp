@@ -5,7 +5,7 @@
 #ifndef __pinocchio_python_context_default_hpp__
 #define __pinocchio_python_context_default_hpp__
 
-#define PINOCCHIO_PYTHON_SCALAR_TYPE PINOCCHIO_SCALAR_TYPE
+#define PINOCCHIO_PYTHON_SCALAR_TYPE PINOCCHIO_PYTHON_SCALAR_TYPE_DEFAULT
 #define PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE
 #define PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
 

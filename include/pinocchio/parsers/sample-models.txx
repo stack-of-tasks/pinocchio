@@ -5,7 +5,7 @@
 #ifndef __pinocchio_parsers_sample_models_txx__
 #define __pinocchio_parsers_sample_models_txx__
 
-#include "pinocchio/parsers/sample-models.hpp"
+#ifndef PINOCCHIO_SKIP_PARSERS_SAMPLE_MODELS
 
 namespace pinocchio {
   namespace buildModels {
@@ -22,5 +22,7 @@ namespace pinocchio {
     (context::Model &, bool);
   } // namespace buildModels
 } // namespace pinocchio 
+
+#endif // PINOCCHIO_SKIP_PARSERS_SAMPLE_MODELS
 
 #endif // ifndef __pinocchio_parsers_sample_models_txx__

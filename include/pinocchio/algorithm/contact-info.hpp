@@ -585,7 +585,7 @@ namespace pinocchio
                     else
                       Jcol_local_world_aligned_linear
                       -= oMc2.translation().cross(Jcol_motion.angular());
-                    jacobian_matrix.col(jj) = Jcol_local_world_aligned_linear * sign;
+                    jacobian_matrix.col(jj) = Jcol_local_world_aligned_linear * Scalar(sign);
                     break;
                   }
                 }
@@ -601,7 +601,7 @@ namespace pinocchio
                 case LOCAL:
                 {
                   const Motion Jcol_local(oMc1.actInv(Jcol_motion));
-                  jacobian_matrix.col(jj) = Jcol_local.toVector() * sign;
+                  jacobian_matrix.col(jj) = Jcol_local.toVector() * Scalar(sign);
                   break;
                 }
                 case LOCAL_WORLD_ALIGNED:
@@ -609,7 +609,7 @@ namespace pinocchio
                   Motion Jcol_local_world_aligned(Jcol_motion);
                   Jcol_local_world_aligned.linear()
                   -= oMc1.translation().cross(Jcol_local_world_aligned.angular());
-                  jacobian_matrix.col(jj) = Jcol_local_world_aligned.toVector() * sign;
+                  jacobian_matrix.col(jj) = Jcol_local_world_aligned.toVector() * Scalar(sign);
                   break;
                 }
               }

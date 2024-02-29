@@ -5,14 +5,20 @@
 #ifndef __pinocchio_spatial_symmetric3__
 #define __pinocchio_spatial_symmetric3__
 
-#include "pinocchio/macros.hpp"
+#include "pinocchio/spatial/fwd.hpp"
+
 #include "pinocchio/math/matrix.hpp"
 
 namespace pinocchio
 {
+  template<typename _Scalar, int _Options>
+  struct traits<Symmetric3Tpl<_Scalar, _Options>>
+  {
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options>
-  class Symmetric3Tpl
+  class Symmetric3Tpl : public NumericalBase<Symmetric3Tpl<_Scalar, _Options>>
   {
   public:
     typedef _Scalar Scalar;

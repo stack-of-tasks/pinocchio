@@ -33,7 +33,7 @@ namespace pinocchio
         const ::urdf::Rotation & q = Y.origin.rotation;
 
         const Inertia::Vector3 com(p.x,p.y,p.z);
-        const Inertia::Matrix3 & R = Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix();
+        const Inertia::Matrix3 & R = Eigen::Quaterniond(q.w,q.x,q.y,q.z).cast<Inertia::Scalar>().matrix();
 
         Inertia::Matrix3 I;
         I << Y.ixx,Y.ixy,Y.ixz,
@@ -88,10 +88,9 @@ namespace pinocchio
           FrameIndex parentFrameId = getParentLinkFrame(link, model);
 
           // Transformation from the parent link to the joint origin
-          const SE3 jointPlacement
-          = convertFromUrdf(joint->parent_to_joint_origin_transform);
+          const SE3 jointPlacement = convertFromUrdf(joint->parent_to_joint_origin_transform).cast<Scalar>();
 
-          const Inertia Y = convertFromUrdf(link->inertial);
+          const Inertia Y = convertFromUrdf(link->inertial).cast<Scalar>();
 
           Vector max_effort(1), max_velocity(1), min_config(1), max_config(1);
           Vector friction(Vector::Constant(1,0.)), damping(Vector::Constant(1,0.));
@@ -276,7 +275,7 @@ namespace pinocchio
         model.setName(urdfTree->getName());
 
         ::urdf::LinkConstSharedPtr root_link = urdfTree->getRoot();
-        model.addRootJoint(convertFromUrdf(root_link->inertial), root_link->name);
+        model.addRootJoint(convertFromUrdf(root_link->inertial).cast<double>(), root_link->name);
 
         BOOST_FOREACH(::urdf::LinkConstSharedPtr child, root_link->child_links)
         {

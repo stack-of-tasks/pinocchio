@@ -2,6 +2,10 @@
 // Copyright (c) 2022 INRIA
 //
 
+#include "pinocchio/spatial/fwd.hpp"
+
+#ifndef PINOCCHIO_SKIP_ALGORITHM_CONTACT_CHOLESKY
+
 #include "pinocchio/algorithm/contact-cholesky.hpp"
 
 namespace pinocchio {
@@ -78,3 +82,5 @@ namespace pinocchio {
         
 
 } // namespace pinocchio
+
+#endif // PINOCCHIO_SKIP_ALGORITHM_CONTACT_CHOLESKY

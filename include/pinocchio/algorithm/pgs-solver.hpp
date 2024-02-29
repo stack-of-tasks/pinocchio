@@ -5,6 +5,7 @@
 #ifndef __pinocchio_algorithm_pgs_solver_hpp__
 #define __pinocchio_algorithm_pgs_solver_hpp__
 
+#include "pinocchio/algorithm/constraints/fwd.hpp"
 #include "pinocchio/algorithm/contact-solver-base.hpp"
 
 namespace pinocchio

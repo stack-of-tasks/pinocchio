@@ -1,7 +1,6 @@
 # Define Pinocchio sources and headers
 
 SET(${PROJECT_NAME}_CORE_SOURCES
-  src/utils/file-explorer.cpp
   )
 
 SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
@@ -37,6 +36,12 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/constrained-dynamics.hxx
   include/pinocchio/algorithm/constrained-problem-data.hpp
   include/pinocchio/algorithm/constraints/coulomb-friction-cone.hpp
+  include/pinocchio/algorithm/constraints/visitors/constraint-model-visitor.hpp
+  include/pinocchio/algorithm/constraints/constraint-data-base.hpp
+  include/pinocchio/algorithm/constraints/constraint-data-generic.hpp
+  include/pinocchio/algorithm/constraints/constraint-model-base.hpp
+  include/pinocchio/algorithm/constraints/constraint-model-generic.hpp
+  include/pinocchio/algorithm/constraints/constraints.hpp
   include/pinocchio/algorithm/constraints/fwd.hpp
   include/pinocchio/algorithm/contact-cholesky.hpp
   include/pinocchio/algorithm/contact-cholesky.hxx
@@ -49,7 +54,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/contact-jacobian.hxx
   include/pinocchio/algorithm/contact-solver-base.hpp
   include/pinocchio/algorithm/contact-solver-utils.hpp
-  include/pinocchio/algorithm/context.hpp
   include/pinocchio/algorithm/copy.hpp
   include/pinocchio/algorithm/crba.hpp
   include/pinocchio/algorithm/crba.hxx
@@ -124,6 +128,11 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/codegen/cppadcg.hpp
   include/pinocchio/container/aligned-vector.hpp
   include/pinocchio/container/boost-container-limits.hpp
+  include/pinocchio/context/casadi.hpp
+  include/pinocchio/context/cppad.hpp
+  include/pinocchio/context/cppadcg.hpp
+  include/pinocchio/context/default.hpp
+  include/pinocchio/context/generic.hpp
   include/pinocchio/context.hpp
   include/pinocchio/core/binary-op.hpp
   include/pinocchio/core/unary-op.hpp
@@ -155,6 +164,8 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/multibody/broadphase-manager-base.hpp
   include/pinocchio/multibody/broadphase-manager.hpp
   include/pinocchio/multibody/broadphase-manager.hxx
+  include/pinocchio/multibody/constraint-base.hpp
+  include/pinocchio/multibody/constraint-generic.hpp
   include/pinocchio/multibody/data.hpp
   include/pinocchio/multibody/data.hxx
   include/pinocchio/multibody/fcl.hpp
@@ -226,21 +237,19 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/multibody/visitor.hpp
   include/pinocchio/multibody/visitor/joint-binary-visitor.hpp
   include/pinocchio/multibody/visitor/joint-unary-visitor.hpp
-  include/pinocchio/parsers/python.hpp
   include/pinocchio/parsers/sample-models.hpp
   include/pinocchio/parsers/sample-models.hxx
-  include/pinocchio/parsers/srdf.hpp
-  include/pinocchio/parsers/srdf.hxx
-  include/pinocchio/parsers/utils.hpp
   include/pinocchio/serialization/aligned-vector.hpp
   include/pinocchio/serialization/archive.hpp
   include/pinocchio/serialization/data.hpp
   include/pinocchio/serialization/eigen.hpp
+  include/pinocchio/serialization/fcl.hpp
   include/pinocchio/serialization/force.hpp
   include/pinocchio/serialization/frame.hpp
   include/pinocchio/serialization/fwd.hpp
   include/pinocchio/serialization/geometry.hpp
   include/pinocchio/serialization/inertia.hpp
+  include/pinocchio/serialization/joints-constraint.hpp
   include/pinocchio/serialization/joints-data.hpp
   include/pinocchio/serialization/joints.hpp
   include/pinocchio/serialization/joints-model.hpp
@@ -286,7 +295,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/utils/cast.hpp
   include/pinocchio/utils/check.hpp
   include/pinocchio/utils/eigen-fix.hpp
-  include/pinocchio/utils/file-explorer.hpp
   include/pinocchio/utils/file-io.hpp
   include/pinocchio/utils/helpers.hpp
   include/pinocchio/utils/openmp.hpp
@@ -298,6 +306,16 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/utils/timer.hpp
   include/pinocchio/utils/version.hpp
 )
+SET(${PROJECT_NAME}_PARSERS_SOURCES
+  src/utils/file-explorer.cpp
+  )
+
+SET(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
+  include/pinocchio/parsers/srdf.hpp
+  include/pinocchio/parsers/srdf.hxx
+  include/pinocchio/parsers/utils.hpp
+  include/pinocchio/utils/file-explorer.hpp
+  )
 
 SET(${PROJECT_NAME}_URDF_SOURCES
   src/parsers/urdf/model.cpp
@@ -332,11 +350,11 @@ SET(${PROJECT_NAME}_HPP_FCL_PUBLIC_HEADERS
   include/pinocchio/spatial/fcl-pinocchio-conversions.hpp
   )
 
-SET(${PROJECT_NAME}_QHULL_SOURCES
+SET(${PROJECT_NAME}_WORKSPACE_SOURCES
   src/algorithm/reachable-workspace.cpp
   )
 
-SET(${PROJECT_NAME}_QHULL_PUBLIC_HEADERS
+SET(${PROJECT_NAME}_WORKSPACE_PUBLIC_HEADERS
   include/pinocchio/algorithm/reachable-workspace.hpp
   include/pinocchio/algorithm/reachable-workspace.hxx
   )
@@ -593,7 +611,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_PUBLIC_HEADERS
   include/pinocchio/bindings/python/multibody/pool/broadphase-manager.hpp
   )
 
-SET(${PROJECT_NAME}_BINDINGS_PYTHON_QHULL_SOURCES
+SET(${PROJECT_NAME}_BINDINGS_PYTHON_WORKSPACE_SOURCES
   bindings/python/algorithm/expose-reachable-workspace.cpp
   )
 

@@ -59,6 +59,8 @@ namespace python
   }
 #endif
 
+#ifndef PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
+
   static context::VectorXs computeConeProjection_wrapper(const context::CoulombFrictionConeVector & cones,
                                                          const context::VectorXs & forces)
   {
@@ -95,6 +97,7 @@ namespace python
     ::pinocchio::internal::computeComplementarityShift(cones, velocities,res);
     return res;
   }
+#endif // PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
 
   void exposeADMMContactSolver()
   {

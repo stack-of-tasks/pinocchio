@@ -6,9 +6,9 @@
 #ifndef __pinocchio_multibody_data_hpp__
 #define __pinocchio_multibody_data_hpp__
 
+#include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/math/tensor.hpp"
 
-#include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/motion.hpp"

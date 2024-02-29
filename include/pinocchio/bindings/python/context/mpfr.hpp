@@ -14,20 +14,4 @@
 #define PINOCCHIO_PYTHON_NO_SERIALIZATION
 #define PINOCCHIO_PYTHON_SKIP_REACHABLE_WORKSPACE
 
-namespace pinocchio
-{
-  namespace python
-  {
-    namespace internal
-    {
-  
-      template<typename T> struct has_operator_equal;
-  
-      template<>
-      struct has_operator_equal< PINOCCHIO_PYTHON_SCALAR_TYPE > : boost::true_type   {};
-      
-    }
-  }
-}
-
 #endif // #ifndef __pinocchio_python_context_mpfr_hpp__

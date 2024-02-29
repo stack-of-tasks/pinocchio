@@ -2,6 +2,10 @@
 // Copyright (c) 2022 INRIA
 //
 
+#include "pinocchio/spatial/fwd.hpp"
+
+#ifndef PINOCCHIO_SKIP_CASADI_UNSUPPORTED
+
 #include "pinocchio/algorithm/geometry.hpp"
 
 namespace pinocchio {
@@ -15,6 +19,7 @@ namespace pinocchio {
   (const context::Model &, const context::Data &, const GeometryModel &, GeometryData &);
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
+#ifndef PINOCCHIO_SKIP_ALGORITHM_GEOMETRY
 
   template bool computeCollisions
     <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs>
@@ -28,6 +33,9 @@ namespace pinocchio {
     <context::Scalar, context::Options, JointCollectionDefaultTpl>
   (const context::Model &, const GeometryModel &, GeometryData &);
 
+#endif // PINOCCHIO_SKIP_ALGORITHM_GEOMETRY
 #endif // PINOCCHIO_WITH_HPP_FCL
 
 } // namespace pinocchio
+
+#endif // PINOCCHIO_SKIP_CASADI_UNSUPPORTED

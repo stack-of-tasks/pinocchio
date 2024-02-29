@@ -5,6 +5,8 @@
 #ifndef __pinocchio_algorithm_constrained_dynamics_derivatives_txx__
 #define __pinocchio_algorithm_constrained_dynamics_derivatives_txx__
 
+#ifndef PINOCCHIO_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS_DERIVATIVES
+
 namespace pinocchio {
 
     extern template PINOCCHIO_DLLAPI void computeConstraintDynamicsDerivatives
@@ -30,5 +32,7 @@ namespace pinocchio {
       (const context::Model &, context::Data &, const context::RigidConstraintModelVector &, context::RigidConstraintDataVector &);
 
 } // namespace pinocchio
+
+#endif // PINOCCHIO_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS_DERIVATIVES
 
 #endif // ifndef __pinocchio_algorithm_constrained_dynamics_derivatives_txx__

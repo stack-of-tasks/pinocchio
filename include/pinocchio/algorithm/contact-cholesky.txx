@@ -5,6 +5,8 @@
 #ifndef __pinocchio_algorithm_contact_cholesky_txx__
 #define __pinocchio_algorithm_contact_cholesky_txx__
 
+#ifndef PINOCCHIO_SKIP_ALGORITHM_CONTACT_CHOLESKY
+
 namespace pinocchio {
       namespace details {
       extern template PINOCCHIO_DLLAPI context::VectorXs & inverseAlgo
@@ -79,5 +81,7 @@ namespace pinocchio {
     (const ContactCholeskyDecompositionTpl<context::Scalar, context::Options> &) const;  
         
 } // namespace pinocchio
+
+#endif // PINOCCHIO_SKIP_ALGORITHM_CONTACT_CHOLESKY
 
 #endif // ifndef __pinocchio_algorithm_contact_cholesky_txx__
