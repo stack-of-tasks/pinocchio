@@ -350,11 +350,11 @@ SET(${PROJECT_NAME}_HPP_FCL_PUBLIC_HEADERS
   include/pinocchio/spatial/fcl-pinocchio-conversions.hpp
   )
 
-SET(${PROJECT_NAME}_WORKSPACE_SOURCES
+SET(${PROJECT_NAME}_EXTRA_SOURCES
   src/algorithm/reachable-workspace.cpp
   )
 
-SET(${PROJECT_NAME}_WORKSPACE_PUBLIC_HEADERS
+SET(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS
   include/pinocchio/algorithm/reachable-workspace.hpp
   include/pinocchio/algorithm/reachable-workspace.hxx
   )
@@ -611,7 +611,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_PUBLIC_HEADERS
   include/pinocchio/bindings/python/multibody/pool/broadphase-manager.hpp
   )
 
-SET(${PROJECT_NAME}_BINDINGS_PYTHON_WORKSPACE_SOURCES
+SET(${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_SOURCES
   bindings/python/algorithm/expose-reachable-workspace.cpp
   )
 
