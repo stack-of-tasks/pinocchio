@@ -11,6 +11,7 @@
 
 #include <casadi/casadi.hpp>
 #include <Eigen/Core>
+#include <Eigen/Sparse>
 
 namespace boost { namespace math { namespace constants { namespace detail {
   template<>
@@ -196,6 +197,23 @@ namespace pinocchio
       for (Eigen::DenseIndex i = 0; i < m; ++i)
         for (Eigen::DenseIndex j = 0; j < n; ++j)
           dst(i, j) = src(i, j);
+    }
+
+    // Copy Eigen sparse matrix to casadi matrix
+    template<typename MT, typename Scalar>
+    inline void copy(Eigen::SparseMatrixBase<MT> const & src,
+                     ::casadi::Matrix<Scalar> & dst)
+    {
+      Eigen::DenseIndex const m = src.rows();
+      Eigen::DenseIndex const n = src.cols();
+
+      dst.resize(m, n);
+
+      // TODO this method is not optimal
+      // (we could copy only non zero values)
+      for (Eigen::Index i = 0; i < m; ++i)
+        for (Eigen::Index j = 0; j < n; ++j)
+           dst(i, j) = src.derived().coeff(i, j);
     }
     
     // Make an Eigen matrix consisting of pure casadi symbolics
