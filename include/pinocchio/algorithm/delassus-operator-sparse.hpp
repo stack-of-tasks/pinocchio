@@ -121,9 +121,9 @@ struct DelassusOperatorSparseTpl
   template<typename MatrixLike>
   void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const
   {
-    typedef internal::SimplicialCholeskyWrapper<CholeskyDecomposition> LLTWrapper;
+    typedef internal::SimplicialCholeskyWrapper<CholeskyDecomposition> CholeskyWrapper;
 
-    const LLTWrapper & wrapper = reinterpret_cast<const WrapperLLT &>(llt);
+    const CholeskyWrapper & wrapper = reinterpret_cast<const CholeskyWrapper &>(llt);
     wrapper._solve_impl(mat,mat.const_cast_derived(),tmp);
   }
 
