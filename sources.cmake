@@ -54,6 +54,7 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/contact-jacobian.hxx
   include/pinocchio/algorithm/contact-solver-base.hpp
   include/pinocchio/algorithm/contact-solver-utils.hpp
+  include/pinocchio/algorithm/contact-inverse-dynamics.hpp
   include/pinocchio/algorithm/copy.hpp
   include/pinocchio/algorithm/crba.hpp
   include/pinocchio/algorithm/crba.hxx
@@ -531,6 +532,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
   bindings/python/algorithm/expose-geometry.cpp
   bindings/python/algorithm/expose-aba-derivatives.cpp
   bindings/python/algorithm/expose-contact-solvers.cpp
+  bindings/python/algorithm/expose-contact-inverse-dynamics.cpp
   bindings/python/algorithm/expose-joints.cpp
   bindings/python/algorithm/expose-constrained-dynamics.cpp
   bindings/python/algorithm/expose-rnea.cpp
