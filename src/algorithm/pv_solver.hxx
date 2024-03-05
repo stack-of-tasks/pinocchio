@@ -46,10 +46,10 @@ namespace pinocchio
       {
         case LOCAL:
           if (contact_model.type == CONTACT_6D)
-            data.constraints_supported[joint_id] = 6;
+            data.constraints_supported[joint_id] += 6;
           else
             if (contact_model.type == CONTACT_3D)
-              data.constraints_supported[joint_id] = 3;
+              data.constraints_supported[joint_id] += 3;
           break;
         case WORLD:
           assert(false && "WORLD not implemented");
@@ -106,7 +106,7 @@ namespace pinocchio
       if (contact_model.type == CONTACT_6D)
       {
         // data.KA_temp[joint_id].setIdentity();
-        data.KA_temp[joint_id] = oMc.toActionMatrix();
+        data.KA_temp[joint_id] = oMc.toActionMatrixInverse();
       }
       else if (contact_model.type == CONTACT_3D)
       {
@@ -114,7 +114,7 @@ namespace pinocchio
       }
       
     } 
-    
+
     data.lambda_c_prox.resize(data.constraints_supported[0]);
 
     data.lambda_c.setZero();
@@ -948,7 +948,7 @@ namespace pinocchio
         // set all f[i] to zero or TODO: to external forces
         for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
         {
-          if (data.constraints_supported[i] > 0)
+          if (data.constraints_supported[j] > 0)
             data.f[j].toVector().setZero(); //data.v[j].cross(data.h[j]);
         }
         // Compute lambda_prox and update the data.f
