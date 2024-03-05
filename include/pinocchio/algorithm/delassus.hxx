@@ -433,12 +433,12 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, class ModelAllocator, class DataAllocator, typename MatrixType>
   void computePvDelassusMatrix(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                             const Eigen::MatrixBase<ConfigVectorType> & q,
-                             const std::vector<RigidConstraintModelTpl<Scalar,Options>,ModelAllocator> & contact_models,
-                             std::vector<RigidConstraintDataTpl<Scalar,Options>,DataAllocator> & contact_data,
-                             const Eigen::MatrixBase<MatrixType> & delassus_,
-                             const Scalar mu)
+                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                               const Eigen::MatrixBase<ConfigVectorType> & q,
+                               const std::vector<RigidConstraintModelTpl<Scalar,Options>,ModelAllocator> & contact_models,
+                               std::vector<RigidConstraintDataTpl<Scalar,Options>,DataAllocator> & contact_data,
+                               const Eigen::MatrixBase<MatrixType> & delassus_,
+                               const Scalar mu)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq,
@@ -723,7 +723,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     assert(current_row_id == delassus.rows() && "current row indexes do not the number of rows in the Delassus matrix.");
   }
 
-
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, class ModelAllocator, class DataAllocator, typename MatrixType>
   void computeDampedDelassusMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -740,15 +739,14 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     const Scalar mu_inv = Scalar(1)/mu;
     MatrixType & damped_delassus_inverse = damped_delassus_inverse_.const_cast_derived();
     
+    const Scalar mu_inv_square = mu_inv * mu_inv;
+    assert(check_expression_if_real<Scalar>(mu_inv_square != std::numeric_limits<Scalar>::infinity()) && "mu_inv**2 is equal to infinity.");
+    
     if (Pv)
       computePvDelassusMatrix(model,data,q,contact_models,contact_data,damped_delassus_inverse,mu_inv);
     else
       computeDelassusMatrix(model,data,q,contact_models,contact_data,damped_delassus_inverse,mu_inv);
     
-    
-    
-    const Scalar mu_inv_square = mu_inv * mu_inv;
-    assert(check_expression_if_real<Scalar>(mu_inv_square != std::numeric_limits<Scalar>::infinity()) && "mu_inv**2 is equal to infinity.");
     damped_delassus_inverse *= -mu_inv;
     damped_delassus_inverse.diagonal().array() += Scalar(1);
     if(not scaled)
