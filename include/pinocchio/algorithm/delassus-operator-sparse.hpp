@@ -54,6 +54,46 @@ struct SimplicialCholeskyWrapper : public Derived
   }
 
 }; // SimplicialCholeskyWrapper
+  
+template<typename SparseCholeskySolver>
+struct getSparseCholeskySolverBase;
+  
+template<typename SparseCholeskySolver> //, typename Base = typename SparseCholeskySolver::Base>
+struct SparseSolveInPlaceMethod;
+  
+#ifdef PINOCCHIO_WITH_ACCELERATE_SUPPORT
+template <typename MatrixType, int UpLo, SparseFactorization_t Solver, bool EnforceSquare>
+struct SparseSolveInPlaceMethod<Eigen::AccelerateImpl<MatrixType,UpLo,Solver,EnforceSquare> >
+{
+  typedef Eigen::AccelerateImpl<MatrixType,UpLo,Solver,EnforceSquare> SparseCholeskySolver;
+  
+  template<typename Rhs,typename Dest, typename Temporary>
+  static void run(const SparseCholeskySolver & solver,
+                  const Eigen::MatrixBase<Rhs> &mat,
+                  const Eigen::MatrixBase<Dest> &dest,
+                  Eigen::MatrixBase<Temporary> &/*tmp*/)
+  {
+    dest.const_cast_derived() = solver.solve(mat.derived());
+  }
+};
+#endif
+  
+template<typename SparseCholeskySolver>
+struct SparseSolveInPlaceMethod
+{
+  template<typename Rhs,typename Dest, typename Temporary>
+  static void run(const SparseCholeskySolver & solver,
+                  const Eigen::MatrixBase<Rhs> &mat,
+                  const Eigen::MatrixBase<Dest> &dest,
+                  Eigen::MatrixBase<Temporary> & tmp)
+  {
+    static_assert(std::is_base_of<Eigen::SimplicialCholeskyBase<SparseCholeskySolver>,SparseCholeskySolver>::value, "The solver is not a base of SimplicialCholeskyBase.");
+    typedef SimplicialCholeskyWrapper<SparseCholeskySolver> CholeskyWrapper;
+    
+    const CholeskyWrapper & wrapper = reinterpret_cast<const CholeskyWrapper &>(solver);
+    wrapper._solve_impl(mat,dest.const_cast_derived(),tmp.derived());
+  }
+};
 
 } // namespace internal
 
@@ -121,10 +161,9 @@ struct DelassusOperatorSparseTpl
   template<typename MatrixLike>
   void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const
   {
-    typedef internal::SimplicialCholeskyWrapper<CholeskyDecomposition> CholeskyWrapper;
-
-    const CholeskyWrapper & wrapper = reinterpret_cast<const CholeskyWrapper &>(llt);
-    wrapper._solve_impl(mat,mat.const_cast_derived(),tmp);
+    internal::SparseSolveInPlaceMethod<CholeskyDecomposition>::run(llt,mat.derived(),
+                                                                   mat.const_cast_derived(),
+                                                                   tmp);
   }
 
   template<typename MatrixLike>
@@ -176,9 +215,11 @@ struct DelassusOperatorSparseTpl
     return delassus_matrix_plus_damping;
   }
   
-  DenseMatrix inverse() const
+  SparseMatrix inverse() const
   {
-    DenseMatrix res = llt.solve(DenseMatrix::Identity(size(),size()));
+    SparseMatrix identity_matrix(size(),size());
+    identity_matrix.setIdentity();
+    SparseMatrix res = llt.solve(identity_matrix);
     return res;
   }
 

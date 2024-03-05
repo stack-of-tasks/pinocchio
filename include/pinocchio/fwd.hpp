@@ -39,6 +39,10 @@ namespace pinocchio {}
 #include <Eigen/Sparse>
 #include <Eigen/SparseCholesky>
 
+#ifdef PINOCCHIO_WITH_ACCELERATE_SUPPORT
+#include <Eigen/AccelerateSupport>
+#endif
+
 #ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
   #ifdef EIGEN_RUNTIME_NO_MALLOC_WAS_NOT_DEFINED
     #undef EIGEN_RUNTIME_NO_MALLOC
