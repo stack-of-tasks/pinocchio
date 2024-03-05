@@ -180,6 +180,20 @@ namespace pinocchio
          ;
 
         }
+#ifdef PINOCCHIO_WITH_ACCELERATE_SUPPORT
+        {
+          typedef Eigen::AccelerateLLT<context::SparseMatrix> AccelerateCholeskyDecomposition;
+          typedef DelassusOperatorSparseTpl<context::Scalar,context::Options,AccelerateCholeskyDecomposition> DelassusOperatorSparseAccelerate;
+          bp::class_<DelassusOperatorSparseAccelerate, boost::noncopyable>("DelassusOperatorSparseAccelerate",
+                                                                           "Delassus Cholesky sparse operator leveraging the Accelerate framework on APPLE systems.",
+                                                                           bp::no_init)
+          .def(bp::init<const context::SparseMatrix &>(bp::args("self","matrix"),"Build from a given sparse matrix"))
+          
+          .def(DelassusOperatorBasePythonVisitor<DelassusOperatorSparseAccelerate>())
+          ;
+          
+        }
+#endif
       }
       
       template<typename MatrixType>
