@@ -511,9 +511,7 @@ BOOST_AUTO_TEST_CASE(test_CD_3D_LOCAL_Quadruped)
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill( 1.);
   VectorXd q = randomConfiguration(model);
-  // q = randomConfiguration(model);
-  // VectorXd v = VectorXd::Random(model.nv);
-  VectorXd v = VectorXd::Zero(model.nv);
+  VectorXd v = VectorXd::Random(model.nv);
   VectorXd tau = VectorXd::Random(model.nv);
   
   const std::string RF = "FR_KFE";
@@ -530,21 +528,33 @@ BOOST_AUTO_TEST_CASE(test_CD_3D_LOCAL_Quadruped)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
   RigidConstraintModel ci_RF(CONTACT_3D,model, RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
+  ci_RF.corrector.Kp.setZero();
+  ci_RF.corrector.Kd.setZero();
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
   RigidConstraintModel ci_LF(CONTACT_3D,model,LF_id,LOCAL);
   ci_LF.joint1_placement.setRandom();
+  ci_LF.corrector.Kp.setZero();
+  ci_LF.corrector.Kd.setZero();
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidConstraintData(ci_LF));
 
   RigidConstraintModel ci_LR(CONTACT_3D,model, LR_id,LOCAL);
   ci_LR.joint1_placement.setRandom();
+  ci_LR.corrector.Kp.setZero();
+  ci_LR.corrector.Kd.setZero();
   contact_models.push_back(ci_LR);
   contact_datas.push_back(RigidConstraintData(ci_LR));
   RigidConstraintModel ci_RR(CONTACT_3D,model, RR_id,LOCAL);
   ci_RR.joint1_placement.setRandom();
+  ci_RR.corrector.Kp.setZero();
+  ci_RR.corrector.Kd.setZero();
   contact_models.push_back(ci_RR);
   contact_datas.push_back(RigidConstraintData(ci_RR));
+
+  
+  
+  
   
   const double mu0 = 0.0; //TODO: set to 0
 
@@ -566,14 +576,15 @@ BOOST_AUTO_TEST_CASE(test_CD_3D_LOCAL_Quadruped)
   auto ddq_err = data_ref.ddq - data.ddq;
   std::cout << "Error for solo = " << std::sqrt(ddq_err.dot(ddq_err)) << "\n";
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
-
+  
 
   // initConstraintDynamics(model,data_ref,contact_models);
   // constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
 
   initPvSolver(model,data,contact_models);
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
-  
+  std::cout << "Front foot velocity = " << data.a[4] - data.a_gf[4] << "\n";
+  std::cout << "Constraint velocity = " << ci_LF.joint1_placement.actInv(data.a[4] - data.a_gf[4]) << "\n";
   // Check solutions
   std::cout << "Error for solo = " << std::sqrt(ddq_err.dot(ddq_err)) << "\n";
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));

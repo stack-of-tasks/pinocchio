@@ -23,68 +23,6 @@
 namespace pinocchio
 {
 
-  namespace internal
-  {
-    
-    // template<typename Scalar>
-    // struct SE3actOn
-    // {
-    //   template<int Options, typename Matrix6Type>
-    //   static typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type)
-    //   run(const SE3Tpl<Scalar,Options> & M,
-    //       const Eigen::MatrixBase<Matrix6Type> & I)
-    //   {
-    //     typedef SE3Tpl<Scalar,Options> SE3;
-    //     typedef typename SE3::Matrix3 Matrix3;
-    //     typedef typename SE3::Vector3 Vector3;
-        
-    //     typedef const Eigen::Block<Matrix6Type,3,3> constBlock3;
-        
-    //     typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
-    //     typedef Eigen::Block<ReturnType,3,3> Block3;
-        
-    //     Matrix6Type & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I);
-    //     const constBlock3 & Ai = I_.template block<3,3>(Inertia::LINEAR, Inertia::LINEAR);
-    //     const constBlock3 & Bi = I_.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
-    //     const constBlock3 & Di = I_.template block<3,3>(Inertia::ANGULAR, Inertia::ANGULAR);
-        
-    //     const Matrix3 & R = M.rotation();
-    //     const Vector3 & t = M.translation();
-        
-    //     ReturnType res;
-    //     Block3 Ao = res.template block<3,3>(Inertia::LINEAR, Inertia::LINEAR);
-    //     Block3 Bo = res.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
-    //     Block3 Co = res.template block<3,3>(Inertia::ANGULAR, Inertia::LINEAR);
-    //     Block3 Do = res.template block<3,3>(Inertia::ANGULAR, Inertia::ANGULAR);
-        
-    //     Do.noalias() = R*Ai; // tmp variable
-    //     Ao.noalias() = Do*R.transpose();
-        
-    //     Do.noalias() = R*Bi; // tmp variable
-    //     Bo.noalias() = Do*R.transpose();
-        
-    //     Co.noalias() = R*Di; // tmp variable
-    //     Do.noalias() = Co*R.transpose();
-        
-    //     Do.row(0) += t.cross(Bo.col(0));
-    //     Do.row(1) += t.cross(Bo.col(1));
-    //     Do.row(2) += t.cross(Bo.col(2));
-        
-    //     Co.col(0) = t.cross(Ao.col(0));
-    //     Co.col(1) = t.cross(Ao.col(1));
-    //     Co.col(2) = t.cross(Ao.col(2));
-    //     Co += Bo.transpose();
-        
-    //     Bo = Co.transpose();
-    //     Do.col(0) += t.cross(Bo.col(0));
-    //     Do.col(1) += t.cross(Bo.col(1));
-    //     Do.col(2) += t.cross(Bo.col(2));
-        
-    //     return res;
-    //   }
-    // };
-  } // namespace internal
-
   // Ask Justin where to initialize pv_settings, or whether it should be combined with proximal settings
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator>
@@ -164,39 +102,21 @@ namespace pinocchio
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
       const JointIndex & joint_id = contact_model.joint1_id;
+      const auto & oMc = contact_model.joint1_placement;
       if (contact_model.type == CONTACT_6D)
       {
-        data.KA_temp[joint_id].setIdentity();
+        // data.KA_temp[joint_id].setIdentity();
+        data.KA_temp[joint_id] = oMc.toActionMatrix();
       }
       else if (contact_model.type == CONTACT_3D)
       {
-        auto & oMc = contact_model.joint1_placement;
         data.KA_temp[joint_id] = oMc.toActionMatrixInverse().template topRows<3>().transpose();
       }
       
     } 
-
-    // data.lambda_c.resize(data.constraints_supported[0]);
-    data.lambda_c_prox.resize(data.constraints_supported[0]);
-    // data.impulse_c.resize(data.contact_chol.constraintDim());
     
-    // TODO: should be moved elsewhere
-    // data.dlambda_dq.resize(data.contact_chol.constraintDim(), model.nv);
-    // data.dlambda_dv.resize(data.contact_chol.constraintDim(), model.nv);
-    // data.dlambda_dtau.resize(data.contact_chol.constraintDim(), model.nv);
-    // data.dvc_dq.resize(data.contact_chol.constraintDim(), model.nv);
-    // data.dac_dq.resize(data.contact_chol.constraintDim(), model.nv);
-    // data.dac_dv.resize(data.contact_chol.constraintDim(), model.nv);
-    // data.dac_da.resize(data.contact_chol.constraintDim(), model.nv);
-    // data.dlambda_dq.setZero();
-    // data.dlambda_dv.setZero();
-    // data.dlambda_dtau.setZero();
-    // data.dvc_dq.setZero();
-    // data.dac_dq.setZero();
-    // data.dac_dv.setZero();
-    // data.dac_da.setZero();
+    data.lambda_c_prox.resize(data.constraints_supported[0]);
 
-    // data.osim.resize(data.contact_chol.constraintDim(), data.contact_chol.constraintDim());
     data.lambda_c.setZero();
     data.lambda_c_prox.setZero();
     data.osim_llt = Eigen::LLT<Data::MatrixXs>(data.constraints_supported[0]);
@@ -856,6 +776,7 @@ namespace pinocchio
     for(std::size_t i=0;i<contact_models.size();++i)
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
+      typename RigidConstraintData::Motion & vc1 = contact_datas[i].contact1_velocity;
       const JointIndex & joint_id = contact_model.joint1_id;
       // data.lA[joint_id].noalias() -= data.KA_temp[joint_id].template topRows<3>().transpose()*(data.a_gf[joint_id].linear_impl());
       for (int j = 0; j < data.constraints_supported[joint_id]; j++)
@@ -864,6 +785,15 @@ namespace pinocchio
             data.lA[joint_id][j] -=
               (data.KA_temp[joint_id].col(j).head(3).transpose()*data.a_gf[joint_id].linear_impl());
           }
+      // if (contact_model.type == CONTACT_6D)
+      // {
+      //   data.lA[joint_id].noalias() -= contact_model.joint1_placement.actInv(data.a_bias[joint_id]).toVector();
+      // }
+      if(contact_model.type == CONTACT_3D)
+      { 
+        vc1 = contact_model.joint1_placement.actInv(data.v[joint_id]);
+        data.lA[joint_id].noalias() += vc1.angular().cross(vc1.linear());
+      }
     }
     
     if (!early_full)
