@@ -462,6 +462,7 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel_with_geom)
     BOOST_CHECK_EQUAL(go1.overrideMaterial, go2.overrideMaterial);
     BOOST_CHECK_EQUAL(go1.meshColor, go2.meshColor);
     BOOST_CHECK_EQUAL(go1.meshTexturePath, go2.meshTexturePath);
+    BOOST_CHECK_EQUAL(go1.parentFrame, go2.parentFrame);
     BOOST_CHECK_EQUAL(humanoid_model.frames[go1.parentFrame].name,
                       reduced_humanoid_model.frames[go2.parentFrame].name);
   }
