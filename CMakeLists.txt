@@ -101,6 +101,12 @@ cmake_dependent_option(LINK_PYTHON_INTERFACE_TO_OPENMP "Link OpenMP to the Pytho
 cmake_dependent_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT "Build the Python interface with Boost.Multiprecision MPFR support" OFF BUILD_PYTHON_INTERFACE OFF)
 cmake_dependent_option(BUILD_WITH_LIBPYTHON "Link to libpython to embed an interpreter for the python_parser feature" ON
   "BUILD_PYTHON_INTERFACE" OFF)
+if(APPLE)
+  option(BUILD_WITH_ACCELERATE_SUPPORT
+         "Build EigenPy with the Accelerate support" OFF)
+else(APPLE)
+  set(BUILD_WITH_ACCELERATE_SUPPORT FALSE)
+endif(APPLE)
 OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF)
 
 OPTION(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
@@ -262,6 +268,24 @@ IF(BUILD_WITH_HPP_FCL_SUPPORT)
     UNSET(_hpp_fcl_python_bindings_not_found)
   ENDIF(BUILD_PYTHON_INTERFACE)
 ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
+
+if(BUILD_WITH_ACCELERATE_SUPPORT)
+  if(NOT ${Eigen3_VERSION} VERSION_GREATER_EQUAL "3.4.90")
+    message(
+      FATAL_ERROR
+        "Your version of Eigen is too low. Should be at least 3.4.90. Current version is ${Eigen3_VERSION}."
+    )
+  endif()
+
+  set(CMAKE_MODULE_PATH ${JRL_CMAKE_MODULES}/find-external/Accelerate
+                        ${CMAKE_MODULE_PATH})
+  find_package(
+    Accelerate REQUIRED # FIND_EXTERNAL "Accelerate" # We don't export yet as
+                        # there might be an issue on AMR64 platforms
+  )
+  message(STATUS "Build with Accelerate support framework.")
+  add_definitions(-DPINOCCHIO_WITH_ACCELERATE_SUPPORT)
+endif(BUILD_WITH_ACCELERATE_SUPPORT)
 
 # Sources definition
 INCLUDE(sources.cmake)
