@@ -102,17 +102,18 @@ namespace python
   void exposeADMMContactSolver()
   {
 #ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
-    bp::class_<Solver>("ADMMContactSolver",
-                       "Alternating Direction Method of Multi-pliers solver for contact dynamics.",
-                       bp::init<int, Scalar, Scalar, Scalar, Scalar, Scalar, int>((bp::arg("self"),
-                                                                                   bp::arg("problem_dim"),
-                                                                                   bp::arg("mu_prox") = Scalar(1e-6),
-                                                                                   bp::arg("tau") = Scalar(0.5),
-                                                                                   bp::arg("rho_power") = Scalar(0.2),
-                                                                                   bp::arg("rho_power_factor") = Scalar(0.05),
-                                                                                   bp::arg("ratio_primal_dual") = Scalar(10),
-                                                                                   bp::arg("max_it_largest_eigen_value_solver") = 20),
-                                                                     "Default constructor."))
+    bp::class_<Solver> cl("ADMMContactSolver",
+                          "Alternating Direction Method of Multi-pliers solver for contact dynamics.",
+                          bp::init<int, Scalar, Scalar, Scalar, Scalar, Scalar, int>((bp::arg("self"),
+                                                                                      bp::arg("problem_dim"),
+                                                                                      bp::arg("mu_prox") = Scalar(1e-6),
+                                                                                      bp::arg("tau") = Scalar(0.5),
+                                                                                      bp::arg("rho_power") = Scalar(0.2),
+                                                                                      bp::arg("rho_power_factor") = Scalar(0.05),
+                                                                                      bp::arg("ratio_primal_dual") = Scalar(10),
+                                                                                      bp::arg("max_it_largest_eigen_value_solver") = 20),
+                                                                                     "Default constructor."));
+    cl
     .def(ContactSolverBasePythonVisitor<Solver>())
 
     .def("solve",solve_wrapper<ContactCholeskyDecomposition::DelassusCholeskyExpression>,
@@ -193,23 +194,37 @@ namespace python
          bp::arg("self"),
          bp::return_internal_reference<>())
     ;
-
+    
+#ifdef PINOCCHIO_WITH_ACCELERATE_SUPPORT
+    {
+      typedef Eigen::AccelerateLLT<context::SparseMatrix> AccelerateLLT;
+      typedef DelassusOperatorSparseTpl<context::Scalar,context::Options,AccelerateLLT> DelassusOperatorSparseAccelerate;
+      cl.def("solve",solve_wrapper<DelassusOperatorSparseAccelerate>,
+             (bp::args("self","delassus","g","cones","R"),
+              bp::arg("primal_solution") = boost::none,
+              bp::arg("dual_solution") = boost::none,
+              bp::arg("compute_largest_eigen_values") = true,
+              bp::arg("stat_record") = false),
+             "Solve the constrained conic problem, starting from the optional initial guess.");
+    }
+#endif
+    
     bp::def("computeConeProjection",computeConeProjection_wrapper,
             bp::args("cones","forces"),
             "Project a vector on the cartesian product of cones.");
-
+    
     bp::def("computeDualConeProjection",computeDualConeProjection_wrapper,
             bp::args("cones","velocities"),
             "Project a vector on the cartesian product of dual cones.");
-
+    
     bp::def("computePrimalFeasibility",computePrimalFeasibility_wrapper,
             bp::args("cones","forces"),
             "Compute the primal feasibility.");
-
+    
     bp::def("computeReprojectionError",computeReprojectionError_wrapper,
             bp::args("cones","forces","velocities"),
             "Compute the reprojection error.");
-
+    
     bp::def("computeComplementarityShift",computeComplementarityShift_wrapper,
             bp::args("cones","velocities"),
             "Compute the complementarity shift associated to the De Saxé function.");
