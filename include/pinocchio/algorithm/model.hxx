@@ -339,6 +339,8 @@ namespace pinocchio
     // Sort indexes
     std::sort(list_of_joints_to_lock.begin(),list_of_joints_to_lock.end());
     
+    typename Model::FrameVector::const_iterator frame_it = input_model.frames.begin();
+
     // Check that they are not two identical elements
     for(size_t id = 1; id < list_of_joints_to_lock.size(); ++id)
     {
@@ -366,6 +368,7 @@ namespace pinocchio
     
     for(JointIndex joint_id = 1; joint_id < (JointIndex)input_model.njoints; ++joint_id)
     {
+
       const JointIndex joint_id_to_lock = (current_index_to_lock < list_of_joints_to_lock.size()) ? list_of_joints_to_lock[current_index_to_lock] : 0;
       
       const JointIndex input_parent_joint_index = input_model.parents[joint_id];
@@ -394,6 +397,43 @@ namespace pinocchio
       if(joint_id == joint_id_to_lock)
       {
         // the joint should not be added to the Model but aggragated to its parent joint
+        //Add frames up to the joint to lock
+        while((*frame_it).name != joint_name)
+        {
+          ++frame_it;
+          const Frame & input_frame = *frame_it;
+          if(input_frame.name == joint_name)
+            break;
+          const std::string & support_joint_name = input_model.names[input_frame.parent];
+
+          std::vector<JointIndex>::const_iterator support_joint_it = std::find(list_of_joints_to_lock.begin(),
+                                                                              list_of_joints_to_lock.end(),
+                                                                              input_frame.parent);
+          
+          if(support_joint_it != list_of_joints_to_lock.end())
+          {
+            if(   input_frame.type == JOINT
+              && reduced_model.existFrame(input_frame.name)
+              && support_joint_name == input_frame.name)
+              continue; // this means that the Joint is now fixed and has been replaced by a Frame. No need to add a new one.
+            
+            // The joint has been removed and replaced by a Frame
+            const FrameIndex joint_frame_id = reduced_model.getFrameId(support_joint_name);
+            const Frame & joint_frame = reduced_model.frames[joint_frame_id];
+            Frame reduced_frame = input_frame;
+            reduced_frame.placement = joint_frame.placement * input_frame.placement;
+            reduced_frame.parent = joint_frame.parent;
+            reduced_frame.previousFrame = reduced_model.getFrameId(input_model.frames[input_frame.previousFrame].name);
+            reduced_model.addFrame(reduced_frame, false);
+          }
+          else
+          {
+            Frame reduced_frame = input_frame;
+            reduced_frame.parent = reduced_model.getJointId(input_model.names[input_frame.parent]);
+            reduced_frame.previousFrame = reduced_model.getFrameId(input_model.frames[input_frame.previousFrame].name);
+            reduced_model.addFrame(reduced_frame, false);
+          }
+        }
 
         // Compute the new placement of the joint with respect to its parent joint in the new kinematic tree.
         JointData joint_data = joint_input_model.createData();
@@ -437,7 +477,7 @@ namespace pinocchio
         = joint_input_model.jointVelocitySelector(input_model.rotorGearRatio);
       }
     }
-    
+
     // Retrieve and extend the reference configurations
     typedef typename Model::ConfigVectorMap ConfigVectorMap;
     for(typename ConfigVectorMap::const_iterator config_it = input_model.referenceConfigurations.begin();
@@ -461,9 +501,8 @@ namespace pinocchio
       reduced_model.referenceConfigurations.insert(std::make_pair(config_name, reduced_config_vector));
     }
     
-    // Add all frames
-    typename Model::FrameVector::const_iterator frame_it = input_model.frames.begin();
-    for(++frame_it;frame_it != input_model.frames.end(); ++frame_it)
+    // Add all the missing frames
+    for(;frame_it != input_model.frames.end(); ++frame_it)
     {
       const Frame & input_frame = *frame_it;
       const std::string & support_joint_name = input_model.names[input_frame.parent];
