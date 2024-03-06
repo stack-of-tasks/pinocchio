@@ -501,8 +501,7 @@ namespace pinocchio
       reduced_model.referenceConfigurations.insert(std::make_pair(config_name, reduced_config_vector));
     }
     
-    // Add all frames
-    // typename Model::FrameVector::const_iterator frame_it = input_model.frames.begin();
+    // Add all the missing frames
     for(;frame_it != input_model.frames.end(); ++frame_it)
     {
       const Frame & input_frame = *frame_it;
