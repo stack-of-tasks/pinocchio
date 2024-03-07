@@ -8,9 +8,10 @@
 #include "pinocchio/parsers/sample-models.hpp"
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  #include "pinocchio/multibody/tree-broadphase-manager.hpp"
-  #include "pinocchio/algorithm/parallel/geometry.hpp"
-  #include "pinocchio/algorithm/parallel/broadphase.hpp"
+  #include "pinocchio/collision/tree-broadphase-manager.hpp"
+  #include "pinocchio/collision/parallel/geometry.hpp"
+  #include "pinocchio/collision/pool/fwd.hpp"
+  #include "pinocchio/collision/parallel/broadphase.hpp"
 
   #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
   #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h>
@@ -19,6 +20,7 @@
   #include <hpp/fcl/broadphase/broadphase_bruteforce.h>
   #include <hpp/fcl/broadphase/broadphase_interval_tree.h>
   #include <hpp/fcl/broadphase/broadphase_spatialhash.h>
+  #include <hpp/fcl/mesh_loader/loader.h>
 #endif
 
 #include "pinocchio/parsers/urdf.hpp"

@@ -13,6 +13,13 @@
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
+
+#include <hpp/fcl/mesh_loader/loader.h>
+#include <hpp/fcl/mesh_loader/assimp.h>
+
+#endif // PINOCCHIO_WITH_HPP_FCL
+
 namespace pinocchio
 {
   namespace urdf

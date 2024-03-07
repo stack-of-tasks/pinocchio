@@ -8,7 +8,10 @@
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/srdf.hpp"
 
-#include "pinocchio/multibody/broadphase-manager.hpp"
+#include "pinocchio/collision/collision.hpp"
+#include "pinocchio/collision/distance.hpp"
+#include "pinocchio/collision/broadphase-manager.hpp"
+#include "pinocchio/collision/broadphase.hpp"
 
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
 

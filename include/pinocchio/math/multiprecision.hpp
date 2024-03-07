@@ -115,7 +115,6 @@ namespace Eigen
     }
     
     constexpr static inline int digits() { return internal::default_digits_impl<self_type>::run(); }
-    constexpr static inline int max_digits10() { return internal::default_max_digits10_impl<self_type>::run(); }
   };
 
   template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>

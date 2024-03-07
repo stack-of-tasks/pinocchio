@@ -31,7 +31,6 @@ namespace pinocchio
     void exposeCAT();
     void exposeJacobian();
     void exposeGeometryAlgo();
-    void exposeBroadphase();
     void exposeKinematicRegressor();
     void exposeRegressor();
     void exposeCholesky();

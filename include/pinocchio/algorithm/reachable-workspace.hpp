@@ -9,7 +9,10 @@
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
-#include "pinocchio/algorithm/collision.hpp"
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
+#include "pinocchio/collision/collision.hpp"
+#endif // PINOCCHIO_WITH_HPP_FCL
 
 
 #include <Eigen/Core>

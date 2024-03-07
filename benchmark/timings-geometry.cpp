@@ -5,6 +5,9 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
+#ifdef PINOCCHIO_WITH_HPP_FCL
+#include "pinocchio/collision/collision.hpp"
+#endif // PINOCCHIO_WITH_HPP_FCL
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/multibody/geometry.hpp"

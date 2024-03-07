@@ -38,7 +38,7 @@
   #include <hpp/fcl/collision.h>
   #include <hpp/fcl/distance.h>
   #include <hpp/fcl/shape/geometric_shapes.h>
-  #include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
+  #include "pinocchio/collision/fcl-pinocchio-conversions.hpp"
 #endif
 
 #include <map>
