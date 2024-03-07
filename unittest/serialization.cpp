@@ -372,7 +372,6 @@ struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
 
   static JointModel run()
   {
-    typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(pinocchio::XAxis::vector(), pinocchio::YAxis::vector());
 
     jmodel.setIndexes(0, 0, 0);
