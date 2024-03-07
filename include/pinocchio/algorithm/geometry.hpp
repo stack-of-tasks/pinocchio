@@ -10,9 +10,6 @@
 #include "pinocchio/multibody/geometry.hpp"
 
 #include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/algorithm/collision.hpp"
-#include "pinocchio/algorithm/distance.hpp"
-#include "pinocchio/algorithm/broadphase.hpp"
 
 namespace pinocchio
 {
@@ -83,71 +80,6 @@ namespace pinocchio
     for(GeomIndex index=0; index<geom_model.ngeoms; index++)
       geom_model.geometryObjects[index].meshScale.setConstant(meshScale);
   }
-
-#ifdef PINOCCHIO_WITH_HPP_FCL
-
-  ///
-  /// Compute the forward kinematics, update the geometry placements and
-  /// calls computeCollision for every active pairs of GeometryData.
-  ///
-  /// \tparam JointCollection Collection of Joint types.
-  /// \tparam ConfigVectorType Type of the joint configuration vector.
-  ///
-  /// \param[in] model robot model (const)
-  /// \param[out] data corresponding data (nonconst) where the forward kinematics results are stored
-  /// \param[in] geom_model geometry model (const)
-  /// \param[out] geom_data corresponding geometry data (nonconst) where distances are computed
-  /// \param[in] q robot configuration.
-  /// \param[in] stopAtFirstCollision if true, stop the loop over the collision pairs when the first collision is detected.
-  ///
-  /// \warning if stopAtFirstcollision = true, then the collisions vector will
-  /// not be entirely fulfilled (of course).
-  /// \note A similar function is available without model, data and q, not recomputing the forward kinematics.
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline bool computeCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                const GeometryModel & geom_model,
-                                GeometryData & geom_data,
-                                const Eigen::MatrixBase<ConfigVectorType> & q,
-                                const bool stopAtFirstCollision = false);
-  
-  ///
-  /// Compute the forward kinematics, update the geometry placements and
-  /// calls computeDistance for every active pairs of GeometryData.
-  ///
-  /// \tparam JointCollection Collection of Joint types.
-  /// \tparam ConfigVectorType Type of the joint configuration vector.
-  ///
-  /// \param[in] model: robot model (const)
-  /// \param[in] data: corresponding data (nonconst) where FK results are stored
-  /// \param[in] geom_model: geometry model (const)
-  /// \param[out] geom_data: corresponding geometry data (nonconst) where distances are computed
-  /// \param[in] q: robot configuration.
-  ///
-  /// \note A similar function is available without model, data and q, not recomputing the FK.
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline std::size_t computeDistances(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                      const GeometryModel & geom_model,
-                                      GeometryData & geom_data,
-                                      const Eigen::MatrixBase<ConfigVectorType> & q);
-
-  ///
-  /// Compute the radius of the geometry volumes attached to every joints.
-  ///
-  /// \param[in] model Kinematic model of the system
-  /// \param[in] geom_model Geometry model of the system
-  /// \param[out] geom_data Geometry data of the system
-  ///
-  /// \sa GeometryData::radius
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void computeBodyRadius(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                const GeometryModel & geom_model,
-                                GeometryData & geom_data);
-#endif // PINOCCHIO_WITH_HPP_FCL
 
   ///
   /// Append geom_model2 to geom_model1

@@ -3,6 +3,7 @@
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
+#include "pinocchio/collision/collision.hpp"
 
 #include <iostream>
 

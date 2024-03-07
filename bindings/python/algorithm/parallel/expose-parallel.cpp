@@ -13,7 +13,6 @@ namespace pinocchio
   
     void exposeParallelRNEA();
     void exposeParallelABA();
-    void exposeParallelGeometry();
     
     void exposeParallelAlgorithms()
     {
@@ -21,10 +20,6 @@ namespace pinocchio
       
       exposeParallelRNEA();
       exposeParallelABA();
-      
-#ifdef PINOCCHIO_WITH_HPP_FCL
-      exposeParallelGeometry();
-#endif
       
       bp::def("omp_get_max_threads",&omp_get_max_threads,
               "Returns an upper bound on the number of threads that could be used.");

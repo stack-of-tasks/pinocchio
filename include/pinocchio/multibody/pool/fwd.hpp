@@ -13,30 +13,8 @@ namespace pinocchio
   template<typename Scalar, int Options = 0, template<typename,int> class JointCollectionTpl = JointCollectionDefaultTpl> class ModelPoolTpl;
   typedef ModelPoolTpl<context::Scalar> ModelPool;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
-
   template<typename Scalar, int Options = 0, template<typename,int> class JointCollectionTpl = JointCollectionDefaultTpl> class GeometryPoolTpl;
   typedef GeometryPoolTpl<context::Scalar> GeometryPool;
-
-  template<typename BroadPhaseManagerDerived, typename Scalar, int Options = 0, template<typename,int> class JointCollectionTpl = JointCollectionDefaultTpl> class BroadPhaseManagerPoolBase;
-
-  template<typename Manager> struct BroadPhaseManagerTpl; // fwd
-
-  template<typename ManagerDerived, typename Scalar, int Options = 0, template<typename,int> class JointCollectionTpl = JointCollectionDefaultTpl>
-  using BroadPhaseManagerPoolTpl = BroadPhaseManagerPoolBase<BroadPhaseManagerTpl<ManagerDerived>,Scalar,Options,JointCollectionTpl>;
-
-  template<typename ManagerDerived, typename Scalar>
-  using BroadPhaseManagerPool = BroadPhaseManagerPoolTpl<ManagerDerived,Scalar>;
-
-  template<typename Manager> struct TreeBroadPhaseManagerTpl; // fwd
-
-  template<typename ManagerDerived, typename Scalar, int Options = 0, template<typename,int> class JointCollectionTpl = JointCollectionDefaultTpl>
-  using TreeBroadPhaseManagerPoolTpl = BroadPhaseManagerPoolBase<TreeBroadPhaseManagerTpl<ManagerDerived>,Scalar,Options,JointCollectionTpl>;
-
-  template<typename ManagerDerived, typename Scalar>
-  using TreeBroadPhaseManagerPool = TreeBroadPhaseManagerPoolTpl<ManagerDerived,Scalar>;
-
-#endif
 
 }
 

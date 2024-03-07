@@ -10,10 +10,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/aba.hxx
   include/pinocchio/algorithm/admm-solver.hpp
   include/pinocchio/algorithm/admm-solver.hxx
-  include/pinocchio/algorithm/broadphase-callbacks.hpp
-  include/pinocchio/algorithm/broadphase-callbacks.hxx
-  include/pinocchio/algorithm/broadphase.hpp
-  include/pinocchio/algorithm/broadphase.hxx
   include/pinocchio/algorithm/center-of-mass-derivatives.hpp
   include/pinocchio/algorithm/center-of-mass-derivatives.hxx
   include/pinocchio/algorithm/center-of-mass.hpp
@@ -26,8 +22,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/check.hxx
   include/pinocchio/algorithm/cholesky.hpp
   include/pinocchio/algorithm/cholesky.hxx
-  include/pinocchio/algorithm/collision.hpp
-  include/pinocchio/algorithm/collision.hxx
   include/pinocchio/algorithm/compute-all-terms.hpp
   include/pinocchio/algorithm/compute-all-terms.hxx
   include/pinocchio/algorithm/constrained-dynamics-derivatives.hpp
@@ -66,8 +60,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/delassus-operator-dense.hpp
   include/pinocchio/algorithm/delassus-operator-rigid-body.hpp
   include/pinocchio/algorithm/delassus-operator-sparse.hpp
-  include/pinocchio/algorithm/distance.hpp
-  include/pinocchio/algorithm/distance.hxx
   include/pinocchio/algorithm/dynamics.hpp
   include/pinocchio/algorithm/energy.hpp
   include/pinocchio/algorithm/energy.hxx
@@ -93,8 +85,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/model.hpp
   include/pinocchio/algorithm/model.hxx
   include/pinocchio/algorithm/parallel/aba.hpp
-  include/pinocchio/algorithm/parallel/broadphase.hpp
-  include/pinocchio/algorithm/parallel/geometry.hpp
   include/pinocchio/algorithm/parallel/omp.hpp
   include/pinocchio/algorithm/parallel/rnea.hpp
   include/pinocchio/algorithm/pgs-solver.hpp
@@ -162,9 +152,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/math/taylor-expansion.hpp
   include/pinocchio/math/tensor.hpp
   include/pinocchio/math/triangular-matrix.hpp
-  include/pinocchio/multibody/broadphase-manager-base.hpp
-  include/pinocchio/multibody/broadphase-manager.hpp
-  include/pinocchio/multibody/broadphase-manager.hxx
   include/pinocchio/multibody/constraint-base.hpp
   include/pinocchio/multibody/constraint-generic.hpp
   include/pinocchio/multibody/data.hpp
@@ -228,12 +215,9 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/multibody/model.hpp
   include/pinocchio/multibody/model.hxx
   include/pinocchio/multibody/model-item.hpp
-  include/pinocchio/multibody/pool/broadphase-manager.hpp
   include/pinocchio/multibody/pool/fwd.hpp
   include/pinocchio/multibody/pool/geometry.hpp
   include/pinocchio/multibody/pool/model.hpp
-  include/pinocchio/multibody/tree-broadphase-manager.hpp
-  include/pinocchio/multibody/tree-broadphase-manager.hxx
   include/pinocchio/multibody/visitor/fusion.hpp
   include/pinocchio/multibody/visitor.hpp
   include/pinocchio/multibody/visitor/joint-binary-visitor.hpp
@@ -307,6 +291,41 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/utils/timer.hpp
   include/pinocchio/utils/version.hpp
 )
+
+SET(${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_SOURCES
+  src/collision/collision.cpp
+  src/collision/distance.cpp
+  )
+
+SET(${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_PUBLIC_HEADERS
+  include/pinocchio/collision/collision.txx
+  include/pinocchio/collision/distance.txx
+  )
+
+SET(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS
+  include/pinocchio/collision/collision.hpp
+  include/pinocchio/collision/collision.hxx
+  include/pinocchio/collision/broadphase-callbacks.hpp
+  include/pinocchio/collision/broadphase-callbacks.hxx
+  include/pinocchio/collision/broadphase.hpp
+  include/pinocchio/collision/broadphase.hxx
+  include/pinocchio/collision/distance.hpp
+  include/pinocchio/collision/distance.hxx
+  include/pinocchio/collision/broadphase-manager-base.hpp
+  include/pinocchio/collision/broadphase-manager.hpp
+  include/pinocchio/collision/broadphase-manager.hxx
+  include/pinocchio/collision/tree-broadphase-manager.hpp
+  include/pinocchio/collision/tree-broadphase-manager.hxx
+  include/pinocchio/collision/fcl-pinocchio-conversions.hpp
+  include/pinocchio/collision/pool/fwd.hpp
+  include/pinocchio/collision/pool/broadphase-manager.hpp
+  )
+
+SET(${PROJECT_NAME}_COLLISION_OPENMP_PUBLIC_HEADERS
+  include/pinocchio/collision/parallel/broadphase.hpp
+  include/pinocchio/collision/parallel/geometry.hpp
+  )
+
 SET(${PROJECT_NAME}_PARSERS_SOURCES
   src/utils/file-explorer.cpp
   )
@@ -345,10 +364,6 @@ SET(${PROJECT_NAME}_SDF_PUBLIC_HEADERS
 
 SET(${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS
   include/pinocchio/parsers/python.hpp
-  )
-
-SET(${PROJECT_NAME}_HPP_FCL_PUBLIC_HEADERS
-  include/pinocchio/spatial/fcl-pinocchio-conversions.hpp
   )
 
 SET(${PROJECT_NAME}_EXTRA_SOURCES
@@ -485,10 +500,14 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
   include/pinocchio/bindings/python/fwd.hpp
   include/pinocchio/bindings/python/serialization/serialization.hpp
   include/pinocchio/bindings/python/serialization/serializable.hpp
+  include/pinocchio/bindings/python/math/multiprecision/boost/number.hpp
+  include/pinocchio/bindings/python/collision/broadphase-manager-base.hpp
+  include/pinocchio/bindings/python/collision/geometry-functors.hpp
+  include/pinocchio/bindings/python/collision/tree-broadphase-manager.hpp
   include/pinocchio/bindings/python/multibody/data.hpp
   include/pinocchio/bindings/python/multibody/frame.hpp
   include/pinocchio/bindings/python/multibody/geometry-model.hpp
-  include/pinocchio/bindings/python/multibody/broadphase-manager-base.hpp
+  include/pinocchio/bindings/python/multibody/joint/joint.hpp
   include/pinocchio/bindings/python/multibody/model.hpp
   include/pinocchio/bindings/python/multibody/joint/joint-model.hpp
   include/pinocchio/bindings/python/multibody/joint/joint-derived.hpp
@@ -498,9 +517,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
   include/pinocchio/bindings/python/multibody/joint/joint-data.hpp
   include/pinocchio/bindings/python/multibody/liegroups.hpp
   include/pinocchio/bindings/python/multibody/geometry-data.hpp
-  include/pinocchio/bindings/python/multibody/geometry-functors.hpp
   include/pinocchio/bindings/python/multibody/geometry-object.hpp
-  include/pinocchio/bindings/python/multibody/tree-broadphase-manager.hpp
   include/pinocchio/bindings/python/parsers/urdf.hpp
   include/pinocchio/bindings/python/parsers/sample-models.hpp
   include/pinocchio/bindings/python/parsers/sdf.hpp
@@ -582,14 +599,16 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_PUBLIC_HEADERS
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_SOURCES
-  bindings/python/multibody/fcl/expose-fcl.cpp
-  bindings/python/algorithm/expose-broadphase.cpp
-  bindings/python/algorithm/expose-broadphase-callbacks.cpp
+  bindings/python/collision/expose-broadphase.cpp
+  bindings/python/collision/expose-broadphase-callbacks.cpp
+  bindings/python/collision/expose-collision.cpp
+  bindings/python/collision/expose-fcl.cpp
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PUBLIC_HEADERS
-  include/pinocchio/bindings/python/multibody/fcl/transform.hpp
-  include/pinocchio/bindings/python/multibody/broadphase-manager.hpp
+  include/pinocchio/bindings/python/collision/fcl/transform.hpp
+  include/pinocchio/bindings/python/collision/broadphase-manager.hpp
+  include/pinocchio/bindings/python/collision/collision.hpp
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_OPENMP_SOURCES
@@ -604,23 +623,19 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_OPENMP_PUBLIC_HEADERS
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_SOURCES
-  bindings/python/algorithm/parallel/geometry.cpp
-  bindings/python/algorithm/parallel/broadphase.cpp
+  bindings/python/collision/parallel/expose-parallel.cpp
+  bindings/python/collision/parallel/geometry.cpp
+  bindings/python/collision/parallel/broadphase.cpp
+  bindings/python/collision/pool/expose-pool.cpp
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_PUBLIC_HEADERS
-  include/pinocchio/bindings/python/multibody/pool/geometry.hpp
-  include/pinocchio/bindings/python/multibody/pool/broadphase-manager.hpp
+  include/pinocchio/bindings/python/collision/pool/geometry.hpp
+  include/pinocchio/bindings/python/collision/pool/broadphase-manager.hpp
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_SOURCES
   bindings/python/algorithm/expose-reachable-workspace.cpp
-  )
-
-SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_PUBLIC_HEADERS
-  include/pinocchio/bindings/python/multibody/pool/geometry.hpp
-  include/pinocchio/bindings/python/multibody/pool/broadphase-manager.hpp
-  include/pinocchio/bindings/python/multibody/broadphase-manager.hpp
   )
 
 

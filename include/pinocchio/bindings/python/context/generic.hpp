@@ -13,6 +13,9 @@
 
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
   #include "pinocchio/multibody/pool/fwd.hpp"
+#ifdef PINOCCHIO_WITH_HPP_FCL
+  #include "pinocchio/collision/pool/fwd.hpp"
+#endif
 #endif
 
 #include <eigenpy/eigen-typedef.hpp>

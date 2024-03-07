@@ -5,14 +5,18 @@
 #include <iostream>
 
 #include "pinocchio/multibody/geometry.hpp"
-#include "pinocchio/multibody/pool/broadphase-manager.hpp"
-#include "pinocchio/multibody/tree-broadphase-manager.hpp"
+#include "pinocchio/collision/collision.hpp"
+#include "pinocchio/collision/pool/fwd.hpp"
+#include "pinocchio/collision/pool/broadphase-manager.hpp"
+#include "pinocchio/collision/tree-broadphase-manager.hpp"
+#include "pinocchio/collision/parallel/broadphase.hpp"
+#include "pinocchio/collision/parallel/geometry.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
-#include "pinocchio/algorithm/parallel/geometry.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/srdf.hpp"
 
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
+#include <hpp/fcl/mesh_loader/loader.h>
 
 #include <vector>
 #include <boost/test/unit_test.hpp>

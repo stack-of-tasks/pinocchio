@@ -4,11 +4,12 @@
 
 #include <iostream>
 
-#include "pinocchio/algorithm/broadphase.hpp"
+#include "pinocchio/collision/collision.hpp"
+#include "pinocchio/collision/broadphase.hpp"
+#include "pinocchio/collision/tree-broadphase-manager.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/srdf.hpp"
 
-#include "pinocchio/multibody/tree-broadphase-manager.hpp"
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
 
 #include <vector>
