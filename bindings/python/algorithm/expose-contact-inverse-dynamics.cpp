@@ -5,6 +5,9 @@
 #define BOOST_PYTHON_MAX_ARITY 24
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
+
+#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
+
 #include "pinocchio/bindings/python/utils/list.hpp"
 #include "pinocchio/algorithm/contact-inverse-dynamics.hpp"
 
@@ -20,16 +23,16 @@ namespace pinocchio
 
     static ConstRefVectorXs computeContactImpulses_wrapper(const ModelTpl<Scalar,Options,JointCollectionDefaultTpl> & model,
                                 DataTpl<Scalar,Options,JointCollectionDefaultTpl> & data,
-                                ConstRefVectorXs & c_ref,
+                                const ConstRefVectorXs & c_ref,
                                 const context::RigidConstraintModelVector & contact_models,
                                 context::RigidConstraintDataVector & contact_datas,
                                 const context::CoulombFrictionConeVector & cones,
-                                ConstRefVectorXs & R,
-                                ConstRefVectorXs & constraint_correction,
+                                const ConstRefVectorXs & R,
+                                const ConstRefVectorXs & constraint_correction,
                                 ProximalSettingsTpl<Scalar> & settings,
                                 const boost::optional<ConstRefVectorXs> &lambda_guess = boost::none)
     {
-    return computeContactImpulses(model,data, c_ref, contact_models, contact_datas, cones, R, constraint_correction, settings, lambda_guess);
+    return computeContactImpulses(model, data, c_ref, contact_models, contact_datas, cones, R, constraint_correction, settings, lambda_guess);
     }
 
     static ConstRefVectorXs contactInverseDynamics_wrapper(const ModelTpl<Scalar,Options,JointCollectionDefaultTpl> & model,
@@ -69,7 +72,7 @@ namespace pinocchio
               "\tconstraint_correction: vector representing the constraint correction\n"
               "\tsettings: the settings of the proximal algorithm\n"
               "\tlambda_guess: initial guess for contact forces\n");
-
+      
       bp::def("contactInverseDynamics",
               contactInverseDynamics_wrapper,
               (bp::arg("model"),"data","q","v","a", "dt", "contact_models", "contact_datas", "cones","R", "constraint_correction",
@@ -95,3 +98,4 @@ namespace pinocchio
     
   } // namespace python
 } // namespace pinocchio
+#endif // PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
