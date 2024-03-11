@@ -5,6 +5,8 @@
 #ifndef __pinocchio_algorithm_pv_hxx__
 #define __pinocchio_algorithm_pv_hxx__
 
+// #include "pinocchio/context.hpp"
+#include "pinocchio/context.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
@@ -15,7 +17,9 @@
 
 #include "Eigen/Cholesky"
 #include "Eigen/Dense"
+#include "pinocchio/utils/check.hpp"
 #include <Eigen/src/Core/Matrix.h>
+#include <cassert>
 #include <cstddef>
 
 /// @cond DEV
@@ -781,8 +785,41 @@ namespace pinocchio
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
       typename RigidConstraintData::Motion & vc1 = contact_datas[i].contact1_velocity;
+      typename RigidConstraintData::Motion & vc2 = contact_datas[i].contact2_velocity;
       const JointIndex & joint_id = contact_model.joint1_id;
       int con_dim = contact_model.size();
+
+      const typename RigidConstraintModel::BaumgarteCorrectorParameters & corrector = contact_model.corrector;
+      typename RigidConstraintData::Motion & contact_acc_err = contact_datas[i].contact_acceleration_error;
+      typename RigidConstraintData::Motion & contact_vel_err = contact_datas[i].contact_velocity_error;
+
+      const JointIndex & joint2_id = contact_model.joint2_id;
+      if (joint2_id > 0)
+        assert(false), "Internal loops are not yet permitted in PV";
+      else
+       vc2.setZero();
+
+      // if (check_expression_if_real<Scalar,false>(corrector.Kd.isZero(Scalar(0)) && corrector.Kp.isZero(Scalar(0))))
+      // {
+      contact_acc_err.setZero();
+      // }
+      if (!check_expression_if_real<Scalar,false>(corrector.Kd.isZero(Scalar(0))))
+      {
+        
+        //TODO: modify for closed loops by subtracting vc2_in_frame1
+        if (contact_model.type == CONTACT_6D)
+        {
+          contact_vel_err = vc1; 
+          contact_acc_err.toVector().noalias() -=  corrector.Kd.asDiagonal()*contact_vel_err.toVector();
+        }
+        else
+        {
+          contact_vel_err = vc1; 
+          contact_vel_err.angular().setZero();
+          contact_acc_err.linear().noalias() -=  corrector.Kd.asDiagonal()*contact_vel_err.linear();
+        }
+        
+      }
       // data.lA[joint_id].noalias() -= data.KA_temp[joint_id].template topRows<3>().transpose()*(data.a_gf[joint_id].linear_impl());
       for (int j = condim_counter[joint_id]; j < condim_counter[joint_id] + con_dim; j++)
       {
@@ -797,11 +834,18 @@ namespace pinocchio
       if(contact_model.type == CONTACT_3D)
       { 
         vc1 = contact_model.joint1_placement.actInv(data.v[joint_id]);
-        data.lA[joint_id].segment(condim_counter[joint_id], 3).noalias() += vc1.angular().cross(vc1.linear());
+        data.lA[joint_id].segment(condim_counter[joint_id], 3).noalias() += vc1.angular().cross(vc1.linear()) - contact_acc_err.linear();
+      }
+      else {
+      {
+        data.lA[joint_id].segment(condim_counter[joint_id], 6).noalias() -= contact_acc_err.toVector();
+      }
       }
       condim_counter[joint_id] += con_dim;
       
     }
+
+    // Add Baumgarte stabilization
 
     // if (model.nv > 15) // TODO: remove this whole block
     //   std::cout << "data.lA[13] = " << data.lA[13].transpose() << "and data.lA[12] = " << data.lA[12].transpose() << "\n";

@@ -711,6 +711,106 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_repeating_3D_humanoid)
  
 }
 
+BOOST_AUTO_TEST_CASE(test_FD_humanoid_redundant_baumgarte)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+  const Model::JointIndex RF_id = model.getJointId(RF);
+    
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
+  ci_RF.joint1_placement.setRandom();
+  ci_RF.corrector.Kd.setIdentity();
+  ci_RF.corrector.Kp.setZero();
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_RF2(CONTACT_6D,model,model.getJointId("rleg5_joint"),LOCAL);
+  ci_RF2.joint1_placement.setRandom();
+  ci_RF2.corrector.Kd.setIdentity();
+  ci_RF2.corrector.Kp.setZero();
+  contact_models.push_back(ci_RF2);
+  contact_datas.push_back(RigidConstraintData(ci_RF2));
+    
+  const double mu0 = 1e-4;
+  
+  ProximalSettings prox_settings(1e-14,mu0,10);
+  // prox_settings.accuracy = 1e-10;
+  initConstraintDynamics(model,data_ref,contact_models);
+  constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
+
+  computeAllTerms(model,data_ref,q,v);
+  data_ref.M.triangularView<Eigen::StrictlyLower>() =
+  data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();   
+  Eigen::MatrixXd J_ref(constraint_dim,model.nv);
+  J_ref.setZero();
+  Data::Matrix6x Jtmp = Data::Matrix6x::Zero(6,model.nv);
+  
+  initPvSolver(model,data,contact_models);
+  Data::PvSettings pv_settings;
+  pv_settings.use_early = false;
+  pv_settings.max_iter = 10;
+  pv_settings.mu = 1e-4;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  // std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
+  // std::cout << "PV Delassus matrix = " << data.LA[0] << "\n";
+  std::cout << "Error for pv now = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  
+  // prox_settings.max_iter = 10;
+  // prox_settings.mu = 1e4;
+  // data.ddq.setZero();
+  // proxLTLs(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
+  // BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  // std::cout << "Error for proxLTLs = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+  
+  // Check the solver works the second time for new random inputs
+  q = randomConfiguration(model);
+  v = VectorXd::Random(model.nv);
+  tau = VectorXd::Random(model.nv);
+  
+  prox_settings.mu = 1e-4;
+  constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
+  pv_settings.mu = 1e-4;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  initPvSolver(model,data,contact_models);
+  pv_settings.use_early = true;
+  pv_settings.max_iter = 10;
+  pv_settings.mu = 1e-4;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
+  std::cout<< "Talos cABA err = " << std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq)) << std::endl;
+
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+ 
+}
+
 BOOST_AUTO_TEST_CASE(test_CD_3D_LOCAL_Quadruped)
 {
   using namespace Eigen;
