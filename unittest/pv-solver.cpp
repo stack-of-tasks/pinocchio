@@ -736,7 +736,7 @@ BOOST_AUTO_TEST_CASE(test_FD_humanoid_redundant_baumgarte)
   RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
   ci_RF.corrector.Kd.setIdentity();
-  ci_RF.corrector.Kp.setZero();
+  ci_RF.corrector.Kp.setIdentity();
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
   RigidConstraintModel ci_RF2(CONTACT_6D,model,model.getJointId("rleg5_joint"),LOCAL);
@@ -745,6 +745,8 @@ BOOST_AUTO_TEST_CASE(test_FD_humanoid_redundant_baumgarte)
   ci_RF2.corrector.Kp.setZero();
   contact_models.push_back(ci_RF2);
   contact_datas.push_back(RigidConstraintData(ci_RF2));
+
+  std::cout << "Contact data c1Mc2 = " << contact_datas[1].c1Mc2 << "\n";
     
   const double mu0 = 1e-4;
   

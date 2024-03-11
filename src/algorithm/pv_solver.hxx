@@ -748,6 +748,13 @@ namespace pinocchio
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
 
+    bool baumgarte_position = false;
+    for (std::size_t i=0;i<contact_models.size();++i)
+    {
+      if (!check_expression_if_real<Scalar,false>(contact_models[i].corrector.Kp.isZero(Scalar(0))))
+        baumgarte_position = true;
+    }
+
     // for (JointIndex i=0;i<(JointIndex)model.njoints;++i)
     // {
     //   data.lA[i].setZero();
@@ -777,6 +784,14 @@ namespace pinocchio
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
+      if (baumgarte_position)
+      {
+        const JointIndex & parent = model.parents[i];
+        if (parent > 0)
+          data.oMi[i] = data.oMi[parent]*data.liMi[i];
+        else
+          data.oMi[i] = data.liMi[i];
+      }
     }
 
     std::vector<int> condim_counter(model.njoints, 0);
@@ -820,6 +835,24 @@ namespace pinocchio
         }
         
       }
+
+      if (!check_expression_if_real<Scalar,false>(corrector.Kp.isZero(Scalar(0))))
+      {
+        RigidConstraintData & contact_data = contact_datas[i];
+        const typename RigidConstraintData::SE3 & c1Mc2 = contact_data.c1Mc2;
+
+        if (contact_model.type == CONTACT_6D)
+        {
+          contact_data.contact_placement_error = -log6(c1Mc2);
+          contact_acc_err.toVector().noalias() -= corrector.Kp.asDiagonal()*contact_data.contact_placement_error.toVector();
+        }
+        else if (contact_model.type == CONTACT_3D)
+        {
+          contact_data.contact_placement_error.linear() = -c1Mc2.translation();
+          contact_data.contact_acceleration_error.angular().setZero();
+          contact_acc_err.linear().noalias() -= corrector.Kp.asDiagonal()*contact_data.contact_placement_error.linear();
+        }
+      }
       // data.lA[joint_id].noalias() -= data.KA_temp[joint_id].template topRows<3>().transpose()*(data.a_gf[joint_id].linear_impl());
       for (int j = condim_counter[joint_id]; j < condim_counter[joint_id] + con_dim; j++)
       {
@@ -836,10 +869,9 @@ namespace pinocchio
         vc1 = contact_model.joint1_placement.actInv(data.v[joint_id]);
         data.lA[joint_id].segment(condim_counter[joint_id], 3).noalias() += vc1.angular().cross(vc1.linear()) - contact_acc_err.linear();
       }
-      else {
+      else 
       {
         data.lA[joint_id].segment(condim_counter[joint_id], 6).noalias() -= contact_acc_err.toVector();
-      }
       }
       condim_counter[joint_id] += con_dim;
       
