@@ -422,7 +422,7 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
   
   // BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
 
-  ProximalSettings prox_settings(1e-10,mu0,1);
+  ProximalSettings prox_settings(1e-12,mu0,1);
   // prox_settings.accuracy = 1e-10;
   initConstraintDynamics(model,data_ref,contact_models);
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
@@ -486,6 +486,7 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
 
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  std::cout<< "Talos cABA err = " << std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq)) << std::endl;
   // Send non-zero mu and max 1 iteration and the solution should not match
   // prox_settings.mu = 1e-6;
   // pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
@@ -495,6 +496,219 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
   // prox_settings.max_iter = 20;
   
 
+}
+
+BOOST_AUTO_TEST_CASE(test_forward_dynamics_3D_humanoid)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+  const Model::JointIndex RF_id = model.getJointId(RF);
+    
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
+  ci_RF.joint1_placement.setRandom();
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+    
+  const double mu0 = 0.0;
+  
+  ProximalSettings prox_settings(1e-12,mu0,1);
+  // prox_settings.accuracy = 1e-10;
+  initConstraintDynamics(model,data_ref,contact_models);
+  constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
+  
+  initPvSolver(model,data,contact_models);
+  Data::PvSettings pv_settings;
+  pv_settings.use_early = false;
+   pv_settings.max_iter = 1;
+  pv_settings.mu = 0.0;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  std::cout << "Error for pv = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  prox_settings.max_iter = 10;
+  prox_settings.mu = 1e4;
+  data.ddq.setZero();
+  proxLTLs(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  std::cout << "Error for proxLTLs = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+  prox_settings.mu = 0.0;
+  
+  // Check the solver works the second time for new random inputs
+  q = randomConfiguration(model);
+  v = VectorXd::Random(model.nv);
+  tau = VectorXd::Random(model.nv);
+  
+  constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
+  pv_settings.mu = 0.0;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  initPvSolver(model,data,contact_models);
+  pv_settings.use_early = true;
+  pv_settings.max_iter = 10;
+  pv_settings.mu = 1e-3;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
+  std::cout<< "Talos cABA err = " << std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq)) << std::endl;
+
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+ 
+}
+
+BOOST_AUTO_TEST_CASE(test_forward_dynamics_repeating_3D_humanoid)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+  const Model::JointIndex RF_id = model.getJointId(RF);
+    
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,RF_id,LOCAL);
+  ci_RF.joint1_placement.setRandom();
+  ci_RF.corrector.Kd.setZero();
+  ci_RF.corrector.Kp.setZero();
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_RF2(CONTACT_6D,model,model.getJointId("rleg5_joint"),LOCAL);
+  ci_RF2.joint1_placement.setRandom();
+  ci_RF2.corrector.Kd.setZero();
+  ci_RF2.corrector.Kp.setZero();
+  contact_models.push_back(ci_RF2);
+  contact_datas.push_back(RigidConstraintData(ci_RF2));
+    
+  const double mu0 = 1e-4;
+  
+  ProximalSettings prox_settings(1e-14,mu0,10);
+  // prox_settings.accuracy = 1e-10;
+  initConstraintDynamics(model,data_ref,contact_models);
+  constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
+
+  computeAllTerms(model,data_ref,q,v);
+  data_ref.M.triangularView<Eigen::StrictlyLower>() =
+  data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();   
+  Eigen::MatrixXd J_ref(constraint_dim,model.nv);
+  J_ref.setZero();
+  Data::Matrix6x Jtmp = Data::Matrix6x::Zero(6,model.nv);
+  
+  getJointJacobian(model,data_ref,
+                   ci_RF.joint1_id,ci_RF.reference_frame,
+                   Jtmp);
+  J_ref.middleRows<6>(0) = ci_RF.joint1_placement.inverse().toActionMatrix() * Jtmp;
+  
+  Jtmp.setZero();
+  getJointJacobian(model,data_ref,
+                   ci_RF2.joint1_id,ci_RF2.reference_frame,
+                   Jtmp);
+  J_ref.middleRows<6>(6) = ci_RF2.joint1_placement.inverse().toActionMatrix() * Jtmp;
+  
+  Eigen::VectorXd rhs_ref(constraint_dim);
+  rhs_ref.segment<6>(0) = computeAcceleration(model,data_ref,ci_RF.joint1_id,ci_RF.reference_frame,ci_RF.type,ci_RF.joint1_placement).toVector();
+  rhs_ref.segment<6>(6) = computeAcceleration(model,data_ref,ci_RF2.joint1_id,ci_RF2.reference_frame,ci_RF2.type,ci_RF2.joint1_placement).toVector();
+  
+  // Eigen::MatrixXd KKT_matrix_ref
+  // = Eigen::MatrixXd::Zero(model.nv+constraint_dim,model.nv+constraint_dim);
+  // KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
+  // KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
+  // KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
+  
+  // forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
+  // forwardKinematics(model,data_ref,q,v,data_ref.ddq);
+  
+  // std::cout << "Delassus matrix = " << data_ref.contact_chol.getInverseOperationalSpaceInertiaMatrix() << "\n";
+  std::cout << "ProxLTL L2 residual in tests = " << (J_ref.transpose()*(J_ref*data_ref.ddq+rhs_ref)).template lpNorm<2>() << "\n";
+  BOOST_CHECK((J_ref.transpose()*(J_ref*data_ref.ddq+rhs_ref)).isZero(1e-10));
+
+  // contactABA(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
+  // BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  // std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
+  
+  initPvSolver(model,data,contact_models);
+  Data::PvSettings pv_settings;
+  pv_settings.use_early = false;
+  pv_settings.max_iter = 10;
+  pv_settings.mu = 1e-4;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  // std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
+  // std::cout << "PV Delassus matrix = " << data.LA[0] << "\n";
+  // std::cout << "Error for pv now = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  BOOST_CHECK((J_ref.transpose()*(J_ref*data.ddq+rhs_ref)).isZero(1e-10));
+  std::cout << "PV L2 residual in tests = " << (J_ref.transpose()*(J_ref*data.ddq+rhs_ref)).template lpNorm<2>() << "\n";
+
+  prox_settings.max_iter = 10;
+  prox_settings.mu = 1e4;
+  data.ddq.setZero();
+  proxLTLs(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  // std::cout << "Error for proxLTLs = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+  
+  // Check the solver works the second time for new random inputs
+  q = randomConfiguration(model);
+  v = VectorXd::Random(model.nv)*0;
+  tau = VectorXd::Random(model.nv);
+  
+  prox_settings.mu = 1e-4;
+  constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
+  pv_settings.mu = 1e-4;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  initPvSolver(model,data,contact_models);
+  pv_settings.use_early = true;
+  pv_settings.max_iter = 10;
+  pv_settings.mu = 1e-4;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
+  std::cout<< "Talos cABA err = " << std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq)) << std::endl;
+
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+ 
 }
 
 BOOST_AUTO_TEST_CASE(test_CD_3D_LOCAL_Quadruped)
@@ -511,6 +725,154 @@ BOOST_AUTO_TEST_CASE(test_CD_3D_LOCAL_Quadruped)
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill( 1.);
   VectorXd q = randomConfiguration(model);
+  // q = randomConfiguration(model);BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+   const Model::JointIndex RF_id = model.getJointId(RF);
+  const std::string LF = "lleg6_joint";
+   const Model::JointIndex LF_id = model.getJointId(LF);
+  
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,RF_id,LOCAL);
+  ci_RF.joint1_placement.setRandom();
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_6D,model, LF_id,LOCAL);
+  ci_LF.joint1_placement.setRandom();
+  contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidConstraintData(ci_LF));
+  
+  // Eigen::DenseIndex constraint_dim = 0;
+  // for(size_t k = 0; k < contact_models.size(); ++k)
+  //   constraint_dim += contact_models[k].size();
+  
+  const double mu0 = 0.0;
+  
+  // computeAllTerms(model,data_ref,q,v);
+  // data_ref.M.triangularView<Eigen::StrictlyLower>() =
+  // data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  // Eigen::MatrixXd J_ref(constraint_dim,model.nv);
+  // J_ref.setZero();
+  // Data::Matrix6x Jtmp = Data::Matrix6x::Zero(6,model.nv);
+  
+  // getJointJacobian(model,data_ref,
+  //                  ci_RF.joint1_id,ci_RF.reference_frame,
+  //                  Jtmp);
+  // J_ref.middleRows<6>(0) = ci_RF.joint1_placement.inverse().toActionMatrix() * Jtmp;
+  
+  // Jtmp.setZero();
+  // getJointJacobian(model,data_ref,
+  //                  ci_LF.joint1_id,ci_LF.reference_frame,
+  //                  Jtmp);
+  // J_ref.middleRows<6>(6) = ci_LF.joint1_placement.inverse().toActionMatrix() * Jtmp;
+  
+  // Eigen::VectorXd rhs_ref(constraint_dim);
+  // rhs_ref.segment<6>(0) = computeAcceleration(model,data_ref,ci_RF.joint1_id,ci_RF.reference_frame,ci_RF.type,ci_RF.joint1_placement).toVector();
+  // rhs_ref.segment<6>(6) = computeAcceleration(model,data_ref,ci_LF.joint1_id,ci_LF.reference_frame,ci_LF.type,ci_LF.joint1_placement).toVector();
+  
+  // Eigen::MatrixXd KKT_matrix_ref
+  // = Eigen::MatrixXd::Zero(model.nv+constraint_dim,model.nv+constraint_dim);
+  // KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
+  // KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
+  // KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
+  
+  // forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
+  // forwardKinematics(model,data_ref,q,v,data_ref.ddq);
+  
+  // BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
+
+  ProximalSettings prox_settings(1e-12,mu0,1);
+  // prox_settings.accuracy = 1e-10;
+  initConstraintDynamics(model,data_ref,contact_models);
+  constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
+  
+  initPvSolver(model,data,contact_models);
+  Data::PvSettings pv_settings;
+  pv_settings.use_early = false;
+   pv_settings.max_iter = 1;
+  pv_settings.mu = 0.0;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  std::cout << "Error for pv = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  // pv_settings.use_early = true;
+  //  pv_settings.max_iter = 1;
+  // pv_settings.mu = 1e-3;
+  // pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  // std::cout << "Error for pv = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+  // auto con_Residual = J_ref*data.ddq+rhs_ref;
+  // BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
+
+  prox_settings.max_iter = 10;
+  prox_settings.mu = 1e4;
+  data.ddq.setZero();
+  proxLTLs(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  std::cout << "Error for proxLTLs = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
+  prox_settings.mu = 0.0;
+  
+  // Check that the decomposition is correct
+  // const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
+  // Eigen::MatrixXd KKT_matrix = contact_chol.matrix();
+  
+  // BOOST_CHECK(KKT_matrix.bottomRightCorner(model.nv,model.nv).isApprox(KKT_matrix_ref.bottomRightCorner(model.nv,model.nv)));
+  // BOOST_CHECK(KKT_matrix.isApprox(KKT_matrix_ref));
+  
+  // Check solutions
+  // auto ddq_err = (data.ddq - data_ref.ddq).eval();
+  
+
+  // Check the solver works the second time for new random inputs
+  q = randomConfiguration(model);
+  v = VectorXd::Random(model.nv);
+  tau = VectorXd::Random(model.nv);
+  
+  constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
+  pv_settings.mu = 0.0;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  initPvSolver(model,data,contact_models);
+  pv_settings.use_early = true;
+  pv_settings.max_iter = 10;
+  pv_settings.mu = 1e-4;
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  std::cout<< "Quadruped cABA err = " << std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq)) << std::endl;
+
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
+  // Send non-zero mu and max 1 iteration and the solution should not match
+  // prox_settings.mu = 1e-6;
+  // pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  // BOOST_CHECK(!data.ddq.isApprox(data_ref.ddq, 1e-10));
+
+  // Change max iter to 10 and now should work
+  // prox_settings.max_iter = 20;
+  
+
+}
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd tau = VectorXd::Random(model.nv);
   

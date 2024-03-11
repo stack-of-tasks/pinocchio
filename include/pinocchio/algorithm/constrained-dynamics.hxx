@@ -1026,19 +1026,8 @@ namespace pinocchio
 
     // Factorize the CRBA
     // crba(model, data, q);
-
-    // pinocchio::cholesky::decompose(model, data);
-    // data.ddq = pinocchio::cholesky::solve(model, data, data.tau);
-
-    PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_empty;
-    PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_empty;
-    if (data.contact_chol.size() != model.nv)
-    {
-      data.contact_chol.allocate(model,contact_models_empty);
-    }
-    data.contact_chol.compute(model, data, contact_models_empty, contact_datas_empty);
-    data.ddq = data.tau;
-    data.contact_chol.solveInPlace(data.ddq);
+    pinocchio::cholesky::decompose(model, data);
+    data.ddq = pinocchio::cholesky::solve(model, data, data.tau);
 
     data.u = data.ddq;
     // data.tau.setZero();
@@ -1100,9 +1089,7 @@ namespace pinocchio
       }
     }
 
-    // data.u = cholesky::solve(model, data, data.tau);
-    data.u = data.tau;
-    data.contact_chol.solveInPlace(data.u);
+    data.u = cholesky::solve(model, data, data.tau);
     data.ddq.noalias() += data.u;
 
     }

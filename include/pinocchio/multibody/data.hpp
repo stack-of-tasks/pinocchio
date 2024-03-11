@@ -466,8 +466,8 @@ namespace pinocchio
       , use_early_base(false)
       , max_iter(10)
       , mu(1e-5)
-      , absolute_accuracy(1e-10)
-      , relative_accuracy(1e-10)
+      , absolute_accuracy(1e-12)
+      , relative_accuracy(1e-12)
       {}
 
       // PvSettings(bool early, bool proximal, bool early_base)
