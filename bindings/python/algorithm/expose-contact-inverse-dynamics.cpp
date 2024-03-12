@@ -5,9 +5,6 @@
 #define BOOST_PYTHON_MAX_ARITY 24
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
-
-#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
-
 #include "pinocchio/bindings/python/utils/list.hpp"
 #include "pinocchio/algorithm/contact-inverse-dynamics.hpp"
 
@@ -16,6 +13,7 @@ namespace pinocchio
   namespace python
   {
     
+#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
     typedef context::Scalar Scalar;
     typedef context::VectorXs VectorXs;
     typedef const Eigen::Ref<const VectorXs> ConstRefVectorXs;
@@ -51,10 +49,11 @@ namespace pinocchio
     {
     return contactInverseDynamics(model, data, q, v, a, dt, contact_models, contact_datas, cones, R, constraint_correction, settings, lambda_guess);
     }
+#endif // PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
 
     void exposeContactInverseDynamics()
     {
-
+#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
       bp::def("computeContactForces",
               computeContactImpulses_wrapper,
               (bp::arg("model"),"data","c_ref", "contact_models", "contact_datas", "cones","R", "constraint_correction",
@@ -93,9 +92,7 @@ namespace pinocchio
               "\tconstraint_correction: vector representing the constraint correction\n"
               "\tsettings: the settings of the proximal algorithm\n"
               "\tlambda_guess: initial guess for contact forces\n");
-      
+#endif // PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
     }
-    
   } // namespace python
 } // namespace pinocchio
-#endif // PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
