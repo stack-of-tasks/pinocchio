@@ -86,6 +86,7 @@ jobs:
           -DBUILD_WITH_COLLISION_SUPPORT=ON ^
           -DBUILD_TESTING=ON ^
           -DINSTALL_DOCUMENTATION=ON ^
+          -DGENERATE_PYTHON_STUBS=ON ^
           ..
 
         :: Build
