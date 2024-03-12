@@ -91,7 +91,11 @@ IF(BUILD_PYTHON_INTERFACE)
   if(GENERATE_PYTHON_STUBS)
       include("${CMAKE_SOURCE_DIR}/cmake/stubs.cmake")
       LOAD_STUBGEN()
-      GENERATE_STUBS(${CMAKE_CURRENT_BINARY_DIR} ${PROJECT_NAME} ${ABSOLUTE_PYTHON_SITELIB})
+      # Set PYWRAP and PROJECT_NAME as stubs dependencies.
+      # PROJECT_NAME is mandatory (even if it's a PYWRAP dependency)
+      # to find PROJECT_NAME name DLL on windows.
+      GENERATE_STUBS(${CMAKE_CURRENT_BINARY_DIR} ${PROJECT_NAME} ${ABSOLUTE_PYTHON_SITELIB}
+        ${PYWRAP} ${PROJECT_NAME})
   endif(GENERATE_PYTHON_STUBS)
 
   INSTALL(
