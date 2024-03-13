@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `MeshcatVisualizer` doesn't crash anymore when there is no collision model defined ([#2147](https://github.com/stack-of-tasks/pinocchio/pull/2147))
 - Fix MSVC build ([#2155](https://github.com/stack-of-tasks/pinocchio/pull/2155))
 - Fix stub generation ([#2166](https://github.com/stack-of-tasks/pinocchio/pull/2166))
+- Clean up empty documentation pages and sections ([#2167](https://github.com/stack-of-tasks/pinocchio/pull/2167))
 
 ### Added
 - Add `examples/floating-base-velocity-viewer.py` to visualize floating base velocity [#2143](https://github.com/stack-of-tasks/pinocchio/pull/2143)
