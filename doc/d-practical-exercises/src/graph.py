@@ -1,7 +1,7 @@
 class Graph(object):
     def __init__(self):
         self.children = {}    # dictionnary giving the list of childrens for each node.
-        self.q = []           # configuration associated to each node.
+        self.q = []           # configuration associated with each node.
         self.connex = []      # ID of the connex component the node is belonging to.
         self.nconnex = 0      # number of connex components.
         self.existing_connex = [] # List of existing connex component ID.

@@ -51,7 +51,7 @@ Python.
 
 Within a model, a robot is represented as a kinematic tree, containing a
 collection of all the joints, information about their connectivity, and,
-optionally, the inertial quantities associated to each link. In
+optionally, the inertial quantities corresponding to each link. In
 Pinocchio a joint can have one or several degrees of freedom, and it
 belongs to one of the following categories:
 - **Revolute** joints, rotating around a fixed axis, either one of \f$X,Y,Z\f$ or a custom one;
@@ -85,7 +85,7 @@ operators.
 
 Aside the kinematic model, Pinocchio defines a geometric model, i.e. the
 volumes attached to the kinematic tree. This model can be used for
-displaying the robot and computing quantities associated to collisions.
+displaying the robot and computing quantities for collisions.
 Like the kinematic model, the fixed quantities (placement and shape of
 the volumes) are stored in a *GeometricModel* object, while buffers and
 quantities used by associated algorithms are defined in a object. The

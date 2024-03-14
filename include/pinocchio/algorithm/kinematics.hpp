@@ -84,8 +84,8 @@ namespace pinocchio
    * @brief      Returns the spatial velocity of the joint expressed in the desired reference frame.
    *             You must first call pinocchio::forwardKinematics to update placement and velocity values in data structure.
    *
-   * @param[in] model     The kinematic model
-   * @param[in] data      Data associated to model
+   * @param[in] model     Kinematic model
+   * @param[in] data      Data associated with the model
    * @param[in] jointId   Id of the joint
    * @param[in] rf        Reference frame in which the velocity is expressed.
    *

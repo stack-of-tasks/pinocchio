@@ -43,7 +43,7 @@ namespace pinocchio
                                      const bool verbose = false);
     
     ///
-    /// \brief Get the reference configurations of a given model associated to a SRDF file.
+    /// \brief Get the reference configurations of a given model loaded from an SRDF file.
     ///        It throws if the SRDF file is incorrect. The reference configurations are
     ///        saved in a map indexed by the configuration name (model.referenceConfigurations).
     ///
@@ -58,7 +58,7 @@ namespace pinocchio
                                 const bool verbose = false);
 
     ///
-    /// \brief Get the reference configurations of a given model associated to a SRDF file.
+    /// \brief Get the reference configurations of a given model loaded from an SRDF file.
     ///        It throws if the SRDF file is incorrect. The reference configurations are
     ///        saved in a map indexed by the configuration name (model.referenceConfigurations).
     ///
@@ -73,7 +73,7 @@ namespace pinocchio
                                        const bool verbose = false);
       
     ///
-    /// \brief Load the rotor params of a given model associated to a SRDF file.
+    /// \brief Load the rotor params of a given model loaded from an SRDF file.
     ///        It throws if the SRDF file is incorrect.
     ///
     /// \param[in] model The Model for which we want the rotor parmeters

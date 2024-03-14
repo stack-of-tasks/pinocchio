@@ -212,7 +212,7 @@ namespace pinocchio
       bp::def("neutral",
               &neutral<double,0,JointCollectionDefaultTpl>,
               bp::arg("model"),
-              "Returns the neutral configuration vector associated to the model.\n\n"
+              "Returns the neutral configuration vector corresponding to the model.\n\n"
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n");
       

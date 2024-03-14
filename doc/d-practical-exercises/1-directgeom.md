@@ -242,7 +242,7 @@ You can access the visual object composing the robot model by
 
 ```py
 visualObj = robot.visual_model.geometryObjects[4]  # 3D object representing the robot forarm
-visualName = visualObj.name                        # Name associated to this object
+visualName = visualObj.name                        # Name corresponding to this object
 visualRef = robot.getViewerNodeName(visualObj, pin.GeometryType.VISUAL)    # Viewer reference (string) representing this object
 ```
 

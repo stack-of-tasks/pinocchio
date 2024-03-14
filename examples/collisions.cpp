@@ -25,10 +25,10 @@ int main(int /*argc*/, char ** /*argv*/)
   Model model;
   pinocchio::urdf::buildModel(urdf_filename,model);
   
-  // Build the data associated to the model
+  // Build the data corresponding to the model
   Data data(model);
   
-  // Load the geometries associated to model which are contained in the URDF file
+  // Load the geometries associated with model which are contained in the URDF file
   GeometryModel geom_model;
   pinocchio::urdf::buildGeom(model, urdf_filename, pinocchio::COLLISION, geom_model, robots_model_path);
   
@@ -36,7 +36,7 @@ int main(int /*argc*/, char ** /*argv*/)
   geom_model.addAllCollisionPairs();
   pinocchio::srdf::removeCollisionPairs(model, geom_model, srdf_filename);
   
-  // Build the data associated to the geom_model
+  // Build the data associated with the geometry model
   GeometryData geom_data(geom_model); // contained the intermediate computations, like the placement of all the geometries with respect to the world frame
   
   // Load the reference configuration of the robots (this one should be collision free)

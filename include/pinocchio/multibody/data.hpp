@@ -84,7 +84,7 @@ namespace pinocchio
     /// \brief The type of Tensor for Kinematics and Dynamics second order derivatives
     typedef Tensor<Scalar,3,Options> Tensor3x;
 
-    /// \brief Vector of pinocchio::JointData associated to the pinocchio::JointModel stored in model, 
+    /// \brief Vector of pinocchio::JointData corresponding to the pinocchio::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.
     JointDataVector joints;
     
@@ -131,7 +131,7 @@ namespace pinocchio
     
     /// \brief Vector of Non Linear Effects (dim model.nv). It corresponds to concatenation of the Coriolis, centrifugal and gravitational effects.
     /// \note  In the multibody dynamics equation \f$ M\ddot{q} + b(q, \dot{q}) = \tau \f$,
-    ///        the non linear effects are associated to the term \f$b\f$.
+    ///        the non linear effects correspond to the term \f$b\f$.
     VectorXs nle;
     
     /// \brief Vector of generalized gravity (dim model.nv).
