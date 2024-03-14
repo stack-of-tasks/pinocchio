@@ -40,7 +40,7 @@ namespace pinocchio
     // typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
 
-    std::fill(data.constraints_supported.begin(), data.constraints_supported.end(), 0);
+    std::fill(data.constraints_supported_dim.begin(), data.constraints_supported_dim.end(), 0);
     // Getting the constrained links
     for(std::size_t i=0;i<contact_models.size();++i)
     {
@@ -50,10 +50,10 @@ namespace pinocchio
       {
         case LOCAL:
           if (contact_model.type == CONTACT_6D)
-            data.constraints_supported[joint_id] += 6;
+            data.constraints_supported_dim[joint_id] += 6;
           else
             if (contact_model.type == CONTACT_3D)
-              data.constraints_supported[joint_id] += 3;
+              data.constraints_supported_dim[joint_id] += 3;
           break;
         case WORLD:
           assert(false && "WORLD not implemented");
@@ -70,39 +70,39 @@ namespace pinocchio
     for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
     {
       const JointIndex & parent = model.parents[i];
-      data.par_cons_ind[i] = data.constraints_supported[parent];
-      data.constraints_supported[parent] += data.constraints_supported[i];
+      data.par_cons_ind[i] = data.constraints_supported_dim[parent];
+      data.constraints_supported_dim[parent] += data.constraints_supported_dim[i];
     }
 
     // Allocating memory for LA, KA and lA
     // size_t constraint_counter = 0;
     for (JointIndex i=0;i<(JointIndex)model.njoints;++i)
     {
-      data.lA[i] = Data::VectorXs::Zero(data.constraints_supported[i]);
-      data.lambdaA[i] = Data::VectorXs::Zero(data.constraints_supported[i]);
+      data.lA[i] = Data::VectorXs::Zero(data.constraints_supported_dim[i]);
+      data.lambdaA[i] = Data::VectorXs::Zero(data.constraints_supported_dim[i]);
 
       // const JointIndex & parent = model.parents[i];
       // if (parent > 0)
       // {
-      //   if (data.constraints_supported[parent] == data.constraints_supported[i])
+      //   if (data.constraints_supported_dim[parent] == data.constraints_supported_dim[i])
       //     data.constraint_ind[i] = data.constraint_ind[parent];
       //   else
       //   {
       //     if (constraint_counter != data.constraint_ind[parent])
       //       data.constraint_ind[i] = constraint_counter;
-      //     constraint_counter += data.constraints_supported[parent] - data.constraints_supported[i];
+      //     constraint_counter += data.constraints_supported_dim[parent] - data.constraints_supported_dim[i];
       //   }
       //   data.par_cons_ind[i] = data.constraint_ind[i] - data.constraint_ind[parent];
         
       // }
       
-      data.LA[i] = Data::MatrixXs::Zero(data.constraints_supported[i], data.constraints_supported[i]);
-      data.KA_temp[i] = Data::MatrixXs::Zero(6, data.constraints_supported[i]);
-      data.KAS[i] = Data::MatrixXs::Zero( data.joints[i].S().matrix().cols(), data.constraints_supported[i]);
+      data.LA[i] = Data::MatrixXs::Zero(data.constraints_supported_dim[i], data.constraints_supported_dim[i]);
+      data.KA_temp[i] = Data::MatrixXs::Zero(6, data.constraints_supported_dim[i]);
+      data.KAS[i] = Data::MatrixXs::Zero( data.joints[i].S().matrix().cols(), data.constraints_supported_dim[i]);
     }
 
     // For Local, append the constraint matrices in K
-    std::vector<size_t> condim_counter(model.njoints, 0);
+    std::vector<int> condim_counter(static_cast<size_t>(model.njoints), 0);
     for(std::size_t i=0;i<contact_models.size();++i)
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
@@ -122,21 +122,21 @@ namespace pinocchio
       // std::cout << "KA_temp = " << data.KA_temp[joint_id] << "\n";
     } 
 
-    data.lambda_c_prox.resize(data.constraints_supported[0]);
+    data.lambda_c_prox.resize(data.constraints_supported_dim[0]);
 
     data.lambda_c.setZero();
     data.lambda_c_prox.setZero();
-    data.osim_llt = Eigen::LLT<Data::MatrixXs>(data.constraints_supported[0]);
+    data.osim_llt = Eigen::LLT<Data::MatrixXs>(data.constraints_supported_dim[0]);
     for (size_t j : model.children[1])
     {
-      data.fb_osim_llt.push_back(Eigen::LLT<Data::MatrixXs>(data.constraints_supported[j]));
+      data.fb_osim_llt.push_back(Eigen::LLT<Data::MatrixXs>(data.constraints_supported_dim[j]));
     }
     
     // for early elimination
     for (JointIndex i=0;i<(JointIndex)model.njoints;++i)
     {
-      data.w[i] = Data::VectorXs::Zero(data.constraints_supported[i]);
-      data.KAopt[i] = Data::VectorXs::Zero(data.constraints_supported[i]);
+      data.w[i] = Data::VectorXs::Zero(data.constraints_supported_dim[i]);
+      data.KAopt[i] = Data::VectorXs::Zero(data.constraints_supported_dim[i]);
     }
 
 
@@ -279,7 +279,7 @@ namespace pinocchio
         data.f[parent] += data.liMi[i].act(pa);
       }
 
-      if (data.constraints_supported[i] > 0)
+      if (data.constraints_supported_dim[i] > 0)
       {
         // std::cout << data.KA_temp[i].eval() << std::endl; //TODO; debug
         data.KAS[i].noalias() = jdata.S().transpose()*data.KA_temp[i]; //(data.KA_temp[i]*jdata.S().matrix()); //.eval();
@@ -296,7 +296,7 @@ namespace pinocchio
         //   data.KA_temp[i]*(jdata.S().matrix()*a_bf_js + data.a_bias[i].toVector());
         // Propagate KA backwards
       }
-        for (int ind = 0; ind < data.constraints_supported[i]; ind++)
+        for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
         {
           Force za = Force(data.KA_temp[i].col(ind));
           // za.toVector() += data.KA_temp[i].col(ind);
@@ -307,11 +307,11 @@ namespace pinocchio
         }
 
         //Propagate LA backwards, we only care about tril because symmetric
-        for (int ind = 0; ind < data.constraints_supported[i]; ind++)
+        for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
         {
           // auto zb = data.KAS[i].col(ind); //(jdata.S().transpose()*data.KA_temp[i].col(ind)).eval();
           auto zc = (jdata.Dinv()*data.KAS[i].col(ind)).eval();
-          for (int ind2 = ind; ind2 < data.constraints_supported[i]; ind2++)
+          for (int ind2 = ind; ind2 < data.constraints_supported_dim[i]; ind2++)
           {
             // auto zd = ((jdata.S().transpose()*data.KA_temp[i].col(ind2)).transpose()).eval();
             // auto ze = (data.KAS[i].col(ind2).dot(zc));
@@ -322,12 +322,12 @@ namespace pinocchio
         }
 
         // Propagate lA backwards
-        if (data.constraints_supported[i] > 0)
+        if (data.constraints_supported_dim[i] > 0)
         {          
           auto a_bf_js = (jdata.Dinv()* (jdata.S().transpose()*bias_and_force + jmodel.jointVelocitySelector(data.u))).eval();
           const Motion a_bf =  jdata.S()*a_bf_js;
           const Motion  a_bf_motion = a_bf + data.a_bias[i];
-          for (int ind = 0; ind < data.constraints_supported[i]; ind++)
+          for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
           {
             data.lA[parent](data.par_cons_ind[i] + ind) =  data.lA[i](ind) + 
               (data.KA_temp[i].col(ind).dot(a_bf_motion.toVector()));
@@ -372,7 +372,7 @@ namespace pinocchio
 
       
 
-  //     if (prox && early_full && data.constraints_supported[i] > 0)
+  //     if (prox && early_full && data.constraints_supported_dim[i] > 0)
   //     {
   //       // data.LA[i].setIdentity();
   //       // data.LA[i].noalias() = data.LA[i]*(1/mu);
@@ -384,7 +384,7 @@ namespace pinocchio
   //       // jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose()*constraint_force;
   //       data.f[i].toVector().noalias() += data.KA_temp[i]*(1/mu)*data.lA[i];
 
-  //       data.constraints_supported[parent] = 0;
+  //       data.constraints_supported_dim[parent] = 0;
         
   //     }
 
@@ -402,10 +402,10 @@ namespace pinocchio
   //       pa.toVector() += Ia * data.a_bias[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
   //     }
 
-  //     if (data.constraints_supported[i] > 0 && !prox)
+  //     if (data.constraints_supported_dim[i] > 0 && !prox)
   //     {
   //       // std::cout << data.KA_temp[i].eval() << std::endl; //TODO; debug
-  //       data.KAS[i] = jdata.S().transpose()*data.KA_temp[i].leftCols(data.constraints_supported[i]); //(data.KA_temp[i]*jdata.S().matrix()); //.eval();
+  //       data.KAS[i] = jdata.S().transpose()*data.KA_temp[i].leftCols(data.constraints_supported_dim[i]); //(data.KA_temp[i]*jdata.S().matrix()); //.eval();
 
   //       // int n_rows = data.KA_temp[i].rows();
   //       // data.KA_temp[parent].middleRows(data.par_cons_ind[i], n_rows) = 
@@ -419,7 +419,7 @@ namespace pinocchio
   //       //   data.KA_temp[i]*(jdata.S().matrix()*a_bf_js + data.a_bias[i].toVector());
   //     }
       
-  //     if (early_full && !prox && data.constraints_supported[i] > 0 && data.KAS[i].rows() == 1 )
+  //     if (early_full && !prox && data.constraints_supported_dim[i] > 0 && data.KAS[i].rows() == 1 )
   //     {
   //       Scalar KAS_sum_sqr = data.KAS[i].row(0).dot(data.KAS[i].row(0));
   //       data.w[i] = data.KAS[i].transpose()/std::sqrt(KAS_sum_sqr);
@@ -456,27 +456,27 @@ namespace pinocchio
   //       //Debug remove blocks below
   //         // std::cout << "Dinv = " << jdata.Dinv().matrix().eval() << std::endl; 
   //         // std::cout << "data.u = " << data.u.matrix() << std::endl;
-  //       for (int ind = 0; ind < data.constraints_supported[i]; ind++)
+  //       for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
   //       {
   //         data.lA[parent](ind) =  data.lA[i](ind) + 
   //           (data.KA_temp[i].col(ind).dot(a_bf_motion)); // todo: add par_cons_ind
   //       }
 
 
-  //       data.lA[parent].head(data.constraints_supported[i]) -= 
-  //         2*data.w[i].dot(data.lA[parent].head(data.constraints_supported[i]))*w_normalized;
+  //       data.lA[parent].head(data.constraints_supported_dim[i]) -= 
+  //         2*data.w[i].dot(data.lA[parent].head(data.constraints_supported_dim[i]))*w_normalized;
 
   //       // data.KA_temp[parent] = data.KA_temp[i];
-  //       for (int ind = 0; ind < data.constraints_supported[i]; ind++)
+  //       for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
   //       {
   //         data.KA_temp[parent].col(ind) = data.KA_temp[i].col(ind); //TODO: comment and chekc if the line above the loop is faster
   //         data.KA_temp[parent].col(ind).noalias() -= (jdata.UDinv() * (data.KAS[i].col(ind)));
   //       }
 
-  //       auto KAw = (data.KA_temp[parent].leftCols(data.constraints_supported[i])*data.w[i]).eval();
+  //       auto KAw = (data.KA_temp[parent].leftCols(data.constraints_supported_dim[i])*data.w[i]).eval();
 
   //       int par_counter = 0;
-  //       for (int ind = 0; ind < data.constraints_supported[i]; ind++)
+  //       for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
   //       {
   //         if (ind == data.svd_max_ind[i])
   //         {
@@ -496,13 +496,13 @@ namespace pinocchio
   //       Ia.noalias() += data.KAopt[i]*(data.KAopt[i].transpose()/data.sigma[i]);
   //       pa.toVector().noalias() += (data.lAopt[i]/data.sigma[i])*data.KAopt[i];
   //       // }
-  //       data.constraints_supported[parent] = data.constraints_supported[i] - 1; // TODO: fix for constraint accumulation
+  //       data.constraints_supported_dim[parent] = data.constraints_supported_dim[i] - 1; // TODO: fix for constraint accumulation
 
   //     }
-  //     else if (data.constraints_supported[i] > 0)
+  //     else if (data.constraints_supported_dim[i] > 0)
   //     {
   //       // Propagate KA backwards
-  //       for (int ind = 0; ind < data.constraints_supported[i]; ind++)
+  //       for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
   //       {
   //         Force za = Force(data.KA_temp[i].col(ind));
   //         // za.toVector() += data.KA_temp[i].col(ind);
@@ -513,11 +513,11 @@ namespace pinocchio
   //       }
 
   //       //Propagate LA backwards, we only care about tril because symmetric
-  //       for (int ind = 0; ind < data.constraints_supported[i]; ind++)
+  //       for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
   //       {
   //         // auto zb = data.KAS[i].col(ind); //(jdata.S().transpose()*data.KA_temp[i].col(ind)).eval();
   //         auto zc = (jdata.Dinv()*data.KAS[i].col(ind)).eval();
-  //         for (int ind2 = ind; ind2 < data.constraints_supported[i]; ind2++)
+  //         for (int ind2 = ind; ind2 < data.constraints_supported_dim[i]; ind2++)
   //         {
   //           // auto zd = ((jdata.S().transpose()*data.KA_temp[i].col(ind2)).transpose()).eval();
   //           // auto ze = (data.KAS[i].col(ind2).dot(zc));
@@ -528,12 +528,12 @@ namespace pinocchio
   //       }
 
   //       // Propagate lA backwards
-  //       if (data.constraints_supported[i] > 0)
+  //       if (data.constraints_supported_dim[i] > 0)
   //       {          
   //         auto a_bf_js = (jdata.Dinv()* (jdata.S().transpose()*bias_and_force + jmodel.jointVelocitySelector(data.u))).eval();
   //         const Motion a_bf =  jdata.S()*a_bf_js;
   //         const Motion  a_bf_motion = a_bf + data.a_bias[i];
-  //         for (int ind = 0; ind < data.constraints_supported[i]; ind++)
+  //         for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
   //         {
   //           data.lA[parent](data.par_cons_ind[i] + ind) =  data.lA[i](ind) + 
   //             (data.KA_temp[i].col(ind).dot(a_bf_motion.toVector()));
@@ -542,7 +542,7 @@ namespace pinocchio
   //     }
   //     else if (early_full && parent > 0)
   //     {
-  //       data.constraints_supported[parent] = 0;
+  //       data.constraints_supported_dim[parent] = 0;
   //     }
 
   //     if (parent > 0)
@@ -647,11 +647,11 @@ namespace pinocchio
       jmodel.jointVelocitySelector(data.ddq).noalias() =
       jdata.Dinv() * (jmodel.jointVelocitySelector(data.u)) - jdata.UDinv().transpose() * data.a[i].toVector();
 
-      // if (data.constraints_supported[i] > 0)
+      // if (data.constraints_supported_dim[i] > 0)
       // {
         data.lambdaA[i].noalias() = data.lambdaA[parent].segment(data.par_cons_ind[i], data.lambdaA[i].size());
       // }
-      for (int j = 0; j < data.constraints_supported[i]; j++)
+      for (int j = 0; j < data.constraints_supported_dim[i]; j++)
       {
         jmodel.jointVelocitySelector(data.ddq).noalias() -= 
           data.lambdaA[i][j]*jdata.Dinv() * (data.KAS[i].col(j));
@@ -691,7 +691,7 @@ namespace pinocchio
       jmodel.jointVelocitySelector(data.ddq).noalias() =
       jdata.Dinv() * (jmodel.jointVelocitySelector(data.u)) - jdata.UDinv().transpose() * data.a[i].toVector();
 
-      if (early_full && data.constraints_supported[i] > 0 && !prox)
+      if (early_full && data.constraints_supported_dim[i] > 0 && !prox)
       {
         Scalar lambda_opt = (data.KAopt[i].dot((data.a[i] - data.a_bias[i]).toVector())
           + data.lAopt[i])/data.sigma[i];
@@ -700,17 +700,17 @@ namespace pinocchio
         //data.KAS[i].row(0).array().abs().matrix().maxCoeff(&data.svd_max_ind[i]); // Maybe save this from the previous computation?
         data.lambdaA[i].head(data.svd_max_ind[i]) = data.lambdaA[parent].head(data.svd_max_ind[i]);
         data.lambdaA[i](data.svd_max_ind[i]) = lambda_opt;
-        for (int k = data.svd_max_ind[i] + 1; k < data.constraints_supported[i]; k++)
+        for (int k = data.svd_max_ind[i] + 1; k < data.constraints_supported_dim[i]; k++)
           data.lambdaA[i](k) = data.lambdaA[parent](k - 1);
         auto w_normalized = (data.w[i]/(data.w[i].dot(data.w[i]))).eval(); // check whether to save
-        data.lambdaA[i].head(data.constraints_supported[i]) -= 2*data.w[i].dot(data.lambdaA[i].head(data.constraints_supported[i]))*w_normalized;
+        data.lambdaA[i].head(data.constraints_supported_dim[i]) -= 2*data.w[i].dot(data.lambdaA[i].head(data.constraints_supported_dim[i]))*w_normalized;
         // 
       }
       else
       {
         data.lambdaA[i].noalias() = data.lambdaA[parent].segment(data.par_cons_ind[i], data.lambdaA[i].size());
       }
-      for (int j = 0; j < data.constraints_supported[i] && !prox; j++)
+      for (int j = 0; j < data.constraints_supported_dim[i] && !prox; j++)
       {
         jmodel.jointVelocitySelector(data.ddq).noalias() -= 
           data.lambdaA[i][j]*jdata.Dinv() * (data.KAS[i].col(j));
@@ -794,7 +794,7 @@ namespace pinocchio
       }
     }
 
-    std::vector<int> condim_counter(model.njoints, 0);
+    std::vector<int> condim_counter(static_cast<size_t>(model.njoints), 0);
     // Update lAs
     for(std::size_t i=0;i<contact_models.size();++i)
     {
@@ -897,10 +897,10 @@ namespace pinocchio
     //   for (size_t i = 0; i < model.children[1].size(); i++)
     //   {
     //     JointIndex child = model.children[1][i];
-    //     if (data.constraints_supported[child] > 0)
+    //     if (data.constraints_supported_dim[child] > 0)
     //     {
     //       data.fb_osim_llt[i].compute(data.LA[1].block(data.par_cons_ind[child],data.par_cons_ind[child],
-    //         data.constraints_supported[child], data.constraints_supported[child]));
+    //         data.constraints_supported_dim[child], data.constraints_supported_dim[child]));
 
     //       // copy contents of the KA force vector list to KA_temp
     //       for (size_t j = 0; j < data.KA[child].size(); j++)
@@ -910,12 +910,12 @@ namespace pinocchio
     //       data.Yaba[1].noalias() += data.KA_temp[child]*
     //         data.fb_osim_llt[i].solve(data.KA_temp[child].transpose());
 
-    //       data.lambdaA[1].segment(data.par_cons_ind[child],data.constraints_supported[child]) = data.lA[1].segment(data.par_cons_ind[child],data.constraints_supported[child]);
-    //       data.fb_osim_llt[i].solveInPlace(data.lambdaA[1].segment(data.par_cons_ind[child],data.constraints_supported[child]));
-    //       data.f[1].toVector() += data.KA_temp[child]*data.lambdaA[1].segment(data.par_cons_ind[child],data.constraints_supported[child]);
+    //       data.lambdaA[1].segment(data.par_cons_ind[child],data.constraints_supported_dim[child]) = data.lA[1].segment(data.par_cons_ind[child],data.constraints_supported_dim[child]);
+    //       data.fb_osim_llt[i].solveInPlace(data.lambdaA[1].segment(data.par_cons_ind[child],data.constraints_supported_dim[child]));
+    //       data.f[1].toVector() += data.KA_temp[child]*data.lambdaA[1].segment(data.par_cons_ind[child],data.constraints_supported_dim[child]);
     //     }
     //   }
-    //   data.constraints_supported[1] = 0;
+    //   data.constraints_supported_dim[1] = 0;
     // }
 
 
@@ -952,7 +952,7 @@ namespace pinocchio
       if (data.lA[0].size() > 0)
       {
         data.lA[0].noalias() += data.KA_temp[0].transpose()*data.a_gf[0].toVector();
-        // for (int j = 0; j < data.constraints_supported[0]; j++)
+        // for (int j = 0; j < data.constraints_supported_dim[0]; j++)
         // {
         // data.lA[0][j] += data.KA_temp[0].col(j).transpose()*data.a_gf[0].toVector();
         // }
@@ -963,7 +963,7 @@ namespace pinocchio
         // data.LA[0].ldlt().solveInPlace(data.lambdaA[0]);
 
         data.lambdaA[0].noalias() = data.lA[0];
-        data.LA[0].noalias() += pv_settings.mu * Data::MatrixXs::Identity(data.constraints_supported[0], data.constraints_supported[0]);
+        data.LA[0].noalias() += pv_settings.mu * Data::MatrixXs::Identity(data.constraints_supported_dim[0], data.constraints_supported_dim[0]);
         data.osim_llt.compute(data.LA[0]);
         data.lambda_c_prox.setZero();
         int i = 0;
@@ -979,7 +979,7 @@ namespace pinocchio
         }
 
         data.LA[0].template triangularView<Eigen::Upper>() = data.LA[0].template triangularView<Eigen::Lower>().transpose();
-        // std::cout << "Num iters = " << i << " and Error L2 residual = " << ((data.LA[0]-pv_settings.mu * Data::MatrixXs::Identity(data.constraints_supported[0], data.constraints_supported[0]))*data.lambdaA[0] - data.lA[0]).template lpNorm<2>() << "\n";
+        // std::cout << "Num iters = " << i << " and Error L2 residual = " << ((data.LA[0]-pv_settings.mu * Data::MatrixXs::Identity(data.constraints_supported_dim[0], data.constraints_supported_dim[0]))*data.lambdaA[0] - data.lA[0]).template lpNorm<2>() << "\n";
       }
 
       typedef PvRegForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
@@ -991,12 +991,12 @@ namespace pinocchio
       //   for (size_t i = 0; i < model.children[1].size(); i++)
       //   {
       //     JointIndex child = model.children[1][i];
-      //     if (data.constraints_supported[child] > 0)
+      //     if (data.constraints_supported_dim[child] > 0)
       //     {
-      //       data.lA[1].segment(data.par_cons_ind[child],data.constraints_supported[child]).noalias() += 
+      //       data.lA[1].segment(data.par_cons_ind[child],data.constraints_supported_dim[child]).noalias() += 
       //         data.KA_temp[child].transpose()*data.a[1].toVector();
-      //       data.lambdaA[1].segment(data.par_cons_ind[child],data.constraints_supported[child]) = data.lA[1].segment(data.par_cons_ind[child],data.constraints_supported[child]);
-      //       data.fb_osim_llt[i].solveInPlace(data.lambdaA[1].segment(data.par_cons_ind[child],data.constraints_supported[child]));
+      //       data.lambdaA[1].segment(data.par_cons_ind[child],data.constraints_supported_dim[child]) = data.lA[1].segment(data.par_cons_ind[child],data.constraints_supported_dim[child]);
+      //       data.fb_osim_llt[i].solveInPlace(data.lambdaA[1].segment(data.par_cons_ind[child],data.constraints_supported_dim[child]));
       //     }
       //   }
       // }
@@ -1030,7 +1030,7 @@ namespace pinocchio
       typedef cAbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
       for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
       {
-        if (data.constraints_supported[i] > 0)
+        if (data.constraints_supported_dim[i] > 0)
           Pass3::run(model.joints[i],data.joints[i],
                    typename Pass3::ArgsType(model,data));
       }
@@ -1042,7 +1042,7 @@ namespace pinocchio
         // set all f[i] to zero or TODO: to external forces
         for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
         {
-          if (data.constraints_supported[j] > 0)
+          if (data.constraints_supported_dim[j] > 0)
             data.f[j].toVector().setZero(); //data.v[j].cross(data.h[j]);
         }
         // Compute lambda_prox and update the data.f
@@ -1062,14 +1062,14 @@ namespace pinocchio
         // reduced backward sweep
         for(JointIndex j=(JointIndex)model.njoints-1;j>0; --j)
         {
-          if (data.constraints_supported[j] > 0)
+          if (data.constraints_supported_dim[j] > 0)
             Pass4::run(model.joints[j],data.joints[j],
                  typename Pass4::ArgsType(model,data));
         }
         // outward sweep
         for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
         {
-          if (data.constraints_supported[j] > 0)
+          if (data.constraints_supported_dim[j] > 0)
             Pass3::run(model.joints[j],data.joints[j],
                  typename Pass3::ArgsType(model,data));
         }
@@ -1094,7 +1094,7 @@ namespace pinocchio
             // outward sweep for joints not supporting a constraint
             for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
             {
-              if (data.constraints_supported[j] == 0)
+              if (data.constraints_supported_dim[j] == 0)
                 Pass3::run(model.joints[j],data.joints[j],
                      typename Pass3::ArgsType(model,data));
             }

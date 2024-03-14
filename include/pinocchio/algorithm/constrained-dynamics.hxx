@@ -58,37 +58,37 @@ namespace pinocchio
     data.dac_da.setZero();
     data.osim.setZero();
 
-    std::fill(data.constraints_supported.begin(), data.constraints_supported.end(), 0);
-    // Getting the constrained links
-    for(std::size_t i=0;i<contact_models.size();++i)
-    {
-      const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
-      const JointIndex & joint_id = contact_model.joint1_id;
-      switch (contact_model.reference_frame)
-      {
-        case LOCAL:
-          if (contact_model.type == CONTACT_6D)
-            data.constraints_supported[joint_id] += 6;
-          else
-            if (contact_model.type == CONTACT_3D)
-              data.constraints_supported[joint_id] += 3;
-          break;
-        case WORLD:
-          assert(false && "WORLD not implemented");
-          break;
-        case LOCAL_WORLD_ALIGNED:
-          assert(false && "LOCAL_WORLD_ALIGNED not implemented");
-          break;
-        default:
-          assert(false && "Must never happen");
-          break;
-      }
-    }
+    // std::fill(data.constraints_supported_dim.begin(), data.constraints_supported_dim.end(), 0);
+    // // Getting the constrained links
+    // for(std::size_t i=0;i<contact_models.size();++i)
+    // {
+    //   const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
+    //   const JointIndex & joint_id = contact_model.joint1_id;
+    //   switch (contact_model.reference_frame)
+    //   {
+    //     case LOCAL:
+    //       if (contact_model.type == CONTACT_6D)
+    //         data.constraints_supported_dim[joint_id] += 6;
+    //       else
+    //         if (contact_model.type == CONTACT_3D)
+    //           data.constraints_supported_dim[joint_id] += 3;
+    //       break;
+    //     case WORLD:
+    //       assert(false && "WORLD not implemented");
+    //       break;
+    //     case LOCAL_WORLD_ALIGNED:
+    //       assert(false && "LOCAL_WORLD_ALIGNED not implemented");
+    //       break;
+    //     default:
+    //       assert(false && "Must never happen");
+    //       break;
+    //   }
+    // }
     // Running backprop to get the count of constraints
     for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
     {
       const JointIndex & parent = model.parents[i];
-      data.constraints_supported[parent] += data.constraints_supported[i];
+      data.constraints_supported_dim[parent] += data.constraints_supported_dim[i];
     }
   }
 
@@ -815,7 +815,7 @@ namespace pinocchio
 
     Scalar primal_infeasibility = Scalar(0);
     int it = 0;
-    for(it = 0; it < settings.max_iter; ++it)
+    for(int it = 0; it < settings.max_iter; ++it)
     {
       // Compute contact acceleration errors and max contact errors, aka primal_infeasibility
       primal_infeasibility = Scalar(0);
@@ -850,7 +850,7 @@ namespace pinocchio
         }
       }
 
-      if (check_expression_if_real<Scalar,false>(primal_infeasibility < settings.absolute_accuracy))
+      if(primal_infeasibility < settings.absolute_accuracy)
       {
         optimal_solution_found = true;
         break;
@@ -1039,7 +1039,7 @@ namespace pinocchio
       data.oa_augmented[0].setZero();
       for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
       {
-        if (data.constraints_supported[i] > 0)
+        if (data.constraints_supported_dim[i] > 0)
         {
           const JointModel & jmodel = model.joints[i];
           data.oa_augmented[i].toVector().noalias() = data.oa_augmented[model.parents[i]].toVector() + jmodel.jointCols(data.J)*jmodel.jointVelocitySelector(data.u);
@@ -1078,7 +1078,7 @@ namespace pinocchio
 
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
-      if (data.constraints_supported[i] > 0)
+      if (data.constraints_supported_dim[i] > 0)
       {
           
         const JointIndex & parent  = model.parents[i];
