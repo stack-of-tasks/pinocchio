@@ -70,21 +70,6 @@ namespace pinocchio {
        - \subpage md_doc_d-practical-exercises_7-learn
   */
 
-  /** \page md_doc_e-implementation_intro Implementation / Technical details
-        - \subpage md_doc_e-implementation_a-overview
-        - \subpage md_doc_e-implementation_b-sparsity
-        - \subpage md_doc_e-implementation_c-crtp
-        - \subpage md_doc_e-implementation_d-miscs
-  */
-
-  /** \page md_doc_f-benchmarks_intro Benchmarks
-        - \subpage md_doc_f-benchmarks_a-overview
-        - \subpage md_doc_f-benchmarks_b-howto
-  */
-
-  /** \page md_doc_g-success-stories_intro Success Stories
-  */
-
   //
   // Modules organization
   //
