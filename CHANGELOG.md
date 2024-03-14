@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Add `examples/floating-base-velocity-viewer.py` to visualize floating base velocity ([#2143](https://github.com/stack-of-tasks/pinocchio/pull/2143))
-- Add remark to the documentation of `getFrameClassicalAcceleration` ([#2169](https://github.com/stack-of-tasks/pinocchio/pull/2169))
+- Add remark to the documentation of `getFrame(Classical)Acceleration` functions ([#2169](https://github.com/stack-of-tasks/pinocchio/pull/2169))
 
 ## [2.7.0] - 2024-01-23
 
