@@ -125,11 +125,6 @@ namespace pinocchio
    *             This is different from the "spatial" acceleration in that centrifugal effects are accounted for.
    *             You must first call pinocchio::forwardKinematics to update placement, velocity and acceleration values in data structure.
    *
-   * @remark     In the context of a frame placement constraint \f$J(q) a + \dot{J}(q, v) v = 0\f$,
-   *             the classical acceleration of the frame is equal to \f$\dot{J}(q, v) v\f$.
-   *             It is then significantly more efficient to call this function than,
-   *             say, to apply the matrix \f$\dot{J}(q, v)\f$ (from getFrameJacobianTimeVariation) to the velocity \f$v\f$.
-   *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
@@ -137,7 +132,14 @@ namespace pinocchio
    *
    * @return The classical acceleration of the Frame expressed in the desired reference frame.
    *
-   * @warning    Second order forwardKinematics should have been called first
+   * @warning    Second order @ref forwardKinematics should have been called first
+   *
+   * @remark     In the context of a frame placement constraint \f$J(q) a + \dot{J}(q, v) v = 0\f$,
+   *             one way to compute the second term \f$\dot{J}(q, v) v\f$ is to call second-order @ref forwardKinematics with a zero acceleration,
+   *             then read the remaining \f$\dot{J}(q, v) v\f$ by calling this function.
+   *             This is significantly more efficient than applying the matrix \f$\dot{J}(q, v)\f$ (from @ref getFrameJacobianTimeVariation)
+   *             to the velocity vector \f$v\f$.
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline MotionTpl<Scalar, Options>
