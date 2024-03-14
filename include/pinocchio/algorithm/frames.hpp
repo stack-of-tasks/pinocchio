@@ -126,8 +126,8 @@ namespace pinocchio
    *             You must first call pinocchio::forwardKinematics to update placement, velocity and acceleration values in data structure.
    *
    * @remark     In the context of a frame placement constraint \f$J(q) a + \dot{J}(q, v) v = 0\f$,
-   *             the classical acceleration of the frame corresponds to the \f$\dot{J}(q, v) v\f$ term.
-   *             It is significantly more efficient to call this function than,
+   *             the classical acceleration of the frame is equal to \f$\dot{J}(q, v) v\f$.
+   *             It is then significantly more efficient to call this function than,
    *             say, to apply the matrix \f$\dot{J}(q, v)\f$ (from getFrameJacobianTimeVariation) to the velocity \f$v\f$.
    *
    * @param[in]  model       The kinematic model
