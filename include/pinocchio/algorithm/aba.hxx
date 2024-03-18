@@ -307,10 +307,6 @@ namespace pinocchio
       else
         data.oMi[i] = data.liMi[i];
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
-      ColsBlock J_cols = jmodel.jointCols(data.J);
-      J_cols = data.oMi[i].act(jdata.S());
-
       data.Yaba[i] = model.inertias[i].matrix();
     }
 
