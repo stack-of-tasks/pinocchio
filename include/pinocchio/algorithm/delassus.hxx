@@ -285,8 +285,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
                                      const std::vector<RigidConstraintModelTpl<Scalar,Options>,Allocator> & contact_models)
   {
     
-    data.scratch_pad_vector = Data::Vector6::Zero();
-    data.scratch_pad_vector2 = Data::Vector6::Zero(); 
     for(std::size_t i=0;i<contact_models.size();++i)
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
@@ -451,6 +449,9 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     const size_t constraint_total_size = getTotalConstraintSize(contact_models);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(delassus_.rows(),(Eigen::DenseIndex)constraint_total_size);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(delassus_.cols(),(Eigen::DenseIndex)constraint_total_size);
+
+    Data::Vector6 scratch_pad_vector = Data::Vector6::Zero();
+    Data::Vector6 scratch_pad_vector2 = Data::Vector6::Zero();
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -558,25 +559,29 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       size_t ad_i = data.accumulation_descendant[i];
       int nv = model.joints[i].nv();
       // propagate the spatial inverse inertia
-      // auto PS = (data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J)).eval();
+
       if (nv == 1)
       {
+        // Optimization for single DoF joints
         if (data.constraints_supported_dim[ad_i] != 3)
         {
-          data.scratch_pad_vector.noalias() = data.extended_motion_propagator[ad_i][0]*model.joints[i].jointCols(data.J);
-          data.scratch_pad_vector2.noalias() = data.scratch_pad_vector*data.joints[i].Dinv().coeff(0,0);
-          data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad_vector2*data.scratch_pad_vector.transpose(); 
+          // When propagating 6D constraints
+          scratch_pad_vector.noalias() = data.extended_motion_propagator[ad_i][0]*model.joints[i].jointCols(data.J);
+          scratch_pad_vector2.noalias() = scratch_pad_vector*data.joints[i].Dinv().coeff(0,0);
+          data.spatial_inv_inertia[ad_i].noalias() += scratch_pad_vector2*scratch_pad_vector.transpose(); 
         }
         else 
         {
-          data.scratch_pad_vector.template topRows<3>().noalias() = data.extended_motion_propagator[ad_i][0].template topRows<3>()*model.joints[i].jointCols(data.J);
-          data.scratch_pad_vector2.template topRows<3>().noalias() = data.scratch_pad_vector.template topRows<3>()*data.joints[i].Dinv().coeff(0,0);
-          data.spatial_inv_inertia[ad_i].template topLeftCorner<3,3>().noalias() += data.scratch_pad_vector2.template topRows<3>()*data.scratch_pad_vector.template topRows<3>().transpose();
+          // Propagating 3D constraints
+          scratch_pad_vector.template topRows<3>().noalias() = data.extended_motion_propagator[ad_i][0].template topRows<3>()*model.joints[i].jointCols(data.J);
+          scratch_pad_vector2.template topRows<3>().noalias() = scratch_pad_vector.template topRows<3>()*data.joints[i].Dinv().coeff(0,0);
+          data.spatial_inv_inertia[ad_i].template topLeftCorner<3,3>().noalias() += scratch_pad_vector2.template topRows<3>()*scratch_pad_vector.template topRows<3>().transpose();
         }
         
       }
       else if (nv > 1) 
       {
+       // Joints with more than 1 DoF
        data.scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[ad_i][0]*model.joints[i].jointCols(data.J);
        data.scratch_pad2.leftCols(nv).noalias() = data.scratch_pad1.leftCols(nv)*data.joints[i].Dinv();
        data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad2.leftCols(nv)*data.scratch_pad1.leftCols(nv).transpose();    
@@ -597,9 +602,8 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       else
       {
         data.scratch_pad1.noalias() = 
-        data.extended_motion_propagator[ad_i][0].template block<6, 6>(0, 0)*data.oL[i];
-        data.extended_motion_propagator[ad_i][0].template block<6, 6>(0, 0) = 
-          data.scratch_pad1;
+        data.extended_motion_propagator[ad_i][0]*data.oL[i];
+        data.extended_motion_propagator[ad_i][0] = data.scratch_pad1;
       }
       
     }
@@ -610,9 +614,8 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       size_t an_i = data.accumulation_ancestor[i];
       if (an_i != 0)
       { 
-        data.scratch_pad1.noalias() = data.extended_motion_propagator[i][0].template block<6, 6>(0, 0)*
-          data.spatial_inv_inertia[an_i];
-        data.spatial_inv_inertia[i].noalias() += data.scratch_pad1*data.extended_motion_propagator[i][0].template block<6, 6>(0, 0).transpose();
+        data.scratch_pad1.noalias() = data.extended_motion_propagator[i][0]*data.spatial_inv_inertia[an_i];
+        data.spatial_inv_inertia[i].noalias() += data.scratch_pad1*data.extended_motion_propagator[i][0].transpose();
       }
       
     }
@@ -625,8 +628,8 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       size_t counter = 1;
       while (data.accumulation_ancestor[j] != 0)
       {
-        data.extended_motion_propagator[curr_joint][counter].template block<6, 6>(0, 0).noalias() = 
-          data.extended_motion_propagator[curr_joint][counter-1].template block<6, 6>(0, 0)*data.extended_motion_propagator[j][0].template block<6, 6>(0, 0);     
+        data.extended_motion_propagator[curr_joint][counter].noalias() = 
+          data.extended_motion_propagator[curr_joint][counter-1]*data.extended_motion_propagator[j][0];     
         j = data.accumulation_ancestor[j];
         counter++;   
       }
@@ -678,11 +681,11 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           else if (data.constraints_supported_dim[joint1_id_other] > 6 || data.constraints_supported[joint1_id_other].size() > 1) 
           {
             cdata_other.extended_motion_propagators_joint1[1].noalias() = cdata_other.extended_motion_propagators_joint1[0]*
-              data.extended_motion_propagator[joint1_id_other][id_in_support1_other].template block<6, 6>(0, 0);
+              data.extended_motion_propagator[joint1_id_other][id_in_support1_other];
           }
           else 
           {
-            cdata_other.extended_motion_propagators_joint1[1].noalias() = data.extended_motion_propagator[joint1_id_other][id_in_support1_other].template block<6, 6>(0, 0);
+            cdata_other.extended_motion_propagators_joint1[1].noalias() = data.extended_motion_propagator[joint1_id_other][id_in_support1_other];
           }
 
           if (gca == joint1_id)
@@ -692,16 +695,16 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           else if (data.constraints_supported_dim[joint1_id] > 6 || data.constraints_supported[joint1_id].size() > 1)
           {
             cdata.extended_motion_propagators_joint1[1].noalias() = cdata.extended_motion_propagators_joint1[0]*
-              data.extended_motion_propagator[joint1_id][id_in_support1].template block<6, 6>(0, 0);
+              data.extended_motion_propagator[joint1_id][id_in_support1];
           }
           else 
           {
-            cdata.extended_motion_propagators_joint1[1].noalias() = data.extended_motion_propagator[joint1_id][id_in_support1].template block<6, 6>(0, 0);
+            cdata.extended_motion_propagators_joint1[1].noalias() = data.extended_motion_propagator[joint1_id][id_in_support1];
           }
 
-          data.scratch_pad1.noalias() = cdata_other.extended_motion_propagators_joint1[1].template block<6, 6>(0, 0)*data.spatial_inv_inertia[gca];
+          data.scratch_pad1.noalias() = cdata_other.extended_motion_propagators_joint1[1]*data.spatial_inv_inertia[gca];
           delassus.block(current_row_id_other,current_row_id,size_other,size).noalias()
-            = data.scratch_pad1.topRows(size_other)*cdata.extended_motion_propagators_joint1[1].template block<6, 6>(0, 0).topRows(size).transpose();
+            = data.scratch_pad1.topRows(size_other)*cdata.extended_motion_propagators_joint1[1].topRows(size).transpose();
 
           
           current_row_id_other += size_other;
@@ -711,7 +714,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         if (data.constraints_supported_dim[joint1_id] > 6 || data.constraints_supported[joint1_id].size() > 1) 
         {
           data.scratch_pad1.noalias() = cdata.extended_motion_propagators_joint1[0]*data.spatial_inv_inertia[joint1_id];
-          delassus.block(current_row_id,current_row_id,size,size) = data.scratch_pad1.topRows(size)*
+          delassus.block(current_row_id,current_row_id,size,size).noalias() = data.scratch_pad1.topRows(size)*
             cdata.extended_motion_propagators_joint1[0].topRows(size).transpose();
         }
         else 

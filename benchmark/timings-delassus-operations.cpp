@@ -15,6 +15,7 @@
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/algorithm/delassus.hpp"
 
 #include <iostream>
 
@@ -223,6 +224,36 @@ int main(int argc, const char ** argv)
   }
   std::cout << "KKTContactDynamicMatrixInverse {6D,6D} = \t\t" << (total_time/NBT)
   << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
+
+    VectorXd q = randomConfiguration(model);
+    VectorXd v = Eigen::VectorXd::Random(model.nv);
+
+    computeAllTerms(model,data,q, v);
+    contact_chol_6D6D.compute(model,data,contact_models_6D6D,contact_data_6D6D, 1e-6);
+    contact_chol_6D6D.inverse(H_inverse);
+    
+
+
+  Data::MatrixXs dampedDelassusInverse;
+  dampedDelassusInverse.resize(contact_chol_6D6D.constraintDim(),contact_chol_6D6D.constraintDim());  
+
+  initPvDelassus(model, data, contact_models_6D6D); // Allocate memory
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    // computeABADerivatives(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
+    computeDampedDelassusMatrixInverse(model, data, qs[_smooth], contact_models_6D6D, contact_data_6D6D, dampedDelassusInverse, 1e-6);  
+  }
+  std::cout << "cABA-OSIM = \t\t\t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    // computeABADerivatives(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
+    computeDampedDelassusMatrixInverse(model, data, qs[_smooth], contact_models_6D6D, contact_data_6D6D, dampedDelassusInverse, 1e-6, false, false);  
+  }
+  std::cout << "EFPA = \t\t\t"; timer.toc(std::cout,NBT);
 
   std::cout << "--" << std::endl;
 

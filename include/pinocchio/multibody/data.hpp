@@ -557,8 +557,6 @@ namespace pinocchio
     std::vector<std::vector<size_t>> constraints_on_joint;
     Matrix6 scratch_pad1;
     Matrix6 scratch_pad2;
-    Vector6 scratch_pad_vector;
-    Vector6 scratch_pad_vector2;
 
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
