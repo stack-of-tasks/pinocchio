@@ -546,7 +546,8 @@ namespace pinocchio
 #pragma warning(default:4554)   // C4554 enabled after tensor definition
 #endif
 
-    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<Matrix6>) extended_motion_propagator; // Stores force propagator to the base link
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) extended_motion_propagator; // Stores force propagator to the base link
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) extended_motion_propagator2;
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) spatial_inv_inertia; // Stores spatial inverse inertia
     std::vector<size_t> accumulation_descendant;
     std::vector<size_t> accumulation_ancestor;

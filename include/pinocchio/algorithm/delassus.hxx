@@ -358,7 +358,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
 
     // allocate memory for EMP vectors. If not end-effector, a single Matrix 6, otherwise
     // as many as end-effector points.
-    data.extended_motion_propagator.resize(model.njoints);
+    // data.extended_motion_propagator.resize(model.njoints);
     for (JointIndex i : data.accumulation_joints)
     {
       size_t k = i;
@@ -368,7 +368,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         count++;
         k = data.accumulation_ancestor[k];
       }
-      data.extended_motion_propagator[i].resize(count, Data::Matrix6::Zero());
+      // data.extended_motion_propagator[i].resize(count, Data::Matrix6::Zero());
       
     }
   }
@@ -518,11 +518,11 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         if (data.constraints_supported[i].size() == 1)
         {
           size_t constraint = data.constraints_on_joint[i][0];
-          data.extended_motion_propagator[i][0] = contact_data[constraint].extended_motion_propagators_joint1[0];
+          data.extended_motion_propagator[i] = contact_data[constraint].extended_motion_propagators_joint1[0];
         }
         else
         {
-          data.extended_motion_propagator[i][0].setIdentity();
+          data.extended_motion_propagator[i].setIdentity();
         } 
         data.spatial_inv_inertia[i].setZero();
     }
@@ -538,30 +538,30 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         size_t ad_i = data.accumulation_descendant[i];
         int nv = model.joints[i].nv();
         // propagate the spatial inverse inertia
-  
+
         if (nv == 1)
         {
           // Optimization for single DoF joints
           if (data.constraints_supported_dim[ad_i] != 3)
           {
             // When propagating 6D constraints
-            scratch_pad_vector.noalias() = data.extended_motion_propagator[ad_i][0]*model.joints[i].jointCols(data.J);
+            scratch_pad_vector.noalias() = data.extended_motion_propagator[i]*model.joints[i].jointCols(data.J);
             scratch_pad_vector2.noalias() = scratch_pad_vector*data.joints[i].Dinv().coeff(0,0);
             data.spatial_inv_inertia[ad_i].noalias() += scratch_pad_vector2*scratch_pad_vector.transpose(); 
           }
           else 
           {
             // Propagating 3D constraints
-            scratch_pad_vector.template topRows<3>().noalias() = data.extended_motion_propagator[ad_i][0].template topRows<3>()*model.joints[i].jointCols(data.J);
+            scratch_pad_vector.template topRows<3>().noalias() = data.extended_motion_propagator[i].template topRows<3>()*model.joints[i].jointCols(data.J);
             scratch_pad_vector2.template topRows<3>().noalias() = scratch_pad_vector.template topRows<3>()*data.joints[i].Dinv().coeff(0,0);
             data.spatial_inv_inertia[ad_i].template topLeftCorner<3,3>().noalias() += scratch_pad_vector2.template topRows<3>()*scratch_pad_vector.template topRows<3>().transpose();
           }
-          
+
         }
         else if (nv > 1) 
         {
          // Joints with more than 1 DoF
-         data.scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[ad_i][0]*model.joints[i].jointCols(data.J);
+         data.scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[i]*model.joints[i].jointCols(data.J);
          data.scratch_pad2.leftCols(nv).noalias() = data.scratch_pad1.leftCols(nv)*data.joints[i].Dinv();
          data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad2.leftCols(nv)*data.scratch_pad1.leftCols(nv).transpose();    
         }
@@ -570,23 +570,26 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           assert(false && "must never happen");
         }
         // propagate the EMP
-        if (model.parents[i] > 0)
+        const JointIndex parent  = model.parents[i];
+        size_t par_ad_i = data.accumulation_descendant[parent];
+        if (parent > 0 && par_ad_i == ad_i)
         {
-          if (data.constraints_supported_dim[ad_i] == 3)
+          
+          if (data.constraints_supported_dim[ad_i] != 3)
           {
-            data.scratch_pad1.template topRows<3>().noalias() = 
-            data.extended_motion_propagator[ad_i][0].template topRows<3>()*data.oL[i];
-            data.extended_motion_propagator[ad_i][0].template topRows<3>() = 
-              data.scratch_pad1.template topRows<3>();
+            data.extended_motion_propagator[parent].noalias() = data.extended_motion_propagator[i]*data.oL[i];
           }
           else
-          {
-            data.scratch_pad1.noalias() = 
-            data.extended_motion_propagator[ad_i][0]*data.oL[i];
-            data.extended_motion_propagator[ad_i][0] = data.scratch_pad1;
+          {            
+            data.extended_motion_propagator[parent].template topRows<3>().noalias() = data.extended_motion_propagator[i].template topRows<3>()*data.oL[i];
           }
         }
+        else if(par_ad_i != ad_i)
+        {
+          data.extended_motion_propagator2[ad_i].noalias() = data.extended_motion_propagator[i]*data.oL[i];
+        }
         
+
       }
     }
 
@@ -596,23 +599,38 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       size_t an_i = data.accumulation_ancestor[i];
       if (an_i != 0)
       { 
-        data.scratch_pad1.noalias() = data.extended_motion_propagator[i][0]*data.spatial_inv_inertia[an_i];
-        data.spatial_inv_inertia[i].noalias() += data.scratch_pad1*data.extended_motion_propagator[i][0].transpose();
+        data.scratch_pad1.noalias() = data.extended_motion_propagator2[i]*data.spatial_inv_inertia[an_i];
+        data.spatial_inv_inertia[i].noalias() += data.scratch_pad1*data.extended_motion_propagator2[i].transpose();
       }
       
     }
 
-    // TODO: compute EMP in the reverse direction
+    typedef typename RigidConstraintData::VectorOfMatrix6 VectorOfMatrix6;
+    // compute EMP in the reverse direction
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      JointIndex curr_joint = contact_models[k].joint1_id;
-      JointIndex j = data.accumulation_ancestor[curr_joint];
-      size_t counter = 1;
-      while (data.accumulation_ancestor[j] != 0)
+      VectorOfMatrix6 & cemp = contact_data[k].extended_motion_propagators_joint1;
+      JointIndex  curr_joint = contact_models[k].joint1_id;
+
+      JointIndex an_i;
+
+      if (data.constraints_supported[curr_joint].size() == 1)
       {
-        data.extended_motion_propagator[curr_joint][counter].noalias() = 
-          data.extended_motion_propagator[curr_joint][counter-1]*data.extended_motion_propagator[j][0];     
-        j = data.accumulation_ancestor[j];
+        cemp[0] = data.extended_motion_propagator2[curr_joint];
+        an_i = data.accumulation_ancestor[curr_joint];
+      }
+      else
+      {
+        an_i = curr_joint;
+      }
+
+      size_t counter = 1;
+      while (an_i > 1)
+      {
+        cemp[counter].noalias() = 
+          cemp[counter-1]*data.extended_motion_propagator2[an_i];     
+        curr_joint = an_i;
+        an_i = data.accumulation_ancestor[curr_joint];
         counter++;   
       }
     }
@@ -641,54 +659,35 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           gca = findCommonAncestor(model,joint1_id,cmodel_other.joint1_id,
                              id_in_support1,id_in_support1_other);
           
+          // TODO: implement another gca that gives supports the way I am using.
           id_in_support1 = 0;
           id_in_support1_other = 0;
           size_t j = joint1_id;
-          while (data.accumulation_ancestor[j] != gca && data.accumulation_ancestor[j] != 0)
-          {
-            j = data.accumulation_ancestor[j];
-            id_in_support1++;
+          if (j!= gca)
+          { 
+            if (data.constraints_supported[j].size() > 1)
+              id_in_support1++;
+            while (data.accumulation_ancestor[j] != gca && data.accumulation_ancestor[j] != 0)
+            {
+              j = data.accumulation_ancestor[j];
+              id_in_support1++;
+            }
           }
           j = joint1_id_other;
-          while (data.accumulation_ancestor[j] != gca && data.accumulation_ancestor[j] != 0)
+          if (j != gca)
           {
-            j = data.accumulation_ancestor[j];
-            id_in_support1_other++;
+            if (data.constraints_supported[j].size() > 1)
+              id_in_support1_other++;
+            while (j != gca && data.accumulation_ancestor[j] != gca && data.accumulation_ancestor[j] != 0)
+            {
+              j = data.accumulation_ancestor[j];
+              id_in_support1_other++;
+            }
           }
 
-          if (gca == joint1_id_other)
-          {
-            cdata_other.extended_motion_propagators_joint1[1].noalias() = cdata_other.extended_motion_propagators_joint1[0];
-          }
-          else if (data.constraints_supported_dim[joint1_id_other] > 6 || data.constraints_supported[joint1_id_other].size() > 1) 
-          {
-            cdata_other.extended_motion_propagators_joint1[1].noalias() = cdata_other.extended_motion_propagators_joint1[0]*
-              data.extended_motion_propagator[joint1_id_other][id_in_support1_other];
-          }
-          else 
-          {
-            cdata_other.extended_motion_propagators_joint1[1].noalias() = data.extended_motion_propagator[joint1_id_other][id_in_support1_other];
-          }
-
-          if (gca == joint1_id)
-          {
-            cdata.extended_motion_propagators_joint1[1].noalias() = cdata.extended_motion_propagators_joint1[0];
-          }
-          else if (data.constraints_supported_dim[joint1_id] > 6 || data.constraints_supported[joint1_id].size() > 1)
-          {
-            cdata.extended_motion_propagators_joint1[1].noalias() = cdata.extended_motion_propagators_joint1[0]*
-              data.extended_motion_propagator[joint1_id][id_in_support1];
-          }
-          else 
-          {
-            cdata.extended_motion_propagators_joint1[1].noalias() = data.extended_motion_propagator[joint1_id][id_in_support1];
-          }
-
-          data.scratch_pad1.noalias() = cdata_other.extended_motion_propagators_joint1[1]*data.spatial_inv_inertia[gca];
+          data.scratch_pad1.noalias() = cdata_other.extended_motion_propagators_joint1[id_in_support1_other]*data.spatial_inv_inertia[gca];
           delassus.block(current_row_id_other,current_row_id,size_other,size).noalias()
-            = data.scratch_pad1.topRows(size_other)*cdata.extended_motion_propagators_joint1[1].topRows(size).transpose();
-
-          
+            = data.scratch_pad1.topRows(size_other)*cdata.extended_motion_propagators_joint1[id_in_support1].topRows(size).transpose();
           current_row_id_other += size_other;
         }
         
