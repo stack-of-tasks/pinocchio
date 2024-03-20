@@ -46,9 +46,6 @@ namespace pinocchio
         data.oMi[i] = data.liMi[i];
       
       jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
-      
-      // data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
-      // data.oYaba[i] = data.oYcrb[i].matrix();
       data.oYaba[i] = data.oMi[i].act(model.inertias[i]);
     }
     
@@ -355,25 +352,51 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           data.accumulation_ancestor[data.accumulation_descendant[i]] = parent;
       }
     }
-
-    // allocate memory for EMP vectors. If not end-effector, a single Matrix 6, otherwise
-    // as many as end-effector points.
-    // data.extended_motion_propagator.resize(model.njoints);
-    for (JointIndex i : data.accumulation_joints)
-    {
-      size_t k = i;
-      size_t count = 1;
-      while (data.accumulation_ancestor[k] != 0)
-      {
-        count++;
-        k = data.accumulation_ancestor[k];
-      }
-      // data.extended_motion_propagator[i].resize(count, Data::Matrix6::Zero());
-      
-    }
   }
 
+template <typename Scalar, int Options, template <typename, int> class JointCollectionTpl>
+  JointIndex findGCA(const ModelTpl<Scalar,Options, JointCollectionTpl> & model, const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                JointIndex joint1_id,
+                                JointIndex joint2_id,
+                                size_t & index_ancestor_in_support1,
+                                size_t & index_ancestor_in_support2)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(joint1_id < (JointIndex)model.njoints,"joint1_id is not valid.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(joint2_id < (JointIndex)model.njoints,"joint2_id is not valid.");
+    
+    if(joint1_id == 0 || joint2_id == 0)
+    {
+      index_ancestor_in_support1 = index_ancestor_in_support2 = 0;
+      return 0;
+    }
+    
+    index_ancestor_in_support1 = 0;
+    index_ancestor_in_support2 = 0;
 
+    if (data.constraints_supported[joint1_id].size() > 1)
+      index_ancestor_in_support1++;
+    if (data.constraints_supported[joint2_id].size() > 1)
+      index_ancestor_in_support2++;
+
+    while(joint1_id != joint2_id)
+    {
+      if(joint1_id > joint2_id)
+      {
+        joint1_id = data.accumulation_ancestor[joint1_id];
+        index_ancestor_in_support1++;
+      } 
+      else
+      {
+        joint2_id = data.accumulation_ancestor[joint2_id];
+        index_ancestor_in_support2++;
+      }
+    }
+
+    index_ancestor_in_support1--;
+    index_ancestor_in_support2--;
+    
+    return joint1_id;
+  }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputePvDelassusBackwardStep
@@ -454,7 +477,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     
     typedef typename Model::JointIndex JointIndex;
     typedef typename Model::SE3 SE3;
-    typedef typename Model::IndexVector IndexVector;
     typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
     typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
     
@@ -558,6 +580,12 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           }
 
         }
+        else if (nv == 6)
+        {
+         data.scratch_pad1.noalias() = data.extended_motion_propagator[i]*model.joints[i].jointCols(data.J);
+         data.scratch_pad2.noalias() = data.scratch_pad1*data.joints[i].Dinv();
+         data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad2*data.scratch_pad1.transpose(); 
+        }
         else if (nv > 1) 
         {
          // Joints with more than 1 DoF
@@ -584,12 +612,10 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
             data.extended_motion_propagator[parent].template topRows<3>().noalias() = data.extended_motion_propagator[i].template topRows<3>()*data.oL[i];
           }
         }
-        else if(par_ad_i != ad_i)
+        else if(par_ad_i != ad_i) //TODO: optimize for 3D constraints
         {
           data.extended_motion_propagator2[ad_i].noalias() = data.extended_motion_propagator[i]*data.oL[i];
         }
-        
-
       }
     }
 
@@ -597,7 +623,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     {
       
       size_t an_i = data.accumulation_ancestor[i];
-      if (an_i != 0)
+      if (an_i != 0) //TODO: optimize for 3D constraints. Not very important here.
       { 
         data.scratch_pad1.noalias() = data.extended_motion_propagator2[i]*data.spatial_inv_inertia[an_i];
         data.spatial_inv_inertia[i].noalias() += data.scratch_pad1*data.extended_motion_propagator2[i].transpose();
@@ -627,8 +653,11 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       size_t counter = 1;
       while (an_i > 1)
       {
-        cemp[counter].noalias() = 
-          cemp[counter-1]*data.extended_motion_propagator2[an_i];     
+        if (contact_models[k].size() != 3)
+          cemp[counter].noalias() = 
+            cemp[counter-1]*data.extended_motion_propagator2[an_i];     
+        else
+          cemp[counter].template topRows<3>().noalias() = cemp[counter-1].template topRows<3>()*data.       extended_motion_propagator2[an_i]; 
         curr_joint = an_i;
         an_i = data.accumulation_ancestor[curr_joint];
         counter++;   
@@ -640,6 +669,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     {
       const RigidConstraintModel & cmodel = contact_models[k];
       RigidConstraintData & cdata = contact_data[k];
+      const VectorOfMatrix6 & cemp = cdata.extended_motion_propagators_joint1;
       
       const JointIndex joint1_id = cmodel.joint1_id;
       
@@ -654,49 +684,24 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           const RigidConstraintModel & cmodel_other = contact_models[i];
           const int size_other = cmodel_other.size();
           const JointIndex joint1_id_other = cmodel_other.joint1_id;
+
+          const VectorOfMatrix6 & cemp_other = cdata_other.extended_motion_propagators_joint1;
           
           size_t id_in_support1, id_in_support1_other, gca;
-          gca = findCommonAncestor(model,joint1_id,cmodel_other.joint1_id,
-                             id_in_support1,id_in_support1_other);
-          
-          // TODO: implement another gca that gives supports the way I am using.
-          id_in_support1 = 0;
-          id_in_support1_other = 0;
-          size_t j = joint1_id;
-          if (j!= gca)
-          { 
-            if (data.constraints_supported[j].size() > 1)
-              id_in_support1++;
-            while (data.accumulation_ancestor[j] != gca && data.accumulation_ancestor[j] != 0)
-            {
-              j = data.accumulation_ancestor[j];
-              id_in_support1++;
-            }
-          }
-          j = joint1_id_other;
-          if (j != gca)
-          {
-            if (data.constraints_supported[j].size() > 1)
-              id_in_support1_other++;
-            while (j != gca && data.accumulation_ancestor[j] != gca && data.accumulation_ancestor[j] != 0)
-            {
-              j = data.accumulation_ancestor[j];
-              id_in_support1_other++;
-            }
-          }
+          gca = findGCA(model, data, joint1_id, joint1_id_other, id_in_support1, id_in_support1_other);
 
-          data.scratch_pad1.noalias() = cdata_other.extended_motion_propagators_joint1[id_in_support1_other]*data.spatial_inv_inertia[gca];
+          data.scratch_pad1.noalias() = cemp_other[id_in_support1_other]*data.spatial_inv_inertia[gca];
           delassus.block(current_row_id_other,current_row_id,size_other,size).noalias()
-            = data.scratch_pad1.topRows(size_other)*cdata.extended_motion_propagators_joint1[id_in_support1].topRows(size).transpose();
+            = data.scratch_pad1.topRows(size_other)*cemp[id_in_support1].topRows(size).transpose();
           current_row_id_other += size_other;
         }
         
         assert(current_row_id_other == current_row_id && "current row indexes do not match.");
         if (data.constraints_supported_dim[joint1_id] > 6 || data.constraints_supported[joint1_id].size() > 1) 
         {
-          data.scratch_pad1.noalias() = cdata.extended_motion_propagators_joint1[0]*data.spatial_inv_inertia[joint1_id];
+          data.scratch_pad1.noalias() = cemp[0]*data.spatial_inv_inertia[joint1_id];
           delassus.block(current_row_id,current_row_id,size,size).noalias() = data.scratch_pad1.topRows(size)*
-            cdata.extended_motion_propagators_joint1[0].topRows(size).transpose();
+            cemp[0].topRows(size).transpose();
         }
         else 
         {
