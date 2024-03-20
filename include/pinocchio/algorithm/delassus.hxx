@@ -9,6 +9,7 @@
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/model.hpp"
 #include "pinocchio/multibody/fwd.hpp"
+#include <algorithm>
 
 namespace pinocchio
 {
@@ -284,7 +285,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                      const std::vector<RigidConstraintModelTpl<Scalar,Options>,Allocator> & contact_models)
   {
-    
+    std::fill(data.constraints_supported_dim.begin(), data.constraints_supported_dim.end(), 0);
     for(std::size_t i=0;i<contact_models.size();++i)
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
@@ -352,8 +353,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       { 
         if (data.accumulation_descendant[i] != 0)
           data.accumulation_ancestor[data.accumulation_descendant[i]] = parent;
-        // data.spatial_inv_inertia[parent] = Data::Matrix6::Zero();
-        // data.extended_force_propagator[parent] = Data::Matrix6::Zero();
       }
     }
 
@@ -412,17 +411,14 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       
       internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
 
-      jdata.UDinv().noalias() = Jcols * jdata.Dinv().transpose(); //@justin can we remove the transpose since Dinv() is symmetric?
-      // data.oK[i].noalias() = jdata.UDinv() * Jcols.transpose();
+      jdata.UDinv().noalias() = Jcols * jdata.Dinv().transpose(); 
       data.oL[i].setIdentity();
       data.oL[i].noalias() -= jdata.UDinv() * jdata.U().transpose();
-      // data.oL[i] += Matrix6::Identity();
       
       if(parent > 0)
       {
-        // jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
-        data.oYaba[parent].noalias() += data.oL[i]*Ia;
-        // data.oYaba[parent].noalias() -= jdata.UDinv() * jdata.U().transpose();
+        // data.oYaba[parent].noalias() += data.oL[i]*Ia;
+        data.oYaba[parent].noalias() = Ia - jdata.UDinv() * jdata.U().transpose();
       }
     }
     
@@ -490,24 +486,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       const Inertia contact_inertia(mu,oMc.translation(),S);
       data.oYaba[joint1_id] += contact_inertia.matrix();
 
-    }
-
-    typedef ComputePvDelassusBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
-    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
-    {
-      Pass2::run(model.joints[i],data.joints[i],typename Pass2::ArgsType(model,data));
-    }
-
-    for(size_t k = 0; k < contact_models.size(); ++k)
-    { 
-
-      const RigidConstraintModel & cmodel = contact_models[k];
-      RigidConstraintData & cdata = contact_data[k];
-      const JointIndex joint1_id = cmodel.joint1_id;
-
-      const SE3 & oMc1 = cdata.oMc1;
-      const IndexVector & support1 = model.supports[joint1_id];
-
       typedef typename RigidConstraintData::VectorOfMatrix6 VectorOfMatrix6;
 
       VectorOfMatrix6 & propagators = cdata.extended_motion_propagators_joint1;
@@ -515,13 +493,13 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         {
           case CONTACT_3D:
           {
-            oMc1.toActionMatrixInverse(propagators[0]);
+            oMc.toActionMatrixInverse(propagators[0]);
             propagators[0].template bottomRows<3>().setZero();
             break;
           }
           case CONTACT_6D:
           {
-            oMc1.toActionMatrixInverse(propagators[0]);
+            oMc.toActionMatrixInverse(propagators[0]);
             break;
           }
 
@@ -537,12 +515,10 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     for (JointIndex i : data.accumulation_joints)
     {
         
-        if (data.constraints_supported_dim[i] <= 6 && data.constraints_supported[i].size() == 1)
+        if (data.constraints_supported[i].size() == 1)
         {
           size_t constraint = data.constraints_on_joint[i][0];
-          RigidConstraintData & cdata = contact_data[constraint];
-          data.extended_motion_propagator[i][0] =
-             cdata.extended_motion_propagators_joint1[0];
+          data.extended_motion_propagator[i][0] = contact_data[constraint].extended_motion_propagators_joint1[0];
         }
         else
         {
@@ -551,61 +527,67 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         data.spatial_inv_inertia[i].setZero();
     }
 
-
-    for(JointIndex i : data.joints_supporting_constraints)
+    typedef ComputePvDelassusBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
     {
-      size_t constraints_size =  data.constraints_supported_dim[i] > 6 ? 6 : data.constraints_supported_dim[i];
-        
-      size_t ad_i = data.accumulation_descendant[i];
-      int nv = model.joints[i].nv();
-      // propagate the spatial inverse inertia
+      Pass2::run(model.joints[i],data.joints[i],typename Pass2::ArgsType(model,data));
+    
 
-      if (nv == 1)
-      {
-        // Optimization for single DoF joints
-        if (data.constraints_supported_dim[ad_i] != 3)
+      if (data.constraints_supported_dim[i] > 0)
+      {    
+        size_t ad_i = data.accumulation_descendant[i];
+        int nv = model.joints[i].nv();
+        // propagate the spatial inverse inertia
+  
+        if (nv == 1)
         {
-          // When propagating 6D constraints
-          scratch_pad_vector.noalias() = data.extended_motion_propagator[ad_i][0]*model.joints[i].jointCols(data.J);
-          scratch_pad_vector2.noalias() = scratch_pad_vector*data.joints[i].Dinv().coeff(0,0);
-          data.spatial_inv_inertia[ad_i].noalias() += scratch_pad_vector2*scratch_pad_vector.transpose(); 
+          // Optimization for single DoF joints
+          if (data.constraints_supported_dim[ad_i] != 3)
+          {
+            // When propagating 6D constraints
+            scratch_pad_vector.noalias() = data.extended_motion_propagator[ad_i][0]*model.joints[i].jointCols(data.J);
+            scratch_pad_vector2.noalias() = scratch_pad_vector*data.joints[i].Dinv().coeff(0,0);
+            data.spatial_inv_inertia[ad_i].noalias() += scratch_pad_vector2*scratch_pad_vector.transpose(); 
+          }
+          else 
+          {
+            // Propagating 3D constraints
+            scratch_pad_vector.template topRows<3>().noalias() = data.extended_motion_propagator[ad_i][0].template topRows<3>()*model.joints[i].jointCols(data.J);
+            scratch_pad_vector2.template topRows<3>().noalias() = scratch_pad_vector.template topRows<3>()*data.joints[i].Dinv().coeff(0,0);
+            data.spatial_inv_inertia[ad_i].template topLeftCorner<3,3>().noalias() += scratch_pad_vector2.template topRows<3>()*scratch_pad_vector.template topRows<3>().transpose();
+          }
+          
+        }
+        else if (nv > 1) 
+        {
+         // Joints with more than 1 DoF
+         data.scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[ad_i][0]*model.joints[i].jointCols(data.J);
+         data.scratch_pad2.leftCols(nv).noalias() = data.scratch_pad1.leftCols(nv)*data.joints[i].Dinv();
+         data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad2.leftCols(nv)*data.scratch_pad1.leftCols(nv).transpose();    
         }
         else 
         {
-          // Propagating 3D constraints
-          scratch_pad_vector.template topRows<3>().noalias() = data.extended_motion_propagator[ad_i][0].template topRows<3>()*model.joints[i].jointCols(data.J);
-          scratch_pad_vector2.template topRows<3>().noalias() = scratch_pad_vector.template topRows<3>()*data.joints[i].Dinv().coeff(0,0);
-          data.spatial_inv_inertia[ad_i].template topLeftCorner<3,3>().noalias() += scratch_pad_vector2.template topRows<3>()*scratch_pad_vector.template topRows<3>().transpose();
+          assert(false && "must never happen");
+        }
+        // propagate the EMP
+        if (model.parents[i] > 0)
+        {
+          if (data.constraints_supported_dim[ad_i] == 3)
+          {
+            data.scratch_pad1.template topRows<3>().noalias() = 
+            data.extended_motion_propagator[ad_i][0].template topRows<3>()*data.oL[i];
+            data.extended_motion_propagator[ad_i][0].template topRows<3>() = 
+              data.scratch_pad1.template topRows<3>();
+          }
+          else
+          {
+            data.scratch_pad1.noalias() = 
+            data.extended_motion_propagator[ad_i][0]*data.oL[i];
+            data.extended_motion_propagator[ad_i][0] = data.scratch_pad1;
+          }
         }
         
       }
-      else if (nv > 1) 
-      {
-       // Joints with more than 1 DoF
-       data.scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[ad_i][0]*model.joints[i].jointCols(data.J);
-       data.scratch_pad2.leftCols(nv).noalias() = data.scratch_pad1.leftCols(nv)*data.joints[i].Dinv();
-       data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad2.leftCols(nv)*data.scratch_pad1.leftCols(nv).transpose();    
-      }
-      else 
-      {
-        assert(false && "must never happen");
-      }
-      // propagate the EMP
-
-      if (data.constraints_supported_dim[ad_i] == 3)
-      {
-        data.scratch_pad1.template topRows<3>().noalias() = 
-        data.extended_motion_propagator[ad_i][0].template topRows<3>()*data.oL[i];
-        data.extended_motion_propagator[ad_i][0].template topRows<3>() = 
-          data.scratch_pad1.template topRows<3>();
-      }
-      else
-      {
-        data.scratch_pad1.noalias() = 
-        data.extended_motion_propagator[ad_i][0]*data.oL[i];
-        data.extended_motion_propagator[ad_i][0] = data.scratch_pad1;
-      }
-      
     }
 
     for(JointIndex i : data.accumulation_joints)
@@ -726,12 +708,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     }
     assert(current_row_id == delassus.rows() && "current row indexes do not the number of rows in the Delassus matrix.");
   }
-
-
-
-
-
-
 
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, class ModelAllocator, class DataAllocator, typename MatrixType>
