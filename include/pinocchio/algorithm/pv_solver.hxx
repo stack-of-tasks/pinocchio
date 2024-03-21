@@ -27,8 +27,6 @@
 namespace pinocchio
 {
 
-  // Ask Justin where to initialize pv_settings, or whether it should be combined with proximal settings
-
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator>
   inline void initPvSolver(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -418,64 +416,64 @@ namespace pinocchio
     
   };
     
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  struct PvForwardStep2
-  : public fusion::JointUnaryVisitorBase< PvForwardStep2<Scalar,Options,JointCollectionTpl> >
-  {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+  // template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  // struct PvForwardStep2
+  // : public fusion::JointUnaryVisitorBase< PvForwardStep2<Scalar,Options,JointCollectionTpl> >
+  // {
+  //   typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+  //   typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    typedef boost::fusion::vector<const Model &,
-    Data &> ArgsType;
+  //   typedef boost::fusion::vector<const Model &,
+  //   Data &> ArgsType;
     
-    template<typename JointModel>
-    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
-                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const Model & model,
-                     Data & data)
-    {
-      typedef typename Model::JointIndex JointIndex;
-      bool early_full = data.pv_settings.use_early;
-      bool prox = data.pv_settings.mu > 0.0;
+  //   template<typename JointModel>
+  //   static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+  //                    pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+  //                    const Model & model,
+  //                    Data & data)
+  //   {
+  //     typedef typename Model::JointIndex JointIndex;
+  //     bool early_full = data.pv_settings.use_early;
+  //     bool prox = data.pv_settings.mu > 0.0;
       
-      const JointIndex i = jmodel.id();
-      const JointIndex parent = model.parents[i];
+  //     const JointIndex i = jmodel.id();
+  //     const JointIndex parent = model.parents[i];
       
-      data.a[i] = data.liMi[i].actInv(data.a[parent]) + data.a_bias[i];
-      jmodel.jointVelocitySelector(data.ddq).noalias() =
-      jdata.Dinv() * (jmodel.jointVelocitySelector(data.u)) - jdata.UDinv().transpose() * data.a[i].toVector();
+  //     data.a[i] = data.liMi[i].actInv(data.a[parent]) + data.a_bias[i];
+  //     jmodel.jointVelocitySelector(data.ddq).noalias() =
+  //     jdata.Dinv() * (jmodel.jointVelocitySelector(data.u)) - jdata.UDinv().transpose() * data.a[i].toVector();
 
-      if (early_full && data.constraints_supported_dim[i] > 0 && !prox)
-      {
-        Scalar lambda_opt = (data.KAopt[i].dot((data.a[i] - data.a_bias[i]).toVector())
-          + data.lAopt[i])/data.sigma[i];
+  //     if (early_full && data.constraints_supported_dim[i] > 0 && !prox)
+  //     {
+  //       Scalar lambda_opt = (data.KAopt[i].dot((data.a[i] - data.a_bias[i]).toVector())
+  //         + data.lAopt[i])/data.sigma[i];
 
-        // size_t max_ind = 0;
-        //data.KAS[i].row(0).array().abs().matrix().maxCoeff(&data.svd_max_ind[i]); // Maybe save this from the previous computation?
-        data.lambdaA[i].head(data.svd_max_ind[i]) = data.lambdaA[parent].head(data.svd_max_ind[i]);
-        data.lambdaA[i](data.svd_max_ind[i]) = lambda_opt;
-        for (int k = data.svd_max_ind[i] + 1; k < data.constraints_supported_dim[i]; k++)
-          data.lambdaA[i](k) = data.lambdaA[parent](k - 1);
-        auto w_normalized = (data.w[i]/(data.w[i].dot(data.w[i]))).eval(); // check whether to save
-        data.lambdaA[i].head(data.constraints_supported_dim[i]) -= 2*data.w[i].dot(data.lambdaA[i].head(data.constraints_supported_dim[i]))*w_normalized;
-        // 
-      }
-      else
-      {
-        data.lambdaA[i].noalias() = data.lambdaA[parent].segment(data.par_cons_ind[i], data.lambdaA[i].size());
-      }
-      for (int j = 0; j < data.constraints_supported_dim[i] && !prox; j++)
-      {
-        jmodel.jointVelocitySelector(data.ddq).noalias() -= 
-          data.lambdaA[i][j]*jdata.Dinv() * (data.KAS[i].col(j));
-      }
-      // if (data.lA[i].size() > 0)
-      //   jmodel.jointVelocitySelector(data.ddq).noalias() -= jdata.Dinv() * jdata.S().matrix().transpose() * data.KA_temp[i].transpose()*data.lambdaA[i];
+  //       // size_t max_ind = 0;
+  //       //data.KAS[i].row(0).array().abs().matrix().maxCoeff(&data.svd_max_ind[i]); // Maybe save this from the previous computation?
+  //       data.lambdaA[i].head(data.svd_max_ind[i]) = data.lambdaA[parent].head(data.svd_max_ind[i]);
+  //       data.lambdaA[i](data.svd_max_ind[i]) = lambda_opt;
+  //       for (int k = data.svd_max_ind[i] + 1; k < data.constraints_supported_dim[i]; k++)
+  //         data.lambdaA[i](k) = data.lambdaA[parent](k - 1);
+  //       auto w_normalized = (data.w[i]/(data.w[i].dot(data.w[i]))).eval(); // check whether to save
+  //       data.lambdaA[i].head(data.constraints_supported_dim[i]) -= 2*data.w[i].dot(data.lambdaA[i].head(data.constraints_supported_dim[i]))*w_normalized;
+  //       // 
+  //     }
+  //     else
+  //     {
+  //       data.lambdaA[i].noalias() = data.lambdaA[parent].segment(data.par_cons_ind[i], data.lambdaA[i].size());
+  //     }
+  //     for (int j = 0; j < data.constraints_supported_dim[i] && !prox; j++)
+  //     {
+  //       jmodel.jointVelocitySelector(data.ddq).noalias() -= 
+  //         data.lambdaA[i][j]*jdata.Dinv() * (data.KAS[i].col(j));
+  //     }
+  //     // if (data.lA[i].size() > 0)
+  //     //   jmodel.jointVelocitySelector(data.ddq).noalias() -= jdata.Dinv() * jdata.S().matrix().transpose() * data.KA_temp[i].transpose()*data.lambdaA[i];
 
-      data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
-    }
+  //     data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
+  //   }
     
-  };
+  // };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ContactModelAllocator, class ContactDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
@@ -486,19 +484,13 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType2> & tau,
       const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
       std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
-      ProximalSettingsTpl<Scalar> & settings,
-      Data::PvSettings & pv_settings)
+      ProximalSettingsTpl<Scalar> & settings)
   {
 
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv, "The joint torque vector is not of right size");
-
-    data.pv_settings = pv_settings;
-    bool early_base = pv_settings.use_early_base;
-    bool early_full = pv_settings.use_early;
-    // bool early_prox = pv_settings.mu > 0.0;
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
 
@@ -605,17 +597,12 @@ namespace pinocchio
           contact_acc_err.linear().noalias() -= corrector.Kp.asDiagonal()*contact_data.contact_placement_error.linear();
         }
       }
-      // data.lA[joint_id].noalias() -= data.KA_temp[joint_id].template topRows<3>().transpose()*(data.a_gf[joint_id].linear_impl());
+
       for (int j = condim_counter[joint_id]; j < condim_counter[joint_id] + con_dim; j++)
       {
-        // auto lA_update = data.KA[i][0].toVector().transpose()*a_bf_motion.toVector();
         data.lA[joint_id][j] -=
           (data.KA_temp[joint_id].col(j).template head<3>().transpose()*data.a_gf[joint_id].linear_impl());
       }
-      // if (contact_model.type == CONTACT_6D)
-      // {
-      //   data.lA[joint_id].noalias() -= contact_model.joint1_placement.actInv(data.a_bias[joint_id]).toVector();
-      // }
       if(contact_model.type == CONTACT_3D)
       { 
         vc1 = contact_model.joint1_placement.actInv(data.v[joint_id]);
@@ -629,186 +616,51 @@ namespace pinocchio
       
     }
     
-    if (!early_full)
-    {
     typedef PvRegBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
-    for(JointIndex i=(JointIndex)model.njoints-1;i>1; --i)
+    for(JointIndex i=(JointIndex)model.njoints-1;i>=1; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
                  typename Pass2::ArgsType(model,data));
-    }
+    }    
 
-
-    // Do the backward pass from the base to the reference frame
-    Pass2::run(model.joints[1],data.joints[1],
-                 typename Pass2::ArgsType(model,data));
-    }
-    else
-    { 
-      // TODO: add PV-early for when mu = 0
-      for(std::size_t i=0;i<contact_models.size();++i)
-      {
-        const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
-        const JointIndex & joint_id = contact_model.joint1_id;
-
-        data.Yaba[joint_id].matrix().noalias() += data.KA_temp[joint_id]*(1/pv_settings.mu)*data.KA_temp[joint_id].transpose();
-        data.f[joint_id].toVector().noalias() += data.KA_temp[joint_id]*(1/pv_settings.mu)*data.lA[joint_id];
-        
-      }
-
-      typedef cAbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
-      for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
-      {
-        Pass2::run(model.joints[i],data.joints[i],
-                   typename Pass2::ArgsType(model,data));
-      }
-    }
-    
-
-    // // // Compute the Cholesky decomposition
-    if (!early_base && !early_full)
+    if (data.lA[0].size() > 0)
     {
+      data.lA[0].noalias() += data.KA_temp[0].transpose()*data.a_gf[0].toVector();
+      // for (int j = 0; j < data.constraints_supported_dim[0]; j++)
+      // {
+      // data.lA[0][j] += data.KA_temp[0].col(j).transpose()*data.a_gf[0].toVector();
+      // }
 
-      if (data.lA[0].size() > 0)
+      // data.lambdaA[0] = data.LA[0].ldlt().solve(data.lA[0]);
+
+      // data.lambdaA[0] = data.lA[0];
+      // data.LA[0].ldlt().solveInPlace(data.lambdaA[0]);
+
+      data.lambdaA[0].noalias() = data.lA[0];
+      data.LA[0].noalias() += settings.mu * Data::MatrixXs::Identity(data.constraints_supported_dim[0], data.constraints_supported_dim[0]);
+      data.osim_llt.compute(data.LA[0]);
+      data.lambda_c_prox.setZero();
+      int i = 0;
+      for (i = 0; i < settings.max_iter; i++)
       {
-        data.lA[0].noalias() += data.KA_temp[0].transpose()*data.a_gf[0].toVector();
-        // for (int j = 0; j < data.constraints_supported_dim[0]; j++)
-        // {
-        // data.lA[0][j] += data.KA_temp[0].col(j).transpose()*data.a_gf[0].toVector();
-        // }
-
-        // data.lambdaA[0] = data.LA[0].ldlt().solve(data.lA[0]);
-
-        // data.lambdaA[0] = data.lA[0];
-        // data.LA[0].ldlt().solveInPlace(data.lambdaA[0]);
-
-        data.lambdaA[0].noalias() = data.lA[0];
-        data.LA[0].noalias() += pv_settings.mu * Data::MatrixXs::Identity(data.constraints_supported_dim[0], data.constraints_supported_dim[0]);
-        data.osim_llt.compute(data.LA[0]);
-        data.lambda_c_prox.setZero();
-        int i = 0;
-        for (i = 0; i < pv_settings.max_iter; i++)
-        {
-          // std::cout << "LA[0] = " << data.LA[0] << ", lA[0] = " << data.lA[0] << ", lambdaA[0] = " << data.lambdaA[0] << "\n";
-          data.lambdaA[0].noalias() = pv_settings.mu*data.lambda_c_prox + data.lA[0];
-          data.osim_llt.solveInPlace(data.lambdaA[0]);
-          pv_settings.absolute_residual = (data.lambda_c_prox - data.lambdaA[0]).template lpNorm<Eigen::Infinity>();
-          if(check_expression_if_real<Scalar,false>(pv_settings.absolute_residual <= pv_settings.absolute_accuracy)) // In the case where Scalar is not double, this will iterate for max_it.
-            break;
-          data.lambda_c_prox.noalias() = data.lambdaA[0];
-        }
-
-        data.LA[0].template triangularView<Eigen::Upper>() = data.LA[0].template triangularView<Eigen::Lower>().transpose();
-        // std::cout << "Num iters = " << i << " and Error L2 residual = " << ((data.LA[0]-pv_settings.mu * Data::MatrixXs::Identity(data.constraints_supported_dim[0], data.constraints_supported_dim[0]))*data.lambdaA[0] - data.lA[0]).template lpNorm<2>() << "\n";
+        // std::cout << "LA[0] = " << data.LA[0] << ", lA[0] = " << data.lA[0] << ", lambdaA[0] = " << data.lambdaA[0] << "\n";
+        data.lambdaA[0].noalias() = settings.mu*data.lambda_c_prox + data.lA[0];
+        data.osim_llt.solveInPlace(data.lambdaA[0]);
+        settings.absolute_residual = (data.lambda_c_prox - data.lambdaA[0]).template lpNorm<Eigen::Infinity>();
+        if(check_expression_if_real<Scalar,false>(settings.absolute_residual <= settings.absolute_accuracy)) // In the case where Scalar is not double, this will iterate for max_it.
+          break;
+        data.lambda_c_prox.noalias() = data.lambdaA[0];
       }
 
-      typedef PvRegForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
-      Pass3::run(model.joints[1],data.joints[1],
-                 typename Pass3::ArgsType(model,data));
-    
-      for(JointIndex i=2; i<(JointIndex)model.njoints; ++i)
-      {
-        Pass3::run(model.joints[i],data.joints[i],
-                   typename Pass3::ArgsType(model,data));
-      }
-
+      data.LA[0].template triangularView<Eigen::Upper>() = data.LA[0].template triangularView<Eigen::Lower>().transpose();
+      // std::cout << "Num iters = " << i << " and Error L2 residual = " << ((data.LA[0]-pv_settings.mu * Data::MatrixXs::Identity(data.constraints_supported_dim[0], data.constraints_supported_dim[0]))*data.lambdaA[0] - data.lA[0]).template lpNorm<2>() << "\n";
     }
-    
-    
 
-    if (early_full)
+    typedef PvRegForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      std::fill(condim_counter.begin(), condim_counter.end(), 0);
-      assert(pv_settings.mu > 0 && "constrainedABA requires mu > 0.");
-      typedef PvBackwardStepReduced<Scalar,Options,JointCollectionTpl> Pass4;
-      int lambda_ind = 0;
-      for(std::size_t j=0;j<contact_models.size();++j)
-      {
-        const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[j];
-        const JointIndex & joint_id = contact_model.joint1_id;
-        data.lambda_c_prox.segment(lambda_ind, contact_model.size()).noalias() = 
-          (data.lA[joint_id].segment(condim_counter[joint_id], contact_model.size()) + data.KA_temp[joint_id].middleCols(condim_counter[joint_id], contact_model.size()).transpose()*data.a[joint_id].toVector());
-        lambda_ind += contact_model.size();
-        condim_counter[joint_id] += contact_model.size();
-      }
-
-      typedef cAbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
-      for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
-      {
-        if (data.constraints_supported_dim[i] > 0)
-          Pass3::run(model.joints[i],data.joints[i],
-                   typename Pass3::ArgsType(model,data));
-      }
-
-      for (int i = 1; i < pv_settings.max_iter; i++)
-      { 
-        
-        data.lambdaA[0].noalias() += (1/pv_settings.mu)*data.lambda_c_prox;
-        // set all f[i] to zero or TODO: to external forces
-        for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
-        {
-          if (data.constraints_supported_dim[j] > 0)
-            data.f[j].toVector().setZero(); //data.v[j].cross(data.h[j]);
-        }
-        // Compute lambda_prox and update the data.f
-        lambda_ind = 0;
-        std::fill(condim_counter.begin(), condim_counter.end(), 0);
-        for(std::size_t j=0;j<contact_models.size();++j)
-        {
-          const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[j];
-          const JointIndex & joint_id = contact_model.joint1_id;
-          // if (condim_counter[joint_id] > 0)
-          //   continue;
-          data.f[joint_id].toVector().noalias() += data.KA_temp[joint_id].middleCols(condim_counter[joint_id],contact_model.size())*(1/pv_settings.mu)*
-            (data.lambda_c_prox.segment(lambda_ind, contact_model.size()));
-          lambda_ind += contact_model.size();
-          condim_counter[joint_id] += contact_model.size();
-        }
-        // reduced backward sweep
-        for(JointIndex j=(JointIndex)model.njoints-1;j>0; --j)
-        {
-          if (data.constraints_supported_dim[j] > 0)
-            Pass4::run(model.joints[j],data.joints[j],
-                 typename Pass4::ArgsType(model,data));
-        }
-        // outward sweep
-        for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
-        {
-          if (data.constraints_supported_dim[j] > 0)
-            Pass3::run(model.joints[j],data.joints[j],
+      Pass3::run(model.joints[i],data.joints[i],
                  typename Pass3::ArgsType(model,data));
-        }
-        lambda_ind = 0; 
-        std::fill(condim_counter.begin(), condim_counter.end(), 0);
-        for(std::size_t j=0;j<contact_models.size();++j)
-        {
-          const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[j];
-          const JointIndex & joint_id = contact_model.joint1_id;
-          // if (condim_counter[joint_id] > 0)
-            // continue;
-          data.lambda_c_prox.segment(lambda_ind,contact_model.size()).noalias() = 
-            (data.lA[joint_id].segment(condim_counter[joint_id],contact_model.size()) + data.KA_temp[joint_id].middleCols(condim_counter[joint_id], contact_model.size()).transpose()*data.a[joint_id].toVector());
-          lambda_ind += contact_model.size();
-          condim_counter[joint_id] += contact_model.size();
-        }
-        pv_settings.absolute_residual = (data.lambda_c_prox).template lpNorm<Eigen::Infinity>();
-        // std::cout << "iter = " << i << " residual = " << pv_settings.absolute_residual << "\n";
-        if(check_expression_if_real<Scalar,false>(pv_settings.absolute_residual <= pv_settings.absolute_accuracy)) // In the case where Scalar is not double, this will iterate for max_it.
-        {
-            // std::cout << "Iterations made: " << i + 1 << std::endl;
-            // outward sweep for joints not supporting a constraint
-            for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
-            {
-              if (data.constraints_supported_dim[j] == 0)
-                Pass3::run(model.joints[j],data.joints[j],
-                     typename Pass3::ArgsType(model,data));
-            }
-            break;
-          }
-        // data.lambda_c_prox.noalias() = data.lambdaA[0];
-
-      }
-      
     }
     
     return data.ddq;

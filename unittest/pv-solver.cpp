@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   pv_settings.use_early = false;
   pv_settings.mu = 0.0;
   initPvSolver(model, data, empty_contact_models);
-  pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings, pv_settings);
+  pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings);
   
   // initConstraintDynamics(model,data,empty_contact_models);
   // constraintDynamics(model,data,q,v,tau,empty_contact_models,empty_contact_datas,prox_settings);
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
 
   // Checking if solving again the same problem gives the same solution
-  pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings, pv_settings);
+  pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
 
   prox_settings.mu = 1e-5;
@@ -431,7 +431,7 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
   pv_settings.use_early = false;
    pv_settings.max_iter = 1;
   pv_settings.mu = 0.0;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   std::cout << "Error for pv = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
@@ -469,11 +469,11 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
   
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
   pv_settings.mu = 0.0;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
   prox_settings.mu = 1e-5;
@@ -534,7 +534,7 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_3D_humanoid)
   pv_settings.use_early = false;
    pv_settings.max_iter = 1;
   pv_settings.mu = 0.0;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   std::cout << "Error for pv = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
@@ -553,11 +553,11 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_3D_humanoid)
   
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
   pv_settings.mu = 0.0;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
   initPvSolver(model,data,contact_models);
@@ -662,7 +662,7 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_repeating_3D_humanoid)
   pv_settings.use_early = false;
   pv_settings.max_iter = 10;
   pv_settings.mu = 1e-4;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   // std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
   // std::cout << "PV Delassus matrix = " << data.LA[0] << "\n";
   // std::cout << "Error for pv now = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
@@ -685,11 +685,11 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_repeating_3D_humanoid)
   prox_settings.mu = 1e-4;
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
   pv_settings.mu = 1e-4;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
   initPvSolver(model,data,contact_models);
@@ -764,7 +764,7 @@ BOOST_AUTO_TEST_CASE(test_FD_humanoid_redundant_baumgarte)
   pv_settings.use_early = false;
   pv_settings.max_iter = 10;
   pv_settings.mu = 1e-4;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   // std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
   // std::cout << "PV Delassus matrix = " << data.LA[0] << "\n";
   std::cout << "Error for pv now = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
@@ -785,11 +785,11 @@ BOOST_AUTO_TEST_CASE(test_FD_humanoid_redundant_baumgarte)
   prox_settings.mu = 1e-4;
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
   pv_settings.mu = 1e-4;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
   initPvSolver(model,data,contact_models);
