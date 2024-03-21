@@ -814,6 +814,250 @@ namespace pinocchio
     return data.ddq;
   }
 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ContactModelAllocator, class ContactDataAllocator>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  constrainedABA(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & tau,
+      const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+      std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
+      ProximalSettingsTpl<Scalar> & settings)
+  {
+
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv, "The joint torque vector is not of right size");
+    
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+
+    bool baumgarte_position = false;
+    for (std::size_t i=0;i<contact_models.size();++i)
+    {
+      if (!check_expression_if_real<Scalar,false>(contact_models[i].corrector.Kp.isZero(Scalar(0))))
+      {
+          baumgarte_position = true;
+          break;
+      }
+    }
+
+    data.v[0].setZero();
+    data.a_gf[0] = -model.gravity;
+    data.a[0] = data.a_gf[0];
+    data.f[0].setZero();
+    data.u = tau;
+
+    // Set the lA and LA at the contact points to zero.
+    for(std::size_t i=0;i<contact_models.size();++i)
+    {
+      const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
+      const JointIndex & joint_id = contact_model.joint1_id;
+      data.lA[joint_id].setZero();
+    } 
+    
+    typedef PvForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
+      if (baumgarte_position)
+      {
+        const JointIndex & parent = model.parents[i];
+        if (parent > 0)
+          data.oMi[i] = data.oMi[parent]*data.liMi[i];
+        else
+          data.oMi[i] = data.liMi[i];
+      }
+    }
+
+    std::vector<int> condim_counter(static_cast<size_t>(model.njoints), 0);
+    // Update lAs
+    for(std::size_t i=0;i<contact_models.size();++i)
+    {
+      const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
+      typename RigidConstraintData::Motion & vc1 = contact_datas[i].contact1_velocity;
+      typename RigidConstraintData::Motion & vc2 = contact_datas[i].contact2_velocity;
+      const JointIndex & joint_id = contact_model.joint1_id;
+      int con_dim = contact_model.size();
+      const typename RigidConstraintModel::BaumgarteCorrectorParameters & corrector = contact_model.corrector;
+      typename RigidConstraintData::Motion & contact_acc_err = contact_datas[i].contact_acceleration_error;
+      typename RigidConstraintData::Motion & contact_vel_err = contact_datas[i].contact_velocity_error;
+
+      const JointIndex & joint2_id = contact_model.joint2_id;
+      if (joint2_id > 0)
+        assert(false), "Internal loops are not yet permitted in constrainedABA";
+      else
+       vc2.setZero();
+
+
+      contact_acc_err.setZero();
+      if (!check_expression_if_real<Scalar,false>(corrector.Kd.isZero(Scalar(0))))
+      {
+        
+        //TODO: modify for closed loops by subtracting vc2_in_frame1
+        if (contact_model.type == CONTACT_6D)
+        {
+          contact_vel_err = vc1; 
+          contact_acc_err.toVector().noalias() -=  corrector.Kd.asDiagonal()*contact_vel_err.toVector();
+        }
+        else
+        {
+          contact_vel_err = vc1; 
+          contact_vel_err.angular().setZero();
+          contact_acc_err.linear().noalias() -=  corrector.Kd.asDiagonal()*contact_vel_err.linear();
+        }
+        
+      }
+
+      if (!check_expression_if_real<Scalar,false>(corrector.Kp.isZero(Scalar(0))))
+      {
+        RigidConstraintData & contact_data = contact_datas[i];
+        const typename RigidConstraintData::SE3 & c1Mc2 = contact_data.c1Mc2;
+
+        if (contact_model.type == CONTACT_6D)
+        {
+          contact_data.contact_placement_error = -log6(c1Mc2);
+          contact_acc_err.toVector().noalias() -= corrector.Kp.asDiagonal()*contact_data.contact_placement_error.toVector();
+        }
+        else if (contact_model.type == CONTACT_3D)
+        {
+          contact_data.contact_placement_error.linear() = -c1Mc2.translation();
+          contact_data.contact_acceleration_error.angular().setZero();
+          contact_acc_err.linear().noalias() -= corrector.Kp.asDiagonal()*contact_data.contact_placement_error.linear();
+        }
+      }
+
+      for (int j = condim_counter[joint_id]; j < condim_counter[joint_id] + con_dim; j++)
+      {
+        // auto lA_update = data.KA[i][0].toVector().transpose()*a_bf_motion.toVector();
+        data.lA[joint_id][j] -=
+          (data.KA_temp[joint_id].col(j).template head<3>().transpose()*data.a_gf[joint_id].linear_impl());
+      }
+      if(contact_model.type == CONTACT_3D)
+      { 
+        vc1 = contact_model.joint1_placement.actInv(data.v[joint_id]);
+        data.lA[joint_id].segment(condim_counter[joint_id], 3).noalias() += vc1.angular().cross(vc1.linear()) - contact_acc_err.linear();
+      }
+      else 
+      {
+        data.lA[joint_id].segment(condim_counter[joint_id], 6).noalias() -= contact_acc_err.toVector();
+      }
+      condim_counter[joint_id] += con_dim;
+      
+    }
+  
+  
+    for(std::size_t i=0;i<contact_models.size();++i)
+    {
+      const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
+      const JointIndex & joint_id = contact_model.joint1_id;
+      data.Yaba[joint_id].matrix().noalias() += data.KA_temp[joint_id]*(1/settings.mu)*data.KA_temp[joint_id].transpose();
+      data.f[joint_id].toVector().noalias() += data.KA_temp[joint_id]*(1/settings.mu)*data.lA[joint_id]; 
+    }
+
+    typedef cAbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
+    }
+  
+    std::fill(condim_counter.begin(), condim_counter.end(), 0);
+    assert(settings.mu > 0 && "constrainedABA requires mu > 0.");
+    typedef PvBackwardStepReduced<Scalar,Options,JointCollectionTpl> Pass4;
+    int lambda_ind = 0;
+    for(std::size_t j=0;j<contact_models.size();++j)
+    {
+      const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[j];
+      const JointIndex & joint_id = contact_model.joint1_id;
+      data.lambda_c_prox.segment(lambda_ind, contact_model.size()).noalias() = 
+        (data.lA[joint_id].segment(condim_counter[joint_id], contact_model.size()) + data.KA_temp[joint_id].middleCols(condim_counter[joint_id], contact_model.size()).transpose()*data.a[joint_id].toVector());
+      lambda_ind += contact_model.size();
+      condim_counter[joint_id] += contact_model.size();
+    }
+
+    typedef cAbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      if (data.constraints_supported_dim[i] > 0)
+        Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data));
+    }
+
+    for (int i = 1; i < settings.max_iter; i++)
+    { 
+        
+      data.lambdaA[0].noalias() += (1/settings.mu)*data.lambda_c_prox;
+      // set all f[i] to zero or TODO: to external forces
+      for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
+      {
+        if (data.constraints_supported_dim[j] > 0)
+          data.f[j].toVector().setZero(); //data.v[j].cross(data.h[j]);
+      }
+      // Compute lambda_prox and update the data.f
+      lambda_ind = 0;
+      std::fill(condim_counter.begin(), condim_counter.end(), 0);
+      for(std::size_t j=0;j<contact_models.size();++j)
+      {
+        const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[j];
+        const JointIndex & joint_id = contact_model.joint1_id;
+        // if (condim_counter[joint_id] > 0)
+        //   continue;
+        data.f[joint_id].toVector().noalias() += data.KA_temp[joint_id].middleCols(condim_counter[joint_id],contact_model.size())*(1/settings.mu)*
+          (data.lambda_c_prox.segment(lambda_ind, contact_model.size()));
+        lambda_ind += contact_model.size();
+        condim_counter[joint_id] += contact_model.size();
+      }
+      // reduced backward sweep
+      for(JointIndex j=(JointIndex)model.njoints-1;j>0; --j)
+      {
+        if (data.constraints_supported_dim[j] > 0)
+          Pass4::run(model.joints[j],data.joints[j],
+               typename Pass4::ArgsType(model,data));
+      }
+      // outward sweep
+      for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
+      {
+        if (data.constraints_supported_dim[j] > 0)
+          Pass3::run(model.joints[j],data.joints[j],
+               typename Pass3::ArgsType(model,data));
+      }
+      lambda_ind = 0; 
+      std::fill(condim_counter.begin(), condim_counter.end(), 0);
+      for(std::size_t j=0;j<contact_models.size();++j)
+      {
+        const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[j];
+        const JointIndex & joint_id = contact_model.joint1_id;
+        // if (condim_counter[joint_id] > 0)
+          // continue;
+        data.lambda_c_prox.segment(lambda_ind,contact_model.size()).noalias() = 
+          (data.lA[joint_id].segment(condim_counter[joint_id],contact_model.size()) + data.KA_temp[joint_id].middleCols(condim_counter[joint_id], contact_model.size()).transpose()*data.a[joint_id].toVector());
+        lambda_ind += contact_model.size();
+        condim_counter[joint_id] += contact_model.size();
+      }
+      settings.absolute_residual = (data.lambda_c_prox).template lpNorm<Eigen::Infinity>();
+      // std::cout << "iter = " << i << " residual = " << pv_settings.absolute_residual << "\n";
+      if(check_expression_if_real<Scalar,false>(settings.absolute_residual <= settings.absolute_accuracy)) // In the case where Scalar is not double, this will iterate for max_it.
+      {
+          // std::cout << "Iterations made: " << i + 1 << std::endl;
+          // outward sweep for joints not supporting a constraint
+          for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
+          {
+            if (data.constraints_supported_dim[j] == 0)
+              Pass3::run(model.joints[j],data.joints[j],
+                   typename Pass3::ArgsType(model,data));
+          }
+          break;
+        }
+      // data.lambda_c_prox.noalias() = data.lambdaA[0];
+      
+    }
+    
+    return data.ddq;
+  }
+
 } // namespace pinocchio
 
 /// @endcond

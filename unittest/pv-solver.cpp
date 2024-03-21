@@ -155,10 +155,9 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings, pv_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
 
-  pv_settings.use_early = true;
-  pv_settings.mu = 1e-5;
+  prox_settings.mu = 1e-5;
   // initPvSolver(model, data, empty_contact_models);
-  pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings, pv_settings);
+  constrainedABA(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
   std::cout << "Error for iiwa (pv) = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
 
@@ -477,14 +476,12 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
-  pv_settings.use_early = true;
-  pv_settings.max_iter = 10;
-  pv_settings.mu = 1e-3;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  prox_settings.mu = 1e-5;
+  constrainedABA(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
   std::cout<< "Talos cABA err = " << std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq)) << std::endl;
 
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  constrainedABA(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
   std::cout<< "Talos cABA err = " << std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq)) << std::endl;
   // Send non-zero mu and max 1 iteration and the solution should not match
@@ -564,15 +561,13 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_3D_humanoid)
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
   initPvSolver(model,data,contact_models);
-  pv_settings.use_early = true;
-  pv_settings.max_iter = 10;
-  pv_settings.mu = 1e-3;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  prox_settings.mu = 1e-5;
+  constrainedABA(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
   std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
   std::cout<< "Talos cABA err = " << std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq)) << std::endl;
 
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  constrainedABA(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
  
 }
@@ -698,15 +693,13 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_repeating_3D_humanoid)
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
   initPvSolver(model,data,contact_models);
-  pv_settings.use_early = true;
-  pv_settings.max_iter = 10;
-  pv_settings.mu = 1e-4;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  prox_settings.mu = 1e-4;
+  constrainedABA(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
   std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
   std::cout<< "Talos cABA err = " << std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq)) << std::endl;
 
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  constrainedABA(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
  
 }
@@ -800,15 +793,12 @@ BOOST_AUTO_TEST_CASE(test_FD_humanoid_redundant_baumgarte)
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
 
   initPvSolver(model,data,contact_models);
-  pv_settings.use_early = true;
-  pv_settings.max_iter = 10;
-  pv_settings.mu = 1e-4;
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  constrainedABA(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
   std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
   std::cout<< "Talos cABA err = " << std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq)) << std::endl;
 
-  pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings, pv_settings);
+  constrainedABA(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
  
 }
