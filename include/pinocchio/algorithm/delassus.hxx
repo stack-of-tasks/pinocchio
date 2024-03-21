@@ -691,8 +691,27 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           gca = findGCA(model, data, joint1_id, joint1_id_other, id_in_support1, id_in_support1_other);
 
           data.scratch_pad1.noalias() = cemp_other[id_in_support1_other]*data.spatial_inv_inertia[gca];
-          delassus.block(current_row_id_other,current_row_id,size_other,size).noalias()
+          if (size == 6)
+          {
+            if (size_other == 6)
+              delassus.template block<6,6>(current_row_id_other,current_row_id).noalias() = data.scratch_pad1*cemp[id_in_support1].transpose(); 
+            else if (size_other == 3)
+              delassus.template block<3,6>(current_row_id_other,current_row_id).noalias() = data.scratch_pad1.template topRows<3>()*cemp[id_in_support1].template topRows<6>().transpose();
+
+          }
+          else if (size == 3)
+          {
+            if (size_other == 6)
+              delassus.template block<6,3>(current_row_id_other,current_row_id).noalias() = data.scratch_pad1.template topRows<6>()*cemp[id_in_support1].template topRows<3>().transpose();
+            else if (size_other == 3)
+              delassus.template block<3,3>(current_row_id_other,current_row_id).noalias() = data.scratch_pad1.template topRows<3>()*cemp[id_in_support1].template topRows<3>().transpose();
+
+          }
+          else
+          {
+            delassus.block(current_row_id_other,current_row_id,size_other,size).noalias()
             = data.scratch_pad1.topRows(size_other)*cemp[id_in_support1].topRows(size).transpose();
+          }
           current_row_id_other += size_other;
         }
         
@@ -705,7 +724,12 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         }
         else 
         {
-          delassus.block(current_row_id,current_row_id,size,size) = data.spatial_inv_inertia[joint1_id].topLeftCorner(size, size);
+          if (size == 6)
+            delassus.template block<6,6>(current_row_id,current_row_id) = data.spatial_inv_inertia[joint1_id];
+          else if (size == 3)
+            delassus.template block<3,3>(current_row_id,current_row_id) = data.spatial_inv_inertia[joint1_id].template topLeftCorner<3,3>();
+          else
+            delassus.block(current_row_id,current_row_id,size,size) = data.spatial_inv_inertia[joint1_id].topLeftCorner(size, size);
         }
         current_row_id += size;
       }
