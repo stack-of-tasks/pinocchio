@@ -458,35 +458,6 @@ namespace pinocchio
     Vector6 scratch_pad_vector6;
     Force scratch_pad_force;
     TangentVectorType delta_u;                  // Joint Inertia
- 
-    struct PvSettings
-    {
-      PvSettings()
-      : use_early(true)
-      , use_early_base(false)
-      , max_iter(10)
-      , mu(1e-5)
-      , absolute_accuracy(1e-12)
-      , relative_accuracy(1e-12)
-      {}
-
-      // PvSettings(bool early, bool proximal, bool early_base)
-      // : use_early(early)
-      // , use_proximal(proximal)
-      // , use_early_base(early_base)
-      // {}
-      Scalar mu;
-      Scalar absolute_accuracy;
-      Scalar relative_accuracy;
-      Scalar absolute_residual;
-      Scalar relative_residual;
-      int max_iter;
-      bool use_early;
-      bool use_proximal;
-      bool use_early_base;
-    };
-
-    PvSettings pv_settings;
 
     // For early elimination
     PINOCCHIO_ALIGNED_STD_VECTOR(Scalar) sigma;

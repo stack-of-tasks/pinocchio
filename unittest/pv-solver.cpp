@@ -112,9 +112,6 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   = Eigen::MatrixXd::Zero(model.nv,model.nv);
   KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
   
-  Data::PvSettings pv_settings;
-  pv_settings.use_early = false;
-  pv_settings.mu = 0.0;
   initPvSolver(model, data, empty_contact_models);
   pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings);
   
@@ -427,10 +424,6 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
   
   initPvSolver(model,data,contact_models);
-  Data::PvSettings pv_settings;
-  pv_settings.use_early = false;
-   pv_settings.max_iter = 1;
-  pv_settings.mu = 0.0;
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   std::cout << "Error for pv = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
@@ -468,7 +461,6 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
   tau = VectorXd::Random(model.nv);
   
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
-  pv_settings.mu = 0.0;
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
@@ -530,10 +522,6 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_3D_humanoid)
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
   
   initPvSolver(model,data,contact_models);
-  Data::PvSettings pv_settings;
-  pv_settings.use_early = false;
-   pv_settings.max_iter = 1;
-  pv_settings.mu = 0.0;
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   std::cout << "Error for pv = " <<  std::sqrt((data.ddq - data_ref.ddq).dot(data.ddq - data_ref.ddq))  << "\n";
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
@@ -552,7 +540,6 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_3D_humanoid)
   tau = VectorXd::Random(model.nv);
   
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
-  pv_settings.mu = 0.0;
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
@@ -658,10 +645,6 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_repeating_3D_humanoid)
   // std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
   
   initPvSolver(model,data,contact_models);
-  Data::PvSettings pv_settings;
-  pv_settings.use_early = false;
-  pv_settings.max_iter = 10;
-  pv_settings.mu = 1e-4;
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   // std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
   // std::cout << "PV Delassus matrix = " << data.LA[0] << "\n";
@@ -684,7 +667,6 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_repeating_3D_humanoid)
   
   prox_settings.mu = 1e-4;
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
-  pv_settings.mu = 1e-4;
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
@@ -760,10 +742,6 @@ BOOST_AUTO_TEST_CASE(test_FD_humanoid_redundant_baumgarte)
   Data::Matrix6x Jtmp = Data::Matrix6x::Zero(6,model.nv);
   
   initPvSolver(model,data,contact_models);
-  Data::PvSettings pv_settings;
-  pv_settings.use_early = false;
-  pv_settings.max_iter = 10;
-  pv_settings.mu = 1e-4;
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   // std::cout << "data.ddq = " << data.ddq.transpose() << "\ndata_ref.ddq = " << data_ref.ddq.transpose() << "\n";
   // std::cout << "PV Delassus matrix = " << data.LA[0] << "\n";
@@ -784,7 +762,6 @@ BOOST_AUTO_TEST_CASE(test_FD_humanoid_redundant_baumgarte)
   
   prox_settings.mu = 1e-4;
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
-  pv_settings.mu = 1e-4;
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-10));
