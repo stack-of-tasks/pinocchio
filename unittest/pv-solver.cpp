@@ -10,7 +10,7 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/spatial/classic-acceleration.hpp"
-#include "pinocchio/algorithm/pv_solver.hpp"
+#include "pinocchio/algorithm/pv.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>

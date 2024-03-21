@@ -1,26 +1,14 @@
 //
-// Copyright (c) 2016-2021 CNRS INRIA
+// Copyright (c) 2023-2024 INRIA
 //
 
 #ifndef __pinocchio_algorithm_pv_hxx__
 #define __pinocchio_algorithm_pv_hxx__
 
-// #include "pinocchio/context.hpp"
-#include "pinocchio/context.hpp"
-#include "pinocchio/spatial/act-on-set.hpp"
-#include "pinocchio/multibody/visitor.hpp"
-#include "pinocchio/algorithm/check.hpp"
-#include "pinocchio/algorithm/aba.hpp"
-
-#include "pinocchio/spatial/force.hpp"
-#include "pinocchio/spatial/motion.hpp"
-
-#include "Eigen/Cholesky"
-#include "Eigen/Dense"
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/utils/check.hpp"
-#include <Eigen/src/Core/Matrix.h>
-#include <cassert>
-#include <cstddef>
+#include "pinocchio/algorithm/aba.hpp"
 
 /// @cond DEV
 
@@ -77,8 +65,8 @@ namespace pinocchio
       data.lambdaA[i] = Data::VectorXs::Zero(data.constraints_supported_dim[i]);
       
       data.LA[i] = Data::MatrixXs::Zero(data.constraints_supported_dim[i], data.constraints_supported_dim[i]);
-      data.KA_temp[i] = Data::MatrixXs::Zero(6, data.constraints_supported_dim[i]);
-      data.KAS[i] = Data::MatrixXs::Zero( data.joints[i].S().matrix().cols(), data.constraints_supported_dim[i]);
+      data.KA[i] = Data::MatrixXs::Zero(6, data.constraints_supported_dim[i]);
+      data.KAS[i] = Data::MatrixXs::Zero( model.joints[i].nv(), data.constraints_supported_dim[i]);
     }
 
     // For Local, append the constraint matrices in K
@@ -90,12 +78,12 @@ namespace pinocchio
       const auto & oMc = contact_model.joint1_placement;
       if (contact_model.type == CONTACT_6D)
       {
-        data.KA_temp[joint_id].middleCols(condim_counter[joint_id],6) = oMc.toActionMatrixInverse().transpose();
+        data.KA[joint_id].middleCols(condim_counter[joint_id],6) = oMc.toActionMatrixInverse().transpose();
         condim_counter[joint_id] += 6;
       }
       else if (contact_model.type == CONTACT_3D)
       {
-        data.KA_temp[joint_id].middleCols(condim_counter[joint_id],3) = oMc.toActionMatrixInverse().transpose().leftCols(3);
+        data.KA[joint_id].middleCols(condim_counter[joint_id],3) = oMc.toActionMatrixInverse().transpose().leftCols(3);
         condim_counter[joint_id] += 3;
       }
     } 
@@ -152,7 +140,7 @@ namespace pinocchio
       
       data.Yaba[i] = model.inertias[i].matrix();
       data.h[i] = model.inertias[i] * data.v[i];
-      data.f[i] = data.v[i].cross(data.h[i]); // -f_ext
+      data.f[i] = data.v[i].cross(data.h[i]); 
       
     }
     
@@ -249,60 +237,39 @@ namespace pinocchio
 
       if (data.constraints_supported_dim[i] > 0)
       {
-        // std::cout << data.KA_temp[i].eval() << std::endl; //TODO; debug
-        data.KAS[i].noalias() = jdata.S().transpose()*data.KA_temp[i]; //(data.KA_temp[i]*jdata.S().matrix()); //.eval();
-
-        // int n_rows = data.KA_temp[i].rows();
-        // data.KA_temp[parent].middleRows(data.par_cons_ind[i], n_rows) = 
-        //   (data.KA_temp[i] - data.KAS[i]*(jdata.UDinv().transpose()))*data.liMi[i].toActionMatrixInverse_impl();
-
-        // data.LA[parent].block(data.par_cons_ind[i], data.par_cons_ind[i], n_rows, n_rows) = data.LA[i] +
-        //     data.KAS[i]*jdata.Dinv()*data.KAS[i].transpose();
-
-        // auto a_bf_js = (jdata.Dinv()* (jdata.S().transpose()*bias_and_force ) + jdata.Dinv() * (jmodel.jointVelocitySelector(data.u))).eval();
-        // data.lA[parent].segment(data.par_cons_ind[i], n_rows) += data.lA[i] + 
-        //   data.KA_temp[i]*(jdata.S().matrix()*a_bf_js + data.a_bias[i].toVector());
-        // Propagate KA backwards
+        data.KAS[i].noalias() = jdata.S().transpose()*data.KA[i]; 
       }
+      for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
+      {
+        Force za = Force(data.KA[i].col(ind));
+        za.toVector().noalias() -= (jdata.UDinv() * (data.KAS[i].col(ind))); 
+        data.KA[parent].col(data.par_cons_ind[i] + ind).noalias() = data.liMi[i].act(za).toVector();
+      }
+
+      //Propagate LA backwards, we only care about tril because symmetric
+      for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
+      {
+        auto zc = (jdata.Dinv()*data.KAS[i].col(ind)).eval();
+        for (int ind2 = ind; ind2 < data.constraints_supported_dim[i]; ind2++)
+        {
+
+          data.LA[parent](data.par_cons_ind[i] + ind2, data.par_cons_ind[i] + ind) = data.LA[i](ind2, ind) + 
+            (data.KAS[i].col(ind2).dot(zc));
+        }
+      }
+
+      // Propagate lA backwards
+      if (data.constraints_supported_dim[i] > 0)
+      {          
+        auto a_bf_js = (jdata.Dinv()* (jdata.S().transpose()*bias_and_force + jmodel.jointVelocitySelector(data.u))).eval();
+        const Motion a_bf =  jdata.S()*a_bf_js;
+        const Motion  a_bf_motion = a_bf + data.a_bias[i];
         for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
         {
-          Force za = Force(data.KA_temp[i].col(ind));
-          // za.toVector() += data.KA_temp[i].col(ind);
-          za.toVector().noalias() -= (jdata.UDinv() * (data.KAS[i].col(ind))); //data.KA[i][ind].toVector() - 
-          //   jdata.UDinv() * jdata.S().transpose()*data.KA[i][ind];
-          data.KA_temp[parent].col(data.par_cons_ind[i] + ind).noalias() = data.liMi[i].act(za).toVector();
-
+          data.lA[parent](data.par_cons_ind[i] + ind) =  data.lA[i](ind) + 
+            (data.KA[i].col(ind).dot(a_bf_motion.toVector()));
         }
-
-        //Propagate LA backwards, we only care about tril because symmetric
-        for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
-        {
-          // auto zb = data.KAS[i].col(ind); //(jdata.S().transpose()*data.KA_temp[i].col(ind)).eval();
-          auto zc = (jdata.Dinv()*data.KAS[i].col(ind)).eval();
-          for (int ind2 = ind; ind2 < data.constraints_supported_dim[i]; ind2++)
-          {
-            // auto zd = ((jdata.S().transpose()*data.KA_temp[i].col(ind2)).transpose()).eval();
-            // auto ze = (data.KAS[i].col(ind2).dot(zc));
-            data.LA[parent](data.par_cons_ind[i] + ind2, data.par_cons_ind[i] + ind) = data.LA[i](ind2, ind) + 
-              (data.KAS[i].col(ind2).dot(zc));
-            // data.LA[0].coeffRef(data.constraint_ind[i] + ind, data.constraint_ind[i] + ind2)  += ze.coeff(0,0);
-          }
-        }
-
-        // Propagate lA backwards
-        if (data.constraints_supported_dim[i] > 0)
-        {          
-          auto a_bf_js = (jdata.Dinv()* (jdata.S().transpose()*bias_and_force + jmodel.jointVelocitySelector(data.u))).eval();
-          const Motion a_bf =  jdata.S()*a_bf_js;
-          const Motion  a_bf_motion = a_bf + data.a_bias[i];
-          for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
-          {
-            data.lA[parent](data.par_cons_ind[i] + ind) =  data.lA[i](ind) + 
-              (data.KA_temp[i].col(ind).dot(a_bf_motion.toVector()));
-          }
-        }
-      
-
+      }
     }
     
   };
@@ -326,7 +293,6 @@ namespace pinocchio
     {
 
       typedef typename Model::JointIndex JointIndex;
-      // typedef typename Data::Inertia Inertia;
       typedef typename Data::Force Force;
       
       const JointIndex i = jmodel.id();
@@ -335,7 +301,7 @@ namespace pinocchio
       auto f_proj = (jdata.S().transpose()*data.f[i]).eval();
       jmodel.jointVelocitySelector(data.u) -= f_proj;   
       data.f[i].toVector().noalias() -= jdata.UDinv()*f_proj; 
-      // data.f[i].toVector().noalias() += data.Yaba[i] * data.a_bias[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+
       if (parent > 0)
       {
         data.f[parent] += data.liMi[i].act(data.f[i]);
@@ -399,81 +365,16 @@ namespace pinocchio
       jmodel.jointVelocitySelector(data.ddq).noalias() =
       jdata.Dinv() * (jmodel.jointVelocitySelector(data.u)) - jdata.UDinv().transpose() * data.a[i].toVector();
 
-      // if (data.constraints_supported_dim[i] > 0)
-      // {
-        data.lambdaA[i].noalias() = data.lambdaA[parent].segment(data.par_cons_ind[i], data.lambdaA[i].size());
-      // }
+      data.lambdaA[i].noalias() = data.lambdaA[parent].segment(data.par_cons_ind[i], data.lambdaA[i].size());
       for (int j = 0; j < data.constraints_supported_dim[i]; j++)
       {
         jmodel.jointVelocitySelector(data.ddq).noalias() -= 
           data.lambdaA[i][j]*jdata.Dinv() * (data.KAS[i].col(j));
       }
-      // if (data.lA[i].size() > 0)
-      //   jmodel.jointVelocitySelector(data.ddq).noalias() -= jdata.Dinv() * jdata.S().matrix().transpose() * data.KA_temp[i].transpose()*data.lambdaA[i];
-
       data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
     }
     
   };
-    
-  // template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  // struct PvForwardStep2
-  // : public fusion::JointUnaryVisitorBase< PvForwardStep2<Scalar,Options,JointCollectionTpl> >
-  // {
-  //   typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-  //   typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    
-  //   typedef boost::fusion::vector<const Model &,
-  //   Data &> ArgsType;
-    
-  //   template<typename JointModel>
-  //   static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
-  //                    pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
-  //                    const Model & model,
-  //                    Data & data)
-  //   {
-  //     typedef typename Model::JointIndex JointIndex;
-  //     bool early_full = data.pv_settings.use_early;
-  //     bool prox = data.pv_settings.mu > 0.0;
-      
-  //     const JointIndex i = jmodel.id();
-  //     const JointIndex parent = model.parents[i];
-      
-  //     data.a[i] = data.liMi[i].actInv(data.a[parent]) + data.a_bias[i];
-  //     jmodel.jointVelocitySelector(data.ddq).noalias() =
-  //     jdata.Dinv() * (jmodel.jointVelocitySelector(data.u)) - jdata.UDinv().transpose() * data.a[i].toVector();
-
-  //     if (early_full && data.constraints_supported_dim[i] > 0 && !prox)
-  //     {
-  //       Scalar lambda_opt = (data.KAopt[i].dot((data.a[i] - data.a_bias[i]).toVector())
-  //         + data.lAopt[i])/data.sigma[i];
-
-  //       // size_t max_ind = 0;
-  //       //data.KAS[i].row(0).array().abs().matrix().maxCoeff(&data.svd_max_ind[i]); // Maybe save this from the previous computation?
-  //       data.lambdaA[i].head(data.svd_max_ind[i]) = data.lambdaA[parent].head(data.svd_max_ind[i]);
-  //       data.lambdaA[i](data.svd_max_ind[i]) = lambda_opt;
-  //       for (int k = data.svd_max_ind[i] + 1; k < data.constraints_supported_dim[i]; k++)
-  //         data.lambdaA[i](k) = data.lambdaA[parent](k - 1);
-  //       auto w_normalized = (data.w[i]/(data.w[i].dot(data.w[i]))).eval(); // check whether to save
-  //       data.lambdaA[i].head(data.constraints_supported_dim[i]) -= 2*data.w[i].dot(data.lambdaA[i].head(data.constraints_supported_dim[i]))*w_normalized;
-  //       // 
-  //     }
-  //     else
-  //     {
-  //       data.lambdaA[i].noalias() = data.lambdaA[parent].segment(data.par_cons_ind[i], data.lambdaA[i].size());
-  //     }
-  //     for (int j = 0; j < data.constraints_supported_dim[i] && !prox; j++)
-  //     {
-  //       jmodel.jointVelocitySelector(data.ddq).noalias() -= 
-  //         data.lambdaA[i][j]*jdata.Dinv() * (data.KAS[i].col(j));
-  //     }
-  //     // if (data.lA[i].size() > 0)
-  //     //   jmodel.jointVelocitySelector(data.ddq).noalias() -= jdata.Dinv() * jdata.S().matrix().transpose() * data.KA_temp[i].transpose()*data.lambdaA[i];
-
-  //     data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
-  //   }
-    
-  // };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ContactModelAllocator, class ContactDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
@@ -500,15 +401,6 @@ namespace pinocchio
       if (!check_expression_if_real<Scalar,false>(contact_models[i].corrector.Kp.isZero(Scalar(0))))
         baumgarte_position = true;
     }
-
-    // for (JointIndex i=0;i<(JointIndex)model.njoints;++i)
-    // {
-    //   data.lA[i].setZero();
-    //   data.lambdaA[i].setZero();
-    //   data.LA[i].setZero();
-    //   data.KA_temp[i].setZero();
-    //   data.KAS[i].setZero();
-    // }
     
     data.v[0].setZero();
     data.a_gf[0] = -model.gravity;
@@ -601,7 +493,7 @@ namespace pinocchio
       for (int j = condim_counter[joint_id]; j < condim_counter[joint_id] + con_dim; j++)
       {
         data.lA[joint_id][j] -=
-          (data.KA_temp[joint_id].col(j).template head<3>().transpose()*data.a_gf[joint_id].linear_impl());
+          (data.KA[joint_id].col(j).template head<3>().transpose()*data.a_gf[joint_id].linear_impl());
       }
       if(contact_model.type == CONTACT_3D)
       { 
@@ -625,17 +517,7 @@ namespace pinocchio
 
     if (data.lA[0].size() > 0)
     {
-      data.lA[0].noalias() += data.KA_temp[0].transpose()*data.a_gf[0].toVector();
-      // for (int j = 0; j < data.constraints_supported_dim[0]; j++)
-      // {
-      // data.lA[0][j] += data.KA_temp[0].col(j).transpose()*data.a_gf[0].toVector();
-      // }
-
-      // data.lambdaA[0] = data.LA[0].ldlt().solve(data.lA[0]);
-
-      // data.lambdaA[0] = data.lA[0];
-      // data.LA[0].ldlt().solveInPlace(data.lambdaA[0]);
-
+      data.lA[0].noalias() += data.KA[0].transpose()*data.a_gf[0].toVector();
       data.lambdaA[0].noalias() = data.lA[0];
       data.LA[0].noalias() += settings.mu * Data::MatrixXs::Identity(data.constraints_supported_dim[0], data.constraints_supported_dim[0]);
       data.osim_llt.compute(data.LA[0]);
@@ -643,7 +525,6 @@ namespace pinocchio
       int i = 0;
       for (i = 0; i < settings.max_iter; i++)
       {
-        // std::cout << "LA[0] = " << data.LA[0] << ", lA[0] = " << data.lA[0] << ", lambdaA[0] = " << data.lambdaA[0] << "\n";
         data.lambdaA[0].noalias() = settings.mu*data.lambda_c_prox + data.lA[0];
         data.osim_llt.solveInPlace(data.lambdaA[0]);
         settings.absolute_residual = (data.lambda_c_prox - data.lambdaA[0]).template lpNorm<Eigen::Infinity>();
@@ -653,7 +534,6 @@ namespace pinocchio
       }
 
       data.LA[0].template triangularView<Eigen::Upper>() = data.LA[0].template triangularView<Eigen::Lower>().transpose();
-      // std::cout << "Num iters = " << i << " and Error L2 residual = " << ((data.LA[0]-pv_settings.mu * Data::MatrixXs::Identity(data.constraints_supported_dim[0], data.constraints_supported_dim[0]))*data.lambdaA[0] - data.lA[0]).template lpNorm<2>() << "\n";
     }
 
     typedef PvRegForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
@@ -783,9 +663,8 @@ namespace pinocchio
 
       for (int j = condim_counter[joint_id]; j < condim_counter[joint_id] + con_dim; j++)
       {
-        // auto lA_update = data.KA[i][0].toVector().transpose()*a_bf_motion.toVector();
         data.lA[joint_id][j] -=
-          (data.KA_temp[joint_id].col(j).template head<3>().transpose()*data.a_gf[joint_id].linear_impl());
+          (data.KA[joint_id].col(j).template head<3>().transpose()*data.a_gf[joint_id].linear_impl());
       }
       if(contact_model.type == CONTACT_3D)
       { 
@@ -796,17 +675,15 @@ namespace pinocchio
       {
         data.lA[joint_id].segment(condim_counter[joint_id], 6).noalias() -= contact_acc_err.toVector();
       }
-      condim_counter[joint_id] += con_dim;
-      
+      condim_counter[joint_id] += con_dim;   
     }
-  
   
     for(std::size_t i=0;i<contact_models.size();++i)
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
       const JointIndex & joint_id = contact_model.joint1_id;
-      data.Yaba[joint_id].matrix().noalias() += data.KA_temp[joint_id]*(1/settings.mu)*data.KA_temp[joint_id].transpose();
-      data.f[joint_id].toVector().noalias() += data.KA_temp[joint_id]*(1/settings.mu)*data.lA[joint_id]; 
+      data.Yaba[joint_id].matrix().noalias() += data.KA[joint_id]*(1/settings.mu)*data.KA[joint_id].transpose();
+      data.f[joint_id].toVector().noalias() += data.KA[joint_id]*(1/settings.mu)*data.lA[joint_id]; 
     }
 
     typedef cAbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
@@ -825,7 +702,7 @@ namespace pinocchio
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[j];
       const JointIndex & joint_id = contact_model.joint1_id;
       data.lambda_c_prox.segment(lambda_ind, contact_model.size()).noalias() = 
-        (data.lA[joint_id].segment(condim_counter[joint_id], contact_model.size()) + data.KA_temp[joint_id].middleCols(condim_counter[joint_id], contact_model.size()).transpose()*data.a[joint_id].toVector());
+        (data.lA[joint_id].segment(condim_counter[joint_id], contact_model.size()) + data.KA[joint_id].middleCols(condim_counter[joint_id], contact_model.size()).transpose()*data.a[joint_id].toVector());
       lambda_ind += contact_model.size();
       condim_counter[joint_id] += contact_model.size();
     }
@@ -842,11 +719,10 @@ namespace pinocchio
     { 
         
       data.lambdaA[0].noalias() += (1/settings.mu)*data.lambda_c_prox;
-      // set all f[i] to zero or TODO: to external forces
       for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
       {
         if (data.constraints_supported_dim[j] > 0)
-          data.f[j].toVector().setZero(); //data.v[j].cross(data.h[j]);
+          data.f[j].toVector().setZero(); 
       }
       // Compute lambda_prox and update the data.f
       lambda_ind = 0;
@@ -855,9 +731,7 @@ namespace pinocchio
       {
         const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[j];
         const JointIndex & joint_id = contact_model.joint1_id;
-        // if (condim_counter[joint_id] > 0)
-        //   continue;
-        data.f[joint_id].toVector().noalias() += data.KA_temp[joint_id].middleCols(condim_counter[joint_id],contact_model.size())*(1/settings.mu)*
+        data.f[joint_id].toVector().noalias() += data.KA[joint_id].middleCols(condim_counter[joint_id],contact_model.size())*(1/settings.mu)*
           (data.lambda_c_prox.segment(lambda_ind, contact_model.size()));
         lambda_ind += contact_model.size();
         condim_counter[joint_id] += contact_model.size();
@@ -882,29 +756,24 @@ namespace pinocchio
       {
         const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[j];
         const JointIndex & joint_id = contact_model.joint1_id;
-        // if (condim_counter[joint_id] > 0)
-          // continue;
         data.lambda_c_prox.segment(lambda_ind,contact_model.size()).noalias() = 
-          (data.lA[joint_id].segment(condim_counter[joint_id],contact_model.size()) + data.KA_temp[joint_id].middleCols(condim_counter[joint_id], contact_model.size()).transpose()*data.a[joint_id].toVector());
+          (data.lA[joint_id].segment(condim_counter[joint_id],contact_model.size()) + data.KA[joint_id].middleCols(condim_counter[joint_id], contact_model.size()).transpose()*data.a[joint_id].toVector());
         lambda_ind += contact_model.size();
         condim_counter[joint_id] += contact_model.size();
       }
       settings.absolute_residual = (data.lambda_c_prox).template lpNorm<Eigen::Infinity>();
-      // std::cout << "iter = " << i << " residual = " << pv_settings.absolute_residual << "\n";
       if(check_expression_if_real<Scalar,false>(settings.absolute_residual <= settings.absolute_accuracy)) // In the case where Scalar is not double, this will iterate for max_it.
-      {
-          // std::cout << "Iterations made: " << i + 1 << std::endl;
-          // outward sweep for joints not supporting a constraint
-          for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
-          {
-            if (data.constraints_supported_dim[j] == 0)
-              Pass3::run(model.joints[j],data.joints[j],
-                   typename Pass3::ArgsType(model,data));
-          }
-          break;
-        }
-      // data.lambda_c_prox.noalias() = data.lambdaA[0];
-      
+      {  
+        break;
+      } 
+    }
+
+    // outward sweep after convergence/timeout for joints not supporting a constraint
+    for(JointIndex j=1; j<(JointIndex)model.njoints; ++j)
+    {
+      if (data.constraints_supported_dim[j] == 0)
+        Pass3::run(model.joints[j],data.joints[j],
+             typename Pass3::ArgsType(model,data));
     }
     
     return data.ddq;

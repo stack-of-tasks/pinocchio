@@ -441,8 +441,7 @@ namespace pinocchio
     /// \brief Matrix related to joint torque regressor
     MatrixXs jointTorqueRegressor;
 
-    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<Force>) KA;
-    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) KA_temp;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) KA;
     PINOCCHIO_ALIGNED_STD_VECTOR(MatrixXs) LA;
     PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) lA;
     PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) lambdaA;

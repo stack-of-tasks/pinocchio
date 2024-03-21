@@ -5,11 +5,8 @@
 #ifndef __pinocchio_algorithm_pv_hpp__
 #define __pinocchio_algorithm_pv_hpp__
 
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
-#include "pinocchio/algorithm/check.hpp"
+
 #include "pinocchio/algorithm/contact-info.hpp"
-#include "Eigen/Cholesky"
 
 namespace pinocchio
 {
@@ -53,11 +50,9 @@ namespace pinocchio
       std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
       ProximalSettingsTpl<Scalar> & settings);
 
-  PINOCCHIO_DEFINE_ALGO_CHECKER(PV);
-
 } // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
-#include "pinocchio/algorithm/pv_solver.hxx"
+#include "pinocchio/algorithm/pv.hxx"
 
 #endif // ifndef __pinocchio_algorithm_pv_hpp__
