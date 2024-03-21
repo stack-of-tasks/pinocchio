@@ -130,7 +130,6 @@ namespace pinocchio
   , lAopt((std::size_t)model.njoints, 0.0)
   , svd_max_ind((std::size_t)model.njoints, 0)
   , par_cons_ind((std::size_t)model.njoints, 0)
-  , delta_u(VectorXs::Zero(model.nv))
   , scratch_pad_force(Force::Zero())
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
   , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons

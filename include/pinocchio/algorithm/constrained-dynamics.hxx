@@ -58,38 +58,6 @@ namespace pinocchio
     data.dac_da.setZero();
     data.osim.setZero();
 
-    // std::fill(data.constraints_supported_dim.begin(), data.constraints_supported_dim.end(), 0);
-    // // Getting the constrained links
-    // for(std::size_t i=0;i<contact_models.size();++i)
-    // {
-    //   const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
-    //   const JointIndex & joint_id = contact_model.joint1_id;
-    //   switch (contact_model.reference_frame)
-    //   {
-    //     case LOCAL:
-    //       if (contact_model.type == CONTACT_6D)
-    //         data.constraints_supported_dim[joint_id] += 6;
-    //       else
-    //         if (contact_model.type == CONTACT_3D)
-    //           data.constraints_supported_dim[joint_id] += 3;
-    //       break;
-    //     case WORLD:
-    //       assert(false && "WORLD not implemented");
-    //       break;
-    //     case LOCAL_WORLD_ALIGNED:
-    //       assert(false && "LOCAL_WORLD_ALIGNED not implemented");
-    //       break;
-    //     default:
-    //       assert(false && "Must never happen");
-    //       break;
-    //   }
-    // }
-    // Running backprop to get the count of constraints
-    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
-    {
-      const JointIndex & parent = model.parents[i];
-      data.constraints_supported_dim[parent] += data.constraints_supported_dim[i];
-    }
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, bool ContactMode>

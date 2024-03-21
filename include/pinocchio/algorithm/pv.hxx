@@ -5,6 +5,7 @@
 #ifndef __pinocchio_algorithm_pv_hxx__
 #define __pinocchio_algorithm_pv_hxx__
 
+#include "pinocchio/algorithm/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/utils/check.hpp"
@@ -23,6 +24,7 @@ namespace pinocchio
 
     // Allocate memory for the backward propagation of LA, KA and lA
     typedef typename Model::JointIndex JointIndex;
+    typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
 
     std::fill(data.constraints_supported_dim.begin(), data.constraints_supported_dim.end(), 0);
     // Getting the constrained links
@@ -75,7 +77,7 @@ namespace pinocchio
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
       const JointIndex & joint_id = contact_model.joint1_id;
-      const auto & oMc = contact_model.joint1_placement;
+      const typename RigidConstraintData::SE3 & oMc = contact_model.joint1_placement;
       if (contact_model.type == CONTACT_6D)
       {
         data.KA[joint_id].middleCols(condim_counter[joint_id],6) = oMc.toActionMatrixInverse().transpose();
@@ -249,20 +251,22 @@ namespace pinocchio
       //Propagate LA backwards, we only care about tril because symmetric
       for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
       {
-        auto zc = (jdata.Dinv()*data.KAS[i].col(ind)).eval();
+        // Abusing previously unused data.tau for a role unrelated to its name below
+        jmodel.jointVelocitySelector(data.tau).noalias() = jdata.Dinv()*data.KAS[i].col(ind);
         for (int ind2 = ind; ind2 < data.constraints_supported_dim[i]; ind2++)
         {
 
           data.LA[parent](data.par_cons_ind[i] + ind2, data.par_cons_ind[i] + ind) = data.LA[i](ind2, ind) + 
-            (data.KAS[i].col(ind2).dot(zc));
+            (data.KAS[i].col(ind2).dot(jmodel.jointVelocitySelector(data.tau)));
         }
       }
 
       // Propagate lA backwards
       if (data.constraints_supported_dim[i] > 0)
-      {          
-        auto a_bf_js = (jdata.Dinv()* (jdata.S().transpose()*bias_and_force + jmodel.jointVelocitySelector(data.u))).eval();
-        const Motion a_bf =  jdata.S()*a_bf_js;
+      { 
+        // Abusing previously unused data.tau variable for a role unrelated to its name below     
+        jmodel.jointVelocitySelector(data.tau).noalias() = (jdata.Dinv()* (jdata.S().transpose()*bias_and_force + jmodel.jointVelocitySelector(data.u))).eval();
+        const Motion a_bf =  jdata.S()*jmodel.jointVelocitySelector(data.tau);
         const Motion  a_bf_motion = a_bf + data.a_bias[i];
         for (int ind = 0; ind < data.constraints_supported_dim[i]; ind++)
         {
@@ -293,21 +297,20 @@ namespace pinocchio
     {
 
       typedef typename Model::JointIndex JointIndex;
-      typedef typename Data::Force Force;
       
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
 
-      auto f_proj = (jdata.S().transpose()*data.f[i]).eval();
-      jmodel.jointVelocitySelector(data.u) -= f_proj;   
-      data.f[i].toVector().noalias() -= jdata.UDinv()*f_proj; 
+      // Abusing otherwise unused data.tau below.
+      jmodel.jointVelocitySelector(data.tau).noalias() = jdata.S().transpose()*data.f[i];
+      jmodel.jointVelocitySelector(data.u) -= jmodel.jointVelocitySelector(data.tau);   
+      data.f[i].toVector().noalias() -= jdata.UDinv()*jmodel.jointVelocitySelector(data.tau); 
 
       if (parent > 0)
       {
         data.f[parent] += data.liMi[i].act(data.f[i]);
       }
     }
-    
   };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>

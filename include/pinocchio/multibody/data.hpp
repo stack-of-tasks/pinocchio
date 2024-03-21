@@ -456,7 +456,6 @@ namespace pinocchio
     Eigen::Matrix<Scalar,6,3,Options> scratch_pad_matrix63;
     Vector6 scratch_pad_vector6;
     Force scratch_pad_force;
-    TangentVectorType delta_u;                  // Joint Inertia
 
     // For early elimination
     PINOCCHIO_ALIGNED_STD_VECTOR(Scalar) sigma;
