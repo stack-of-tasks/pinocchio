@@ -5,7 +5,6 @@
 #ifndef __pinocchio_algorithm_constraint_dynamics_hxx__
 #define __pinocchio_algorithm_constraint_dynamics_hxx__
 
-#include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/spatial/classic-acceleration.hpp"
 #include "pinocchio/spatial/explog.hpp"
 
@@ -14,9 +13,6 @@
 #include "pinocchio/algorithm/contact-cholesky.hxx"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
-#include "pinocchio/multibody/data.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include <Eigen/Dense>
 #include <limits>
 
 namespace pinocchio
@@ -818,7 +814,7 @@ namespace pinocchio
         }
       }
 
-      if(primal_infeasibility < settings.absolute_accuracy)
+      if(check_expression_if_real<Scalar,false>(primal_infeasibility < settings.absolute_accuracy))
       {
         optimal_solution_found = true;
         break;
@@ -887,6 +883,7 @@ namespace pinocchio
              std::vector<RigidConstraintDataTpl<Scalar,Options>,DataAllocator> & contact_data,
              ProximalSettingsTpl<Scalar> & settings)
   {
+    //TODO: wip not yet tested.
     using namespace Eigen;
     
     assert(model.check(data) && "data is not consistent with model.");

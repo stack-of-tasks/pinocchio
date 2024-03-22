@@ -9,7 +9,6 @@
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/model.hpp"
 #include "pinocchio/multibody/fwd.hpp"
-#include <algorithm>
 
 namespace pinocchio
 {
@@ -187,8 +186,6 @@ namespace pinocchio
         {
           case CONTACT_3D:
           {
-            // propagators.back().template leftCols<3>().template topRows<3>() = oMc1.rotation().transpose();
-            // 
             oMc1.toActionMatrixInverse(propagators.back());
             propagators.back().template bottomRows<3>().setZero();
             for(size_t j = support1.size()-1; j > 1; --j)
@@ -249,17 +246,6 @@ namespace pinocchio
           findCommonAncestor(model,joint1_id,cmodel_other.joint1_id,
                              id_in_support1,id_in_support1_other);
           
-//          std::cout << "k: " << k << std::endl;
-//          std::cout << "i: " << i << std::endl;
-//          std::cout << "joint1_id: " << joint1_id << std::endl;
-//          std::cout << "joint1_id_other: " << cmodel_other.joint1_id << std::endl;
-//          std::cout << "support1[id_in_support1]: " << support1[id_in_support1] << std::endl;
-//          std::cout << "support1_other[id_in_support1_other]: " << support1_other[id_in_support1_other] << std::endl;
-//          std::cout << "propagators_other[ support1_other[id_in_support1_other] ]" << std::endl;
-//          std::cout << propagators_other[ support1_other[id_in_support1_other] ] << std::endl;
-          
-//          std::cout << "lambdas[ support1[id_in_support1] ]" << std::endl;
-//          std::cout << lambdas[ support1[id_in_support1] ] << std::endl;
           delassus.block(current_row_id_other,current_row_id,size_other,size).noalias()
           = propagators_other[id_in_support1_other].topRows(size_other) 
             * lambdas[id_in_support1].leftCols(size);
@@ -268,8 +254,6 @@ namespace pinocchio
         }
         
         assert(current_row_id_other == current_row_id && "current row indexes do not match.");
-        // std::cout << propagators.back() 
-        //   * lambdas.back() << std::endl;
         delassus.block(current_row_id,current_row_id,size,size).noalias() = propagators.back().topRows(size) 
           * lambdas.back().leftCols(size);
         current_row_id += size;
@@ -417,7 +401,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     {
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Inertia Inertia;
-      // typedef typename Data::Matrix6 Matrix6;
       typedef typename Data::Matrix6x Matrix6x;
       
       const JointIndex i = jmodel.id();
@@ -441,7 +424,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       
       if(parent > 0)
       {
-        // data.oYaba[parent].noalias() += data.oL[i]*Ia;
         data.oYaba[parent].noalias() = Ia - jdata.UDinv() * jdata.U().transpose();
       }
     }
@@ -564,7 +546,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         size_t ad_i = data.accumulation_descendant[i];
         int nv = model.joints[i].nv();
         // propagate the spatial inverse inertia
-
         if (nv == 1)
         {
           // Optimization for single DoF joints
