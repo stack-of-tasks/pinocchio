@@ -46,7 +46,8 @@ namespace pinocchio
         data.oMi[i] = data.liMi[i];
       
       jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
-      data.oYaba[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYaba[i] = data.oYcrb[i].matrix();
     }
     
   };
@@ -355,7 +356,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
   }
 
 template <typename Scalar, int Options, template <typename, int> class JointCollectionTpl>
-  JointIndex findGCA(const ModelTpl<Scalar,Options, JointCollectionTpl> & model, const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+  JointIndex findGreatestCommonAncestor(const ModelTpl<Scalar,Options, JointCollectionTpl> & model, const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                 JointIndex joint1_id,
                                 JointIndex joint2_id,
                                 size_t & index_ancestor_in_support1,
@@ -471,6 +472,9 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
 
     Data::Vector6 scratch_pad_vector = Data::Vector6::Zero();
     Data::Vector6 scratch_pad_vector2 = Data::Vector6::Zero();
+
+    Data::Matrix6 scratch_pad1;
+    Data::Matrix6 scratch_pad2;
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -582,16 +586,16 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         }
         else if (nv == 6)
         {
-         data.scratch_pad1.noalias() = data.extended_motion_propagator[i]*model.joints[i].jointCols(data.J);
-         data.scratch_pad2.noalias() = data.scratch_pad1*data.joints[i].Dinv();
-         data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad2*data.scratch_pad1.transpose(); 
+         scratch_pad1.noalias() = data.extended_motion_propagator[i]*model.joints[i].jointCols(data.J);
+         scratch_pad2.noalias() = scratch_pad1*data.joints[i].Dinv();
+         data.spatial_inv_inertia[ad_i].noalias() += scratch_pad2*scratch_pad1.transpose(); 
         }
         else if (nv > 1) 
         {
          // Joints with more than 1 DoF
-         data.scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[i]*model.joints[i].jointCols(data.J);
-         data.scratch_pad2.leftCols(nv).noalias() = data.scratch_pad1.leftCols(nv)*data.joints[i].Dinv();
-         data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad2.leftCols(nv)*data.scratch_pad1.leftCols(nv).transpose();    
+         scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[i]*model.joints[i].jointCols(data.J);
+         scratch_pad2.leftCols(nv).noalias() = scratch_pad1.leftCols(nv)*data.joints[i].Dinv();
+         data.spatial_inv_inertia[ad_i].noalias() += scratch_pad2.leftCols(nv)*scratch_pad1.leftCols(nv).transpose();    
         }
         else 
         {
@@ -625,8 +629,8 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       size_t an_i = data.accumulation_ancestor[i];
       if (an_i != 0) //TODO: optimize for 3D constraints. Not very important here.
       { 
-        data.scratch_pad1.noalias() = data.extended_motion_propagator2[i]*data.spatial_inv_inertia[an_i];
-        data.spatial_inv_inertia[i].noalias() += data.scratch_pad1*data.extended_motion_propagator2[i].transpose();
+        scratch_pad1.noalias() = data.extended_motion_propagator2[i]*data.spatial_inv_inertia[an_i];
+        data.spatial_inv_inertia[i].noalias() += scratch_pad1*data.extended_motion_propagator2[i].transpose();
       }
       
     }
@@ -688,29 +692,29 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           const VectorOfMatrix6 & cemp_other = cdata_other.extended_motion_propagators_joint1;
           
           size_t id_in_support1, id_in_support1_other, gca;
-          gca = findGCA(model, data, joint1_id, joint1_id_other, id_in_support1, id_in_support1_other);
+          gca = findGreatestCommonAncestor(model, data, joint1_id, joint1_id_other, id_in_support1, id_in_support1_other);
 
-          data.scratch_pad1.noalias() = cemp_other[id_in_support1_other]*data.spatial_inv_inertia[gca];
+          scratch_pad1.noalias() = cemp_other[id_in_support1_other]*data.spatial_inv_inertia[gca];
           if (size == 6)
           {
             if (size_other == 6)
-              delassus.template block<6,6>(current_row_id_other,current_row_id).noalias() = data.scratch_pad1*cemp[id_in_support1].transpose(); 
+              delassus.template block<6,6>(current_row_id_other,current_row_id).noalias() = scratch_pad1*cemp[id_in_support1].transpose(); 
             else if (size_other == 3)
-              delassus.template block<3,6>(current_row_id_other,current_row_id).noalias() = data.scratch_pad1.template topRows<3>()*cemp[id_in_support1].template topRows<6>().transpose();
+              delassus.template block<3,6>(current_row_id_other,current_row_id).noalias() = scratch_pad1.template topRows<3>()*cemp[id_in_support1].template topRows<6>().transpose();
 
           }
           else if (size == 3)
           {
             if (size_other == 6)
-              delassus.template block<6,3>(current_row_id_other,current_row_id).noalias() = data.scratch_pad1.template topRows<6>()*cemp[id_in_support1].template topRows<3>().transpose();
+              delassus.template block<6,3>(current_row_id_other,current_row_id).noalias() = scratch_pad1.template topRows<6>()*cemp[id_in_support1].template topRows<3>().transpose();
             else if (size_other == 3)
-              delassus.template block<3,3>(current_row_id_other,current_row_id).noalias() = data.scratch_pad1.template topRows<3>()*cemp[id_in_support1].template topRows<3>().transpose();
+              delassus.template block<3,3>(current_row_id_other,current_row_id).noalias() = scratch_pad1.template topRows<3>()*cemp[id_in_support1].template topRows<3>().transpose();
 
           }
           else
           {
             delassus.block(current_row_id_other,current_row_id,size_other,size).noalias()
-            = data.scratch_pad1.topRows(size_other)*cemp[id_in_support1].topRows(size).transpose();
+            = scratch_pad1.topRows(size_other)*cemp[id_in_support1].topRows(size).transpose();
           }
           current_row_id_other += size_other;
         }
@@ -718,8 +722,8 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         assert(current_row_id_other == current_row_id && "current row indexes do not match.");
         if (data.constraints_supported_dim[joint1_id] > 6 || data.constraints_supported[joint1_id].size() > 1) 
         {
-          data.scratch_pad1.noalias() = cemp[0]*data.spatial_inv_inertia[joint1_id];
-          delassus.block(current_row_id,current_row_id,size,size).noalias() = data.scratch_pad1.topRows(size)*
+          scratch_pad1.noalias() = cemp[0]*data.spatial_inv_inertia[joint1_id];
+          delassus.block(current_row_id,current_row_id,size,size).noalias() = scratch_pad1.topRows(size)*
             cemp[0].topRows(size).transpose();
         }
         else 

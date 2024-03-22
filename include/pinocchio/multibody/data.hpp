@@ -449,22 +449,7 @@ namespace pinocchio
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) a_bias;
     PINOCCHIO_ALIGNED_STD_VECTOR(MatrixXs) KAS;
     PINOCCHIO_ALIGNED_STD_VECTOR(int) constraint_ind;
-    std::vector<Eigen::LLT<MatrixXs> > fb_osim_llt;
     Eigen::LLT<MatrixXs> osim_llt; 
-    Matrix6 scratch_pad_matrix6;
-    Matrix6x scratch_pad_matrix6x;
-    Eigen::Matrix<Scalar,6,3,Options> scratch_pad_matrix63;
-    Vector6 scratch_pad_vector6;
-    Force scratch_pad_force;
-
-    // For early elimination
-    PINOCCHIO_ALIGNED_STD_VECTOR(Scalar) sigma;
-    PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) w;
-    PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) w_normalized;
-    PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) KAopt;
-    PINOCCHIO_ALIGNED_STD_VECTOR(Scalar) lAopt;
-    PINOCCHIO_ALIGNED_STD_VECTOR(int) svd_max_ind;
-    Motion scratch_pad_motion;
 
 #if defined(_MSC_VER)
     // Eigen tensor warning: Eigen\CXX11\src/Tensor/Tensor.h(76,1): warning C4554: '&': check operator precedence for possible error
@@ -518,15 +503,13 @@ namespace pinocchio
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) extended_motion_propagator; // Stores force propagator to the base link
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) extended_motion_propagator2;
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) spatial_inv_inertia; // Stores spatial inverse inertia
-    std::vector<size_t> accumulation_descendant;
-    std::vector<size_t> accumulation_ancestor;
-    std::vector<int> constraints_supported_dim;
-    std::vector<std::set<size_t>> constraints_supported;
-    std::vector<size_t> joints_supporting_constraints;
-    std::vector<size_t> accumulation_joints;
-    std::vector<std::vector<size_t>> constraints_on_joint;
-    Matrix6 scratch_pad1;
-    Matrix6 scratch_pad2;
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_descendant;
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_ancestor;
+    PINOCCHIO_ALIGNED_STD_VECTOR(int) constraints_supported_dim;
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::set<size_t>) constraints_supported;
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) joints_supporting_constraints;
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_joints;
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<size_t>) constraints_on_joint;
 
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.

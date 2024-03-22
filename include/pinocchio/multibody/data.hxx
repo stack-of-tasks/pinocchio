@@ -120,17 +120,7 @@ namespace pinocchio
   , a_bias((std::size_t)model.njoints, Motion::Zero())
   , KA((std::size_t)model.njoints, Matrix6x::Zero(6,0))
   , KAS((std::size_t)model.njoints, MatrixXs::Zero(0,0))
-  , constraint_ind((std::size_t)model.njoints,0)
-  , sigma((std::size_t)model.njoints, 0.0)
-  , w((std::size_t)model.njoints, VectorXs::Zero(0))
-  , w_normalized((std::size_t)model.njoints, VectorXs::Zero(0))
-  , scratch_pad_motion(Motion::Zero())
-  , scratch_pad_vector6(Vector6::Zero())
-  , KAopt((std::size_t)model.njoints, VectorXs::Zero(0))
-  , lAopt((std::size_t)model.njoints, 0.0)
-  , svd_max_ind((std::size_t)model.njoints, 0)
   , par_cons_ind((std::size_t)model.njoints, 0)
-  , scratch_pad_force(Force::Zero())
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
   , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
   , d2tau_dqdq(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
@@ -152,8 +142,6 @@ namespace pinocchio
   , constraints_supported_dim((std::size_t)model.njoints,0)
   , constraints_supported((std::size_t)model.njoints)
   , constraints_on_joint((std::size_t)model.njoints)
-  , scratch_pad1(Matrix6::Zero())
-  , scratch_pad2(Matrix6::Zero())
   {
     typedef typename Model::JointIndex JointIndex;
     

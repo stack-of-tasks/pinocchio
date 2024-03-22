@@ -91,14 +91,9 @@ namespace pinocchio
     } 
 
     data.lambda_c_prox.resize(data.constraints_supported_dim[0]);
-
     data.lambda_c.setZero();
     data.lambda_c_prox.setZero();
     data.osim_llt = Eigen::LLT<Data::MatrixXs>(data.constraints_supported_dim[0]);
-    for (size_t j : model.children[1])
-    {
-      data.fb_osim_llt.push_back(Eigen::LLT<Data::MatrixXs>(data.constraints_supported_dim[j]));
-    }
 
   }
 

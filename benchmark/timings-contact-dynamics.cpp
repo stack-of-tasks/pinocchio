@@ -95,7 +95,7 @@ int main(int argc, const char ** argv)
   ContactCholeskyDecomposition contact_chol_6D6D(model,contact_models_6D6D);
 
   ProximalSettings prox_settings;
-  prox_settings.max_iter = 1;
+  prox_settings.max_iter = 10;
   prox_settings.mu = 1e8;
 
   std::cout << "nq = " << model.nq << std::endl;
