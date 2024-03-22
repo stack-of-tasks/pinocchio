@@ -1,5 +1,6 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2023-2024 INRIA
+// Copyright (c) 2023 KU Leuven
 //
 
 #include "pinocchio/algorithm/aba.hpp"
@@ -12,6 +13,7 @@
 #include "pinocchio/spatial/classic-acceleration.hpp"
 #include "pinocchio/algorithm/pv.hpp"
 
+#include <boost/test/tools/old/interface.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -160,6 +162,11 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_in_contact_6D_LOCAL_humanoid)
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
+  // Warning: the test below is not guaranteed to work for different constraints since the order of constraints in PV and ProxLTL can vary.
+  data_ref.osim = data_ref.contact_chol.getInverseOperationalSpaceInertiaMatrix();
+  data.LA[0].template triangularView<Eigen::StrictlyUpper>() = data.LA[0].template triangularView<Eigen::StrictlyLower>().transpose();
+  BOOST_CHECK(data_ref.osim.isApprox(data.LA[0]));
+
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
 
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
@@ -233,6 +240,10 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_3D_humanoid)
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
 
+  data_ref.osim = data_ref.contact_chol.getInverseOperationalSpaceInertiaMatrix();
+  data.LA[0].template triangularView<Eigen::StrictlyUpper>() = data.LA[0].template triangularView<Eigen::StrictlyLower>().transpose();
+  BOOST_CHECK(data_ref.osim.isApprox(data.LA[0]));
+
   pv(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
 
@@ -289,8 +300,6 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_repeating_3D_humanoid)
   constraintDynamics(model,data_ref,q,v,tau,contact_models,contact_datas,prox_settings);
 
   computeAllTerms(model,data_ref,q,v);
-  data_ref.M.triangularView<Eigen::StrictlyLower>() =
-  data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -321,6 +330,13 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_repeating_3D_humanoid)
   
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
   BOOST_CHECK((J_ref.transpose()*(J_ref*data.ddq+rhs_ref)).isZero(1e-11));
+
+  initPvSolver(model,data,contact_models);
+  constrainedABA(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+  BOOST_CHECK((J_ref.transpose()*(J_ref*data.ddq+rhs_ref)).isZero(1e-11));
+
+
     
   // Check the solver works the second time for new random inputs
   q = randomConfiguration(model);

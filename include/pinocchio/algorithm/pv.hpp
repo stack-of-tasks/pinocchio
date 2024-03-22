@@ -1,5 +1,6 @@
 //
-// Copyright (c) 2016-2020 CNRS
+// Copyright (c) 2023-2024 Inria
+// Copyright (c) 2023 KU Leuven
 //
 
 #ifndef __pinocchio_algorithm_pv_hpp__

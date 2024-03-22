@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2023-2024 INRIA
+// Copyright (c) 2023 KU Leuven
 //
 
 #ifndef __pinocchio_algorithm_pv_hxx__
@@ -531,7 +532,6 @@ namespace pinocchio
         data.lambda_c_prox.noalias() = data.lambdaA[0];
       }
 
-      data.LA[0].template triangularView<Eigen::Upper>() = data.LA[0].template triangularView<Eigen::Lower>().transpose();
     }
 
     typedef PvRegForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;

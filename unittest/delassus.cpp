@@ -1,12 +1,12 @@
+//
+// Copyright (c) 2023-2024 INRIA CNRS
+// Copyright (c) 2023 KU Leuven
+//
 
-#include <iostream>
-
-#include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hxx"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/context.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/algorithm/delassus.hpp"
 
