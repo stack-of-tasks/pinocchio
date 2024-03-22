@@ -90,18 +90,10 @@ initPvDelassus(model, data, contact_models); // Allocate memory
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
   BOOST_CHECK(dampedDelassusInverse2.isApprox(dampedDelassusInverse,1e-10));  
 
-      // std::cout << "Damped Delassus inverse (cABA) = " << dampedDelassusInverse << "\n";
-      // std::cout << "Damped Delassus inverse (LTL) = " << dampedDelassusInverse2 << "\n";
-      // std::cout << "LTL - cABA = " << dampedDelassusInverse - dampedDelassusInverse2 << "\n";
-
-       std::cout << "Damped Delassus inverse (cABA) error = " << (dampedDelassusInverse + H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim())).lpNorm<Infinity>() << "\n";
-
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()),1e-10));
-//  std::cout << "Damped Delassus inverse (EFPA) = " << dampedDelassusInverse << "\n";
-      std::cout << "Damped Delassus inverse (EFPA) error = " << (dampedDelassusInverse + H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim())).lpNorm<Infinity>() << "\n";
 
       q = randomConfiguration(model);
       v = Eigen::VectorXd::Random(model.nv);
@@ -199,9 +191,6 @@ BOOST_AUTO_TEST_CASE(contact_6D4)
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));
 
-  std::cout << (dampedDelassusInverse + H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim())) << std::endl;
-  std::cout << "Damped Delassus inverse (cABA) error = " << (dampedDelassusInverse + H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim())).lpNorm<Infinity>() << "\n";
-
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
@@ -298,10 +287,6 @@ BOOST_AUTO_TEST_CASE(contact_6D_repeated_6D3)
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-  std::cout << (H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) + dampedDelassusInverse).lpNorm<Infinity>() <<  std::endl;
-  // std::cout << H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) << "****\n\n" << std::endl;
-  // std::cout << dampedDelassusInverse << std::endl;
-  std::cout << (dampedDelassusInverse + H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim())) << std::endl;
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));
 
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
@@ -343,14 +328,13 @@ BOOST_AUTO_TEST_CASE(contact_3D)
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));
-  std::cout << (H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) + dampedDelassusInverse).lpNorm<Infinity>() <<  std::endl;
+  
 
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-7));
-  std::cout << (H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) + dampedDelassusInverse).lpNorm<Infinity>() <<  std::endl;
-
+  
 }
 
 BOOST_AUTO_TEST_CASE(contact_3D3D)
@@ -484,9 +468,7 @@ BOOST_AUTO_TEST_CASE(contact_3D_repeated)
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));
-  std::cout << (H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) + dampedDelassusInverse) << std::endl;
-  std::cout << "cABA (error) = " << (H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) + dampedDelassusInverse).lpNorm<Infinity>() <<  std::endl;
-
+  
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
@@ -656,17 +638,10 @@ dampedDelassusInverse.setZero();
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()),1e-10));
 
-      std::cout << "Damped Delassus inverse (cABA) error = " << (dampedDelassusInverse + H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim())).lpNorm<Infinity>() << "\n";
-
-      // std::cout << "Damped Delassus inverse (cABA) = " << dampedDelassusInverse << "\n";
-      // std::cout << "Damped Delassus inverse (LTL) = " << -H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) << "\n";
-
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()),1e-10));
-
-      std::cout << "Damped Delassus inverse (EFPA) error = " << (dampedDelassusInverse + H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim())).lpNorm<Infinity>() << "\n";
 
       q = randomConfiguration(model);
       v = Eigen::VectorXd::Random(model.nv);
