@@ -5,6 +5,8 @@
 #include "pinocchio/bindings/python/parsers/urdf.hpp"
 #include "pinocchio/bindings/python/parsers/sdf.hpp"
 #include "pinocchio/bindings/python/parsers/srdf.hpp"
+#include "pinocchio/bindings/python/parsers/mjcf.hpp"
+
 #include "pinocchio/bindings/python/parsers/sample-models.hpp"
 
 namespace pinocchio
@@ -17,6 +19,8 @@ namespace pinocchio
       exposeSDFParser();
       exposeURDFParser();
       exposeSRDFParser();
+      exposeMJCFParser();
+      
       exposeSampleModels();
     }
     
