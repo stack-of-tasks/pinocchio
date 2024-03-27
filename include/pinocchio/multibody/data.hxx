@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2022 CNRS INRIA
+// Copyright (c) 2015-2024 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -114,6 +114,13 @@ namespace pinocchio
   , staticRegressor(Matrix3x::Zero(3,4*(model.njoints-1)))
   , bodyRegressor(BodyRegressorType::Zero())
   , jointTorqueRegressor(MatrixXs::Zero(model.nv,10*(model.njoints-1)))
+  , lA((std::size_t)model.njoints, VectorXs::Zero(0))
+  , lambdaA((std::size_t)model.njoints, VectorXs::Zero(0))
+  , LA((std::size_t)model.njoints, MatrixXs::Zero(0, 0))
+  , a_bias((std::size_t)model.njoints, Motion::Zero())
+  , KA((std::size_t)model.njoints, Matrix6x::Zero(6,0))
+  , KAS((std::size_t)model.njoints, MatrixXs::Zero(0,0))
+  , par_cons_ind((std::size_t)model.njoints, 0)
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
   , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
   , d2tau_dqdq(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
@@ -127,15 +134,14 @@ namespace pinocchio
   , d2tau_dqdv(model.nv,model.nv,model.nv)
   , d2tau_dadq(model.nv,model.nv,model.nv)
 #endif
-  , extended_motion_propagator((std::size_t)model.njoints, {Matrix6::Zero()})
+  , extended_motion_propagator((std::size_t)model.njoints, Matrix6::Zero())
+  , extended_motion_propagator2((std::size_t)model.njoints, Matrix6::Zero())
   , spatial_inv_inertia((std::size_t)model.njoints, Matrix6::Zero())
   , accumulation_descendant((std::size_t)model.njoints,0)
   , accumulation_ancestor((std::size_t)model.njoints,0)
   , constraints_supported_dim((std::size_t)model.njoints,0)
   , constraints_supported((std::size_t)model.njoints)
   , constraints_on_joint((std::size_t)model.njoints)
-  , scratch_pad1(Matrix6::Zero())
-  , scratch_pad2(Matrix6::Zero())
   {
     typedef typename Model::JointIndex JointIndex;
     

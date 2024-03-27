@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2022 CNRS INRIA
+// Copyright (c) 2015-2024 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -441,6 +441,28 @@ namespace pinocchio
     /// \brief Matrix related to joint torque regressor
     MatrixXs jointTorqueRegressor;
 
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) KA;
+    PINOCCHIO_ALIGNED_STD_VECTOR(MatrixXs) LA;
+    PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) lA;
+    PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) lambdaA;
+    PINOCCHIO_ALIGNED_STD_VECTOR(int) par_cons_ind;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Motion) a_bias;
+    PINOCCHIO_ALIGNED_STD_VECTOR(MatrixXs) KAS;
+    PINOCCHIO_ALIGNED_STD_VECTOR(int) constraint_ind;
+    Eigen::LLT<MatrixXs> osim_llt; 
+
+#if defined(_MSC_VER)
+    // Eigen tensor warning: Eigen\CXX11\src/Tensor/Tensor.h(76,1): warning C4554: '&': check operator precedence for possible error
+#pragma warning(disable:4554)
+#endif
+    
+    /// \brief Tensor containing the kinematic Hessian of all the joints.
+    Tensor3x kinematic_hessians;
+
+#if defined(_MSC_VER)    
+#pragma warning(default:4554)   // C4554 enabled after tensor definition
+#endif
+    
     /// \brief Cholesky decomposition of the KKT contact matrix
     ContactCholeskyDecomposition contact_chol;
     
@@ -455,8 +477,6 @@ namespace pinocchio
 #pragma warning(disable:4554)
 #endif
 
-    /// \brief Tensor containing the kinematic Hessian of all the joints.
-    Tensor3x kinematic_hessians;
 
     /// \brief SO Partial derivative of the joint torque vector with respect to
     /// the joint configuration.
@@ -480,19 +500,16 @@ namespace pinocchio
 #pragma warning(default:4554)   // C4554 enabled after tensor definition
 #endif
 
-    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<Matrix6>) extended_motion_propagator; // Stores force propagator to the base link
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) extended_motion_propagator; // Stores force propagator to the base link
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) extended_motion_propagator2;
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) spatial_inv_inertia; // Stores spatial inverse inertia
-    std::vector<size_t> accumulation_descendant;
-    std::vector<size_t> accumulation_ancestor;
-    std::vector<size_t> constraints_supported_dim;
-    std::vector<std::set<size_t>> constraints_supported;
-    std::vector<size_t> joints_supporting_constraints;
-    std::vector<size_t> accumulation_joints;
-    std::vector<std::vector<size_t>> constraints_on_joint;
-    Matrix6 scratch_pad1;
-    Matrix6 scratch_pad2;
-    Vector6 scratch_pad_vector;
-    Vector6 scratch_pad_vector2;
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_descendant;
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_ancestor;
+    PINOCCHIO_ALIGNED_STD_VECTOR(int) constraints_supported_dim;
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::set<size_t>) constraints_supported;
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) joints_supporting_constraints;
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_joints;
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<size_t>) constraints_on_joint;
 
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.

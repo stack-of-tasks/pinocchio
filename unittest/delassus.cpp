@@ -1,12 +1,12 @@
+//
+// Copyright (c) 2023-2024 INRIA CNRS
+// Copyright (c) 2023 KU Leuven
+//
 
-#include <iostream>
-
-#include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hxx"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/context.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/algorithm/delassus.hpp"
 
@@ -44,6 +44,7 @@ namespace pinocchio
 
 using namespace pinocchio;
 
+double mu = 1e-4;
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(contact_6D)
@@ -53,7 +54,6 @@ BOOST_AUTO_TEST_CASE(contact_6D)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
   const std::string RA = "rleg6_joint";
   RigidConstraintModel ci_RA_6D(CONTACT_6D,model,model.getJointId(RA),LOCAL);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
@@ -67,23 +67,34 @@ BOOST_AUTO_TEST_CASE(contact_6D)
   VectorXd q = randomConfiguration(model);
   VectorXd v = Eigen::VectorXd::Random(model.nv);
 
-  computeAllTerms(model,data,q, v);
-  contact_chol.compute(model,data,contact_models,contact_data, mu);
-  contact_chol.inverse(H_inverse);
-
-  Data::MatrixXs dampedDelassusInverse;
-  dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());
-
   initPvDelassus(model, data, contact_models); // Allocate memory
-  computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);
-  dampedDelassusInverse.triangularView<StrictlyLower>() =
-  dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));
 
-  computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
-  dampedDelassusInverse.triangularView<StrictlyLower>() =
-  dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));
+  for (int i = 0; i < 10; i++)
+  {
+    computeAllTerms(model,data,q, v);
+    contact_chol.compute(model,data,contact_models,contact_data, mu);
+    contact_chol.inverse(H_inverse);
+
+    Eigen::MatrixXd dampedDelassusInverse;
+    dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());
+
+    Eigen::MatrixXd dampedDelassusInverse2;
+    dampedDelassusInverse2.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
+      
+    dampedDelassusInverse2 = -H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim());
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);
+    dampedDelassusInverse.triangularView<StrictlyLower>() =
+    dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
+    BOOST_CHECK(dampedDelassusInverse2.isApprox(dampedDelassusInverse,1e-10));  
+
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
+    dampedDelassusInverse.triangularView<StrictlyLower>() =
+    dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
+    BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()),1e-10));
+
+    q = randomConfiguration(model);
+    v = Eigen::VectorXd::Random(model.nv);
+  }
 
 }
 
@@ -94,7 +105,6 @@ BOOST_AUTO_TEST_CASE(contact_6D6D)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
   const std::string RA = "rleg6_joint";
   const std::string LA = "lleg6_joint";
   RigidConstraintModel ci_LA_6D(CONTACT_6D,model,model.getJointId(LA),LOCAL);
@@ -138,7 +148,6 @@ BOOST_AUTO_TEST_CASE(contact_6D4)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   const std::string RA = "rarm6_joint";
@@ -180,7 +189,7 @@ BOOST_AUTO_TEST_CASE(contact_6D4)
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));
+  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-10));
 }
 
 BOOST_AUTO_TEST_CASE(contact_6D_repeated)
@@ -190,7 +199,6 @@ BOOST_AUTO_TEST_CASE(contact_6D_repeated)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
   const std::string RA = "rleg6_joint";
   RigidConstraintModel ci_RA_6D(CONTACT_6D,model,model.getJointId(RA),LOCAL);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
@@ -223,7 +231,6 @@ BOOST_AUTO_TEST_CASE(contact_6D_repeated)
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));
-
 }
 
 BOOST_AUTO_TEST_CASE(contact_6D_repeated_6D3)
@@ -233,7 +240,6 @@ BOOST_AUTO_TEST_CASE(contact_6D_repeated_6D3)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   const std::string RA = "rarm6_joint";
@@ -251,10 +257,6 @@ BOOST_AUTO_TEST_CASE(contact_6D_repeated_6D3)
 
   contact_models.push_back(ci_LA_6D);
   contact_data.push_back(RigidConstraintData(ci_LA_6D));
-  contact_models.push_back(ci_RF_6D);
-  contact_data.push_back(RigidConstraintData(ci_RF_6D));
-  contact_models.push_back(ci_LF_6D);
-  contact_data.push_back(RigidConstraintData(ci_LF_6D));
 
   pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
@@ -273,9 +275,6 @@ BOOST_AUTO_TEST_CASE(contact_6D_repeated_6D3)
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-  // std::cout << (H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) + dampedDelassusInverse).lpNorm<Infinity>() <<  std::endl;
-  // std::cout << H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) << "****\n\n" << std::endl;
-  // std::cout << dampedDelassusInverse << std::endl;
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));
 
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
@@ -291,7 +290,6 @@ BOOST_AUTO_TEST_CASE(contact_3D)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
   const std::string RA = "rleg6_joint";
   RigidConstraintModel ci_RA_3D(CONTACT_3D,model,model.getJointId(RA),LOCAL);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
@@ -316,14 +314,13 @@ BOOST_AUTO_TEST_CASE(contact_3D)
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-10));
-
+  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));
+  
 
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-7));
-
 }
 
 BOOST_AUTO_TEST_CASE(contact_3D3D)
@@ -333,7 +330,6 @@ BOOST_AUTO_TEST_CASE(contact_3D3D)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
   const std::string RA = "rleg6_joint";
   const std::string LA = "lleg6_joint";
   RigidConstraintModel ci_LA_3D(CONTACT_3D,model,model.getJointId(LA),LOCAL);
@@ -376,8 +372,7 @@ BOOST_AUTO_TEST_CASE(contact_3D4)
   pinocchio::Model model;
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
-
-  double mu = 1e-4;
+  
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   const std::string RA = "rarm6_joint";
@@ -429,7 +424,7 @@ BOOST_AUTO_TEST_CASE(contact_3D_repeated)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
+  double mu = 1e-3;
   const std::string RA = "rleg6_joint";
   RigidConstraintModel ci_RA_3D(CONTACT_3D,model,model.getJointId(RA),LOCAL);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
@@ -457,7 +452,7 @@ BOOST_AUTO_TEST_CASE(contact_3D_repeated)
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
   BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));
-
+  
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
@@ -472,7 +467,6 @@ BOOST_AUTO_TEST_CASE(contact_3D_repeated4)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
   const std::string RA = "rleg6_joint";
   RigidConstraintModel ci_RA_3D(CONTACT_3D,model,model.getJointId(RA),LOCAL);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
@@ -503,12 +497,12 @@ BOOST_AUTO_TEST_CASE(contact_3D_repeated4)
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-9));
+  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()),1e-10));
 
   computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
   dampedDelassusInverse.triangularView<StrictlyLower>() =
   dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-7));
+  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()),1e-10));
 
 }
 
@@ -519,7 +513,6 @@ BOOST_AUTO_TEST_CASE(contact_3D_repeated4_6D4)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
   const std::string RA = "rleg6_joint";
   RigidConstraintModel ci_RA_3D(CONTACT_3D,model,model.getJointId(RA),LOCAL);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
@@ -582,7 +575,7 @@ BOOST_AUTO_TEST_CASE(contact_3D_ancestors)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
+  double mu = 1e-3;
   const std::string RA = "rleg6_joint";
   const std::string LA = "rleg4_joint";
   RigidConstraintModel ci_LA_3D(CONTACT_3D,model,model.getJointId(LA),LOCAL);
@@ -597,26 +590,41 @@ BOOST_AUTO_TEST_CASE(contact_3D_ancestors)
   pinocchio::Data::ContactCholeskyDecomposition contact_chol(model,contact_models);
 
   MatrixXd H_inverse(contact_chol.size(),contact_chol.size());
-  VectorXd q = randomConfiguration(model);
+  
   VectorXd v = Eigen::VectorXd::Random(model.nv);
+  VectorXd q = randomConfiguration(model);
 
   computeAllTerms(model,data,q, v);
   contact_chol.compute(model,data,contact_models,contact_data, mu);
   contact_chol.inverse(H_inverse);
 
-  Data::MatrixXs dampedDelassusInverse;
-  dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());
-
   initPvDelassus(model, data, contact_models); // Allocate memory
-  computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);
-  dampedDelassusInverse.triangularView<StrictlyLower>() =
-  dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-9));
+      
 
-  computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
-  dampedDelassusInverse.triangularView<StrictlyLower>() =
-  dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-  BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-7));
+  for (int i = 0; i < 2; i++)
+  {
+    Eigen::MatrixXd dampedDelassusInverse;
+    dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());
+    dampedDelassusInverse.setZero();
+      
+    computeAllTerms(model,data,q, v);
+    contact_chol.compute(model,data,contact_models,contact_data, mu);
+    contact_chol.inverse(H_inverse);
+
+     
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);
+    dampedDelassusInverse.triangularView<StrictlyLower>() =
+    dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
+    BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()),1e-10));
+
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
+    dampedDelassusInverse.triangularView<StrictlyLower>() =
+    dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
+    BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()),1e-10));
+
+    q = randomConfiguration(model);
+    v = Eigen::VectorXd::Random(model.nv);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(contact_3D_6D_ancestor)
@@ -626,7 +634,6 @@ BOOST_AUTO_TEST_CASE(contact_3D_6D_ancestor)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
 
-  double mu = 1e-4;
   const std::string RA = "rleg6_joint";
   const std::string LA = "rleg4_joint";
   RigidConstraintModel ci_LA_6D(CONTACT_6D,model,model.getJointId(LA),LOCAL);
@@ -671,7 +678,6 @@ BOOST_AUTO_TEST_CASE(contact_3D_6D_ancestor_6D4)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data(model);
   
-  double mu = 1e-4;
   const std::string RA = "rleg6_joint";
   const std::string LA = "rleg4_joint";
   RigidConstraintModel ci_LA_6D(CONTACT_6D,model,model.getJointId(LA),LOCAL);

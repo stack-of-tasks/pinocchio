@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2019-2024 INRIA
 //
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -15,6 +15,7 @@
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/algorithm/pv.hpp"
 
 #include <iostream>
 
@@ -133,6 +134,21 @@ int main(int argc, const char ** argv)
   }
   std::cout << "contact ABA = \t\t"; timer.toc(std::cout,NBT);
 
+  initPvSolver(model, data, contact_models_empty);
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    pv(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_empty,contact_data_empty, prox_settings);
+  }
+  std::cout << "PV = \t\t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    constrainedABA(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_empty,contact_data_empty, prox_settings);
+  }
+  std::cout << "constrainedABA = \t\t"; timer.toc(std::cout,NBT);
+
   double total_time = 0;
   SMOOTH(NBT)
   {
@@ -241,6 +257,21 @@ int main(int argc, const char ** argv)
     contactABA(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D,contact_data_6D,prox_settings);
   }
   std::cout << "contact ABA {6D} = \t\t"; timer.toc(std::cout,NBT);
+
+  initPvSolver(model, data, contact_models_6D);
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    pv(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D,contact_data_6D, prox_settings);
+  }
+  std::cout << "PV = \t\t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    constrainedABA(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D,contact_data_6D, prox_settings);
+  }
+  std::cout << "constrainedABA = \t\t"; timer.toc(std::cout,NBT);
   std::cout << "--" << std::endl;
 
   total_time = 0;
@@ -306,6 +337,21 @@ int main(int argc, const char ** argv)
     contactABA(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D6D,contact_data_6D6D,prox_settings);
   }
   std::cout << "contact ABA {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
+
+  initPvSolver(model, data, contact_models_6D6D);
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    pv(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D6D,contact_data_6D6D, prox_settings);
+  }
+  std::cout << "PV = \t\t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    constrainedABA(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D6D,contact_data_6D6D, prox_settings);
+  }
+  std::cout << "constrainedABA = \t\t"; timer.toc(std::cout,NBT);
 
   J.setZero();
   timer.tic();

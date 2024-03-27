@@ -1,5 +1,6 @@
 //
-// Copyright (c) 2020-2021 INRIA
+// Copyright (c) 2020-2024 INRIA
+// Copyright (c) 2023 KU Leuven
 //
 
 #ifndef __pinocchio_algorithm_contact_delassus_hpp__
