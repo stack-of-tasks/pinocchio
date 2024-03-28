@@ -61,6 +61,8 @@ namespace pinocchio
   ///
   /// When serialized to a 6D vector, the order of coordinates is: three linear followed by three angular.
   ///
+  /// For further details regarding the different velocities or the Jacobian see Chapter 2 and 3 respectively in [A Mathematical Introduction to Robotic Manipulation](https://www.cse.lehigh.edu/~trink/Courses/RoboticsII/reading/murray-li-sastry-94-complete.pdf) by Murray, Li and Sastry.
+  ///
   /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJointJacobians before calling it.
   ///
   /// \tparam JointCollection Collection of Joint types.
