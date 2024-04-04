@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Changed
+- Introduced inertia/symmetric3 minus operators ([#2204](https://github.com/stack-of-tasks/pinocchio/pull/2204))
 - Set NOMINMAX as a public definitions on Windows ([#2139](https://github.com/stack-of-tasks/pinocchio/pull/2139))
 - Improve documentation of enum ReferenceFrame.
 - Improve documentation of `getJointJacobian`([#2193](https://github.com/stack-of-tasks/pinocchio/pull/2193)).
