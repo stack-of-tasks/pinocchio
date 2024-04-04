@@ -360,9 +360,11 @@ namespace pinocchio
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector10Like, params, 10, 1);
 
+      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+
       const Scalar & mass = params[0];
       Vector3 lever = params.template segment<3>(1);
-      lever /= mass;
+      lever /= (mass >= 0) ? math::max(mass,eps) : math::min(mass,-eps);
 
       return InertiaTpl(mass, lever, Symmetric3(params.template segment<6>(4)) + AlphaSkewSquare(mass,lever));
     }
