@@ -438,7 +438,7 @@ namespace pinocchio
       const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
 
       const Scalar & mab = mass()-Yb.mass();
-      const Scalar mab_inv = (mass()-Yb.mass() >= 0) ? Scalar(1)/math::max((Scalar)(mass()-Yb.mass()),eps) : -Scalar(1)/math::max((Scalar)(Yb.mass()-mass()),eps);
+      const Scalar mab_inv = (mab >= 0) ? Scalar(1)/math::max(mab,eps) : Scalar(1)/math::min(mab,-eps);
       const Vector3 & AB = (lever()-Yb.lever()).eval();
       return InertiaTpl(mab,
                         (mass()*lever()-Yb.mass()*Yb.lever())*mab_inv,
@@ -451,7 +451,7 @@ namespace pinocchio
       
       const InertiaTpl& Ya = *this;
       const Scalar & mab = mass()-Yb.mass();
-      const Scalar mab_inv = (mass()-Yb.mass() >= 0) ? Scalar(1)/math::max((Scalar)(mass()-Yb.mass()),eps) : -Scalar(1)/math::max((Scalar)(Yb.mass()-mass()),eps);
+      const Scalar mab_inv = (mab >= 0) ? Scalar(1)/math::max(mab,eps) : Scalar(1)/math::min(mab,-eps);
       const Vector3 & AB = (Ya.lever()-Yb.lever()).eval();
       lever() *= (mass()*mab_inv); lever() -= (Yb.mass()*mab_inv)*Yb.lever(); //c *= mab_inv;
       inertia() -= Yb.inertia(); inertia() += (Ya.mass()*Yb.mass()*mab_inv)* typename Symmetric3::SkewSquare(AB);

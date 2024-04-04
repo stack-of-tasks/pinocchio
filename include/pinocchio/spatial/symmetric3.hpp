@@ -342,7 +342,7 @@ namespace pinocchio
 
     Symmetric3Tpl operator-(const Symmetric3Tpl & s2) const
     {
-      return Symmetric3Tpl((m_data-s2.m_data).eval());
+      return Symmetric3Tpl(m_data-s2.m_data);
     }
 
     Symmetric3Tpl & operator-=(const Symmetric3Tpl & s2)
