@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2014-2019 CNRS INRIA
+// Copyright (c) 2024 Heriot-Watt University
 //
 
 #ifndef __pinocchio_symmetric3_hpp__
@@ -337,6 +338,16 @@ namespace pinocchio
     Symmetric3Tpl & operator+=(const Symmetric3Tpl & s2)
     {
       m_data += s2.m_data; return *this;
+    }
+
+    Symmetric3Tpl operator-(const Symmetric3Tpl & s2) const
+    {
+      return Symmetric3Tpl((m_data-s2.m_data).eval());
+    }
+
+    Symmetric3Tpl & operator-=(const Symmetric3Tpl & s2)
+    {
+      m_data -= s2.m_data; return *this;
     }
 
     template<typename V3in, typename V3out>

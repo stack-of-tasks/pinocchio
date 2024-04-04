@@ -89,7 +89,17 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
       S2 = Symmetric3::Random();
       Symmetric3 Scopy = S;
       S+=S2;
-      BOOST_CHECK(S.matrix().isApprox(S2.matrix()+Scopy.matrix(), 1e-12));
+      BOOST_CHECK(S.matrix().isApprox(Scopy.matrix()+S2.matrix(), 1e-12));
+    }
+
+    // S -= S
+    {
+      Symmetric3
+      S = Symmetric3::Random(),
+      S2 = Symmetric3::Random();
+      Symmetric3 Scopy = S;
+      S-=S2;
+      BOOST_CHECK(S.matrix().isApprox(Scopy.matrix()-S2.matrix(), 1e-12));
     }
 
     // S + M
