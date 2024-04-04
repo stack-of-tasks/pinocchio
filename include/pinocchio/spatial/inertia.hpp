@@ -363,6 +363,7 @@ namespace pinocchio
       const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
 
       const Scalar & mass = params[0];
+      assert(mass >= Scalar(0.));
       Vector3 lever = params.template segment<3>(1);
       lever /= (mass >= 0) ? math::max(mass,eps) : math::min(mass,-eps);
 
@@ -440,6 +441,7 @@ namespace pinocchio
       const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
 
       const Scalar & mab = mass()-Yb.mass();
+      assert(mab >= Scalar(0.));
       const Scalar mab_inv = (mab >= 0) ? Scalar(1)/math::max(mab,eps) : Scalar(1)/math::min(mab,-eps);
       const Vector3 & AB = (lever()-Yb.lever()).eval();
       return InertiaTpl(mab,
@@ -453,6 +455,7 @@ namespace pinocchio
       
       const InertiaTpl& Ya = *this;
       const Scalar & mab = mass()-Yb.mass();
+      assert(mab >= Scalar(0.));
       const Scalar mab_inv = (mab >= 0) ? Scalar(1)/math::max(mab,eps) : Scalar(1)/math::min(mab,-eps);
       const Vector3 & AB = (Ya.lever()-Yb.lever()).eval();
       lever() *= (mass()*mab_inv); lever() -= (Yb.mass()*mab_inv)*Yb.lever(); //c *= mab_inv;
