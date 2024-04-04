@@ -40,6 +40,30 @@ static std::string createTempFile(const std::istringstream &data)
     return std::string(template_name);
 }
 
+static bool comparePropertyTrees(const boost::property_tree::ptree& pt1, const boost::property_tree::ptree& pt2) 
+{
+    // Check if the number of children is the same
+    if (pt1.size() != pt2.size())
+        return false;
+
+    // Iterate over all children
+    for (auto it1 = pt1.begin(), it2 = pt2.begin(); it1 != pt1.end(); ++it1, ++it2) {
+        // Compare keys
+        if (it1->first != it2->first)
+            return false;
+        
+        // Compare values
+        if (it1->second.data() != it2->second.data())
+            return false;
+        
+        // Recursively compare child trees
+        if (!comparePropertyTrees(it1->second, it2->second))
+            return false;
+    }
+
+    return true;
+}
+
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 // /// @brief Test for the inertia conversion from mjcf to pinocchio inertia
@@ -150,6 +174,92 @@ BOOST_AUTO_TEST_CASE(convert_orientation)
     BOOST_CHECK(placement_q.isApprox(real_placement, 1e-7));
     BOOST_CHECK(placement_e.isApprox(real_placement, 1e-7));
     BOOST_CHECK(placement_a.isApprox(real_placement, 1e-7));
+}
+
+BOOST_AUTO_TEST_CASE(merge_default)
+{
+namespace pt = boost::property_tree;
+    std::istringstream xmlIn(R"(
+            <default>
+                <default class="mother">
+                    <joint A="a0" B="b0" />
+                    <geom A="a0" />
+                    <default class="layer1">
+                        <joint A="a1" C="c1" />
+                        <default class="layer2">
+                            <joint B="b2" />
+                            <geom C="c2" />
+                        </default>
+                    </default>
+                    <default class="layerP">
+                        <joint K="b2" />
+                        <site  H="f1"/>
+                    </default>
+                </default>
+            </default>)");
+
+    // Create a Boost Property Tree
+    pt::ptree ptr;
+    pt::read_xml(xmlIn, ptr, pt::xml_parser::trim_whitespace);
+
+    pinocchio::Model model;
+    pinocchio::urdf::details::UrdfVisitor visitor (model);
+    typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+
+    MjcfGraph graph (visitor);
+    graph.parseDefault(ptr.get_child("default"), ptr);
+
+    std::unordered_map<std::string, pt::ptree> TrueMap;
+    
+    std::istringstream xml1(R"(<default class="mother">
+                                    <joint A="a0" B="b0" />
+                                    <geom A="a0" />
+                                    <default class="layer1">
+                                        <joint A="a1" C="c1" />
+                                        <default class="layer2">
+                                            <joint B="b2" />
+                                            <geom C="c2" />
+                                        </default>
+                                    </default>
+                                    <default class="layerP">
+                                        <joint K="b2" />
+                                        <site  H="f1"/>
+                                    </default>
+                                </default>)");
+    pt::ptree p1;
+    pt::read_xml(xml1, p1, pt::xml_parser::trim_whitespace);
+    BOOST_CHECK(comparePropertyTrees(graph.mapOfClasses.at("mother").classElement,  p1.get_child("default")));
+
+    std::istringstream xml2(R"(<default class="layer1">
+                                    <joint A="a1" B="b0" C="c1" />
+                                    <default class="layer2">
+                                        <joint B="b2" />
+                                        <geom C="c2" />
+                                    </default>
+                                    <geom A="a0" />
+                                </default>)");
+    pt::ptree p2;
+    pt::read_xml(xml2, p2, pt::xml_parser::trim_whitespace);
+    BOOST_CHECK(comparePropertyTrees(graph.mapOfClasses.at("layer1").classElement,  p2.get_child("default")));
+    std::string name = "layer1";
+    TrueMap.insert(std::make_pair(name, p2.get_child("default")));
+    
+    std::istringstream xml3(R"(<default class="layer2">
+                                    <joint A="a1" B="b2" C="c1"/>
+                                    <geom A="a0" C="c2"/>
+                                </default>)");
+    pt::ptree p3;
+    pt::read_xml(xml3, p3, pt::xml_parser::trim_whitespace);
+    BOOST_CHECK(comparePropertyTrees(graph.mapOfClasses.at("layer2").classElement,  p3.get_child("default")));
+    
+    std::istringstream xml4(R"(<default class="layerP">
+                                    <joint A="a0" B="b0" K="b2"/>
+                                    <site H="f1"/>
+                                    <geom A="a0"/>
+                                </default>)");
+    pt::ptree p4;
+    pt::read_xml(xml4, p4, pt::xml_parser::trim_whitespace);
+    BOOST_CHECK(comparePropertyTrees(graph.mapOfClasses.at("layerP").classElement,  p4.get_child("default")));
 }
 
 // @brief Test to check that default classes and child classes are taken into account

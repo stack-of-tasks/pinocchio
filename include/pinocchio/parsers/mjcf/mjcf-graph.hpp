@@ -219,8 +219,8 @@ namespace pinocchio
                     Inertia convertInertiaFromMjcf(const ptree &el) const;
 
                     /// @brief Go through the default part of the file and get all the class name. Fill the mapOfDefault for later use.
-                    /// @param el ptree element. Root of the default.
-                    void parseDefault(const ptree &el);
+                    /// @param el ptree element. Root of the default
+                    void parseDefault(ptree &el, const ptree &parent);
 
                     /// @brief Go through the main body of the mjcf file "worldbody" to get all the info ready to create the model.
                     /// @param el root of the tree

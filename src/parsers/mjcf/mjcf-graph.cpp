@@ -13,6 +13,9 @@ namespace pinocchio
             typedef boost::property_tree::ptree ptree;
             typedef pinocchio::urdf::details::UrdfVisitor<double, 0, ::pinocchio::JointCollectionDefaultTpl > UrdfVisitor;
 
+            //supported elements from mjcf 
+            static const std::array<std::string, 3> ELEMENTS = {"joint", "geom", "site"};
+
             static std::istringstream getConfiguredStringStream(const std::string& str) 
             {
                 std::istringstream posStream(str);
@@ -29,6 +32,36 @@ namespace pinocchio
                     stream >> vector(i);
                 
                 return vector;
+            }
+
+            /// @brief Copy the value of ptree src into dst
+            /// @param src ptree to copy
+            /// @param dst ptree where copy is made
+            static void copyPtree(const ptree& src, ptree& dst)
+            {
+                for(const ptree::value_type& v: src)
+                    dst.put(ptree::path_type(v.first), v.second.data());
+            }
+            
+            /// @brief Update class Element in order to have all info of parent classes
+            /// @param current current class
+            /// @param dst parent class
+            static void updateClassElement(ptree& current, const ptree& parent)
+            {
+                for(const std::string& el: ELEMENTS)
+                {
+                    std::string path = el + ".<xmlattr>";
+                    if(parent.get_child_optional(path))
+                    {
+                        ptree attr_parent = parent.get_child(path, ptree());
+                        ptree attr_current = current.get_child(path, ptree());
+                        // To only copy non existing attribute in current, we copy all current
+                        // attribute (replacing) into a parent copy then we replace current with the new
+                        // ptree
+                        copyPtree(attr_current, attr_parent);
+                        current.put_child(path, attr_parent);
+                    }
+                }
             }
 
             double MjcfCompiler::convertAngle(const double &angle_) const
@@ -349,10 +382,10 @@ namespace pinocchio
                 mapOfBodies.insert(std::make_pair(currentBody.bodyName, currentBody));
             }
 
-            void MjcfGraph::parseDefault(const ptree &el)
+            void MjcfGraph::parseDefault(ptree &el, const ptree &parent)
             {
                 boost::optional<std::string> nameClass;
-                for(const ptree::value_type &v : el)
+                for(ptree::value_type &v : el)
                 {
                     if(v.first == "<xmlattr>")
                     {
@@ -361,6 +394,7 @@ namespace pinocchio
                         {
                             MjcfClass classDefault;
                             classDefault.className = *nameClass;
+                            updateClassElement(el, parent);
                             classDefault.classElement = el;
                             mapOfClasses.insert(std::make_pair(*nameClass, classDefault));
                         }
@@ -368,7 +402,7 @@ namespace pinocchio
                             throw std::invalid_argument("Class does not have a name. Cannot parse model.");
                     }
                     if(v.first == "default")
-                        parseDefault(v.second);
+                        parseDefault(v.second, el);
                 }
             }
 
@@ -456,8 +490,8 @@ namespace pinocchio
                         parseCompiler(el.get_child("compiler"));
 
                     if(v.first == "default")
-                        parseDefault(el.get_child("default")); 
-
+                        parseDefault(el.get_child("default"), el); 
+                    
                     if(v.first == "option")
                         throw std::invalid_argument("Options are not supported yet");
                     if(v.first == "composite")
