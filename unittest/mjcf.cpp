@@ -145,6 +145,8 @@ BOOST_AUTO_TEST_CASE(convert_orientation)
         <quaternion pos="0.3 0.2 0.5" quat="1 -1 0 0"/>
         <axis pos="0.3 0.2 0.5" axisangle="-1 0 0 1.5707963"/>
         <euler pos="0.3 0.2 0.5" euler="-1.57079633 0 0"/>
+        <xyaxes pos="0.3 0.2 0.5" xyaxes="1 0 0 0 0 -1"/>
+        <zaxis pos="0.3 0.2 0.5" zaxis="0 -1 0"/>
     )");
 
     // Create a Boost Property Tree
@@ -162,6 +164,8 @@ BOOST_AUTO_TEST_CASE(convert_orientation)
     pinocchio::SE3 placement_q = graph.convertPosition(pt.get_child("quaternion"));
     pinocchio::SE3 placement_a = graph.convertPosition(pt.get_child("axis"));
     pinocchio::SE3 placement_e = graph.convertPosition(pt.get_child("euler"));
+    pinocchio::SE3 placement_xy = graph.convertPosition(pt.get_child("xyaxes"));
+    pinocchio::SE3 placement_z = graph.convertPosition(pt.get_child("zaxis"));
 
     Matrix3 rotation_matrix;
     rotation_matrix <<  1., 0.,  0.,
@@ -170,10 +174,11 @@ BOOST_AUTO_TEST_CASE(convert_orientation)
 
     pinocchio::SE3 real_placement(rotation_matrix, Vector3(0.3, 0.2, 0.5));
 
-    
     BOOST_CHECK(placement_q.isApprox(real_placement, 1e-7));
     BOOST_CHECK(placement_e.isApprox(real_placement, 1e-7));
     BOOST_CHECK(placement_a.isApprox(real_placement, 1e-7));
+    BOOST_CHECK(placement_xy.isApprox(real_placement, 1e-7));
+    BOOST_CHECK(placement_z.isApprox(real_placement, 1e-7));
 }
 
 BOOST_AUTO_TEST_CASE(merge_default)

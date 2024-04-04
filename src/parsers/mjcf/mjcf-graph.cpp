@@ -265,11 +265,35 @@ namespace pinocchio
 
                     placement.rotation() = compilerInfo.convertEuler(angles);                    
                 }
-                else if(el.get_optional<std::string>("<xmlattr>.xyaxes"))
-                    throw std::invalid_argument("Model does not support orientation xyaxes yet");
-                else if(el.get_optional<std::string>("<xmlattr>.zaxis"))
-                    throw std::invalid_argument("Model does not support orientation zaxis yet");
+                else if(rot_s = el.get_optional<std::string>("<xmlattr>.xyaxes"))
+                {
+                    Eigen::Vector<double, 6> xyaxes = getVectorFromStream<6>(*rot_s);
 
+                    Eigen::Vector3d xAxis = xyaxes.head(3);
+                    xAxis.normalize();
+                    Eigen::Vector3d yAxis = xyaxes.tail(3); 
+
+                    // make y axis orthogonal to x axis, normalize 
+                    double d = xAxis.dot(yAxis);
+                    yAxis -= xAxis*d; 
+                    yAxis.normalize();
+                    
+                    Eigen::Vector3d zAxis = xAxis.cross(yAxis);
+                    zAxis.normalize();
+
+                    Eigen::Matrix3d rotation;
+                    rotation.col(0) = xAxis;
+                    rotation.col(1) = yAxis;
+                    rotation.col(2) = zAxis;
+
+                    placement.rotation() = rotation;
+                }
+                else if(rot_s = el.get_optional<std::string>("<xmlattr>.zaxis"))
+                {
+                    Eigen::Vector3d zaxis = getVectorFromStream<3>(*rot_s);
+                    // Compute the rotation matrix that maps z_axis to unit z
+                    placement.rotation() = Eigen::Quaterniond::FromTwoVectors(zaxis, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+                }
                 return placement;
             }
 
