@@ -1,6 +1,7 @@
 //
 // Copyright (c) 2015-2023 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2024 Heriot-Watt University
 //
 
 #ifndef __pinocchio_python_spatial_inertia_hpp__
@@ -117,6 +118,10 @@ namespace pinocchio
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+        .def(bp::self += bp::self)
+        .def(bp::self + bp::self)
+        .def(bp::self -= bp::self)
+        .def(bp::self - bp::self)
         
         .def("isApprox",
              call<Inertia>::isApprox,

@@ -1,5 +1,6 @@
 //
 // Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2024 Heriot-Watt University
 //
 
 #include <iostream>
@@ -540,16 +541,25 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   Force vxIv = aI.vxiv(v);
   BOOST_CHECK(vxf.toVector().isApprox(vxIv.toVector()));
 
-  // Test operator+
+  // Test operator+ and operator-
   I1 = Inertia::Random();
   Inertia I2 = Inertia::Random();
   BOOST_CHECK((I1.matrix()+I2.matrix()).isApprox((I1+I2).matrix()));
+  BOOST_CHECK((I1.matrix()-I2.matrix()).isApprox((I1-I2).matrix()));
+  BOOST_CHECK((I2.matrix()-I1.matrix()).isApprox((I2-I1).matrix()));
+  BOOST_CHECK((I1-I1).isZero());
 
-  // operator +=
-  Inertia I12 = I1;
-  I12 += I2;
-  BOOST_CHECK((I1.matrix()+I2.matrix()).isApprox(I12.matrix()));
-  
+  // operator += and operator -=
+  Inertia I12p = I1;
+  Inertia I12m = I1;
+  Inertia I21m = I2;
+  I12p += I2;
+  I12m -= I2;
+  I21m -= I1;
+  BOOST_CHECK((I1.matrix()+I2.matrix()).isApprox(I12p.matrix()));
+  BOOST_CHECK((I1.matrix()-I2.matrix()).isApprox(I12m.matrix()));
+  BOOST_CHECK((I2.matrix()-I1.matrix()).isApprox(I21m.matrix()));
+
   // Test operator vtiv
   double kinetic_ref = v.toVector().transpose() * aI.matrix() * v.toVector();
   double kinetic = aI.vtiv(v);
