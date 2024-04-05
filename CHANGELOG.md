@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Improve documentation of `getJointJacobian`([#2193](https://github.com/stack-of-tasks/pinocchio/pull/2193)).
 
 ### Fixed
+- CMake now uses Relative Path instead of Absolute ([#2202])(https://github.com/stack-of-tasks/pinocchio/pull/2202)
 - Order of frames in ReducedModel is now the same as in the full model ([#2160](https://github.com/stack-of-tasks/pinocchio/pull/2160))
 - Remove a lot of warnings ([#2139](https://github.com/stack-of-tasks/pinocchio/pull/2139))
 - `MeshcatVisualizer` doesn't crash anymore when there is no collision model defined ([#2147](https://github.com/stack-of-tasks/pinocchio/pull/2147))
