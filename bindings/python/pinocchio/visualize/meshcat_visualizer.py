@@ -844,18 +844,13 @@ class MeshcatVisualizer(BaseVisualizer):
             # Get mesh pose.
             M = geom_data.oMg[geom_model.getGeometryId(visual.name)]
             # Manage scaling: force scaling even if this should be normally handled by MeshCat (but there is a bug here)
-            if hasMeshFileInfo(visual):
-                scale = np.asarray(visual.meshScale).flatten()
-                S = np.diag(np.concatenate((scale, [1.0])))
-                T = np.array(M.homogeneous).dot(S)
+            geom = visual.geometry
+            if WITH_HPP_FCL_BINDINGS and isinstance(geom,(hppfcl.Plane, hppfcl.Halfspace)):
+                T = M.copy()
+                T.translation += M.rotation @ (geom.d * geom.n)
+                T = T.homogeneous
             else:
-                geom = visual.geometry
-                if WITH_HPP_FCL_BINDINGS and isinstance(geom,(hppfcl.Plane, hppfcl.Halfspace)):
-                    T = M
-                    T.translation += M.rotation @ (geom.d * geom.n)
-                    T = T.homogeneous
-                else:
-                    T = M.homogeneous
+                T = M.homogeneous
 
             # Update viewer configuration.
             self.viewer[visual_name].set_transform(T)
