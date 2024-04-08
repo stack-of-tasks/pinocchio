@@ -152,6 +152,7 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/math/taylor-expansion.hpp
   include/pinocchio/math/tensor.hpp
   include/pinocchio/math/triangular-matrix.hpp
+  include/pinocchio/math/tridiagonal-matrix.hpp
   include/pinocchio/multibody/constraint-base.hpp
   include/pinocchio/multibody/constraint-generic.hpp
   include/pinocchio/multibody/data.hpp
