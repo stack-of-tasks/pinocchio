@@ -106,6 +106,7 @@ ADD_PINOCCHIO_UNIT_TEST(rpy)
 ADD_PINOCCHIO_UNIT_TEST(rotation)
 ADD_PINOCCHIO_UNIT_TEST(vector)
 ADD_PINOCCHIO_UNIT_TEST(eigenvalues)
+ADD_PINOCCHIO_UNIT_TEST(tridiagonal-matrix)
 
 #Derivatives algo
 ADD_PINOCCHIO_UNIT_TEST(kinematics-derivatives)
