@@ -94,6 +94,11 @@ As its name suggests, a planar joint allows movements that a object can do in a 
 
 ![Planar joint. It is subject to moving only on the map](planar_laas.gif)
 
+A configuration vector for a planar joint is four-dimensional, with coordinates \f$(x, y, \cos \theta, \sin \theta)\f$ representing the corresponding affine transform matrix:
+
+\f$ M_{parent,child} = \begin{bmatrix} \cos \theta & -\sin \theta & 0 & x \\ \sin \theta &  \cos \theta & 0 & y \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix} \f$
+
+A tangent (*e.g.* velocity) vector for a planar joint is three-dimensional, with coordinates \f$(\dot{x}, \dot{y}, \dot{\theta})\f$.
 
 ### Translation joint
 
