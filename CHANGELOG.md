@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix MSVC build ([#2155](https://github.com/stack-of-tasks/pinocchio/pull/2155))
 - Fix stub generation ([#2166](https://github.com/stack-of-tasks/pinocchio/pull/2166))
 - Clean up empty documentation pages and sections ([#2167](https://github.com/stack-of-tasks/pinocchio/pull/2167))
+- Fix SO(3) title and cross-section reference in the documentation ([#2210](https://github.com/stack-of-tasks/pinocchio/pull/2210))
 
 ### Added
 - Add `examples/floating-base-velocity-viewer.py` to visualize floating base velocity ([#2143](https://github.com/stack-of-tasks/pinocchio/pull/2143))
