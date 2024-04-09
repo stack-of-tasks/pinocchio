@@ -28,6 +28,14 @@ namespace pinocchio
   : public traits<TridiagonalSymmetricMatrix>
   {};
   
+  template<typename MatrixDerived, typename TridiagonalSymmetricMatrix>
+  struct TridiagonalSymmetricMatrixApplyOnTheLeftReturnType;
+  
+  template<typename MatrixDerived, typename TridiagonalSymmetricMatrix>
+  struct traits<TridiagonalSymmetricMatrixApplyOnTheLeftReturnType<MatrixDerived,TridiagonalSymmetricMatrix>>
+  : public traits<TridiagonalSymmetricMatrix>
+  {};
+  
   template<typename TridiagonalSymmetricMatrix> struct TridiagonalSymmetricMatrixInverse;
   
   template<typename TridiagonalSymmetricMatrix>
@@ -61,6 +69,15 @@ namespace Eigen {
     : public traits<typename pinocchio::traits<pinocchio::TridiagonalSymmetricMatrixApplyOnTheRightReturnType<TridiagonalSymmetricMatrix,MatrixDerived>>::PlainMatrixType>
     {
       typedef pinocchio::traits<pinocchio::TridiagonalSymmetricMatrixApplyOnTheRightReturnType<TridiagonalSymmetricMatrix,MatrixDerived>> Base;
+      typedef typename Base::PlainMatrixType ReturnType;
+      enum { Flags = 0 };
+    };
+    
+    template<typename MatrixDerived, typename TridiagonalSymmetricMatrix>
+    struct traits<pinocchio::TridiagonalSymmetricMatrixApplyOnTheLeftReturnType<MatrixDerived,TridiagonalSymmetricMatrix>>
+    : public traits<typename pinocchio::traits<pinocchio::TridiagonalSymmetricMatrixApplyOnTheLeftReturnType<MatrixDerived,TridiagonalSymmetricMatrix>>::PlainMatrixType>
+    {
+      typedef pinocchio::traits<pinocchio::TridiagonalSymmetricMatrixApplyOnTheLeftReturnType<MatrixDerived,TridiagonalSymmetricMatrix>> Base;
       typedef typename Base::PlainMatrixType ReturnType;
       enum { Flags = 0 };
     };
@@ -191,6 +208,14 @@ namespace pinocchio
     }
     
     template<typename MatrixDerived>
+    TridiagonalSymmetricMatrixApplyOnTheLeftReturnType<MatrixDerived,Self>
+    applyOnTheLeft(const Eigen::MatrixBase<MatrixDerived> & mat) const
+    {
+      typedef TridiagonalSymmetricMatrixApplyOnTheLeftReturnType<MatrixDerived,Self> ReturnType;
+      return ReturnType(mat.derived(),*this);
+    }
+    
+    template<typename MatrixDerived>
     inline TridiagonalSymmetricMatrixApplyOnTheRightReturnType<Self,MatrixDerived>
     operator*(const Eigen::MatrixBase<MatrixDerived> & mat) const
     {
@@ -203,6 +228,15 @@ namespace pinocchio
     CoeffVectorType m_diagonal;
     CoeffVectorType m_sub_diagonal;
   };
+  
+  
+  template<typename LhsMatrixType, typename S, int O>
+  TridiagonalSymmetricMatrixApplyOnTheLeftReturnType<LhsMatrixType,TridiagonalSymmetricMatrix<S,O>>
+  operator*(const Eigen::MatrixBase<LhsMatrixType> & lhs,
+            const TridiagonalSymmetricMatrix<S,O> & rhs)
+  {
+    return rhs.applyOnTheLeft(lhs);
+  }
   
   template<typename TridiagonalSymmetricMatrix, typename RhsMatrixType>
   struct TridiagonalSymmetricMatrixApplyOnTheRightReturnType
@@ -241,6 +275,45 @@ namespace pinocchio
     
     const TridiagonalSymmetricMatrix & m_lhs;
     const RhsMatrixType & m_rhs;
+  };
+  
+  template<typename LhsMatrixType, typename TridiagonalSymmetricMatrix>
+  struct TridiagonalSymmetricMatrixApplyOnTheLeftReturnType
+  : public Eigen::ReturnByValue<TridiagonalSymmetricMatrixApplyOnTheLeftReturnType<LhsMatrixType,TridiagonalSymmetricMatrix> >
+  {
+    typedef TridiagonalSymmetricMatrixApplyOnTheLeftReturnType Self;
+    typedef typename traits<Self>::PlainMatrixType PlainMatrixType;
+    
+    TridiagonalSymmetricMatrixApplyOnTheLeftReturnType(const LhsMatrixType & lhs,
+                                                       const TridiagonalSymmetricMatrix & rhs)
+    : m_lhs(lhs)
+    , m_rhs(rhs)
+    {}
+    
+    template <typename ResultType>
+    inline void evalTo(ResultType& result) const
+    {
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(result.rows(),rows());
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(result.cols(),cols());
+      
+      assert(cols() >= 1); assert(rows() >= 1);
+      
+      const Eigen::DenseIndex reduced_size = cols()-1;
+      // Main diagonal
+      result.noalias() = m_lhs * m_rhs.diagonal().asDiagonal();
+      // Upper diagonal
+      result.rightCols(reduced_size).noalias() += m_lhs.leftCols(reduced_size) * m_rhs.subDiagonal().conjugate().asDiagonal();
+      // Sub diagonal
+      result.leftCols(reduced_size).noalias() += m_lhs.rightCols(reduced_size) * m_rhs.subDiagonal().asDiagonal();
+    }
+    
+    EIGEN_CONSTEXPR Eigen::Index rows() const EIGEN_NOEXCEPT { return m_lhs.rows(); }
+    EIGEN_CONSTEXPR Eigen::Index cols() const EIGEN_NOEXCEPT { return m_rhs.cols(); }
+    
+  protected:
+    
+    const LhsMatrixType & m_lhs;
+    const TridiagonalSymmetricMatrix & m_rhs;
   };
   
   template<typename _TridiagonalSymmetricMatrix>
@@ -303,7 +376,7 @@ namespace pinocchio
         result.row(i).head(i) -= w[i-1] * result.row(i-1).head(i);
       }
       
-        // Backward sweep
+      // Backward sweep
       result.row(m_size-1) /= b[m_size-1];
       for(Eigen::DenseIndex i = m_size-2; i >= 0; --i)
       {

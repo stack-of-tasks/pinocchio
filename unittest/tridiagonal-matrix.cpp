@@ -51,18 +51,21 @@ BOOST_AUTO_TEST_CASE(test_identity)
     BOOST_CHECK(mat.isIdentity(0));
   }
   
-  // Matrix multiplication
+  // Matrix multiplication left and right
   for(int k = 0; k < 1000; ++k)
   {
-    PlainMatrixType rhs_mat = PlainMatrixType::Random(mat_size,mat_size);
+    PlainMatrixType mat = PlainMatrixType::Random(mat_size,mat_size);
     
     PlainMatrixType plain(mat_size,mat_size);
     plain = tridiagonal_matrix;
     
-    PlainMatrixType res = tridiagonal_matrix * rhs_mat;
+    PlainMatrixType res_apply_on_the_right = tridiagonal_matrix * mat;
+    PlainMatrixType res_apply_on_the_right_ref = plain * mat;
+    BOOST_CHECK(res_apply_on_the_right.isApprox(res_apply_on_the_right_ref));
     
-    PlainMatrixType res_ref = plain * rhs_mat;
-    BOOST_CHECK(res.isApprox(res_ref));
+    PlainMatrixType res_apply_on_the_left = mat * tridiagonal_matrix;
+    PlainMatrixType res_apply_on_the_left_ref = mat * plain;
+    BOOST_CHECK(res_apply_on_the_left.isApprox(res_apply_on_the_left_ref));
   }
   
 }
