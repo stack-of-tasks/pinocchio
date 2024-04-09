@@ -160,6 +160,10 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
              bp::args("mass","length_x","length_y","length_z"),
              "Returns the Inertia of a box shape with a mass and of dimension the semi axis of length_{x,y,z}.")
         .staticmethod("FromBox")
+        .def("FromCapsule", &Inertia::FromCapsule,
+             bp::args("mass","radius","height"),
+             "Computes the Inertia of a capsule defined by its mass, radius and length along the Z axis. Assumes a uniform density.")
+        .staticmethod("FromCapsule")
         
         .def("__array__",(Matrix6 (Inertia::*)() const)&Inertia::matrix)
         .def("__array__",&__array__)
