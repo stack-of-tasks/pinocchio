@@ -1,5 +1,5 @@
 
-# Dealing with Lie group geometry 
+# Dealing with Lie group geometry {#e-lie}
 
 Pinocchio relies heavily on Lie groups and Lie algebras to handle motions and more specifically rotations.
 For this reason it supports the following special groups \\( SO(2), SO(3), SE(2), SE(3) \\) and implements their associated algebras
