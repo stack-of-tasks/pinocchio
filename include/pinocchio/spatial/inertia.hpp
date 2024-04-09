@@ -317,6 +317,46 @@ namespace pinocchio
                                                           Scalar(0), Scalar(0), c));
     }
 
+    ///
+    /// \brief Computes the Inertia of a capsule defined by its mass, radius and length along the Z axis.
+    /// Assumes a uniform density.
+    ///
+    /// \param[in] mass of the capsule.
+    /// \param[in] radius of the capsule.
+    /// \param[in] height of the capsule.
+    static InertiaTpl FromCapsule(const Scalar mass, 
+                                  const Scalar radius, 
+                                  const Scalar height)
+    {
+      const Scalar pi = boost::math::constants::pi<Scalar>();
+
+      // first need to compute mass repartition between cylinder and halfsphere
+      const Scalar v_cyl =  pi * radius * height;
+      const Scalar v_hs = Scalar(2) / Scalar(3) * std::pow(radius, 3) * pi;
+      const Scalar total_v = v_cyl + Scalar(2)*v_hs;
+
+      const Scalar m_cyl = mass * (v_cyl / total_v);
+      const Scalar m_hs = mass * (v_hs / total_v);
+
+      // Then Distance between halfSphere center and cylindere center.
+      const Scalar dist_hc_cyl =  height + Scalar(0.375) * radius;
+
+      // Computes inertia terms 
+      const Scalar ix_c = m_cyl * (std::pow(height, 2) + std::pow(radius, 2)*Scalar(3))/Scalar(12);
+      const Scalar iz_c = m_cyl * std::pow(radius, 2) / Scalar(2);
+
+      // For halfsphere inertia see, "Dynamics: Theory and Applications" McGraw-Hill, New York, 1985, by T.R. Kane and D.A. Levinson, Appendix 23.
+      const Scalar ix_hs = m_hs * std::pow(radius, 2)*Scalar(83)/Scalar(320);
+      const Scalar iz_hs = m_hs * std::pow(radius, 2)*Scalar(2)/Scalar(5);
+
+      //Put everything together using the parallel axis theorem
+      const Scalar ix = ix_c + Scalar(2)*ix_hs + Scalar(2)*m_hs*dist_hc_cyl;
+      const Scalar iz = iz_c + Scalar(2)*iz_hs;
+
+      return InertiaTpl(mass, Vector3::Zero(), Symmetric3(ix,         Scalar(0), ix,
+                                                          Scalar(0), Scalar(0), iz));
+    }
+
     void setRandom()
     {
       mass() = static_cast<Scalar>(std::rand())/static_cast<Scalar>(RAND_MAX);
