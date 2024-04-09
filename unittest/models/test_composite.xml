@@ -5,10 +5,8 @@
             <joint pos="0 1 0" damping=".1" name="joint1-1"/>
             <joint pos="0 0 1" axis="1 0 0" damping=".1" name="joint1-2"/>
             <joint pos="1 0 0" damping=".1" type="slide" name="joint1-3"/>
-            <geom type="capsule" size=".01" fromto="0 0 0 2 0 0" rgba="0 1 0 1"/>
             <body name="body2" pos="2 0 0">
                 <inertial mass="0.1" diaginertia="0.1 0.1 0.1" pos="0 0 0"/>
-                <geom type="capsule" size=".01" fromto="0 0 0 1 0 0" rgba="1 0 0 1"/>
             </body>
         </body>
     </body>

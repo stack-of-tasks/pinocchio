@@ -16,24 +16,6 @@ namespace pinocchio
             //supported elements from mjcf 
             static const std::array<std::string, 3> ELEMENTS = {"joint", "geom", "site"};
 
-            static std::istringstream getConfiguredStringStream(const std::string& str) 
-            {
-                std::istringstream posStream(str);
-                posStream.exceptions(std::ios::failbit);
-                return posStream;
-            }
-            
-            template<int N>
-            static Eigen::Vector<double, N> getVectorFromStream(const std::string &str)
-            {
-                std::istringstream stream = getConfiguredStringStream(str);
-                Eigen::Vector<double, N> vector;
-                for(int i = 0; i < N; i++)
-                    stream >> vector(i);
-                
-                return vector;
-            }
-
             /// @brief Copy the value of ptree src into dst
             /// @param src ptree to copy
             /// @param dst ptree where copy is made
@@ -60,6 +42,48 @@ namespace pinocchio
                         // ptree
                         copyPtree(attr_current, attr_parent);
                         current.put_child(path, attr_parent);
+                    }
+                }
+            }
+
+            static std::string getName(const ptree& el, const boost::filesystem::path& filePath)
+            {
+                auto n = el.get_optional<std::string>("<xmlattr>.name");
+                if(n)
+                    return *n;
+                else
+                {
+                    if(filePath.extension().empty())
+                        throw std::invalid_argument("Cannot find extension for one of the mesh/texture");
+
+                    auto st = filePath.stem();
+                    if(!st.empty())
+                        return st.string();
+                    else
+                        throw std::invalid_argument("Cannot find a name for one of the mesh.texture");
+                }
+            }
+
+            static boost::filesystem::path updatePath(bool strippath, const std::string& dir, const std::string& modelPath, const boost::filesystem::path& filePath)
+            {
+                namespace fs = boost::filesystem;
+
+                // Check if filename still has Absolute path, like said in mujoco doc
+                if(filePath.is_absolute() && !strippath)
+                    return filePath;
+                else
+                {
+                    auto filename = filePath;
+                    if(strippath)
+                        filename = filePath.filename();
+
+                    fs::path meshPath(dir);
+                    if(meshPath.is_absolute())
+                        return (meshPath / filename);
+                    else
+                    {
+                        fs::path mainPath(modelPath);
+                        return (mainPath / meshPath / filename);
                     }
                 }
             }
@@ -143,15 +167,14 @@ namespace pinocchio
 
                 //Axis
                 auto ax = el.get_optional<std::string>("<xmlattr>.axis");
-                
                 if(ax) 
-                    axis = getVectorFromStream<3>(*ax);
+                    axis = internal::getVectorFromStream<3>(*ax);
                 
                 // Range
                 auto range_ = el.get_optional<std::string>("<xmlattr>.range");
                 if(range_)
                 {
-                    Eigen::Vector2d rangeT = getVectorFromStream<2>(*range_);
+                    Eigen::Vector2d rangeT = internal::getVectorFromStream<2>(*range_);
                     range.minConfig[0] = rangeT(0);
                     range.maxConfig[0] = rangeT(1);
                 }
@@ -159,7 +182,7 @@ namespace pinocchio
                 range_ = el.get_optional<std::string>("<xmlattr>.actuatorfrcrange");
                 if(range_)
                 {
-                    Eigen::Vector2d rangeT = getVectorFromStream<2>(*range_);
+                    Eigen::Vector2d rangeT = internal::getVectorFromStream<2>(*range_);
                     range.maxEffort[0] = rangeT(1);
                 }
                 
@@ -199,7 +222,6 @@ namespace pinocchio
                     use_limit = false;
                     auto use_ls = el.get_optional<std::string>("<xmlattr>.limited");
                     use_limit = *use_ls == "true";
-
                 }
                 
                 // Placement
@@ -234,23 +256,23 @@ namespace pinocchio
                 // position
                 auto pos = el.get_optional<std::string>("<xmlattr>.pos");
                 if(pos)
-                    placement.translation() = getVectorFromStream<3>(*pos);
+                    placement.translation() = internal::getVectorFromStream<3>(*pos);
                 
                 /////////// Rotation 
                 // Quaternion (w, x, y, z)
                 auto rot_s = el.get_optional<std::string>("<xmlattr>.quat");
                 if(rot_s)
                 {
-                    Eigen::Vector4d quat = getVectorFromStream<4>(*rot_s);
+                    Eigen::Vector4d quat = internal::getVectorFromStream<4>(*rot_s);
                     
                     Eigen::Quaterniond quaternion(quat(0), quat(1), quat(2), quat(3));
                     quaternion.normalize();
                     placement.rotation() =  quaternion.toRotationMatrix();
                 }
                 // Axis Angle
-                else if (rot_s = el.get_optional<std::string>("<xmlattr>.axisangle"))
+                else if ((rot_s = el.get_optional<std::string>("<xmlattr>.axisangle")))
                 {
-                    Eigen::Vector4d axis_angle = getVectorFromStream<4>(*rot_s);
+                    Eigen::Vector4d axis_angle = internal::getVectorFromStream<4>(*rot_s);
 
                     double angle = axis_angle(3);
                     compilerInfo.convertAngle(angle);
@@ -259,15 +281,15 @@ namespace pinocchio
                     placement.rotation() = angleAxis.toRotationMatrix();
                 }
                 // Euler Angles
-                else if (rot_s = el.get_optional<std::string>("<xmlattr>.euler"))
+                else if ((rot_s = el.get_optional<std::string>("<xmlattr>.euler")))
                 {
-                    Eigen::Vector3d angles = getVectorFromStream<3>(*rot_s);
+                    Eigen::Vector3d angles = internal::getVectorFromStream<3>(*rot_s);
 
                     placement.rotation() = compilerInfo.convertEuler(angles);                    
                 }
-                else if(rot_s = el.get_optional<std::string>("<xmlattr>.xyaxes"))
+                else if((rot_s = el.get_optional<std::string>("<xmlattr>.xyaxes")))
                 {
-                    Eigen::Vector<double, 6> xyaxes = getVectorFromStream<6>(*rot_s);
+                    Eigen::Vector<double, 6> xyaxes = internal::getVectorFromStream<6>(*rot_s);
 
                     Eigen::Vector3d xAxis = xyaxes.head(3);
                     xAxis.normalize();
@@ -288,9 +310,9 @@ namespace pinocchio
 
                     placement.rotation() = rotation;
                 }
-                else if(rot_s = el.get_optional<std::string>("<xmlattr>.zaxis"))
+                else if((rot_s = el.get_optional<std::string>("<xmlattr>.zaxis")))
                 {
-                    Eigen::Vector3d zaxis = getVectorFromStream<3>(*rot_s);
+                    Eigen::Vector3d zaxis = internal::getVectorFromStream<3>(*rot_s);
                     // Compute the rotation matrix that maps z_axis to unit z
                     placement.rotation() = Eigen::Quaterniond::FromTwoVectors(zaxis, Eigen::Vector3d::UnitZ()).toRotationMatrix();
                 }
@@ -299,14 +321,14 @@ namespace pinocchio
 
             Inertia MjcfGraph::convertInertiaFromMjcf(const ptree &el) const
             {
-                const double mass = el.get<double>("<xmlattr>.mass");
+                double mass = std::max(el.get<double>("<xmlattr>.mass"), compilerInfo.boundMass);;
                 if(mass < 0)
                     throw std::invalid_argument("Mass of body is not supposed to be negative");
 
                 Inertia::Vector3 com;
                 auto com_s = el.get_optional<std::string>("<xmlattr>.pos");
                 if(com_s)
-                    com = getVectorFromStream<3>(*com_s);
+                    com = internal::getVectorFromStream<3>(*com_s);
                 else
                     com = Inertia::Vector3::Zero();
 
@@ -318,14 +340,14 @@ namespace pinocchio
                 auto inertia_s = el.get_optional<std::string>("<xmlattr>.diaginertia");
                 if(inertia_s)
                 {
-                    Eigen::Vector3d inertiaDiag = getVectorFromStream<3>(*inertia_s);
+                    Eigen::Vector3d inertiaDiag = internal::getVectorFromStream<3>(*inertia_s);
                     I = inertiaDiag.asDiagonal();
                 }
 
-                else if (inertia_s = el.get_optional<std::string>("<xmlattr>.fullinertia"))
+                else if ((inertia_s = el.get_optional<std::string>("<xmlattr>.fullinertia")))
                 {
                     // M(1,1), M(2,2), M(3,3), M(1,2), M(1,3), M(2,3)
-                    std::istringstream inertiaStream = getConfiguredStringStream(*inertia_s);
+                    std::istringstream inertiaStream = internal::getConfiguredStringStream(*inertia_s);
                     inertiaStream >> I(0, 0);
                     inertiaStream >> I(1, 1);
                     inertiaStream >> I(2, 2);
@@ -338,6 +360,11 @@ namespace pinocchio
                     I(2, 1) = I(1, 2);
                 }
 
+                // Extract the diagonal elements as a vector
+                for(int i=0; i < 3; i++)
+                    I(i, i) = std::max(I(i, i), compilerInfo.boundInertia);
+
+
                 return Inertia(mass, com, R*I*R.transpose());
             }
 
@@ -345,6 +372,15 @@ namespace pinocchio
             {
                 MjcfBody currentBody;
                 auto chcl_s = childClass;
+                // if inertiafromgeom is false and inertia does not exist - throw 
+                if(!compilerInfo.inertiafromgeom && !el.get_child_optional("inertial"))
+                    throw std::invalid_argument("Cannot get inertia from geom and no inertia was found");
+
+                bool usegeominertia = false;
+                if(compilerInfo.inertiafromgeom)
+                    usegeominertia = true;
+                else if(compilerInfo.inertiafromgeom == boost::logic::indeterminate && !el.get_child_optional("inertial"))
+                    usegeominertia = true;
 
                 for(const ptree::value_type &v: el)
                 {
@@ -377,9 +413,17 @@ namespace pinocchio
                         // Still need to deal with gravcomp and figure out if we need mocap, and user param...  
                     }
                     // Inertia
-                    if(v.first == "inertial")
+                    if(v.first == "inertial" && !usegeominertia)
                         currentBody.bodyInertia = convertInertiaFromMjcf(v.second);
                     
+                    //Geom 
+                    if(v.first == "geom")
+                    {
+                        MjcfGeom currentGeom;
+                        currentGeom.fill(v.second, currentBody, *this);
+                        currentBody.geomChildren.push_back(currentGeom);
+                    }
+
                     // Joint
                     if(v.first == "joint")
                     {
@@ -401,9 +445,109 @@ namespace pinocchio
                         currentBody.jointChildren.push_back(currentJoint);
                     }
                     if(v.first == "body")
-                        parseJointAndBody(v.second, chcl_s, currentBody.bodyName);   
+                    {   
+                        parseJointAndBody(v.second, chcl_s, currentBody.bodyName);  
+                    } 
+                }
+                // Add all geom inertias if needed
+                if(usegeominertia)
+                {
+                    Inertia inert_temp(Inertia::Zero());
+                    for(const auto &geom : currentBody.geomChildren)
+                    {
+                        if(geom.geomKind != MjcfGeom::VISUAL)
+                            inert_temp += geom.geomPlacement.actInv(geom.geomInertia);
+                    }
+                    currentBody.bodyInertia = inert_temp;
                 }
                 mapOfBodies.insert(std::make_pair(currentBody.bodyName, currentBody));
+            }
+
+            void MjcfGraph::parseTexture(const ptree &el)
+            {
+                namespace fs = boost::filesystem;
+                MjcfTexture text;
+                auto file = el.get_optional<std::string>("<xmlattr>.file");
+                if(!file)
+                    throw std::invalid_argument("Only textures with files are supported");
+
+                fs::path filePath(*file);
+                std::string name = getName(el, filePath);
+
+                text.filePath = updatePath(compilerInfo.strippath, compilerInfo.texturedir, modelPath, filePath).string();
+                
+                auto str_v = el.get_optional<std::string>("<xmlattr>.type");
+                if(str_v)
+                    text.textType = *str_v;
+
+                if((str_v = el.get_optional<std::string>("<xmlattr>.gridsize")))
+                    text.gridsize = internal::getVectorFromStream<2>(*str_v);
+
+                mapOfTextures.insert(std::make_pair(name, text));
+            }
+
+            void MjcfGraph::parseMaterial(const ptree &el)
+            {
+                std::string name;
+                MjcfMaterial mat;
+                auto n = el.get_optional<std::string>("<xmlattr>.name");
+                if(n)
+                    name = *n;
+                else
+                    throw std::invalid_argument("Material was given without a name");
+
+                // Class < Attributes
+                auto cl_s = el.get_optional<std::string>("<xmlattr>.class");
+                if(cl_s)
+                {
+                    std::string className = *cl_s;
+                    const MjcfClass&  classE = mapOfClasses.at(className);
+                    if(auto mat_p = classE.classElement.get_child_optional("material"))
+                        mat.goThroughElement(*mat_p);
+                }
+
+                mat.goThroughElement(el);
+
+                mapOfMaterials.insert(std::make_pair(name, mat));
+            }
+
+            void MjcfGraph::parseMesh(const ptree &el)
+            {
+                namespace fs = boost::filesystem;
+
+                MjcfMesh mesh;
+                auto file = el.get_optional<std::string>("<xmlattr>.file");
+                if(!file)
+                    throw std::invalid_argument("Only meshes with files are supported");
+
+                fs::path filePath(*file);
+                std::string name = getName(el, filePath);
+
+                mesh.filePath = updatePath(compilerInfo.strippath, compilerInfo.meshdir, modelPath, filePath).string();
+
+                auto scale = el.get_optional<std::string>("<xmlattr>.scale");
+                if(scale)
+                    mesh.scale = internal::getVectorFromStream<3>(*scale); 
+
+                mapOfMeshes.insert(std::make_pair(name, mesh));
+            }
+
+            void MjcfGraph::parseAsset(const ptree &el)
+            {
+                for(const ptree::value_type &v : el)
+                {
+                    if(v.first == "mesh")
+                        parseMesh(v.second);
+
+                    if(v.first == "material")
+                        parseMaterial(v.second);
+
+                    if(v.first == "texture")
+                        parseTexture(v.second);
+                    
+                    if(v.first == "hfield")
+                        throw std::invalid_argument("hfields are not supported yet");
+                }
             }
 
             void MjcfGraph::parseDefault(ptree &el, const ptree &parent)
@@ -444,6 +588,36 @@ namespace pinocchio
                     if(*strip_s == "true")
                         compilerInfo.strippath = true;
 
+                // get dir to mesh and texture
+                auto dir = el.get_optional<std::string>("<xmlattr>.assetdir");
+                if(dir)
+                {
+                    compilerInfo.meshdir = *dir;
+                    compilerInfo.texturedir = *dir;
+                }
+                
+                if((dir = el.get_optional<std::string>("<xmlattr>.meshdir")))
+                    compilerInfo.meshdir = *dir;
+
+                if((dir = el.get_optional<std::string>("<xmlattr>.texturedir")))
+                    compilerInfo.texturedir = *dir;
+
+                auto value_v = el.get_optional<double>("<xmlattr>.boundmass");
+                if(value_v)
+                    compilerInfo.boundMass = *value_v;
+
+                if((value_v = el.get_optional<double>("<xmlattr>.boundinertia")))
+                    compilerInfo.boundInertia = *value_v;
+
+                auto in_g = el.get_optional<std::string>("<xmlattr>.inertiafromgeom");
+                if(in_g)
+                {
+                    if(*in_g == "true")
+                        compilerInfo.inertiafromgeom = true;
+                    else if(*in_g == "false")
+                        compilerInfo.inertiafromgeom = false;
+                }
+                
                 // angle radian or degree
                 auto angle_s = el.get_optional<std::string>("<xmlattr>.angle");
                 if(angle_s)
@@ -461,25 +635,26 @@ namespace pinocchio
                         // get index combination
                         for(std::size_t i = 0; i < eulerseq.size(); i++)
                         {
-                            switch(eulerseq.at(i))
+                            auto ci = static_cast<Eigen::Index>(i);
+                            switch(eulerseq[i])
                             {
                                 case 'x':
-                                    compilerInfo.mapEulerAngles.col(i) = Eigen::Vector3d::UnitX();
+                                    compilerInfo.mapEulerAngles.col(ci) = Eigen::Vector3d::UnitX();
                                     break;
                                 case 'X':
-                                    compilerInfo.mapEulerAngles.col(i) = Eigen::Vector3d::UnitX();
+                                    compilerInfo.mapEulerAngles.col(ci) = Eigen::Vector3d::UnitX();
                                     break;
                                 case 'y':
-                                    compilerInfo.mapEulerAngles.col(i) = Eigen::Vector3d::UnitY();
+                                    compilerInfo.mapEulerAngles.col(ci) = Eigen::Vector3d::UnitY();
                                     break;
                                 case 'Y':
-                                    compilerInfo.mapEulerAngles.col(i) = Eigen::Vector3d::UnitY();
+                                    compilerInfo.mapEulerAngles.col(ci) = Eigen::Vector3d::UnitY();
                                     break;
                                 case 'z':
-                                    compilerInfo.mapEulerAngles.col(i) = Eigen::Vector3d::UnitZ();
+                                    compilerInfo.mapEulerAngles.col(ci) = Eigen::Vector3d::UnitZ();
                                     break;
                                 case 'Z':
-                                    compilerInfo.mapEulerAngles.col(i) = Eigen::Vector3d::UnitZ();
+                                    compilerInfo.mapEulerAngles.col(ci) = Eigen::Vector3d::UnitZ();
                                     break;
                                 default:
                                     throw std::invalid_argument("Euler Axis does not exist");
@@ -515,7 +690,10 @@ namespace pinocchio
 
                     if(v.first == "default")
                         parseDefault(el.get_child("default"), el); 
-                    
+
+                    if(v.first == "asset")
+                        parseAsset(el.get_child("asset"));
+
                     if(v.first == "option")
                         throw std::invalid_argument("Options are not supported yet");
                     if(v.first == "composite")
@@ -595,7 +773,7 @@ namespace pinocchio
 
                 // Add armature info
                 JointIndex j_id = urdfVisitor.getJointId(joint.jointName);
-                urdfVisitor.model.armature[j_id-1] = range.armature;
+                urdfVisitor.model.armature[static_cast<Eigen::Index>(j_id)-1] = range.armature;
             }
 
             void MjcfGraph::fillModel(const std::string &nameOfBody)
@@ -609,7 +787,7 @@ namespace pinocchio
                 // get body pose in body parent
                 const SE3 bodyPose = currentBody.bodyPlacement;
                 Inertia inert = currentBody.bodyInertia;
-
+                
                 // Fixed Joint
                 if(currentBody.jointChildren.size() == 0)
                 {
@@ -704,7 +882,6 @@ namespace pinocchio
 
             void MjcfGraph::parseRootTree()
             {
-
                 urdfVisitor.setName(modelName);
 
                 // get name and inertia of first root link 

@@ -31,7 +31,7 @@ namespace pinocchio
 
             typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
-            MjcfGraph graph (visitor);
+            MjcfGraph graph (visitor, xmlStr);
             if (verbose) visitor.log = &std::cout;
 
             graph.parseGraphFromXML(xmlStr);
@@ -63,7 +63,7 @@ namespace pinocchio
 
             typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
-            MjcfGraph graph (visitor);
+            MjcfGraph graph (visitor, xmlStr);
             if (verbose) visitor.log = &std::cout;
 
             graph.parseGraphFromXML(xmlStr);

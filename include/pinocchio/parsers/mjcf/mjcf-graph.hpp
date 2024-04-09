@@ -13,10 +13,15 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/foreach.hpp>
 #include <boost/math/constants/constants.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/logic/tribool.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <sstream>
 #include <limits>
 #include <iostream>
+
+
 
 namespace pinocchio
 {
@@ -26,6 +31,7 @@ namespace pinocchio
         {
             struct MjcfGraph;
             struct MjcfJoint;
+            struct MjcfGeom;
 
             /// @brief Informations that are stocked in the XML tag compile.
             /// 
@@ -36,10 +42,22 @@ namespace pinocchio
                     bool autolimits = true;
                     // Attribute to keep or not the full path of files specified in the model
                     bool strippath = false;
+                    
+                    std::string meshdir; 
+
+                    std::string texturedir;
+
                     // Value for angle conversion (Mujoco default - degrees)
                     double angle_converter = boost::math::constants::pi<double>() / 180.0;
                     // Euler Axis to use to convert angles representation to quaternion
                     Eigen::Matrix3d mapEulerAngles;
+
+                    double boundMass = 0;
+
+                    double boundInertia = 0;
+
+                    // True, false or auto - auto = indeterminate
+                    boost::logic::tribool inertiafromgeom = boost::indeterminate;
                     
                     /// @brief Convert the angle in radian if model was declared to use degree
                     /// @param angle_ angle to convert
@@ -84,6 +102,8 @@ namespace pinocchio
 
                     // Vector of joints associated with the body
                     std::vector<MjcfJoint> jointChildren;
+
+                    std::vector<MjcfGeom> geomChildren;
             };
 
             /// @brief All joint limits
@@ -173,6 +193,89 @@ namespace pinocchio
                     void goThroughElement(const ptree &el, bool use_limits);
             };
 
+            struct MjcfMesh
+            {
+                Eigen::Vector3d scale = Eigen::Vector3d::Constant(1);
+                std::string filePath;
+            };
+
+            struct MjcfTexture
+            {
+                // [2d, cube, skybox], “cube”
+                std::string textType = "cube";
+
+                std::string filePath;
+
+                Eigen::Vector2d gridsize = Eigen::Vector2d::Constant(1);
+            };
+
+            struct MjcfMaterial
+            {
+                typedef boost::property_tree::ptree ptree;
+
+                Eigen::Vector4d rgba = Eigen::Vector4d::Constant(1);
+
+                float reflectance = 0;
+
+                float shininess = 0.5;
+
+                float specular = 0.5;
+
+                float emission = 0;
+
+                std::string texture;
+
+                void goThroughElement(const ptree &el);
+            };
+
+            struct MjcfGeom
+            {
+                public:
+                    typedef boost::property_tree::ptree ptree;
+
+                    enum TYPE {VISUAL, COLLISION, BOTH};
+                    std::string geomName;
+
+                    // [plane, hfield, sphere, capsule, ellipsoid, cylinder, box, mesh, sdf], “sphere”
+                    std::string geomType = "sphere";
+
+                    TYPE geomKind = BOTH;
+
+                    int contype = 1;
+                    int conaffinity = 1;
+                    int group = 0;
+
+                    std::string sizeS;
+                    boost::optional<std::string> fromtoS;
+                    Eigen::VectorXd size;
+
+                    Eigen::Vector4d rgba = Eigen::Vector4d::Constant(1);
+                    
+                    std::string materialName;
+                    std::string meshName;
+
+                    double density = 1000;
+
+                    bool shellinertia = false;
+
+                    // Geometry Placement in parent body. Center of the frame of geometry is the center of mass.
+                    SE3 geomPlacement = SE3::Identity();
+
+                    Inertia geomInertia = Inertia::Identity();
+
+                    boost::optional<double> massGeom;
+
+                    void findKind();
+
+                    void computeSize();
+
+                    void computeInertia();
+
+                    void fill(const ptree &el, const MjcfBody &currentBody, const MjcfGraph &currentGraph);
+
+                    void goThroughElement(const ptree &el, const MjcfGraph &currentGraph);
+            };
+
             /// @brief The graph which contains all information taken from the mjcf file
             struct MjcfGraph
             {
@@ -181,6 +284,9 @@ namespace pinocchio
                     typedef std::vector<std::string> VectorOfStrings;
                     typedef std::unordered_map<std::string, MjcfBody> BodyMap_t;
                     typedef std::unordered_map<std::string, MjcfClass> ClassMap_t;
+                    typedef std::unordered_map<std::string, MjcfMaterial> MaterialMap_t;
+                    typedef std::unordered_map<std::string, MjcfMesh> MeshMap_t;
+                    typedef std::unordered_map<std::string, MjcfTexture> TextureMap_t;
 
                     // Compiler Info needed to properly parse the rest of file
                     MjcfCompiler compilerInfo;
@@ -188,6 +294,12 @@ namespace pinocchio
                     ClassMap_t mapOfClasses;
                     // Map of bodies
                     BodyMap_t mapOfBodies;
+                    // Map of Materials
+                    MaterialMap_t mapOfMaterials;
+                    // Map of Meshes 
+                    MeshMap_t mapOfMeshes;
+                    //Map of textures
+                    TextureMap_t mapOfTextures;
 
                     // property tree where xml file is stored
                     ptree pt;
@@ -197,6 +309,7 @@ namespace pinocchio
 
                     // Name of the model
                     std::string modelName;
+                    std::string modelPath;
 
                     // Urdf Visitor to add joint and body
                     typedef pinocchio::urdf::details::UrdfVisitor<double, 0, ::pinocchio::JointCollectionDefaultTpl > UrdfVisitor;
@@ -204,7 +317,8 @@ namespace pinocchio
 
                     /// @brief graph constructor
                     /// @param urdfVisitor 
-                    MjcfGraph(UrdfVisitor& urdfVisitor):
+                    MjcfGraph(UrdfVisitor& urdfVisitor, const std::string &modelPath):
+                    modelPath(modelPath),
                     urdfVisitor(urdfVisitor)
                     {}
 
@@ -230,6 +344,14 @@ namespace pinocchio
                     /// @brief Parse all the info from the compile node into compilerInfo
                     /// @param el ptree compile node
                     void parseCompiler(const ptree &el);
+
+                    void parseTexture(const ptree &el);
+
+                    void parseMaterial(const ptree &el);
+
+                    void parseMesh(const ptree &el);
+
+                    void parseAsset(const ptree &el);
 
                     /// @brief parse the mjcf file into a graph
                     void parseGraph();
@@ -260,9 +382,28 @@ namespace pinocchio
                     /// @brief Fill the pinocchio model with all the infos from the graph
                     void parseRootTree();      
             };
-
+            namespace internal
+            {
+                inline std::istringstream getConfiguredStringStream(const std::string& str) 
+                {
+                    std::istringstream posStream(str);
+                    posStream.exceptions(std::ios::failbit);
+                    return posStream;
+                }
+            
+                template<int N>
+                inline Eigen::Vector<double, N> getVectorFromStream(const std::string &str)
+                {
+                    std::istringstream stream = getConfiguredStringStream(str);
+                    Eigen::Vector<double, N> vector;
+                    for(int i = 0; i < N; i++)
+                        stream >> vector(i);
+                    
+                    return vector;
+                }
+            } // internal
         } // details
     } //mjcf
 } //pinocchio
 
-#endif // __pinocchio__parsers_mjcf_graph_hpp__
+#endif // __pinocchio_parsers_mjcf_graph_hpp__
