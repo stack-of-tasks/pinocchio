@@ -1,6 +1,7 @@
 //
 // Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2024 Heriot-Watt University
 //
 
 #ifndef __pinocchio_inertia_hpp__
@@ -45,6 +46,9 @@ namespace pinocchio
     
     Derived_t& operator+= (const Derived_t & Yb) { return derived().__pequ__(Yb); }
     Derived_t operator+(const Derived_t & Yb) const { return derived().__plus__(Yb); }
+
+    Derived_t& operator-= (const Derived_t & Yb) { return derived().__mequ__(Yb); }
+    Derived_t operator-(const Derived_t & Yb) const { return derived().__minus__(Yb); }
     
     template<typename MotionDerived>
     ForceTpl<typename traits<MotionDerived>::Scalar,traits<MotionDerived>::Options>
@@ -356,9 +360,12 @@ namespace pinocchio
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector10Like, params, 10, 1);
 
+      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+
       const Scalar & mass = params[0];
+      assert(mass >= Scalar(0.));
       Vector3 lever = params.template segment<3>(1);
-      lever /= mass;
+      lever /= (mass >= 0) ? math::max(mass,eps) : math::min(mass,-eps);
 
       return InertiaTpl(mass, lever, Symmetric3(params.template segment<6>(4)) + AlphaSkewSquare(mass,lever));
     }
@@ -420,6 +427,39 @@ namespace pinocchio
       const Vector3 & AB = (Ya.lever()-Yb.lever()).eval();
       lever() *= (mass()*mab_inv); lever() += (Yb.mass()*mab_inv)*Yb.lever(); //c *= mab_inv;
       inertia() += Yb.inertia(); inertia() -= (Ya.mass()*Yb.mass()*mab_inv)* typename Symmetric3::SkewSquare(AB);
+      mass() = mab;
+      return *this;
+    }
+
+    InertiaTpl __minus__(const InertiaTpl & Yb) const
+    {
+      /* Y_{a-b} = ( m_a-m_b,
+       *             (m_a*c_a - m_b*c_b ) / (m_a - m_b),
+       *             I_a - I_b + (m_a*m_b)/(m_a-m_b) * AB_x * AB_x )
+       */
+
+      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+
+      const Scalar & mab = mass()-Yb.mass();
+      assert(mab >= Scalar(0.));
+      const Scalar mab_inv = (mab >= 0) ? Scalar(1)/math::max(mab,eps) : Scalar(1)/math::min(mab,-eps);
+      const Vector3 & AB = (lever()-Yb.lever()).eval();
+      return InertiaTpl(mab,
+                        (mass()*lever()-Yb.mass()*Yb.lever())*mab_inv,
+                        inertia()-Yb.inertia() + (mass()*Yb.mass()*mab_inv)* typename Symmetric3::SkewSquare(AB));
+    }
+
+    InertiaTpl& __mequ__(const InertiaTpl & Yb)
+    {
+      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+      
+      const InertiaTpl& Ya = *this;
+      const Scalar & mab = mass()-Yb.mass();
+      assert(mab >= Scalar(0.));
+      const Scalar mab_inv = (mab >= 0) ? Scalar(1)/math::max(mab,eps) : Scalar(1)/math::min(mab,-eps);
+      const Vector3 & AB = (Ya.lever()-Yb.lever()).eval();
+      lever() *= (mass()*mab_inv); lever() -= (Yb.mass()*mab_inv)*Yb.lever(); //c *= mab_inv;
+      inertia() -= Yb.inertia(); inertia() += (Ya.mass()*Yb.mass()*mab_inv)* typename Symmetric3::SkewSquare(AB);
       mass() = mab;
       return *this;
     }
