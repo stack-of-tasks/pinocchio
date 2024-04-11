@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2022 CNRS INRIA
+# Copyright (c) 2015-2024 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
@@ -108,6 +108,7 @@ ADD_PINOCCHIO_UNIT_TEST(vector)
 ADD_PINOCCHIO_UNIT_TEST(eigenvalues)
 ADD_PINOCCHIO_UNIT_TEST(tridiagonal-matrix)
 ADD_PINOCCHIO_UNIT_TEST(lanczos-decomposition)
+ADD_PINOCCHIO_UNIT_TEST(gram-schmidt-orthonormalisation)
 
 #Derivatives algo
 ADD_PINOCCHIO_UNIT_TEST(kinematics-derivatives)
