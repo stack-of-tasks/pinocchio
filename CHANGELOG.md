@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Changed
+- Modify algorithm that appends a model to another.
 - Set NOMINMAX as a public definitions on Windows ([#2139](https://github.com/stack-of-tasks/pinocchio/pull/2139))
 - Improve documentation of enum ReferenceFrame.
 - Improve documentation of `getJointJacobian`([#2193](https://github.com/stack-of-tasks/pinocchio/pull/2193)).

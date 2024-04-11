@@ -221,6 +221,23 @@ namespace pinocchio
          model, geomModel);
   }
 
+  // Compute whether Joint child is a descendent of parent in a given model
+  // Joints are represented by their id in the model
+  template <typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  static bool hasAncestor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                          JointIndex child, JointIndex parent)
+  {
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::IndexVector IndexVector_t;
+    // Any joints has universe as an acenstor
+    assert(model.supports[child][0] == 0);
+    for (typename IndexVector_t::const_iterator it=model.supports[child].begin();
+	 it!=model.supports[child].end(); ++it)
+    {
+      if (*it == parent) return true;
+    }
+    return false;
+  }
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   void
   appendModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & modelA,
@@ -256,12 +273,32 @@ namespace pinocchio
 
     geomModel.geometryObjects.reserve (geomModelA.ngeoms + geomModelB.ngeoms);
 
-    // Copy modelA joints until frame.parentJoint
     details::appendUniverseToModel (modelA, geomModelA, 0, id, model, geomModel);
+    // Compute joints of A that should be added before and after joints of B
+    std::vector<JointIndex> AJointsBeforeB;
+    std::vector<JointIndex> AJointsAfterB;
+    // All joints until the parent of frameInModelA come first
     for (JointIndex jid = 1; jid <= frame.parent; ++jid)
     {
+      AJointsBeforeB.push_back(jid);
+    }
+    // descendants of the parent of frameInModelA come also before model B
+    for (JointIndex jid = frame.parent+1; jid < modelA.joints.size(); ++jid)
+    {
+      if (hasAncestor(modelA, jid, frame.parent))
+      {
+        AJointsBeforeB.push_back(jid);
+      } else
+      {
+        AJointsAfterB.push_back(jid);
+      }
+    }
+    // Copy modelA joints that should come before model B
+    for (std::vector<JointIndex>::const_iterator jid = AJointsBeforeB.begin();
+	 jid !=AJointsBeforeB.end(); ++jid)
+    {
       ArgsType args (modelA, geomModelA, 0, id, model, geomModel);
-      AppendJointOfModelAlgo::run (modelA.joints[jid], args);
+      AppendJointOfModelAlgo::run (modelA.joints[*jid], args);
     }
 
     // Copy modelB joints
@@ -275,10 +312,12 @@ namespace pinocchio
     }
 
     // Copy remaining joints of modelA
-    for (JointIndex jid = frame.parent+1; jid < modelA.joints.size(); ++jid)
+    // Copy modelA joints that should come before model B
+    for (std::vector<JointIndex>::const_iterator jid = AJointsAfterB.begin();
+	 jid!=AJointsAfterB.end(); ++jid)
     {
       ArgsType args (modelA, geomModelA, 0, id, model, geomModel);
-      AppendJointOfModelAlgo::run (modelA.joints[jid], args);
+      AppendJointOfModelAlgo::run (modelA.joints[*jid], args);
     }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL

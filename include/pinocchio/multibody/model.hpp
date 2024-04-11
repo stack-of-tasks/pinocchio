@@ -145,8 +145,10 @@ namespace pinocchio
     FrameVector frames;
     
     /// \brief Vector of joint supports.
-    /// supports[j] corresponds to the collection of all joints located on the path between body *j*  and the root.
-    /// The last element of supports[j] is the index of the joint *j* itself.
+    /// supports[j] corresponds to the vector of indices of the joints located on the path between
+    /// joint *j*  and "universe".
+    /// The first element of supports[j] is "universe", the last one is the index of joint *j*
+    /// itself.
     std::vector<IndexVector> supports;
     
     /// \brief Vector of joint subtrees.
