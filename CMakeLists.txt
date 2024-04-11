@@ -24,11 +24,23 @@ OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
-if(NOT EXISTS "${JRL_CMAKE_MODULES}/base.cmake")
-  if(${CMAKE_VERSION} VERSION_LESS "3.14.0")
+if(EXISTS "${JRL_CMAKE_MODULES}/base.cmake")
+  message(STATUS "JRL cmakemodules found in 'cmake/' git submodule")
+else()
+  find_package(jrl-cmakemodules QUIET CONFIG)
+  if(jrl-cmakemodules_FOUND)
+    get_property(
+      JRL_CMAKE_MODULES
+      TARGET jrl-cmakemodules::jrl-cmakemodules
+      PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+    message(STATUS "JRL cmakemodules found on system at ${JRL_CMAKE_MODULES}")
+  elseif(${CMAKE_VERSION} VERSION_LESS "3.14.0")
     message(
       FATAL_ERROR
-        "\nPlease run the following command first:\ngit submodule update --init\n"
+        "\nCan't find jrl-cmakemodules. Please either:\n"
+        "  - use git submodule: 'git submodule update --init'\n"
+        "  - or install https://github.com/jrl-umi3218/jrl-cmakemodules\n"
+        "  - or upgrade your CMake version to >= 3.14 to allow automatic fetching\n"
     )
   else()
     message(STATUS "JRL cmakemodules not found. Let's fetch it.")
