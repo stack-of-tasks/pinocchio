@@ -67,12 +67,13 @@ namespace pinocchio
           {
             // We need to sample a new vector, orthogonal to the existing basis
             q_next.setRandom();
-            q_next.normalize();
             auto & basis_coefficients = m_A_times_q; // reuse m_A_times_q as temporary variable
             
             basis_coefficients.head(k) = m_Qs.leftCols(k).transpose() * q_next;
             for(Eigen::DenseIndex i = 0; i < k; ++i)
               q_next -= basis_coefficients[i] * q_next;
+            
+            q_next.normalize();
           }
           else
           {
