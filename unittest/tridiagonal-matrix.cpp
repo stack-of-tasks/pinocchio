@@ -18,18 +18,19 @@ using namespace pinocchio;
 BOOST_AUTO_TEST_CASE(test_zero)
 {
   const Eigen::DenseIndex mat_size = 20;
-  TridiagonalSymmetricMatrix<double> tridiagonal_matrix(mat_size);
+  TridiagonalSymmetricMatrixTpl<double> tridiagonal_matrix(mat_size);
   
   tridiagonal_matrix.setZero();
   BOOST_CHECK(tridiagonal_matrix.isZero(0));
   BOOST_CHECK(tridiagonal_matrix.isDiagonal(0));
+  BOOST_CHECK(tridiagonal_matrix.matrix().isZero(0));
 }
 
 BOOST_AUTO_TEST_CASE(test_identity)
 {
   const Eigen::DenseIndex mat_size = 20;
-  TridiagonalSymmetricMatrix<double> tridiagonal_matrix(mat_size);
-  typedef TridiagonalSymmetricMatrix<double>::PlainMatrixType PlainMatrixType;
+  TridiagonalSymmetricMatrixTpl<double> tridiagonal_matrix(mat_size);
+  typedef TridiagonalSymmetricMatrixTpl<double>::PlainMatrixType PlainMatrixType;
   
   tridiagonal_matrix.setIdentity();
   BOOST_CHECK(tridiagonal_matrix.isIdentity(0));
@@ -42,6 +43,7 @@ BOOST_AUTO_TEST_CASE(test_identity)
 
   BOOST_CHECK(tridiagonal_matrix.diagonal().isOnes(0));
   BOOST_CHECK(tridiagonal_matrix.subDiagonal().isZero(0));
+  BOOST_CHECK(tridiagonal_matrix.matrix().isIdentity(0));
   
   // Fill matrix
   {
@@ -73,8 +75,8 @@ BOOST_AUTO_TEST_CASE(test_identity)
 BOOST_AUTO_TEST_CASE(test_random)
 {
   const Eigen::DenseIndex mat_size = 20;
-  TridiagonalSymmetricMatrix<double> tridiagonal_matrix(mat_size);
-  typedef TridiagonalSymmetricMatrix<double>::PlainMatrixType PlainMatrixType;
+  TridiagonalSymmetricMatrixTpl<double> tridiagonal_matrix(mat_size);
+  typedef TridiagonalSymmetricMatrixTpl<double>::PlainMatrixType PlainMatrixType;
   
   tridiagonal_matrix.setRandom();
   
@@ -105,16 +107,17 @@ BOOST_AUTO_TEST_CASE(test_random)
     
     PlainMatrixType res_ref = plain * rhs_mat;
     BOOST_CHECK(res.isApprox(res_ref));
+    BOOST_CHECK(res.isApprox(tridiagonal_matrix.matrix()));
   }
   
 }
 
 BOOST_AUTO_TEST_CASE(test_inverse)
 {
-  typedef TridiagonalSymmetricMatrix<double> TridiagonalSymmetricMatrixd;
+  typedef TridiagonalSymmetricMatrixTpl<double> TridiagonalSymmetricMatrixd;
   const Eigen::DenseIndex mat_size = 10;
-  TridiagonalSymmetricMatrix<double> tridiagonal_matrix(mat_size);
-  typedef TridiagonalSymmetricMatrix<double>::PlainMatrixType PlainMatrixType;
+  TridiagonalSymmetricMatrixTpl<double> tridiagonal_matrix(mat_size);
+  typedef TridiagonalSymmetricMatrixTpl<double>::PlainMatrixType PlainMatrixType;
   
   tridiagonal_matrix.setRandom();
   

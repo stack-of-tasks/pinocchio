@@ -10,10 +10,10 @@
 
 namespace pinocchio
 {
-  template<typename Scalar, int Options = 0> struct TridiagonalSymmetricMatrix;
+  template<typename Scalar, int Options = 0> struct TridiagonalSymmetricMatrixTpl;
   
   template<typename _Scalar, int _Options>
-  struct traits<TridiagonalSymmetricMatrix<_Scalar,_Options> >
+  struct traits<TridiagonalSymmetricMatrixTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -56,10 +56,10 @@ namespace Eigen {
   namespace internal {
     
     template<typename Scalar, int Options>
-    struct traits<pinocchio::TridiagonalSymmetricMatrix<Scalar,Options> >
-    : public traits<typename pinocchio::traits<pinocchio::TridiagonalSymmetricMatrix<Scalar,Options>>::PlainMatrixType>
+    struct traits<pinocchio::TridiagonalSymmetricMatrixTpl<Scalar,Options> >
+    : public traits<typename pinocchio::traits<pinocchio::TridiagonalSymmetricMatrixTpl<Scalar,Options>>::PlainMatrixType>
     {
-      typedef pinocchio::traits<pinocchio::TridiagonalSymmetricMatrix<Scalar,Options>> Base;
+      typedef pinocchio::traits<pinocchio::TridiagonalSymmetricMatrixTpl<Scalar,Options>> Base;
       typedef typename Base::PlainMatrixType ReturnType;
       enum { Flags = 0 };
     };
@@ -105,17 +105,19 @@ namespace pinocchio
   /// \brief Dynamic size Tridiagonal symmetric matrix type
   ///  This class is in practice used in Lanczos decomposition
   template<typename _Scalar, int _Options>
-  struct TridiagonalSymmetricMatrix
-  : public Eigen::ReturnByValue<TridiagonalSymmetricMatrix<_Scalar,_Options> >
+  struct TridiagonalSymmetricMatrixTpl
+  : public Eigen::ReturnByValue<TridiagonalSymmetricMatrixTpl<_Scalar,_Options> >
   {
-    typedef TridiagonalSymmetricMatrix Self;
+    typedef TridiagonalSymmetricMatrixTpl Self;
     typedef _Scalar Scalar;
     enum { Options = _Options };
     
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> CoeffVectorType;
     typedef typename traits<Self>::PlainMatrixType PlainMatrixType;
     
-    explicit TridiagonalSymmetricMatrix(const Eigen::DenseIndex size)
+    
+    /// \brief Default constructor from a given size
+    explicit TridiagonalSymmetricMatrixTpl(const Eigen::DenseIndex size)
     : m_size(size)
     , m_diagonal(size)
     , m_sub_diagonal(size-1)
@@ -123,13 +125,13 @@ namespace pinocchio
       assert(size > 0 && "size should be greater than 0.");
     }
     
-    bool operator==(const TridiagonalSymmetricMatrix & other) const
+    bool operator==(const TridiagonalSymmetricMatrixTpl & other) const
     {
       if(this == &other) return true;
       return diagonal() == other.diagonal() && subDiagonal() == other.subDiagonal();
     }
     
-    bool operator!=(const TridiagonalSymmetricMatrix & other) const
+    bool operator!=(const TridiagonalSymmetricMatrixTpl & other) const
     {
       return !(*this == other);
     }
@@ -190,6 +192,11 @@ namespace pinocchio
     EIGEN_CONSTEXPR Eigen::Index rows() const EIGEN_NOEXCEPT { return m_size; }
     EIGEN_CONSTEXPR Eigen::Index cols() const EIGEN_NOEXCEPT { return m_size; }
     
+    PlainMatrixType matrix() const
+    {
+      return PlainMatrixType(*this);
+    }
+    
     template <typename ResultType>
     inline void evalTo(ResultType& result) const
     {
@@ -231,9 +238,9 @@ namespace pinocchio
   
   
   template<typename LhsMatrixType, typename S, int O>
-  TridiagonalSymmetricMatrixApplyOnTheLeftReturnType<LhsMatrixType,TridiagonalSymmetricMatrix<S,O>>
+  TridiagonalSymmetricMatrixApplyOnTheLeftReturnType<LhsMatrixType,TridiagonalSymmetricMatrixTpl<S,O>>
   operator*(const Eigen::MatrixBase<LhsMatrixType> & lhs,
-            const TridiagonalSymmetricMatrix<S,O> & rhs)
+            const TridiagonalSymmetricMatrixTpl<S,O> & rhs)
   {
     return rhs.applyOnTheLeft(lhs);
   }
