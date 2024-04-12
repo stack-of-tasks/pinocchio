@@ -91,9 +91,6 @@ namespace pinocchio
           
           // Modify frame placement
           frame.placement = pframe.placement * pfMAB * frame.placement;
-          if (model.inertias[frame.parentJoint] == model.inertias[frame.parentJoint]) {
-            model.inertias[frame.parentJoint] -= frame.inertia;
-          }
           model.addFrame (frame);
         }
       }
@@ -186,9 +183,6 @@ namespace pinocchio
             if (frame.parentFrame != 0)
             {
               frame.parentFrame = getFrameId(modelAB,model,modelAB.frames[frame.parentFrame].name,modelAB.frames[frame.parentFrame].type);
-            }
-            if (model.inertias[frame.parentJoint] == model.inertias[frame.parentJoint]) {
-              model.inertias[frame.parentJoint] -= frame.inertia;
             }
             
             model.addFrame(frame);
