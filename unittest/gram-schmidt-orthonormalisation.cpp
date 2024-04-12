@@ -1,6 +1,6 @@
-  //
-  // Copyright (c) 2024 INRIA
-  //
+//
+// Copyright (c) 2024 INRIA
+//
 
 #include <iostream>
 

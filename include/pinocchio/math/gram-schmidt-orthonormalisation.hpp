@@ -1,6 +1,6 @@
-  //
-  // Copyright (c) 2024 INRIA
-  //
+//
+// Copyright (c) 2024 INRIA
+//
 
 #ifndef __pinocchio_math_gram_schmidt_orthonormalisation_hpp__
 #define __pinocchio_math_gram_schmidt_orthonormalisation_hpp__
