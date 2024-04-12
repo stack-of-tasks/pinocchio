@@ -231,6 +231,7 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/serialization/archive.hpp
   include/pinocchio/serialization/data.hpp
   include/pinocchio/serialization/eigen.hpp
+  include/pinocchio/serialization/csv.hpp
   include/pinocchio/serialization/fcl.hpp
   include/pinocchio/serialization/force.hpp
   include/pinocchio/serialization/frame.hpp
