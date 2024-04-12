@@ -95,6 +95,7 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   exposeExplog();
   exposeRpy();
   exposeLinalg();
+  exposeTridiagonalMatrix();
   exposeSkew();
   exposeLieGroups();
   

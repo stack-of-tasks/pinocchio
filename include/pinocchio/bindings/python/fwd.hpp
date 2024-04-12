@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2024 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -37,6 +37,7 @@ namespace pinocchio
     void exposeConversions();
     void exposeLinalg();
     
+    void exposeTridiagonalMatrix();
     // Expose multibody classes
     void exposeJoints();
     void exposeModel();
