@@ -7,6 +7,7 @@
 
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/tridiagonal-matrix.hpp"
+#include "pinocchio/math/gram-schmidt-orthonormalisation.hpp"
 
 namespace pinocchio
 {
@@ -28,6 +29,7 @@ namespace pinocchio
     : m_Qs(mat.rows(),decomposition_size)
     , m_Ts(decomposition_size)
     , m_A_times_q(mat.rows())
+    , m_rank(-1)
     {
       PINOCCHIO_CHECK_INPUT_ARGUMENT(mat.rows() == mat.cols(), "The input matrix is not square.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT(decomposition_size >= 1, "The size of the decomposition should be greater than one.");
@@ -47,7 +49,9 @@ namespace pinocchio
       auto & betas = m_Ts.subDiagonal();
       
       m_Qs.col(0).fill(Scalar(1)/math::sqrt(Scalar(m_Qs.rows())));
-      for(Eigen::DenseIndex k = 0; k < decomposition_size; ++k)
+      m_Ts.setZero();
+      Eigen::DenseIndex k;
+      for(k = 0; k < decomposition_size; ++k)
       {
         const auto q = m_Qs.col(k);
         m_A_times_q.noalias() = A * q;
@@ -61,19 +65,16 @@ namespace pinocchio
           {
             m_A_times_q -= betas[k-1] * m_Qs.col(k-1);
           }
+          
+          // Perform Gram-Schmidt orthogonalization procedure.
+          if(k > 0)
+            orthonormalisation(m_Qs.leftCols(k), m_A_times_q);
+          
+          // Compute beta
           betas[k] = m_A_times_q.norm();
-//          assert(betas[k] > 1e-14 && "The norm of A*q is too low");
-          if(betas[k] <= Eigen::NumTraits<Scalar>::epsilon())
+          if(betas[k] <= 1e2*Eigen::NumTraits<Scalar>::epsilon())
           {
-            // We need to sample a new vector, orthogonal to the existing basis
-            q_next.setRandom();
-            auto & basis_coefficients = m_A_times_q; // reuse m_A_times_q as temporary variable
-            
-            basis_coefficients.head(k) = m_Qs.leftCols(k).transpose() * q_next;
-            for(Eigen::DenseIndex i = 0; i < k; ++i)
-              q_next -= basis_coefficients[i] * q_next;
-            
-            q_next.normalize();
+            break;
           }
           else
           {
@@ -81,8 +82,16 @@ namespace pinocchio
           }
         }
       }
+      m_rank = math::max(Eigen::DenseIndex(1),k);
     }
     
+    ///
+    /// \brief Computes the residual associated with the decomposition, namely, the quantity \f$ A Q_s - Q_s T_s \f$
+    ///
+    /// \param[in] A the matrix that have been decomposed.
+    ///
+    /// \returns The residual of the decomposition
+    ///
     template<typename MatrixLikeType>
     PlainMatrix computeDecompositionResidual(const MatrixLikeType & A) const
     {
@@ -95,12 +104,13 @@ namespace pinocchio
       
       const auto & q = m_Qs.col(last_col_id);
       
-      m_A_times_q.noalias() = A * q;
-      m_A_times_q -= alphas[last_col_id] * q;
+      auto & tmp_vec = m_A_times_q; // use m_A_times_q as a temporary vector
+      tmp_vec.noalias() = A * q;
+      tmp_vec -= alphas[last_col_id] * q;
       if(last_col_id > 0)
-        m_A_times_q -= betas[last_col_id-1] * m_Qs.col(last_col_id-1);
+        tmp_vec -= betas[last_col_id-1] * m_Qs.col(last_col_id-1);
       
-      residual.col(last_col_id) -= m_A_times_q;
+      residual.col(last_col_id) -= tmp_vec;
       
       return residual;
     }
@@ -114,12 +124,16 @@ namespace pinocchio
     const PlainMatrix & Qs() const { return m_Qs; }
     /// \brief Returns the orthogonal basis associated with the Lanczos decomposition
     PlainMatrix & Qs() { return m_Qs; }
+    
+    /// \brief Returns the rank of the decomposition
+    Eigen::DenseIndex rank() const { return m_rank; }
 
   protected:
     
     PlainMatrix m_Qs;
     TridiagonalMatrix m_Ts;
     mutable Vector m_A_times_q;
+    Eigen::DenseIndex m_rank;
   };
 }
 
