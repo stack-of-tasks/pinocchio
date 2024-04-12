@@ -144,7 +144,7 @@ namespace pinocchio
 
     Scalar y_previous_norm_inf = y_.template lpNorm<Eigen::Infinity>();
     int it = 1;
-    Scalar res;
+    Scalar res = 0;
 #ifdef PINOCCHIO_WITH_HPP_FCL
     timer.start();
 #endif // PINOCCHIO_WITH_HPP_FCL
