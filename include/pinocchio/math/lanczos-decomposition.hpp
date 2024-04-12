@@ -24,7 +24,7 @@ namespace pinocchio
     enum { Options = _Matrix::Options };
     typedef TridiagonalSymmetricMatrixTpl<Scalar,Options> TridiagonalMatrix;
     
-    /// \brief Default constructor for the Lanczos decomposition
+    /// \brief Default constructor for the Lanczos decomposition from an input matrix
     template<typename MatrixLikeType>
     LanczosDecompositionTpl(const MatrixLikeType & mat,
                             const Eigen::DenseIndex decomposition_size)
@@ -39,7 +39,23 @@ namespace pinocchio
       
       compute(mat);
     }
-         
+    
+    bool operator==(const LanczosDecompositionTpl & other) const
+    {
+      if(this == &other) return true;
+      return m_Qs == other.m_Qs && m_Ts == other.m_Ts && m_rank == other.m_rank;
+    }
+    
+    bool operator!=(const LanczosDecompositionTpl & other) const
+    {
+      return !(*this == other);
+    }
+       
+    ///
+    /// \brief Computes the Lanczos decomposition of the input matrix A
+    ///
+    /// \param[in] A The matrix to decompose
+    ///
     template<typename MatrixLikeType>
     void compute(const MatrixLikeType & A)
     {
