@@ -100,3 +100,43 @@ def buildModelsFromSdf(filename, package_dirs=None, root_joint=None, root_link_n
         lst.append(geom_model)
 
     return tuple(lst)
+
+def buildModelsFromMJCF(filename, root_joint=None, verbose=False, meshLoader=None, geometry_types=None):
+    """Parse the Mjcf file given in input and return a Pinocchio Model, followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
+    Examples of usage:
+        # load model, constraint models, collision model, and visual model, in this order (default)
+        # load model, collision model, and visual model, in this order (default)
+        model, collision_model, visual_model = buildModelsFromMJCF(filename[, ...], geometry_types=[pin.GeometryType.COLLISION,pin.GeometryType.VISUAL])
+        model, collision_model, visual_model = buildModelsFromMJCF(filename[, ...]) # same as above
+
+        model, collision_model = buildModelsFromMJCF(filename[, ...], geometry_types=[pin.GeometryType.COLLISION]) # only load the model and the collision model
+        model, collision_model = buildModelsFromMJCF(filename[, ...], geometry_types=pin.GeometryType.COLLISION)   # same as above
+        model, visual_model    = buildModelsFromMJCF(filename[, ...], geometry_types=pin.GeometryType.VISUAL)      # only load the model and the visual model
+
+        model = buildModelsFromMJCF(filename[, ...], geometry_types=[])  # equivalent to buildModelFromMJCF(filename[, root_joint])
+    """
+    if geometry_types is None:
+        geometry_types = [pin.GeometryType.COLLISION,pin.GeometryType.VISUAL]
+    if root_joint is None:
+        model = pin.buildModelFromMJCF(filename)
+    else:
+        model = pin.buildModelFromMJCF(filename, root_joint)
+
+    if verbose and not WITH_HPP_FCL and meshLoader is not None:
+        print('Info: MeshLoader is ignored. Pinocchio has not been compiled with HPP-FCL.')
+    if verbose and not WITH_HPP_FCL_BINDINGS and meshLoader is not None:
+        print('Info: MeshLoader is ignored. The HPP-FCL Python bindings have not been installed.')
+
+    lst = [model]
+
+    if not hasattr(geometry_types, '__iter__'):
+        geometry_types = [geometry_types]
+
+    for geometry_type in geometry_types:
+        if meshLoader is None or (not WITH_HPP_FCL and not WITH_HPP_FCL_BINDINGS):
+            geom_model = pin.buildGeomFromMJCF(model, filename, geometry_type)
+        else:
+            geom_model = pin.buildGeomFromMJCF(model, filename, geometry_type, mesh_loader = meshLoader)
+        lst.append(geom_model)
+
+    return tuple(lst)

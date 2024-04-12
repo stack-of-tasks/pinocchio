@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(convert_inertia_fullinertia)
     pinocchio::urdf::details::UrdfVisitor visitor (model);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
 
     //  // Try to get the "name" element using get_optional
     pinocchio::Inertia inertia = graph.convertInertiaFromMjcf(pt.get_child("inertial"));
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(convert_inertia_diaginertia)
     pinocchio::urdf::details::UrdfVisitor visitor (model);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
 
     //  // Try to get the "name" element using get_optional
     pinocchio::Inertia inertia = graph.convertInertiaFromMjcf(pt.get_child("inertial"));
@@ -131,6 +131,151 @@ BOOST_AUTO_TEST_CASE(convert_inertia_diaginertia)
     pinocchio::Inertia real_inertia(0.629769, Vector3(-0.041018, -0.00014, 0.049974), inertia_matrix);
 
     BOOST_CHECK(inertia.isApprox(real_inertia, 1e-7));
+}
+
+/// @brief Test for geometry computing
+BOOST_AUTO_TEST_CASE(geoms_construction)
+{
+    double pi = boost::math::constants::pi<double>();
+   // Parse the XML
+    std::istringstream xmlData(R"(<mujoco model="inertiaFromGeom">
+                                    <compiler inertiafromgeom="true" />
+                                    <worldbody>
+                                        <body pos="0 0 0" name="bodyCylinder">
+                                            <geom type="cylinder" size=".01" fromto="0 0 0 0 0 .5"/>
+                                            <geom type="cylinder" size=".01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            <body pos="0 0 0" name="bodyBox">
+                                                <geom type="box" size=".01" fromto="0 0 0 0 0 .5"/>
+                                                <geom type="box" size=".01 0.01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                            <body pos="0 0 0" name="bodyCapsule">
+                                                <geom type="capsule" size=".01" fromto="0 0 0 0 0 .5"/>
+                                                <geom type="capsule" size=".01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                            <body pos="0 0 0" name="bodySphere">
+                                                <geom type="sphere" size=".01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                            <body pos="0 0 0" name="bodyEllip">
+                                                <geom type="ellipsoid" size=".01" fromto="0 0 0 0 0 .5"/>
+                                                <geom type="ellipsoid" size=".01 0.01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                        </body> 
+                                    </worldbody>
+                                  </mujoco>)"); 
+
+    std::string namefile = createTempFile(xmlData);
+
+    pinocchio::Model model_m;
+    pinocchio::urdf::details::UrdfVisitor visitor (model_m);
+    typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+    
+    MjcfGraph graph (visitor, "fakeMjcf");
+    graph.parseGraphFromXML(namefile);
+
+    // Test Cylinder
+    pinocchio::mjcf::details::MjcfBody bodyTest = graph.mapOfBodies.at("bodyCylinder");
+    double mass = 1000 * std::pow(0.01, 2) * 0.25 * pi * 2;
+    pinocchio::Inertia inertTest = pinocchio::Inertia::FromCylinder(mass, 0.01, 0.25);
+    Eigen::Vector2d sizeCy;
+    sizeCy << 0.01, 0.25;
+    for(const auto &geom : bodyTest.geomChildren)
+    {
+        // Check size
+        BOOST_CHECK(geom.size == sizeCy);
+        //Check inertia
+        BOOST_CHECK(geom.geomInertia.isApprox(inertTest));
+    }
+    // Test Box
+    bodyTest = graph.mapOfBodies.at("bodyBox");
+    mass = 1000 * 0.02 * 0.02 * 0.5;
+    inertTest = pinocchio::Inertia::FromBox(mass, 0.02, 0.02, 0.5);
+    Eigen::Vector3d sizeB;
+    sizeB << 0.02, 0.02, .5;
+    for(const auto &geom : bodyTest.geomChildren)
+    {
+        // Check size
+        BOOST_CHECK(geom.size == sizeB);
+        //Check inertia
+        BOOST_CHECK(geom.geomInertia.isApprox(inertTest));
+    }
+    // Test Capsule
+    bodyTest = graph.mapOfBodies.at("bodyCapsule");
+    mass = 1000 *( 4.0 / 3 * pi * std::pow(0.01, 3) + 2 * pi * std::pow(0.01, 2) * 0.25);
+    inertTest = pinocchio::Inertia::FromCapsule(mass, 0.01, 0.25);
+    Eigen::Vector2d sizeCa;
+    sizeCa << 0.01, 0.25;
+    for(const auto &geom : bodyTest.geomChildren)
+    {
+        // Check size
+        BOOST_CHECK(geom.size == sizeCa);
+        //Check inertia
+        BOOST_CHECK(geom.geomInertia.isApprox(inertTest));
+    }
+    // Test Sphere
+    bodyTest = graph.mapOfBodies.at("bodySphere");
+    mass = 1000 * 4.0 / 3 *pi* std::pow(0.01, 3);
+    inertTest = pinocchio::Inertia::FromSphere(mass, 0.01);
+    Eigen::VectorXd sizeS(1);
+    sizeS << 0.01;
+    for(const auto &geom : bodyTest.geomChildren)
+    {
+        // Check size
+        BOOST_CHECK(geom.size == sizeS);
+        //Check inertia
+        BOOST_CHECK(geom.geomInertia.isApprox(inertTest));
+    }
+    // Test Ellipsoid
+    bodyTest = graph.mapOfBodies.at("bodyEllip");
+    mass = 1000 * 4.0 / 3 * pi * 0.01 * 0.01 * 0.25;
+    inertTest = pinocchio::Inertia::FromEllipsoid(mass, 0.01, 0.01, 0.25);
+    Eigen::Vector3d sizeEl;
+    sizeEl << 0.01, 0.01, 0.25;
+    for(const auto &geom : bodyTest.geomChildren)
+    {
+        // Check size
+        BOOST_CHECK(geom.size == sizeEl);
+        //Check inertia
+        BOOST_CHECK(geom.geomInertia.isApprox(inertTest));
+    }
+}
+
+/// @brief Test for computing inertia from geoms
+/// @param  
+BOOST_AUTO_TEST_CASE(inertia_from_geom)
+{
+    // Parse the XML
+    std::istringstream xmlData(R"(<mujoco model="inertiaFromGeom">
+                                    <compiler inertiafromgeom="true" />
+                                    <worldbody>
+                                        <body pos="0 0 0" name="body0">
+                                            <geom type="box" size=".01 .01 .01" pos="0 0 0.01"/>
+                                            <geom type="box" size=".01 .01 .01" pos="0 0 0.03"/>
+                                        </body>
+                                    </worldbody>
+                                  </mujoco>)");
+
+    std::string namefile = createTempFile(xmlData);
+
+    pinocchio::Model model_m;
+    pinocchio::urdf::details::UrdfVisitor visitor (model_m);
+    typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+    
+    MjcfGraph graph (visitor, "fakeMjcf");
+    graph.parseGraphFromXML(namefile);
+    graph.parseRootTree();
+
+    // only one inertias since only one body
+    pinocchio::Inertia inertBody = model_m.inertias[0];
+    
+    double massBigBox = 1000 * 0.02 * 0.02 * 0.04; // density * volume
+    pinocchio::Inertia inertBigBox = pinocchio::Inertia::FromBox(massBigBox, 0.02, 0.02, 0.04);
+    // Create a frame on the bottom face of BigBox and express inertia
+    Eigen::Vector3d pl;
+    pl << 0, 0, -0.02;
+    pinocchio::SE3 placementBigBox(Eigen::Matrix3d::Identity(), pl);
+    inertBigBox = placementBigBox.act(inertBigBox); 
+
+    BOOST_CHECK(inertBigBox.isApprox(inertBody));   
 }
 
 // /// @brief Test for the pose conversion from mjcf model to pinocchio
@@ -146,7 +291,7 @@ BOOST_AUTO_TEST_CASE(convert_orientation)
         <axis pos="0.3 0.2 0.5" axisangle="-1 0 0 1.5707963"/>
         <euler pos="0.3 0.2 0.5" euler="-1.57079633 0 0"/>
         <xyaxes pos="0.3 0.2 0.5" xyaxes="1 0 0 0 0 -1"/>
-        <zaxis pos="0.3 0.2 0.5" zaxis="0 -1 0"/>
+        <zaxis pos="0.3 0.2 0.5" zaxis="0 1 0"/>
     )");
 
     // Create a Boost Property Tree
@@ -157,7 +302,7 @@ BOOST_AUTO_TEST_CASE(convert_orientation)
     pinocchio::urdf::details::UrdfVisitor visitor (model);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
 
     graph.parseCompiler(pt.get_child("compiler"));
 
@@ -181,6 +326,8 @@ BOOST_AUTO_TEST_CASE(convert_orientation)
     BOOST_CHECK(placement_z.isApprox(real_placement, 1e-7));
 }
 
+/// @brief Test if merging default classes works
+/// @param  
 BOOST_AUTO_TEST_CASE(merge_default)
 {
 namespace pt = boost::property_tree;
@@ -211,7 +358,7 @@ namespace pt = boost::property_tree;
     pinocchio::urdf::details::UrdfVisitor visitor (model);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
     graph.parseDefault(ptr.get_child("default"), ptr);
 
     std::unordered_map<std::string, pt::ptree> TrueMap;
@@ -291,6 +438,64 @@ BOOST_AUTO_TEST_CASE(parse_default_class)
         BOOST_CHECK_EQUAL(model_m.joints[i], model_u.joints[i]);
 }
 
+/// @brief Test to see if path options work
+BOOST_AUTO_TEST_CASE(parse_dirs_no_strippath)
+{
+    std::istringstream xmlDataNoStrip(R"(<mujoco model="parseDirs">
+                                    <compiler meshdir="meshes" texturedir="textures"/>
+                                    <asset>
+                                        <texture name="testTexture" file="texture.png" type="2d"/>
+                                        <material name="matTest" texture="testTexture"/>
+                                        <mesh file="/auto/mesh.obj"/>
+                                    </asset>
+                                  </mujoco>)");
+
+    std::string namefile = createTempFile(xmlDataNoStrip);
+
+    pinocchio::Model model_m;
+    pinocchio::urdf::details::UrdfVisitor visitor (model_m);
+    typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+    
+    MjcfGraph graph (visitor, "/fakeMjcf/fake.xml");
+    graph.parseGraphFromXML(namefile);
+
+    // Test texture
+    pinocchio::mjcf::details::MjcfTexture text = graph.mapOfTextures.at("testTexture");
+    BOOST_CHECK(text.textType == "2d");
+    BOOST_CHECK(text.filePath == "/fakeMjcf/textures/texture.png");
+    //Test Material
+    pinocchio::mjcf::details::MjcfMaterial mat = graph.mapOfMaterials.at("matTest");
+    BOOST_CHECK(mat.texture == "testTexture");
+    // Test Meshes
+    pinocchio::mjcf::details::MjcfMesh mesh = graph.mapOfMeshes.at("mesh");
+    BOOST_CHECK(mesh.filePath == "/auto/mesh.obj");
+}
+
+/// @brief Test strippath option
+/// @param  
+BOOST_AUTO_TEST_CASE(parse_dirs_strippath)
+{
+    std::istringstream xmlDataNoStrip(R"(<mujoco model="parseDirs">
+                                    <compiler meshdir="meshes" texturedir="textures" strippath="true"/>
+                                    <asset>
+                                        <mesh file="/auto/mesh.obj"/>
+                                    </asset>
+                                  </mujoco>)");
+
+    std::string namefile = createTempFile(xmlDataNoStrip);
+
+    pinocchio::Model model_m;
+    pinocchio::urdf::details::UrdfVisitor visitor (model_m);
+    typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+    
+    MjcfGraph graph (visitor, "/fakeMjcf/fake.xml");
+    graph.parseGraphFromXML(namefile);
+
+    // Test Meshes
+    pinocchio::mjcf::details::MjcfMesh mesh = graph.mapOfMeshes.at("mesh");
+    BOOST_CHECK(mesh.filePath == "/fakeMjcf/meshes/mesh.obj");
+}
+
 //Test for parsing Revolute
 BOOST_AUTO_TEST_CASE(parse_RX)
 {
@@ -314,7 +519,7 @@ BOOST_AUTO_TEST_CASE(parse_RX)
     pinocchio::urdf::details::UrdfVisitor visitor (model_m);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
     
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
     graph.parseGraphFromXML(namefile);
     graph.parseRootTree();
 
@@ -351,7 +556,7 @@ BOOST_AUTO_TEST_CASE(parse_PX)
     pinocchio::urdf::details::UrdfVisitor visitor (model_m);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
     
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
     graph.parseGraphFromXML(namefile);
     graph.parseRootTree();
 
@@ -388,7 +593,7 @@ BOOST_AUTO_TEST_CASE(parse_Sphere)
     pinocchio::urdf::details::UrdfVisitor visitor (model_m);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
     
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
     graph.parseGraphFromXML(namefile);
     graph.parseRootTree();
 
@@ -425,7 +630,7 @@ BOOST_AUTO_TEST_CASE(parse_Free)
     pinocchio::urdf::details::UrdfVisitor visitor (model_m);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
     
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
     graph.parseGraphFromXML(namefile);
     graph.parseRootTree();
 
@@ -463,7 +668,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_RXRY)
     pinocchio::urdf::details::UrdfVisitor visitor (model_m);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
     
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
     graph.parseGraphFromXML(namefile);
     graph.parseRootTree();
 
@@ -505,7 +710,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXPY)
     pinocchio::urdf::details::UrdfVisitor visitor (model_m);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
     
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
     graph.parseGraphFromXML(namefile);
     graph.parseRootTree();
 
@@ -547,7 +752,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXRY)
     pinocchio::urdf::details::UrdfVisitor visitor (model_m);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
     
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
     graph.parseGraphFromXML(namefile);
     graph.parseRootTree();
 
@@ -589,7 +794,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXSphere)
     pinocchio::urdf::details::UrdfVisitor visitor (model_m);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
     
-    MjcfGraph graph (visitor);
+    MjcfGraph graph (visitor, "fakeMjcf");
     graph.parseGraphFromXML(namefile);
     graph.parseRootTree();
 
@@ -618,29 +823,29 @@ BOOST_AUTO_TEST_CASE(parse_composite_Mujoco_comparison)
 
     Data data(model);
     Eigen::Vector3d q;
-    q << 1.57079633, 0, 0.5;
-
+    q << 1.57079633, 0.3, 0.5;
     framesForwardKinematics(model, data, q);
 
-    FrameIndex f_id = model.getBodyId("body1");
+    FrameIndex f_id = model.getFrameId("body1");
     SE3 pinPos = data.oMf[f_id];
+
     Eigen::Matrix3d refOrient;
-    refOrient << 0, -1, 0,
-                 1, 0, 0,
-                 0, 0, 1;
+    refOrient << 0, -.9553, .2955,
+                1, 0, 0,
+                0, .2955, .9553;
     Eigen::Vector3d pos;
-    pos << 1, 2, 0.5;
+    pos << .8522, 2, 0.5223;
+    BOOST_CHECK(pinPos.isApprox(SE3(refOrient, pos), 1e-4));
 
-    BOOST_CHECK(pinPos.isApprox(SE3(refOrient, pos), 1e-7));
-
-    f_id = model.getBodyId("body2");
+    f_id = model.getFrameId("body2");
     pinPos = data.oMf[f_id];
-    refOrient << 0, -1, 0,
-                 1, 0, 0,
-                 0, 0, 1;
 
-    pos << 1, 4, 0.5;
-    BOOST_CHECK(pinPos.isApprox(SE3(refOrient, pos), 1e-7));
+    refOrient << 0, -.9553, .2955,
+                1, 0, 0,
+                0, .2955, .9553;
+
+    pos << .8522, 4, 0.5223;
+    BOOST_CHECK(pinPos.isApprox(SE3(refOrient, pos), 1e-4));
 }
 /// @brief test that a fixed model is well parsed 
 /// @param  
@@ -743,5 +948,71 @@ BOOST_AUTO_TEST_CASE (compare_to_urdf)
     BOOST_CHECK(model_urdf.frames[k] == model_m.frames[k]);
     }
 }
+
+#if defined(PINOCCHIO_WITH_HPP_FCL)
+BOOST_AUTO_TEST_CASE(test_geometry_parsing)
+{
+    typedef pinocchio::Model Model;
+    typedef pinocchio::GeometryModel GeometryModel;
+
+   // Parse the XML
+    std::istringstream xmlData(R"(<mujoco model="inertiaFromGeom">
+                                    <compiler inertiafromgeom="true" />
+                                    <worldbody>
+                                        <body pos="0 0 0" name="bodyCylinder">
+                                            <geom type="cylinder" size=".01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            <body pos="0 0 0" name="bodyBox">
+                                                <geom type="box" size=".01 0.01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                            <body pos="0 0 0" name="bodyCapsule">
+                                                <geom type="capsule" size=".01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                            <body pos="0 0 0" name="bodySphere">
+                                                <geom type="sphere" size=".01" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                            <body pos="0 0 0" name="bodyEllip">
+                                                <geom type="ellipsoid" size=".01 0.01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                        </body> 
+                                    </worldbody>
+                                  </mujoco>)"); 
+
+    std::string namefile = createTempFile(xmlData);
+
+    Model model_m;
+    pinocchio::mjcf::buildModel(namefile, model_m);
+
+    GeometryModel geomModel_m;
+    pinocchio::mjcf::buildGeom(model_m, namefile, pinocchio::COLLISION, geomModel_m);
+
+    BOOST_CHECK(geomModel_m.ngeoms == 5);
+
+    auto* cyl = dynamic_cast<hpp::fcl::Cylinder*>(geomModel_m.geometryObjects.at(0).geometry.get());
+    BOOST_REQUIRE(cyl);
+    BOOST_CHECK(cyl->halfLength == 0.25);
+    BOOST_CHECK(cyl->radius == 0.01);
+
+    auto* cap = dynamic_cast<hpp::fcl::Capsule*>(geomModel_m.geometryObjects.at(2).geometry.get());
+    BOOST_REQUIRE(cap);
+    BOOST_CHECK(cap->halfLength == 0.25);
+    BOOST_CHECK(cap->radius == 0.01);
+
+    auto* s = dynamic_cast<hpp::fcl::Sphere*>(geomModel_m.geometryObjects.at(3).geometry.get());
+    BOOST_REQUIRE(s);
+    BOOST_CHECK(s->radius == 0.01);
+
+    auto* b = dynamic_cast<hpp::fcl::Box*>(geomModel_m.geometryObjects.at(1).geometry.get());
+    BOOST_REQUIRE(b);
+    Eigen::Vector3d sides;
+    sides << 0.01, 0.01, 0.25;
+    BOOST_CHECK(b->halfSide == sides);
+
+    auto* e = dynamic_cast<hpp::fcl::Ellipsoid*>(geomModel_m.geometryObjects.at(4).geometry.get());
+    BOOST_REQUIRE(e);
+    BOOST_CHECK(e->radii == sides);
+}
+#endif // if defined(PINOCCHIO_WITH_HPP_FCL)
+
+
 
 BOOST_AUTO_TEST_SUITE_END()

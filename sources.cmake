@@ -333,6 +333,7 @@ SET(${PROJECT_NAME}_COLLISION_OPENMP_PUBLIC_HEADERS
 SET(${PROJECT_NAME}_PARSERS_SOURCES
   src/utils/file-explorer.cpp
   src/parsers/mjcf/mjcf-graph.cpp
+  src/parsers/mjcf/mjcf-graph-geom.cpp
   )
 
 SET(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
@@ -342,6 +343,7 @@ SET(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
   include/pinocchio/utils/file-explorer.hpp
   include/pinocchio/parsers/mjcf.hpp
   include/pinocchio/parsers/mjcf/model.hxx
+  include/pinocchio/parsers/mjcf/geometry.hxx
 
   include/pinocchio/parsers/mjcf/mjcf-graph.hpp
   )
@@ -602,6 +604,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
   bindings/python/parsers/urdf/geometry.cpp
   bindings/python/parsers/srdf.cpp
   bindings/python/parsers/mjcf/model.cpp
+  bindings/python/parsers/mjcf/geometry.cpp
   bindings/python/parsers/sample-models.cpp
   )
 

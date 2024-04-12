@@ -13,10 +13,15 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/foreach.hpp>
 #include <boost/math/constants/constants.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/logic/tribool.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <sstream>
 #include <limits>
 #include <iostream>
+
+
 
 namespace pinocchio
 {
@@ -26,6 +31,7 @@ namespace pinocchio
         {
             struct MjcfGraph;
             struct MjcfJoint;
+            struct MjcfGeom;
 
             /// @brief Informations that are stocked in the XML tag compile.
             /// 
@@ -34,12 +40,26 @@ namespace pinocchio
                 public:
                     // Global attribute to use limit that are in the model or not
                     bool autolimits = true;
+                    
                     // Attribute to keep or not the full path of files specified in the model
                     bool strippath = false;
+                    // Directory where all the meshes are (can be relative or absolute)
+                    std::string meshdir; 
+                    // Directory where all the textures are (can be relative or absolute)
+                    std::string texturedir;
+
                     // Value for angle conversion (Mujoco default - degrees)
                     double angle_converter = boost::math::constants::pi<double>() / 180.0;
                     // Euler Axis to use to convert angles representation to quaternion
                     Eigen::Matrix3d mapEulerAngles;
+
+                    // Value to crop the mass (if mass < boundMass, mass = boundMass)
+                    double boundMass = 0;
+                    // Value to crop the diagonal of the inertia matrix (if mass < boundMass, mass = boundMass)
+                    double boundInertia = 0;
+
+                    // True, false or auto - auto = indeterminate
+                    boost::logic::tribool inertiafromgeom = boost::indeterminate;
                     
                     /// @brief Convert the angle in radian if model was declared to use degree
                     /// @param angle_ angle to convert
@@ -71,11 +91,11 @@ namespace pinocchio
                     // Name of the body
                     std::string bodyName;
                     // Name of the parent 
-                    std::string bodyParent = "";
+                    std::string bodyParent;
                     // Name of the default class used by this body (optional)
                     std::string bodyClassName;
                     // Special default class, that is common to all bodies and children if not specified otherwise
-                    std::string childClass = "";
+                    std::string childClass;
 
                     // Position of the body wrt to the previous body
                     SE3 bodyPlacement = SE3::Identity();
@@ -84,6 +104,8 @@ namespace pinocchio
 
                     // Vector of joints associated with the body
                     std::vector<MjcfJoint> jointChildren;
+                    // Vector of geometries associated with the body
+                    std::vector<MjcfGeom> geomChildren;
             };
 
             /// @brief All joint limits
@@ -172,6 +194,112 @@ namespace pinocchio
                     /// @param use_limits whether to parse the limits or not 
                     void goThroughElement(const ptree &el, bool use_limits);
             };
+            /// @brief All informations related to a mesh are stored here
+            struct MjcfMesh
+            {
+                // Scale of the mesh
+                Eigen::Vector3d scale = Eigen::Vector3d::Constant(1);
+                // Path to the mesh file
+                std::string filePath;
+            };
+
+            /// @brief All informations related to a texture are stored here
+            struct MjcfTexture
+            {
+                // [2d, cube, skybox], “cube”
+                std::string textType = "cube";
+                // Path to the texture file
+                std::string filePath;
+                // Size of the grid if needed
+                Eigen::Vector2d gridsize = Eigen::Vector2d::Constant(1);
+            };
+
+            /// @brief All informations related to material are stored here
+            struct MjcfMaterial
+            {
+                typedef boost::property_tree::ptree ptree;
+                // Color of the material
+                Eigen::Vector4d rgba = Eigen::Vector4d::Constant(1);
+
+                float reflectance = 0;
+
+                float shininess = 0.5;
+
+                float specular = 0.5;
+
+                float emission = 0;
+                // name of the texture to apply on the material
+                std::string texture;
+
+                /// @brief Go through a ptree node to look for material tag related
+                /// @param el ptree material node
+                void goThroughElement(const ptree &el);
+            };
+
+            struct MjcfGeom
+            {
+                public:
+                    typedef boost::property_tree::ptree ptree;
+
+                    // Kind of possible geometry 
+                    enum TYPE {VISUAL, COLLISION, BOTH};
+                    // name of the geometry object
+                    std::string geomName;
+
+                    // [plane, hfield, sphere, capsule, ellipsoid, cylinder, box, mesh, sdf], “sphere”
+                    std::string geomType = "sphere";
+
+                    // Kind of the geometry object
+                    TYPE geomKind = BOTH;
+
+                    // Contact filtering and dynamic pair (used here to determine geometry kind)
+                    int contype = 1;
+                    int conaffinity = 1;
+                    // Geometry group (used to determine geometry kind)
+                    int group = 0;
+
+                    // String that hold size parameter 
+                    std::string sizeS;
+                    // Optional in case fromto tag is used
+                    boost::optional<std::string> fromtoS;
+                    // Size parameter
+                    Eigen::VectorXd size;
+
+                    // Color of the geometry
+                    Eigen::Vector4d rgba = Eigen::Vector4d::Constant(1);
+                    
+                    // Name of the material applied on the geometry
+                    std::string materialName;
+                    // Name of the mesh (optional)
+                    std::string meshName;
+
+                    // Density for computing the mass
+                    double density = 1000;
+                    // If mass is only on the outer layer of the geometry
+                    bool shellinertia = false;
+
+                    // Geometry Placement in parent body. Center of the frame of geometry is the center of mass.
+                    SE3 geomPlacement = SE3::Identity();
+                    // Inertia of the geometry obj
+                    Inertia geomInertia = Inertia::Identity();
+                    // optional mass (if not defined, will use density)
+                    boost::optional<double> massGeom;
+
+                    /// @brief Find the geometry kind 
+                    void findKind();
+
+                    /// @brief Compute Geometry size based on sizeS and fromtoS
+                    void computeSize();
+
+                    /// @brief Compute geometry inertia
+                    void computeInertia();
+
+                    /// @brief Fill Geometry element with info from ptree nodes
+                    void fill(const ptree &el, const MjcfBody &currentBody, const MjcfGraph &currentGraph);
+
+                    /// @bried Go through a geom ptree node, to gather informations
+                    void goThroughElement(const ptree &el, const MjcfGraph &currentGraph);
+            };
 
             /// @brief The graph which contains all information taken from the mjcf file
             struct MjcfGraph
@@ -181,6 +309,9 @@ namespace pinocchio
                     typedef std::vector<std::string> VectorOfStrings;
                     typedef std::unordered_map<std::string, MjcfBody> BodyMap_t;
                     typedef std::unordered_map<std::string, MjcfClass> ClassMap_t;
+                    typedef std::unordered_map<std::string, MjcfMaterial> MaterialMap_t;
+                    typedef std::unordered_map<std::string, MjcfMesh> MeshMap_t;
+                    typedef std::unordered_map<std::string, MjcfTexture> TextureMap_t;
 
                     // Compiler Info needed to properly parse the rest of file
                     MjcfCompiler compilerInfo;
@@ -188,6 +319,12 @@ namespace pinocchio
                     ClassMap_t mapOfClasses;
                     // Map of bodies
                     BodyMap_t mapOfBodies;
+                    // Map of Materials
+                    MaterialMap_t mapOfMaterials;
+                    // Map of Meshes 
+                    MeshMap_t mapOfMeshes;
+                    //Map of textures
+                    TextureMap_t mapOfTextures;
 
                     // property tree where xml file is stored
                     ptree pt;
@@ -197,6 +334,7 @@ namespace pinocchio
 
                     // Name of the model
                     std::string modelName;
+                    std::string modelPath;
 
                     // Urdf Visitor to add joint and body
                     typedef pinocchio::urdf::details::UrdfVisitor<double, 0, ::pinocchio::JointCollectionDefaultTpl > UrdfVisitor;
@@ -204,7 +342,8 @@ namespace pinocchio
 
                     /// @brief graph constructor
                     /// @param urdfVisitor 
-                    MjcfGraph(UrdfVisitor& urdfVisitor):
+                    MjcfGraph(UrdfVisitor& urdfVisitor, const std::string &modelPath):
+                    modelPath(modelPath),
                     urdfVisitor(urdfVisitor)
                     {}
 
@@ -230,6 +369,22 @@ namespace pinocchio
                     /// @brief Parse all the info from the compile node into compilerInfo
                     /// @param el ptree compile node
                     void parseCompiler(const ptree &el);
+
+                    /// @brief Parse all the info from a texture node
+                    /// @param el ptree texture node
+                    void parseTexture(const ptree &el);
+
+                    /// @brief Parse all the info from a material node
+                    /// @param el ptree material node
+                    void parseMaterial(const ptree &el);
+
+                    /// @brief Parse all the info from a mesh node
+                    /// @param el ptree mesh node
+                    void parseMesh(const ptree &el);
+
+                    /// @brief Parse all the info from the meta tag asset (mesh, material, texture)
+                    /// @param el ptree texture node
+                    void parseAsset(const ptree &el);
 
                     /// @brief parse the mjcf file into a graph
                     void parseGraph();
@@ -258,11 +413,36 @@ namespace pinocchio
                     void fillModel(const std::string &nameOfBody);
 
                     /// @brief Fill the pinocchio model with all the infos from the graph
-                    void parseRootTree();      
+                    void parseRootTree();   
+                    
+                    /// @brief Fill geometry model with all the info taken from the mjcf model file
+                    /// @param type Type of geometry to parse (COLLISION or VISUAL)
+                    /// @param geomModel geometry model to fill
+                    /// @param meshLoader mesh loader from hpp::fcl
+                    void parseGeomTree(const GeometryType& type, GeometryModel& geomModel, ::hpp::fcl::MeshLoaderPtr& meshLoader);
             };
-
+            namespace internal
+            {
+                inline std::istringstream getConfiguredStringStream(const std::string& str) 
+                {
+                    std::istringstream posStream(str);
+                    posStream.exceptions(std::ios::failbit);
+                    return posStream;
+                }
+            
+                template<int N>
+                inline Eigen::Vector<double, N> getVectorFromStream(const std::string &str)
+                {   
+                    std::istringstream stream = getConfiguredStringStream(str);
+                    Eigen::Vector<double, N> vector;
+                    for(int i = 0; i < N; i++)
+                        stream >> vector(i);
+                    
+                    return vector;
+                }
+            } // internal
         } // details
     } //mjcf
 } //pinocchio
 
-#endif // __pinocchio__parsers_mjcf_graph_hpp__
+#endif // __pinocchio_parsers_mjcf_graph_hpp__

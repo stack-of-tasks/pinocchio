@@ -615,7 +615,14 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   BOOST_CHECK_SMALL(I1.lever().norm(), 1e-12);
   BOOST_CHECK(I1.inertia().matrix().isApprox(Symmetric3(
         78., 0., 60., 0., 0., 30.).matrix()));
-  
+
+  // Test Inertia From Capsule
+  I1 = Inertia::FromCapsule(2., 3., 10.);
+  BOOST_CHECK_SMALL(I1.mass() - 2, 1e-12);
+  BOOST_CHECK_SMALL(I1.lever().norm(), 1e-12);
+  BOOST_CHECK(I1.inertia().matrix().isApprox(Symmetric3(
+        24.3042, 0., 24.3042, 0., 0., 8.0182).matrix(), 1e-5));
+        
   // Copy operator
   Inertia aI_copy(aI);
   BOOST_CHECK(aI_copy == aI);
