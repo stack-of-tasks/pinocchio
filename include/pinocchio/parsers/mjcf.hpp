@@ -6,6 +6,7 @@
 #define __pinocchio_parsers_mjcf_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/parsers/urdf.hpp"
 
 namespace pinocchio
 {
@@ -74,9 +75,32 @@ namespace pinocchio
                 ModelTpl<Scalar,Options,JointCollectionTpl> & model, 
                 const bool verbose = false);
 
+    /**
+     * @brief      Build The GeometryModel from a Mjcf file 
+     * 
+     * @param[in]  model         The model of the robot, built with
+     *                           mjcf::buildModel
+     * @param[in]  filename      The mjcf complete (absolute) file path
+     * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
+     * @param[in]   mesh_loader   object used to load meshes: hpp::fcl::MeshLoader [default] or hpp::fcl::CachedMeshLoader.
+     * @param[out]  geom_model    Reference where to put the parsed information.
+     *
+     * @return      Returns the reference on geom model for convenience.
+     *
+     * \warning     If hpp-fcl has not been found during compilation, COLLISION objects can not be loaded
+     *
+     */
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    GeometryModel & buildGeom(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              const std::string & filename,
+                              const GeometryType type,
+                              GeometryModel & geom_model,
+                              ::hpp::fcl::MeshLoaderPtr mesh_loader = ::hpp::fcl::MeshLoaderPtr());
+
   } // namespace mjcf
 } // namespace pinocchio
 
 #include "pinocchio/parsers/mjcf/model.hxx"
+#include "pinocchio/parsers/mjcf/geometry.hxx"
 
 #endif // ifndef __pinocchio_parsers_mjcf_hpp__

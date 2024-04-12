@@ -10,10 +10,12 @@ namespace pinocchio
   namespace python
   {
     void exposeMJCFModel();
+    void exposeMJCFGeom();
   
     inline void exposeMJCFParser()
     {
       exposeMJCFModel();
+      exposeMJCFGeom();
     }
   }
 }

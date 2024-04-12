@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Add `GeometryObject::meshMaterial` attribute ([#2084](https://github.com/stack-of-tasks/pinocchio/issues/2084))
+- Add Parser for mujoco mjcf models `pinocchio::mjcf::buildModel` and `pinocchio::mjcf::buildGeom`
 
 ### Fixed
 
