@@ -453,14 +453,15 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     PINOCCHIO_CHECK_ARGUMENT_SIZE(delassus_.rows(),(Eigen::DenseIndex)constraint_total_size);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(delassus_.cols(),(Eigen::DenseIndex)constraint_total_size);
 
-    Data::Vector6 scratch_pad_vector = Data::Vector6::Zero();
-    Data::Vector6 scratch_pad_vector2 = Data::Vector6::Zero();
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
-    Data::Matrix6 scratch_pad1;
-    Data::Matrix6 scratch_pad2;
+    typename Data::Vector6 scratch_pad_vector = Data::Vector6::Zero();
+    typename Data::Vector6 scratch_pad_vector2 = Data::Vector6::Zero();
+
+    typename Data::Matrix6 scratch_pad1;
+    typename Data::Matrix6 scratch_pad2;
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef typename Model::JointIndex JointIndex;
     typedef typename Model::SE3 SE3;
