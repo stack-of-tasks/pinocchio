@@ -144,7 +144,7 @@ namespace pinocchio
 
     Scalar y_previous_norm_inf = y_.template lpNorm<Eigen::Infinity>();
     int it = 1;
-    Scalar res = 0;
+//    Scalar res = 0;
 #ifdef PINOCCHIO_WITH_HPP_FCL
     timer.start();
 #endif // PINOCCHIO_WITH_HPP_FCL
@@ -177,8 +177,8 @@ namespace pinocchio
       const VectorXs rhs_copy = rhs;
 //      x_ = rhs;
       delassus.solveInPlace(rhs);
-      VectorXs tmp = delassus * rhs - rhs_copy;
-      res = math::max(res,tmp.template lpNorm<Eigen::Infinity>());
+//      VectorXs tmp = delassus * rhs - rhs_copy;
+//      res = math::max(res,tmp.template lpNorm<Eigen::Infinity>());
 //      std::cout << "residual = " << (delassus * rhs - x_).template lpNorm<Eigen::Infinity>() << std::endl;
       x_ = rhs;
 
