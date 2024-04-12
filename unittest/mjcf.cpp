@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(geoms_construction)
                                             <geom type="cylinder" size=".01 0.25" pos="0 0 0" quat="1 0 0 0"/>
                                             <body pos="0 0 0" name="bodyBox">
                                                 <geom type="box" size=".01" fromto="0 0 0 0 0 .5"/>
-                                                <geom type="box" size=".01 0.01 0.5" pos="0 0 0" quat="1 0 0 0"/>
+                                                <geom type="box" size=".01 0.01 0.25" pos="0 0 0" quat="1 0 0 0"/>
                                             </body>
                                             <body pos="0 0 0" name="bodyCapsule">
                                                 <geom type="capsule" size=".01" fromto="0 0 0 0 0 .5"/>
@@ -187,10 +187,10 @@ BOOST_AUTO_TEST_CASE(geoms_construction)
     }
     // Test Box
     bodyTest = graph.mapOfBodies.at("bodyBox");
-    mass = 1000 * 0.01 * 0.01 * 0.5;
-    inertTest = pinocchio::Inertia::FromBox(mass, 0.01, 0.01, 0.5);
+    mass = 1000 * 0.02 * 0.02 * 0.5;
+    inertTest = pinocchio::Inertia::FromBox(mass, 0.02, 0.02, 0.5);
     Eigen::Vector3d sizeB;
-    sizeB << 0.01, 0.01, .5;
+    sizeB << 0.02, 0.02, .5;
     for(const auto &geom : bodyTest.geomChildren)
     {
         // Check size
@@ -248,8 +248,8 @@ BOOST_AUTO_TEST_CASE(inertia_from_geom)
                                     <compiler inertiafromgeom="true" />
                                     <worldbody>
                                         <body pos="0 0 0" name="body0">
-                                            <geom type="box" size=".01 .01 .01" pos="0 0 0.005"/>
-                                            <geom type="box" size=".01 .01 .01" pos="0 0 0.015"/>
+                                            <geom type="box" size=".01 .01 .01" pos="0 0 0.01"/>
+                                            <geom type="box" size=".01 .01 .01" pos="0 0 0.03"/>
                                         </body>
                                     </worldbody>
                                   </mujoco>)");
@@ -267,13 +267,14 @@ BOOST_AUTO_TEST_CASE(inertia_from_geom)
     // only one inertias since only one body
     pinocchio::Inertia inertBody = model_m.inertias[0];
     
-    double massBigBox = 1000 * 0.01 * 0.01 * 0.02; // density * volume
-    pinocchio::Inertia inertBigBox = pinocchio::Inertia::FromBox(massBigBox, 0.01, 0.01, 0.02);
+    double massBigBox = 1000 * 0.02 * 0.02 * 0.04; // density * volume
+    pinocchio::Inertia inertBigBox = pinocchio::Inertia::FromBox(massBigBox, 0.02, 0.02, 0.04);
     // Create a frame on the bottom face of BigBox and express inertia
     Eigen::Vector3d pl;
-    pl << 0, 0, -0.01;
+    pl << 0, 0, -0.02;
     pinocchio::SE3 placementBigBox(Eigen::Matrix3d::Identity(), pl);
     inertBigBox = placementBigBox.act(inertBigBox); 
+
     BOOST_CHECK(inertBigBox.isApprox(inertBody));   
 }
 
@@ -290,7 +291,7 @@ BOOST_AUTO_TEST_CASE(convert_orientation)
         <axis pos="0.3 0.2 0.5" axisangle="-1 0 0 1.5707963"/>
         <euler pos="0.3 0.2 0.5" euler="-1.57079633 0 0"/>
         <xyaxes pos="0.3 0.2 0.5" xyaxes="1 0 0 0 0 -1"/>
-        <zaxis pos="0.3 0.2 0.5" zaxis="0 -1 0"/>
+        <zaxis pos="0.3 0.2 0.5" zaxis="0 1 0"/>
     )");
 
     // Create a Boost Property Tree
@@ -455,7 +456,7 @@ BOOST_AUTO_TEST_CASE(parse_dirs_no_strippath)
     pinocchio::urdf::details::UrdfVisitor visitor (model_m);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
     
-    MjcfGraph graph (visitor, "/fakeMjcf");
+    MjcfGraph graph (visitor, "/fakeMjcf/fake.xml");
     graph.parseGraphFromXML(namefile);
 
     // Test texture
@@ -487,7 +488,7 @@ BOOST_AUTO_TEST_CASE(parse_dirs_strippath)
     pinocchio::urdf::details::UrdfVisitor visitor (model_m);
     typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
     
-    MjcfGraph graph (visitor, "/fakeMjcf");
+    MjcfGraph graph (visitor, "/fakeMjcf/fake.xml");
     graph.parseGraphFromXML(namefile);
 
     // Test Meshes
@@ -822,29 +823,29 @@ BOOST_AUTO_TEST_CASE(parse_composite_Mujoco_comparison)
 
     Data data(model);
     Eigen::Vector3d q;
-    q << 1.57079633, 0, 0.5;
-
+    q << 1.57079633, 0.3, 0.5;
     framesForwardKinematics(model, data, q);
 
-    FrameIndex f_id = model.getBodyId("body1");
+    FrameIndex f_id = model.getFrameId("body1");
     SE3 pinPos = data.oMf[f_id];
+
     Eigen::Matrix3d refOrient;
-    refOrient << 0, -1, 0,
-                 1, 0, 0,
-                 0, 0, 1;
+    refOrient << 0, -.9553, .2955,
+                1, 0, 0,
+                0, .2955, .9553;
     Eigen::Vector3d pos;
-    pos << 1, 2, 0.5;
+    pos << .8522, 2, 0.5223;
+    BOOST_CHECK(pinPos.isApprox(SE3(refOrient, pos), 1e-4));
 
-    BOOST_CHECK(pinPos.isApprox(SE3(refOrient, pos), 1e-7));
-
-    f_id = model.getBodyId("body2");
+    f_id = model.getFrameId("body2");
     pinPos = data.oMf[f_id];
-    refOrient << 0, -1, 0,
-                 1, 0, 0,
-                 0, 0, 1;
 
-    pos << 1, 4, 0.5;
-    BOOST_CHECK(pinPos.isApprox(SE3(refOrient, pos), 1e-7));
+    refOrient << 0, -.9553, .2955,
+                1, 0, 0,
+                0, .2955, .9553;
+
+    pos << .8522, 4, 0.5223;
+    BOOST_CHECK(pinPos.isApprox(SE3(refOrient, pos), 1e-4));
 }
 /// @brief test that a fixed model is well parsed 
 /// @param  
@@ -947,5 +948,71 @@ BOOST_AUTO_TEST_CASE (compare_to_urdf)
     BOOST_CHECK(model_urdf.frames[k] == model_m.frames[k]);
     }
 }
+
+#if defined(PINOCCHIO_WITH_HPP_FCL)
+BOOST_AUTO_TEST_CASE(test_geometry_parsing)
+{
+    typedef pinocchio::Model Model;
+    typedef pinocchio::GeometryModel GeometryModel;
+
+   // Parse the XML
+    std::istringstream xmlData(R"(<mujoco model="inertiaFromGeom">
+                                    <compiler inertiafromgeom="true" />
+                                    <worldbody>
+                                        <body pos="0 0 0" name="bodyCylinder">
+                                            <geom type="cylinder" size=".01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            <body pos="0 0 0" name="bodyBox">
+                                                <geom type="box" size=".01 0.01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                            <body pos="0 0 0" name="bodyCapsule">
+                                                <geom type="capsule" size=".01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                            <body pos="0 0 0" name="bodySphere">
+                                                <geom type="sphere" size=".01" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                            <body pos="0 0 0" name="bodyEllip">
+                                                <geom type="ellipsoid" size=".01 0.01 0.25" pos="0 0 0" quat="1 0 0 0"/>
+                                            </body>
+                                        </body> 
+                                    </worldbody>
+                                  </mujoco>)"); 
+
+    std::string namefile = createTempFile(xmlData);
+
+    Model model_m;
+    pinocchio::mjcf::buildModel(namefile, model_m);
+
+    GeometryModel geomModel_m;
+    pinocchio::mjcf::buildGeom(model_m, namefile, pinocchio::COLLISION, geomModel_m);
+
+    BOOST_CHECK(geomModel_m.ngeoms == 5);
+
+    auto* cyl = dynamic_cast<hpp::fcl::Cylinder*>(geomModel_m.geometryObjects.at(0).geometry.get());
+    BOOST_REQUIRE(cyl);
+    BOOST_CHECK(cyl->halfLength == 0.25);
+    BOOST_CHECK(cyl->radius == 0.01);
+
+    auto* cap = dynamic_cast<hpp::fcl::Capsule*>(geomModel_m.geometryObjects.at(2).geometry.get());
+    BOOST_REQUIRE(cap);
+    BOOST_CHECK(cap->halfLength == 0.25);
+    BOOST_CHECK(cap->radius == 0.01);
+
+    auto* s = dynamic_cast<hpp::fcl::Sphere*>(geomModel_m.geometryObjects.at(3).geometry.get());
+    BOOST_REQUIRE(s);
+    BOOST_CHECK(s->radius == 0.01);
+
+    auto* b = dynamic_cast<hpp::fcl::Box*>(geomModel_m.geometryObjects.at(1).geometry.get());
+    BOOST_REQUIRE(b);
+    Eigen::Vector3d sides;
+    sides << 0.01, 0.01, 0.25;
+    BOOST_CHECK(b->halfSide == sides);
+
+    auto* e = dynamic_cast<hpp::fcl::Ellipsoid*>(geomModel_m.geometryObjects.at(4).geometry.get());
+    BOOST_REQUIRE(e);
+    BOOST_CHECK(e->radii == sides);
+}
+#endif // if defined(PINOCCHIO_WITH_HPP_FCL)
+
+
 
 BOOST_AUTO_TEST_SUITE_END()

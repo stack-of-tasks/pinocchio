@@ -83,7 +83,7 @@ namespace pinocchio
                     else
                     {
                         fs::path mainPath(modelPath);
-                        return (mainPath / meshPath / filename);
+                        return (mainPath.parent_path() / meshPath / filename);
                     }
                 }
             }
@@ -314,7 +314,7 @@ namespace pinocchio
                 {
                     Eigen::Vector3d zaxis = internal::getVectorFromStream<3>(*rot_s);
                     // Compute the rotation matrix that maps z_axis to unit z
-                    placement.rotation() = Eigen::Quaterniond::FromTwoVectors(zaxis, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+                    placement.rotation() = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitZ(), zaxis).toRotationMatrix();
                 }
                 return placement;
             }
@@ -382,7 +382,7 @@ namespace pinocchio
                 else if(compilerInfo.inertiafromgeom == boost::logic::indeterminate && !el.get_child_optional("inertial"))
                     usegeominertia = true;
 
-                for(const ptree::value_type &v: el)
+                for(const ptree::value_type &v:el)
                 {
                     // Current body node
                     if(v.first == "<xmlattr>")
@@ -400,9 +400,11 @@ namespace pinocchio
                         bodiesList.push_back(currentBody.bodyName);
 
                         if(auto chcl_st = v.second.get_optional<std::string>("childclass"))
+                        {
                             chcl_s = chcl_st;
-
-                        if(childClass)
+                            currentBody.childClass = *chcl_s;
+                        }
+                        else if(childClass)
                             currentBody.childClass = *chcl_s;
             
                         //Class 
@@ -694,10 +696,6 @@ namespace pinocchio
                     if(v.first == "asset")
                         parseAsset(el.get_child("asset"));
 
-                    if(v.first == "option")
-                        throw std::invalid_argument("Options are not supported yet");
-                    if(v.first == "composite")
-                        throw std::invalid_argument("Composite Bodies are not supported yet");
                     if(v.first == "worldbody")
                     {
                         boost::optional<std::string> childClass;
@@ -737,7 +735,6 @@ namespace pinocchio
                 UrdfVisitor::JointType jType;
 
                 RangeJoint range;
-
                 if(joint.jointType == "free")
                 {
                     urdfVisitor << "Free Joint "<< '\n';
@@ -836,8 +833,7 @@ namespace pinocchio
                             isFirst = false;
                         }
                         else
-                            jointPlacement = prevJointPlacement.inverse()*jointInParent;
-                        
+                            jointPlacement = prevJointPlacement.inverse() * jointInParent;
                         if(joint.jointType == "slide")
                         {
                             jointM.addJoint(createJoint<JointModelPX,
@@ -870,7 +866,7 @@ namespace pinocchio
 
                     joint_id = urdfVisitor.model.addJoint(frame.parentJoint,
                                         jointM,
-                                        firstJointPlacement,
+                                        frame.placement * firstJointPlacement,
                                         jointName,
                                         rangeCompo.maxEffort,rangeCompo.maxVel,rangeCompo.minConfig,rangeCompo.maxConfig,
                                         rangeCompo.friction,rangeCompo.damping

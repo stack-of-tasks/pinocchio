@@ -1,5 +1,5 @@
 <mujoco model="simple_humanoid">
-  <compiler angle="radian" autolimits="true"/>
+  <compiler angle="radian" autolimits="true" meshdir="simple_humanoid_description"/>
   <asset>
     <mesh name="box" file="box.stl"/>
   </asset>

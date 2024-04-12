@@ -3,6 +3,13 @@
 //
 
 #include "pinocchio/parsers/mjcf/mjcf-graph.hpp"
+#ifdef PINOCCHIO_WITH_HPP_FCL
+
+#include <hpp/fcl/mesh_loader/loader.h>
+#include <hpp/fcl/mesh_loader/assimp.h>
+
+#endif // PINOCCHIO_WITH_HPP_FCL
+
 
 namespace pinocchio
 {
@@ -38,6 +45,146 @@ namespace pinocchio
                     throw std::invalid_argument("geometry type does not exist");
                 }
             }
+
+            bool isType(const MjcfGeom& geom, const GeometryType& type)
+            {
+                switch(type)
+                {
+                    case ::pinocchio::COLLISION:
+                        return geom.geomKind != MjcfGeom::VISUAL;
+                    case ::pinocchio::VISUAL:
+                        return geom.geomKind != MjcfGeom::COLLISION;
+                }
+            }
+
+            /**
+             * @brief      Get a fcl::CollisionObject from an mjcf geometry, searching
+             *             for it in specified package directories
+             *
+             * @param[in]  geom  A mjcf geometry object
+             * @return     A shared pointer on the geometry converted as a fcl::CollisionGeometry
+             */
+#ifdef PINOCCHIO_WITH_HPP_FCL
+            static std::shared_ptr<fcl::CollisionGeometry>
+            retrieveCollisionGeometry(::hpp::fcl::MeshLoaderPtr& meshLoader, const MjcfGeom& geom, const MjcfGraph& currentGraph, std::string & meshPath,
+                                       Eigen::Vector3d & meshScale)
+            {
+                if(geom.geomType == "mesh")
+                {
+                    MjcfMesh currentMesh = currentGraph.mapOfMeshes.at(geom.meshName);
+                    meshPath = currentMesh.filePath;
+                    meshScale = currentMesh.scale;
+                    hpp::fcl::BVHModelPtr_t bvh = meshLoader->load(meshPath, meshScale);
+                    return bvh;
+                }
+                else if(geom.geomType == "cylinder")
+                {
+                    meshPath = "CYLINDER";
+                    meshScale << 1, 1, 1;
+                    double radius = geom.size(0);
+                    double height = geom.size(1) * 2;
+                    return std::make_shared<fcl::Cylinder >(radius, height);
+                }
+                else if(geom.geomType == "box")
+                {
+                    meshPath = "BOX";
+                    meshScale << 1, 1, 1;
+                    double x = geom.size(0);
+                    double y = geom.size(1);
+                    double z = geom.size(2);
+                    return std::make_shared<fcl::Box>(x, y, z);
+                }
+                else if(geom.geomType == "sphere")
+                {
+                    meshPath = "SPHERE";
+                    meshScale << 1, 1, 1;
+                    double radius = geom.size(0);
+                    return std::make_shared<fcl::Sphere> (radius);
+                }
+                else if(geom.geomType == "ellipsoid")
+                {
+                    meshPath = "ELLIPSOID";
+                    meshScale << 1, 1, 1;
+                    double rx = geom.size(0);
+                    double ry = geom.size(1);
+                    double rz = geom.size(2);
+                    return std::make_shared<fcl::Ellipsoid>(rx, ry, rz);
+
+                }
+                else if(geom.geomType == "capsule")
+                {
+                    meshPath = "CAPSULE";
+                    meshScale << 1, 1, 1;
+                    double radius = geom.size(0);
+                    double height = geom.size(1) * 2;
+                    return std::make_shared<fcl::Capsule> (radius, height);
+
+                }
+                else
+                    throw std::invalid_argument("Unknown geometry type :"); // Missing plane, hfield and sdf
+            }
+#else
+            static std::shared_ptr<fcl::CollisionGeometry>
+            retrieveCollisionGeometry(::hpp::fcl::MeshLoaderPtr&, const MjcfGeom&, const MjcfGraph&, std::string &,
+                                       Eigen::Vector3d &)
+            {
+                return std::make_shared<fcl::CollisionGeometry>();
+            }
+#endif
+
+            /// @brief Add all geometries associated with a body
+            /// @param currentBody Body from which geometries will be collected
+            /// @param type Type of geometry to parse (COLLISION or VISUAL)
+            /// @param geomModel geometry model to fill
+            /// @param meshLoader mesh loader from hpp::fcl
+            static void addLinksToGeomModel(const MjcfBody& currentBody, const MjcfGraph& currentGraph, GeometryModel& geomModel, ::hpp::fcl::MeshLoaderPtr& meshLoader, const GeometryType& type)
+            {
+                const std::string& bodyName = currentBody.bodyName;
+                FrameIndex frame_id = currentGraph.urdfVisitor.getBodyId(bodyName);
+                Frame frame = currentGraph.urdfVisitor.getBodyFrame (bodyName);
+
+                const SE3& bodyPlacement = frame.placement;
+
+                std::size_t objectId = 0;
+                for(const auto &geom : currentBody.geomChildren)
+                {
+                    std::string meshPath = "";
+                    Eigen::Vector3d meshScale(Eigen::Vector3d::Ones());
+                    if(isType(geom, type))
+                    {
+                        const GeometryObject::CollisionGeometryPtr geometry =
+                        retrieveCollisionGeometry(meshLoader, geom, currentGraph, meshPath, meshScale);
+
+                        bool overrideMaterial = false;
+                        Eigen::Vector4d meshColor = geom.rgba;
+                        std::string texturePath;
+                        if(!geom.materialName.empty())
+                        {
+                            MjcfMaterial mat = currentGraph.mapOfMaterials.at(geom.materialName);
+                            meshColor =  mat.rgba;
+                            overrideMaterial = true;
+                            if(!mat.texture.empty())
+                            {
+                                MjcfTexture text = currentGraph.mapOfTextures.at(mat.texture);
+                                texturePath = text.filePath;
+                            }
+                        }
+                        const SE3 geomPlacement = bodyPlacement * geom.geomPlacement;
+                        std::ostringstream geometry_object_suffix;
+                        geometry_object_suffix << "_" << objectId;
+                        std::string geometry_object_name = std::string(bodyName + geometry_object_suffix.str());
+
+                        GeometryObject geometry_object(geometry_object_name,
+                                           frame.parentJoint, frame_id,
+                                           geomPlacement, geometry,
+                                           meshPath, meshScale,
+                                           overrideMaterial, meshColor, texturePath);
+                        geomModel.addGeometryObject(geometry_object);
+                        ++objectId;
+                    }
+                }
+            }
+
 
             void MjcfMaterial::goThroughElement(const ptree &el)
             {
@@ -113,8 +260,6 @@ namespace pinocchio
                     value_s = el.get_optional<std::string>("<xmlattr>.mesh");
                     if(value_s)
                         meshName = *value_s;
-                    else
-                        throw std::invalid_argument("Type is mesh but no mesh file were provided");
                 }
                 
                 // rgba
@@ -125,7 +270,8 @@ namespace pinocchio
                 if((value_s = el.get_optional<std::string>("<xmlattr>.size")))
                     sizeS = *value_s;
                 // fromto
-                fromtoS = el.get_optional<std::string>("<xmlattr>.fromto");
+                if(!fromtoS)
+                    fromtoS = el.get_optional<std::string>("<xmlattr>.fromto");
                 if(fromtoS)
                 {
                     Eigen::VectorXd poses = internal::getVectorFromStream<6>(*fromtoS);
@@ -133,7 +279,7 @@ namespace pinocchio
 
                     Eigen::Vector3d zaxis = poses.tail(3) - poses.head(3);
                     // Compute the rotation matrix that maps z_axis to unit z
-                    geomPlacement.rotation() = Eigen::Quaterniond::FromTwoVectors(zaxis, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+                    geomPlacement.rotation() = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitZ(), zaxis).toRotationMatrix();
                 }
             }
 
@@ -162,11 +308,11 @@ namespace pinocchio
                 else if(geomType == "box")
                 {
                     if(!fromtoS)
-                        size = internal::getVectorFromStream<3>(sizeS);
+                        size = internal::getVectorFromStream<3>(sizeS) * 2; // half x, half y, half z
                     else
                     {
                         size = Eigen::Vector3d::Zero();
-                        size(0) = internal::getVectorFromStream<1>(sizeS)(0);
+                        size(0) = internal::getVectorFromStream<1>(sizeS)(0) * 2;
                         size(1) = size(0);
                         Eigen::VectorXd poses = internal::getVectorFromStream<6>(*fromtoS);
                         Eigen::Vector3d zaxis = poses.tail(3) - poses.head(3);
@@ -176,7 +322,7 @@ namespace pinocchio
                 else if(geomType == "ellipsoid")
                 {
                     if(!fromtoS)
-                        size = internal::getVectorFromStream<3>(sizeS);
+                        size = internal::getVectorFromStream<3>(sizeS); // radius and half length
                     else
                     {
                         size = Eigen::Vector3d::Zero();
@@ -261,6 +407,7 @@ namespace pinocchio
                     if(auto geom_p = classE.classElement.get_child_optional("geom"))
                         goThroughElement(*geom_p, currentGraph);
                 }
+
                 //Class 
                 auto cl_s = el.get_optional<std::string>("<xmlattr>.class");
                 if(cl_s)
@@ -270,17 +417,34 @@ namespace pinocchio
                     if(auto geom_p = classE.classElement.get_child_optional("geom"))
                         goThroughElement(*geom_p, currentGraph);
                 }
+
                 // Geom
                 goThroughElement(el, currentGraph);
-              
+                if(geomType == "mesh" && meshName.empty())
+                    throw std::invalid_argument("Type is mesh but no mesh file were provided");
                 //Compute Kind of geometry 
                 findKind();
-
+                
                 computeSize();
+
                 //Compute Mass and inertia of geom object
                 computeInertia();
             }
 
+            void MjcfGraph::parseGeomTree(const GeometryType& type, GeometryModel & geomModel, ::hpp::fcl::MeshLoaderPtr& meshLoader)
+            {
+#ifdef PINOCCHIO_WITH_HPP_FCL
+        if (!meshLoader) meshLoader = std::make_shared<fcl::MeshLoader>(fcl::MeshLoader());
+#endif // ifdef PINOCCHIO_WITH_HPP_FCL
+
+                for(const auto& entry : bodiesList)
+                {
+                    const MjcfBody& currentBody = mapOfBodies.at(entry);
+                    
+                    addLinksToGeomModel(currentBody, *this, geomModel, meshLoader, type);
+                        
+                }
+            }
         } // details
     } //mjcf
 } // pinocchio
