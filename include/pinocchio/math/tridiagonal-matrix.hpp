@@ -108,6 +108,7 @@ namespace pinocchio
   struct TridiagonalSymmetricMatrixTpl
   : public Eigen::ReturnByValue<TridiagonalSymmetricMatrixTpl<_Scalar,_Options> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef TridiagonalSymmetricMatrixTpl Self;
     typedef _Scalar Scalar;
     enum { Options = _Options };
