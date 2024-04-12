@@ -509,6 +509,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
   include/pinocchio/bindings/python/serialization/serialization.hpp
   include/pinocchio/bindings/python/serialization/serializable.hpp
   include/pinocchio/bindings/python/math/tridiagonal-matrix.hpp
+  include/pinocchio/bindings/python/math/lanczos-decomposition.hpp
   include/pinocchio/bindings/python/math/multiprecision/boost/number.hpp
   include/pinocchio/bindings/python/collision/broadphase-manager-base.hpp
   include/pinocchio/bindings/python/collision/geometry-functors.hpp
@@ -582,6 +583,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
   bindings/python/utils/conversions.cpp
   bindings/python/math/expose-linalg.cpp
   bindings/python/math/expose-tridiagonal-matrix.cpp
+  bindings/python/math/expose-lanczos-decomposition.cpp
   bindings/python/math/expose-rpy.cpp
   bindings/python/math/expose-eigen-types.cpp
   bindings/python/serialization/serialization.cpp

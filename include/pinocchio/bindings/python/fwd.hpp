@@ -36,8 +36,9 @@ namespace pinocchio
     void exposeEigenTypes();
     void exposeConversions();
     void exposeLinalg();
-    
     void exposeTridiagonalMatrix();
+    void exposeLanczosDecomposition();
+
     // Expose multibody classes
     void exposeJoints();
     void exposeModel();
