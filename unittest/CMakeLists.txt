@@ -247,6 +247,8 @@ ADD_PINOCCHIO_UNIT_TEST(coulomb-friction-cone)
 MAKE_DIRECTORY("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
 ADD_PINOCCHIO_UNIT_TEST(serialization)
 ADD_TEST_CFLAGS(serialization "-DTEST_SERIALIZATION_FOLDER=\\\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\\\"")
+ADD_PINOCCHIO_UNIT_TEST(csv)
+ADD_TEST_CFLAGS(csv "-DTEST_SERIALIZATION_FOLDER=\\\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\\\"")
 
 ADD_SUBDIRECTORY(algorithm)
 
