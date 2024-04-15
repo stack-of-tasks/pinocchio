@@ -289,7 +289,7 @@ namespace pinocchio
                 }
                 else if((rot_s = el.get_optional<std::string>("<xmlattr>.xyaxes")))
                 {
-                    Eigen::Vector<double, 6> xyaxes = internal::getVectorFromStream<6>(*rot_s);
+                    Eigen::Matrix<double, 6, 1> xyaxes = internal::getVectorFromStream<6>(*rot_s);
 
                     Eigen::Vector3d xAxis = xyaxes.head(3);
                     xAxis.normalize();
