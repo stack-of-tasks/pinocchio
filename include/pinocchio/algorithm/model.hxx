@@ -283,6 +283,7 @@ namespace pinocchio
       AJointsBeforeB.push_back(jid);
     }
     // descendants of the parent of frameInModelA come also before model B
+    // TODO(jcarpent): enhancement by taking into account the compactness of the joint ordering.
     for (JointIndex jid = frame.parent+1; jid < modelA.joints.size(); ++jid)
     {
       if (hasAncestor(modelA, jid, frame.parent))
