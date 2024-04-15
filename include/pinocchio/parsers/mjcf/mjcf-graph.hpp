@@ -431,10 +431,10 @@ namespace pinocchio
                 }
             
                 template<int N>
-                inline Eigen::Vector<double, N> getVectorFromStream(const std::string &str)
+                inline Eigen::Matrix<double, N, 1> getVectorFromStream(const std::string &str)
                 {   
                     std::istringstream stream = getConfiguredStringStream(str);
-                    Eigen::Vector<double, N> vector;
+                    Eigen::Matrix<double, N, 1> vector;
                     for(int i = 0; i < N; i++)
                         stream >> vector(i);
                     
