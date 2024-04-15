@@ -206,6 +206,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
           humanoid.getFrameId("humanoid/chest2_joint"), aMb,
           OP_FRAME));
 
+    // Append manipulator to chest2_joint of humanoid
     appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, fid,
         SE3::Identity(), model, geomModel);
     
@@ -228,35 +229,31 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
         model.parents[model.getJointId("manipulator/shoulder1_joint")]);
 
     // check the joint order and the inertias
+    // All the joints of the manipulator should be at the end of the merged model
+    JointIndex hnj = (JointIndex) humanoid.njoints;
     JointIndex chest2 = model.getJointId("humanoid/chest2_joint");
-    for (JointIndex jid = 1; jid < chest2; ++jid) {
+    for (JointIndex jid = 1; jid < hnj; ++jid) {
       BOOST_TEST_MESSAGE("Checking joint " << jid << " " << model.names[jid]);
       BOOST_CHECK_EQUAL(model.names[jid], humanoid.names[jid]);
-      BOOST_CHECK_EQUAL(model.inertias[jid], humanoid.inertias[jid]);
+      if (jid != chest2)
+	BOOST_CHECK_EQUAL(model.inertias[jid], humanoid.inertias[jid]);
+      else
+	BOOST_CHECK_MESSAGE(model.inertias[jid].isApprox(manipulator.inertias[0].se3Action(aMb) +
+							    humanoid.inertias[jid]),
+	  model.inertias[jid] << " != " << manipulator.inertias[0].se3Action(aMb) +
+	  humanoid.inertias[jid]);
+
       BOOST_CHECK_EQUAL(model.jointPlacements[jid], humanoid.jointPlacements[jid]);
     }
-    BOOST_TEST_MESSAGE("Checking joint " << chest2 << " " << model.names[chest2]);
-    BOOST_CHECK_EQUAL(model.names[chest2], humanoid.names[chest2]);
-    BOOST_CHECK_MESSAGE(model.inertias[chest2].isApprox(manipulator.inertias[0].se3Action(aMb) + humanoid.inertias[chest2]),
-        model.inertias[chest2] << " != " << manipulator.inertias[0].se3Action(aMb) + humanoid.inertias[chest2]);
-    BOOST_CHECK_EQUAL(model.jointPlacements[chest2], humanoid.jointPlacements[chest2]);
-
-    for (JointIndex jid = 1; jid < manipulator.joints.size(); ++jid) {
-      BOOST_TEST_MESSAGE("Checking joint " << chest2+jid << " " << model.names[chest2+jid]);
-      BOOST_CHECK_EQUAL(model.names[chest2+jid], manipulator.names[jid]);
-      BOOST_CHECK_EQUAL(model.inertias[chest2+jid], manipulator.inertias[jid]);
+    for (JointIndex jid = 1; jid < manipulator.joints.size()-1; ++jid) {
+      BOOST_TEST_MESSAGE("Checking joint " << hnj -1 +jid << " " << model.names[hnj+jid]);
+      BOOST_CHECK_EQUAL(model.names[hnj-1+jid], manipulator.names[jid]);
+      BOOST_CHECK_EQUAL(model.inertias[hnj-1+jid], manipulator.inertias[jid]);
       if (jid==1)
-        BOOST_CHECK_EQUAL(model.jointPlacements[chest2+jid], aMb*manipulator.jointPlacements[jid]);
+        BOOST_CHECK_EQUAL(model.jointPlacements[hnj-1+jid], aMb*manipulator.jointPlacements[jid]);
       else
-        BOOST_CHECK_EQUAL(model.jointPlacements[chest2+jid], manipulator.jointPlacements[jid]);
+        BOOST_CHECK_EQUAL(model.jointPlacements[hnj-1+jid], manipulator.jointPlacements[jid]);
     }
-    for (JointIndex jid = chest2+1; jid < humanoid.joints.size(); ++jid) {
-      BOOST_TEST_MESSAGE("Checking joint " << jid+manipulator.joints.size()-1 << " " << model.names[jid+manipulator.joints.size()-1]);
-      BOOST_CHECK_EQUAL(model.names[jid+manipulator.joints.size()-1], humanoid.names[jid]);
-      BOOST_CHECK_EQUAL(model.inertias[jid+manipulator.joints.size()-1], humanoid.inertias[jid]);
-      BOOST_CHECK_EQUAL(model.jointPlacements[jid+manipulator.joints.size()-1], humanoid.jointPlacements[jid]);
-    }
-
     // Check the frames
     for (FrameIndex fid = 1; fid < humanoid.frames.size(); ++fid) {
       const Frame& frame  = humanoid.frames[fid],
