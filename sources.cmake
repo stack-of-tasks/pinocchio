@@ -87,6 +87,8 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/pgs-solver.hpp
   include/pinocchio/algorithm/pgs-solver.hxx
   include/pinocchio/algorithm/proximal.hpp
+  include/pinocchio/algorithm/pv.hpp
+  include/pinocchio/algorithm/pv.hxx
   include/pinocchio/algorithm/regressor.hpp
   include/pinocchio/algorithm/regressor.hxx
   include/pinocchio/algorithm/rnea-derivatives.hpp
