@@ -5,7 +5,6 @@
 #ifndef __pinocchio_algorithm_contact_inverse_dynamics__hpp__
 #define __pinocchio_algorithm_contact_inverse_dynamics__hpp__
 
-#include "pinocchio/context.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/constraints/coulomb-friction-cone.hpp"
@@ -41,18 +40,23 @@ namespace pinocchio
   ///
   /// \return The desired joint torques stored in data.tau.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename VectorLikeC, typename VectorLikeR, typename VectorLikeGamma,typename VectorLikeImp>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename VectorLikeC, class ConstraintModelAllocator, class ConstraintDataAllocator, class CoulombFrictionConelAllocator, typename VectorLikeR, typename VectorLikeGamma,typename VectorLikeImp>
   const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   computeContactImpulses(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<VectorLikeC> & c_ref,
-       const context::RigidConstraintModelVector & contact_models,
-       context::RigidConstraintDataVector & contact_datas,
-       const context::CoulombFrictionConeVector & cones,
+       const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+       std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
+       const std::vector<CoulombFrictionConeTpl<Scalar>,CoulombFrictionConelAllocator> & cones,
        const Eigen::MatrixBase<VectorLikeR> & R,
        const Eigen::MatrixBase<VectorLikeGamma> & constraint_correction,
        ProximalSettingsTpl<Scalar> & settings,
        const boost::optional<VectorLikeImp > &impulse_guess= boost::none){
+
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+
     int problem_size  = R.size();
     int n_contacts = (int) problem_size/3;
     PINOCCHIO_CHECK_ARGUMENT_SIZE(constraint_correction.size(), problem_size);
@@ -60,10 +64,10 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(contact_datas.size(), n_contacts);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(settings.mu > Scalar(0)),
                                    "mu has to be strictly positive");
-    context::MatrixXs J = context::MatrixXs::Zero(problem_size,model.nv); // TODO: malloc
+    MatrixXs J = MatrixXs::Zero(problem_size,model.nv); // TODO: malloc
     getConstraintsJacobian(model, data, contact_models, contact_datas, J);
-    context::VectorXs c_ref_cor, desaxce_correction, R_prox, impulse_c_prev, dimpulse_c; // TODO: malloc
-    R_prox = R + context::VectorXs::Constant(problem_size,settings.mu);
+    VectorXs c_ref_cor, desaxce_correction, R_prox, impulse_c_prev, dimpulse_c; // TODO: malloc
+    R_prox = R + VectorXs::Constant(problem_size,settings.mu);
     c_ref_cor = c_ref + constraint_correction;
     if(impulse_guess)
     {
@@ -85,14 +89,14 @@ namespace pinocchio
       for(size_t cone_id = 0; cone_id < nc; ++cone_id)
       {
         const Eigen::DenseIndex row_id = 3*cone_id;
-        const CoulombFrictionCone & cone = cones[cone_id];
+        const auto & cone = cones[cone_id];
         auto impulse_segment = data.impulse_c.template segment<3>(row_id);
         auto impulse_prev_segment = impulse_c_prev.template segment<3>(row_id);
         auto R_prox_segment = R_prox.template segment<3>(row_id);
-        // context::Vector3 desaxce_segment;
+        // Vector3 desaxce_segment;
         // auto desaxce_segment = desaxce_correction.template segment<3>(row_id);
         auto c_ref_segment = c_ref.template segment<3>(row_id);
-        context::Vector3 desaxce_segment = cone.computeNormalCorrection(c_ref_segment + (R.template segment<3>(row_id).array()*impulse_segment.array()).matrix());
+        Vector3 desaxce_segment = cone.computeNormalCorrection(c_ref_segment + (R.template segment<3>(row_id).array()*impulse_segment.array()).matrix());
         impulse_segment = -((c_ref_segment + desaxce_segment -settings.mu * impulse_prev_segment).array()/R_prox_segment.array()).matrix();
         impulse_segment = cone.weightedProject(impulse_segment, R_prox_segment);
       }
@@ -145,7 +149,7 @@ namespace pinocchio
   ///
   /// \return The desired joint torques stored in data.tau.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename VectorLikeR, typename VectorLikeGamma,typename VectorLikeLam>
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ConstraintModelAllocator, class ConstraintDataAllocator, class CoulombFrictionConelAllocator, typename VectorLikeR, typename VectorLikeGamma,typename VectorLikeLam>
   const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   contactInverseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        DataTpl<Scalar,Options,JointCollectionTpl> & data, 
@@ -153,21 +157,27 @@ namespace pinocchio
        const Eigen::MatrixBase<TangentVectorType1> & v,
        const Eigen::MatrixBase<TangentVectorType2> & a,
        Scalar dt,
-       const context::RigidConstraintModelVector & contact_models,
-       context::RigidConstraintDataVector & contact_datas,
-       const context::CoulombFrictionConeVector & cones,
+       const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+       std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
+       const std::vector<CoulombFrictionConeTpl<Scalar>,CoulombFrictionConelAllocator> & cones,
        const Eigen::MatrixBase<VectorLikeR> & R,
        const Eigen::MatrixBase<VectorLikeGamma> & constraint_correction,
        ProximalSettingsTpl<Scalar> & settings,
        const boost::optional<VectorLikeLam> &lambda_guess= boost::none){
+
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
+    typedef ForceTpl<Scalar,Options> Force;
+    typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
+
     int problem_size  = R.size();
     int n_contacts = (int) problem_size/3;
-    context::MatrixXs J = context::MatrixXs::Zero(problem_size,model.nv); // TODO: malloc
+    MatrixXs J = MatrixXs::Zero(problem_size,model.nv); // TODO: malloc
     getConstraintsJacobian(model, data, contact_models, contact_datas, J);
-    context::VectorXs v_ref, c_ref, tau_c;
+    VectorXs v_ref, c_ref, tau_c;
     v_ref = v + dt*a;
     c_ref.noalias() = J* v_ref; //TODO should rather use the displacement
-    boost::optional<context::VectorXs> impulse_guess = boost::none;
+    boost::optional<VectorXs> impulse_guess = boost::none;
     if (lambda_guess){
       data.impulse_c = lambda_guess.get();
       data.impulse_c *= dt;
@@ -175,20 +185,20 @@ namespace pinocchio
     }
     computeContactImpulses(model, data, c_ref, contact_models, contact_datas, cones, R, constraint_correction, settings, impulse_guess);
     data.lambda_c = data.impulse_c/dt;
-    container::aligned_vector<context::Force> fext(model.njoints);
+    container::aligned_vector<Force> fext(model.njoints);
     for(int i; i<model.njoints; i++){
-      fext[i] = context::Force::Zero();
+      fext[i] = Force::Zero();
     }
     for(int i; i<n_contacts; i++){
-      const RigidConstraintModel & cmodel = contact_models[i];
+      const auto & cmodel = contact_models[i];
       const Eigen::DenseIndex row_id = 3*i;
       auto lambda_segment = data.lambda_c.template segment<3>(row_id);
-      RigidConstraintData::Matrix6 actInv_transpose1 = cmodel.joint1_placement.toActionMatrixInverse();
+      typename RigidConstraintData::Matrix6 actInv_transpose1 = cmodel.joint1_placement.toActionMatrixInverse();
       actInv_transpose1.transposeInPlace();
-      fext[cmodel.joint1_id] += context::Force(actInv_transpose1.leftCols<3>() * lambda_segment);
-      RigidConstraintData::Matrix6 actInv_transpose2 = cmodel.joint2_placement.toActionMatrixInverse();
+      fext[cmodel.joint1_id] += Force(actInv_transpose1.template leftCols<3>() * lambda_segment);
+      typename RigidConstraintData::Matrix6 actInv_transpose2 = cmodel.joint2_placement.toActionMatrixInverse();
       actInv_transpose2.transposeInPlace();
-      fext[cmodel.joint2_id] += context::Force(actInv_transpose2.leftCols<3>() * lambda_segment);
+      fext[cmodel.joint2_id] += Force(actInv_transpose2.template leftCols<3>() * lambda_segment);
     }
     rnea(model, data, q, v, a, fext);
     return data.tau;

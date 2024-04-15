@@ -13,8 +13,10 @@ namespace pinocchio
 
     void exposeLanczosDecomposition()
     {
+#ifndef PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
       typedef LanczosDecompositionTpl<context::MatrixXs> LanczosDecomposition;
       LanczosDecompositionPythonVisitor<LanczosDecomposition>::expose();
+#endif // PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
     }
     
   } // namespace python
