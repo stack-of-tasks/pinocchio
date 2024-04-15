@@ -84,9 +84,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/kinematics.hxx
   include/pinocchio/algorithm/model.hpp
   include/pinocchio/algorithm/model.hxx
-  include/pinocchio/algorithm/parallel/aba.hpp
-  include/pinocchio/algorithm/parallel/omp.hpp
-  include/pinocchio/algorithm/parallel/rnea.hpp
   include/pinocchio/algorithm/pgs-solver.hpp
   include/pinocchio/algorithm/pgs-solver.hxx
   include/pinocchio/algorithm/proximal.hpp
@@ -295,6 +292,12 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/utils/timer.hpp
   include/pinocchio/utils/version.hpp
 )
+
+SET(${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS
+  include/pinocchio/algorithm/parallel/aba.hpp
+  include/pinocchio/algorithm/parallel/omp.hpp
+  include/pinocchio/algorithm/parallel/rnea.hpp
+  )
 
 SET(${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_SOURCES
   src/collision/collision.cpp
