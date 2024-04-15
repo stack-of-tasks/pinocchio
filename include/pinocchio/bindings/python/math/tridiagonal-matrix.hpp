@@ -49,25 +49,23 @@ namespace pinocchio
         
         .def("setIdentity",&TridiagonalSymmetricMatrix::setIdentity,bp::arg("self"),
              "Set the current tridiagonal matrix to identity.")
+        .def("setZero",&TridiagonalSymmetricMatrix::setZero,bp::arg("self"),
+             "Set the current tridiagonal matrix to zero.")
+        .def("setDiagonal",&TridiagonalSymmetricMatrix::template setDiagonal<CoeffVectorType>,bp::args("self","diagonal"),
+             "Set the current tridiagonal matrix to a diagonal matrix given by the entry vector diagonal.")
+        .def("setRandom",&TridiagonalSymmetricMatrix::setRandom,bp::arg("self"),
+             "Set the current tridiagonal matrix to random.")
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def("isIdentity", &TridiagonalSymmetricMatrix::isIdentity,
              (bp::arg("self"),bp::arg("prec") = dummy_precision),
              "Returns true if *this is approximately equal to the identity matrix, within the precision given by prec.")
-        
-        .def("setZero",&TridiagonalSymmetricMatrix::setZero,bp::arg("self"),
-             "Set the current tridiagonal matrix to zero.")
         .def("isZero",&TridiagonalSymmetricMatrix::isZero,
              (bp::arg("self"),bp::arg("prec") = dummy_precision),
              "Returns true if *this is approximately equal to the zero matrix, within the precision given by prec.")
-        
-        .def("setRandom",&TridiagonalSymmetricMatrix::setRandom,bp::arg("self"),
-             "Set the current tridiagonal matrix to random.")
-        
-        .def("setDiagonal",&TridiagonalSymmetricMatrix::template setDiagonal<CoeffVectorType>,bp::args("self","diagonal"),
-             "Set the current tridiagonal matrix to a diagonal matrix given by the entry vector diagonal.")
         .def("isDiagonal",&TridiagonalSymmetricMatrix::isDiagonal,
              (bp::arg("self"),bp::arg("prec") = dummy_precision),
              "Returns true if *this is approximately equal to the a diagonal matrix, within the precision given by prec.")
-        
+#endif // PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def("rows",&TridiagonalSymmetricMatrix::rows,bp::arg("self"))
         .def("cols",&TridiagonalSymmetricMatrix::cols,bp::arg("self"))
         .def("matrix",&TridiagonalSymmetricMatrix::matrix,bp::arg("self"))
