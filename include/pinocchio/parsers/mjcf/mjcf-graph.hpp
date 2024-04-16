@@ -59,7 +59,7 @@ namespace pinocchio
                     double boundInertia = 0;
 
                     // True, false or auto - auto = indeterminate
-                    boost::logic::tribool inertiafromgeom = boost::indeterminate;
+                    boost::logic::tribool inertiafromgeom = boost::logic::indeterminate;
                     
                     /// @brief Convert the angle in radian if model was declared to use degree
                     /// @param angle_ angle to convert
