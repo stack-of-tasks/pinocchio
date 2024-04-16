@@ -95,12 +95,9 @@ namespace pinocchio
             
             Eigen::Matrix3d MjcfCompiler::convertEuler(const Eigen::Vector3d &angles) const
             {
-                convertAngle(angles(0));
-                Eigen::Matrix3d aa1 = Eigen::AngleAxisd(angles(0), mapEulerAngles.col(0)).toRotationMatrix();
-                convertAngle(angles(1));
-                Eigen::Matrix3d aa2 = Eigen::AngleAxisd(angles(1), mapEulerAngles.col(1)).toRotationMatrix();
-                convertAngle(angles(2));
-                Eigen::Matrix3d aa3 = Eigen::AngleAxisd(angles(2), mapEulerAngles.col(2)).toRotationMatrix();
+                Eigen::Matrix3d aa1 = Eigen::AngleAxisd(convertAngle(angles(0)), mapEulerAngles.col(0)).toRotationMatrix();   
+                Eigen::Matrix3d aa2 = Eigen::AngleAxisd(convertAngle(angles(1)), mapEulerAngles.col(1)).toRotationMatrix();
+                Eigen::Matrix3d aa3 = Eigen::AngleAxisd(convertAngle(angles(2)), mapEulerAngles.col(2)).toRotationMatrix();
 
                 return aa1*aa2*aa3;
             }
@@ -275,9 +272,9 @@ namespace pinocchio
                     Eigen::Vector4d axis_angle = internal::getVectorFromStream<4>(*rot_s);
 
                     double angle = axis_angle(3);
-                    compilerInfo.convertAngle(angle);
+                    
 
-                    Eigen::AngleAxisd angleAxis(angle, axis_angle.head(3));
+                    Eigen::AngleAxisd angleAxis(compilerInfo.convertAngle(angle), axis_angle.head(3));
                     placement.rotation() = angleAxis.toRotationMatrix();
                 }
                 // Euler Angles
@@ -379,7 +376,7 @@ namespace pinocchio
                 bool usegeominertia = false;
                 if(compilerInfo.inertiafromgeom)
                     usegeominertia = true;
-                else if(compilerInfo.inertiafromgeom == boost::logic::indeterminate && !el.get_child_optional("inertial"))
+                else if(boost::indeterminate(compilerInfo.inertiafromgeom) && !el.get_child_optional("inertial"))
                     usegeominertia = true;
 
                 for(const ptree::value_type &v:el)
@@ -458,7 +455,7 @@ namespace pinocchio
                     for(const auto &geom : currentBody.geomChildren)
                     {
                         if(geom.geomKind != MjcfGeom::VISUAL)
-                            inert_temp += geom.geomPlacement.actInv(geom.geomInertia);
+                            inert_temp += geom.geomPlacement.act(geom.geomInertia);
                     }
                     currentBody.bodyInertia = inert_temp;
                 }
@@ -729,7 +726,6 @@ namespace pinocchio
                 // get body pose in body parent
                 const SE3 bodyPose = currentBody.bodyPlacement;
                 Inertia inert = currentBody.bodyInertia;
-
                 SE3 jointInParent = bodyPose * joint.jointPlacement;
                 SE3 bodyInJoint = joint.jointPlacement.inverse();
                 UrdfVisitor::JointType jType;
@@ -873,6 +869,8 @@ namespace pinocchio
                                         );
                     FrameIndex jointFrameId = urdfVisitor.model.addJointFrame(joint_id, (int)parentFrameId);
                     urdfVisitor.appendBodyToJoint(jointFrameId, inert, bodyInJoint, nameOfBody);
+                    
+                    urdfVisitor.model.armature[static_cast<Eigen::Index>(joint_id)-1] = rangeCompo.armature;
                 }
             }
 

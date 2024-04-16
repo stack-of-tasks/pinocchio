@@ -331,7 +331,7 @@ namespace pinocchio
       const Scalar pi = boost::math::constants::pi<Scalar>();
 
       // first need to compute mass repartition between cylinder and halfsphere
-      const Scalar v_cyl =  pi * radius * height;
+      const Scalar v_cyl = pi * math::pow(radius, 2) * height;
       const Scalar v_hs = Scalar(2) / Scalar(3) * math::pow(radius, 3) * pi;
       const Scalar total_v = v_cyl + Scalar(2)*v_hs;
 
@@ -339,18 +339,18 @@ namespace pinocchio
       const Scalar m_hs = mass * (v_hs / total_v);
 
       // Then Distance between halfSphere center and cylindere center.
-      const Scalar dist_hc_cyl =  height + Scalar(0.375) * radius;
+      const Scalar dist_hc_cyl =  height / Scalar(2) + Scalar(0.375) * radius;
 
       // Computes inertia terms 
-      const Scalar ix_c = m_cyl * (math::pow(height, 2) + math::pow(radius, 2)*Scalar(3))/Scalar(12);
+      const Scalar ix_c = m_cyl * (math::pow(height, 2) / Scalar(12) + math::pow(radius, 2) / Scalar(4));
       const Scalar iz_c = m_cyl * math::pow(radius, 2) / Scalar(2);
 
       // For halfsphere inertia see, "Dynamics: Theory and Applications" McGraw-Hill, New York, 1985, by T.R. Kane and D.A. Levinson, Appendix 23.
-      const Scalar ix_hs = m_hs * math::pow(radius, 2)*Scalar(83)/Scalar(320);
-      const Scalar iz_hs = m_hs * math::pow(radius, 2)*Scalar(2)/Scalar(5);
+      const Scalar ix_hs = m_hs * math::pow(radius, 2)*Scalar(0.259375);
+      const Scalar iz_hs = m_hs * math::pow(radius, 2)*Scalar(0.4);
 
       //Put everything together using the parallel axis theorem
-      const Scalar ix = ix_c + Scalar(2)*ix_hs + Scalar(2)*m_hs*dist_hc_cyl;
+      const Scalar ix = ix_c + Scalar(2)*(ix_hs + m_hs*math::pow(dist_hc_cyl, 2));
       const Scalar iz = iz_c + Scalar(2)*iz_hs;
 
       return InertiaTpl(mass, Vector3::Zero(), Symmetric3(ix,         Scalar(0), ix,

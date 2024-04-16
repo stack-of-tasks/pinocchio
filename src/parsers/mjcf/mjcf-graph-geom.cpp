@@ -220,8 +220,7 @@ namespace pinocchio
                     throw std::invalid_argument("Both pos and fromto are defined in geom object");
 
                 // Placement
-                if(el.get_child_optional("<xmlattr>.pos"))
-                    geomPlacement = currentGraph.convertPosition(el);
+                geomPlacement = currentGraph.convertPosition(el);
 
                 //density 
                 auto value_v = el.get_optional<double>("<xmlattr>.density");
@@ -287,9 +286,9 @@ namespace pinocchio
             {
                 // Common mechanism to set visual only geometry
                 if(contype == 0 && conaffinity == 0)
-                geomKind =  VISUAL;
+                    geomKind =  VISUAL;
                 else if(group > 2) // Mechanism for Collision only geometries
-                geomKind = COLLISION;
+                    geomKind = COLLISION;
                 else
                     geomKind = BOTH;
             }
@@ -370,7 +369,7 @@ namespace pinocchio
                 }
                 else if(geomType == "cylinder")
                 {
-                    geomInertia = Inertia::FromCylinder(mass, size(0), size(1));
+                    geomInertia = Inertia::FromCylinder(mass, size(0), size(1) * 2);
                 }
                 else if(geomType == "ellipsoid")
                 {
@@ -382,7 +381,7 @@ namespace pinocchio
                 }
                 else if(geomType == "capsule")
                 {
-                    geomInertia = Inertia::FromCapsule(mass, size(0), size(1));
+                    geomInertia = Inertia::FromCapsule(mass, size(0), size(1) * 2);
                 }
                 else
                 {

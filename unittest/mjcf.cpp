@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(geoms_construction)
     // Test Cylinder
     pinocchio::mjcf::details::MjcfBody bodyTest = graph.mapOfBodies.at("bodyCylinder");
     double mass = 1000 * std::pow(0.01, 2) * 0.25 * pi * 2;
-    pinocchio::Inertia inertTest = pinocchio::Inertia::FromCylinder(mass, 0.01, 0.25);
+    pinocchio::Inertia inertTest = pinocchio::Inertia::FromCylinder(mass, 0.01, 0.25 * 2);
     Eigen::Vector2d sizeCy;
     sizeCy << 0.01, 0.25;
     for(const auto &geom : bodyTest.geomChildren)
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(geoms_construction)
     // Test Capsule
     bodyTest = graph.mapOfBodies.at("bodyCapsule");
     mass = 1000 *( 4.0 / 3 * pi * std::pow(0.01, 3) + 2 * pi * std::pow(0.01, 2) * 0.25);
-    inertTest = pinocchio::Inertia::FromCapsule(mass, 0.01, 0.25);
+    inertTest = pinocchio::Inertia::FromCapsule(mass, 0.01, 0.25 * 2);
     Eigen::Vector2d sizeCa;
     sizeCa << 0.01, 0.25;
     for(const auto &geom : bodyTest.geomChildren)
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE(inertia_from_geom)
     pinocchio::Inertia inertBigBox = pinocchio::Inertia::FromBox(massBigBox, 0.02, 0.02, 0.04);
     // Create a frame on the bottom face of BigBox and express inertia
     Eigen::Vector3d pl;
-    pl << 0, 0, -0.02;
+    pl << 0, 0, 0.02;
     pinocchio::SE3 placementBigBox(Eigen::Matrix3d::Identity(), pl);
     inertBigBox = placementBigBox.act(inertBigBox); 
 
