@@ -97,7 +97,6 @@ OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" 
 OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
 OPTION(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
 OPTION(BUILD_WITH_EXTRA_SUPPORT "Build the library with extra algorithms support" OFF)
-cmake_dependent_option(LINK_PYTHON_INTERFACE_TO_OPENMP "Link OpenMP to the Python interface" ON BUILD_WITH_OPENMP_SUPPORT OFF)
 cmake_dependent_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT "Build the Python interface with Boost.Multiprecision MPFR support" OFF BUILD_PYTHON_INTERFACE OFF)
 cmake_dependent_option(BUILD_WITH_LIBPYTHON "Link to libpython to embed an interpreter for the python_parser feature" ON
   "BUILD_PYTHON_INTERFACE" OFF)
