@@ -84,12 +84,11 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/kinematics.hxx
   include/pinocchio/algorithm/model.hpp
   include/pinocchio/algorithm/model.hxx
-  include/pinocchio/algorithm/parallel/aba.hpp
-  include/pinocchio/algorithm/parallel/omp.hpp
-  include/pinocchio/algorithm/parallel/rnea.hpp
   include/pinocchio/algorithm/pgs-solver.hpp
   include/pinocchio/algorithm/pgs-solver.hxx
   include/pinocchio/algorithm/proximal.hpp
+  include/pinocchio/algorithm/pv.hpp
+  include/pinocchio/algorithm/pv.hxx
   include/pinocchio/algorithm/regressor.hpp
   include/pinocchio/algorithm/regressor.hxx
   include/pinocchio/algorithm/rnea-derivatives.hpp
@@ -296,6 +295,12 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/utils/version.hpp
 )
 
+SET(${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS
+  include/pinocchio/algorithm/parallel/aba.hpp
+  include/pinocchio/algorithm/parallel/omp.hpp
+  include/pinocchio/algorithm/parallel/rnea.hpp
+  )
+
 SET(${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_SOURCES
   src/collision/collision.cpp
   src/collision/distance.cpp
@@ -325,7 +330,7 @@ SET(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS
   include/pinocchio/collision/pool/broadphase-manager.hpp
   )
 
-SET(${PROJECT_NAME}_COLLISION_OPENMP_PUBLIC_HEADERS
+SET(${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS
   include/pinocchio/collision/parallel/broadphase.hpp
   include/pinocchio/collision/parallel/geometry.hpp
   )
@@ -629,25 +634,25 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PUBLIC_HEADERS
   include/pinocchio/bindings/python/collision/collision.hpp
   )
 
-SET(${PROJECT_NAME}_BINDINGS_PYTHON_OPENMP_SOURCES
+SET(${PROJECT_NAME}_BINDINGS_PYTHON_PARALLEL_SOURCES
   bindings/python/multibody/pool/expose-pool.cpp
   bindings/python/algorithm/parallel/aba.cpp
   bindings/python/algorithm/parallel/expose-parallel.cpp
   bindings/python/algorithm/parallel/rnea.cpp
   )
 
-SET(${PROJECT_NAME}_BINDINGS_PYTHON_OPENMP_PUBLIC_HEADERS
+SET(${PROJECT_NAME}_BINDINGS_PYTHON_PARALLEL_PUBLIC_HEADERS
   include/pinocchio/bindings/python/multibody/pool/model.hpp
   )
 
-SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_SOURCES
+SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PARALLEL_SOURCES
   bindings/python/collision/parallel/expose-parallel.cpp
   bindings/python/collision/parallel/geometry.cpp
   bindings/python/collision/parallel/broadphase.cpp
   bindings/python/collision/pool/expose-pool.cpp
   )
 
-SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_PUBLIC_HEADERS
+SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PARALLEL_PUBLIC_HEADERS
   include/pinocchio/bindings/python/collision/pool/geometry.hpp
   include/pinocchio/bindings/python/collision/pool/broadphase-manager.hpp
   )
