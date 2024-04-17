@@ -1,9 +1,10 @@
 from .. import pinocchio_pywrap_default as pin
-from ..shortcuts import buildModelsFromUrdf, createDatas
+from ..shortcuts import createDatas
 
 import time
 import numpy as np
 import os.path as osp
+import abc
 
 try:
     import imageio
@@ -12,7 +13,7 @@ except ImportError:
     IMAGEIO_SUPPORT = False
 
 
-class BaseVisualizer(object):
+class BaseVisualizer(abc.ABC):
     """Pinocchio visualizers are employed to easily display a model at a given configuration.
     BaseVisualizer is not meant to be directly employed, but only to provide a uniform interface and a few common methods.
     New visualizers should extend this class and override its methods as neeeded.
@@ -85,19 +86,22 @@ class BaseVisualizer(object):
         """Delete all the objects from the whole scene"""
         pass
 
+    @abc.abstractmethod
     def display(self, q=None):
         """Display the robot at configuration q or refresh the rendering
         from the current placements contained in data by placing all the bodies in the viewer."""
-        pass
+        ...
 
+    @abc.abstractmethod
     def displayCollisions(self, visibility):
         """Set whether to display collision objects or not."""
-        raise NotImplementedError()
+        ...
  
+    @abc.abstractmethod
     def displayVisuals(self, visibility):
         """Set whether to display visual objects or not."""
-        raise NotImplementedError()
-    
+        ...
+
     def setBackgroundColor(self):
         """Set the visualizer background color."""
         raise NotImplementedError()
@@ -106,30 +110,23 @@ class BaseVisualizer(object):
         """Set the camera target."""
         raise NotImplementedError()
 
+    @abc.abstractmethod
     def setCameraPosition(self, position: np.ndarray):
         """Set the camera's 3D position."""
-        raise NotImplementedError()
+        ...
 
+    @abc.abstractmethod
     def setCameraZoom(self, zoom: float):
         """Set camera zoom value."""
-        raise NotImplementedError()
+        ...
 
+    @abc.abstractmethod
     def setCameraPose(self, pose: np.ndarray = np.eye(4)):
         """Set camera 6D pose using a 4x4 matrix."""
-        raise NotImplementedError()
+        ...
 
     def captureImage(self, w=None, h=None):
         """Captures an image from the viewer and returns an RGB array."""
-        raise NotImplementedError()
-
-    def disableCameraControl(self):
-        raise NotImplementedError()
-
-    def enableCameraControl(self):
-        raise NotImplementedError()
-
-    def drawFrameVelocities(self, *args):
-        """Draw current frame velocities."""
         raise NotImplementedError()
 
     def disableCameraControl(self):
