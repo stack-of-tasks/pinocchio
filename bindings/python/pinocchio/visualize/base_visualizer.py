@@ -1,5 +1,5 @@
 from .. import pinocchio_pywrap_default as pin
-from ..shortcuts import buildModelsFromUrdf, createDatas
+from ..shortcuts import createDatas
 
 import time
 import numpy as np
@@ -120,16 +120,6 @@ class BaseVisualizer(object):
 
     def captureImage(self, w=None, h=None):
         """Captures an image from the viewer and returns an RGB array."""
-        raise NotImplementedError()
-
-    def disableCameraControl(self):
-        raise NotImplementedError()
-
-    def enableCameraControl(self):
-        raise NotImplementedError()
-
-    def drawFrameVelocities(self, *args):
-        """Draw current frame velocities."""
         raise NotImplementedError()
 
     def disableCameraControl(self):
