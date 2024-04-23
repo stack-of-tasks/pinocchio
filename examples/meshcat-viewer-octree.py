@@ -11,7 +11,10 @@ from os.path import dirname, join, abspath
 from pinocchio.visualize import MeshcatVisualizer
 import hppfcl as fcl
 
-with_octomap = fcl.WITH_OCTOMAP
+if tuple(map(int, fcl.__version__.split('.'))) >= (3, 0, 0):
+    with_octomap = fcl.WITH_OCTOMAP
+else:
+    with_octomap = False
 if not with_octomap:
    print("This example is skiped as HPP-FCL has not been compiled with octomap support.")
 

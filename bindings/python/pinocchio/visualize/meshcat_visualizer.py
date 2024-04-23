@@ -183,7 +183,9 @@ if import_meshcat_succeed:
                 u"heightSegments": self.heightSegments,
             }
 
-if WITH_HPP_FCL_BINDINGS and hppfcl.WITH_OCTOMAP:
+if WITH_HPP_FCL_BINDINGS and \
+        tuple(map(int, hppfcl.__version__.split('.'))) >= (3, 0, 0) and \
+        hppfcl.WITH_OCTOMAP:
     def loadOctree(octree: hppfcl.OcTree):
         boxes = octree.toBoxes()
 
@@ -700,7 +702,7 @@ class MeshcatVisualizer(BaseVisualizer):
             if WITH_HPP_FCL_BINDINGS:
                 if isinstance(geometry_object.geometry, hppfcl.ShapeBase):
                     obj = self.loadPrimitive(geometry_object)
-                elif hppfcl.WITH_OCTOMAP and isinstance(geometry_object.geometry, hppfcl.OcTree):
+                elif tuple(map(int, hppfcl.__version__.split('.'))) >= (3, 0, 0) and hppfcl.WITH_OCTOMAP and isinstance(geometry_object.geometry, hppfcl.OcTree):
                     obj = loadOctree(geometry_object.geometry)
                 elif isinstance(geometry_object.geometry, (hppfcl.BVHModelBase,hppfcl.HeightFieldOBBRSS,hppfcl.HeightFieldAABB)):
                     obj = loadMesh(geometry_object.geometry)

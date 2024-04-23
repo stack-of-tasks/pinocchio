@@ -12,15 +12,38 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/array.hpp>
 
-// Workaround a bug in GCC >= 7 and C++17
+// If hpp-fcl < 3.0.0 The GCC Eigen/Boost.Serialization workaround
+// is already defined.
+// If we don't link against hpp-fcl or hpp-fcl >= 3.0.0 then we must define
+// the workaround.
+#if defined PINOCCHIO_WITH_HPP_FCL
+# include <hpp/fcl/config.hh>
+# if !HPP_FCL_VERSION_AT_LEAST(3,0,0) // hpp-fcl < 3.0.0
+#  define HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
+#  include <hpp/fcl/serialization/eigen.h>
+# else // hpp-fcl >= 3.0.0
+// Workaround a bug in GCC >= 7 and C++17.
 // ref. https://gitlab.com/libeigen/eigen/-/issues/1676
-#ifdef __GNUC__
-#if __GNUC__ >= 7 && __cplusplus >= 201703L
+#  ifdef __GNUC__
+#   if __GNUC__ >= 7 && __cplusplus >= 201703L
 namespace boost { namespace serialization { struct U; } }
 namespace Eigen { namespace internal {
 template<> struct traits<boost::serialization::U> {enum {Flags=0};};
 } }
-#endif
+#   endif
+#  endif
+# endif
+#else // !PINOCCHIO_WITH_HPP_FCL
+// Workaround a bug in GCC >= 7 and C++17.
+// ref. https://gitlab.com/libeigen/eigen/-/issues/1676
+# ifdef __GNUC__
+#  if __GNUC__ >= 7 && __cplusplus >= 201703L
+namespace boost { namespace serialization { struct U; } }
+namespace Eigen { namespace internal {
+template<> struct traits<boost::serialization::U> {enum {Flags=0};};
+} }
+#  endif
+# endif
 #endif
 
 namespace boost

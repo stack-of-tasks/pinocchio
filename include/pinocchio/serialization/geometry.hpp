@@ -15,7 +15,9 @@
   #undef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
   #include <hpp/fcl/serialization/geometric_shapes.h>
   #include <hpp/fcl/serialization/hfield.h>
+#if HPP_FCL_VERSION_AT_LEAST(3,0,0)
   #include <hpp/fcl/serialization/octree.h>
+#endif
   #include <hpp/fcl/serialization/convex.h>
   #include <hpp/fcl/serialization/BVH_model.h>
 #endif // PINOCCHIO_WITH_HPP_FCL
