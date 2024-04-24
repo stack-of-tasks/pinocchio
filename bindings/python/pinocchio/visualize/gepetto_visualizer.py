@@ -1,6 +1,8 @@
 from .. import pinocchio_pywrap_default as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
 from ..utils import npToTuple
+
+import numpy as np
 from numpy.linalg import norm
 
 from . import BaseVisualizer
@@ -233,5 +235,33 @@ class GepettoVisualizer(BaseVisualizer):
         for visual in self.visual_model.geometryObjects:
             nodeName = self.getViewerNodeName(visual,pin.GeometryType.VISUAL)
             gui.setVisibility(nodeName,visibility_mode)
+
+    def setBackgroundColor(self):
+        raise NotImplementedError()
+
+    def setCameraTarget(self, target):
+        raise NotImplementedError()
+
+    def setCameraPosition(self, position: np.ndarray):
+        raise NotImplementedError()
+
+    def setCameraZoom(self, zoom: float):
+        raise NotImplementedError()
+
+    def setCameraPose(self, pose: np.ndarray):
+        raise NotImplementedError()
+
+    def captureImage(self, w=None, h=None):
+        raise NotImplementedError()
+
+    def disableCameraControl(self):
+        raise NotImplementedError()
+
+    def enableCameraControl(self):
+        raise NotImplementedError()
+
+    def drawFrameVelocities(self, *args, **kwargs):
+        raise NotImplementedError()
+
 
 __all__ = ['GepettoVisualizer']

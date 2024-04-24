@@ -4,6 +4,8 @@ from .. import pinocchio_pywrap_default as pin
 from ..utils import npToTuple
 from .base_visualizer import BaseVisualizer
 
+import numpy as np
+
 try:
     import hppfcl
     WITH_HPP_FCL_BINDINGS = True
@@ -118,5 +120,33 @@ class Panda3dVisualizer(BaseVisualizer):
         """Set whether to display visual objects or not."""
         self.viewer.show_group(self.visual_group, visibility)
         self.display_visuals = visibility
-        
+
+    def setBackgroundColor(self):
+        raise NotImplementedError()
+
+    def setCameraTarget(self, target):
+        raise NotImplementedError()
+
+    def setCameraPosition(self, position: np.ndarray):
+        raise NotImplementedError()
+
+    def setCameraZoom(self, zoom: float):
+        raise NotImplementedError()
+
+    def setCameraPose(self, pose: np.ndarray):
+        raise NotImplementedError()
+
+    def captureImage(self, w=None, h=None):
+        raise NotImplementedError()
+
+    def disableCameraControl(self):
+        raise NotImplementedError()
+
+    def enableCameraControl(self):
+        raise NotImplementedError()
+
+    def drawFrameVelocities(self, *args, **kwargs):
+        raise NotImplementedError()
+
+
 __all__ = ['Panda3dVisualizer']
