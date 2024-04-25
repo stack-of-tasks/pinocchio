@@ -11,8 +11,10 @@
 #include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
+#include "pinocchio/algorithm/center-of-mass.hpp"
 
 #include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/spatial/fwd.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -378,6 +380,39 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
         BOOST_CHECK_EQUAL(parent.name, nparent.name);
         BOOST_CHECK_EQUAL(frame.placement, nframe.placement);
       }
+    }
+
+    { 
+      Inertia inertia(2., Eigen::Vector3d(0.1, 0.1, 0.1), Eigen::Matrix3d::Identity());
+      Frame additional_frame(
+        "inertial_frame", 
+        2, 
+        SE3::Identity(), 
+        FrameType::JOINT, 
+        inertia
+      );
+      humanoid.addFrame(additional_frame);
+      double mass_humanoid = computeTotalMass(humanoid);
+      double mass_manipulator = computeTotalMass(manipulator);
+      double total_mass = mass_manipulator + mass_humanoid;
+
+      Model model4;
+      GeometryModel geomModel4;
+      appendModel(humanoid, manipulator, geomHumanoid, geomManipulator, 0,
+        SE3::Identity(), model4, geomModel4);
+      BOOST_CHECK_CLOSE(computeTotalMass(model4), total_mass, 1e-6);
+    }
+    {
+      Model ff_model;
+      auto ff_id = ff_model.addJoint(0, JointModelFreeFlyer(), SE3::Identity(), "floating_base");
+      ff_model.addJointFrame(ff_id);
+      GeometryModel ff_geom_model = GeometryModel();
+      FrameIndex frame_id = ff_model.getFrameId("floating_base");
+      Model model4;
+      GeometryModel geomModel4;
+      appendModel(ff_model, manipulator, ff_geom_model, geomManipulator, frame_id,
+        SE3::Identity(), model4, geomModel4);
+      BOOST_CHECK(model4.inertias[1]==model4.inertias[1]);
     }
   }
 #endif
