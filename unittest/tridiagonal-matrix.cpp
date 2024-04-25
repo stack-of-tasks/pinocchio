@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(test_random)
     
     PlainMatrixType res_ref = plain * rhs_mat;
     BOOST_CHECK(res.isApprox(res_ref));
-    BOOST_CHECK(res.isApprox(tridiagonal_matrix.matrix()));
+    BOOST_CHECK((tridiagonal_matrix * PlainMatrixType::Identity(mat_size,mat_size)).isApprox(tridiagonal_matrix.matrix()));
   }
   
 }

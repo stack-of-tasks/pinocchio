@@ -92,7 +92,6 @@ IF(BUILD_PYTHON_INTERFACE)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES
       sample-model-viewer
       display-shapes
-      simulation-contact-dynamics
       simulation-pendulum
       )
     IF(BUILD_WITH_URDF_SUPPORT)
@@ -101,6 +100,7 @@ IF(BUILD_PYTHON_INTERFACE)
         collisions
         collision-with-point-clouds
         append-urdf-model-with-another-model
+        simulation-contact-dynamics
         )
       IF(PYTHON_VERSION_MAJOR EQUAL 3)
         LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES

@@ -197,6 +197,7 @@ int main(int argc, char ** argv)
   }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
+ #if HPP_FCL_VERSION_AT_LEAST(3, 0, 0)
   {
     pinocchio::GeometryModel geom_model;
     pinocchio::buildModels::humanoidGeometries(model,geom_model);
@@ -220,5 +221,6 @@ int main(int argc, char ** argv)
 
     generic_test(geom_data,TEST_SERIALIZATION_FOLDER"/GeometryData","GeometryData");
   }
-#endif
+ #endif // hpp-fcl >= 3.0.0
+#endif // PINOCCHIO_WITH_HPP_FCL
 }
