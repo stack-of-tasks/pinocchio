@@ -73,10 +73,6 @@ IF(urdfdom_FOUND)
     )
 ENDIF(urdfdom_FOUND)
 
-SET(${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS
-  bindings_build_geom_from_urdf_memorycheck
-  )
-
 FOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
   SET(TEST_NAME "test-py-${TEST}")
   ADD_PYTHON_UNIT_TEST(${TEST_NAME} "unittest/python/${TEST}.py" "bindings/python")
@@ -89,12 +85,18 @@ IF(BUILD_WITH_CASADI_SUPPORT)
   ADD_SUBDIRECTORY(casadi)
 ENDIF(BUILD_WITH_CASADI_SUPPORT)
 
+# TODO BUILD_ADVANCED_TESTING
 IF(MEMORYCHECK_COMMAND AND MEMORYCHECK_COMMAND MATCHES ".*valgrind$")
+  SET(${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS
+    bindings_build_geom_from_urdf_memorycheck
+    )
+
   FOREACH(TEST ${${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS})
     SET(TEST_NAME "test-py-memory-${TEST}")
-    ADD_PYTHON_MEMORYCHECK_UNIT_TEST(${TEST_NAME}
-      "unittest/python/${TEST}.py"
-      "bindings/python")
+    ADD_PYTHON_MEMORYCHECK_UNIT_TEST_V2(NAME ${TEST_NAME}
+      SOURCE "unittest/python/${TEST}.py"
+      SUPP "unittest/python/${TEST}.supp"
+      MODULES "bindings/python")
     ADD_WINDOWS_DLL_PATH_TO_TEST(${TEST_NAME})
   ENDFOREACH()
 ELSE()

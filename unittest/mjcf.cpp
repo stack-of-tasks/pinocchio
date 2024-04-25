@@ -414,6 +414,7 @@ namespace pt = boost::property_tree;
     BOOST_CHECK(comparePropertyTrees(graph.mapOfClasses.at("layerP").classElement,  p4.get_child("default")));
 }
 
+#ifdef PINOCCHIO_WITH_URDFDOM
 // @brief Test to check that default classes and child classes are taken into account
 BOOST_AUTO_TEST_CASE(parse_default_class)
 {
@@ -437,6 +438,7 @@ BOOST_AUTO_TEST_CASE(parse_default_class)
     for(int i = 0; i < model_m.njoints; i++)
         BOOST_CHECK_EQUAL(model_m.joints[i], model_u.joints[i]);
 }
+#endif // PINOCCHIO_WITH_URDFDOM
 
 /// @brief Test to see if path options work
 BOOST_AUTO_TEST_CASE(parse_dirs_no_strippath)
@@ -860,6 +862,7 @@ BOOST_AUTO_TEST_CASE (build_model_no_root_joint)
     BOOST_CHECK_EQUAL(model_m.nq, 29);
 }
 
+#ifdef PINOCCHIO_WITH_URDFDOM
 /// @brief Test all the data of the humanoid model (Need to find the urdf yet)
 /// @param  
 BOOST_AUTO_TEST_CASE (compare_to_urdf)
@@ -948,6 +951,7 @@ BOOST_AUTO_TEST_CASE (compare_to_urdf)
     BOOST_CHECK(model_urdf.frames[k] == model_m.frames[k]);
     }
 }
+#endif // PINOCCHIO_WITH_URDFDOM
 
 #if defined(PINOCCHIO_WITH_HPP_FCL)
 BOOST_AUTO_TEST_CASE(test_geometry_parsing)
