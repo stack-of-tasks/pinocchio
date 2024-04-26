@@ -2,7 +2,7 @@
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -22,6 +22,8 @@
 
 #include "pinocchio/serialization/geometry.hpp"
 
+#include <boost/filesystem.hpp>
+
 #include <iostream>
 
 // PINOCCHIO_MODEL_DIR is defined by the CMake but you can define your own directory here.
@@ -29,7 +31,6 @@
   #define PINOCCHIO_MODEL_DIR "path_to_the_model_dir"
 #endif
 
-#define TEST_SERIALIZATION_FOLDER "/tmp"
 #define BOOST_CHECK(check) \
     if (!(check))          \
         std::cout << BOOST_STRINGIZE(check) << " has failed" << std::endl;
@@ -179,21 +180,24 @@ void generic_test(const T & object,
   }
 }
 
-int main(int argc, char ** argv)
+int main(int, char **)
 {
+  namespace fs = boost::filesystem;
 
   Model model;
   buildModels::humanoid(model);
   Data data(model);
 
+  fs::path model_path = fs::temp_directory_path() / "GeometryModel";
+  fs::path data_path = fs::temp_directory_path() / "GeometryData";
 //  boost::serialization::void_cast_register<hpp::fcl::BVHModel<hpp::fcl::OBBRSS>,hpp::fcl::CollisionGeometry>();
   // Empty structures
   {
     GeometryModel geom_model;
-    generic_test(geom_model,TEST_SERIALIZATION_FOLDER"/GeometryModel","GeometryModel");
+    generic_test(geom_model, model_path.string(), "GeometryModel");
 
     GeometryData geom_data(geom_model);
-    generic_test(geom_data,TEST_SERIALIZATION_FOLDER"/GeometryData","GeometryData");
+    generic_test(geom_data, data_path.string(), "GeometryData");
   }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
@@ -212,14 +216,14 @@ int main(int argc, char ** argv)
       GeometryObject obj_bvh("bvh",0,0,SE3::Identity(),GeometryObject::CollisionGeometryPtr(bvh_ptr));
       geom_model.addGeometryObject(obj_bvh);
     }
-    generic_test(geom_model,TEST_SERIALIZATION_FOLDER"/GeometryModel","GeometryModel");
+    generic_test(geom_model, model_path.string(), "GeometryModel");
 
     pinocchio::GeometryData geom_data(geom_model);
     const Eigen::VectorXd q = pinocchio::neutral(model);
     pinocchio::forwardKinematics(model,data,q);
     pinocchio::updateGeometryPlacements(model,data,geom_model,geom_data,q);
 
-    generic_test(geom_data,TEST_SERIALIZATION_FOLDER"/GeometryData","GeometryData");
+    generic_test(geom_data, data_path.string(), "GeometryData");
   }
  #endif // hpp-fcl >= 3.0.0
 #endif // PINOCCHIO_WITH_HPP_FCL

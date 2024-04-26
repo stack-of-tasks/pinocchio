@@ -2,7 +2,7 @@
 
 #include <iosfwd>
 #include <pinocchio/multibody/model.hpp>
-#include <pinocchio/parsers/sample-models.hpp>
+#include <pinocchio/multibody/sample-models.hpp>
 #include <pinocchio/algorithm/rnea.hpp>
 
 using namespace CppAD;

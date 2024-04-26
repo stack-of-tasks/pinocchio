@@ -7,7 +7,7 @@
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hxx"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/algorithm/delassus.hpp"
 
 #include <boost/test/unit_test.hpp>

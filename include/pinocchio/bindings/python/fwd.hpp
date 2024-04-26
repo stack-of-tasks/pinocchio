@@ -44,6 +44,7 @@ namespace pinocchio
     void exposeModel();
     void exposeFrame();
     void exposeData();
+    void exposeSampleModels();
     
     // Expose geometry module
     void exposeGeometry();
@@ -53,6 +54,7 @@ namespace pinocchio
     
     // Expose algorithms
     void exposeAlgorithms();
+    void exposeExtras();
     
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS
     void exposeFCL();

@@ -14,7 +14,7 @@
 #define PINOCCHIO_SKIP_ALGORITHM_CONTACT_CHOLESKY
 #define PINOCCHIO_SKIP_ALGORITHM_CONTACT_JACOBIAN
 #define PINOCCHIO_SKIP_ALGORITHM_CHOLESKY
-#define PINOCCHIO_SKIP_PARSERS_SAMPLE_MODELS
+#define PINOCCHIO_SKIP_MULTIBODY_SAMPLE_MODELS
 
 namespace pinocchio {
   // forward declarations which are necessary to include pinocchio/autodiff/cppadcg.hpp

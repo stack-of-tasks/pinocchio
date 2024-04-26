@@ -9,11 +9,11 @@
 
 namespace pinocchio {
 
-  extern template PINOCCHIO_DLLAPI void updateGeometryPlacements
+  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI void updateGeometryPlacements
     <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs>
     (const context::Model &, context::Data &, const GeometryModel &, GeometryData &, const Eigen::MatrixBase<context::VectorXs> &);
 
-  extern template PINOCCHIO_DLLAPI void updateGeometryPlacements
+  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI void updateGeometryPlacements
     <context::Scalar, context::Options, JointCollectionDefaultTpl>
     (const context::Model &, const context::Data &, const GeometryModel &, GeometryData &);
 

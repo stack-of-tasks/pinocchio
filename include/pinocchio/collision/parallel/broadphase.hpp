@@ -10,6 +10,8 @@
 #include "pinocchio/algorithm/geometry.hpp"
 #include "pinocchio/algorithm/parallel/omp.hpp"
 
+#include <cstdint>
+
 namespace pinocchio
 {
 
@@ -112,12 +114,16 @@ void computeCollisionsInParallel(const size_t num_threads,
   }
 
   set_default_omp_options(num_threads);
-  const size_t batch_size = trajectories.size();
+  const int64_t batch_size = static_cast<int64_t>(trajectories.size());
 
-  size_t i = 0;
+  int64_t omp_i = 0;
+  // Visual studio support OpenMP 2 that only support signed indexes in for loops
+  // See https://stackoverflow.com/questions/2820621/why-arent-unsigned-openmp-index-variables-allowed
+  // -openmp:llvm could solve this: https://learn.microsoft.com/en-us/cpp/build/reference/openmp-enable-openmp-2-0-support?view=msvc-160
 #pragma omp parallel for schedule(static)
-  for(i = 0; i < batch_size; i++)
+  for(omp_i = 0; omp_i < batch_size; omp_i++)
   {
+    size_t i = static_cast<size_t>(omp_i);
     const int thread_id = omp_get_thread_num();
     const Model & model = models[size_t(thread_id)];
     Data & data = datas[(size_t)thread_id];

@@ -7,7 +7,7 @@
 
 namespace pinocchio {
 
-  template std::size_t computeDistances
+  template PINOCCHIO_COLLISION_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI std::size_t computeDistances
     <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs>
     (const context::Model &, context::Data &, const GeometryModel &, GeometryData &, const Eigen::MatrixBase<context::VectorXs> &);
 

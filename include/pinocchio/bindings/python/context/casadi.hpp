@@ -74,12 +74,11 @@ struct expected_pytype_for_arg<Eigen::Matrix<::casadi::Matrix<CasadiScalar>, Row
   }
 };
 
-template<typename _Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols, typename CasadiScalar>
-struct EigenFromPy<Eigen::Matrix<_Scalar,Rows,Cols,Options,MaxRows,MaxCols>,::casadi::Matrix<CasadiScalar> >
+template<typename CasadiScalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+struct EigenFromPy<Eigen::Matrix<::casadi::Matrix<CasadiScalar>,Rows,Cols,Options,MaxRows,MaxCols>>
 {
-  typedef _Scalar Scalar;
   typedef ::casadi::Matrix<CasadiScalar> CasadiMatrix;
-  typedef Eigen::Matrix<_Scalar,Rows,Cols,Options,MaxRows,MaxCols> MatType;
+  typedef Eigen::Matrix<::casadi::Matrix<CasadiScalar>, Rows, Cols, Options, MaxRows, MaxCols> MatType;
   
   /// \brief Determine if pyObj can be converted into a MatType object
   static void* convertible(PyObject* pyObj);
@@ -91,8 +90,8 @@ struct EigenFromPy<Eigen::Matrix<_Scalar,Rows,Cols,Options,MaxRows,MaxCols>,::ca
   static void registration();
 };
 
-template<typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols, typename CasadiScalar>
-void* EigenFromPy<Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols>,::casadi::Matrix<CasadiScalar> >::convertible(PyObject * pyObj)
+template<typename CasadiScalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+void* EigenFromPy<Eigen::Matrix<::casadi::Matrix<CasadiScalar>,Rows,Cols,Options,MaxRows,MaxCols>>::convertible(PyObject * pyObj)
 {
   if(std::strcmp(pyObj->ob_type->tp_name,CasadiMatrix::type_name().c_str()) != 0)
     return 0;
@@ -179,8 +178,8 @@ void* EigenFromPy<Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols>,::casa
 #undef RETURN_VALUE
 }
 
-template<typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols, typename CasadiScalar>
-void EigenFromPy<Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols>,::casadi::Matrix<CasadiScalar> >::construct(PyObject * pyObj,
+template<typename CasadiScalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+void EigenFromPy<Eigen::Matrix<::casadi::Matrix<CasadiScalar>,Rows,Cols,Options,MaxRows,MaxCols>>::construct(PyObject * pyObj,
                                                                 bp::converter::rvalue_from_python_stage1_data* memory)
 {
   eigenpy::PySwigObject * casadi_matrix_swig_obj = eigenpy::get_PySwigObject(pyObj);
@@ -207,8 +206,8 @@ void EigenFromPy<Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols>,::casad
   Py_DECREF(reinterpret_cast<PyObject *>(casadi_matrix_swig_obj));
 }
 
-template<typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols, typename CasadiScalar>
-void EigenFromPy<Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols>,::casadi::Matrix<CasadiScalar> >::registration()
+template<typename CasadiScalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+void EigenFromPy<Eigen::Matrix<::casadi::Matrix<CasadiScalar>,Rows,Cols,Options,MaxRows,MaxCols>>::registration()
 {
   bp::converter::registry::push_back
   (reinterpret_cast<void *(*)(_object *)>(&EigenFromPy::convertible),
@@ -220,10 +219,10 @@ void EigenFromPy<Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols>,::casad
    );
 }
 
-template<typename MatType, typename _Scalar>
-struct EigenToPy<MatType,::casadi::Matrix<_Scalar> >
+template<typename MatType>
+struct EigenToPy<MatType, ::casadi::Matrix<::casadi::SXElem>>
 {
-  typedef ::casadi::Matrix<_Scalar> CasadiMatrix;
+  typedef ::casadi::Matrix<::casadi::SXElem> CasadiMatrix;
   
   static PyObject* convert(typename boost::add_reference<typename boost::add_const<MatType>::type>::type mat)
   {
@@ -256,31 +255,37 @@ struct expose_eigen_type_impl<TensorType, Eigen::TensorBase<TensorType>, ::casad
   static void run() {}
 };
 
-  template <typename MatType, int Options, typename Stride, typename _Scalar>
-  struct EigenToPy<Eigen::Ref<MatType, Options, Stride>, ::casadi::Matrix<_Scalar>>
+template <typename SparseType, typename _Scalar>
+struct expose_eigen_type_impl<SparseType, Eigen::SparseMatrixBase<SparseType>, ::casadi::Matrix<_Scalar> >
+{
+  static void run() {}
+};
+
+template<typename MatType, int Options, typename Stride>
+struct EigenToPy<Eigen::Ref<MatType, Options, Stride>, ::casadi::Matrix<::casadi::SXElem>>
+{
+  typedef ::casadi::Matrix<::casadi::SXElem> CasadiMatrix;
+
+  static PyObject* convert(const Eigen::Ref<MatType, Options, Stride>& mat)
   {
-    typedef ::casadi::Matrix<_Scalar> CasadiMatrix;
+    assert((mat.rows() < INT_MAX) && (mat.cols() < INT_MAX) && "Matrix range larger than int ... should never happen.");
+    PyObject *casadi_matrix_py_ptr = PyObject_CallObject(reinterpret_cast<PyObject *>(casadi::CasadiType::getSXType()),
+                                                         NULL);
 
-    static PyObject *convert(const Eigen::Ref<MatType, Options, Stride> &mat)
-    {
-      assert((mat.rows() < INT_MAX) && (mat.cols() < INT_MAX) && "Matrix range larger than int ... should never happen.");
-      PyObject *casadi_matrix_py_ptr = PyObject_CallObject(reinterpret_cast<PyObject *>(casadi::CasadiType::getSXType()),
-                                                           NULL);
+    eigenpy::PySwigObject *casadi_matrix_swig_obj = eigenpy::get_PySwigObject(casadi_matrix_py_ptr);
+    assert(casadi_matrix_swig_obj != NULL);
 
-      eigenpy::PySwigObject *casadi_matrix_swig_obj = eigenpy::get_PySwigObject(casadi_matrix_py_ptr);
-      assert(casadi_matrix_swig_obj != NULL);
+    CasadiMatrix *casadi_matrix_obj_ptr = reinterpret_cast<CasadiMatrix *>(casadi_matrix_swig_obj->ptr);
+    pinocchio::casadi::copy(mat.derived(), *casadi_matrix_obj_ptr);
 
-      CasadiMatrix *casadi_matrix_obj_ptr = reinterpret_cast<CasadiMatrix *>(casadi_matrix_swig_obj->ptr);
-      pinocchio::casadi::copy(mat.derived(), *casadi_matrix_obj_ptr);
+    Py_DECREF(reinterpret_cast<PyObject *>(casadi_matrix_swig_obj));
+    return casadi_matrix_py_ptr;
+  }
 
-      Py_DECREF(reinterpret_cast<PyObject *>(casadi_matrix_swig_obj));
-      return casadi_matrix_py_ptr;
-    }
-
-    static PyTypeObject const *get_pytype()
-    {
-      return ::eigenpy::casadi::CasadiType::getSXType();
-    }
+  static PyTypeObject const *get_pytype()
+  {
+    return ::eigenpy::casadi::CasadiType::getSXType();
+  }
 };
 
 namespace internal {

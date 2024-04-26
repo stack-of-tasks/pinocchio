@@ -9,7 +9,7 @@
 #include "pinocchio/collision/collision.hpp"
 #endif // PINOCCHIO_WITH_HPP_FCL
 #include "pinocchio/parsers/urdf.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/utils/timer.hpp"
 

@@ -20,7 +20,7 @@
 
 #include "pinocchio/serialization/geometry.hpp"
 
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 
 
 #include <iostream>

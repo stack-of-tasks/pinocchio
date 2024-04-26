@@ -10,43 +10,43 @@
 namespace pinocchio {
     namespace cholesky {
 
-    extern template PINOCCHIO_DLLAPI const context::MatrixXs & decompose
+    extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI const context::MatrixXs & decompose
       <context::Scalar, context::Options, JointCollectionDefaultTpl>
       (const context::Model &, context::Data &);
 
-    extern template PINOCCHIO_DLLAPI context::MatrixXs & solve
+    extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI context::MatrixXs & solve
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
       (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    extern template PINOCCHIO_DLLAPI context::MatrixXs Mv
+    extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI context::MatrixXs Mv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
       (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    extern template PINOCCHIO_DLLAPI context::MatrixXs & Mv
+    extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI context::MatrixXs & Mv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs, context::MatrixXs>
       (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    extern template PINOCCHIO_DLLAPI context::MatrixXs & UDUtv
+    extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI context::MatrixXs & UDUtv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
       (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    extern template PINOCCHIO_DLLAPI context::MatrixXs & Uv
+    extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI context::MatrixXs & Uv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
       (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    extern template PINOCCHIO_DLLAPI context::MatrixXs & Utv
+    extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI context::MatrixXs & Utv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
       (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    extern template PINOCCHIO_DLLAPI context::MatrixXs & Uiv
+    extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI context::MatrixXs & Uiv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
       (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    extern template PINOCCHIO_DLLAPI context::MatrixXs & Utiv
+    extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI context::MatrixXs & Utiv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
       (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    extern template PINOCCHIO_DLLAPI context::MatrixXs & computeMinv
+    extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI context::MatrixXs & computeMinv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
       (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 

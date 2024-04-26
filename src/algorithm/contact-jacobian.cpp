@@ -9,11 +9,11 @@
 #include "pinocchio/algorithm/contact-jacobian.hpp"
 
 namespace pinocchio {
-  template void getConstraintJacobian 
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void getConstraintJacobian 
     <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
   (const context::Model &, const context::Data &, const context::RigidConstraintModel &, context::RigidConstraintData &, const Eigen::MatrixBase<context::MatrixXs> &);
  
-  template void getConstraintsJacobian 
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void getConstraintsJacobian 
     <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs, typename context::RigidConstraintModelVector::allocator_type, typename context::RigidConstraintDataVector::allocator_type>
   (const context::Model &, const context::Data &, const context::RigidConstraintModelVector &, context::RigidConstraintDataVector &, const Eigen::MatrixBase<context::MatrixXs> &);
 

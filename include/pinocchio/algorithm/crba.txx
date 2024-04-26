@@ -9,13 +9,13 @@ namespace pinocchio {
 namespace impl {
   namespace minimal {
 
-    extern template PINOCCHIO_DLLAPI const context::MatrixXs & crba
+    extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI const context::MatrixXs & crba
       <context::Scalar, context::Options, JointCollectionDefaultTpl, Eigen::Ref<const context::VectorXs>>
     (const context::Model &, context::Data &, const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &);
 
     } // namespace minimal
 
-  extern template PINOCCHIO_DLLAPI const context::MatrixXs & crba
+  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI const context::MatrixXs & crba
     <context::Scalar, context::Options, JointCollectionDefaultTpl, Eigen::Ref<const context::VectorXs>>
   (const context::Model &, context::Data &, const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &);
 } // namespace impl

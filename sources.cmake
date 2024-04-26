@@ -224,8 +224,8 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/multibody/visitor.hpp
   include/pinocchio/multibody/visitor/joint-binary-visitor.hpp
   include/pinocchio/multibody/visitor/joint-unary-visitor.hpp
-  include/pinocchio/parsers/sample-models.hpp
-  include/pinocchio/parsers/sample-models.hxx
+  include/pinocchio/multibody/sample-models.hpp
+  include/pinocchio/multibody/sample-models.hxx
   include/pinocchio/serialization/aligned-vector.hpp
   include/pinocchio/serialization/archive.hpp
   include/pinocchio/serialization/data.hpp
@@ -383,12 +383,12 @@ SET(${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS
   )
 
 SET(${PROJECT_NAME}_EXTRA_SOURCES
-  src/algorithm/reachable-workspace.cpp
+  src/extra/reachable-workspace.cpp
   )
 
 SET(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS
-  include/pinocchio/algorithm/reachable-workspace.hpp
-  include/pinocchio/algorithm/reachable-workspace.hxx
+  include/pinocchio/extra/reachable-workspace.hpp
+  include/pinocchio/extra/reachable-workspace.hxx
   )
 
 SET(_binary_headers_root ${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio)
@@ -429,7 +429,7 @@ SET(${PROJECT_NAME}_TEMPLATE_INSTANTIATION_PUBLIC_HEADERS
   include/pinocchio/algorithm/kinematics-derivatives.txx
   include/pinocchio/multibody/model.txx
   include/pinocchio/multibody/data.txx
-  include/pinocchio/parsers/sample-models.txx
+  include/pinocchio/multibody/sample-models.txx
   )
 
 SET(${PROJECT_NAME}_TEMPLATE_INSTANTIATION_SOURCES
@@ -463,7 +463,7 @@ SET(${PROJECT_NAME}_TEMPLATE_INSTANTIATION_SOURCES
   src/algorithm/contact-jacobian.cpp
   src/multibody/model.cpp
   src/multibody/data.cpp
-  src/parsers/sample-models.cpp
+  src/multibody/sample-models.cpp
   )
 
 # Define Pinocchio Python binding sources and headers
@@ -537,10 +537,10 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
   include/pinocchio/bindings/python/multibody/geometry-data.hpp
   include/pinocchio/bindings/python/multibody/geometry-object.hpp
   include/pinocchio/bindings/python/parsers/urdf.hpp
-  include/pinocchio/bindings/python/parsers/sample-models.hpp
   include/pinocchio/bindings/python/parsers/sdf.hpp
   include/pinocchio/bindings/python/parsers/mjcf.hpp
   include/pinocchio/bindings/python/parsers/srdf.hpp
+  include/pinocchio/bindings/python/extra/extras.hpp
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
@@ -601,6 +601,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
   bindings/python/multibody/expose-frame.cpp
   bindings/python/multibody/expose-data.cpp
   bindings/python/multibody/joint/expose-joints.cpp
+  bindings/python/multibody/sample-models.cpp
   bindings/python/parsers/sdf/model.cpp
   bindings/python/parsers/sdf/geometry.cpp
   bindings/python/parsers/expose-parsers.cpp
@@ -610,7 +611,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
   bindings/python/parsers/srdf.cpp
   bindings/python/parsers/mjcf/model.cpp
   bindings/python/parsers/mjcf/geometry.cpp
-  bindings/python/parsers/sample-models.cpp
+  bindings/python/extra/expose-extras.cpp
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_SOURCES
@@ -658,7 +659,7 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PARALLEL_PUBLIC_HEADERS
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_SOURCES
-  bindings/python/algorithm/expose-reachable-workspace.cpp
+  bindings/python/extra/expose-reachable-workspace.cpp
   )
 
 

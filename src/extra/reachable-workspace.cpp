@@ -2,7 +2,7 @@
 // Copyright (c) 2016-2023 CNRS INRIA
 //
 
-#include "pinocchio/algorithm/reachable-workspace.hpp"
+#include "pinocchio/extra/reachable-workspace.hpp"
 
 #include <libqhullcpp/QhullError.h>
 #include <libqhullcpp/QhullFacet.h>

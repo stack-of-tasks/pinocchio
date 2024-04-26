@@ -6,30 +6,30 @@
 
 namespace pinocchio {
   
-  template ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::ModelTpl();
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::ModelTpl();
 
 
-  template JointIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addJoint
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI JointIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addJoint
   (const JointIndex, const JointModel &, const SE3 &, const std::string &);
 
-  template JointIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addJoint
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI JointIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addJoint
   (const JointIndex, const JointModel &, const SE3 &, const std::string &, const context::VectorXs &,
    const context::VectorXs &, const context::VectorXs &, const context::VectorXs &);   
 
-  template JointIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addJoint
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI JointIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addJoint
   (const JointIndex, const JointModel &, const SE3 &, const std::string &, const context::VectorXs &,
    const context::VectorXs &, const context::VectorXs &, const context::VectorXs &, const context::VectorXs &, const context::VectorXs &);   
 
-  template FrameIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addJointFrame
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI FrameIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addJointFrame
   (const JointIndex &, int);   
   
-  template void ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::appendBodyToJoint
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::appendBodyToJoint
   (const JointIndex, const Inertia &, const SE3 &);   
 
-  template FrameIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addBodyFrame
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI FrameIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addBodyFrame
   (const std::string &, const JointIndex &, const SE3 &, int);   
     
-  template FrameIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addFrame
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI FrameIndex ModelTpl<context::Scalar,context::Options,JointCollectionDefaultTpl>::addFrame
   (const Frame &, const bool);   
 
 } // namespace pinocchio 

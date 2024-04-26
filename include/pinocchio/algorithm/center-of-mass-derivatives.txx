@@ -7,7 +7,7 @@
 
 namespace pinocchio {
 
-  extern template PINOCCHIO_DLLAPI void getCenterOfMassVelocityDerivatives
+  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI void getCenterOfMassVelocityDerivatives
     <context::Scalar, context::Options, JointCollectionDefaultTpl, context::Matrix3x>
     (const context::Model &, context::Data &, const Eigen::MatrixBase<context::Matrix3x> &);
 
