@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2.7.1] - 2024-04-26
+
 ### Changed
 - Modify algorithm that appends a model to another ([#2218](https://github.com/stack-of-tasks/pinocchio/pull/2218))
 - Set NOMINMAX as a public definitions on Windows ([#2139](https://github.com/stack-of-tasks/pinocchio/pull/2139))
@@ -848,7 +850,8 @@ The model can either be parsed from a URDF format or be created by appendending 
         • Fixed (concatenation of two consecutive bodies)
 
 
-[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v2.7.0...HEAD
+[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v2.7.1...HEAD
+[2.7.1]: https://github.com/stack-of-tasks/pinocchio/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.21...v2.7.0
 [2.6.21]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.20...v2.6.21
 [2.6.20]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.19...v2.6.20
