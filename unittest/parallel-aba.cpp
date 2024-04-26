@@ -6,7 +6,7 @@
 #include "pinocchio/algorithm/parallel/aba.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/utils/timer.hpp"
 
 #include <iostream>

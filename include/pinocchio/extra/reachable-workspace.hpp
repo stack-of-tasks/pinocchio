@@ -2,13 +2,14 @@
 // Copyright (c) 2016-2023 CNRS INRIA
 //
 
-#ifndef __pinocchio_algorithm_reachable_workspace_hpp__
-#define __pinocchio_algorithm_reachable_workspace_hpp__
+#ifndef __pinocchio_extra_reachable_workspace_hpp__
+#define __pinocchio_extra_reachable_workspace_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
+#include "pinocchio/extra/config.hpp"
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
 #include "pinocchio/collision/collision.hpp"
@@ -150,7 +151,7 @@ namespace pinocchio
         
         /// \brief Computes the convex hull using qhull associated with the vertex stored in res
         /// \param[out] res Contain both the points and the faces of the convex hull
-        void buildConvexHull(ReachableSetResults &res);
+        PINOCCHIO_EXTRA_DLLAPI void buildConvexHull(ReachableSetResults &res);
 
         /// \brief Computes the joint configuration associated with the permutation results stored in res1 and res2
         /// \param[in] res1 First permutation result
@@ -181,6 +182,6 @@ namespace pinocchio
 } // pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
-#include "pinocchio/algorithm/reachable-workspace.hxx"
+#include "pinocchio/extra/reachable-workspace.hxx"
 
-#endif
+#endif // ifndef __pinocchio_extra_reachable_workspace_hpp__

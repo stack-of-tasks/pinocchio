@@ -10,19 +10,19 @@
 
 namespace pinocchio {
 
-    template void initConstraintDynamics
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void initConstraintDynamics
       <context::Scalar, context::Options, JointCollectionDefaultTpl, typename context::RigidConstraintModelVector::allocator_type>
     (const context::Model &, context::Data &, const context::RigidConstraintModelVector &);
 
-    template const context::VectorXs & constraintDynamics
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI const context::VectorXs & constraintDynamics
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::VectorXs, context::VectorXs, typename context::RigidConstraintModelVector::allocator_type, typename context::RigidConstraintDataVector::allocator_type>
     (const context::Model &, context::Data &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &, const context::RigidConstraintModelVector &, context::RigidConstraintDataVector &, ProximalSettingsTpl<context::Scalar> &);
 
-    template const context::VectorXs & constraintDynamics
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI const context::VectorXs & constraintDynamics
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::VectorXs, context::VectorXs, typename context::RigidConstraintModelVector::allocator_type, typename context::RigidConstraintDataVector::allocator_type>
     (const context::Model &, context::Data &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &, const context::RigidConstraintModelVector &, context::RigidConstraintDataVector &);
 
-    template const context::VectorXs & contactABA
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI const context::VectorXs & contactABA
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::VectorXs, context::VectorXs, typename context::RigidConstraintModelVector::allocator_type, typename context::RigidConstraintDataVector::allocator_type>
     (const context::Model &, context::Data &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &, const context::RigidConstraintModelVector &, context::RigidConstraintDataVector &);
 } // namespace pinocchio

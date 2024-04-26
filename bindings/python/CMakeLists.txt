@@ -48,7 +48,7 @@ FUNCTION(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   if(BUILD_WITH_ACCELERATE_SUPPORT)
   # modernize_target_link_libraries(${PYTHON_LIB_NAME} SCOPE PUBLIC TARGETS
   # Accelerate)
-    target_link_libraries(${PYTHON_LIB_NAME} PRIVATE "-framework accelerate")
+    TARGET_LINK_LIBRARIES(${PYTHON_LIB_NAME} PRIVATE "-framework accelerate")
   endif(BUILD_WITH_ACCELERATE_SUPPORT)
 
   IF(BUILD_WITH_OPENMP_SUPPORT)
@@ -57,7 +57,11 @@ FUNCTION(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   ENDIF(BUILD_WITH_OPENMP_SUPPORT)
   ADD_DEPENDENCIES(python ${PYTHON_LIB_NAME})
 
-  SET_TARGET_PROPERTIES(${PYTHON_LIB_NAME} PROPERTIES PREFIX "") # Remove lib prefix for the target
+  # Remove lib prefix for the target
+  # and use the right define for DLLAPI definition
+  SET_TARGET_PROPERTIES(${PYTHON_LIB_NAME} PROPERTIES
+    PREFIX ""
+    DEFINE_SYMBOL "${PYWRAP}_EXPORTS")
 
   # Do not report:
   #  -Wconversion as the BOOST_PYTHON_FUNCTION_OVERLOADS implicitly converts.
@@ -79,6 +83,12 @@ FUNCTION(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   MODERNIZE_TARGET_LINK_LIBRARIES(${PYTHON_LIB_NAME} SCOPE PUBLIC
     TARGETS eigenpy::eigenpy)
   TARGET_LINK_LIBRARIES(${PYTHON_LIB_NAME} PUBLIC ${PROJECT_NAME})
+
+  IF(BUILD_WITH_URDF_SUPPORT)
+    # Link directly against console_bridge since we bind some enums
+    # and call console_bridge::setLogLevel function.
+    TARGET_LINK_LIBRARIES(${PYTHON_LIB_NAME} PUBLIC console_bridge::console_bridge)
+  ENDIF()
   IF(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
     TARGET_COMPILE_DEFINITIONS(${PYTHON_LIB_NAME} PRIVATE -DPINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS)
   ENDIF(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
@@ -235,9 +245,11 @@ IF(BUILD_PYTHON_INTERFACE)
   # --- STUBS --- #
   IF(GENERATE_PYTHON_STUBS)
     LOAD_STUBGEN()
-    GENERATE_STUBS(${CMAKE_CURRENT_BINARY_DIR}
-      ${PROJECT_NAME} ${ABSOLUTE_PYTHON_SITELIB} ${STUBGEN_DEPENDENCIES})
-#    FIND_AND_REPLACE_STUBS(${CMAKE_CURRENT_BINARY_DIR} ${PROJECT_NAME} "__init__.pyi" "pinocchio.pinocchio_pywrap_default" "pinocchio")
+    # Set PYWRAP and PROJECT_NAME as stubs dependencies.
+    # PROJECT_NAME is mandatory (even if it's a PYWRAP dependency)
+    # to find PROJECT_NAME name DLL on windows.
+    GENERATE_STUBS(${CMAKE_CURRENT_BINARY_DIR} ${PROJECT_NAME} ${ABSOLUTE_PYTHON_SITELIB}
+      ${PYWRAP}_default ${PROJECT_NAME}_default)
   ENDIF(GENERATE_PYTHON_STUBS)
 
   # --- PACKAGING --- #

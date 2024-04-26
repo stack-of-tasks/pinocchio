@@ -3,7 +3,7 @@
 //
 
 #include "utils/model-generator.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/math/quaternion.hpp"
 

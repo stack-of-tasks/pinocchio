@@ -12,43 +12,43 @@
 namespace pinocchio {
     namespace cholesky {
 
-    template const context::MatrixXs & decompose
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI const context::MatrixXs & decompose
       <context::Scalar, context::Options, JointCollectionDefaultTpl>
     (const context::Model &, context::Data &);
 
-    template context::MatrixXs & solve
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI context::MatrixXs & solve
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
     (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    template context::MatrixXs Mv
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI context::MatrixXs Mv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
     (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    template context::MatrixXs & Mv
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI context::MatrixXs & Mv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs, context::MatrixXs>
     (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    template context::MatrixXs & UDUtv
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI context::MatrixXs & UDUtv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
     (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    template context::MatrixXs & Uv
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI context::MatrixXs & Uv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
     (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    template context::MatrixXs & Utv
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI context::MatrixXs & Utv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
     (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    template context::MatrixXs & Uiv
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI context::MatrixXs & Uiv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
     (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    template context::MatrixXs & Utiv
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI context::MatrixXs & Utiv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
     (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
 
-    template context::MatrixXs & computeMinv
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI context::MatrixXs & computeMinv
       <context::Scalar, context::Options, JointCollectionDefaultTpl, context::MatrixXs>
     (const context::Model &, const context::Data &, const Eigen::MatrixBase<context::MatrixXs> &);
     } // namespace cholesky

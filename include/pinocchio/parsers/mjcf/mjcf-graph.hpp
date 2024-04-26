@@ -20,6 +20,7 @@
 #include <sstream>
 #include <limits>
 #include <iostream>
+#include <unordered_map>
 
 
 
@@ -35,7 +36,7 @@ namespace pinocchio
 
             /// @brief Informations that are stocked in the XML tag compile.
             /// 
-            struct MjcfCompiler
+            struct PINOCCHIO_PARSERS_DLLAPI MjcfCompiler
             {
                 public:
                     // Global attribute to use limit that are in the model or not
@@ -109,7 +110,7 @@ namespace pinocchio
             };
 
             /// @brief All joint limits
-            struct RangeJoint
+            struct PINOCCHIO_PARSERS_DLLAPI RangeJoint
             {
                 // Max effort
                 Eigen::VectorXd maxEffort;
@@ -166,7 +167,7 @@ namespace pinocchio
             };
 
             /// @brief All joint information parsed from the mjcf model
-            struct MjcfJoint
+            struct PINOCCHIO_PARSERS_DLLAPI MjcfJoint
             {
                 public:
                     typedef boost::property_tree::ptree ptree;
@@ -215,7 +216,7 @@ namespace pinocchio
             };
 
             /// @brief All informations related to material are stored here
-            struct MjcfMaterial
+            struct PINOCCHIO_PARSERS_DLLAPI MjcfMaterial
             {
                 typedef boost::property_tree::ptree ptree;
                 // Color of the material
@@ -236,7 +237,7 @@ namespace pinocchio
                 void goThroughElement(const ptree &el);
             };
 
-            struct MjcfGeom
+            struct PINOCCHIO_PARSERS_DLLAPI MjcfGeom
             {
                 public:
                     typedef boost::property_tree::ptree ptree;
@@ -302,7 +303,7 @@ namespace pinocchio
             };
 
             /// @brief The graph which contains all information taken from the mjcf file
-            struct MjcfGraph
+            struct PINOCCHIO_PARSERS_DLLAPI MjcfGraph
             {
                 public:
                     typedef boost::property_tree::ptree ptree;

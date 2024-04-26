@@ -7,8 +7,9 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
-
 #include "pinocchio/multibody/geometry.hpp"
+
+#include "pinocchio/collision/config.hpp"
 
 #include <hpp/fcl/collision_data.h>
 

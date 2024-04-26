@@ -13,7 +13,7 @@
 #include "pinocchio/algorithm/geometry.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 
 #include <boost/test/unit_test.hpp>
@@ -230,12 +230,12 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
           ++joint_id)
       {
         const JointModel & joint_model1 = model1.joints[joint_id];
-        if (humanoid_config != humanoid.referenceConfigurations.end() and humanoid.existJointName(model1.names[joint_id])) { //key and joint exists in humanoid
+        if (humanoid_config != humanoid.referenceConfigurations.end() && humanoid.existJointName(model1.names[joint_id])) { //key and joint exists in humanoid
           const JointModel & joint_model_humanoid = humanoid.joints[humanoid.getJointId(model1.names[joint_id])];
           BOOST_CHECK(joint_model_humanoid.jointConfigSelector(humanoid_config->second) == joint_model1.jointConfigSelector(config_vector));
           //std::cerr<<"humanoid "<<config_name<<" "<<model1.names[joint_id]<<std::endl;
         }
-        else if (manipulator_config != manipulator.referenceConfigurations.end() and manipulator.existJointName(model1.names[joint_id])) { //key and joint exists in manipulator.
+        else if (manipulator_config != manipulator.referenceConfigurations.end() && manipulator.existJointName(model1.names[joint_id])) { //key and joint exists in manipulator.
           const JointModel & joint_model_manipulator = manipulator.joints[manipulator.getJointId(model1.names[joint_id])];
           BOOST_CHECK(joint_model_manipulator.jointConfigSelector(manipulator_config->second) == joint_model1.jointConfigSelector(config_vector));
           //std::cerr<<"manipulator "<<config_name<<" "<<model1.names[joint_id]<<std::endl;
@@ -292,12 +292,12 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
           ++joint_id)
       {
         const JointModel & joint_model = model.joints[joint_id];
-        if (humanoid_config != humanoid.referenceConfigurations.end() and humanoid.existJointName(model.names[joint_id])) { //key and joint exists in humanoid
+        if (humanoid_config != humanoid.referenceConfigurations.end() && humanoid.existJointName(model.names[joint_id])) { //key and joint exists in humanoid
           const JointModel & joint_model_humanoid = humanoid.joints[humanoid.getJointId(model.names[joint_id])];
           BOOST_CHECK(joint_model_humanoid.jointConfigSelector(humanoid_config->second) == joint_model.jointConfigSelector(config_vector));
           //std::cerr<<"humanoid "<<config_name<<" "<<model.names[joint_id]<<std::endl;
         }
-        else if (manipulator_config != manipulator.referenceConfigurations.end() and manipulator.existJointName(model.names[joint_id])) { //key and joint exists in manipulator.
+        else if (manipulator_config != manipulator.referenceConfigurations.end() && manipulator.existJointName(model.names[joint_id])) { //key and joint exists in manipulator.
           const JointModel & joint_model_manipulator = manipulator.joints[manipulator.getJointId(model.names[joint_id])];
           BOOST_CHECK(joint_model_manipulator.jointConfigSelector(manipulator_config->second) == joint_model.jointConfigSelector(config_vector));
           //std::cerr<<"manipulator "<<config_name<<" "<<model.names[joint_id]<<std::endl;

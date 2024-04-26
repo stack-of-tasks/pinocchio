@@ -6,6 +6,6 @@
 
 namespace pinocchio {
   
-  template struct ProximalSettingsTpl<context::Scalar>;
+  template struct PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI ProximalSettingsTpl<context::Scalar>;
 
 } // namespace pinocchio 

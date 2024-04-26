@@ -6,7 +6,7 @@
 #include "pinocchio/bindings/python/utils/namespace.hpp"
 #include "pinocchio/bindings/python/utils/eigen.hpp"
 
-#include "pinocchio/algorithm/reachable-workspace.hpp"
+#include "pinocchio/extra/reachable-workspace.hpp"
 
 namespace pinocchio
 {

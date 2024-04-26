@@ -7,6 +7,7 @@
 #define __pinocchio_multibody_parsers_urdf_model_hxx__
 
 #include "pinocchio/math/matrix.hpp"
+#include "pinocchio/parsers/config.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/multibody/model.hpp"
 
@@ -478,13 +479,13 @@ namespace pinocchio
 
       typedef UrdfVisitorBaseTpl<double, 0> UrdfVisitorBase;
 
-      void PINOCCHIO_DLLAPI parseRootTree(const ::urdf::ModelInterface * urdfTree,
+      PINOCCHIO_PARSERS_DLLAPI void parseRootTree(const ::urdf::ModelInterface * urdfTree,
                                           UrdfVisitorBase & model);
 
-      void PINOCCHIO_DLLAPI parseRootTree(const std::string & filename,
+      PINOCCHIO_PARSERS_DLLAPI void parseRootTree(const std::string & filename,
                                           UrdfVisitorBase & model);
 
-      void PINOCCHIO_DLLAPI parseRootTreeFromXML(const std::string & xmlString,
+      PINOCCHIO_PARSERS_DLLAPI void parseRootTreeFromXML(const std::string & xmlString,
                                                  UrdfVisitorBase & model);
     }
 

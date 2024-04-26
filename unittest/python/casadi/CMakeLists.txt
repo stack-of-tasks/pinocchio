@@ -7,5 +7,7 @@ SET(${PROJECT_NAME}_PYTHON_CASADI_TESTS
 )
 
 FOREACH(test ${${PROJECT_NAME}_PYTHON_CASADI_TESTS})
-  ADD_PYTHON_UNIT_TEST("test-py-casadi-${test}" "unittest/python/casadi/${test}.py" "bindings/python")
+  SET(TEST_NAME "test-py-casadi-${test}")
+  ADD_PYTHON_UNIT_TEST(${TEST_NAME} "unittest/python/casadi/${test}.py" "bindings/python")
+  ADD_WINDOWS_DLL_PATH_TO_TEST(${TEST_NAME})
 ENDFOREACH(test ${${PROJECT_NAME}_PYTHON_CASADI_TESTS})

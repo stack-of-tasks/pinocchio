@@ -2,7 +2,7 @@
 // Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 
 #include <boost/python.hpp>
 

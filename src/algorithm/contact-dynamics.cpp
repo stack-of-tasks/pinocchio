@@ -10,7 +10,7 @@
 
 namespace pinocchio {
   
-  template void computeKKTContactDynamicMatrixInverse
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void computeKKTContactDynamicMatrixInverse
     <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::MatrixXs, context::MatrixXs>
   (const context::Model &, context::Data &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::MatrixXs> &, const Eigen::MatrixBase<context::MatrixXs> &, const context::Scalar &);
 

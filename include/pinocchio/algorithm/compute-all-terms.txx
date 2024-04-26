@@ -7,7 +7,7 @@
 
 namespace pinocchio {
 namespace impl {
-  extern template PINOCCHIO_DLLAPI void computeAllTerms
+  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI void computeAllTerms
     <context::Scalar, context::Options, JointCollectionDefaultTpl, Eigen::Ref<const context::VectorXs>, Eigen::Ref<const context::VectorXs>>
   (const context::Model &, context::Data &, const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &,  const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &);
 } // namespace impl

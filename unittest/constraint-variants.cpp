@@ -7,7 +7,7 @@
 #include "pinocchio/algorithm/constraints/constraint-model-generic.hpp"
 #include "pinocchio/algorithm/constraints/constraint-data-generic.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 
 #include <iostream>
 

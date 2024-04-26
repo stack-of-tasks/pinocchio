@@ -4,7 +4,7 @@
 
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 
 #include "pinocchio/algorithm/check.hpp"
 

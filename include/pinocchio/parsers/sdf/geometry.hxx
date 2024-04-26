@@ -5,6 +5,7 @@
 #ifndef __pinocchio_multibody_parsers_sdf_geometry_hxx__
 #define __pinocchio_multibody_parsers_sdf_geometry_hxx__
 
+#include "pinocchio/parsers/config.hpp"
 #include "pinocchio/parsers/sdf.hpp"
 #include "pinocchio/parsers/utils.hpp"
 
@@ -39,14 +40,14 @@ namespace pinocchio
        * @param[in]  type           The type of objects that must be loaded ( can be VISUAL or COLLISION)
        *
        */
-      PINOCCHIO_DLLAPI void addLinkGeometryToGeomModel(const SdfGraph& graph,
+      PINOCCHIO_PARSERS_DLLAPI void addLinkGeometryToGeomModel(const SdfGraph& graph,
                                                        ::hpp::fcl::MeshLoaderPtr& meshLoader,
                                                        const ::sdf::ElementPtr link,
                                                        GeometryModel & geomModel,
                                                        const std::vector<std::string> & package_dirs,
                                                        const GeometryType type);
 
-      PINOCCHIO_DLLAPI void parseTreeForGeom(const Model& model,
+      PINOCCHIO_PARSERS_DLLAPI void parseTreeForGeom(const Model& model,
                                              const SdfGraph& graph,
                                              GeometryModel & geomModel,
                                              const std::string& rootLinkName,

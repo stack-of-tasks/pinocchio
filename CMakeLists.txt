@@ -94,7 +94,10 @@ OPTION(BUILD_WITH_SDF_SUPPORT "Build the library with the SDF format support" OF
 OPTION(BUILD_WITH_COLLISION_SUPPORT "Build the library with the collision support (required HPP-FCL)" OFF)
 OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differentiation support (via CppAD)" OFF)
 OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
-OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
+# cppadcodgen don't build well with CL
+IF(!WIN32)
+  OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
+ENDIF()
 OPTION(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
 OPTION(BUILD_WITH_EXTRA_SUPPORT "Build the library with extra algorithms support" OFF)
 cmake_dependent_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT "Build the Python interface with Boost.Multiprecision MPFR support" OFF BUILD_PYTHON_INTERFACE OFF)
@@ -232,6 +235,12 @@ IF(BUILD_PYTHON_INTERFACE)
   IF(BUILD_WITH_AUTODIFF_SUPPORT)
     ADD_PROJECT_DEPENDENCY(pycppad 1.1.0 REQUIRED)
   ENDIF(BUILD_WITH_AUTODIFF_SUPPORT)
+
+  IF(BUILD_WITH_URDF_SUPPORT)
+    # console_bridge is urdfdom dependency.
+    # We bind some enum of this library and then must link against it
+    ADD_PROJECT_DEPENDENCY(console_bridge REQUIRED)
+  ENDIF()
 
   # Check wether this a PyPy Python
   EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import platform; print(platform.python_implementation())"
@@ -407,7 +416,8 @@ ENDFUNCTION(PREPEND_PATH_FROM_LIST)
 FUNCTION(ADD_WINDOWS_DLL_PATH_TO_TEST TEST_NAME)
   IF(WIN32)
     GET_TEST_PROPERTY(${TEST_NAME} ENVIRONMENT ENV_VARIABLES)
-    LIST(APPEND ENV_VARIABLES "PINOCCHIO_WINDOWS_DLL_PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+    # TODO don't do this in the future
+    LIST(APPEND ENV_VARIABLES "PINOCCHIO_WINDOWS_DLL_PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}_default>")
     SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
   ENDIF()
 ENDFUNCTION()

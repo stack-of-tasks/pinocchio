@@ -18,7 +18,7 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 
 #include "pinocchio/parsers/urdf.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 
 #include <iostream>
 

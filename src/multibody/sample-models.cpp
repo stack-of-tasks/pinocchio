@@ -2,27 +2,27 @@
 // Copyright (c) 2022 INRIA
 //
 
-#ifndef __pinocchio_parsers_sample_models_txx__
-#define __pinocchio_parsers_sample_models_txx__
+#include "pinocchio/spatial/fwd.hpp"
 
-#ifndef PINOCCHIO_SKIP_PARSERS_SAMPLE_MODELS
+#ifndef PINOCCHIO_SKIP_MULTIBODY_SAMPLE_MODELS
+
+#include "pinocchio/multibody/sample-models.hpp"
 
 namespace pinocchio {
   namespace buildModels {
-    extern template PINOCCHIO_DLLAPI void manipulator
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void manipulator
       <context::Scalar, context::Options, JointCollectionDefaultTpl>
     (context::Model &);
 
-    extern template PINOCCHIO_DLLAPI void humanoid
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void humanoid
       <context::Scalar, context::Options, JointCollectionDefaultTpl>
     (context::Model &, bool);
 
-    extern template PINOCCHIO_DLLAPI void humanoidRandom
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void humanoidRandom
       <context::Scalar, context::Options, JointCollectionDefaultTpl>
     (context::Model &, bool);
+    
   } // namespace buildModels
 } // namespace pinocchio 
 
-#endif // PINOCCHIO_SKIP_PARSERS_SAMPLE_MODELS
-
-#endif // ifndef __pinocchio_parsers_sample_models_txx__
+#endif // PINOCCHIO_SKIP_MULTIBODY_SAMPLE_MODELS

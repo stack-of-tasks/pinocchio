@@ -2,9 +2,9 @@
 // Copyright (c) 2016-2023 CNRS INRIA
 //
 
-#include "pinocchio/algorithm/reachable-workspace.hpp"
+#include "pinocchio/extra/reachable-workspace.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
