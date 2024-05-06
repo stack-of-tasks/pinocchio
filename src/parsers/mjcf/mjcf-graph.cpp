@@ -961,11 +961,13 @@ namespace pinocchio
                         Eigen::VectorXd q_ref = referenceConfig.segment(idx_q, nq);
                         if(joint.shortname() == "JointModelFreeFlyer")
                         {
-                            qpos_j.tail(4) << qpos_j(4), qpos_j(5), qpos_j(6), qpos_j(3);
+                            Eigen::Vector4d new_quat(qpos_j(4), qpos_j(5), qpos_j(6), qpos_j(3));
+                            qpos_j.tail(4) = new_quat;
                         }
                         else if(joint.shortname() == "JointModelSpherical")
                         {
-                            qpos_j << qpos_j(1), qpos_j(2), qpos_j(3), qpos_j(0);
+                            Eigen::Vector4d new_quat(qpos_j(1), qpos_j(2), qpos_j(3), qpos_j(0));
+                            qpos_j = new_quat;
                         }
                         else if(joint.shortname() == "JointModelComposite")
                         {
@@ -975,7 +977,8 @@ namespace pinocchio
                                 int nq_ = joint_.nq();
                                 if(joint_.shortname() == "JointModelSpherical")
                                 {
-                                    qpos_j.segment(idx_q_, nq_) << qpos_j(idx_q_ + 1), qpos_j(idx_q_ + 2), qpos_j(idx_q_ +3), qpos_j(idx_q_);
+                                    Eigen::Vector4d new_quat(qpos_j(idx_q_ + 1), qpos_j(idx_q_ + 2), qpos_j(idx_q_ +3), qpos_j(idx_q_));
+                                    qpos_j.segment(idx_q_, nq_) = new_quat;
                                 }
                                 else
                                     qpos_j.segment(idx_q_, nq_) -= q_ref.segment(idx_q_, nq_);
