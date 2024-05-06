@@ -78,4 +78,10 @@ namespace pinocchio
 #include "pinocchio/algorithm/geometry.txx"
 #endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
+// In Pinocchio 2, this header declare computeCollision and computeDistances
+#if defined(PINOCCHIO_WITH_HPP_FCL) && defined(PINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_2)
+#include "pinocchio/collision/collision.hpp"
+#include "pinocchio/collision/distance.hpp"
+#endif // PINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_2
+
 #endif // ifndef __pinocchio_algo_geometry_hpp__

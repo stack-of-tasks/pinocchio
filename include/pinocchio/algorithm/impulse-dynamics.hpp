@@ -40,6 +40,7 @@ namespace pinocchio
   /// \return A reference to the joint velocities stored in data.dq_after. The Lagrange Multipliers linked to the contact forces are available throw data.impulse_c vector.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, class ConstraintModelAllocator, class ConstraintDataAllocator>
+  PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
   const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,

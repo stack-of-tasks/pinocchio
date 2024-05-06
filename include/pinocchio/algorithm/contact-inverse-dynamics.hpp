@@ -41,6 +41,7 @@ namespace pinocchio
   /// \return The desired joint torques stored in data.tau.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename VectorLikeC, class ConstraintModelAllocator, class ConstraintDataAllocator, class CoulombFrictionConelAllocator, typename VectorLikeR, typename VectorLikeGamma,typename VectorLikeImp>
+  PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
   const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   computeContactImpulses(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -149,7 +150,8 @@ namespace pinocchio
   ///
   /// \return The desired joint torques stored in data.tau.
   ///
-template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ConstraintModelAllocator, class ConstraintDataAllocator, class CoulombFrictionConelAllocator, typename VectorLikeR, typename VectorLikeGamma,typename VectorLikeLam>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ConstraintModelAllocator, class ConstraintDataAllocator, class CoulombFrictionConelAllocator, typename VectorLikeR, typename VectorLikeGamma,typename VectorLikeLam>
+  PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
   const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   contactInverseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        DataTpl<Scalar,Options,JointCollectionTpl> & data, 

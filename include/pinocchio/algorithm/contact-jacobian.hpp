@@ -20,6 +20,7 @@ namespace pinocchio
   /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
+  PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
   void getConstraintJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                              const RigidConstraintModelTpl<Scalar,Options> & constraint_model,
@@ -38,6 +39,7 @@ namespace pinocchio
   /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim nc x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename DynamicMatrixLike, class ConstraintModelAllocator, class ConstraintDataAllocator>
+  PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
   void getConstraintsJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                               const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintDataAllocator> & constraint_model,

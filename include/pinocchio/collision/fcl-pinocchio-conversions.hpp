@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2024 CNRS INRIA
 //
 
 #ifndef __pinocchio_collision_fcl_convertion_hpp__
