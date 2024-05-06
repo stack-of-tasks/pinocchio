@@ -396,7 +396,7 @@ namespace pinocchio
                 if(name_s)
                     geomName = *name_s;
                 else
-                    geomName = currentBody.bodyName + "Geom";
+                    geomName = currentBody.bodyName + "Geom_" + std::to_string(currentBody.geomChildren.size());
 
                 //ChildClass < Class < Real Joint
                 // childClass
@@ -428,6 +428,58 @@ namespace pinocchio
 
                 //Compute Mass and inertia of geom object
                 computeInertia();
+            }
+
+            void MjcfSite::goThroughElement(const ptree &el, const MjcfGraph &currentGraph)
+            {
+                if(el.get_child_optional("<xmlattr>.pos") && el.get_child_optional("<xmlattr>.fromto"))
+                    throw std::invalid_argument("Both pos and fromto are defined in site object");
+
+                // Placement
+                sitePlacement = currentGraph.convertPosition(el);
+
+                auto fromtoS = el.get_optional<std::string>("<xmlattr>.fromto");
+                if(fromtoS)
+                {
+                    Eigen::VectorXd poses = internal::getVectorFromStream<6>(*fromtoS);
+                    sitePlacement.translation() = (poses.head(3) + poses.tail(3)) / 2;
+
+                    Eigen::Vector3d zaxis = poses.tail(3) - poses.head(3);
+                    // Compute the rotation matrix that maps z_axis to unit z
+                    sitePlacement.rotation() = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitZ(), zaxis).toRotationMatrix();
+                }
+            }
+
+            void MjcfSite::fill(const ptree &el, const MjcfBody &currentBody, const MjcfGraph &currentGraph)
+            {
+                // Name
+                auto name_s = el.get_optional<std::string>("<xmlattr>.name");
+                if(name_s)
+                    siteName = *name_s;
+                else
+                    siteName = currentBody.bodyName + "Site_" + std::to_string(currentBody.siteChildren.size());
+
+                //ChildClass < Class < Real Joint
+                // childClass
+                if(currentBody.childClass != "")
+                {
+                    const MjcfClass& classE = currentGraph.mapOfClasses.at(currentBody.childClass);
+                    if(auto site_p = classE.classElement.get_child_optional("site"))
+                        goThroughElement(*site_p, currentGraph);
+                }
+
+                //Class 
+                auto cl_s = el.get_optional<std::string>("<xmlattr>.class");
+                if(cl_s)
+                {
+                    std::string className = *cl_s;
+                    const MjcfClass&  classE = currentGraph.mapOfClasses.at(className);
+                    if(auto site_p = classE.classElement.get_child_optional("site"))
+                        goThroughElement(*site_p, currentGraph);
+                }
+
+                // Site
+                goThroughElement(el, currentGraph);
             }
 
             void MjcfGraph::parseGeomTree(const GeometryType& type, GeometryModel & geomModel, ::hpp::fcl::MeshLoaderPtr& meshLoader)

@@ -33,6 +33,7 @@ namespace pinocchio
             struct MjcfGraph;
             struct MjcfJoint;
             struct MjcfGeom;
+            struct MjcfSite;
 
             /// @brief Informations that are stocked in the XML tag compile.
             /// 
@@ -107,6 +108,8 @@ namespace pinocchio
                     std::vector<MjcfJoint> jointChildren;
                     // Vector of geometries associated with the body
                     std::vector<MjcfGeom> geomChildren;
+                    // Vector of sites
+                    std::vector<MjcfSite> siteChildren; 
             };
 
             /// @brief All joint limits
@@ -185,6 +188,8 @@ namespace pinocchio
                     // type of the joint (hinge, ball, slide, free) - default "hinge"
                     std::string jointType = "hinge";
 
+                    double posRef = 0.; // only possible for hinge and slides
+
                     /// @param el ptree joint node 
                     /// @param currentBody body to which the joint belongs to 
                     /// @param currentGraph current Mjcf graph (needed to get compiler information)
@@ -193,7 +198,7 @@ namespace pinocchio
                     /// @brief Go through a joint node (default class or not) and parse info into the structure
                     /// @param el ptree joint node
                     /// @param use_limits whether to parse the limits or not 
-                    void goThroughElement(const ptree &el, bool use_limits);
+                    void goThroughElement(const ptree &el, bool use_limits, const MjcfCompiler& currentCompiler);
             };
             /// @brief All informations related to a mesh are stored here
             struct MjcfMesh
@@ -302,6 +307,18 @@ namespace pinocchio
                     void goThroughElement(const ptree &el, const MjcfGraph &currentGraph);
             };
 
+            struct PINOCCHIO_PARSERS_DLLAPI MjcfSite 
+            {
+                typedef boost::property_tree::ptree ptree;
+
+                SE3 sitePlacement = SE3::Identity();
+                
+                std::string siteName;
+
+                void fill(const ptree &el, const MjcfBody &currentBody, const MjcfGraph &currentGraph);
+                void goThroughElement(const ptree &el, const MjcfGraph &currentGraph);
+            };
+
             /// @brief The graph which contains all information taken from the mjcf file
             struct PINOCCHIO_PARSERS_DLLAPI MjcfGraph
             {
@@ -313,6 +330,7 @@ namespace pinocchio
                     typedef std::unordered_map<std::string, MjcfMaterial> MaterialMap_t;
                     typedef std::unordered_map<std::string, MjcfMesh> MeshMap_t;
                     typedef std::unordered_map<std::string, MjcfTexture> TextureMap_t;
+                    typedef std::unordered_map<std::string, Eigen::VectorXd> ConfigMap_t;
 
                     // Compiler Info needed to properly parse the rest of file
                     MjcfCompiler compilerInfo;
@@ -326,6 +344,11 @@ namespace pinocchio
                     MeshMap_t mapOfMeshes;
                     //Map of textures
                     TextureMap_t mapOfTextures;
+                    // Map of model configurations
+                    ConfigMap_t mapOfConfigs;
+
+                    // reference configuration
+                    Eigen::VectorXd referenceConfig;
 
                     // property tree where xml file is stored
                     ptree pt;
@@ -387,6 +410,10 @@ namespace pinocchio
                     /// @param el ptree texture node
                     void parseAsset(const ptree &el);
 
+                    /// @brief Parse all the info from the meta tag keyframe
+                    /// @param el ptree keyframe node
+                    void parseKeyFrame(const ptree &el);
+
                     /// @brief parse the mjcf file into a graph
                     void parseGraph();
 
@@ -415,6 +442,10 @@ namespace pinocchio
 
                     /// @brief Fill the pinocchio model with all the infos from the graph
                     void parseRootTree();   
+
+                    void fillReferenceConfig(const MjcfBody &currentBody);
+
+                    void addKeyFrame(const Eigen::VectorXd &keyframe, const std::string &keyName);
                     
                     /// @brief Fill geometry model with all the info taken from the mjcf model file
                     /// @param type Type of geometry to parse (COLLISION or VISUAL)
@@ -440,6 +471,24 @@ namespace pinocchio
                         stream >> vector(i);
                     
                     return vector;
+                }
+
+                inline Eigen::VectorXd getUnknownSizeVectorFromStream(const std::string &str)
+                {   
+                    std::istringstream stream = getConfiguredStringStream(str);
+                    std::vector<double> vector;
+                    double elem;
+                    while(!stream.eof())
+                    {
+                        stream >> elem;
+                        vector.push_back(elem);
+                    }
+
+                    Eigen::VectorXd returnVector(vector.size());
+                    for(std::size_t i=0; i < vector.size(); i++)
+                        returnVector(static_cast<Eigen::Index>(i)) = vector[i];
+                    
+                    return returnVector;
                 }
             } // internal
         } // details
