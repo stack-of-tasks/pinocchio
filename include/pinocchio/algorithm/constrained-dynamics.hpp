@@ -26,6 +26,7 @@ namespace pinocchio
   /// \param[in] contact_models Vector of contact information related to the problem.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator>
+  PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
   inline void
   initConstraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -62,6 +63,7 @@ namespace pinocchio
   /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ConstraintModelAllocator, class ConstraintDataAllocator>
+  PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   constraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -100,6 +102,7 @@ namespace pinocchio
   /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ConstraintModelAllocator, class ConstraintDataAllocator>
+  PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   constraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -114,6 +117,7 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ModelAllocator, class DataAllocator>
+  PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   contactABA(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              DataTpl<Scalar,Options,JointCollectionTpl> & data,

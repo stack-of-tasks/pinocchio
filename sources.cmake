@@ -131,6 +131,7 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/eigen-macros.hpp
   include/pinocchio/fwd.hpp
   include/pinocchio/macros.hpp
+  include/pinocchio/unsupported.hpp
   include/pinocchio/math/casadi.hpp
   include/pinocchio/math/comparison-operators.hpp
   include/pinocchio/math/cppadcg.hpp
@@ -327,11 +328,15 @@ SET(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS
   include/pinocchio/collision/fcl-pinocchio-conversions.hpp
   include/pinocchio/collision/pool/fwd.hpp
   include/pinocchio/collision/pool/broadphase-manager.hpp
+  # Deprecated header
+  include/pinocchio/spatial/fcl-pinocchio-conversions.hpp
   )
 
 SET(${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS
   include/pinocchio/collision/parallel/broadphase.hpp
   include/pinocchio/collision/parallel/geometry.hpp
+  # Deprecated header
+  include/pinocchio/algorithm/parallel/geometry.hpp
   )
 
 SET(${PROJECT_NAME}_PARSERS_SOURCES

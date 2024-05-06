@@ -112,7 +112,8 @@ namespace pinocchio
   /// \brief Contact model structure containg all the info describing the rigid contact model
   ///
   template<typename _Scalar, int _Options>
-  struct RigidConstraintModelTpl
+  struct PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
+  RigidConstraintModelTpl
   : ConstraintModelBase< RigidConstraintModelTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -773,7 +774,8 @@ namespace pinocchio
   /// \brief Contact model structure containg all the info describing the rigid contact model
   ///
   template<typename _Scalar, int _Options>
-  struct RigidConstraintDataTpl
+  struct PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
+  RigidConstraintDataTpl
   : ConstraintDataBase< RigidConstraintDataTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

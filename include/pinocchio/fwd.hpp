@@ -20,6 +20,7 @@ namespace pinocchio {}
 #include "pinocchio/deprecation.hpp"
 #include "pinocchio/warning.hpp"
 #include "pinocchio/config.hpp"
+#include "pinocchio/unsupported.hpp"
 
 #include "pinocchio/utils/helpers.hpp"
 #include "pinocchio/utils/cast.hpp"
