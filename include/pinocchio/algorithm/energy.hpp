@@ -51,37 +51,6 @@ namespace pinocchio {
                        const Eigen::MatrixBase<TangentVectorType> & v);
 
   ///
-  /// \brief Computes the kinetic energy of the system.
-  ///        The result is accessible through data.kinetic_energy.
-  ///
-  /// \tparam JointCollection Collection of Joint types.
-  /// \tparam ConfigVectorType Type of the joint configuration vector.
-  /// \tparam TangentVectorType Type of the joint velocity vector.
-  ///
-  /// \param[in] model The model structure of the rigid body system.
-  /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] v The joint velocity vector (dim model.nv).
-  /// \param[in] update_kinematics If true, first apply the forward kinematics on the kinematic tree.
-  ///
-  /// \return The kinetic energy of the system in [J].
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  PINOCCHIO_DEPRECATED
-  Scalar
-  kineticEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                const Eigen::MatrixBase<ConfigVectorType> & q,
-                const Eigen::MatrixBase<TangentVectorType> & v,
-                const bool update_kinematics)
-  {
-    if(update_kinematics)
-      return computeKineticEnergy(model,data,q.derived(),v.derived());
-    else
-      return computeKineticEnergy(model,data);
-  }
-  
-  ///
   /// \brief Computes the potential energy of the system, i.e. the potential energy linked to the gravity field.
   ///        The result is accessible through data.potential_energy.
   ///
@@ -127,34 +96,6 @@ namespace pinocchio {
   computePotentialEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q);
-
-  ///
-  /// \brief Computes the potential energy of the system, i.e. the potential energy linked to the gravity field.
-  ///        The result is accessible through data.potential_energy.
-  ///
-  /// \tparam JointCollection Collection of Joint types.
-  /// \tparam ConfigVectorType Type of the joint configuration vector.
-  ///
-  /// \param[in] model The model structure of the rigid body system.
-  /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] update_kinematics If true, first apply the forward kinematics on the kinematic tree. 
-  ///
-  /// \return The potential energy of the system expressed in [J].
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  PINOCCHIO_DEPRECATED
-  Scalar
-  potentialEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                  const bool update_kinematics)
-  {
-    if(update_kinematics)
-      return computePotentialEnergy(model,data,q);
-    else
-      return computePotentialEnergy(model,data);
-  }
 
   ///
   /// \brief Computes the mechanical energy of the system stored in data.mechanical_energy.

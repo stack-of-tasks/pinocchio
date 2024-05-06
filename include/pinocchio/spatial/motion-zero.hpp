@@ -119,29 +119,6 @@ namespace pinocchio
                               const MotionBase<M1> & v)
   { return v.derived(); }
 
-  /// \brief BiasZeroTpl has been replaced by MotionZeroTpl. Please use this naming instead.
-  template<typename Scalar, int Options>
-  struct PINOCCHIO_DEPRECATED BiasZeroTpl : MotionZeroTpl<Scalar,Options>
-  {
-    typedef MotionZeroTpl<Scalar,Options> Base;
-    BiasZeroTpl(const Base &) {}
-  };
-
-PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-  template<typename Scalar, int Options>
-  struct SE3GroupAction< BiasZeroTpl<Scalar,Options> >
-  {
-    typedef BiasZeroTpl<Scalar,Options> ReturnType;
-  };
-  
-  template<typename Scalar, int Options, typename MotionDerived>
-  struct MotionAlgebraAction< BiasZeroTpl<Scalar,Options>, MotionDerived>
-  {
-    typedef BiasZeroTpl<Scalar,Options> ReturnType;
-  };
-PINOCCHIO_COMPILER_DIAGNOSTIC_POP
-  
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_spatial_motion_zero_hpp__

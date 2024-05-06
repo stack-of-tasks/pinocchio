@@ -185,10 +185,10 @@ class TestComBindings(TestCase):
         self.assertApprox(Jcom_subtree,Jcom_subtree2)
 
         data3 = model.createData()
-        Jcom_subtree3 = pin.jacobianSubtreeCoMJacobian(model,data3,self.q,0)
+        Jcom_subtree3 = pin.jacobianSubtreeCenterOfMass(model,data3,self.q,0)
         self.assertApprox(Jcom_subtree3,Jcom_subtree2)
 
-        Jcom_subtree4 = pin.jacobianSubtreeCoMJacobian(model,data3,0)
+        Jcom_subtree4 = pin.jacobianSubtreeCenterOfMass(model,data3,0)
         self.assertApprox(Jcom_subtree3,Jcom_subtree4)
 
 if __name__ == '__main__':

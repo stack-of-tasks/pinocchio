@@ -12,8 +12,6 @@ import numpy.linalg as npl
 from . import pinocchio_pywrap_default as pin
 from .pinocchio_pywrap_default.rpy import matrixToRpy, rpyToMatrix, rotate
 
-from .deprecation import deprecated
-
 def npToTTuple(M):
     L = M.tolist()
     for i in range(len(L)):
@@ -38,22 +36,6 @@ def zero(n):
 
 def rand(n):
     return np.random.rand(n) if isinstance(n, int) else np.random.rand(n[0], n[1])
-
-@deprecated("Please use numpy.cross(a, b) or numpy.cross(a, b, axis=0).")
-def cross(a, b):
-    return np.cross(a, b, axis=0)
-
-@deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
-def skew(p):
-    return pin.skew(p)
-
-@deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
-def se3ToXYZQUAT(M):
-    return pin.SE3ToXYZQUATtuple(M)
-
-@deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
-def XYZQUATToSe3(vec):
-    return pin.XYZQUATToSE3(vec)
 
 def isapprox(a, b, epsilon=1e-6):
     if "np" in a.__class__.__dict__:
@@ -109,8 +91,6 @@ def fromListToVectorOfString(items):
 
 
 __all__ = ['np', 'npl', 'eye', 'zero', 'rand', 'isapprox', 'mprint',
-           'skew', 'cross',
            'npToTTuple', 'npToTuple', 'rotate',
            'rpyToMatrix', 'matrixToRpy',
-           'se3ToXYZQUAT', 'XYZQUATToSe3',
            'fromListToVectorOfString']

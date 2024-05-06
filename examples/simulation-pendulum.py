@@ -41,7 +41,7 @@ if args.with_cart:
 
     shape_cart = fcl.Cylinder(cart_radius, cart_length)
 
-    geom_cart = pin.GeometryObject("shape_cart", joint_id, shape_cart, geometry_placement)
+    geom_cart = pin.GeometryObject("shape_cart", joint_id, geometry_placement, shape_cart)
     geom_cart.meshColor = np.array([1.,0.1,0.1,1.])
     geom_model.addGeometryObject(geom_cart)
 
@@ -49,7 +49,7 @@ if args.with_cart:
 else:
     base_radius = 0.2
     shape_base = fcl.Sphere(base_radius)
-    geom_base = pin.GeometryObject("base", 0, shape_base, pin.SE3.Identity())
+    geom_base = pin.GeometryObject("base", 0, pin.SE3.Identity(), shape_base)
     geom_base.meshColor = np.array([1.,0.1,0.1,1.])
     geom_model.addGeometryObject(geom_base)
 
@@ -68,7 +68,7 @@ for k in range(N):
 
     geom1_name = "ball_" + str(k+1)
     shape1 = fcl.Sphere(body_radius)
-    geom1_obj = pin.GeometryObject(geom1_name, joint_id, shape1, body_placement)
+    geom1_obj = pin.GeometryObject(geom1_name, joint_id, body_placement, shape1)
     geom1_obj.meshColor = np.ones((4))
     geom_model.addGeometryObject(geom1_obj)
 
@@ -77,7 +77,7 @@ for k in range(N):
     shape2_placement = body_placement.copy()
     shape2_placement.translation[2] /= 2.
 
-    geom2_obj = pin.GeometryObject(geom2_name, joint_id, shape2, shape2_placement)
+    geom2_obj = pin.GeometryObject(geom2_name, joint_id, shape2_placement, shape2)
     geom2_obj.meshColor = np.array([0.,0.,0.,1.])
     geom_model.addGeometryObject(geom2_obj)
 

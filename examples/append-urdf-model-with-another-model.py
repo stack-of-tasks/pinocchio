@@ -39,7 +39,7 @@ model2.appendBodyToJoint(joint_id, body_inertia, body_placement)
 
 geom1_name = "ball"
 shape1 = fcl.Sphere(body_radius)
-geom1_obj = pin.GeometryObject(geom1_name, joint_id, shape1, body_placement)
+geom1_obj = pin.GeometryObject(geom1_name, joint_id, body_placement, shape1)
 geom1_obj.meshColor = np.ones((4))
 geom_model.addGeometryObject(geom1_obj)
 
@@ -48,7 +48,7 @@ shape2 = fcl.Cylinder(body_radius/4., body_placement.translation[2])
 shape2_placement = body_placement.copy()
 shape2_placement.translation[2] /= 2.
 
-geom2_obj = pin.GeometryObject(geom2_name, joint_id, shape2, shape2_placement)
+geom2_obj = pin.GeometryObject(geom2_name, joint_id, shape2_placement, shape2)
 geom2_obj.meshColor = np.array([0.,0.,0.,1.])
 geom_model.addGeometryObject(geom2_obj)
 

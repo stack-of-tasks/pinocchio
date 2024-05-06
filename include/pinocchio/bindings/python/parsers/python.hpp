@@ -36,18 +36,7 @@ namespace pinocchio
     PINOCCHIO_PYWRAP_DLLAPI
     Model buildModel(const std::string & filename,
                      const std::string & var_name = "model");
-    
-    ///
-    /// \copydoc pinocchio::python::buildModel(const std::string &, const std::string &)
-    ///
-    PINOCCHIO_DEPRECATED
-    Model buildModel(const std::string & filename,
-                     const std::string & var_name,
-                     const bool /*verbose*/)
-    {
-      return buildModel(filename,var_name);
-    }
-    
+
   } // namespace python
   
 } // namespace pinocchio

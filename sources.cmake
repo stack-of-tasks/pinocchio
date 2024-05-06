@@ -60,7 +60,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/algorithm/delassus-operator-dense.hpp
   include/pinocchio/algorithm/delassus-operator-rigid-body.hpp
   include/pinocchio/algorithm/delassus-operator-sparse.hpp
-  include/pinocchio/algorithm/dynamics.hpp
   include/pinocchio/algorithm/energy.hpp
   include/pinocchio/algorithm/energy.hxx
   include/pinocchio/algorithm/frames-derivatives.hpp

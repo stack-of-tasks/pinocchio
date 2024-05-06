@@ -28,16 +28,6 @@ namespace pinocchio
        const DataTpl<Scalar,Options,JointCollectionTpl> & origin,
        DataTpl<Scalar,Options,JointCollectionTpl> & dest,
        KinematicLevel kinematic_level);
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  PINOCCHIO_DEPRECATED inline void
-  copy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-       const DataTpl<Scalar,Options,JointCollectionTpl> & origin,
-       DataTpl<Scalar,Options,JointCollectionTpl> & dest,
-       int kinematic_level)
-  {
-    copy(model,origin,dest,static_cast<KinematicLevel>(kinematic_level));
-  }
 
 } // namespace pinocchio 
 

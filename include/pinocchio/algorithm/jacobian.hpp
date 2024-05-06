@@ -124,22 +124,7 @@ namespace pinocchio
                             const Eigen::MatrixBase<ConfigVectorType> & q,
                             const JointIndex joint_id,
                             const Eigen::MatrixBase<Matrix6Like> & J);
-  ///
-  /// \brief This function is now deprecated and has been renamed into computeJointJacobian. It will be removed in future releases of Pinocchio.
-  ///
-  /// \copydoc pinocchio::computeJointJacobian
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
-  PINOCCHIO_DEPRECATED
-  void jointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                     const Eigen::MatrixBase<ConfigVectorType> & q,
-                     const JointIndex jointId,
-                     const Eigen::MatrixBase<Matrix6Like> & J)
-  {
-    computeJointJacobian(model,data,q,jointId,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J));
-  }
-
+  
   ///
   /// \brief Computes the full model Jacobian variations with respect to time. It corresponds to dJ/dt which depends both on q and v.
   ///        The result is accessible through data.dJ.
