@@ -95,7 +95,7 @@ OPTION(BUILD_WITH_COLLISION_SUPPORT "Build the library with the collision suppor
 OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differentiation support (via CppAD)" OFF)
 OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
 # cppadcodgen don't build well with CL
-IF(!WIN32)
+IF(NOT WIN32)
   OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
 ENDIF()
 OPTION(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)

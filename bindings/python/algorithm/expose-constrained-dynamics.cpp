@@ -19,10 +19,10 @@ namespace pinocchio
     namespace python
     {
 
-#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
-
       typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintModel) RigidConstraintModelVector;
       typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintData) RigidConstraintDataVector;
+
+#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
     
       static const context::VectorXs constraintDynamics_proxy(const context::Model & model,
                                                               context::Data & data,
@@ -66,15 +66,16 @@ namespace pinocchio
 
         ProximalSettingsPythonVisitor<context::ProximalSettings>::expose();
 
-#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
 
         RigidConstraintModelPythonVisitor<context::RigidConstraintModel>::expose();
         RigidConstraintDataPythonVisitor<context::RigidConstraintData>::expose();
+
 
         StdVectorPythonVisitor<RigidConstraintModelVector>::expose("StdVec_RigidConstraintModel");
         
         StdVectorPythonVisitor<RigidConstraintDataVector>::expose("StdVec_RigidConstraintData");
 
+#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
         ContactCholeskyDecompositionPythonVisitor<context::ContactCholeskyDecomposition>::expose();
 
         bp::def("initConstraintDynamics",
