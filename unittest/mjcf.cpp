@@ -888,6 +888,83 @@ BOOST_AUTO_TEST_CASE(parse_composite_Mujoco_comparison)
     pos << .8522, 4, 0.5223;
     BOOST_CHECK(pinPos.isApprox(SE3(refOrient, pos), 1e-4));
 }
+
+BOOST_AUTO_TEST_CASE(adding_keyframes)
+{
+    std::istringstream xmlData(R"(
+            <mujoco model="testKeyFrame">
+                <default>
+                    <position ctrllimited="true" ctrlrange="-.1 .1" kp="30"/>
+                    <default class="joint">
+                    <geom type="cylinder" size=".006" fromto="0 0 0 0 0 .05" rgba=".9 .6 1 1"/>
+                    </default>
+                </default>
+                <worldbody>
+                    <body name="body1">
+                        <freejoint/>
+                        <geom type="capsule" size=".01" fromto="0 0 0 .2 0 0"/>
+                        <body pos=".2 0 0" name="body2">
+                            <joint type="ball" damping=".1"/>
+                            <geom type="capsule" size=".01" fromto="0 -.15 0 0 0 0"/>
+                        </body>
+                    </body>
+                </worldbody>
+                <keyframe>
+                    <key name="test"
+                    qpos="0 0 0.596
+                        0.988015 0 0.154359 0
+                        0.988015 0 0.154359 0"/>
+                </keyframe>
+                </mujoco>)");
+
+    auto namefile = createTempFile(xmlData);
+
+    pinocchio::Model model_m;
+    pinocchio::mjcf::buildModel(namefile.name(), pinocchio::JointModelFreeFlyer(), model_m);
+
+    Eigen::VectorXd vect_model = model_m.referenceConfigurations.at("test");
+    
+    Eigen::VectorXd vect_ref(model_m.nq);
+    vect_ref << 0, 0, 0.596, 0, 0.154359, 0, 0.988015,  0, 0.154359, 0, 0.988015;
+
+    BOOST_CHECK(vect_model.size() == vect_ref.size());
+    BOOST_CHECK(vect_model == vect_ref);  
+}
+
+BOOST_AUTO_TEST_CASE(referencePositions)
+{
+    std::istringstream xmlData(R"(
+            <mujoco model="testRefPose">
+                <compiler angle="radian"/>
+                <worldbody>
+                    <body name="body1">
+                        <body pos=".2 0 0" name="body2">
+                            <joint type="slide" ref="0.14"/>
+                            <body pos=".2 0 0" name="body3">
+                                <joint type="hinge" ref="0.1"/>
+                            </body>
+                        </body>
+                    </body>
+                </worldbody>
+                <keyframe>
+                    <key name="test" qpos=".8 .5"/>
+                </keyframe>
+                </mujoco>)");
+
+    auto namefile = createTempFile(xmlData);
+
+    pinocchio::Model model_m;
+    pinocchio::mjcf::buildModel(namefile.name(), model_m);
+
+    Eigen::VectorXd vect_model = model_m.referenceConfigurations.at("test");
+    Eigen::VectorXd vect_ref(model_m.nq);
+    vect_ref << 0.66, 0.4;
+    
+    BOOST_CHECK(vect_model.size() == vect_ref.size());
+    BOOST_CHECK(vect_model == vect_ref);  
+}
+
+
 /// @brief test that a fixed model is well parsed 
 /// @param  
 BOOST_AUTO_TEST_CASE (build_model_no_root_joint)
