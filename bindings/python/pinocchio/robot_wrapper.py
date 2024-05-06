@@ -4,7 +4,6 @@
 
 from . import pinocchio_pywrap_default as pin
 from . import utils
-from .deprecation import deprecated
 from .shortcuts import buildModelsFromUrdf, createDatas, buildModelsFromSdf
 
 import numpy as np
@@ -153,14 +152,6 @@ class RobotWrapper(object):
             pin.forwardKinematics(self.model, self.data, q, v, a)
         return pin.getFrameClassicalAcceleration(self.model, self.data, index, reference_frame)
 
-    @deprecated("This method has been replaced by frameClassicalAcceleration.")
-    def frameClassicAcceleration(self, index):
-        return self.frameClassicalAcceleration(None, None, None, index, False)
-
-    @deprecated("This method has been renamed computeJointJacobian. Please use computeJointJacobian instead of jointJacobian.")
-    def jointJacobian(self, q, index):
-        return pin.computeJointJacobian(self.model, self.data, q, index)
-        
     def computeJointJacobian(self, q, index):
         return pin.computeJointJacobian(self.model, self.data, q, index)
 
@@ -226,14 +217,6 @@ class RobotWrapper(object):
             local coordinate frame or in the world coordinate frame.
         """
         return pin.getFrameJacobian(self.model, self.data, frame_id, rf_frame)
-
-    @deprecated("This method has been renamed computeFrameJacobian. Please use computeFrameJacobian instead of frameJacobian.")
-    def frameJacobian(self, q, frame_id):
-        """
-            Similar to getFrameJacobian but does not need pin.computeJointJacobians and
-            pin.updateFramePlacements to update internal value of self.data related to frames.
-        """
-        return pin.computeFrameJacobian(self.model, self.data, q, frame_id)
 
     def computeFrameJacobian(self, q, frame_id):
         """
@@ -307,32 +290,10 @@ class RobotWrapper(object):
 
         self.viz.initViewer(*args, **kwargs)
 
-    @deprecated("Use initViewer")
-    def initDisplay(self, windowName="python-pinocchio", sceneName="world", loadModel=False):
-        self.initViewer(windowName=windowName, sceneName=sceneName, loadModel=loadModel)
-
-    @deprecated("You should manually set the visualizer, initialize it, and load the model.")
-    def initMeshcatDisplay(self, meshcat_visualizer, robot_name = "pinocchio", robot_color = None):
-        """ Load the robot in a Meshcat viewer.
-        Parameters:
-            visualizer: the meshcat.Visualizer instance to use.
-            robot_name: name to give to the robot in the viewer
-            robot_color: optional, color to give to the robot. This overwrites the color present in the urdf.
-                         Format is a list of four RGBA floats (between 0 and 1)
-        """
-        from .visualize import MeshcatVisualizer
-        self.viz = MeshcatVisualizer(self.model, self.collision_model, self.visual_model)
-        self.viz.initViewer(meshcat_visualizer)
-        self.viz.loadViewerModel(rootNodeName=robot_name, color=robot_color)
 
     def loadViewerModel(self, *args, **kwargs):
         """Create the scene displaying the robot meshes in gepetto-viewer"""
         self.viz.loadViewerModel(*args, **kwargs)
-
-    @deprecated("Use loadViewerModel")
-    def loadDisplayModel(self, rootNodeName="pinocchio"):
-        """Create the scene displaying the robot meshes in gepetto-viewer"""
-        self.loadViewerModel(rootNodeName=rootNodeName)
 
     def display(self, q):
         """Display the robot at configuration q in the viewer by placing all the bodies."""

@@ -41,7 +41,6 @@ namespace pinocchio
   template<typename Derived> class MotionDense;
   template<typename Vector6ArgType> class MotionRef;
   template<typename Scalar, int Options=context::Options> struct MotionZeroTpl;
-  template<typename Scalar, int Options=context::Options> struct PINOCCHIO_DEPRECATED BiasZeroTpl;
   
   template<typename Derived> class ForceBase;
   template<typename Derived> class ForceDense;
@@ -57,12 +56,6 @@ namespace pinocchio
   typedef InertiaTpl    <context::Scalar,context::Options> Inertia;
   typedef Symmetric3Tpl <context::Scalar,context::Options> Symmetric3;
   typedef MotionZeroTpl <context::Scalar,context::Options> MotionZero;
-
-PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-  typedef BiasZeroTpl   <context::Scalar,context::Options> BiasZero;
-PINOCCHIO_COMPILER_DIAGNOSTIC_POP
-
 
   /**
    * @}

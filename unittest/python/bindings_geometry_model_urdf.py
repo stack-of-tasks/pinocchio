@@ -84,23 +84,6 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
         vis_v = visual_model_v.geometryObjects[1]
         self.assertEqual(os.path.normpath(vis_v.meshPath), os.path.normpath(expected_visual_path))
-    
-    def test_deprecated_signatures(self):
-        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
-  
-        hint_list = [self.mesh_path, "wrong/hint"]
-        pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION)
-
-        hint_vec = pin.StdVec_StdString()
-        hint_vec.append(self.mesh_path)
-        pin.buildGeomFromUrdf(model, self.model_path, hint_vec, pin.GeometryType.COLLISION)
-
-        pin.buildGeomFromUrdf(model, self.model_path, self.mesh_path, pin.GeometryType.COLLISION)
-      
-        if pin.WITH_HPP_FCL_BINDINGS:
-            pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
-            pin.buildGeomFromUrdf(model, self.model_path, hint_vec, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
-            pin.buildGeomFromUrdf(model, self.model_path, self.mesh_path, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
 
 if __name__ == '__main__':
     unittest.main()

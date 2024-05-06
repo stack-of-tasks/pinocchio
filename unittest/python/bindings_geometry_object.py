@@ -33,21 +33,6 @@ class TestGeometryObjectBindings(unittest.TestCase):
         col = self.collision_model.geometryObjects[0]
         self.assertTrue(col.meshPath is not None)
 
-    def test_scale(self):
-        scale = np.array([1.,2.,3.])
-        pin.setGeometryMeshScales(self.collision_model,scale)
-        for obj in self.collision_model.geometryObjects:
-            self.assertTrue(obj.meshScale[0] == scale[0])
-            self.assertTrue(obj.meshScale[1] == scale[1])
-            self.assertTrue(obj.meshScale[2] == scale[2])
-
-    def test_scalar_scale(self):
-        scale = 2.
-        vec = np.array([scale]*3)
-        pin.setGeometryMeshScales(self.collision_model,scale)
-        for obj in self.collision_model.geometryObjects:
-            self.assertTrue(np.allclose(obj.meshScale, vec))
-
     def test_create_data(self):
         collision_data = self.collision_model.createData()
         self.assertEqual(len(collision_data.oMg), self.collision_model.ngeoms)

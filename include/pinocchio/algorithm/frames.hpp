@@ -59,27 +59,6 @@ namespace pinocchio
                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                       const Eigen::MatrixBase<ConfigVectorType> & q);
 
-  
-  /**
-   * @brief      Updates the position of each frame contained in the model.
-   *             This function is now deprecated and has been renamed updateFramePlacements.
-   *
-   * @tparam JointCollection Collection of Joint types.
-   *
-   * @param[in]  model  The kinematic model.
-   * @param      data   Data associated to model.
-   *
-   * @warning    One of the algorithms forwardKinematics should have been called first.
-  */
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  PINOCCHIO_DEPRECATED
-  inline void framesForwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      DataTpl<Scalar,Options,JointCollectionTpl> & data)
-  {
-    updateFramePlacements(model,data);
-  }
-
-
   /**
    * @brief      Returns the spatial velocity of the Frame expressed in the desired reference frame.
    *             You must first call pinocchio::forwardKinematics to update placement and velocity values in data structure.
@@ -434,23 +413,7 @@ namespace pinocchio
     computeFrameJacobian(model,data,q.derived(),frameId,LOCAL,
                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
   }
-                        
-  ///
-  /// \brief This function is now deprecated and has been renamed computeFrameJacobian. This signature will be removed in future release of Pinocchio.
-  ///
-  /// \copydoc pinocchio::computeFrameJacobian
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>
-  PINOCCHIO_DEPRECATED
-  inline void frameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                            const Eigen::MatrixBase<ConfigVectorType> & q,
-                            const FrameIndex frameId,
-                            const Eigen::MatrixBase<Matrix6xLike> & J)
-  {
-    computeFrameJacobian(model,data,q,frameId,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
-  }
-  
+                          
   ///
   /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the WORLD frame (rf = WORLD), in the local world aligned (rf = LOCAL_WORLD_ALIGNED) frame or in the LOCAL frame (rf = LOCAL).
   ///

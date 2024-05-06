@@ -18,10 +18,6 @@ namespace pinocchio {
     <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs>
     (const context::Model &, context::Data &, const Eigen::MatrixBase<context::VectorXs> &);
 
-  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI void framesForwardKinematics 
-    <context::Scalar, context::Options, JointCollectionDefaultTpl>
-    (const context::Model &, context::Data &);
-
   extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI MotionTpl<context::Scalar, context::Options> getFrameVelocity 
     <context::Scalar, context::Options, JointCollectionDefaultTpl>
     (const context::Model &, const context::Data &, const JointIndex, const SE3Tpl<context::Scalar, context::Options> &, const ReferenceFrame);
@@ -67,10 +63,6 @@ namespace pinocchio {
     (const context::Model &, context::Data &, const Eigen::MatrixBase<context::VectorXs> &, const FrameIndex, const ReferenceFrame, const Eigen::MatrixBase<context::Matrix6xs> &);
 
   extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI void computeFrameJacobian 
-    <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::Matrix6xs>
-    (const context::Model &, context::Data &, const Eigen::MatrixBase<context::VectorXs> &, const FrameIndex, const Eigen::MatrixBase<context::Matrix6xs> &);
-
-  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI void frameJacobian 
     <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::Matrix6xs>
     (const context::Model &, context::Data &, const Eigen::MatrixBase<context::VectorXs> &, const FrameIndex, const Eigen::MatrixBase<context::Matrix6xs> &);
 

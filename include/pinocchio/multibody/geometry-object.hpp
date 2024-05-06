@@ -162,45 +162,6 @@ GeometryObject(const std::string &name,
 {}
 
   ///
-  /// \brief Full constructor.
-  ///
-  /// \param[in] name  Name of the geometry object.
-  /// \param[in] parent_frame  Index of the parent frame.
-  /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
-  /// \param[in] collision_geometry The FCL collision geometry object.
-  /// \param[in] placement Placement of the geometry with respect to the joint frame.
-  /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
-  /// \param[in] meshScale Scale of the mesh [if applicable].
-  /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
-  /// \param[in] meshColor Color of the mesh [if applicable].
-  /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
-  /// \param[in] meshMaterial Material of the mesh [if applicable].
-  ///
-  /// \deprecated This constructor is now deprecated, and its argument order has been changed.
-  ///
-  PINOCCHIO_DEPRECATED GeometryObject(const std::string & name,
-                                      const FrameIndex parent_frame,
-                                      const JointIndex parent_joint,
-                                      const CollisionGeometryPtr & collision_geometry,
-                                      const SE3 & placement,
-                                      const std::string & meshPath = "",
-                                      const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
-                                      const bool overrideMaterial = false,
-                                      const Eigen::Vector4d & meshColor = Eigen::Vector4d(0,0,0,1),
-                                      const std::string & meshTexturePath = "",
-                                      const GeometryMaterial& meshMaterial = GeometryNoMaterial())
-  : Base(name, parent_joint, parent_frame, placement)
-  , geometry(collision_geometry)
-  , meshPath(meshPath)
-  , meshScale(meshScale)
-  , overrideMaterial(overrideMaterial)
-  , meshColor(meshColor)
-  , meshMaterial(meshMaterial)
-  , meshTexturePath(meshTexturePath)
-  , disableCollision(false)
-  {}
-
-  ///
   /// \brief Reduced constructor.
   /// \remarks Compared to the other constructor, this one assumes that there is no parentFrame associated to the geometry.
   ///
@@ -235,46 +196,6 @@ GeometryObject(const std::string &name,
       , meshTexturePath(meshTexturePath)
       , disableCollision(false)
   {}
-
-
-  ///
-  /// \brief Reduced constructor.
-  /// \remarks Compared to the other constructor, this one assumes that there is no parentFrame associated to the geometry.
-  ///
-  /// \param[in] name  Name of the geometry object.
-  /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
-  /// \param[in] collision_geometry The FCL collision geometry object.
-  /// \param[in] placement Placement of the geometry with respect to the joint frame.
-  /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
-  /// \param[in] meshScale Scale of the mesh [if applicable].
-  /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
-  /// \param[in] meshColor Color of the mesh [if applicable].
-  /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
-  /// \param[in] meshMaterial Material of the mesh [if applicable].
-  ///
-  /// \deprecated This constructor is now deprecated, and its argument order has been changed.
-  ///
-  PINOCCHIO_DEPRECATED GeometryObject(const std::string &name,
-                                      const JointIndex parent_joint,
-                                      const CollisionGeometryPtr &collision_geometry,
-                                      const SE3 &placement,
-                                      const std::string &meshPath = "",
-                                      const Eigen::Vector3d &meshScale = Eigen::Vector3d::Ones(),
-                                      const bool overrideMaterial = false,
-                                      const Eigen::Vector4d &meshColor = Eigen::Vector4d(0, 0, 0, 1),
-                                      const std::string &meshTexturePath = "",
-                                      const GeometryMaterial& meshMaterial = GeometryNoMaterial())
-      : Base(name, parent_joint, std::numeric_limits<FrameIndex>::max(), placement)
-      , geometry(collision_geometry)
-      , meshPath(meshPath)
-      , meshScale(meshScale)
-      , overrideMaterial(overrideMaterial)
-      , meshColor(meshColor)
-      , meshMaterial(meshMaterial)
-      , meshTexturePath(meshTexturePath)
-      , disableCollision(false)
-  {}
-
 
   GeometryObject(const GeometryObject & other)
   {
