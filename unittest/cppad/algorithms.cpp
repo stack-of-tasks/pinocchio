@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE(test_JSIM_jit)
     ofs.close();
 
     // create dll_file
-    std::string dll_file = "jit_JSIM" DLL_EXT;
+    std::string dll_file = "./jit_JSIM" DLL_EXT;
     CPPAD_TESTVECTOR( std::string) csrc_files(1);
     csrc_files[0] = csrc_file;
     std::map< std::string, std::string > options;

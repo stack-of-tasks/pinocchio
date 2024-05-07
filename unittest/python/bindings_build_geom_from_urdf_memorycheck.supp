@@ -156,3 +156,26 @@
    fun:builtin___import__
    fun:cfunction_vectorcall_FASTCALL_KEYWORDS
 }
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:d_growable_string_resize
+   fun:d_growable_string_append_buffer
+   fun:d_growable_string_callback_adapter
+   fun:d_print_flush
+   fun:d_print_callback
+   fun:d_demangle_callback.constprop.0
+   fun:d_demangle
+   fun:__cxa_demangle
+   fun:_ZN5boost6python6detail12gcc_demangleEPKc
+   fun:_ZN9pinocchio6python15exposeCollisionEv
+   fun:_Z36init_module_pinocchio_pywrap_defaultv
+   fun:_ZN5boost6python21handle_exception_implENS_9function0IvEE
+   fun:_ZN5boost6python6detail11init_moduleER11PyModuleDefPFvvE
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_imp_create_dynamic
+   fun:cfunction_vectorcall_FASTCALL
+}
