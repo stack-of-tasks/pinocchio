@@ -163,10 +163,12 @@ ENDFUNCTION()
 
 FUNCTION(PINOCCHIO_CONFIG directory lib_name)
   STRING(TOUPPER ${lib_name} upper_lib_name)
-  GENERATE_CONFIGURATION_HEADER(../../include/pinocchio/${directory}
-    config.hpp
-    ${upper_lib_name}
-    ${lib_name}_EXPORTS)
+  GENERATE_CONFIGURATION_HEADER_V2(
+    INCLUDE_DIR ${PROJECT_BINARY_DIR}/include
+    HEADER_DIR pinocchio/${directory}
+    FILENAME config.hpp
+    LIBRARY_NAME ${upper_lib_name}
+    EXPORT_SYMBOL ${lib_name}_EXPORTS)
 ENDFUNCTION()
 
 ADD_SOURCE_GROUP(${PROJECT_NAME}_CORE_SOURCES)

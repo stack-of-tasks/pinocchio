@@ -353,8 +353,8 @@ SET(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
   include/pinocchio/parsers/mjcf.hpp
   include/pinocchio/parsers/mjcf/model.hxx
   include/pinocchio/parsers/mjcf/geometry.hxx
-
   include/pinocchio/parsers/mjcf/mjcf-graph.hpp
+  include/pinocchio/parsers/sample-models.hpp
   )
 
 SET(${PROJECT_NAME}_URDF_SOURCES
