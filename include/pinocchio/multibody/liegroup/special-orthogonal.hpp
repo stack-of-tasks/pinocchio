@@ -419,8 +419,11 @@ namespace pinocchio
       const Quaternion_t quat_diff = quat0.conjugate() * quat1;
 
       if (arg == ARG0) {
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
         JacobianMatrix_t J1;
         quaternion::Jlog3(quat_diff, J1);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         const Matrix3 R = (quat_diff).matrix();
 
         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).noalias() = - J1 * R.transpose();
@@ -458,6 +461,8 @@ namespace pinocchio
       ConstQuaternionMap_t quat_map(q.derived().data());
       assert(quaternion::isNormalized(quat_map,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
       Eigen::Matrix<Scalar,NQ,NV,JacobianPlainType::Options|Eigen::RowMajor> Jexp3QuatCoeffWise;
       
       Scalar theta;
@@ -465,6 +470,7 @@ namespace pinocchio
       quaternion::Jexp3CoeffWise(v,Jexp3QuatCoeffWise);
       Matrix3 Jlog;
       Jlog3(theta,v,Jlog);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       
 //      if(quat_map.w() >= 0.) // comes from the log3 for quaternions which may change the sign.
       if(quat_map.coeffs()[3] >= 0.) // comes from the log3 for quaternions which may change the sign.
@@ -542,8 +548,11 @@ namespace pinocchio
     {
       typedef typename SE3::Matrix3 Matrix3;
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out);
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
       Matrix3 Jtmp3;
       Jexp3<SETTO>(v, Jtmp3);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       Jout.noalias() = Jtmp3 * Jin;
     }
 
@@ -565,8 +574,11 @@ namespace pinocchio
     {
       typedef typename SE3::Matrix3 Matrix3;
       Jacobian_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J_out);
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
       Matrix3 Jtmp3;
       Jexp3<SETTO>(v, Jtmp3);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       Jout = Jtmp3 * Jout;
     }
 
@@ -594,8 +606,11 @@ namespace pinocchio
     static Scalar squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        const Eigen::MatrixBase<ConfigR_t> & q1)
     {
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
       TangentVector_t t;
       difference_impl(q0, q1, t);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       return t.squaredNorm();
     }
     

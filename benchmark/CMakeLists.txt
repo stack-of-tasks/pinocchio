@@ -5,10 +5,6 @@
 # ----------------------------------------------------
 # --- BENCHMARK --------------------------------------
 # ----------------------------------------------------
-IF(WIN32)
-  ADD_DEFINITIONS("-DNOMINMAX")
-ENDIF()
-
 ADD_CUSTOM_TARGET(bench)
 
 MACRO(ADD_BENCH bench_name)

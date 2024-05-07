@@ -14,8 +14,11 @@
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/registration.hpp"
-
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
+
+#if EIGENPY_VERSION_AT_MOST(2,8,1)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
+#endif
 
 namespace pinocchio
 {

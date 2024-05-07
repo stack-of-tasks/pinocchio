@@ -13,6 +13,11 @@ MACRO(ADD_TEST_CFLAGS target flag)
   UNSET(test_name)
 ENDMACRO()
 
+# Compute flags outside the macro to avoid recomputing it for each tests
+CXX_FLAGS_BY_COMPILER_FRONTEND(
+  MSVC _USE_MATH_DEFINES
+  OUTPUT TEST_PRIVATE_DEFINITIONS)
+
 FUNCTION(GET_CPP_TEST_NAME name src_dir full_test_name)
   STRING(REPLACE "${PINOCCHIO_UNIT_TEST_DIR}" "" prefix_name "${src_dir}")
   STRING(REGEX REPLACE "[/]" "-" prefix_name "${prefix_name}-")
@@ -36,6 +41,14 @@ FUNCTION(ADD_PINOCCHIO_UNIT_TEST name)
   GET_CPP_TEST_NAME(${name} ${CMAKE_CURRENT_SOURCE_DIR} TEST_NAME)
   ADD_UNIT_TEST(${TEST_NAME} ${name}.cpp)
 
+  SET(MODULE_NAME "${NAME}Test")
+  STRING(REPLACE "-" "_" MODULE_NAME ${MODULE_NAME})
+  TARGET_COMPILE_DEFINITIONS(${TEST_NAME}
+    PRIVATE ${TEST_PRIVATE_DEFINITIONS}
+            BOOST_TEST_DYN_LINK
+            BOOST_TEST_MODULE=${MODULE_NAME}
+            PINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\")
+
   # There is no RPATH in Windows, then we must use the PATH to find the DLL
   IF(WIN32)
     STRING(REPLACE ";" "\\\;" _PATH "$ENV{PATH}")
@@ -51,9 +64,6 @@ FUNCTION(ADD_PINOCCHIO_UNIT_TEST name)
   STRING(REGEX REPLACE "-" "_" MODULE_NAME ${MODULE_NAME})
   ADD_TEST_CFLAGS(${name} "-DBOOST_TEST_MODULE=${MODULE_NAME}")
   ADD_TEST_CFLAGS(${name} "-DPINOCCHIO_MODEL_DIR=\\\\\"${PINOCCHIO_MODEL_DIR}\\\\\"")
-  IF(WIN32)
-    ADD_TEST_CFLAGS(${name} "-DNOMINMAX -D_USE_MATH_DEFINES")
-  ENDIF()
 
   IF(NOT unit_test_HEADER_ONLY)
     TARGET_LINK_LIBRARIES(${TEST_NAME} PUBLIC ${PROJECT_NAME}_default)
@@ -238,7 +248,16 @@ ADD_PINOCCHIO_UNIT_TEST(finite-differences)
 ADD_PINOCCHIO_UNIT_TEST(visitor)
 ADD_PINOCCHIO_UNIT_TEST(algo-check)
 
+# Warning ignore with pragma doesn't work for
+# a part of this test, so we ignore two warning
+# globally
+CXX_FLAGS_BY_COMPILER_FRONTEND(
+  GNU -Wno-maybe-uninitialized -Wuse-after-free=0
+  OUTPUT LIEGROUPS_OPTIONS
+  FILTER)
 ADD_PINOCCHIO_UNIT_TEST(liegroups)
+ADD_TEST_CFLAGS(liegroups ${LIEGROUPS_OPTIONS})
+
 ADD_PINOCCHIO_UNIT_TEST(cartesian-product-liegroups)
 ADD_PINOCCHIO_UNIT_TEST(regressor)
 ADD_PINOCCHIO_UNIT_TEST(version)
