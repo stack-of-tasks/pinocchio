@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2024 CNRS INRIA
 //
 
 #ifndef __pinocchio_serialization_aligned_vector_hpp__
@@ -22,27 +22,24 @@ namespace boost
                    pinocchio::container::aligned_vector<T> & v,
                    const unsigned int version)
     {
-      typedef typename pinocchio::container::aligned_vector<T>::vector_base vector_base;
-      split_free(ar,*static_cast<vector_base*>(&v),version);
+      split_free(ar,v,version);
     }
     
 #if BOOST_VERSION / 100 % 1000 == 58
     template<class T>
     inline
-    const fixme::nvp< typename pinocchio::container::aligned_vector<T>::vector_base >
+    const fixme::nvp< pinocchio::container::aligned_vector<T> >
     make_nvp(const char * name, pinocchio::container::aligned_vector<T> & t)
     {
-      typedef typename pinocchio::container::aligned_vector<T>::vector_base vector_base;
-      return fixme::nvp< vector_base >(name, *static_cast<vector_base*>(&t));
+      return fixme::nvp< pinocchio::container::aligned_vector<T> >(name, t);
     }
 #else
     template<class T>
     inline
-    const nvp< typename pinocchio::container::aligned_vector<T>::vector_base >
+    const nvp< pinocchio::container::aligned_vector<T> >
     make_nvp(const char * name, pinocchio::container::aligned_vector<T> & t)
     {
-      typedef typename pinocchio::container::aligned_vector<T>::vector_base vector_base;
-      return nvp< vector_base >(name, *static_cast<vector_base*>(&t));
+      return nvp< pinocchio::container::aligned_vector<T> >(name, t);
     }
 #endif
 
