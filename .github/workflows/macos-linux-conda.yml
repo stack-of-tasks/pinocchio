@@ -88,6 +88,7 @@ jobs:
           -DPYTHON_EXECUTABLE=$(which python3) \
           -DBUILD_WITH_OPENMP_SUPPORT=ON \
           -DINSTALL_DOCUMENTATION=ON \
+          -DGENERATE_PYTHON_STUBS=ON \
           -DOpenMP_ROOT=$CONDA_PREFIX
         cmake --build . -j2
         ctest --output-on-failure

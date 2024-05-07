@@ -232,6 +232,23 @@ namespace pinocchio
          model, geomModel);
   }
 
+  // Compute whether Joint child is a descendent of parent in a given model
+  // Joints are represented by their id in the model
+  template <typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  static bool hasAncestor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                          JointIndex child, JointIndex parent)
+  {
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::IndexVector IndexVector_t;
+    // Any joints has universe as an acenstor
+    assert(model.supports[child][0] == 0);
+    for (typename IndexVector_t::const_iterator it=model.supports[child].begin();
+	 it!=model.supports[child].end(); ++it)
+    {
+      if (*it == parent) return true;
+    }
+    return false;
+  }
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   void
   appendModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & modelA,
@@ -267,12 +284,33 @@ namespace pinocchio
 
     geomModel.geometryObjects.reserve (geomModelA.ngeoms + geomModelB.ngeoms);
 
-    // Copy modelA joints until frame.parentJoint
     details::appendUniverseToModel (modelA, geomModelA, 0, id, model, geomModel);
-    for (JointIndex jid = 1; jid <= frame.parentJoint; ++jid)
+    // Compute joints of A that should be added before and after joints of B
+    std::vector<JointIndex> AJointsBeforeB;
+    std::vector<JointIndex> AJointsAfterB;
+    // All joints until the parent of frameInModelA come first
+    for (JointIndex jid = 1; jid <= frame.parent; ++jid)
+    {
+      AJointsBeforeB.push_back(jid);
+    }
+    // descendants of the parent of frameInModelA come also before model B
+    // TODO(jcarpent): enhancement by taking into account the compactness of the joint ordering.
+    for (JointIndex jid = frame.parent+1; jid < modelA.joints.size(); ++jid)
+    {
+      if (hasAncestor(modelA, jid, frame.parent))
+      {
+        AJointsBeforeB.push_back(jid);
+      } else
+      {
+        AJointsAfterB.push_back(jid);
+      }
+    }
+    // Copy modelA joints that should come before model B
+    for (std::vector<JointIndex>::const_iterator jid = AJointsBeforeB.begin();
+	 jid !=AJointsBeforeB.end(); ++jid)
     {
       ArgsType args (modelA, geomModelA, 0, id, model, geomModel);
-      AppendJointOfModelAlgo::run (modelA.joints[jid], args);
+      AppendJointOfModelAlgo::run (modelA.joints[*jid], args);
     }
 
     // Copy modelB joints
@@ -286,10 +324,12 @@ namespace pinocchio
     }
 
     // Copy remaining joints of modelA
-    for (JointIndex jid = frame.parentJoint+1; jid < modelA.joints.size(); ++jid)
+    // Copy modelA joints that should come before model B
+    for (std::vector<JointIndex>::const_iterator jid = AJointsAfterB.begin();
+	 jid!=AJointsAfterB.end(); ++jid)
     {
       ArgsType args (modelA, geomModelA, 0, id, model, geomModel);
-      AppendJointOfModelAlgo::run (modelA.joints[jid], args);
+      AppendJointOfModelAlgo::run (modelA.joints[*jid], args);
     }
 
     // Retrieve and set the reference configurations
@@ -403,6 +443,8 @@ namespace pinocchio
     // Sort indexes
     std::sort(list_of_joints_to_lock.begin(),list_of_joints_to_lock.end());
     
+    typename Model::FrameVector::const_iterator frame_it = input_model.frames.begin();
+
     // Check that they are not two identical elements
     for(size_t id = 1; id < list_of_joints_to_lock.size(); ++id)
     {
@@ -431,6 +473,7 @@ namespace pinocchio
     
     for(JointIndex joint_id = 1; joint_id < (JointIndex)input_model.njoints; ++joint_id)
     {
+
       const JointIndex joint_id_to_lock = (current_index_to_lock < list_of_joints_to_lock.size()) ? list_of_joints_to_lock[current_index_to_lock] : 0;
       
       const JointIndex input_parent_joint_index = input_model.parents[joint_id];
@@ -459,6 +502,43 @@ namespace pinocchio
       if(joint_id == joint_id_to_lock)
       {
         // the joint should not be added to the Model but aggragated to its parent joint
+        //Add frames up to the joint to lock
+        while((*frame_it).name != joint_name)
+        {
+          ++frame_it;
+          const Frame & input_frame = *frame_it;
+          if(input_frame.name == joint_name)
+            break;
+          const std::string & support_joint_name = input_model.names[input_frame.parent];
+
+          std::vector<JointIndex>::const_iterator support_joint_it = std::find(list_of_joints_to_lock.begin(),
+                                                                              list_of_joints_to_lock.end(),
+                                                                              input_frame.parent);
+          
+          if(support_joint_it != list_of_joints_to_lock.end())
+          {
+            if(   input_frame.type == JOINT
+              && reduced_model.existFrame(input_frame.name)
+              && support_joint_name == input_frame.name)
+              continue; // this means that the Joint is now fixed and has been replaced by a Frame. No need to add a new one.
+            
+            // The joint has been removed and replaced by a Frame
+            const FrameIndex joint_frame_id = reduced_model.getFrameId(support_joint_name);
+            const Frame & joint_frame = reduced_model.frames[joint_frame_id];
+            Frame reduced_frame = input_frame;
+            reduced_frame.placement = joint_frame.placement * input_frame.placement;
+            reduced_frame.parent = joint_frame.parent;
+            reduced_frame.previousFrame = reduced_model.getFrameId(input_model.frames[input_frame.previousFrame].name);
+            reduced_model.addFrame(reduced_frame, false);
+          }
+          else
+          {
+            Frame reduced_frame = input_frame;
+            reduced_frame.parent = reduced_model.getJointId(input_model.names[input_frame.parent]);
+            reduced_frame.previousFrame = reduced_model.getFrameId(input_model.frames[input_frame.previousFrame].name);
+            reduced_model.addFrame(reduced_frame, false);
+          }
+        }
 
         // Compute the new placement of the joint with respect to its parent joint in the new kinematic tree.
         JointData joint_data = joint_input_model.createData();
@@ -502,7 +582,7 @@ namespace pinocchio
         = joint_input_model.jointVelocitySelector(input_model.rotorGearRatio);
       }
     }
-    
+
     // Retrieve and extend the reference configurations
     typedef typename Model::ConfigVectorMap ConfigVectorMap;
     for(typename ConfigVectorMap::const_iterator config_it = input_model.referenceConfigurations.begin();
@@ -526,9 +606,8 @@ namespace pinocchio
       reduced_model.referenceConfigurations.insert(std::make_pair(config_name, reduced_config_vector));
     }
     
-    // Add all frames
-    typename Model::FrameVector::const_iterator frame_it = input_model.frames.begin();
-    for(++frame_it;frame_it != input_model.frames.end(); ++frame_it)
+    // Add all the missing frames
+    for(;frame_it != input_model.frames.end(); ++frame_it)
     {
       const Frame & input_frame = *frame_it;
       const std::string & support_joint_name = input_model.names[input_frame.parentJoint];

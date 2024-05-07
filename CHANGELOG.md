@@ -6,15 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [2.7.1] - 2024-04-26
+
 ### Changed
+- Modify algorithm that appends a model to another ([#2218](https://github.com/stack-of-tasks/pinocchio/pull/2218))
 - Set NOMINMAX as a public definitions on Windows ([#2139](https://github.com/stack-of-tasks/pinocchio/pull/2139))
+- Improve documentation of `enum ReferenceFrame` ([#2190](https://github.com/stack-of-tasks/pinocchio/pull/2190))
+- Improve documentation of `getJointJacobian` ([#2193](https://github.com/stack-of-tasks/pinocchio/pull/2193)).
 
 ### Fixed
+- CMake now uses Relative Path instead of Absolute ([#2202](https://github.com/stack-of-tasks/pinocchio/pull/2202))
+- Order of frames in `ReducedModel` is now the same as in the full model ([#2160](https://github.com/stack-of-tasks/pinocchio/pull/2160))
 - Remove a lot of warnings ([#2139](https://github.com/stack-of-tasks/pinocchio/pull/2139))
 - `MeshcatVisualizer` doesn't crash anymore when there is no collision model defined ([#2147](https://github.com/stack-of-tasks/pinocchio/pull/2147))
+- Fix MSVC build ([#2155](https://github.com/stack-of-tasks/pinocchio/pull/2155))
+- Fix stub generation ([#2166](https://github.com/stack-of-tasks/pinocchio/pull/2166))
+- Clean up empty documentation pages and sections ([#2167](https://github.com/stack-of-tasks/pinocchio/pull/2167))
+- Fix SO(3) title and cross-section reference in the documentation ([#2210](https://github.com/stack-of-tasks/pinocchio/pull/2210))
 
 ### Added
-- Add `examples/floating-base-velocity-viewer.py` to visualize floating base velocity [#2143](https://github.com/stack-of-tasks/pinocchio/pull/2143)
+- Add `examples/floating-base-velocity-viewer.py` to visualize floating base velocity ([#2143](https://github.com/stack-of-tasks/pinocchio/pull/2143))
+- Add remark to the documentation of `getFrame(Classical)Acceleration` functions ([#2169](https://github.com/stack-of-tasks/pinocchio/pull/2169))
+- Allow use of installed jrl-cmakemodules ([#2216](https://github.com/stack-of-tasks/pinocchio/pull/2216))
 
 ## [2.7.0] - 2024-01-23
 
@@ -838,7 +851,8 @@ The model can either be parsed from a URDF format or be created by appendending 
         • Fixed (concatenation of two consecutive bodies)
 
 
-[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v2.7.0...HEAD
+[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v2.7.1...HEAD
+[2.7.1]: https://github.com/stack-of-tasks/pinocchio/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.21...v2.7.0
 [2.6.21]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.20...v2.6.21
 [2.6.20]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.19...v2.6.20
