@@ -206,7 +206,7 @@ if WITH_HPP_FCL_BINDINGS and \
             ])
 
         all_points = np.empty((8*num_boxes,3))
-        all_faces = np.empty((12*num_boxes,3),dtype=np.int)
+        all_faces = np.empty((12*num_boxes,3),dtype=int)
         face_id = 0
         for box_id, box_properties in enumerate(boxes):
             box_center = box_properties[:3]
