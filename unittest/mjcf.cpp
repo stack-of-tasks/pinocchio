@@ -966,6 +966,79 @@ BOOST_AUTO_TEST_CASE(reference_positions)
     BOOST_CHECK(vect_model == vect_ref);  
 }
 
+// Test keyframe and composite joint
+BOOST_AUTO_TEST_CASE(keyframe_and_composite)
+{
+    std::istringstream xmlData(R"(
+            <mujoco model="keyframeComposite">
+                <compiler angle="radian"/>
+                <worldbody>
+                    <body name="body1">
+                        <body pos=".2 0 0" name="body2">
+                            <joint type="slide"/>
+                            <joint type="hinge"/>
+                            <body pos=".2 0 0" name="body3">
+                                <joint type="hinge"/>
+                            </body>
+                        </body>
+                    </body>
+                </worldbody>
+                <keyframe>
+                    <key name="test" qpos=".8 .5 .5"/>
+                </keyframe>
+                </mujoco>)");
+
+    auto namefile = createTempFile(xmlData);
+
+    pinocchio::Model model_m;
+    pinocchio::mjcf::buildModel(namefile.name(), model_m);
+
+    Eigen::VectorXd vect_model = model_m.referenceConfigurations.at("test");
+    Eigen::VectorXd vect_ref(model_m.nq);
+    vect_ref << 0.8, 0.5, 0.5;
+
+    
+    BOOST_CHECK(vect_model.size() == vect_ref.size());
+    BOOST_CHECK(vect_model == vect_ref);  
+}
+
+// Test site of mjcf model
+BOOST_AUTO_TEST_CASE(adding_site)
+{
+    typedef pinocchio::SE3::Vector3 Vector3;
+    typedef pinocchio::SE3::Matrix3 Matrix3;
+
+    std::istringstream xmlData(R"(
+            <mujoco model="site">
+                <compiler angle="radian"/>
+                <worldbody>
+                    <body name="body1">
+                        <body pos=".2 0 0" name="body2">
+                            <joint type="hinge"/>
+                            <body pos=".2 0 0" name="body3">
+                                <joint type="hinge"/>
+                                <site name="testSite" pos="0.03 0 -0.05"/>
+                            </body>
+                        </body>
+                    </body>
+                </worldbody>
+                </mujoco>)");
+
+    auto namefile = createTempFile(xmlData);
+
+    pinocchio::Model model_m;
+    pinocchio::mjcf::buildModel(namefile.name(), model_m);
+
+    pinocchio::Data data(model_m);
+
+    Matrix3 rotation_matrix;
+    rotation_matrix <<  1., 0.,  0.,
+                        0.,  1.,  0.,
+                        0., 0.,  1.;    
+    pinocchio::SE3 real_placement(rotation_matrix, Vector3(0.03, 0, -0.05));
+
+    BOOST_CHECK(model_m.frames[model_m.getFrameId("testSite")].placement.isApprox(real_placement));
+}
 
 /// @brief test that a fixed model is well parsed 
 /// @param  
@@ -1134,7 +1207,5 @@ BOOST_AUTO_TEST_CASE(test_geometry_parsing)
     BOOST_CHECK(e->radii == sides);
 }
 #endif // if defined(PINOCCHIO_WITH_HPP_FCL)
-
-
 
 BOOST_AUTO_TEST_SUITE_END()
