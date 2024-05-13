@@ -760,14 +760,14 @@ namespace pinocchio
                     return TypeUnaligned(axis.normalized());
             }
             
-            void MjcfGraph::addSoloJoint(const MjcfJoint &joint, const MjcfBody &currentBody)
+            void MjcfGraph::addSoloJoint(const MjcfJoint &joint, const MjcfBody &currentBody, SE3 &bodyInJoint)
             {
                 const FrameIndex parentFrameId = urdfVisitor.getBodyId(currentBody.bodyParent);
                 // get body pose in body parent
                 const SE3 bodyPose = currentBody.bodyPlacement;
                 Inertia inert = currentBody.bodyInertia;
                 SE3 jointInParent = bodyPose * joint.jointPlacement;
-                SE3 bodyInJoint = joint.jointPlacement.inverse();
+                bodyInJoint = joint.jointPlacement.inverse();
                 UrdfVisitor::JointType jType;
 
                 RangeJoint range;
@@ -852,7 +852,7 @@ namespace pinocchio
                 
                 if(!composite)
                 {
-                    addSoloJoint(currentBody.jointChildren.at(0), currentBody);
+                    addSoloJoint(currentBody.jointChildren.at(0), currentBody, bodyInJoint);
                 }
                 else
                 {

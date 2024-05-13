@@ -434,7 +434,8 @@ namespace pinocchio
                     /// @brief Add a joint to the model. only needed when a body has a solo joint child
                     /// @param jointInfo The joint to add to the tree
                     /// @param currentBody The body associated with the joint
-                    void addSoloJoint(const MjcfJoint &jointInfo, const MjcfBody &currentBody);
+                    /// @param bodyInJoint Position of the body wrt to its joint
+                    void addSoloJoint(const MjcfJoint &jointInfo, const MjcfBody &currentBody, SE3 &bodyInJoint);
 
                     /// @brief Use all the infos that were parsed from the xml file to add a body and joint to the model
                     /// @param nameOfBody Name of the body to add
