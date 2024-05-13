@@ -443,8 +443,13 @@ namespace pinocchio
                     /// @brief Fill the pinocchio model with all the infos from the graph
                     void parseRootTree();   
 
+                    /// @brief Fill reference configuration for a body and all it's associated dof
+                    /// @param currentBody body to check
                     void fillReferenceConfig(const MjcfBody &currentBody);
 
+                    /// @brief Add a keyframe to the model (ie reference configuration)
+                    /// @param keyframe Keyframe to add 
+                    /// @param keyName Name of the keyframe
                     void addKeyFrame(const Eigen::VectorXd &keyframe, const std::string &keyName);
                     
                     /// @brief Fill geometry model with all the info taken from the mjcf model file
