@@ -889,6 +889,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_Mujoco_comparison)
     BOOST_CHECK(pinPos.isApprox(SE3(refOrient, pos), 1e-4));
 }
 
+// Test laoding a model with a spherical joint and verify that keyframe is valid
 BOOST_AUTO_TEST_CASE(adding_keyframes)
 {
     std::istringstream xmlData(R"(
@@ -931,7 +932,8 @@ BOOST_AUTO_TEST_CASE(adding_keyframes)
     BOOST_CHECK(vect_model == vect_ref);  
 }
 
-BOOST_AUTO_TEST_CASE(referencePositions)
+// Test reference positions and how it's included in keyframe
+BOOST_AUTO_TEST_CASE(reference_positions)
 {
     std::istringstream xmlData(R"(
             <mujoco model="testRefPose">
