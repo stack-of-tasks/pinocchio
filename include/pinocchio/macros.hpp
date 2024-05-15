@@ -87,11 +87,12 @@ namespace pinocchio
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_POP   _Pragma("GCC diagnostic pop")
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS  _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_VARIADIC_MACROS  _Pragma("GCC diagnostic ignored \"-Wvariadic-macros\"")
-# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED  _Pragma("GCC diagnostic ignored \"-Wself-assign-overloaded\"")
 # if defined(__clang__)
 #  define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
+#  define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED  _Pragma("GCC diagnostic ignored \"-Wself-assign-overloaded\"")
 # else
 #  define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED  _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+#  define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
 # endif
 #elif defined (WIN32)
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH  _Pragma("warning(push)")

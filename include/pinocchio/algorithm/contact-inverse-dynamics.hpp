@@ -188,10 +188,10 @@ namespace pinocchio
     computeContactImpulses(model, data, c_ref, contact_models, contact_datas, cones, R, constraint_correction, settings, impulse_guess);
     data.lambda_c = data.impulse_c/dt;
     container::aligned_vector<Force> fext(model.njoints);
-    for(int i; i<model.njoints; i++){
+    for(int i=0; i<model.njoints; i++){
       fext[i] = Force::Zero();
     }
-    for(int i; i<n_contacts; i++){
+    for(int i=0; i<n_contacts; i++){
       const auto & cmodel = contact_models[i];
       const Eigen::DenseIndex row_id = 3*i;
       auto lambda_segment = data.lambda_c.template segment<3>(row_id);

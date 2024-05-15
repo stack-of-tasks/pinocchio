@@ -114,13 +114,13 @@ namespace pinocchio
   , staticRegressor(Matrix3x::Zero(3,4*(model.njoints-1)))
   , bodyRegressor(BodyRegressorType::Zero())
   , jointTorqueRegressor(MatrixXs::Zero(model.nv,10*(model.njoints-1)))
+  , KA((std::size_t)model.njoints, Matrix6x::Zero(6,0))
+  , LA((std::size_t)model.njoints, MatrixXs::Zero(0, 0))
   , lA((std::size_t)model.njoints, VectorXs::Zero(0))
   , lambdaA((std::size_t)model.njoints, VectorXs::Zero(0))
-  , LA((std::size_t)model.njoints, MatrixXs::Zero(0, 0))
-  , a_bias((std::size_t)model.njoints, Motion::Zero())
-  , KA((std::size_t)model.njoints, Matrix6x::Zero(6,0))
-  , KAS((std::size_t)model.njoints, MatrixXs::Zero(0,0))
   , par_cons_ind((std::size_t)model.njoints, 0)
+  , a_bias((std::size_t)model.njoints, Motion::Zero())
+  , KAS((std::size_t)model.njoints, MatrixXs::Zero(0,0))
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
   , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
   , d2tau_dqdq(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons

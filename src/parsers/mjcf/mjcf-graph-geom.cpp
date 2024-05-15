@@ -52,6 +52,7 @@ namespace pinocchio
                 {
                     case ::pinocchio::COLLISION:
                         return geom.geomKind != MjcfGeom::VISUAL;
+                    default:
                     case ::pinocchio::VISUAL:
                         return geom.geomKind != MjcfGeom::COLLISION;
                 }

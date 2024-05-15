@@ -520,7 +520,6 @@ namespace pinocchio
       
       const RigidConstraintModelTpl & cmodel = *this;
 
-      const Eigen::DenseIndex constraint_dim = cmodel.size();
       const SE3 & oMc1 = cdata.oMc1;
       const SE3 & oMc2 = cdata.oMc2;
       const SE3 & c1Mc2 = cdata.c1Mc2;
@@ -590,6 +589,10 @@ namespace pinocchio
                     break;
                   }
                 }
+                case WORLD:
+                {
+                  abort();
+                }
               }
               break;
             }
@@ -612,6 +615,10 @@ namespace pinocchio
                   -= oMc1.translation().cross(Jcol_local_world_aligned.angular());
                   jacobian_matrix.col(jj) = Jcol_local_world_aligned.toVector() * Scalar(sign);
                   break;
+                }
+                case WORLD:
+                {
+                  abort();
                 }
               }
               break;

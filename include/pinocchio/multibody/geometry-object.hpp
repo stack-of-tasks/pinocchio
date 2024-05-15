@@ -197,29 +197,8 @@ GeometryObject(const std::string &name,
       , disableCollision(false)
   {}
 
-  GeometryObject(const GeometryObject & other)
-  {
-    *this = other;
-  }
-
-  GeometryObject & operator=(const GeometryObject & other)
-  {
-    if(&other == this) return *this;
-    
-    name                = other.name;
-    parentFrame         = other.parentFrame;
-    parentJoint         = other.parentJoint;
-    geometry            = other.geometry;
-    placement           = other.placement;
-    meshPath            = other.meshPath;
-    meshScale           = other.meshScale;
-    overrideMaterial    = other.overrideMaterial;
-    meshColor           = other.meshColor;
-    meshMaterial        = other.meshMaterial;
-    meshTexturePath     = other.meshTexturePath;
-    disableCollision    = other.disableCollision;
-    return *this;
-  }
+  GeometryObject(const GeometryObject & other) = default;
+  GeometryObject & operator=(const GeometryObject & other) = default;
   
   ///
   /// \brief Perform a deep copy of this. It will create a copy of the underlying FCL geometry.
