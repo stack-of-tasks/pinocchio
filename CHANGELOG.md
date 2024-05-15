@@ -6,6 +6,51 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+#### Automatic differentiation
+
+  - Full support of Casadi in the main library by [@jcarpent](https://github.com/jcarpent) and [@ManifoldFR](https://github.com/ManifoldFR)
+  - Full support of Casadi for Python bindings by [@jcarpent](https://github.com/jcarpent)
+  - Full support of Boost.Multiprecision in the main library by [@jcarpent](https://github.com/jcarpent)
+  - Full support of Boost.Multiprecision for Python bindings by [@jcarpent](https://github.com/jcarpent)
+  - Full support of CppAD and CppADCodeGen in the main library by [@jcarpent](https://github.com/jcarpent)
+  - Full support of CppAD and CppADCodeGen for Python bindings by [@jcarpent](https://github.com/jcarpent) and [@proyan](https://github.com/proyan)
+
+#### Core features
+
+  - Full support of constrained dynamical systems by [@jcarpent](https://github.com/jcarpent)
+  - Full support of derivatives of constrained dynamical systems by [@jcarpent](https://github.com/jcarpent) and [@proyan](https://github.com/proyan)
+  - Extended algorithms for constrained dynamics: constrained ABA, PV solvers, etc. by [@jcarpent](https://github.com/jcarpent) and [@AjSat](https://github.com/AjSat)
+  - Add frictional contact solvers (PGS, ADMM) and contact inverse dynamics by [@jcarpent](https://github.com/jcarpent) 
+  - Add contact inverse dynamics by [@quentinll](https://github.com/quentinll)
+  - Full support of broadphase algorithms in Pinocchio by [@jcarpent](https://github.com/jcarpent)
+  - New joint supports (Helicoidal, Universal) by [@fabinsch](https://github.com/fabinsch) and [@MegMll](https://github.com/MegMll)
+  - Add new algorithms for supporting Delassus factorizations for sparse, dense and tree-based systems by [@jcarpent](https://github.com/jcarpent)
+  - Add full OpenMP support for many algorithms (ABA, RNEA, collision detection, etc.) by [@jcarpent](https://github.com/jcarpent)
+  - Full support of GeometryModel, GeometryObject serialization by [@jcarpent](https://github.com/jcarpent)
+  - Extended support of Meshcat by [@jcarpent](https://github.com/jcarpent), [@ManifoldFR](https://github.com/ManifoldFR) and [@jorisv](https://github.com/jorisv)
+  - Extended testing and support of Lie groups operations by [@jcarpent](https://github.com/jcarpent) and [@ManifoldFR](https://github.com/ManifoldFR)
+  - Full support of AVX512 and AVX2 vectorization for Python bindings by [@jcarpent](https://github.com/jcarpent)
+  - Full support of the robot armature in RNEA, CRBA and ABA
+  - Extended formulation of RNEA, CRBA and ABA using WORLD convention for reduced computational burden in the derivative algorithms 
+
+#### Parsers
+
+  - Support of SDF format by [@proyan](https://github.com/proyan)
+  - Support of MuJoCo format by [@MegMll](https://github.com/MegMll) and [@jorisv](https://github.com/jorisv)
+
+#### Packaging
+
+ - Full support of template instantiation by [@fabinsch](https://github.com/fabinsch) and [@jorisv](https://github.com/jorisv)
+ - Enhance support for Windows-based systems by [@jorisv](https://github.com/jorisv)
+ - Splitting of the Pinocchio into sub-library for isolation by [@jorisv](https://github.com/jorisv)
+
+### Removed
+
+- Remove deprecated functions
+
+
 ## [2.7.1] - 2024-04-26
 
 ### Changed
