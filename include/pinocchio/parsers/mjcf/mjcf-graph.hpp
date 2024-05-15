@@ -434,7 +434,8 @@ namespace pinocchio
                     /// @brief Add a joint to the model. only needed when a body has a solo joint child
                     /// @param jointInfo The joint to add to the tree
                     /// @param currentBody The body associated with the joint
-                    void addSoloJoint(const MjcfJoint &jointInfo, const MjcfBody &currentBody);
+                    /// @param bodyInJoint Position of the body wrt to its joint
+                    void addSoloJoint(const MjcfJoint &jointInfo, const MjcfBody &currentBody, SE3 &bodyInJoint);
 
                     /// @brief Use all the infos that were parsed from the xml file to add a body and joint to the model
                     /// @param nameOfBody Name of the body to add
@@ -443,8 +444,13 @@ namespace pinocchio
                     /// @brief Fill the pinocchio model with all the infos from the graph
                     void parseRootTree();   
 
+                    /// @brief Fill reference configuration for a body and all it's associated dof
+                    /// @param currentBody body to check
                     void fillReferenceConfig(const MjcfBody &currentBody);
 
+                    /// @brief Add a keyframe to the model (ie reference configuration)
+                    /// @param keyframe Keyframe to add 
+                    /// @param keyName Name of the keyframe
                     void addKeyFrame(const Eigen::VectorXd &keyframe, const std::string &keyName);
                     
                     /// @brief Fill geometry model with all the info taken from the mjcf model file
