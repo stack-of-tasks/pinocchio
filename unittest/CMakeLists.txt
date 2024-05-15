@@ -7,11 +7,12 @@
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
 
-MACRO(ADD_TEST_CFLAGS target flag)
+FUNCTION(ADD_TEST_CFLAGS target)
   GET_CPP_TEST_NAME(${target} ${CMAKE_CURRENT_SOURCE_DIR} test_name)
-  SET_PROPERTY(TARGET ${test_name} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
-  UNSET(test_name)
-ENDMACRO()
+  foreach(ARG ${ARGN})
+    SET_PROPERTY(TARGET ${test_name} APPEND_STRING PROPERTY COMPILE_FLAGS "${ARG} ")
+  endforeach()
+ENDFUNCTION()
 
 # Compute flags outside the macro to avoid recomputing it for each tests
 CXX_FLAGS_BY_COMPILER_FRONTEND(
@@ -58,12 +59,6 @@ FUNCTION(ADD_PINOCCHIO_UNIT_TEST name)
 
   SET_TARGET_PROPERTIES(${TEST_NAME} PROPERTIES LINKER_LANGUAGE CXX)
   TARGET_INCLUDE_DIRECTORIES(${TEST_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-  ADD_TEST_CFLAGS(${name} "-DBOOST_TEST_DYN_LINK")
-  SET(MODULE_NAME "${name}Test")
-  STRING(REGEX REPLACE "-" "_" MODULE_NAME ${MODULE_NAME})
-  ADD_TEST_CFLAGS(${name} "-DBOOST_TEST_MODULE=${MODULE_NAME}")
-  ADD_TEST_CFLAGS(${name} "-DPINOCCHIO_MODEL_DIR=\\\\\"${PINOCCHIO_MODEL_DIR}\\\\\"")
 
   IF(NOT unit_test_HEADER_ONLY)
     TARGET_LINK_LIBRARIES(${TEST_NAME} PUBLIC ${PROJECT_NAME}_default)
@@ -256,7 +251,7 @@ CXX_FLAGS_BY_COMPILER_FRONTEND(
   OUTPUT LIEGROUPS_OPTIONS
   FILTER)
 ADD_PINOCCHIO_UNIT_TEST(liegroups)
-ADD_TEST_CFLAGS(liegroups "${LIEGROUPS_OPTIONS}")
+ADD_TEST_CFLAGS(liegroups ${LIEGROUPS_OPTIONS})
 
 ADD_PINOCCHIO_UNIT_TEST(cartesian-product-liegroups)
 ADD_PINOCCHIO_UNIT_TEST(regressor)
@@ -269,9 +264,9 @@ ADD_PINOCCHIO_UNIT_TEST(coulomb-friction-cone)
 # Serialization
 MAKE_DIRECTORY("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
 ADD_PINOCCHIO_UNIT_TEST(serialization COLLISION_OPTIONAL)
-ADD_TEST_CFLAGS(serialization "-DTEST_SERIALIZATION_FOLDER=\\\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\\\"")
+ADD_TEST_CFLAGS(serialization "-DTEST_SERIALIZATION_FOLDER=\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\"")
 ADD_PINOCCHIO_UNIT_TEST(csv)
-ADD_TEST_CFLAGS(csv "-DTEST_SERIALIZATION_FOLDER=\\\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\\\"")
+ADD_TEST_CFLAGS(csv "-DTEST_SERIALIZATION_FOLDER=\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\"")
 
 ADD_SUBDIRECTORY(algorithm)
 
