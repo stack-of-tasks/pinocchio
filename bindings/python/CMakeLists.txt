@@ -246,12 +246,13 @@ IF(BUILD_PYTHON_INTERFACE)
 
   # --- STUBS --- #
   IF(GENERATE_PYTHON_STUBS)
+    PYTHON_BUILD_GET_TARGET(python_build_target_name)
     LOAD_STUBGEN()
     # Set PYWRAP and PROJECT_NAME as stubs dependencies.
     # PROJECT_NAME is mandatory (even if it's a PYWRAP dependency)
     # to find PROJECT_NAME name DLL on windows.
     GENERATE_STUBS(${CMAKE_CURRENT_BINARY_DIR} ${PROJECT_NAME} ${ABSOLUTE_PYTHON_SITELIB}
-      ${PYWRAP}_default ${PROJECT_NAME}_default)
+      ${PYWRAP}_default ${PROJECT_NAME}_default ${STUBGEN_DEPENDENCIES} ${python_build_target_name})
   ENDIF(GENERATE_PYTHON_STUBS)
 
   # --- PACKAGING --- #
