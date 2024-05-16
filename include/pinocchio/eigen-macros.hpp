@@ -55,7 +55,9 @@
   #define PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
 #endif
 
-/// \brief Check memory allocation for Eigen
+/// \brief Check memory allocation for Eigen.
+/// \warning These macros do *not* work well with multithreading for Eigen <= 3.4
+/// and *will* create a race condition - special care is required.
 
 #ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
   #define PINOCCHIO_EIGEN_MALLOC(allowed) ::Eigen::internal::set_is_malloc_allowed(allowed)
@@ -80,7 +82,7 @@ namespace pinocchio
 
     inline bool save_or_get_malloc_status(bool update, bool new_value = false)
     {
-      static bool value;
+      thread_local static bool value;
       if (update)
         value = new_value;
       return value;
