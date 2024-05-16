@@ -10,29 +10,30 @@
 
 namespace pinocchio
 {
-    namespace mjcf
+  namespace mjcf
+  {
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    GeometryModel & buildGeom(
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const std::string & filename,
+      const GeometryType type,
+      GeometryModel & geomModel,
+      ::hpp::fcl::MeshLoaderPtr meshLoader)
     {
-        template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-        GeometryModel& buildGeom(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               const std::string & filename,
-                               const GeometryType type,
-                               GeometryModel & geomModel,
-                               ::hpp::fcl::MeshLoaderPtr meshLoader)
-        {
-            ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
+      ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor(model);
 
-            typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+      typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
-            MjcfGraph graph (visitor, filename);
+      MjcfGraph graph(visitor, filename);
 
-            graph.parseGraphFromXML(filename);
+      graph.parseGraphFromXML(filename);
 
-            // Use the Mjcf graph to create the geometry model
-            graph.parseGeomTree(type, geomModel, meshLoader);
+      // Use the Mjcf graph to create the geometry model
+      graph.parseGeomTree(type, geomModel, meshLoader);
 
-            return geomModel;
-        }
-    } // mjcf
-} // pinocchio
+      return geomModel;
+    }
+  } // namespace mjcf
+} // namespace pinocchio
 
 #endif

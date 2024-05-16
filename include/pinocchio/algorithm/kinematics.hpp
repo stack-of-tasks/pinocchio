@@ -10,7 +10,7 @@
 
 namespace pinocchio
 {
-  
+
   ///
   /// \brief Update the global placement of the joints oMi according to the relative
   ///        placements of the joints.
@@ -23,10 +23,11 @@ namespace pinocchio
   /// \remarks This algorithm may be useful to call to update global joint placement
   ///         after calling pinocchio::rnea, pinocchio::aba, etc for example.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  void updateGlobalPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                     DataTpl<Scalar,Options,JointCollectionTpl> & data);
-  
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  void updateGlobalPlacements(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data);
+
   ///
   /// \brief Update the joint placements according to the current joint configuration.
   ///
@@ -37,13 +38,20 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration (vector dim model.nq).
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                         const Eigen::MatrixBase<ConfigVectorType> & q);
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType>
+  void forwardKinematics(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q);
 
   ///
-  /// \brief Update the joint placements and spatial velocities according to the current joint configuration and velocity.
+  /// \brief Update the joint placements and spatial velocities according to the current joint
+  /// configuration and velocity.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -54,13 +62,21 @@ namespace pinocchio
   /// \param[in] q The joint configuration (vector dim model.nq).
   /// \param[in] v The joint velocity (vector dim model.nv).
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                         const Eigen::MatrixBase<ConfigVectorType> & q,
-                         const Eigen::MatrixBase<TangentVectorType> & v);
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType,
+    typename TangentVectorType>
+  void forwardKinematics(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q,
+    const Eigen::MatrixBase<TangentVectorType> & v);
   ///
-  /// \brief Update the joint placements, spatial velocities and spatial accelerations according to the current joint configuration, velocity and acceleration.
+  /// \brief Update the joint placements, spatial velocities and spatial accelerations according to
+  /// the current joint configuration, velocity and acceleration.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -73,16 +89,25 @@ namespace pinocchio
   /// \param[in] v The joint velocity (vector dim model.nv).
   /// \param[in] a The joint acceleration (vector dim model.nv).
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                         const Eigen::MatrixBase<ConfigVectorType> & q,
-                         const Eigen::MatrixBase<TangentVectorType1> & v,
-                         const Eigen::MatrixBase<TangentVectorType2> & a);
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType,
+    typename TangentVectorType1,
+    typename TangentVectorType2>
+  void forwardKinematics(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q,
+    const Eigen::MatrixBase<TangentVectorType1> & v,
+    const Eigen::MatrixBase<TangentVectorType2> & a);
 
   /**
    * @brief      Returns the spatial velocity of the joint expressed in the desired reference frame.
-   *             You must first call pinocchio::forwardKinematics to update placement and velocity values in data structure.
+   *             You must first call pinocchio::forwardKinematics to update placement and velocity
+   * values in data structure.
    *
    * @param[in] model     The kinematic model
    * @param[in] data      Data associated to model
@@ -93,16 +118,17 @@ namespace pinocchio
    *
    * @warning    Fist or second order forwardKinematics should have been called first
    */
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  MotionTpl<Scalar, Options>
-  getVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-              const JointIndex jointId,
-              const ReferenceFrame rf = LOCAL);
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  MotionTpl<Scalar, Options> getVelocity(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    const DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const JointIndex jointId,
+    const ReferenceFrame rf = LOCAL);
 
   /**
-   * @brief      Returns the spatial acceleration of the joint expressed in the desired reference frame.
-   *             You must first call pinocchio::forwardKinematics to update placement, velocity and acceleration values in data structure.
+   * @brief      Returns the spatial acceleration of the joint expressed in the desired reference
+   * frame. You must first call pinocchio::forwardKinematics to update placement, velocity and
+   * acceleration values in data structure.
    *
    * @param[in] model     The kinematic model
    * @param[in] data      Data associated to model
@@ -113,17 +139,18 @@ namespace pinocchio
    *
    * @warning    Second order forwardKinematics should have been called first
    */
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  MotionTpl<Scalar, Options>
-  getAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                  const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                  const JointIndex jointId,
-                  const ReferenceFrame rf = LOCAL);
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  MotionTpl<Scalar, Options> getAcceleration(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    const DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const JointIndex jointId,
+    const ReferenceFrame rf = LOCAL);
 
   /**
-   * @brief      Returns the "classical" acceleration of the joint expressed in the desired reference frame.
-   *             This is different from the "spatial" acceleration in that centrifugal effects are accounted for.
-   *             You must first call pinocchio::forwardKinematics to update placement, velocity and acceleration values in data structure.
+   * @brief      Returns the "classical" acceleration of the joint expressed in the desired
+   * reference frame. This is different from the "spatial" acceleration in that centrifugal effects
+   * are accounted for. You must first call pinocchio::forwardKinematics to update placement,
+   * velocity and acceleration values in data structure.
    *
    * @param[in] model     The kinematic model
    * @param[in] data      Data associated to model
@@ -134,14 +161,14 @@ namespace pinocchio
    *
    * @warning    Second order forwardKinematics should have been called first
    */
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  MotionTpl<Scalar, Options>
-  getClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                           const JointIndex jointId,
-                           const ReferenceFrame rf = LOCAL);
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  MotionTpl<Scalar, Options> getClassicalAcceleration(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    const DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const JointIndex jointId,
+    const ReferenceFrame rf = LOCAL);
 
-} // namespace pinocchio 
+} // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------------- */
@@ -149,7 +176,7 @@ namespace pinocchio
 #include "pinocchio/algorithm/kinematics.hxx"
 
 #if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
-#include "pinocchio/algorithm/kinematics.txx"
+  #include "pinocchio/algorithm/kinematics.txx"
 #endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_kinematics_hpp__

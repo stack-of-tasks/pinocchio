@@ -16,12 +16,12 @@ namespace pinocchio
   inline int getOpenMPNumThreadsEnv()
   {
     int num_threads = 1;
-    
-    if(const char* env_p = std::getenv("OMP_NUM_THREADS"))
+
+    if (const char * env_p = std::getenv("OMP_NUM_THREADS"))
       num_threads = atoi(env_p);
 
     return num_threads;
   }
-}
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_utils_openmp_hpp__

@@ -15,7 +15,7 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     void exposeMotion()
     {
       exposeClassicAcceleration();
@@ -25,6 +25,6 @@ namespace pinocchio
       serialize<StdAlignedVectorPythonVisitor<context::Motion>::vector_type>();
 #endif
     }
-    
+
   } // namespace python
 } // namespace pinocchio

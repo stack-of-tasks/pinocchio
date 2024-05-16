@@ -11,13 +11,13 @@ namespace pinocchio
   {
     void exposeMJCFModel();
     void exposeMJCFGeom();
-  
+
     inline void exposeMJCFParser()
     {
       exposeMJCFModel();
       exposeMJCFGeom();
     }
-  }
-}
+  } // namespace python
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_parsers_mjcf_hpp__

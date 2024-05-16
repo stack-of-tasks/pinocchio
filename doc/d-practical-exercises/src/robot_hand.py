@@ -54,7 +54,7 @@ class Visual(object):
         b1 = M2.act(np.array([0, 0, -l2 / 2]))
         a2 = M1.act(np.array([0, 0, +l1 / 2]))
         b2 = M2.act(np.array([0, 0, +l2 / 2]))
-                
+
         a1a2_b1b2 = np.array([a1 - a2, b1 - b2]).T
         ab = pinv(a1a2_b1b2) * (b2 - a2)
 

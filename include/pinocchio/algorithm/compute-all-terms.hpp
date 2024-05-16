@@ -11,7 +11,8 @@
 namespace pinocchio
 {
   ///
-  /// \brief Computes efficiently all the terms needed for dynamic simulation. It is equivalent to the call at the same time to:
+  /// \brief Computes efficiently all the terms needed for dynamic simulation. It is equivalent to
+  /// the call at the same time to:
   ///         - pinocchio::forwardKinematics
   ///         - pinocchio::crba
   ///         - pinocchio::nonLinearEffects
@@ -32,21 +33,28 @@ namespace pinocchio
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] v The joint velocity vector (dim model.nv).
   ///
-  /// \return All the results are stored in data. Please refer to the specific algorithm for further details.
+  /// \return All the results are stored in data. Please refer to the specific algorithm for further
+  /// details.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  void computeAllTerms(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                       const Eigen::MatrixBase<ConfigVectorType> & q,
-                       const Eigen::MatrixBase<TangentVectorType> & v);
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType,
+    typename TangentVectorType>
+  void computeAllTerms(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q,
+    const Eigen::MatrixBase<TangentVectorType> & v);
 
 } // namespace pinocchio
 
 #include "pinocchio/algorithm/compute-all-terms.hxx"
 
 #if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
-#include "pinocchio/algorithm/compute-all-terms.txx"
+  #include "pinocchio/algorithm/compute-all-terms.txx"
 #endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
-
 
 #endif // ifndef __pinocchio_compute_all_terms_hpp__

@@ -1,5 +1,5 @@
 '''
-Deep actor-critic network, 
+Deep actor-critic network,
 From "Continuous control with deep reinforcement learning", by Lillicrap et al, arXiv:1509.02971
 '''
 
@@ -28,7 +28,7 @@ NEPISODES               = 100           # Max training steps
 NSTEPS                  = 100           # Max episode length
 QVALUE_LEARNING_RATE    = 0.001         # Base learning rate for the Q-value Network
 POLICY_LEARNING_RATE    = 0.0001        # Base learning rate for the policy network
-DECAY_RATE              = 0.99          # Discount factor 
+DECAY_RATE              = 0.99          # Discount factor
 UPDATE_RATE             = 0.01          # Homotopy rate to update the networks
 REPLAY_SIZE             = 10000         # Size of replay buffer
 BATCH_SIZE              = 64            # Number of points to be fed in stochastic gradient
@@ -94,12 +94,12 @@ class PolicyNetwork:
 
     def setupOptim(self):
 
-        qgradient       = tf.placeholder(tf.float32, [None, NU])  
+        qgradient       = tf.placeholder(tf.float32, [None, NU])
         grad            = tf.gradients(self.policy, self.variables, -qgradient)
         optim           = tf.train.AdamOptimizer(POLICY_LEARNING_RATE).\
             apply_gradients(zip(grad,self.variables))
 
-        self.qgradient  = qgradient     # Q-value gradient wrt control (input value) 
+        self.qgradient  = qgradient     # Q-value gradient wrt control (input value)
         self.optim      = optim         # Optimizer
         return self
 
@@ -150,7 +150,7 @@ signal.signal(signal.SIGTSTP, lambda x,y:rendertrial()) # Roll-out when CTRL-Z i
 ### History of search
 h_rwd = []
 h_qva = []
-h_ste = []    
+h_ste = []
 
 ### --- Training
 for episode in range(1,NEPISODES):
@@ -172,7 +172,7 @@ for episode in range(1,NEPISODES):
         x       = x2
 
         # Start optimizing networks when memory size > batch size.
-        if len(replayDeque) > BATCH_SIZE:     
+        if len(replayDeque) > BATCH_SIZE:
             batch = random.sample(replayDeque,BATCH_SIZE)            # Random batch from replay memory.
             x_batch    = np.vstack([ b.x      for b in batch ])
             u_batch    = np.vstack([ b.u      for b in batch ])
@@ -222,6 +222,3 @@ print "Average reward during trials: %.3f" % (sum(h_rwd)/NEPISODES)
 rendertrial()
 plt.plot( np.cumsum(h_rwd)/range(1,NEPISODES) )
 plt.show()
-
-
-

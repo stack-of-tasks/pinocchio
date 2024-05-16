@@ -7,289 +7,319 @@
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
 
-FUNCTION(ADD_TEST_CFLAGS target)
-  GET_CPP_TEST_NAME(${target} ${CMAKE_CURRENT_SOURCE_DIR} test_name)
+function(ADD_TEST_CFLAGS target)
+  get_cpp_test_name(${target} ${CMAKE_CURRENT_SOURCE_DIR} test_name)
   foreach(ARG ${ARGN})
-    SET_PROPERTY(TARGET ${test_name} APPEND_STRING PROPERTY COMPILE_FLAGS "${ARG} ")
+    set_property(
+      TARGET ${test_name}
+      APPEND_STRING
+      PROPERTY COMPILE_FLAGS "${ARG} ")
   endforeach()
-ENDFUNCTION()
+endfunction()
 
 # Compute flags outside the macro to avoid recomputing it for each tests
-CXX_FLAGS_BY_COMPILER_FRONTEND(
-  MSVC _USE_MATH_DEFINES
-  OUTPUT TEST_PRIVATE_DEFINITIONS)
+cxx_flags_by_compiler_frontend(MSVC _USE_MATH_DEFINES OUTPUT TEST_PRIVATE_DEFINITIONS)
 
-FUNCTION(GET_CPP_TEST_NAME name src_dir full_test_name)
-  STRING(REPLACE "${PINOCCHIO_UNIT_TEST_DIR}" "" prefix_name "${src_dir}")
-  STRING(REGEX REPLACE "[/]" "-" prefix_name "${prefix_name}-")
+function(GET_CPP_TEST_NAME name src_dir full_test_name)
+  string(REPLACE "${PINOCCHIO_UNIT_TEST_DIR}" "" prefix_name "${src_dir}")
+  string(REGEX REPLACE "[/]" "-" prefix_name "${prefix_name}-")
 
-  SET(${full_test_name} "test-cpp${prefix_name}${name}" PARENT_SCOPE)
-ENDFUNCTION()
+  set(${full_test_name}
+      "test-cpp${prefix_name}${name}"
+      PARENT_SCOPE)
+endfunction()
 
-SET(PINOCCHIO_UNIT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(PINOCCHIO_UNIT_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-FUNCTION(ADD_PINOCCHIO_UNIT_TEST name)
-  SET(options
-    HEADER_ONLY PARSERS EXTRA COLLISION PARALLEL
-    PARSERS_OPTIONAL EXTRA_OPTIONAL COLLISION_OPTIONAL PARALLEL_OPTIONAL)
-  SET(oneValueArgs)
-  SET(multiValueArgs PACKAGES)
-  CMAKE_PARSE_ARGUMENTS(unit_test "${options}" "${oneValueArgs}"
-    "${multiValueArgs}" ${ARGN})
+function(ADD_PINOCCHIO_UNIT_TEST name)
+  set(options
+      HEADER_ONLY
+      PARSERS
+      EXTRA
+      COLLISION
+      PARALLEL
+      PARSERS_OPTIONAL
+      EXTRA_OPTIONAL
+      COLLISION_OPTIONAL
+      PARALLEL_OPTIONAL)
+  set(oneValueArgs)
+  set(multiValueArgs PACKAGES)
+  cmake_parse_arguments(unit_test "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  SET(PKGS ${unit_test_PACKAGES})
+  set(PKGS ${unit_test_PACKAGES})
 
-  GET_CPP_TEST_NAME(${name} ${CMAKE_CURRENT_SOURCE_DIR} TEST_NAME)
-  ADD_UNIT_TEST(${TEST_NAME} ${name}.cpp)
+  get_cpp_test_name(${name} ${CMAKE_CURRENT_SOURCE_DIR} TEST_NAME)
+  add_unit_test(${TEST_NAME} ${name}.cpp)
 
-  SET(MODULE_NAME "${NAME}Test")
-  STRING(REPLACE "-" "_" MODULE_NAME ${MODULE_NAME})
-  TARGET_COMPILE_DEFINITIONS(${TEST_NAME}
-    PRIVATE ${TEST_PRIVATE_DEFINITIONS}
-            BOOST_TEST_DYN_LINK
-            BOOST_TEST_MODULE=${MODULE_NAME}
+  set(MODULE_NAME "${NAME}Test")
+  string(REPLACE "-" "_" MODULE_NAME ${MODULE_NAME})
+  target_compile_definitions(
+    ${TEST_NAME}
+    PRIVATE ${TEST_PRIVATE_DEFINITIONS} BOOST_TEST_DYN_LINK BOOST_TEST_MODULE=${MODULE_NAME}
             PINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\")
 
   # There is no RPATH in Windows, then we must use the PATH to find the DLL
-  IF(WIN32)
-    STRING(REPLACE ";" "\\\;" _PATH "$ENV{PATH}")
-    SET(ENV_VARIABLES "PATH=${_PATH}\\\;${CMAKE_BINARY_DIR}/src\\\;${CMAKE_BINARY_DIR}/bindings/python/pinocchio")
-    SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
-  ENDIF()
+  if(WIN32)
+    string(REPLACE ";" "\\\;" _PATH "$ENV{PATH}")
+    set(ENV_VARIABLES
+        "PATH=${_PATH}\\\;${CMAKE_BINARY_DIR}/src\\\;${CMAKE_BINARY_DIR}/bindings/python/pinocchio")
+    set_tests_properties(${TEST_NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
+  endif()
 
-  SET_TARGET_PROPERTIES(${TEST_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-  TARGET_INCLUDE_DIRECTORIES(${TEST_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+  set_target_properties(${TEST_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+  target_include_directories(${TEST_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-  IF(NOT unit_test_HEADER_ONLY)
-    TARGET_LINK_LIBRARIES(${TEST_NAME} PUBLIC ${PROJECT_NAME}_default)
-  ENDIF()
+  if(NOT unit_test_HEADER_ONLY)
+    target_link_libraries(${TEST_NAME} PUBLIC ${PROJECT_NAME}_default)
+  endif()
 
-  IF(unit_test_PARSERS OR (unit_test_PARSERS_OPTIONAL AND TARGET ${PROJECT_NAME}_parsers))
-    TARGET_LINK_LIBRARIES(${TEST_NAME} PUBLIC ${PROJECT_NAME}_parsers)
-  ENDIF()
+  if(unit_test_PARSERS OR (unit_test_PARSERS_OPTIONAL AND TARGET ${PROJECT_NAME}_parsers))
+    target_link_libraries(${TEST_NAME} PUBLIC ${PROJECT_NAME}_parsers)
+  endif()
 
-  IF(unit_test_PARALLEL OR (unit_test_PARALLEL_OPTIONAL AND TARGET ${PROJECT_NAME}_parallel))
-    TARGET_LINK_LIBRARIES(${TEST_NAME} PUBLIC ${PROJECT_NAME}_parallel)
-  ENDIF()
+  if(unit_test_PARALLEL OR (unit_test_PARALLEL_OPTIONAL AND TARGET ${PROJECT_NAME}_parallel))
+    target_link_libraries(${TEST_NAME} PUBLIC ${PROJECT_NAME}_parallel)
+  endif()
 
-  IF(unit_test_COLLISION OR (unit_test_COLLISION_OPTIONAL AND TARGET ${PROJECT_NAME}_collision))
-    TARGET_LINK_LIBRARIES(${TEST_NAME} PUBLIC ${PROJECT_NAME}_collision)
-    IF(unit_test_PARALLE OR (unit_test_PARALLEL_OPTIONAL AND TARGET ${PROJECT_NAME}_parallel))
-      TARGET_LINK_LIBRARIES(${TEST_NAME} PUBLIC ${PROJECT_NAME}_collision_parallel)
-    ENDIF()
-  ENDIF()
+  if(unit_test_COLLISION OR (unit_test_COLLISION_OPTIONAL AND TARGET ${PROJECT_NAME}_collision))
+    target_link_libraries(${TEST_NAME} PUBLIC ${PROJECT_NAME}_collision)
+    if(unit_test_PARALLE OR (unit_test_PARALLEL_OPTIONAL AND TARGET ${PROJECT_NAME}_parallel))
+      target_link_libraries(${TEST_NAME} PUBLIC ${PROJECT_NAME}_collision_parallel)
+    endif()
+  endif()
 
-  IF(unit_test_EXTRA OR (unit_test_EXTRA_OPTIONAL AND TARGET ${PROJECT_NAME}_extra))
-    TARGET_LINK_LIBRARIES(${TEST_NAME} PUBLIC ${PROJECT_NAME}_extra)
-  ENDIF()
+  if(unit_test_EXTRA OR (unit_test_EXTRA_OPTIONAL AND TARGET ${PROJECT_NAME}_extra))
+    target_link_libraries(${TEST_NAME} PUBLIC ${PROJECT_NAME}_extra)
+  endif()
 
-  MODERNIZE_TARGET_LINK_LIBRARIES(${TEST_NAME} SCOPE PRIVATE
+  modernize_target_link_libraries(
+    ${TEST_NAME}
+    SCOPE PRIVATE
     TARGETS Boost::unit_test_framework
     LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-  IF(PKGS)
-    TARGET_LINK_LIBRARIES(${TEST_NAME} PRIVATE ${PKGS})
-  ENDIF()
-ENDFUNCTION()
+  if(PKGS)
+    target_link_libraries(${TEST_NAME} PRIVATE ${PKGS})
+  endif()
+endfunction()
 
-MACRO(ADD_OPTIONAL_COMPILE_DEPENDENCY PKG_CONFIG_STRING)
-  _GET_PKG_CONFIG_DEBUG_STRING("${PKG_CONFIG_STRING}" ${ARGN})
-  ADD_DEPENDENCY(0 1 ${PKG_CONFIG_STRING} "${PKG_CONFIG_DEBUG_STRING}")
-ENDMACRO()
+macro(ADD_OPTIONAL_COMPILE_DEPENDENCY PKG_CONFIG_STRING)
+  _get_pkg_config_debug_string("${PKG_CONFIG_STRING}" ${ARGN})
+  add_dependency(0 1 ${PKG_CONFIG_STRING} "${PKG_CONFIG_DEBUG_STRING}")
+endmacro()
 
-MACRO(ADD_PINOCCHIO_PARALLEL_UNIT_TEST NAME)
-  IF(BUILD_WITH_OPENMP_SUPPORT)
-    ADD_PINOCCHIO_UNIT_TEST(${ARGV} PARALLEL)
-  ENDIF()
-ENDMACRO()
+macro(ADD_PINOCCHIO_PARALLEL_UNIT_TEST NAME)
+  if(BUILD_WITH_OPENMP_SUPPORT)
+    add_pinocchio_unit_test(${ARGV} PARALLEL)
+  endif()
+endmacro()
 
 # Find Boost.UnitTestFramework
-FIND_PACKAGE(Boost COMPONENTS unit_test_framework)
+find_package(Boost COMPONENTS unit_test_framework)
 
 # Header only
-ADD_PINOCCHIO_UNIT_TEST(macros HEADER_ONLY)
+add_pinocchio_unit_test(macros HEADER_ONLY)
 
 # Math components
-ADD_PINOCCHIO_UNIT_TEST(eigen-basic-op)
-ADD_PINOCCHIO_UNIT_TEST(eigen-tensor)
-ADD_PINOCCHIO_UNIT_TEST(sincos)
-ADD_PINOCCHIO_UNIT_TEST(quaternion)
-ADD_PINOCCHIO_UNIT_TEST(rpy)
-ADD_PINOCCHIO_UNIT_TEST(rotation)
-ADD_PINOCCHIO_UNIT_TEST(vector)
-ADD_PINOCCHIO_UNIT_TEST(eigenvalues)
-ADD_PINOCCHIO_UNIT_TEST(tridiagonal-matrix)
-ADD_PINOCCHIO_UNIT_TEST(lanczos-decomposition)
-ADD_PINOCCHIO_UNIT_TEST(gram-schmidt-orthonormalisation)
+add_pinocchio_unit_test(eigen-basic-op)
+add_pinocchio_unit_test(eigen-tensor)
+add_pinocchio_unit_test(sincos)
+add_pinocchio_unit_test(quaternion)
+add_pinocchio_unit_test(rpy)
+add_pinocchio_unit_test(rotation)
+add_pinocchio_unit_test(vector)
+add_pinocchio_unit_test(eigenvalues)
+add_pinocchio_unit_test(tridiagonal-matrix)
+add_pinocchio_unit_test(lanczos-decomposition)
+add_pinocchio_unit_test(gram-schmidt-orthonormalisation)
 
-#Derivatives algo
-ADD_PINOCCHIO_UNIT_TEST(kinematics-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(frames-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(rnea-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(aba-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(constrained-dynamics-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(rnea-second-order-derivatives)
-
+# Derivatives algo
+add_pinocchio_unit_test(kinematics-derivatives)
+add_pinocchio_unit_test(frames-derivatives)
+add_pinocchio_unit_test(rnea-derivatives)
+add_pinocchio_unit_test(aba-derivatives)
+add_pinocchio_unit_test(centroidal-derivatives)
+add_pinocchio_unit_test(center-of-mass-derivatives)
+add_pinocchio_unit_test(constrained-dynamics-derivatives)
+add_pinocchio_unit_test(rnea-second-order-derivatives)
 
 # Pinocchio features
-ADD_PINOCCHIO_UNIT_TEST(spatial)
-ADD_PINOCCHIO_UNIT_TEST(symmetric)
-ADD_PINOCCHIO_UNIT_TEST(aba)
-ADD_PINOCCHIO_PARALLEL_UNIT_TEST(parallel-aba)
-ADD_PINOCCHIO_UNIT_TEST(rnea)
-ADD_PINOCCHIO_PARALLEL_UNIT_TEST(parallel-rnea)
-ADD_PINOCCHIO_UNIT_TEST(crba)
-ADD_PINOCCHIO_UNIT_TEST(centroidal)
-ADD_PINOCCHIO_UNIT_TEST(com)
-ADD_PINOCCHIO_UNIT_TEST(joint-jacobian)
-ADD_PINOCCHIO_UNIT_TEST(cholesky)
-ADD_PINOCCHIO_UNIT_TEST(constrained-dynamics)
-ADD_PINOCCHIO_UNIT_TEST(contact-models)
-ADD_PINOCCHIO_UNIT_TEST(contact-dynamics)
-ADD_PINOCCHIO_UNIT_TEST(contact-inverse-dynamics)
-ADD_PINOCCHIO_UNIT_TEST(closed-loop-dynamics)
-ADD_PINOCCHIO_UNIT_TEST(sample-models COLLISION_OPTIONAL)
-ADD_PINOCCHIO_UNIT_TEST(kinematics)
-# Test for unstable features
-# TODO fix and reactivate these tests in next version
-# ADD_PINOCCHIO_UNIT_TEST(delassus)
-# ADD_PINOCCHIO_UNIT_TEST(pv-solver)
-# ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics-derivatives)
-# IF(BUILD_WITH_SDF_SUPPORT)
-#   ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives PARSERS)
-# ELSE()
-#   ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
-# ENDIF()
-# ADD_PINOCCHIO_UNIT_TEST(constraint-variants)
-# ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics)
+add_pinocchio_unit_test(spatial)
+add_pinocchio_unit_test(symmetric)
+add_pinocchio_unit_test(aba)
+add_pinocchio_parallel_unit_test(parallel-aba)
+add_pinocchio_unit_test(rnea)
+add_pinocchio_parallel_unit_test(parallel-rnea)
+add_pinocchio_unit_test(crba)
+add_pinocchio_unit_test(centroidal)
+add_pinocchio_unit_test(com)
+add_pinocchio_unit_test(joint-jacobian)
+add_pinocchio_unit_test(cholesky)
+add_pinocchio_unit_test(constrained-dynamics)
+add_pinocchio_unit_test(contact-models)
+add_pinocchio_unit_test(contact-dynamics)
+add_pinocchio_unit_test(contact-inverse-dynamics)
+add_pinocchio_unit_test(closed-loop-dynamics)
+add_pinocchio_unit_test(sample-models COLLISION_OPTIONAL)
+add_pinocchio_unit_test(kinematics)
+# Test for unstable features TODO fix and reactivate these tests in next version
+# ADD_PINOCCHIO_UNIT_TEST(delassus) ADD_PINOCCHIO_UNIT_TEST(pv-solver)
+# ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics-derivatives) IF(BUILD_WITH_SDF_SUPPORT)
+# ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives PARSERS) ELSE()
+# ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives) ENDIF()
+# ADD_PINOCCHIO_UNIT_TEST(constraint-variants) ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics)
 
-ADD_PINOCCHIO_UNIT_TEST(mjcf PARSERS COLLISION_OPTIONAL)
+add_pinocchio_unit_test(
+  mjcf
+  PARSERS
+  COLLISION_OPTIONAL)
 
-IF(BUILD_WITH_URDF_SUPPORT)
-  ADD_PINOCCHIO_UNIT_TEST(urdf PARSERS COLLISION_OPTIONAL)
+if(BUILD_WITH_URDF_SUPPORT)
+  add_pinocchio_unit_test(
+    urdf
+    PARSERS
+    COLLISION_OPTIONAL)
 
-  ADD_PINOCCHIO_UNIT_TEST(value PARSERS)
-  IF(BUILD_WITH_HPP_FCL_SUPPORT)
-    ADD_PINOCCHIO_UNIT_TEST(geometry-object COLLISION)
-    ADD_PINOCCHIO_UNIT_TEST(geometry-model PARSERS COLLISION)
-    ADD_PINOCCHIO_UNIT_TEST(geometry-algorithms PARSERS COLLISION)
-    ADD_PINOCCHIO_UNIT_TEST(broadphase PARSERS COLLISION)
-    ADD_PINOCCHIO_UNIT_TEST(tree-broadphase PARSERS COLLISION)
-    ADD_PINOCCHIO_PARALLEL_UNIT_TEST(parallel-geometry PARSERS COLLISION)
-    ADD_PINOCCHIO_UNIT_TEST(srdf PARSERS COLLISION)
-  ENDIF()
-ENDIF()
+  add_pinocchio_unit_test(value PARSERS)
+  if(BUILD_WITH_HPP_FCL_SUPPORT)
+    add_pinocchio_unit_test(geometry-object COLLISION)
+    add_pinocchio_unit_test(
+      geometry-model
+      PARSERS
+      COLLISION)
+    add_pinocchio_unit_test(
+      geometry-algorithms
+      PARSERS
+      COLLISION)
+    add_pinocchio_unit_test(
+      broadphase
+      PARSERS
+      COLLISION)
+    add_pinocchio_unit_test(
+      tree-broadphase
+      PARSERS
+      COLLISION)
+    add_pinocchio_parallel_unit_test(parallel-geometry PARSERS COLLISION)
+    add_pinocchio_unit_test(
+      srdf
+      PARSERS
+      COLLISION)
+  endif()
+endif()
 
-IF(BUILD_WITH_SDF_SUPPORT)
-  ADD_PINOCCHIO_UNIT_TEST(sdf PARSERS)
-ENDIF()
+if(BUILD_WITH_SDF_SUPPORT)
+  add_pinocchio_unit_test(sdf PARSERS)
+endif()
 
-IF(BUILD_WITH_EXTRA_SUPPORT)
-  ADD_PINOCCHIO_UNIT_TEST(reachable-workspace PARSERS EXTRA COLLISION_OPTIONAL)
-ENDIF()
+if(BUILD_WITH_EXTRA_SUPPORT)
+  add_pinocchio_unit_test(
+    reachable-workspace
+    PARSERS
+    EXTRA
+    COLLISION_OPTIONAL)
+endif()
 
-IF(BUILD_WITH_LIBPYTHON)
-  ADD_PINOCCHIO_UNIT_TEST(python_parser PACKAGES Python3::Python)
-  TARGET_INCLUDE_DIRECTORIES(test-cpp-python_parser SYSTEM PUBLIC ${PYTHON_INCLUDE_DIRS})
+if(BUILD_WITH_LIBPYTHON)
+  add_pinocchio_unit_test(python_parser PACKAGES Python3::Python)
+  target_include_directories(test-cpp-python_parser SYSTEM PUBLIC ${PYTHON_INCLUDE_DIRS})
 
-  TARGET_LINK_LIBRARIES(test-cpp-python_parser PUBLIC ${PYWRAP}_default)
-  TARGET_LINK_LIBRARIES(test-cpp-python_parser PUBLIC ${PYTHON_LIBRARIES})
-  GET_TEST_PROPERTY(test-cpp-python_parser ENVIRONMENT ENV_VARIABLES)
-  IF(WIN32)
-    GET_FILENAME_COMPONENT(PYTHONHOME ${PYTHON_EXECUTABLE} PATH)
-    LIST(APPEND ENV_VARIABLES "PYTHONHOME=${PYTHONHOME}")
-    UNSET(PYTHONHOME)
-    STRING(REPLACE ";" "\\\;" _PYTHONPATH "$ENV{PYTHONPATH}")
-    LIST(APPEND ENV_VARIABLES "PYTHONPATH=${_PYTHONPATH}\\\;${CMAKE_BINARY_DIR}/bindings/python")
-  ELSE()
-    LIST(APPEND ENV_VARIABLES "PYTHONPATH=$ENV{PYTHONPATH}:${CMAKE_BINARY_DIR}/bindings/python")
-  ENDIF()
-  IF(APPLE)
-    LIST(APPEND ENV_VARIABLES "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}")
-    LIST(APPEND ENV_VARIABLES "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}")
-  ENDIF()
-  SET_TESTS_PROPERTIES(test-cpp-python_parser PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
-  ADD_SUBDIRECTORY(python)
-ENDIF()
+  target_link_libraries(test-cpp-python_parser PUBLIC ${PYWRAP}_default)
+  target_link_libraries(test-cpp-python_parser PUBLIC ${PYTHON_LIBRARIES})
+  get_test_property(test-cpp-python_parser ENVIRONMENT ENV_VARIABLES)
+  if(WIN32)
+    get_filename_component(PYTHONHOME ${PYTHON_EXECUTABLE} PATH)
+    list(APPEND ENV_VARIABLES "PYTHONHOME=${PYTHONHOME}")
+    unset(PYTHONHOME)
+    string(REPLACE ";" "\\\;" _PYTHONPATH "$ENV{PYTHONPATH}")
+    list(APPEND ENV_VARIABLES "PYTHONPATH=${_PYTHONPATH}\\\;${CMAKE_BINARY_DIR}/bindings/python")
+  else()
+    list(APPEND ENV_VARIABLES "PYTHONPATH=$ENV{PYTHONPATH}:${CMAKE_BINARY_DIR}/bindings/python")
+  endif()
+  if(APPLE)
+    list(APPEND ENV_VARIABLES "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}")
+    list(APPEND ENV_VARIABLES "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}")
+  endif()
+  set_tests_properties(test-cpp-python_parser PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
+  add_subdirectory(python)
+endif()
 
 # Test over the joints
-ADD_PINOCCHIO_UNIT_TEST(all-joints)
-ADD_PINOCCHIO_UNIT_TEST(joint-revolute)
-ADD_PINOCCHIO_UNIT_TEST(joint-prismatic)
-ADD_PINOCCHIO_UNIT_TEST(joint-planar)
-ADD_PINOCCHIO_UNIT_TEST(joint-free-flyer)
-ADD_PINOCCHIO_UNIT_TEST(joint-spherical)
-ADD_PINOCCHIO_UNIT_TEST(joint-translation)
-ADD_PINOCCHIO_UNIT_TEST(joint-generic)
-ADD_PINOCCHIO_UNIT_TEST(joint-composite)
-ADD_PINOCCHIO_UNIT_TEST(joint-mimic)
-ADD_PINOCCHIO_UNIT_TEST(joint-helical)
-ADD_PINOCCHIO_UNIT_TEST(joint-universal)
+add_pinocchio_unit_test(all-joints)
+add_pinocchio_unit_test(joint-revolute)
+add_pinocchio_unit_test(joint-prismatic)
+add_pinocchio_unit_test(joint-planar)
+add_pinocchio_unit_test(joint-free-flyer)
+add_pinocchio_unit_test(joint-spherical)
+add_pinocchio_unit_test(joint-translation)
+add_pinocchio_unit_test(joint-generic)
+add_pinocchio_unit_test(joint-composite)
+add_pinocchio_unit_test(joint-mimic)
+add_pinocchio_unit_test(joint-helical)
+add_pinocchio_unit_test(joint-universal)
 
 # Main corpus
-ADD_PINOCCHIO_UNIT_TEST(model COLLISION_OPTIONAL)
-ADD_PINOCCHIO_UNIT_TEST(data)
-ADD_PINOCCHIO_UNIT_TEST(joint-motion-subspace)
-ADD_PINOCCHIO_UNIT_TEST(compute-all-terms)
-ADD_PINOCCHIO_UNIT_TEST(energy)
-ADD_PINOCCHIO_UNIT_TEST(frames)
-IF(NOT MSVC AND NOT MSVC_VERSION)
-  ADD_PINOCCHIO_UNIT_TEST(joint-configurations)
-ENDIF()
-ADD_PINOCCHIO_UNIT_TEST(explog)
-ADD_PINOCCHIO_UNIT_TEST(finite-differences)
-ADD_PINOCCHIO_UNIT_TEST(visitor)
-ADD_PINOCCHIO_UNIT_TEST(algo-check)
+add_pinocchio_unit_test(model COLLISION_OPTIONAL)
+add_pinocchio_unit_test(data)
+add_pinocchio_unit_test(joint-motion-subspace)
+add_pinocchio_unit_test(compute-all-terms)
+add_pinocchio_unit_test(energy)
+add_pinocchio_unit_test(frames)
+if(NOT MSVC AND NOT MSVC_VERSION)
+  add_pinocchio_unit_test(joint-configurations)
+endif()
+add_pinocchio_unit_test(explog)
+add_pinocchio_unit_test(finite-differences)
+add_pinocchio_unit_test(visitor)
+add_pinocchio_unit_test(algo-check)
 
-# Warning ignore with pragma doesn't work for
-# a part of this test, so we ignore two warning
-# globally
-CXX_FLAGS_BY_COMPILER_FRONTEND(
+# Warning ignore with pragma doesn't work for a part of this test, so we ignore two warning globally
+cxx_flags_by_compiler_frontend(
   GNU -Wno-maybe-uninitialized -Wuse-after-free=0
   OUTPUT LIEGROUPS_OPTIONS
   FILTER)
-ADD_PINOCCHIO_UNIT_TEST(liegroups)
-ADD_TEST_CFLAGS(liegroups ${LIEGROUPS_OPTIONS})
+add_pinocchio_unit_test(liegroups)
+add_test_cflags(liegroups ${LIEGROUPS_OPTIONS})
 
-ADD_PINOCCHIO_UNIT_TEST(cartesian-product-liegroups)
-ADD_PINOCCHIO_UNIT_TEST(regressor)
-ADD_PINOCCHIO_UNIT_TEST(version)
-ADD_PINOCCHIO_UNIT_TEST(copy)
-ADD_PINOCCHIO_UNIT_TEST(contact-cholesky)
-ADD_PINOCCHIO_UNIT_TEST(classic-acceleration)
-ADD_PINOCCHIO_UNIT_TEST(coulomb-friction-cone)
+add_pinocchio_unit_test(cartesian-product-liegroups)
+add_pinocchio_unit_test(regressor)
+add_pinocchio_unit_test(version)
+add_pinocchio_unit_test(copy)
+add_pinocchio_unit_test(contact-cholesky)
+add_pinocchio_unit_test(classic-acceleration)
+add_pinocchio_unit_test(coulomb-friction-cone)
 
 # Serialization
-MAKE_DIRECTORY("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
-ADD_PINOCCHIO_UNIT_TEST(serialization COLLISION_OPTIONAL)
-ADD_TEST_CFLAGS(serialization "-DTEST_SERIALIZATION_FOLDER=\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\"")
-ADD_PINOCCHIO_UNIT_TEST(csv)
-ADD_TEST_CFLAGS(csv "-DTEST_SERIALIZATION_FOLDER=\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\"")
+make_directory("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
+add_pinocchio_unit_test(serialization COLLISION_OPTIONAL)
+add_test_cflags(
+  serialization
+  "-DTEST_SERIALIZATION_FOLDER=\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\"")
+add_pinocchio_unit_test(csv)
+add_test_cflags(
+  csv "-DTEST_SERIALIZATION_FOLDER=\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\"")
 
-ADD_SUBDIRECTORY(algorithm)
+add_subdirectory(algorithm)
 
 # Multiprecision arithmetic
-IF(BUILD_ADVANCED_TESTING)
-  ADD_PINOCCHIO_UNIT_TEST(multiprecision)
+if(BUILD_ADVANCED_TESTING)
+  add_pinocchio_unit_test(multiprecision)
 
-  ADD_OPTIONAL_COMPILE_DEPENDENCY(gmp)
-  ADD_OPTIONAL_COMPILE_DEPENDENCY(mpfr)
+  add_optional_compile_dependency(gmp)
+  add_optional_compile_dependency(mpfr)
 
-  IF(MPFR_FOUND)
-    ADD_PINOCCHIO_UNIT_TEST(multiprecision-mpfr PACKAGES mpfr gmp)
-  ENDIF()
-ENDIF()
+  if(MPFR_FOUND)
+    add_pinocchio_unit_test(multiprecision-mpfr PACKAGES mpfr gmp)
+  endif()
+endif()
 
-IF(BUILD_WITH_AUTODIFF_SUPPORT)
-  ADD_SUBDIRECTORY(cppad)
-ENDIF()
+if(BUILD_WITH_AUTODIFF_SUPPORT)
+  add_subdirectory(cppad)
+endif()
 
-IF(BUILD_WITH_CODEGEN_SUPPORT)
-  ADD_SUBDIRECTORY(cppadcg)
-ENDIF()
+if(BUILD_WITH_CODEGEN_SUPPORT)
+  add_subdirectory(cppadcg)
+endif()
 
-IF(BUILD_WITH_CASADI_SUPPORT)
-  ADD_SUBDIRECTORY(casadi)
-ENDIF()
+if(BUILD_WITH_CASADI_SUPPORT)
+  add_subdirectory(casadi)
+endif()

@@ -1,8 +1,8 @@
 # https://rainboard.laas.fr/project/pinocchio/.gitlab-ci.yml
 variables:
-  GIT_SUBMODULE_STRATEGY: "recursive"
-  GIT_DEPTH: "3"
-    
+  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_DEPTH: '3'
+
 .robotpkg-py-pinocchio: &robotpkg-py-pinocchio
   retry:
     max: 2
@@ -32,7 +32,8 @@ variables:
     - cd ../../
     - mkdir build
     - cd build
-    - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_WITH_SDF_SUPPORT=ON -DBUILD_ADVANCED_TESTING=OFF -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=OFF -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=OFF -DCMAKE_VERBOSE_MAKEFILE=False
+    - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_WITH_SDF_SUPPORT=ON -DBUILD_ADVANCED_TESTING=OFF -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=OFF
+      -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=OFF -DCMAKE_VERBOSE_MAKEFILE=False
     - make -j3 install
     - make test
   interruptible: true

@@ -12,16 +12,16 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     void exposeGeometry()
     {
       GeometryObjectPythonVisitor::expose();
       StdAlignedVectorPythonVisitor<GeometryObject>::expose("StdVec_GeometryObject");
-      
+
       CollisionPairPythonVisitor::expose();
       GeometryModelPythonVisitor::expose();
       GeometryDataPythonVisitor::expose();
     }
-    
+
   } // namespace python
 } // namespace pinocchio

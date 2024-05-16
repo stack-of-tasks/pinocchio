@@ -59,7 +59,7 @@
             & \texttt{from pinocchio.utils import *} \\
             \textbf{documentation} & \texttt{pin.Model?} \\
         \end{tabular}
-    
+
     \end{minipage}
 };
 
@@ -76,8 +76,8 @@
         \centerline{\textbf{Transforms}}\vspace{0.1cm}
         \begin{tabular}{p{4cm} | p{7.5cm}}
             SE3 & \texttt{aMb = pin.SE3(aRb,apb)} \\ \hline
-            \quad unit transformation & \texttt{M = pin.SE3(1)} or \texttt{pin.SE3.Identity()} \\ 
-            \quad random transformation & \texttt{pin.SE3.Random()} \\ 
+            \quad unit transformation & \texttt{M = pin.SE3(1)} or \texttt{pin.SE3.Identity()} \\
+            \quad random transformation & \texttt{pin.SE3.Random()} \\
             \quad rotation matrix & \texttt{M.rotation} \\
             \quad translation vector & \texttt{M.translation} \\ \hline
             SE3 inverse & \texttt{bMa = aMb.inverse()} \\
@@ -95,10 +95,10 @@
             \quad angular acceleration & \texttt{m.angular} \\ \hline
             SE3 action & \texttt{v\_a = aMb * v\_b} \\
         \end{tabular} \newline
-        
+
         \centerline{\textbf{Spatial Acceleration}}\vspace{0.1cm}
         \begin{tabular}{p{4cm} | p{7.5cm}}
-            used in algorithms  & \texttt{a = ($\dot{\omega}$,$\dot{v}_O$)} \\ 
+            used in algorithms  & \texttt{a = ($\dot{\omega}$,$\dot{v}_O$)} \\
             get classical acceleration & \texttt{a' = a + $(0, \omega \times v_O)$} \\
                           & \texttt{pin.classicAcceleration(v,a, [aMb])} \\
         \end{tabular} \newline
@@ -112,24 +112,24 @@
         \end{tabular} \newline
 
         \centerline{\textbf{Spatial Inertia}}\vspace{0.1cm}
-       \begin{tabular}{p{4cm} | p{7.5cm}}	
+       \begin{tabular}{p{4cm} | p{7.5cm}}
             Inertia & \texttt{Y = pin.Inertia(mass,com,I)} \\ \hline
             \quad mass & \texttt{Y.mass} \\
             \quad center of mass pos. & \texttt{Y.lever} \\
             \quad rotational inertia & \texttt{Y.inertia} \\
         \end{tabular} \newline
-        
+
         \centerline{\textbf{Geometry}}\vspace{0.1cm}
         \begin{tabular}{p{4cm} | p{7.5cm}}
             Quaternion & \texttt{quat = pin.Quaternion(R)} \\
-            Angle Axis & \texttt{aa = pin.AngleAxis(angle,axis)} \\ 
+            Angle Axis & \texttt{aa = pin.AngleAxis(angle,axis)} \\
         \end{tabular} \newline
-        
-        \centerline{\textbf{Useful converters}} 
+
+        \centerline{\textbf{Useful converters}}
         \vspace{0.2cm}
         \begin{tabular}{p{4cm} | p{7.5cm}}
-        	  SE3 $\rightarrow$ (x,y,z,quat) & \texttt{pin.se3ToXYZQUAT(M)} \\
-        	  (x,y,z,quat) $\rightarrow$ SE3 & \texttt{pin.XYZQUATToSE3(vec)} \\
+            SE3 $\rightarrow$ (x,y,z,quat) & \texttt{pin.se3ToXYZQUAT(M)} \\
+            (x,y,z,quat) $\rightarrow$ SE3 & \texttt{pin.XYZQUATToSE3(vec)} \\
         \end{tabular}
 
     \end{minipage}
@@ -145,7 +145,7 @@
     \begin{minipage}{0.9\linewidth}
         \rowcolors{1}{white}{gray!20}
         \begin{tabular}{p{4cm} | p{7.5cm}}
-            Data {\small related to the model} & \texttt{data = pin.Data(model)} \\ 
+            Data {\small related to the model} & \texttt{data = pin.Data(model)} \\
              & \texttt{data = model.createData()} \\ \hline
             \hspace{0.5em} joint data & \texttt{data.joints} \\
             \hspace{0.5em} joint/[frame] placements & \texttt{data.oMi} /[\texttt{data.oMf}] \\
@@ -157,8 +157,8 @@
             \hspace{0.5em} centroidal momentum & \texttt{data.hg} \\
             \hspace{0.5em} centroidal matrix & \texttt{data.Ag} \\
             \hspace{0.5em} centroidal inertia & \texttt{data.Ig} \\
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 
@@ -179,9 +179,9 @@
             \quad joint models & \texttt{model.joints} \\
             \quad joint placements & \texttt{model.placements} \\
             \quad link inertias & \texttt{model.inertias} \\
-            \quad frames & \texttt{model.frames} \\ 
-            \quad \# position variables & \texttt{model.nq} \\ 
-            \quad \# velocity variables & \texttt{model.nv} \\ 
+            \quad frames & \texttt{model.frames} \\
+            \quad \# position variables & \texttt{model.nq} \\
+            \quad \# velocity variables & \texttt{model.nv} \\
             Methods & use ? to get doc and input arguments  \\ \hline
             % Inputs missing, but there are a lot. maybe enough like this and doc should be ask. maybe another hint to the doc ?
             \quad add joint & \texttt{model.addJoint} \\
@@ -190,7 +190,7 @@
             \quad append child into parent model & \texttt{model.appendModel} \\
             \quad build reduced body & \texttt{model.buildReducedModel} \\
             % findCommonAncestor
-        \end{tabular} 
+        \end{tabular}
 
     \end{minipage}
 };
@@ -207,8 +207,8 @@
          \begin{tabular}{p{3cm} | p{8.5cm}}
             load a URDF file & \texttt{pin.buildModelFromUrdf(filename,[root\_joint])} \\
             load a SDF file & \texttt{pin.buildModelFromSdf(filename,[root\_joint], root\_link\_name,parent\_guidance)} \\
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 
@@ -230,8 +230,8 @@
             WORLD & world CS \\
             LOCAL & local CS of the joint \\
             LOCAL\_WORLD\_ALIGNED & local CS aligned with WORLD axis \\
-            
-        \end{tabular} 
+
+        \end{tabular}
 
     \end{minipage}
 };
@@ -246,21 +246,21 @@
     \begin{minipage}{0.9\linewidth}
     \rowcolors{1}{white}{gray!20}
         \begin{tabular}{p{4cm} | p{7.5cm}}
-            placement of all operational frames & \texttt{pin.updateFramePlacements(model, data)} \\ 
+            placement of all operational frames & \texttt{pin.updateFramePlacements(model, data)} \\
             current frame placements wrt origin & \texttt{data.oMf} \\
-            frame veloctiy & \texttt{pin.getFrameVelocity(model, data, frame\_id, ref\_frame)} \\ 
+            frame veloctiy & \texttt{pin.getFrameVelocity(model, data, frame\_id, ref\_frame)} \\
             frame acceleration & \texttt{pin.getFrameAcceleration(model, data, frame\_id, ref\_frame)} \\
             frame acceleration & \texttt{pin.getFrameClassicalAcceleration(\newline model, data, frame\_id, ref\_frame)} \\
             frames placement & \texttt{pin.framesForwardKinematics(model, data, q)} \\
             frame jacobian & \texttt{pin.computeFrameJacobian(model, data, q, frame\_id, ref\_frame)} \\ \hline
-            frame jacobian time variation & \texttt{pin.frameJacobianTimeVariation(model, data, q, v, frame\_id, ref\_frame)} \\ 
-            % maybe better to use symbols ? 
-            partial derivatives of the spatial velocity & \texttt{pin.getFrameVelocityDerivatives(model, data, frame\_id, ref\_frame)} \\ 
-            partial derivatives of the spatial velocity & \texttt{pin.getFrameVelocityDerivatives(model, data, joint\_id, placement ref\_frame)} \\ 
-            partial derivatives of the spatial acceleration & \texttt{pin.getFrameVelocityDerivatives(model, data, frame\_id, ref\_frame)} \\ 
-            partial derivatives of the spatial acceleration & \texttt{pin.getFrameAccelerationDerivatives\newline (model, data, joint\_id, placement ref\_frame)} \\ 
-        \end{tabular} 
-        
+            frame jacobian time variation & \texttt{pin.frameJacobianTimeVariation(model, data, q, v, frame\_id, ref\_frame)} \\
+            % maybe better to use symbols ?
+            partial derivatives of the spatial velocity & \texttt{pin.getFrameVelocityDerivatives(model, data, frame\_id, ref\_frame)} \\
+            partial derivatives of the spatial velocity & \texttt{pin.getFrameVelocityDerivatives(model, data, joint\_id, placement ref\_frame)} \\
+            partial derivatives of the spatial acceleration & \texttt{pin.getFrameVelocityDerivatives(model, data, frame\_id, ref\_frame)} \\
+            partial derivatives of the spatial acceleration & \texttt{pin.getFrameAccelerationDerivatives\newline (model, data, joint\_id, placement ref\_frame)} \\
+        \end{tabular}
+
     \end{minipage}
 };
 
@@ -285,8 +285,8 @@
             integrate configuration & \texttt{pin.integrate(model, q, v)} \\ \hline
             partial derivatives of difference & \texttt{pin.dDifference(model, q1, q2, [arg\_pos])} \\
             partial derivatives of integration & \texttt{pin.dIntegrate(model, q, v, [arg\_pos])}
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 \node[fancytitle] at (box.north) {Configuration};
@@ -299,7 +299,7 @@
     \begin{minipage}{0.9\linewidth}
         \rowcolors{1}{white}{gray!20}
         \begin{tabular}{p{3cm} | p{8.5cm}}
-            placement collision obj & \texttt{pin.updateGeometryPlacements(model, data, geometry\_model, geometry\_data, [q])} \\ 
+            placement collision obj & \texttt{pin.updateGeometryPlacements(model, data, geometry\_model, geometry\_data, [q])} \\
             collisions detection for all pairs & \texttt{pin.computeCollisions(model, data, geometry\_model, geometry\_data, q)} \\
             collisions detection for a pair &
             \texttt{pin.computeCollisions(geometry\_model, geometry\_data, pair\_index)} \\
@@ -311,8 +311,8 @@
             \texttt{pin.computeCollisions(broadphase\_manager, callback)} \\
              & \texttt{pin.computeCollisions(broadphase\_manager, stop\_at\_first\_collision)} \\
             + forward kinmetatics to update geometry placements & \texttt{pin.computeCollisions(model, data, broadphase\_manager, q, stop\_at\_first\_collision)} \\
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 \node[fancytitle] at (box.north) {Collision};
@@ -325,12 +325,12 @@
     \begin{minipage}{0.9\linewidth}
         \rowcolors{1}{white}{gray!20}
         \begin{tabular}{p{4cm} | p{7.5cm}}
-            total mass of model & \texttt{pin.computeTotalMass(model, [data])} \\ 
-            mass of each subtree & \texttt{pin.computeSubtreeMasses(model, data)} \\ 
-            center of mass (COM) & \texttt{pin.centerOfMass(model, data, q, [v, a],[compute\_subtree\_com])} \\ 
-            Jacobian COM & \texttt{pin.jacobianCenterOfMass(model, data, [q],[compute\_subtree\_com])} \\ 
-        \end{tabular} 
-        
+            total mass of model & \texttt{pin.computeTotalMass(model, [data])} \\
+            mass of each subtree & \texttt{pin.computeSubtreeMasses(model, data)} \\
+            center of mass (COM) & \texttt{pin.centerOfMass(model, data, q, [v, a],[compute\_subtree\_com])} \\
+            Jacobian COM & \texttt{pin.jacobianCenterOfMass(model, data, [q],[compute\_subtree\_com])} \\
+        \end{tabular}
+
     \end{minipage}
 };
 
@@ -347,8 +347,8 @@
             FK and kinetic Energy & \texttt{pin.computeKineticEnergy(model, data, [q, v]) } \\
             FK and potential Energy & \texttt{pin.computePotentialEnergy(model, data, [q, v]) } \\
             FK and mechanical Energy & \texttt{pin.computeMechanicalEnergy(model, data, [q, v]) } \\
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 
@@ -365,10 +365,10 @@
             forward kinematics (FK) & \texttt{pin.forwardKinematics(model, data, q, [v,[a]])} \\ \hline
             FK derivatives & \texttt{pin.computeForwardKinematicsDerivatives( \newline model, data, q, v, a)} \\
             $\left[ \frac{\partial{v}}{\partial{q}},\frac{\partial{v}}{\partial{\dot{q}}} \right]^{WORLD}$ & \texttt{pin.getJointVelocityDerivatives(model, data, joint\_id,pin.ReferenceFrame.WORLD)}   \\
-            $\left[ \frac{\partial{v}}{\partial{q}},\frac{\partial{a}}{\partial{q}}, \frac{\partial{a}}{\partial{\dot{q}}}\right]^{LOCAL}$ & \texttt{pin.getJointAccelerationDerivatives(model, data, joint\_id,pin.ReferenceFrame.LOCAL)} \\ 
+            $\left[ \frac{\partial{v}}{\partial{q}},\frac{\partial{a}}{\partial{q}}, \frac{\partial{a}}{\partial{\dot{q}}}\right]^{LOCAL}$ & \texttt{pin.getJointAccelerationDerivatives(model, data, joint\_id,pin.ReferenceFrame.LOCAL)} \\
             % getVelocity, getAcceleration, getClassicalAcceleration
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 \node[fancytitle] at (box.north) {Kinematics};
@@ -385,8 +385,8 @@
             joint Jacobian & \texttt{pin.getJointJacobian(model, data, joint\_id, ref\_frame)} \\ \hline
             full model dJ/dt & \texttt{pin.computeJointJacobiansTimeVariation(model, data, q, v)} \\
             joint dJ/dt & \texttt{pin.getJointJacobianTimeVariation(model, data, joint\_id, ref\_frame)} \\
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 
@@ -403,8 +403,8 @@
             Articulated-Body Algorithm $\ddot{q}$ & \texttt{pin.aba(model, data, q, v, tau, [f\_ext]) } \\
             Joint Space Inertia Matrix Inv & \texttt{pin.computeMinverse(model, data, [q]) } \\ \hline
             Composite Rigid-Body Algorithm & \texttt{pin.crba(model, data, q)}
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 
@@ -423,8 +423,8 @@
             \hline
             dtau\_dq, dtau\_dv, dtau\_da & \texttt{pin.computeRNEADerivatives(model, data, q, v, a, [f\_ext]) } \\
         % nonLinearEffects, computeGeneralizedGravity, computeStaticTorque, computeCoriolisMatrix
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 
@@ -441,8 +441,8 @@
             Centroidal momentum & \texttt{pin.computeCentroidalMomentum(model, data, [q, v]) } \\ \hline
             Centroidal momentum + time derivatives & \texttt{pin.computeCentroidalMomentumTimeVariation(\newline model, data, [q, v, a]) } \\
         % also mention ccrba, dccrba, computeCentroidalMap, computeCentroidalMapTimeVariation?
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 
@@ -458,8 +458,8 @@
         \rowcolors{1}{white}{gray!20}
         \begin{tabular}{p{3cm} | p{8.5cm}}
             all terms (check doc) & \texttt{pin.computeAllTerms(model, data, q, v) } \\
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 
@@ -473,10 +473,10 @@
     \begin{minipage}{0.9\linewidth}
         \rowcolors{1}{white}{gray!20}
         \begin{tabular}{p{3cm} | p{8.5cm}}
-            kinematic regressor & \texttt{pin.computeJointKinematicRegressor(model, data, joint\_id, ref\_frame, [placement])} \\ 
-            kinematic regressor & \texttt{pin.computeFrameKinematicRegressor(model, data, frame\_id, ref\_frame)} \\ 
-        \end{tabular} 
-        
+            kinematic regressor & \texttt{pin.computeJointKinematicRegressor(model, data, joint\_id, ref\_frame, [placement])} \\
+            kinematic regressor & \texttt{pin.computeFrameKinematicRegressor(model, data, frame\_id, ref\_frame)} \\
+        \end{tabular}
+
     \end{minipage}
 };
 \node[fancytitle] at (box.north) {Kinematic Regressor};
@@ -489,13 +489,13 @@
     \begin{minipage}{0.9\linewidth}
         \rowcolors{1}{white}{gray!20}
         \begin{tabular}{p{3cm} | p{8.5cm}}
-            static regressor & \texttt{pin.computeStaticRegressor(model, data, q)} \\ 
-            body regressor & \texttt{pin.bodyRegressor(velocity, acceleration)} \\ 
-            body attached to joint regressor & \texttt{pin.jointBodyRegressor(model, data, joint\_id)} \\ 
-            body attached to frame regressor & \texttt{pin.frameBodyRegressor(model, data, frame\_id)} \\ 
-            joint torque regressor & \texttt{pin.computeJointTorqueRegressor(model, data, q, v, a)} \\ 
-        \end{tabular} 
-        
+            static regressor & \texttt{pin.computeStaticRegressor(model, data, q)} \\
+            body regressor & \texttt{pin.bodyRegressor(velocity, acceleration)} \\
+            body attached to joint regressor & \texttt{pin.jointBodyRegressor(model, data, joint\_id)} \\
+            body attached to frame regressor & \texttt{pin.frameBodyRegressor(model, data, frame\_id)} \\
+            joint torque regressor & \texttt{pin.computeJointTorqueRegressor(model, data, q, v, a)} \\
+        \end{tabular}
+
     \end{minipage}
 };
 \node[fancytitle] at (box.north) {Regressor};
@@ -510,10 +510,10 @@
     \begin{minipage}{0.9\linewidth}
         \rowcolors{1}{white}{gray!20}
         \begin{tabular}{p{3cm} | p{8.5cm}}
-            kinematic Jacobian of constraint model & \texttt{pin.getConstraintJacobian(model, data, contact\_model, contact\_data)} \\ 
-            kinematic Jacobian of set of constraint models& \texttt{pin.getConstraintJacobian(model, data, contact\_models, contact\_datas)} \\ 
-        \end{tabular} 
-        
+            kinematic Jacobian of constraint model & \texttt{pin.getConstraintJacobian(model, data, contact\_model, contact\_data)} \\
+            kinematic Jacobian of set of constraint models& \texttt{pin.getConstraintJacobian(model, data, contact\_models, contact\_datas)} \\
+        \end{tabular}
+
     \end{minipage}
 };
 \node[fancytitle] at (box.north) {Contact Jacobian};
@@ -526,12 +526,12 @@
     \begin{minipage}{0.9\linewidth}
         \rowcolors{1}{white}{gray!20}
         \begin{tabular}{p{3cm} | p{8.5cm}}
-            constrained dynamics with contacts & \texttt{pin.forwardDynamics(model, data, [q, v,] tau, constraint\_jacobian, constraint\_drift, damping)} \\ 
-            impact dynamics with contacts & \texttt{pin.impulseDynamics(model, data, [q,] v\_before, constraint\_jacobian, restitution\_coefficient, damping)} \\ 
-            inverse of the constraint matrix & \texttt{pin.computeKKTContactDynamicMatrixInverse(\newline model, data, q, constraint\_jac, damping)} \\ 
+            constrained dynamics with contacts & \texttt{pin.forwardDynamics(model, data, [q, v,] tau, constraint\_jacobian, constraint\_drift, damping)} \\
+            impact dynamics with contacts & \texttt{pin.impulseDynamics(model, data, [q,] v\_before, constraint\_jacobian, restitution\_coefficient, damping)} \\
+            inverse of the constraint matrix & \texttt{pin.computeKKTContactDynamicMatrixInverse(\newline model, data, q, constraint\_jac, damping)} \\
             % getKKTContactDynamicMatrixInverse
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 \node[fancytitle] at (box.north) {Contact Dynamics};
@@ -544,11 +544,11 @@
     \begin{minipage}{0.9\linewidth}
         \rowcolors{1}{white}{gray!20}
         \begin{tabular}{p{3cm} | p{8.5cm}}
-            allocate memory & \texttt{pin.initConstraintDynamics(model, data, contact\_models)} \\ 
+            allocate memory & \texttt{pin.initConstraintDynamics(model, data, contact\_models)} \\
             forward dynamics with contact constraints & \texttt{pin.constraintDynamics(model, data, q, v, tau, contact\_models, contact\_datas, [prox\_settings])} \\ \hline
             derivatives of the forward dynamics with kinematic constraints & \texttt{pin.computeConstraintDynamicsDerivatives(\newline model, data, contact\_models, contact\_datas, prox\_settings)} \\
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 \node[fancytitle] at (box.north) {Constraint Dynamics};
@@ -564,9 +564,9 @@
         \begin{tabular}{p{3cm} | p{8.5cm}}
             impulse dynamics with contact constraints & \texttt{pin.impulseDynamics(model, data, q, v, contact\_models, contact\_datas, r\_coeff, mu)} \\ \hline
             impulse dynamics derivatives & \texttt{pin.computeImpulseDynamicsDerivatives(model, data, contact\_models, contact\_datas, r\_coeff, prox\_settings)} \\
-            
-        \end{tabular} 
-        
+
+        \end{tabular}
+
     \end{minipage}
 };
 \node[fancytitle] at (box.north) {Impulse Dynamics};
@@ -583,8 +583,8 @@
             Cholesky decomposition of the joint space inertia matrix & \texttt{pin.cholesky.decompose(model, data)} \\
             $x$ of $ M x = y$ & \texttt{pin.cholesky.solve(model, data, v)} \\
             inverse of the joint space inertia matrix & \texttt{pin.cholesky.computeMinv(model, data)} \\
-        \end{tabular} 
-        
+        \end{tabular}
+
     \end{minipage}
 };
 \node[fancytitle] at (box.north) {Cholesky};
@@ -602,9 +602,9 @@
             create viewer & \texttt{mv = pin.visualize.MeshcatVisualizer} \\
             load model & \texttt{viz = mv(model, collision\_model, visual\_model)} \\
             initialize & \texttt{viz.initViewer(loadModel=True)} \\
-            display & \texttt{viz.display(q)} \\ 
+            display & \texttt{viz.display(q)} \\
         \end{tabular} \newline
-        
+
 
         \centerline{\textbf{Add basic shapes}}
         \begin{tabular}{p{3cm} | p{8.5cm}}

@@ -10,47 +10,69 @@
 #include "pinocchio/algorithm/constraints/constraint-data-generic.hpp"
 #include "pinocchio/algorithm/constraints/visitors/constraint-model-visitor.hpp"
 
-namespace pinocchio {
-
-template<typename _Scalar, int _Options, template<typename S, int O> class ConstraintCollectionTpl>
-struct traits< ConstraintModelTpl<_Scalar,_Options,ConstraintCollectionTpl> >
+namespace pinocchio
 {
-  typedef _Scalar Scalar;
-  enum { Options = _Options };
-  typedef ConstraintDataTpl<Scalar,Options,ConstraintCollectionTpl> ConstraintData;
-};
 
-template<typename _Scalar, int _Options, template<typename S, int O> class ConstraintCollectionTpl>
-struct ConstraintModelTpl
-: ConstraintModelBase< ConstraintModelTpl<_Scalar,_Options,ConstraintCollectionTpl> >
-, ConstraintCollectionTpl<_Scalar,_Options>::ConstraintModelVariant
-{
-  typedef _Scalar Scalar;
-  enum { Options = _Options };
-
-  typedef ConstraintModelBase< ConstraintModelTpl<_Scalar,_Options,ConstraintCollectionTpl> > Base;
-  typedef ConstraintDataTpl<Scalar,Options,ConstraintCollectionTpl> ConstraintData;
-  typedef ConstraintCollectionTpl<Scalar,Options> ConstraintCollection;
-  typedef typename ConstraintCollection::ConstraintDataVariant ConstraintDataVariant;
-  typedef typename ConstraintCollection::ConstraintModelVariant ConstraintModelVariant;
-
-  ConstraintModelTpl() : ConstraintModelVariant() {}
-
-  ConstraintModelTpl(const ConstraintModelVariant & cmodel_variant)
-  : ConstraintModelVariant(cmodel_variant)
+  template<
+    typename _Scalar,
+    int _Options,
+    template<typename S, int O>
+    class ConstraintCollectionTpl>
+  struct traits<ConstraintModelTpl<_Scalar, _Options, ConstraintCollectionTpl>>
   {
-  }
+    typedef _Scalar Scalar;
+    enum
+    {
+      Options = _Options
+    };
+    typedef ConstraintDataTpl<Scalar, Options, ConstraintCollectionTpl> ConstraintData;
+  };
 
-  template<typename ContraintModelDerived>
-  ConstraintModelTpl(const ConstraintModelBase<ContraintModelDerived> & cmodel)
-  : ConstraintModelVariant((ConstraintModelVariant)cmodel.derived())
+  template<
+    typename _Scalar,
+    int _Options,
+    template<typename S, int O>
+    class ConstraintCollectionTpl>
+  struct ConstraintModelTpl
+  : ConstraintModelBase<ConstraintModelTpl<_Scalar, _Options, ConstraintCollectionTpl>>
+  , ConstraintCollectionTpl<_Scalar, _Options>::ConstraintModelVariant
   {
-    BOOST_MPL_ASSERT((boost::mpl::contains<typename ConstraintModelVariant::types,ContraintModelDerived>));
-  }
+    typedef _Scalar Scalar;
+    enum
+    {
+      Options = _Options
+    };
 
-  ConstraintData createData() const
-  { return ::pinocchio::createData<Scalar,Options,ConstraintCollectionTpl>(*this); }
-};
+    typedef ConstraintModelBase<ConstraintModelTpl<_Scalar, _Options, ConstraintCollectionTpl>>
+      Base;
+    typedef ConstraintDataTpl<Scalar, Options, ConstraintCollectionTpl> ConstraintData;
+    typedef ConstraintCollectionTpl<Scalar, Options> ConstraintCollection;
+    typedef typename ConstraintCollection::ConstraintDataVariant ConstraintDataVariant;
+    typedef typename ConstraintCollection::ConstraintModelVariant ConstraintModelVariant;
+
+    ConstraintModelTpl()
+    : ConstraintModelVariant()
+    {
+    }
+
+    ConstraintModelTpl(const ConstraintModelVariant & cmodel_variant)
+    : ConstraintModelVariant(cmodel_variant)
+    {
+    }
+
+    template<typename ContraintModelDerived>
+    ConstraintModelTpl(const ConstraintModelBase<ContraintModelDerived> & cmodel)
+    : ConstraintModelVariant((ConstraintModelVariant)cmodel.derived())
+    {
+      BOOST_MPL_ASSERT(
+        (boost::mpl::contains<typename ConstraintModelVariant::types, ContraintModelDerived>));
+    }
+
+    ConstraintData createData() const
+    {
+      return ::pinocchio::createData<Scalar, Options, ConstraintCollectionTpl>(*this);
+    }
+  };
 
 } // namespace pinocchio
 

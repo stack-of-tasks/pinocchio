@@ -1,10 +1,10 @@
 import unittest
 import pinocchio as pin
 import numpy as np
-from pinocchio.utils import zero,rand
+from pinocchio.utils import zero, rand
+
 
 class TestMotionBindings(unittest.TestCase):
-
     def test_zero_getters(self):
         v = pin.Motion.Zero()
         self.assertTrue(np.allclose(zero(3), v.linear))
@@ -29,12 +29,12 @@ class TestMotionBindings(unittest.TestCase):
 
     def test_set_linear(self):
         v = pin.Motion.Zero()
-        lin =  rand(3)
+        lin = rand(3)
         v.linear = lin
         self.assertTrue(np.allclose(v.linear, lin))
 
-        v.linear[1] = 1.
-        self.assertTrue(v.linear[1] == 1.)
+        v.linear[1] = 1.0
+        self.assertTrue(v.linear[1] == 1.0)
 
     def test_set_angular(self):
         v = pin.Motion.Zero()
@@ -42,8 +42,8 @@ class TestMotionBindings(unittest.TestCase):
         v.angular = ang
         self.assertTrue(np.allclose(v.angular, ang))
 
-        v.angular[1] = 1.
-        self.assertTrue(v.angular[1] == 1.)
+        v.angular[1] = 1.0
+        self.assertTrue(v.angular[1] == 1.0)
 
     def test_set_vector(self):
         v = pin.Motion.Zero()
@@ -54,19 +54,20 @@ class TestMotionBindings(unittest.TestCase):
     def test_internal_sums(self):
         v1 = pin.Motion.Random()
         v2 = pin.Motion.Random()
-        self.assertTrue(np.allclose((v1+v2).vector,v1.vector + v2.vector))
+        self.assertTrue(np.allclose((v1 + v2).vector, v1.vector + v2.vector))
         self.assertTrue(np.allclose((v1 - v2).vector, v1.vector - v2.vector))
 
     def test_se3_action(self):
         m = pin.SE3.Random()
         v = pin.Motion.Random()
-        self.assertTrue(np.allclose((m * v).vector,  m.action.dot(v.vector)))
+        self.assertTrue(np.allclose((m * v).vector, m.action.dot(v.vector)))
         self.assertTrue(np.allclose(m.act(v).vector, m.action.dot(v.vector)))
-        self.assertTrue(np.allclose((m.actInv(v)).vector, np.linalg.inv(m.action).dot(v.vector)))
+        self.assertTrue(
+            np.allclose((m.actInv(v)).vector, np.linalg.inv(m.action).dot(v.vector))
+        )
         self.assertTrue(np.allclose((v ^ v).vector, zero(6)))
 
     def test_conversion(self):
-
         m = pin.Motion.Random()
         m_array = np.array(m)
 
@@ -79,5 +80,6 @@ class TestMotionBindings(unittest.TestCase):
             v = pin.Motion.Zero() + pin.Motion.Zero()
             self.assertTrue(np.allclose(v.vector, zero(6)))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

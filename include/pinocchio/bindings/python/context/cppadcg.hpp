@@ -7,7 +7,7 @@
 
 #include "pinocchio/codegen/cppadcg.hpp"
 
-#define PINOCCHIO_PYTHON_SCALAR_TYPE ::CppAD::AD<CppAD::cg::CG<double> >
+#define PINOCCHIO_PYTHON_SCALAR_TYPE ::CppAD::AD<CppAD::cg::CG<double>>
 #include "pinocchio/bindings/python/context/generic.hpp"
 #undef PINOCCHIO_PYTHON_SCALAR_TYPE
 
@@ -22,7 +22,8 @@ namespace pinocchio
 {
   namespace python
   {
-    inline void exposeSpecificTypeFeatures() {
+    inline void exposeSpecificTypeFeatures()
+    {
       boost::python::import("pycppad");
     };
 
@@ -30,8 +31,8 @@ namespace pinocchio
     {
       return eigenpy::getInstanceClass<context::Scalar>();
     }
-    
-  }
-}
+
+  } // namespace python
+} // namespace pinocchio
 
 #endif // #ifndef __pinocchio_python_context_cppadcg_hpp__

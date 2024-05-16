@@ -12,37 +12,40 @@
 
 namespace pinocchio
 {
-    namespace internal
+  namespace internal
+  {
+    void buildConvexHull(ReachableSetResults & res)
     {
-        void buildConvexHull(ReachableSetResults &res)
+      using namespace orgQhull;
+
+      Qhull qh;
+      qh.runQhull(
+        "", static_cast<int>(res.vertex.rows()), static_cast<int>(res.vertex.cols()),
+        res.vertex.data(), "QJ");
+      if (qh.qhullStatus() != qh_ERRnone)
+        throw(qh.qhullMessage());
+
+      QhullFacetList facets = qh.facetList();
+      res.faces.resize(static_cast<int>(facets.count()), 3);
+      QhullFacetListIterator j(facets);
+      QhullFacet f;
+      int count = 0;
+
+      while (j.hasNext())
+      {
+        f = j.next();
+        if (!f.isGood())
         {
-            using namespace orgQhull;
-
-            Qhull qh;
-            qh.runQhull("", static_cast<int>(res.vertex.rows()), static_cast<int>(res.vertex.cols()), res.vertex.data(), "QJ");
-            if(qh.qhullStatus() != qh_ERRnone)
-                throw(qh.qhullMessage());
-
-            QhullFacetList facets = qh.facetList();
-            res.faces.resize(static_cast<int>(facets.count()), 3);
-            QhullFacetListIterator j(facets);
-            QhullFacet f;
-            int count = 0;
-
-            while(j.hasNext())
-            {
-                f = j.next();
-                if(!f.isGood())
-                {
-                    // ignore facet
-                }else
-                {
-                    QhullVertexSet vs = f.vertices();
-                    for(int i= 0; i < static_cast<int>(vs.size()); i++)
-                        res.faces(count, i) = static_cast<int>(vs[i].point().id());
-                    count++;
-                }
-            }
+          // ignore facet
         }
+        else
+        {
+          QhullVertexSet vs = f.vertices();
+          for (int i = 0; i < static_cast<int>(vs.size()); i++)
+            res.faces(count, i) = static_cast<int>(vs[i].point().id());
+          count++;
+        }
+      }
     }
-}
+  } // namespace internal
+} // namespace pinocchio

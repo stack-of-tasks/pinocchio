@@ -21,30 +21,28 @@ namespace pinocchio
     struct PerformStYSInversion
     {
       template<typename M1, typename M2>
-      static EIGEN_STRONG_INLINE
-      void run(const Eigen::MatrixBase<M1> & StYS,
-               const Eigen::MatrixBase<M2> & Dinv)
+      static EIGEN_STRONG_INLINE void
+      run(const Eigen::MatrixBase<M1> & StYS, const Eigen::MatrixBase<M2> & Dinv)
       {
-        M2 & Dinv_ = PINOCCHIO_EIGEN_CONST_CAST(M2,Dinv);
+        M2 & Dinv_ = PINOCCHIO_EIGEN_CONST_CAST(M2, Dinv);
         Dinv_.setIdentity();
         StYS.llt().solveInPlace(Dinv_);
       }
     };
-    
+
     template<typename Scalar>
     struct PerformStYSInversion<Scalar, false>
     {
       template<typename M1, typename M2>
-      static EIGEN_STRONG_INLINE
-      void run(const Eigen::MatrixBase<M1> & StYS,
-               const Eigen::MatrixBase<M2> & Dinv)
+      static EIGEN_STRONG_INLINE void
+      run(const Eigen::MatrixBase<M1> & StYS, const Eigen::MatrixBase<M2> & Dinv)
       {
-        M2 & Dinv_ = PINOCCHIO_EIGEN_CONST_CAST(M2,Dinv);
-        inverse(StYS,Dinv_);
+        M2 & Dinv_ = PINOCCHIO_EIGEN_CONST_CAST(M2, Dinv);
+        inverse(StYS, Dinv_);
       }
     };
-  }
-  
+  } // namespace internal
+
   ///
   /// \brief Linear affine transformation of the configuration vector.
   ///        Valide for most common joints which are evolving on a vectorial space.
@@ -52,25 +50,28 @@ namespace pinocchio
   struct LinearAffineTransform
   {
     template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
-    static void run(const Eigen::MatrixBase<ConfigVectorIn> & q,
-                    const Scalar & scaling,
-                    const Scalar & offset,
-                    const Eigen::MatrixBase<ConfigVectorOut> & dest)
+    static void run(
+      const Eigen::MatrixBase<ConfigVectorIn> & q,
+      const Scalar & scaling,
+      const Scalar & offset,
+      const Eigen::MatrixBase<ConfigVectorOut> & dest)
     {
       assert(q.size() == dest.size());
-      PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut,dest).noalias() = scaling * q + ConfigVectorOut::Constant(dest.size(),offset);
+      PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, dest).noalias() =
+        scaling * q + ConfigVectorOut::Constant(dest.size(), offset);
     }
   };
-  
+
   ///
-  /// \brief Assign the correct configuration vector space affine transformation according to the joint type.
+  /// \brief Assign the correct configuration vector space affine transformation according to the
+  /// joint type.
   ///
   template<typename Joint>
   struct ConfigVectorAffineTransform
   {
     typedef LinearAffineTransform Type;
   };
-  
-}
+
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_multibody_joint_joint_common_operations_hpp__

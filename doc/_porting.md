@@ -202,5 +202,3 @@ was changed to
 jointJacobian(self, q, index, rf_frame=pin.ReferenceFrame.LOCAL, update_kinematics=True)
 ```
 which should not change anything if you were only ever calling it with two arguments.
-
-

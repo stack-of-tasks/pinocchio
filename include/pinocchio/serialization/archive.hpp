@@ -20,21 +20,21 @@
 #include <boost/archive/binary_oarchive.hpp>
 
 #if BOOST_VERSION / 100 % 1000 == 78 && __APPLE__
-// See https://github.com/qcscine/utilities/issues/5#issuecomment-1246897049 for further details
+  // See https://github.com/qcscine/utilities/issues/5#issuecomment-1246897049 for further details
 
-#ifndef BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
-#define DEFINE_BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
-#define BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
-#endif
+  #ifndef BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
+    #define DEFINE_BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
+    #define BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
+  #endif
 
-#include <boost/asio/streambuf.hpp>
+  #include <boost/asio/streambuf.hpp>
 
-#ifdef DEFINE_BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
-#undef BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
-#endif
+  #ifdef DEFINE_BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
+    #undef BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
+  #endif
 
 #else
-#include <boost/asio/streambuf.hpp>
+  #include <boost/asio/streambuf.hpp>
 #endif
 
 #include <boost/iostreams/device/array.hpp>
@@ -48,7 +48,7 @@ namespace pinocchio
 {
   namespace serialization
   {
-    
+
     ///
     /// \brief Loads an object from a TXT file.
     ///
@@ -58,15 +58,14 @@ namespace pinocchio
     /// \param[in]  filename Name of the file containing the serialized data.
     ///
     template<typename T>
-    inline void loadFromText(T & object,
-                             const std::string & filename)
+    inline void loadFromText(T & object, const std::string & filename)
     {
       std::ifstream ifs(filename.c_str());
-      if(ifs)
+      if (ifs)
       {
         std::locale const new_loc(ifs.getloc(), new boost::math::nonfinite_num_get<char>);
         ifs.imbue(new_loc);
-        boost::archive::text_iarchive ia(ifs,boost::archive::no_codecvt);
+        boost::archive::text_iarchive ia(ifs, boost::archive::no_codecvt);
         ia >> object;
       }
       else
@@ -75,7 +74,7 @@ namespace pinocchio
         throw std::invalid_argument(exception_message);
       }
     }
-    
+
     ///
     /// \brief Saves an object inside a TXT file.
     ///
@@ -85,11 +84,10 @@ namespace pinocchio
     /// \param[in]  filename Name of the file containing the serialized data.
     ///
     template<typename T>
-    inline void saveToText(const T & object,
-                           const std::string & filename)
+    inline void saveToText(const T & object, const std::string & filename)
     {
       std::ofstream ofs(filename.c_str());
-      if(ofs)
+      if (ofs)
       {
         boost::archive::text_oarchive oa(ofs);
         oa & object;
@@ -100,7 +98,7 @@ namespace pinocchio
         throw std::invalid_argument(exception_message);
       }
     }
-  
+
     ///
     /// \brief Loads an object from a std::stringstream.
     ///
@@ -110,13 +108,12 @@ namespace pinocchio
     /// \param[in]  is  string stream constaining the serialized content of the object.
     ///
     template<typename T>
-    inline void loadFromStringStream(T & object,
-                                     std::istringstream & is)
+    inline void loadFromStringStream(T & object, std::istringstream & is)
     {
-      boost::archive::text_iarchive ia(is,boost::archive::no_codecvt);
+      boost::archive::text_iarchive ia(is, boost::archive::no_codecvt);
       ia >> object;
     }
-  
+
     ///
     /// \brief Saves an object inside a std::stringstream.
     ///
@@ -126,13 +123,12 @@ namespace pinocchio
     /// \param[out]  ss String stream constaining the serialized content of the object.
     ///
     template<typename T>
-    inline void saveToStringStream(const T & object,
-                                   std::stringstream & ss)
+    inline void saveToStringStream(const T & object, std::stringstream & ss)
     {
       boost::archive::text_oarchive oa(ss);
       oa & object;
     }
-  
+
     ///
     /// \brief Loads an object from a std::string
     ///
@@ -142,13 +138,12 @@ namespace pinocchio
     /// \param[in]  str  string constaining the serialized content of the object.
     ///
     template<typename T>
-    inline void loadFromString(T & object,
-                               const std::string & str)
+    inline void loadFromString(T & object, const std::string & str)
     {
       std::istringstream is(str);
-      loadFromStringStream(object,is);
+      loadFromStringStream(object, is);
     }
-  
+
     ///
     /// \brief Saves an object inside a std::string
     ///
@@ -162,10 +157,10 @@ namespace pinocchio
     inline std::string saveToString(const T & object)
     {
       std::stringstream ss;
-      saveToStringStream(object,ss);
+      saveToStringStream(object, ss);
       return ss.str();
     }
-    
+
     ///
     /// \brief Loads an object from a XML file.
     ///
@@ -176,19 +171,17 @@ namespace pinocchio
     /// \param[in] tag_name XML Tag for the given object.
     ///
     template<typename T>
-    inline void loadFromXML(T & object,
-                            const std::string & filename,
-                            const std::string & tag_name)
+    inline void loadFromXML(T & object, const std::string & filename, const std::string & tag_name)
     {
       PINOCCHIO_CHECK_INPUT_ARGUMENT(!tag_name.empty());
-      
+
       std::ifstream ifs(filename.c_str());
-      if(ifs)
+      if (ifs)
       {
         std::locale const new_loc(ifs.getloc(), new boost::math::nonfinite_num_get<char>);
         ifs.imbue(new_loc);
-        boost::archive::xml_iarchive ia(ifs,boost::archive::no_codecvt);
-        ia >> boost::serialization::make_nvp(tag_name.c_str(),object);
+        boost::archive::xml_iarchive ia(ifs, boost::archive::no_codecvt);
+        ia >> boost::serialization::make_nvp(tag_name.c_str(), object);
       }
       else
       {
@@ -196,7 +189,7 @@ namespace pinocchio
         throw std::invalid_argument(exception_message);
       }
     }
-    
+
     ///
     /// \brief Saves an object inside a XML file.
     ///
@@ -207,17 +200,16 @@ namespace pinocchio
     /// \param[in] tag_name XML Tag for the given object.
     ///
     template<typename T>
-    inline void saveToXML(const T & object,
-                          const std::string & filename,
-                          const std::string & tag_name)
+    inline void
+    saveToXML(const T & object, const std::string & filename, const std::string & tag_name)
     {
       PINOCCHIO_CHECK_INPUT_ARGUMENT(!tag_name.empty());
-      
+
       std::ofstream ofs(filename.c_str());
-      if(ofs)
+      if (ofs)
       {
         boost::archive::xml_oarchive oa(ofs);
-        oa & boost::serialization::make_nvp(tag_name.c_str(),object);
+        oa & boost::serialization::make_nvp(tag_name.c_str(), object);
       }
       else
       {
@@ -225,7 +217,7 @@ namespace pinocchio
         throw std::invalid_argument(exception_message);
       }
     }
-    
+
     ///
     /// \brief Loads an object from a binary file.
     ///
@@ -235,11 +227,10 @@ namespace pinocchio
     /// \param[in] filename Name of the file containing the serialized data.
     ///
     template<typename T>
-    inline void loadFromBinary(T & object,
-                               const std::string & filename)
+    inline void loadFromBinary(T & object, const std::string & filename)
     {
       std::ifstream ifs(filename.c_str(), std::ios::binary);
-      if(ifs)
+      if (ifs)
       {
         boost::archive::binary_iarchive ia(ifs);
         ia >> object;
@@ -250,7 +241,7 @@ namespace pinocchio
         throw std::invalid_argument(exception_message);
       }
     }
-    
+
     ///
     /// \brief Saves an object inside a binary file.
     ///
@@ -260,11 +251,10 @@ namespace pinocchio
     /// \param[in] filename Name of the file containing the serialized data.
     ///
     template<typename T>
-    void saveToBinary(const T & object,
-                      const std::string & filename)
+    void saveToBinary(const T & object, const std::string & filename)
     {
       std::ofstream ofs(filename.c_str(), std::ios::binary);
-      if(ofs)
+      if (ofs)
       {
         boost::archive::binary_oarchive oa(ofs);
         oa & object;
@@ -285,13 +275,12 @@ namespace pinocchio
     /// \param[in] buffer Input buffer containing the serialized data.
     ///
     template<typename T>
-    inline void loadFromBinary(T & object,
-                               boost::asio::streambuf & buffer)
+    inline void loadFromBinary(T & object, boost::asio::streambuf & buffer)
     {
       boost::archive::binary_iarchive ia(buffer);
       ia >> object;
     }
-  
+
     ///
     /// \brief Saves an object to a binary buffer.
     ///
@@ -301,8 +290,7 @@ namespace pinocchio
     /// \param[out] buffer Output buffer containing the serialized data.
     ///
     template<typename T>
-    void saveToBinary(const T & object,
-                      boost::asio::streambuf & buffer)
+    void saveToBinary(const T & object, boost::asio::streambuf & buffer)
     {
       boost::archive::binary_oarchive oa(buffer);
       oa & object;
@@ -318,10 +306,10 @@ namespace pinocchio
     /// \param[in] buffer Input buffer containing the serialized data.
     ///
     template<typename T>
-    inline void loadFromBinary(T & object,
-                               StaticBuffer & buffer)
+    inline void loadFromBinary(T & object, StaticBuffer & buffer)
     {
-      boost::iostreams::stream_buffer< boost::iostreams::basic_array<char> > stream(buffer.data(), buffer.size());
+      boost::iostreams::stream_buffer<boost::iostreams::basic_array<char>> stream(
+        buffer.data(), buffer.size());
 
       boost::archive::binary_iarchive ia(stream);
       ia >> object;
@@ -337,15 +325,15 @@ namespace pinocchio
     /// \param[out] buffer Output buffer containing the serialized data.
     ///
     template<typename T>
-    inline void saveToBinary(const T & object,
-                             StaticBuffer & buffer)
+    inline void saveToBinary(const T & object, StaticBuffer & buffer)
     {
-      boost::iostreams::stream_buffer< boost::iostreams::basic_array<char> > stream(buffer.data(), buffer.size());
+      boost::iostreams::stream_buffer<boost::iostreams::basic_array<char>> stream(
+        buffer.data(), buffer.size());
 
       boost::archive::binary_oarchive oa(stream);
       oa & object;
     }
-    
+
   } // namespace serialization
 } // namespace pinocchio
 

@@ -17,35 +17,36 @@ namespace pinocchio
 
     template<typename GeometryFunctor>
     struct GeometryFunctorPythonVisitor
-    : public boost::python::def_visitor< GeometryFunctorPythonVisitor<GeometryFunctor> >
+    : public boost::python::def_visitor<GeometryFunctorPythonVisitor<GeometryFunctor>>
     {
 
       template<class PyClass>
-      void visit(PyClass& cl) const
+      void visit(PyClass & cl) const
       {
         const std::string class_name = bp::type_id<GeometryFunctor>().name();
-        
-        cl
-        .def(bp::init<const GeometryObject &,const GeometryObject &>
-             (bp::args("self","geometry_object1","geometry_object2"),
-             (std::string("Constructor of a ") + class_name).c_str()))
-        .def("run",&GeometryFunctor::run,
-             bp::args("self","tf1","tf2","request","result"),
-             "Call the function and return the result")
-        
-        .def("getGeometryObject1", &GeometryFunctor::getGeometryObject1,bp::return_value_policy<bp::copy_const_reference>())
-        .def("getGeometryObject2", &GeometryFunctor::getGeometryObject2,bp::return_value_policy<bp::copy_const_reference>())
-        
-        .def("print",&print)
-        ;
+
+        cl.def(bp::init<const GeometryObject &, const GeometryObject &>(
+                 bp::args("self", "geometry_object1", "geometry_object2"),
+                 (std::string("Constructor of a ") + class_name).c_str()))
+          .def(
+            "run", &GeometryFunctor::run, bp::args("self", "tf1", "tf2", "request", "result"),
+            "Call the function and return the result")
+
+          .def(
+            "getGeometryObject1", &GeometryFunctor::getGeometryObject1,
+            bp::return_value_policy<bp::copy_const_reference>())
+          .def(
+            "getGeometryObject2", &GeometryFunctor::getGeometryObject2,
+            bp::return_value_policy<bp::copy_const_reference>())
+
+          .def("print", &print);
       }
-      
+
       static void print(const GeometryFunctor & self)
       {
         std::cout << "address #1: " << &self.getGeometryObject1() << std::endl;
         std::cout << "address #2: " << &self.getGeometryObject2() << std::endl;
       }
-
     };
 
   } // namespace python

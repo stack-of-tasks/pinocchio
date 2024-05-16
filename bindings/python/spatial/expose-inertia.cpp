@@ -14,7 +14,7 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     void exposeInertia()
     {
       InertiaPythonVisitor<context::Inertia>::expose();
@@ -23,6 +23,6 @@ namespace pinocchio
       serialize<StdAlignedVectorPythonVisitor<context::Inertia>::vector_type>();
 #endif
     }
-    
+
   } // namespace python
 } // namespace pinocchio

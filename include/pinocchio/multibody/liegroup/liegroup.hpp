@@ -19,10 +19,14 @@ namespace pinocchio
     template<typename JointModel>
     struct operation
     {
-      typedef VectorSpaceOperationTpl<JointModel::NQ,typename JointModel::Scalar, JointModel::Options> type;
+      typedef VectorSpaceOperationTpl<
+        JointModel::NQ,
+        typename JointModel::Scalar,
+        JointModel::Options>
+        type;
     };
   };
-  
+
   template<typename JointModel>
   struct LieGroup
   {
@@ -30,39 +34,40 @@ namespace pinocchio
   };
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct LieGroupMap::operation< JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
-  {};
-  
-  template<typename Scalar, int Options>
-  struct LieGroupMap::operation< JointModelSphericalTpl<Scalar,Options> >
+  struct LieGroupMap::operation<JointModelCompositeTpl<Scalar, Options, JointCollectionTpl>>
   {
-    typedef SpecialOrthogonalOperationTpl<3,Scalar,Options> type;
   };
-  
+
   template<typename Scalar, int Options>
-  struct LieGroupMap::operation< JointModelFreeFlyerTpl<Scalar,Options> >
+  struct LieGroupMap::operation<JointModelSphericalTpl<Scalar, Options>>
   {
-    typedef SpecialEuclideanOperationTpl<3,Scalar,Options> type;
+    typedef SpecialOrthogonalOperationTpl<3, Scalar, Options> type;
   };
-  
+
   template<typename Scalar, int Options>
-  struct LieGroupMap::operation< JointModelPlanarTpl<Scalar,Options> >
+  struct LieGroupMap::operation<JointModelFreeFlyerTpl<Scalar, Options>>
   {
-    typedef SpecialEuclideanOperationTpl<2,Scalar,Options> type;
+    typedef SpecialEuclideanOperationTpl<3, Scalar, Options> type;
   };
-  
+
+  template<typename Scalar, int Options>
+  struct LieGroupMap::operation<JointModelPlanarTpl<Scalar, Options>>
+  {
+    typedef SpecialEuclideanOperationTpl<2, Scalar, Options> type;
+  };
+
   template<typename Scalar, int Options, int axis>
-  struct LieGroupMap::operation<JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
+  struct LieGroupMap::operation<JointModelRevoluteUnboundedTpl<Scalar, Options, axis>>
   {
-    typedef SpecialOrthogonalOperationTpl<2,Scalar,Options> type;
+    typedef SpecialOrthogonalOperationTpl<2, Scalar, Options> type;
   };
-  
+
   template<typename Scalar, int Options>
-  struct LieGroupMap::operation<JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> >
+  struct LieGroupMap::operation<JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options>>
   {
-    typedef SpecialOrthogonalOperationTpl<2,Scalar,Options> type;
+    typedef SpecialOrthogonalOperationTpl<2, Scalar, Options> type;
   };
-  
-}
+
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_lie_group_hpp__

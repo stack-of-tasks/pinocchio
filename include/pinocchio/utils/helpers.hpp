@@ -14,13 +14,13 @@ namespace pinocchio
     {
       static const bool value = false;
     };
-  
+
     template<typename T>
-    struct is_same_type<T,T>
+    struct is_same_type<T, T>
     {
       static const bool value = true;
     };
-  }
-}
+  } // namespace internal
+} // namespace pinocchio
 
 #endif // __pinocchio_utils_helpers_hpp__

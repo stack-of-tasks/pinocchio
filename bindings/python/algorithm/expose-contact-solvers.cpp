@@ -6,19 +6,18 @@
 
 namespace pinocchio
 {
-namespace python
-{
+  namespace python
+  {
 
-// Forward declaration
-void exposePGSContactSolver();
-void exposeADMMContactSolver();
+    // Forward declaration
+    void exposePGSContactSolver();
+    void exposeADMMContactSolver();
 
-void exposeContactSolvers()
-{
-  exposePGSContactSolver();
-  exposeADMMContactSolver();
-}
+    void exposeContactSolvers()
+    {
+      exposePGSContactSolver();
+      exposeADMMContactSolver();
+    }
 
-} // namespace python
+  } // namespace python
 } // namespace pinocchio
-

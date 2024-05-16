@@ -9,24 +9,62 @@ from .robot_wrapper import RobotWrapper
 
 
 class RomeoWrapper(RobotWrapper):
-
     def __init__(self, filename, package_dirs=None, verbose=False):
-        self.initFromURDF(filename, package_dirs=package_dirs, root_joint=pin.JointModelFreeFlyer(), verbose=verbose)
-        self.q0 = np.array([
-            0, 0, 0.840252, 0, 0, 0, 1,                      # Free flyer
-            0, 0, -0.3490658, 0.6981317, -0.3490658, 0,      # left leg
-            0, 0, -0.3490658, 0.6981317, -0.3490658, 0,      # right leg
-            0,                                               # chest
-            1.5, 0.6, -0.5, -1.05, -0.4, -0.3, -0.2,         # left arm
-            0, 0, 0, 0,                                      # head
-            1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2,          # right arm
-        ])
+        self.initFromURDF(
+            filename,
+            package_dirs=package_dirs,
+            root_joint=pin.JointModelFreeFlyer(),
+            verbose=verbose,
+        )
+        self.q0 = np.array(
+            [
+                0,
+                0,
+                0.840252,
+                0,
+                0,
+                0,
+                1,  # Free flyer
+                0,
+                0,
+                -0.3490658,
+                0.6981317,
+                -0.3490658,
+                0,  # left leg
+                0,
+                0,
+                -0.3490658,
+                0.6981317,
+                -0.3490658,
+                0,  # right leg
+                0,  # chest
+                1.5,
+                0.6,
+                -0.5,
+                -1.05,
+                -0.4,
+                -0.3,
+                -0.2,  # left arm
+                0,
+                0,
+                0,
+                0,  # head
+                1.5,
+                -0.6,
+                0.5,
+                1.05,
+                -0.4,
+                -0.3,
+                -0.2,  # right arm
+            ]
+        )
 
-        self.opCorrespondances = {"lh": "LWristPitch",
-                                  "rh": "RWristPitch",
-                                  "rf": "RAnkleRoll",
-                                  "lf": "LAnkleRoll",
-                                  }
+        self.opCorrespondances = {
+            "lh": "LWristPitch",
+            "rh": "RWristPitch",
+            "rf": "RAnkleRoll",
+            "lf": "LAnkleRoll",
+        }
 
         for op, name in self.opCorrespondances.items():
             self.__dict__[op] = self.index(name)
@@ -63,4 +101,5 @@ class RomeoWrapper(RobotWrapper):
     def Mrf(self, q):
         return self.position(q, self.rf)
 
-__all__ = ['RomeoWrapper']
+
+__all__ = ["RomeoWrapper"]

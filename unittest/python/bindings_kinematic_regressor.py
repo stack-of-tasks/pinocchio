@@ -2,8 +2,8 @@ import unittest
 from test_case import PinocchioTestCase as TestCase
 import pinocchio as pin
 
-class TestKinematicRegressorBindings(TestCase):
 
+class TestKinematicRegressorBindings(TestCase):
     def test_all(self):
         model = pin.buildSampleModelHumanoidRandom()
 
@@ -13,20 +13,26 @@ class TestKinematicRegressorBindings(TestCase):
 
         data = model.createData()
 
-        model.lowerPositionLimit[:7] = -1.
-        model.upperPositionLimit[:7] = 1.
+        model.lowerPositionLimit[:7] = -1.0
+        model.upperPositionLimit[:7] = 1.0
 
         q = pin.randomConfiguration(model)
-        pin.forwardKinematics(model,data,q)
+        pin.forwardKinematics(model, data, q)
 
-        R1 = pin.computeJointKinematicRegressor(model,data,joint_id,pin.ReferenceFrame.LOCAL,pin.SE3.Identity())
-        R2 = pin.computeJointKinematicRegressor(model,data,joint_id,pin.ReferenceFrame.LOCAL)
+        R1 = pin.computeJointKinematicRegressor(
+            model, data, joint_id, pin.ReferenceFrame.LOCAL, pin.SE3.Identity()
+        )
+        R2 = pin.computeJointKinematicRegressor(
+            model, data, joint_id, pin.ReferenceFrame.LOCAL
+        )
 
-        self.assertApprox(R1,R2)
+        self.assertApprox(R1, R2)
 
-        R3 = pin.computeFrameKinematicRegressor(model,data,frame_id,pin.ReferenceFrame.LOCAL)
-        self.assertApprox(R1,R3)
+        R3 = pin.computeFrameKinematicRegressor(
+            model, data, frame_id, pin.ReferenceFrame.LOCAL
+        )
+        self.assertApprox(R1, R3)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
-

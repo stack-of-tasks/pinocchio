@@ -19,8 +19,7 @@ mesh_dir = pinocchio_model_dir
 # urdf_filename = "talos_reduced.urdf"
 # urdf_model_path = join(join(model_path,"talos_data/robots"),urdf_filename)
 urdf_filename = "solo.urdf"
-urdf_model_path = join(
-    join(model_path, "solo_description/robots"), urdf_filename)
+urdf_model_path = join(join(model_path, "solo_description/robots"), urdf_filename)
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
     urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()
@@ -64,8 +63,8 @@ if convex is not None:
     # Add a PhongMaterial to the convex object
     geometry.overrideMaterial = True
     geometry.meshMaterial = pin.GeometryPhongMaterial()
-    geometry.meshMaterial.meshEmissionColor = np.array([1., 0.1, 0.1, 1.])
-    geometry.meshMaterial.meshSpecularColor = np.array([0.1, 1., 0.1, 1.])
+    geometry.meshMaterial.meshEmissionColor = np.array([1.0, 0.1, 0.1, 1.0])
+    geometry.meshMaterial.meshSpecularColor = np.array([0.1, 1.0, 0.1, 1.0])
     geometry.meshMaterial.meshShininess = 0.8
     visual_model.addGeometryObject(geometry)
     # After modifying the visual_model we must rebuild
@@ -82,8 +81,7 @@ viz2.display(q)
 
 # standing config
 q1 = np.array(
-    [0.0, 0.0, 0.235, 0.0, 0.0, 0.0, 1.0, 0.8, -
-        1.6, 0.8, -1.6, -0.8, 1.6, -0.8, 1.6]
+    [0.0, 0.0, 0.235, 0.0, 0.0, 0.0, 1.0, 0.8, -1.6, 0.8, -1.6, -0.8, 1.6, -0.8, 1.6]
 )
 
 v0 = np.random.randn(model.nv) * 2
@@ -93,8 +91,9 @@ frame_id = model.getFrameId("HR_FOOT")
 viz.display()
 viz.drawFrameVelocities(frame_id=frame_id)
 
-model.gravity.linear[:] = 0.
+model.gravity.linear[:] = 0.0
 dt = 0.01
+
 
 def sim_loop():
     tau0 = np.zeros(model.nv)
@@ -113,13 +112,16 @@ def sim_loop():
         viz.drawFrameVelocities(frame_id=frame_id)
     return qs, vs
 
+
 qs, vs = sim_loop()
 
 fid2 = model.getFrameId("FL_FOOT")
 
+
 def my_callback(i, *args):
     viz.drawFrameVelocities(frame_id)
     viz.drawFrameVelocities(fid2)
-    
+
+
 with viz.create_video_ctx("../leap.mp4"):
     viz.play(qs, dt, callback=my_callback)

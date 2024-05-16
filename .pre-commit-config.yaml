@@ -1,10 +1,47 @@
 ci:
-    autoupdate_branch: 'devel'
+  autoupdate_branch: devel
+  autofix_prs: false
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v18.1.5
+    hooks:
+      - id: clang-format
+        types_or: []
+        types: [text]
+        files: \.(cpp|cxx|c|h|hpp|hxx|txx)$
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
-    -   id: check-json
-    -   id: check-symlinks
-    -   id: check-toml
-    -   id: check-yaml
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-yaml
+        exclude: ^packaging/conda/
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: check-merge-conflict
+      - id: trailing-whitespace
+        exclude: |
+          (?x)^(
+              doc/doxygen-awesome.*
+          )$
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+      - id: ruff-format
+        exclude: doc/
+  - repo: https://github.com/cheshirekow/cmake-format-precommit
+    rev: v0.6.13
+    hooks:
+      - id: cmake-format
+        additional_dependencies: [pyyaml>=5.1]
+        exclude: pinocchiopy.pc.cmake
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.5.5
+    hooks:
+      - id: forbid-tabs
+  - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+    rev: 0.2.3
+    hooks:
+      - id: yamlfmt
+        args: [--mapping=2, --offset=2, --sequence=4, --implicit_start]

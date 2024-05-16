@@ -8,350 +8,343 @@
 
 # Extract the compile definitions of the project for export
 
-REMOVE_PATH_FROM_LIST(${PROJECT_NAME}_CORE_SOURCES "src/" ${PROJECT_NAME}_CORE_SOURCES)
-REMOVE_PATH_FROM_LIST(${PROJECT_NAME}_PARSERS_SOURCES "src/" ${PROJECT_NAME}_PARSERS_SOURCES)
-REMOVE_PATH_FROM_LIST(${PROJECT_NAME}_COLLISION_SOURCES "src/" ${PROJECT_NAME}_COLLISION_SOURCES)
-REMOVE_PATH_FROM_LIST(${PROJECT_NAME}_EXTRA_SOURCES "src/" ${PROJECT_NAME}_EXTRA_SOURCES)
-PREPEND_PATH_FROM_LIST(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
-  "../"
-  ${PROJECT_NAME}_CORE_PUBLIC_HEADERS)
-PREPEND_PATH_FROM_LIST(${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS
-  "../"
-  ${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS)
-PREPEND_PATH_FROM_LIST(${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS
-  "../"
-  ${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS)
-PREPEND_PATH_FROM_LIST(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
-  "../"
-  ${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS)
-PREPEND_PATH_FROM_LIST(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS
-  "../"
-  ${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS)
-PREPEND_PATH_FROM_LIST(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS
-  "../"
-  ${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS)
+remove_path_from_list(${PROJECT_NAME}_CORE_SOURCES "src/" ${PROJECT_NAME}_CORE_SOURCES)
+remove_path_from_list(${PROJECT_NAME}_PARSERS_SOURCES "src/" ${PROJECT_NAME}_PARSERS_SOURCES)
+remove_path_from_list(${PROJECT_NAME}_COLLISION_SOURCES "src/" ${PROJECT_NAME}_COLLISION_SOURCES)
+remove_path_from_list(${PROJECT_NAME}_EXTRA_SOURCES "src/" ${PROJECT_NAME}_EXTRA_SOURCES)
+prepend_path_from_list(${PROJECT_NAME}_CORE_PUBLIC_HEADERS "../"
+                       ${PROJECT_NAME}_CORE_PUBLIC_HEADERS)
+prepend_path_from_list(${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS "../"
+                       ${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS)
+prepend_path_from_list(${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS "../"
+                       ${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS)
+prepend_path_from_list(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS "../"
+                       ${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS)
+prepend_path_from_list(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS "../"
+                       ${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS)
+prepend_path_from_list(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS "../"
+                       ${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS)
 
-# Create header-only target
-# All other target will depend on it
-ADD_LIBRARY(${PROJECT_NAME}_headers INTERFACE
-  ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS}
-  ${${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS})
+# Create header-only target All other target will depend on it
+add_library(${PROJECT_NAME}_headers INTERFACE ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS}
+            ${${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS})
 
-# Enforce the preprocessed version of boost::list and boost::vector
-# This information is redundant with the content of include/pinocchio/container/boost-container-limits.hpp
-# but it avoids any compilation issue.
-TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME}_headers INTERFACE
-  BOOST_MPL_LIMIT_LIST_SIZE=30
-  BOOST_MPL_LIMIT_VECTOR_SIZE=30)
+# Enforce the preprocessed version of boost::list and boost::vector This information is redundant
+# with the content of include/pinocchio/container/boost-container-limits.hpp but it avoids any
+# compilation issue.
+target_compile_definitions(${PROJECT_NAME}_headers INTERFACE BOOST_MPL_LIMIT_LIST_SIZE=30
+                                                             BOOST_MPL_LIMIT_VECTOR_SIZE=30)
 
-IF(INITIALIZE_WITH_NAN)
-  TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME}_headers INTERFACE
-    EIGEN_INITIALIZE_MATRICES_BY_NAN)
-ENDIF()
+if(INITIALIZE_WITH_NAN)
+  target_compile_definitions(${PROJECT_NAME}_headers INTERFACE EIGEN_INITIALIZE_MATRICES_BY_NAN)
+endif()
 
-IF(CHECK_RUNTIME_MALLOC)
-  TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME}_headers INTERFACE
-    PINOCCHIO_EIGEN_CHECK_MALLOC
-    EIGEN_RUNTIME_NO_MALLOC)
-ENDIF(CHECK_RUNTIME_MALLOC)
+if(CHECK_RUNTIME_MALLOC)
+  target_compile_definitions(${PROJECT_NAME}_headers INTERFACE PINOCCHIO_EIGEN_CHECK_MALLOC
+                                                               EIGEN_RUNTIME_NO_MALLOC)
+endif(CHECK_RUNTIME_MALLOC)
 
-MODERNIZE_TARGET_LINK_LIBRARIES(${PROJECT_NAME}_headers SCOPE INTERFACE
+modernize_target_link_libraries(
+  ${PROJECT_NAME}_headers
+  SCOPE INTERFACE
   TARGETS Eigen3::Eigen
   INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
-MODERNIZE_TARGET_LINK_LIBRARIES(${PROJECT_NAME}_headers SCOPE INTERFACE
+modernize_target_link_libraries(
+  ${PROJECT_NAME}_headers
+  SCOPE INTERFACE
   TARGETS Boost::boost Boost::serialization
   LIBRARIES ${Boost_SERIALIZATION_LIBRARY}
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 
-TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME}_headers INTERFACE
-  $<INSTALL_INTERFACE:include>)
+target_include_directories(${PROJECT_NAME}_headers INTERFACE $<INSTALL_INTERFACE:include>)
 
-CXX_FLAGS_BY_COMPILER_FRONTEND(
+cxx_flags_by_compiler_frontend(
   MSVC "/bigobj"
   OUTPUT PUBLIC_OPTIONS
   FILTER)
-TARGET_COMPILE_OPTIONS(${PROJECT_NAME}_headers INTERFACE ${PUBLIC_OPTIONS})
+target_compile_options(${PROJECT_NAME}_headers INTERFACE ${PUBLIC_OPTIONS})
 
-CXX_FLAGS_BY_COMPILER_FRONTEND(
-  MSVC "NOMINMAX"
-  OUTPUT PUBLIC_DEFINITIONS)
-TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME}_headers INTERFACE ${PUBLIC_DEFINITIONS})
+cxx_flags_by_compiler_frontend(MSVC "NOMINMAX" OUTPUT PUBLIC_DEFINITIONS)
+target_compile_definitions(${PROJECT_NAME}_headers INTERFACE ${PUBLIC_DEFINITIONS})
 
-INSTALL(TARGETS ${PROJECT_NAME}_headers
+install(
+  TARGETS ${PROJECT_NAME}_headers
   EXPORT ${TARGETS_EXPORT_NAME}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-# Define a compiled target
-# This functions take sources and scalar type to use
-FUNCTION(PINOCCHIO_TARGET target_name)
-  SET(options INTERFACE)
-  SET(oneValueArgs SCALAR LIBRARY_PUBLIC_SCOPE)
-  SET(multiValueArgs SOURCES)
-  CMAKE_PARSE_ARGUMENTS(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}"
-                        ${ARGN})
+# Define a compiled target This functions take sources and scalar type to use
+function(PINOCCHIO_TARGET target_name)
+  set(options INTERFACE)
+  set(oneValueArgs SCALAR LIBRARY_PUBLIC_SCOPE)
+  set(multiValueArgs SOURCES)
+  cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  SET(LIB_NAME "${target_name}")
+  set(LIB_NAME "${target_name}")
 
   # Manage different scope type if building an interface or shared library
-  SET(LIBRARY_TYPE SHARED)
-  SET(LIBRARY_PUBLIC_SCOPE PUBLIC)
-  IF(ARGS_INTERFACE)
-    SET(LIBRARY_TYPE INTERFACE)
-    SET(LIBRARY_PUBLIC_SCOPE INTERFACE)
-  ENDIF()
+  set(LIBRARY_TYPE SHARED)
+  set(LIBRARY_PUBLIC_SCOPE PUBLIC)
+  if(ARGS_INTERFACE)
+    set(LIBRARY_TYPE INTERFACE)
+    set(LIBRARY_PUBLIC_SCOPE INTERFACE)
+  endif()
 
   # Export PUBLIC scope to caller
-  IF(ARGS_LIBRARY_PUBLIC_SCOPE)
-    SET(${ARGS_LIBRARY_PUBLIC_SCOPE} ${LIBRARY_PUBLIC_SCOPE} PARENT_SCOPE)
-  ENDIF()
+  if(ARGS_LIBRARY_PUBLIC_SCOPE)
+    set(${ARGS_LIBRARY_PUBLIC_SCOPE}
+        ${LIBRARY_PUBLIC_SCOPE}
+        PARENT_SCOPE)
+  endif()
 
-  ADD_LIBRARY(${LIB_NAME} ${LIBRARY_TYPE} ${ARGS_SOURCES})
+  add_library(${LIB_NAME} ${LIBRARY_TYPE} ${ARGS_SOURCES})
 
-  TARGET_LINK_LIBRARIES(${LIB_NAME} ${LIBRARY_PUBLIC_SCOPE} ${PROJECT_NAME}_headers)
+  target_link_libraries(${LIB_NAME} ${LIBRARY_PUBLIC_SCOPE} ${PROJECT_NAME}_headers)
 
-  SET_TARGET_PROPERTIES(${LIB_NAME} PROPERTIES
-    LINKER_LANGUAGE CXX
-    INSTALL_RPATH "\$ORIGIN"
-    VERSION ${PROJECT_VERSION})
+  set_target_properties(
+    ${LIB_NAME}
+    PROPERTIES LINKER_LANGUAGE CXX
+               INSTALL_RPATH "\$ORIGIN"
+               VERSION ${PROJECT_VERSION})
 
-  IF(ENABLE_TEMPLATE_INSTANTIATION AND NOT ARGS_INTERFACE)
-    SET(PINOCCHIO_CONTEXT_FILE_VALUE "pinocchio/context/${ARGS_SCALAR}.hpp")
-    TARGET_COMPILE_DEFINITIONS(${LIB_NAME}
+  if(ENABLE_TEMPLATE_INSTANTIATION AND NOT ARGS_INTERFACE)
+    set(PINOCCHIO_CONTEXT_FILE_VALUE "pinocchio/context/${ARGS_SCALAR}.hpp")
+    target_compile_definitions(
+      ${LIB_NAME}
       PUBLIC PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
       PRIVATE PINOCCHIO_CONTEXT_FILE="${PINOCCHIO_CONTEXT_FILE_VALUE}")
-  ENDIF()
+  endif()
 
-  TARGET_INCLUDE_DIRECTORIES(${LIB_NAME} ${LIBRARY_PUBLIC_SCOPE} $<INSTALL_INTERFACE:include>)
+  target_include_directories(${LIB_NAME} ${LIBRARY_PUBLIC_SCOPE} $<INSTALL_INTERFACE:include>)
 
-  IF(BUILD_WITH_COMMIT_VERSION)
-    TAG_LIBRARY_VERSION(${LIB_NAME})
-  ENDIF()
+  if(BUILD_WITH_COMMIT_VERSION)
+    tag_library_version(${LIB_NAME})
+  endif()
 
-  INSTALL(TARGETS ${LIB_NAME}
+  install(
+    TARGETS ${LIB_NAME}
     EXPORT ${TARGETS_EXPORT_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-ENDFUNCTION()
+endfunction()
 
 # Define a template instantiation target
-FUNCTION(PINOCCHIO_SPECIFIC_TYPE scalar_name scope)
-  SET(LIB_NAME "${PROJECT_NAME}_${scalar_name}")
-  IF(ENABLE_TEMPLATE_INSTANTIATION)
-    PINOCCHIO_TARGET(${LIB_NAME}
+function(PINOCCHIO_SPECIFIC_TYPE scalar_name scope)
+  set(LIB_NAME "${PROJECT_NAME}_${scalar_name}")
+  if(ENABLE_TEMPLATE_INSTANTIATION)
+    pinocchio_target(
+      ${LIB_NAME}
       SCALAR ${scalar_name}
-      SOURCES
-        ${${PROJECT_NAME}_CORE_SOURCES}
+      SOURCES ${${PROJECT_NAME}_CORE_SOURCES}
       LIBRARY_PUBLIC_SCOPE PUBLIC_SCOPE)
-    # By default DEFINE_SYMBOL add -D${LIB_NAME}_EXPORTS.
-    # Don't use ${LIB_NAME}_EXPORTS define since
-    # pinocchio/config.hpp use pinocchio_EXPORTS.
-    # This allow to use the same DLLAPI define for all
+    # By default DEFINE_SYMBOL add -D${LIB_NAME}_EXPORTS. Don't use ${LIB_NAME}_EXPORTS define since
+    # pinocchio/config.hpp use pinocchio_EXPORTS. This allow to use the same DLLAPI define for all
     # template instantiation libraries.
-    SET_TARGET_PROPERTIES(${LIB_NAME} PROPERTIES
-      DEFINE_SYMBOL "${PROJECT_NAME}_EXPORTS")
-    SET(${scope} ${PUBLIC_SCOPE} PARENT_SCOPE)
-  ELSE()
-    PINOCCHIO_TARGET(${LIB_NAME}
+    set_target_properties(${LIB_NAME} PROPERTIES DEFINE_SYMBOL "${PROJECT_NAME}_EXPORTS")
+    set(${scope}
+        ${PUBLIC_SCOPE}
+        PARENT_SCOPE)
+  else()
+    pinocchio_target(
+      ${LIB_NAME}
       SCALAR ${scalar_name}
-      SOURCES
-        ${${PROJECT_NAME}_CORE_SOURCES}
+      SOURCES ${${PROJECT_NAME}_CORE_SOURCES}
       LIBRARY_PUBLIC_SCOPE PUBLIC_SCOPE
       INTERFACE)
-    SET(${scope} ${PUBLIC_SCOPE} PARENT_SCOPE)
-  ENDIF()
-ENDFUNCTION()
+    set(${scope}
+        ${PUBLIC_SCOPE}
+        PARENT_SCOPE)
+  endif()
+endfunction()
 
-FUNCTION(PINOCCHIO_CONFIG directory lib_name)
-  STRING(TOUPPER ${lib_name} upper_lib_name)
-  GENERATE_CONFIGURATION_HEADER_V2(
-    INCLUDE_DIR ${PROJECT_BINARY_DIR}/include
-    HEADER_DIR pinocchio/${directory}
-    FILENAME config.hpp
-    LIBRARY_NAME ${upper_lib_name}
-    EXPORT_SYMBOL ${lib_name}_EXPORTS)
-ENDFUNCTION()
+function(PINOCCHIO_CONFIG directory lib_name)
+  string(TOUPPER ${lib_name} upper_lib_name)
+  generate_configuration_header_v2(
+    INCLUDE_DIR
+    ${PROJECT_BINARY_DIR}/include
+    HEADER_DIR
+    pinocchio/${directory}
+    FILENAME
+    config.hpp
+    LIBRARY_NAME
+    ${upper_lib_name}
+    EXPORT_SYMBOL
+    ${lib_name}_EXPORTS)
+endfunction()
 
-ADD_SOURCE_GROUP(${PROJECT_NAME}_CORE_SOURCES)
-ADD_SOURCE_GROUP(${PROJECT_NAME}_PARSERS_SOURCES)
-ADD_SOURCE_GROUP(${PROJECT_NAME}_EXTRA_SOURCES)
-ADD_HEADER_GROUP(${PROJECT_NAME}_CORE_PUBLIC_HEADERS)
-ADD_HEADER_GROUP(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS)
-ADD_HEADER_GROUP(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS)
-ADD_HEADER_GROUP(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS)
-ADD_HEADER_GROUP(${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS)
+add_source_group(${PROJECT_NAME}_CORE_SOURCES)
+add_source_group(${PROJECT_NAME}_PARSERS_SOURCES)
+add_source_group(${PROJECT_NAME}_EXTRA_SOURCES)
+add_header_group(${PROJECT_NAME}_CORE_PUBLIC_HEADERS)
+add_header_group(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS)
+add_header_group(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS)
+add_header_group(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS)
+add_header_group(${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS)
 
-# Define the default target (double)
-# This target will also have hpp-fcl and workspace module in it
-PINOCCHIO_SPECIFIC_TYPE(default DEFAULT_SCOPE)
+# Define the default target (double).
+#
+# This target will also have hpp-fcl and workspace module in it.
+pinocchio_specific_type(default DEFAULT_SCOPE)
 
-# Define the extra target
-# This target hold extra algorithms
-IF(BUILD_WITH_EXTRA_SUPPORT)
-  SET(EXTRA_LIB_NAME "${PROJECT_NAME}_extra")
+# Define the extra target This target hold extra algorithms.
+if(BUILD_WITH_EXTRA_SUPPORT)
+  set(EXTRA_LIB_NAME "${PROJECT_NAME}_extra")
 
-  PINOCCHIO_TARGET(${EXTRA_LIB_NAME}
+  pinocchio_target(
+    ${EXTRA_LIB_NAME}
     SCALAR default
-    SOURCES
-      ${${PROJECT_NAME}_EXTRA_SOURCES}
-      ${${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS})
-  PINOCCHIO_CONFIG(extra ${EXTRA_LIB_NAME})
+    SOURCES ${${PROJECT_NAME}_EXTRA_SOURCES} ${${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS})
+  pinocchio_config(extra ${EXTRA_LIB_NAME})
 
-  TARGET_LINK_LIBRARIES(${EXTRA_LIB_NAME} PUBLIC
-    ${PROJECT_NAME}_default
-    Qhull::qhullcpp
-    Qhull::qhull_r)
+  target_link_libraries(${EXTRA_LIB_NAME} PUBLIC ${PROJECT_NAME}_default Qhull::qhullcpp
+                                                 Qhull::qhull_r)
 
-  TARGET_COMPILE_DEFINITIONS(${EXTRA_LIB_NAME} PUBLIC
-    PINOCCHIO_WITH_EXTRA_SUPPORT)
-ENDIF()
+  target_compile_definitions(${EXTRA_LIB_NAME} PUBLIC PINOCCHIO_WITH_EXTRA_SUPPORT)
+endif()
 
-# Define the parallel target
-IF(BUILD_WITH_OPENMP_SUPPORT)
-  SET(PARALLEL_LIB_NAME "${PROJECT_NAME}_parallel")
+# Define the parallel target.
+if(BUILD_WITH_OPENMP_SUPPORT)
+  set(PARALLEL_LIB_NAME "${PROJECT_NAME}_parallel")
 
-  PINOCCHIO_TARGET(${PARALLEL_LIB_NAME}
+  pinocchio_target(
+    ${PARALLEL_LIB_NAME}
     SCALAR default
-    SOURCES
-      ${${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS}
+    SOURCES ${${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS}
     INTERFACE)
 
-  TARGET_LINK_LIBRARIES(${PARALLEL_LIB_NAME} INTERFACE
-                        ${PROJECT_NAME}_default OpenMP::OpenMP_CXX)
-ENDIF()
+  target_link_libraries(${PARALLEL_LIB_NAME} INTERFACE ${PROJECT_NAME}_default OpenMP::OpenMP_CXX)
+endif()
 
-# Define the collision target
-IF(BUILD_WITH_HPP_FCL_SUPPORT)
-  SET(COLLISION_LIB_NAME "${PROJECT_NAME}_collision")
+# Define the collision target.
+if(BUILD_WITH_HPP_FCL_SUPPORT)
+  set(COLLISION_LIB_NAME "${PROJECT_NAME}_collision")
 
-  PINOCCHIO_TARGET(${COLLISION_LIB_NAME}
+  pinocchio_target(
+    ${COLLISION_LIB_NAME}
     SCALAR default
-    SOURCES
-      ${${PROJECT_NAME}_COLLISION_SOURCES}
-      ${${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS})
-  PINOCCHIO_CONFIG(collision ${COLLISION_LIB_NAME})
+    SOURCES ${${PROJECT_NAME}_COLLISION_SOURCES} ${${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS})
+  pinocchio_config(collision ${COLLISION_LIB_NAME})
 
-  TARGET_COMPILE_DEFINITIONS(${COLLISION_LIB_NAME} PUBLIC
-    PINOCCHIO_WITH_HPP_FCL)
-  TARGET_LINK_LIBRARIES(${COLLISION_LIB_NAME} PUBLIC
-                        ${PROJECT_NAME}_default hpp-fcl::hpp-fcl)
+  target_compile_definitions(${COLLISION_LIB_NAME} PUBLIC PINOCCHIO_WITH_HPP_FCL)
+  target_link_libraries(${COLLISION_LIB_NAME} PUBLIC ${PROJECT_NAME}_default hpp-fcl::hpp-fcl)
 
   # Define the collision parallel target
-  IF(BUILD_WITH_OPENMP_SUPPORT)
-    SET(COLLISION_PARALLEL_LIB_NAME "${PROJECT_NAME}_collision_parallel")
+  if(BUILD_WITH_OPENMP_SUPPORT)
+    set(COLLISION_PARALLEL_LIB_NAME "${PROJECT_NAME}_collision_parallel")
 
-    PINOCCHIO_TARGET(${COLLISION_PARALLEL_LIB_NAME}
+    pinocchio_target(
+      ${COLLISION_PARALLEL_LIB_NAME}
       SCALAR default
-      SOURCES
-        ${${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS}
+      SOURCES ${${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS}
       INTERFACE)
 
-    TARGET_LINK_LIBRARIES(${COLLISION_PARALLEL_LIB_NAME} INTERFACE
-                          ${COLLISION_LIB_NAME} OpenMP::OpenMP_CXX)
-  ENDIF()
-ENDIF()
+    target_link_libraries(${COLLISION_PARALLEL_LIB_NAME} INTERFACE ${COLLISION_LIB_NAME}
+                                                                   OpenMP::OpenMP_CXX)
+  endif()
+endif()
 
-# Define the parsers target
-# This target will have common tools for parsing/managing files and
-# URDF/SRDF/SDF format support
-IF(BUILD_WITH_PARSERS_SUPPORT)
-  SET(PARSERS_LIB_NAME "${PROJECT_NAME}_parsers")
+# Define the parsers target.
+#
+# This target will have common tools for parsing/managing files and URDF/SRDF/SDF format support.
+if(BUILD_WITH_PARSERS_SUPPORT)
+  set(PARSERS_LIB_NAME "${PROJECT_NAME}_parsers")
 
-  PINOCCHIO_TARGET(${PARSERS_LIB_NAME}
+  pinocchio_target(
+    ${PARSERS_LIB_NAME}
     SCALAR default
-    SOURCES
-      ${${PROJECT_NAME}_PARSERS_SOURCES}
-      ${${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS})
-  PINOCCHIO_CONFIG(parsers ${PARSERS_LIB_NAME})
+    SOURCES ${${PROJECT_NAME}_PARSERS_SOURCES} ${${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS})
+  pinocchio_config(parsers ${PARSERS_LIB_NAME})
 
-  TARGET_LINK_LIBRARIES(${PARSERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_default)
-  IF(BUILD_WITH_HPP_FCL_SUPPORT)
-    TARGET_LINK_LIBRARIES(${PARSERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_collision)
-  ENDIF()
+  target_link_libraries(${PARSERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_default)
+  if(BUILD_WITH_HPP_FCL_SUPPORT)
+    target_link_libraries(${PARSERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_collision)
+  endif()
 
-  MODERNIZE_TARGET_LINK_LIBRARIES(${PARSERS_LIB_NAME} SCOPE PUBLIC
+  modernize_target_link_libraries(
+    ${PARSERS_LIB_NAME}
+    SCOPE PUBLIC
     TARGETS Boost::filesystem
     LIBRARIES ${Boost_FILESYSTEM_LIBRARY}}
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 
   # Special care of urdfdom version
-  IF(BUILD_WITH_URDF_SUPPORT)
-    TARGET_COMPILE_DEFINITIONS(${PARSERS_LIB_NAME} PUBLIC
-      PINOCCHIO_WITH_URDFDOM)
+  if(BUILD_WITH_URDF_SUPPORT)
+    target_compile_definitions(${PARSERS_LIB_NAME} PUBLIC PINOCCHIO_WITH_URDFDOM)
 
-    IF(${urdfdom_VERSION} VERSION_LESS "0.3.0")
-      TARGET_COMPILE_DEFINITIONS(${PARSERS_LIB_NAME} PRIVATE
-        PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME)
-    ENDIF()
+    if(${urdfdom_VERSION} VERSION_LESS "0.3.0")
+      target_compile_definitions(${PARSERS_LIB_NAME}
+                                 PRIVATE PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME)
+    endif()
     # defines types from version 0.4.0
-    IF(NOT ${urdfdom_VERSION} VERSION_LESS "0.4.0")
-      TARGET_COMPILE_DEFINITIONS(${PARSERS_LIB_NAME} PRIVATE
-        PINOCCHIO_URDFDOM_TYPEDEF_SHARED_PTR)
-    ENDIF()
+    if(NOT ${urdfdom_VERSION} VERSION_LESS "0.4.0")
+      target_compile_definitions(${PARSERS_LIB_NAME} PRIVATE PINOCCHIO_URDFDOM_TYPEDEF_SHARED_PTR)
+    endif()
     # std::shared_ptr appears from version 1.0.0
-    IF(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
-      TARGET_COMPILE_DEFINITIONS(${PARSERS_LIB_NAME} PRIVATE
-        PINOCCHIO_URDFDOM_USE_STD_SHARED_PTR)
-    ENDIF()
+    if(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
+      target_compile_definitions(${PARSERS_LIB_NAME} PRIVATE PINOCCHIO_URDFDOM_USE_STD_SHARED_PTR)
+    endif()
 
-    MODERNIZE_TARGET_LINK_LIBRARIES(${PARSERS_LIB_NAME} SCOPE PUBLIC
+    modernize_target_link_libraries(
+      ${PARSERS_LIB_NAME}
+      SCOPE PUBLIC
       TARGETS urdfdom::urdf_parser
       LIBRARIES ${urdfdom_LIBRARIES}
       INCLUDE_DIRS ${urdfdom_INCLUDE_DIRS})
-  ENDIF()
+  endif()
 
-  IF(BUILD_WITH_SDF_SUPPORT)
-    TARGET_COMPILE_DEFINITIONS(${PARSERS_LIB_NAME} PUBLIC
-      PINOCCHIO_WITH_SDFORMAT)
+  if(BUILD_WITH_SDF_SUPPORT)
+    target_compile_definitions(${PARSERS_LIB_NAME} PUBLIC PINOCCHIO_WITH_SDFORMAT)
 
-    TARGET_LINK_LIBRARIES(${PARSERS_LIB_NAME} PUBLIC ${SDFormat_LIBRARIES})
-  ENDIF()
-ENDIF()
+    target_link_libraries(${PARSERS_LIB_NAME} PUBLIC ${SDFormat_LIBRARIES})
+  endif()
+endif()
 
-# Define cppad codegen target
-IF(BUILD_WITH_CODEGEN_SUPPORT)
-  PINOCCHIO_SPECIFIC_TYPE(cppadcg CPPADCG_SCOPE)
-  TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME}_cppadcg SYSTEM ${CPPADCG_SCOPE} ${cppadcg_INCLUDE_DIR})
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME}_cppadcg ${CPPADCG_SCOPE} ${cppadcg_LIBRARY} ${cppad_LIBRARY})
-ENDIF()
+# Define cppad codegen target.
+if(BUILD_WITH_CODEGEN_SUPPORT)
+  pinocchio_specific_type(cppadcg CPPADCG_SCOPE)
+  target_include_directories(${PROJECT_NAME}_cppadcg SYSTEM ${CPPADCG_SCOPE} ${cppadcg_INCLUDE_DIR})
+  target_link_libraries(${PROJECT_NAME}_cppadcg ${CPPADCG_SCOPE} ${cppadcg_LIBRARY}
+                        ${cppad_LIBRARY})
+endif()
 
-# Define cppad target
-IF(BUILD_WITH_AUTODIFF_SUPPORT)
-  PINOCCHIO_SPECIFIC_TYPE(cppad CPPAD_SCOPE)
-  TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME}_cppad SYSTEM ${CPPAD_SCOPE} ${cppad_INCLUDE_DIR})
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME}_cppad ${CPPAD_SCOPE} ${cppad_LIBRARY})
-ENDIF()
+# Define cppad target.
+if(BUILD_WITH_AUTODIFF_SUPPORT)
+  pinocchio_specific_type(cppad CPPAD_SCOPE)
+  target_include_directories(${PROJECT_NAME}_cppad SYSTEM ${CPPAD_SCOPE} ${cppad_INCLUDE_DIR})
+  target_link_libraries(${PROJECT_NAME}_cppad ${CPPAD_SCOPE} ${cppad_LIBRARY})
+endif()
 
-# Define casadi target
-IF(BUILD_WITH_CASADI_SUPPORT)
-  PINOCCHIO_SPECIFIC_TYPE(casadi CASADI_SCOPE)
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME}_casadi ${CASADI_SCOPE} casadi)
-ENDIF()
+# Define casadi target.
+if(BUILD_WITH_CASADI_SUPPORT)
+  pinocchio_specific_type(casadi CASADI_SCOPE)
+  target_link_libraries(${PROJECT_NAME}_casadi ${CASADI_SCOPE} casadi)
+endif()
 
-# Define main target (default, parsers, extra)
-ADD_LIBRARY(${PROJECT_NAME} INTERFACE)
-IF(ENABLE_TEMPLATE_INSTANTIATION)
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_default)
-ENDIF()
-IF(BUILD_WITH_PARSERS_SUPPORT)
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_parsers)
-ENDIF()
-IF(BUILD_WITH_OPENMP_SUPPORT)
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_parallel)
-ENDIF()
-IF(BUILD_WITH_HPP_FCL_SUPPORT)
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_collision)
-  IF(BUILD_WITH_OPENMP_SUPPORT)
-    TARGET_LINK_LIBRARIES(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_collision_parallel)
-  ENDIF()
-ENDIF()
-IF(BUILD_WITH_EXTRA_SUPPORT)
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_extra)
-ENDIF()
+# Define main target (default, parsers, extra).
+add_library(${PROJECT_NAME} INTERFACE)
+if(ENABLE_TEMPLATE_INSTANTIATION)
+  target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_default)
+endif()
+if(BUILD_WITH_PARSERS_SUPPORT)
+  target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_parsers)
+endif()
+if(BUILD_WITH_OPENMP_SUPPORT)
+  target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_parallel)
+endif()
+if(BUILD_WITH_HPP_FCL_SUPPORT)
+  target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_collision)
+  if(BUILD_WITH_OPENMP_SUPPORT)
+    target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_collision_parallel)
+  endif()
+endif()
+if(BUILD_WITH_EXTRA_SUPPORT)
+  target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_extra)
+endif()
 
-INSTALL(TARGETS ${PROJECT_NAME}
+install(
+  TARGETS ${PROJECT_NAME}
   EXPORT ${TARGETS_EXPORT_NAME}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

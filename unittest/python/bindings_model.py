@@ -19,18 +19,29 @@ class TestModel(TestCase):
     def test_add_joint(self):
         model = pin.Model()
         idx = 0
-        idx = model.addJoint(idx, pin.JointModelRY(), pin.SE3.Identity(), 'joint_'+str(idx+1))
+        idx = model.addJoint(
+            idx, pin.JointModelRY(), pin.SE3.Identity(), "joint_" + str(idx + 1)
+        )
 
-        MAX_EFF = 100.
-        MAX_VEL = 10.
-        MIN_POS = -1.
-        MAX_POS = 1.
+        MAX_EFF = 100.0
+        MAX_VEL = 10.0
+        MIN_POS = -1.0
+        MAX_POS = 1.0
 
         me = np.array([MAX_EFF])
         mv = np.array([MAX_VEL])
         lb = np.array([MIN_POS])
         ub = np.array([MAX_POS])
-        idx = model.addJoint(idx, pin.JointModelRY(), pin.SE3.Identity(), 'joint_'+str(idx+1),me,mv,lb,ub)
+        idx = model.addJoint(
+            idx,
+            pin.JointModelRY(),
+            pin.SE3.Identity(),
+            "joint_" + str(idx + 1),
+            me,
+            mv,
+            lb,
+            ub,
+        )
 
         self.assertEqual(model.nbodies, 1)
         self.assertEqual(model.njoints, 3)
@@ -88,21 +99,22 @@ class TestModel(TestCase):
         model.referenceConfigurations["neutral"] = pin.neutral(model)
         q_neutral = model.referenceConfigurations["neutral"]
 
-        q_neutral.fill(1.)
-        self.assertApprox(model.referenceConfigurations["neutral"],q_neutral)
+        q_neutral.fill(1.0)
+        self.assertApprox(model.referenceConfigurations["neutral"], q_neutral)
 
     def test_pickle(self):
         import pickle
 
         model = self.model
         filename = "model.pickle"
-        with open(filename, 'wb') as f:
-          pickle.dump(model,f)
+        with open(filename, "wb") as f:
+            pickle.dump(model, f)
 
-        with open(filename, 'rb') as f:
-          model_copy = pickle.load(f)
+        with open(filename, "rb") as f:
+            model_copy = pickle.load(f)
 
         self.assertTrue(model == model_copy)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

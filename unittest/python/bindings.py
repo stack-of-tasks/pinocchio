@@ -7,6 +7,7 @@ from test_case import PinocchioTestCase as TestCase
 # This whole file seems to be outdated and superseded by more recent tests
 # Probably it should be removed and its contents moved or split somewhere else
 
+
 class TestSE3(TestCase):
     def setUp(self):
         self.R = rand([3, 3])
@@ -16,9 +17,13 @@ class TestSE3(TestCase):
 
     def test_se3(self):
         R, p, m = self.R, self.p, self.m
-        X = np.vstack([np.hstack([R, pin.skew(p).dot(R)]), np.hstack([zero([3, 3]), R])])
+        X = np.vstack(
+            [np.hstack([R, pin.skew(p).dot(R)]), np.hstack([zero([3, 3]), R])]
+        )
         self.assertApprox(m.action, X)
-        M = np.vstack([np.hstack([R, np.expand_dims(p,1)]), np.array([[0., 0., 0., 1.]])])
+        M = np.vstack(
+            [np.hstack([R, np.expand_dims(p, 1)]), np.array([[0.0, 0.0, 0.0, 1.0]])]
+        )
         self.assertApprox(m.homogeneous, M)
         m2 = pin.SE3.Random()
         self.assertApprox((m * m2).homogeneous, m.homogeneous.dot(m2.homogeneous))
@@ -26,18 +31,22 @@ class TestSE3(TestCase):
 
         p = rand(3)
         self.assertApprox(m * p, m.rotation.dot(p) + m.translation)
-        self.assertApprox(m.actInv(p), m.rotation.T.dot(p) - m.rotation.T.dot(m.translation))
+        self.assertApprox(
+            m.actInv(p), m.rotation.T.dot(p) - m.rotation.T.dot(m.translation)
+        )
 
         # Currently, the different cases do not throw the same exception type.
         # To have a more robust test, only Exception is checked.
         # In the comments, the most specific actual exception class at the time of writing
         p = rand(5)
-        with self.assertRaises(Exception): # RuntimeError
+        with self.assertRaises(Exception):  # RuntimeError
             m * p
-        with self.assertRaises(Exception): # RuntimeError
+        with self.assertRaises(Exception):  # RuntimeError
             m.actInv(p)
-        with self.assertRaises(Exception): # Boost.Python.ArgumentError (subclass of TypeError)
-            m.actInv('42')
+        with self.assertRaises(
+            Exception
+        ):  # Boost.Python.ArgumentError (subclass of TypeError)
+            m.actInv("42")
 
     def test_motion(self):
         m = self.m
@@ -72,8 +81,13 @@ class TestSE3(TestCase):
         self.assertApprox(Y1.matrix() + Y2.matrix(), Y.matrix())
         v = pin.Motion.Random()
         self.assertApprox((Y * v).vector, Y.matrix().dot(v.vector))
-        self.assertApprox((m * Y).matrix(), m.inverse().action.T.dot(Y.matrix()).dot(m.inverse().action))
-        self.assertApprox((m.actInv(Y)).matrix(), m.action.T.dot(Y.matrix()).dot(m.action))
+        self.assertApprox(
+            (m * Y).matrix(),
+            m.inverse().action.T.dot(Y.matrix()).dot(m.inverse().action),
+        )
+        self.assertApprox(
+            (m.actInv(Y)).matrix(), m.action.T.dot(Y.matrix()).dot(m.action)
+        )
 
     def test_cross(self):
         m = pin.Motion.Random()
@@ -83,5 +97,6 @@ class TestSE3(TestCase):
         with self.assertRaises(TypeError):
             m ^ 2
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

@@ -11,7 +11,7 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     void exposeParsers()
     {
       exposeSDFParser();
@@ -19,7 +19,6 @@ namespace pinocchio
       exposeSRDFParser();
       exposeMJCFParser();
     }
-    
+
   } // namespace python
 } // namespace pinocchio
-

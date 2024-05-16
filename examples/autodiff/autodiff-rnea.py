@@ -23,12 +23,10 @@ y = ADpin.rnea(model, data, q, v, a)
 # create f: v -> y and stop tape recording
 f = ADFun(v, y)
 
-# first-order derivates wrt v 
+# first-order derivates wrt v
 dv = np.ones(nv)
-ADdtau_dv = f.Jacobian(dv).reshape(nv,nv)
-(dtau_dq, dtau_dv, dtau_da) = pin.computeRNEADerivatives(pinmodel, 
-                                                         pinmodel.createData(),
-                                                         pin.neutral(pinmodel),
-                                                         np.ones(nv),
-                                                         np.zeros(nv))
+ADdtau_dv = f.Jacobian(dv).reshape(nv, nv)
+(dtau_dq, dtau_dv, dtau_da) = pin.computeRNEADerivatives(
+    pinmodel, pinmodel.createData(), pin.neutral(pinmodel), np.ones(nv), np.zeros(nv)
+)
 isapprox(ADdtau_dv, dtau_dv, 1e-12)

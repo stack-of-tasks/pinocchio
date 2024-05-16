@@ -63,7 +63,7 @@ Next, we can compute the evolution of the configuration by solving the inverse k
 In order to avoid problems at singularities, we employ the damped pseudo-inverse:
 \f$v = - J^T (J J^T + \lambda I)^{-1} e\f$
 implementing the equation as
-\skipline v 
+\skipline v
 Notice that this way to compute the damped pseudo-inverse was chosen mostly because of its simplicity of implementation.
 It is not necessarily the best nor the fastest way,
 and using a fixed damping factor \f$\lambda\f$ is not necessarily the best course of action.

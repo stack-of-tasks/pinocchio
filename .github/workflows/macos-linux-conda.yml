@@ -3,24 +3,24 @@ name: CI - OSX/Linux via Conda
 on:
   push:
     paths-ignore:
-      - 'doc/**'
-      - '.gitlab-ci.yml'
-      - '.gitignore'
+      - doc/**
+      - .gitlab-ci.yml
+      - .gitignore
       - '*.md'
-      - 'CITATION.*'
-      - 'COPYING.LESSER'
-      - 'colcon.pkg'
-      - '.pre-commit-config.yaml'
+      - CITATION.*
+      - COPYING.LESSER
+      - colcon.pkg
+      - .pre-commit-config.yaml
   pull_request:
     paths-ignore:
-      - 'doc/**'
-      - '.gitlab-ci.yml'
-      - '.gitignore'
+      - doc/**
+      - .gitlab-ci.yml
+      - .gitignore
       - '*.md'
-      - 'CITATION.*'
-      - 'COPYING.LESSER'
-      - 'colcon.pkg'
-      - '.pre-commit-config.yaml'
+      - CITATION.*
+      - COPYING.LESSER
+      - colcon.pkg
+      - .pre-commit-config.yaml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -30,8 +30,8 @@ jobs:
     name: ${{ matrix.os }} - Python ${{ matrix.python-version }} ${{ matrix.build_type }} with Conda
     runs-on: ${{ matrix.os }}
     env:
-      CCACHE_BASEDIR: "${GITHUB_WORKSPACE}"
-      CCACHE_DIR: "${GITHUB_WORKSPACE}/.ccache"
+      CCACHE_BASEDIR: ${GITHUB_WORKSPACE}
+      CCACHE_DIR: ${GITHUB_WORKSPACE}/.ccache
       CCACHE_COMPRESS: true
       CCACHE_COMPRESSLEVEL: 5
       BUILD_ADVANCED_TESTING: ${{ matrix.BUILD_ADVANCED_TESTING }}
@@ -39,9 +39,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macos-latest"]
+        os: [ubuntu-latest, macos-latest]
         build_type: [Release, Debug]
-        python-version: ["3.8", "3.12"]
+        python-version: ['3.8', '3.12']
 
         include:
           - os: ubuntu-latest
@@ -50,67 +50,67 @@ jobs:
             BUILD_ADVANCED_TESTING: ON
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-    - uses: actions/cache@v4
-      with:
-        path: .ccache
-        key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.python-version }}-${{ github.sha }}
-        restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.python-version }}-
+      - uses: actions/cache@v4
+        with:
+          path: .ccache
+          key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.python-version }}-${{ github.sha }}
+          restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.python-version }}-
 
-    - uses: conda-incubator/setup-miniconda@v3
-      with:
-        activate-environment: pinocchio-linux
-        auto-update-conda: true
-        environment-file: .github/workflows/conda/environment_macos_linux.yml
-        python-version: ${{ matrix.python-version }}
-        auto-activate-base: false
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: pinocchio-linux
+          auto-update-conda: true
+          environment-file: .github/workflows/conda/environment_macos_linux.yml
+          python-version: ${{ matrix.python-version }}
+          auto-activate-base: false
 
-    - name: Build Pinocchio
-      shell: bash -el {0}
-      run: |
-        conda list
-        echo $CONDA_PREFIX
+      - name: Build Pinocchio
+        shell: bash -el {0}
+        run: |
+          conda list
+          echo $CONDA_PREFIX
 
-        mkdir build
-        cd build
+          mkdir build
+          cd build
 
-        cmake .. \
-          -G "Ninja" \
-          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-          -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-          -DBUILD_WITH_COLLISION_SUPPORT=ON \
-          -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }} \
-          -DBUILD_WITH_CASADI_SUPPORT=OFF \
-          -DPYTHON_EXECUTABLE=$(which python3) \
-          -DBUILD_WITH_OPENMP_SUPPORT=ON \
-          -DINSTALL_DOCUMENTATION=ON \
-          -DGENERATE_PYTHON_STUBS=ON \
-          -DOpenMP_ROOT=$CONDA_PREFIX
-        cmake --build . -j2
-        ctest --output-on-failure
-        cmake --install .
+          cmake .. \
+            -G "Ninja" \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_WITH_COLLISION_SUPPORT=ON \
+            -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }} \
+            -DBUILD_WITH_CASADI_SUPPORT=OFF \
+            -DPYTHON_EXECUTABLE=$(which python3) \
+            -DBUILD_WITH_OPENMP_SUPPORT=ON \
+            -DINSTALL_DOCUMENTATION=ON \
+            -DGENERATE_PYTHON_STUBS=ON \
+            -DOpenMP_ROOT=$CONDA_PREFIX
+          cmake --build . -j2
+          ctest --output-on-failure
+          cmake --install .
 
-    - name: Uninstall Pinocchio
-      shell: bash -el {0}
-      run: |
-        cd build
-        cmake --build . --target uninstall
+      - name: Uninstall Pinocchio
+        shell: bash -el {0}
+        run: |
+          cd build
+          cmake --build . --target uninstall
 
   check:
     if: always()
     name: check-macos-linux-conda
 
     needs:
-    - pinocchio-conda
+      - pinocchio-conda
 
     runs-on: Ubuntu-latest
 
     steps:
-    - name: Decide whether the needed jobs succeeded or failed
-      uses: re-actors/alls-green@release/v1
-      with:
-        jobs: ${{ toJSON(needs) }}
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}

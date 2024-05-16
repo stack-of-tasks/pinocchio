@@ -31,11 +31,9 @@ BOOST_AUTO_TEST_CASE(test_basic)
   std::cout << std::numeric_limits<mpfr_float_100>::digits << std::endl;
   std::cout << std::numeric_limits<mpfr_float_100>::digits10 << std::endl;
   // We can use any C++ std lib function, lets print all the digits as well:
-  std::cout << std::setprecision(
-                   std::numeric_limits<mpfr_float_100>::max_digits10)
-            << log(b)
-            << std::endl;  // print log(2)
-                           // We can also use any function from Boost.Math:
+  std::cout << std::setprecision(std::numeric_limits<mpfr_float_100>::max_digits10) << log(b)
+            << std::endl; // print log(2)
+                          // We can also use any function from Boost.Math:
   std::cout << boost::math::tgamma(b) << std::endl;
   // These even work when the argument is an expression template:
   std::cout << boost::math::tgamma(b * b) << std::endl;
@@ -48,7 +46,7 @@ BOOST_AUTO_TEST_CASE(test_sincos)
 {
   using namespace boost::multiprecision;
   typedef mpfr_float_100 heap_float_100;
-  typedef number<mpfr_float_backend<100, allocate_stack> > stack_float_100;
+  typedef number<mpfr_float_backend<100, allocate_stack>> stack_float_100;
   {
     heap_float_100 x;
     heap_float_100 s;
@@ -88,7 +86,7 @@ BOOST_AUTO_TEST_CASE(test_cast)
   BOOST_CHECK(vec == initial_vec);
 }
 
-#define BOOST_CHECK_IS_APPROX(double_field, multires_field, Scalar) \
+#define BOOST_CHECK_IS_APPROX(double_field, multires_field, Scalar)                                \
   BOOST_CHECK(double_field.isApprox(multires_field.cast<Scalar>()))
 
 BOOST_AUTO_TEST_CASE(test_mutliprecision)
@@ -110,12 +108,9 @@ BOOST_AUTO_TEST_CASE(test_mutliprecision)
   DataMulti data_multi(model_multi);
 
   ModelMulti::ConfigVectorType q_multi = randomConfiguration(model_multi);
-  ModelMulti::TangentVectorType v_multi =
-      ModelMulti::TangentVectorType::Random(model_multi.nv);
-  ModelMulti::TangentVectorType a_multi =
-      ModelMulti::TangentVectorType::Random(model_multi.nv);
-  ModelMulti::TangentVectorType tau_multi =
-      ModelMulti::TangentVectorType::Random(model_multi.nv);
+  ModelMulti::TangentVectorType v_multi = ModelMulti::TangentVectorType::Random(model_multi.nv);
+  ModelMulti::TangentVectorType a_multi = ModelMulti::TangentVectorType::Random(model_multi.nv);
+  ModelMulti::TangentVectorType tau_multi = ModelMulti::TangentVectorType::Random(model_multi.nv);
 
   //  Model::ConfigVectorType q = randomConfiguration(model);
   //  Model::TangentVectorType v = Model::TangentVectorType::Random(model.nv);
@@ -130,8 +125,7 @@ BOOST_AUTO_TEST_CASE(test_mutliprecision)
   forwardKinematics(model_multi, data_multi, q_multi, v_multi, a_multi);
   forwardKinematics(model, data, q, v, a);
 
-  for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints;
-       ++joint_id)
+  for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
   {
     BOOST_CHECK_IS_APPROX(data.oMi[joint_id], data_multi.oMi[joint_id], double);
     BOOST_CHECK_IS_APPROX(data.v[joint_id], data_multi.v[joint_id], double);
@@ -159,11 +153,11 @@ BOOST_AUTO_TEST_CASE(test_mutliprecision)
   // Mass matrix
   crba(model_multi, data_multi, q_multi);
   data_multi.M.triangularView<Eigen::StrictlyLower>() =
-      data_multi.M.transpose().triangularView<Eigen::StrictlyLower>();
+    data_multi.M.transpose().triangularView<Eigen::StrictlyLower>();
 
   crba(model, data, q);
   data.M.triangularView<Eigen::StrictlyLower>() =
-      data.M.transpose().triangularView<Eigen::StrictlyLower>();
+    data.M.transpose().triangularView<Eigen::StrictlyLower>();
 
   BOOST_CHECK_IS_APPROX(data.M, data_multi.M, double);
 }

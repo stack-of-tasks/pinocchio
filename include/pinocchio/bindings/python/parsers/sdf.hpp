@@ -11,13 +11,13 @@ namespace pinocchio
   {
     void exposeSDFModel();
     void exposeSDFGeometry();
-  
+
     inline void exposeSDFParser()
     {
       exposeSDFModel();
       exposeSDFGeometry();
     }
-  }
-}
+  } // namespace python
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_parsers_sdf_hpp__

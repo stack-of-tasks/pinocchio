@@ -10,11 +10,11 @@
 #include <eigenpy/eigenpy.hpp>
 
 #ifdef PINOCCHIO_WITH_CXX11_SUPPORT
-#include <memory>
-#define PINOCCHIO_SHARED_PTR_HOLDER_TYPE(T) ::std::shared_ptr<T>
+  #include <memory>
+  #define PINOCCHIO_SHARED_PTR_HOLDER_TYPE(T) ::std::shared_ptr<T>
 #else
-#include <boost/shared_ptr.hpp>
-#define PINOCCHIO_SHARED_PTR_HOLDER_TYPE(T) ::boost::shared_ptr<T>
+  #include <boost/shared_ptr.hpp>
+  #define PINOCCHIO_SHARED_PTR_HOLDER_TYPE(T) ::boost::shared_ptr<T>
 #endif
 
 namespace pinocchio
@@ -45,28 +45,29 @@ namespace pinocchio
     void exposeFrame();
     void exposeData();
     void exposeSampleModels();
-    
+
     // Expose geometry module
     void exposeGeometry();
-    
+
     // Expose parsers
     void exposeParsers();
-    
+
     // Expose algorithms
     void exposeAlgorithms();
     void exposeExtras();
-    
+
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS
     void exposeFCL();
     void exposeCollision();
 #endif // PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS
-  
+
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
     void exposePool();
     void exposeParallelAlgorithms();
 #endif
 
-#if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS) && defined(PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP)
+#if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS)                               \
+  && defined(PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP)
     void exposeParallelCollision();
     void exposePoolCollision();
 #endif

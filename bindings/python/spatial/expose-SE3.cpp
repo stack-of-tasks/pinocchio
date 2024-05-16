@@ -14,7 +14,7 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     void exposeSE3()
     {
       SE3PythonVisitor<context::SE3>::expose();
@@ -23,6 +23,6 @@ namespace pinocchio
       serialize<StdAlignedVectorPythonVisitor<context::SE3>::vector_type>();
 #endif
     }
-    
+
   } // namespace python
 } // namespace pinocchio

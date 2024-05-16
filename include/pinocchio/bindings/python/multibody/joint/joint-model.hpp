@@ -14,7 +14,7 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
-  
+
     template<typename JointModel>
     struct ExtractJointModelVariantTypeVisitor
     {
@@ -27,35 +27,32 @@ namespace pinocchio
         bp::object obj(boost::ref(jmodel.derived()));
         return obj;
       }
-      
+
       static result_type extract(const JointModel & jmodel)
       {
         return boost::apply_visitor(ExtractJointModelVariantTypeVisitor(), jmodel);
       }
     };
-  
+
     template<typename JointModel>
     struct JointModelPythonVisitor
     {
-      
+
       static void expose()
       {
-        bp::class_<JointModel>("JointModel",
-                               "Generic Joint Model",
-                               bp::no_init)
-        .def(bp::init<>(bp::arg("self"),"Default constructor"))
-        .def(bp::init<const JointModel &>(bp::args("self","other"),"Copy constructor"))
-        .def(JointModelBasePythonVisitor<JointModel>())
-        .def(PrintableVisitor<JointModel>())
-        .def("extract",ExtractJointModelVariantTypeVisitor<JointModel>::extract,
-             bp::arg("self"),
-             "Returns a reference of the internal joint managed by the JointModel",
-             bp::with_custodian_and_ward_postcall<0,1>())
-        ;
+        bp::class_<JointModel>("JointModel", "Generic Joint Model", bp::no_init)
+          .def(bp::init<>(bp::arg("self"), "Default constructor"))
+          .def(bp::init<const JointModel &>(bp::args("self", "other"), "Copy constructor"))
+          .def(JointModelBasePythonVisitor<JointModel>())
+          .def(PrintableVisitor<JointModel>())
+          .def(
+            "extract", ExtractJointModelVariantTypeVisitor<JointModel>::extract, bp::arg("self"),
+            "Returns a reference of the internal joint managed by the JointModel",
+            bp::with_custodian_and_ward_postcall<0, 1>());
       }
+    };
 
-    }; 
-    
-}} // namespace pinocchio::python
+  } // namespace python
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_multibody_joint_joint_model_hpp__

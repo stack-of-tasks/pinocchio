@@ -7,10 +7,9 @@
 
 #include "pinocchio/macros.hpp"
 
-PINOCCHIO_PRAGMA_DEPRECATED_HEADER(pinocchio/parsers/sample-models.hpp,pinocchio/multibody/sample-models.hpp)
+PINOCCHIO_PRAGMA_DEPRECATED_HEADER(
+  pinocchio / parsers / sample - models.hpp, pinocchio / multibody / sample - models.hpp)
 
 #include "pinocchio/multibody/sample-models.hpp"
 
 #endif // __pinocchio_parsers_sample_models_hpp__
-
-

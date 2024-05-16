@@ -23,9 +23,9 @@ namespace pinocchio
     template<typename T>
     std::string sanitizedClassname()
     {
-        std::string className = boost::replace_all_copy(T::classname(), "<", "_");
-        boost::replace_all(className, ">", "");
-        return className;
+      std::string className = boost::replace_all_copy(T::classname(), "<", "_");
+      boost::replace_all(className, ">", "");
+      return className;
     }
 
     template<typename VariantType>
@@ -49,13 +49,11 @@ namespace pinocchio
       void operator()(T)
       {
         expose_joint_data<T>(
-            bp::class_<T>(sanitizedClassname<T>().c_str(),
-                          sanitizedClassname<T>().c_str(),
-                          bp::init<>())
+          bp::class_<T>(
+            sanitizedClassname<T>().c_str(), sanitizedClassname<T>().c_str(), bp::init<>())
             .def(JointDataBasePythonVisitor<T>())
-            .def(PrintableVisitor<T>())
-        );
-        bp::implicitly_convertible<T,context::JointData>();
+            .def(PrintableVisitor<T>()));
+        bp::implicitly_convertible<T, context::JointData>();
       }
     };
 
@@ -65,16 +63,13 @@ namespace pinocchio
       void operator()(T)
       {
         expose_joint_model<T>(
-            bp::class_<T>(sanitizedClassname<T>().c_str(),
-                          sanitizedClassname<T>().c_str(),
-                          bp::no_init)
+          bp::class_<T>(
+            sanitizedClassname<T>().c_str(), sanitizedClassname<T>().c_str(), bp::no_init)
             .def(JointModelBasePythonVisitor<T>())
-            .def(PrintableVisitor<T>())
-        );
-        bp::implicitly_convertible<T,context::JointModel>();
+            .def(PrintableVisitor<T>()));
+        bp::implicitly_convertible<T, context::JointModel>();
       }
     };
-    
 
   } // namespace python
 } // namespace pinocchio

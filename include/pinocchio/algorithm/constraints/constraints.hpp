@@ -7,7 +7,8 @@
 
 #include "pinocchio/algorithm/constraints/fwd.hpp"
 
-namespace pinocchio {
+namespace pinocchio
+{
 }
 
 #endif // ifndef __pinocchio_algorithm_constraints_constraints_hpp__

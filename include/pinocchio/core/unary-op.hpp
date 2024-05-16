@@ -7,8 +7,7 @@
 
 namespace pinocchio
 {
-  
+
 }
 
 #endif // ifndef __pinocchio_core_unary_op_hpp__
-

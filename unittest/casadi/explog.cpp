@@ -15,7 +15,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_squaredDistance)
@@ -67,9 +66,7 @@ BOOST_AUTO_TEST_CASE(test_squaredDistance)
 
   casadi::SX zero_vec = casadi::SX::zeros(2 * model.nv);
   casadi::SX Jdist_expr = substitute(gradient(dist_expr, v_all), v_all, zero_vec);
-  casadi::Function eval_Jdist("Jdistance",
-                              SXVector { cs_q0, cs_q1 },
-                              SXVector { Jdist_expr });
+  casadi::Function eval_Jdist("Jdistance", SXVector{cs_q0, cs_q1}, SXVector{Jdist_expr});
 
   std::cout << "Jdistance func: " << eval_Jdist << '\n';
 
@@ -80,9 +77,9 @@ BOOST_AUTO_TEST_CASE(test_squaredDistance)
   std::vector<Scalar> q2_vec(nq);
   ConfigVectorMap(q2_vec.data(), model.nq, 1) = q2;
 
-  auto J0 = eval_Jdist(casadi::DMVector { q0_vec, q0_vec })[0];
-  auto J1 = eval_Jdist(casadi::DMVector { q0_vec, q1_vec })[0];
-  auto J2 = eval_Jdist(casadi::DMVector { q0_vec, q2_vec })[0];
+  auto J0 = eval_Jdist(casadi::DMVector{q0_vec, q0_vec})[0];
+  auto J1 = eval_Jdist(casadi::DMVector{q0_vec, q1_vec})[0];
+  auto J2 = eval_Jdist(casadi::DMVector{q0_vec, q2_vec})[0];
 
   ConfigVector q(model.nq);
   std::vector<Scalar> q_vec(nq);
@@ -90,30 +87,28 @@ BOOST_AUTO_TEST_CASE(test_squaredDistance)
   for (size_t it = 0; it < 10; it++)
   {
     q.noalias() = pinocchio::randomConfiguration(model);
-    auto J_vec = static_cast<std::vector<Scalar>>(eval_Jdist(casadi::DMVector { q_vec, q_vec })[0]);
-    Eigen::Map<Eigen::MatrixXd> J_as_mat(J_vec.data(), 2*model.nv, 1);
-    BOOST_CHECK(J_as_mat.isApprox(Eigen::MatrixXd::Zero(2*model.nv, 1)));
+    auto J_vec = static_cast<std::vector<Scalar>>(eval_Jdist(casadi::DMVector{q_vec, q_vec})[0]);
+    Eigen::Map<Eigen::MatrixXd> J_as_mat(J_vec.data(), 2 * model.nv, 1);
+    BOOST_CHECK(J_as_mat.isApprox(Eigen::MatrixXd::Zero(2 * model.nv, 1)));
   }
-
 }
 
 template<typename Derived>
-casadi::DM SE3toCasadiDM(const pinocchio::SE3Base<Derived>& M)
+casadi::DM SE3toCasadiDM(const pinocchio::SE3Base<Derived> & M)
 {
   typedef typename Derived::Scalar Scalar;
   auto M_mat = M.toHomogeneousMatrix();
   std::vector<Scalar> flat_M_vec(M_mat.data(), M_mat.data() + M_mat.size());
-  casadi::DM out {flat_M_vec};
-  return reshape (out, 4, 4);
-} 
-
+  casadi::DM out{flat_M_vec};
+  return reshape(out, 4, 4);
+}
 
 BOOST_AUTO_TEST_CASE(test_Jlog6)
 {
   namespace pin = pinocchio;
+  using casadi::DMVector;
   using casadi::SXVector;
   using casadi::SXVectorVector;
-  using casadi::DMVector;
   typedef pin::SE3Tpl<double> SE3;
   typedef casadi::SX ADScalar;
   typedef pin::SE3Tpl<ADScalar> cSE3;
@@ -126,7 +121,7 @@ BOOST_AUTO_TEST_CASE(test_Jlog6)
   casadi::SX csm_all = vertcat(csm0, csm1);
 
   cMotion::Vector6 cm0_v, cm1_v;
-  
+
   cSE3 cM0_i, cM1_i;
   {
 
@@ -137,8 +132,8 @@ BOOST_AUTO_TEST_CASE(test_Jlog6)
     cM0_mat = Eigen::Map<cSE3::Matrix4>(&static_cast<SXVector>(csM0)[0], 4, 4);
     cM1_mat = Eigen::Map<cSE3::Matrix4>(&static_cast<SXVector>(csM1)[0], 4, 4);
 
-    auto rot0 = cM0_mat.template block<3,3>(0, 0);
-    auto rot1 = cM1_mat.template block<3,3>(0, 0);
+    auto rot0 = cM0_mat.template block<3, 3>(0, 0);
+    auto rot1 = cM1_mat.template block<3, 3>(0, 0);
     auto trans0 = cM0_mat.template block<3, 1>(0, 3);
 
     cSE3 cM0(rot0, trans0);
@@ -157,13 +152,15 @@ BOOST_AUTO_TEST_CASE(test_Jlog6)
   auto grad_cdM_expr = gradient(dist, csm_all);
   auto hess_cdM_expr = jacobian(grad_cdM_expr, csm_all);
 
-  casadi::Function grad_cdM_eval("gdM", SXVector { csM0, csM1 }, SXVector { substitute(grad_cdM_expr, csm_all, zeros) });
-  casadi::Function hess_cdM_eval("gdM", SXVector { csM0, csM1 }, SXVector { substitute(hess_cdM_expr, csm_all, zeros) });
+  casadi::Function grad_cdM_eval(
+    "gdM", SXVector{csM0, csM1}, SXVector{substitute(grad_cdM_expr, csm_all, zeros)});
+  casadi::Function hess_cdM_eval(
+    "gdM", SXVector{csM0, csM1}, SXVector{substitute(hess_cdM_expr, csm_all, zeros)});
 
   std::cout << "dM_eval: " << grad_cdM_eval << '\n';
 
   SE3 M_neutral(SE3::Identity());
-  SE3 M0 (SE3::Random()), M1 (SE3::Random());
+  SE3 M0(SE3::Random()), M1(SE3::Random());
 
   casadi::DM M_n_dm = SE3toCasadiDM(M_neutral);
   casadi::DM M0_dm = SE3toCasadiDM(M0);
@@ -172,23 +169,25 @@ BOOST_AUTO_TEST_CASE(test_Jlog6)
   std::cout << M0_dm << "\n\n";
   std::cout << M2_dm << '\n';
 
-  auto J0 = grad_cdM_eval(DMVector { M0_dm, M1_dm })[0];
-  Eigen::Map<Eigen::MatrixXd> J0_mat(static_cast<std::vector<double>>(J0).data(), J0.rows(), J0.columns());
+  auto J0 = grad_cdM_eval(DMVector{M0_dm, M1_dm})[0];
+  Eigen::Map<Eigen::MatrixXd> J0_mat(
+    static_cast<std::vector<double>>(J0).data(), J0.rows(), J0.columns());
   std::cout << J0_mat << '\n';
-  
-  auto J1 = grad_cdM_eval(DMVector { M0_dm, M2_dm })[0];
-  Eigen::Map<Eigen::MatrixXd> J1_mat(static_cast<std::vector<double>>(J1).data(), J1.rows(), J1.columns());
+
+  auto J1 = grad_cdM_eval(DMVector{M0_dm, M2_dm})[0];
+  Eigen::Map<Eigen::MatrixXd> J1_mat(
+    static_cast<std::vector<double>>(J1).data(), J1.rows(), J1.columns());
   std::cout << J1_mat << '\n';
 
-  auto J2 = grad_cdM_eval(DMVector{ M2_dm, M2_dm })[0];
-  Eigen::Map<Eigen::MatrixXd> J2_mat(static_cast<std::vector<double>>(J2).data(), J2.rows(), J2.columns());
+  auto J2 = grad_cdM_eval(DMVector{M2_dm, M2_dm})[0];
+  Eigen::Map<Eigen::MatrixXd> J2_mat(
+    static_cast<std::vector<double>>(J2).data(), J2.rows(), J2.columns());
   std::cout << J2_mat << '\n';
 
-  std::cout << hess_cdM_eval(DMVector{ M_n_dm, M_n_dm })[0];
-  std::cout << hess_cdM_eval(DMVector{ M0_dm, M0_dm })[0];
-  std::cout << hess_cdM_eval(DMVector{ M0_dm, M1_dm })[0];
-  std::cout << hess_cdM_eval(DMVector{ M2_dm, M2_dm })[0];
+  std::cout << hess_cdM_eval(DMVector{M_n_dm, M_n_dm})[0];
+  std::cout << hess_cdM_eval(DMVector{M0_dm, M0_dm})[0];
+  std::cout << hess_cdM_eval(DMVector{M0_dm, M1_dm})[0];
+  std::cout << hess_cdM_eval(DMVector{M2_dm, M2_dm})[0];
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

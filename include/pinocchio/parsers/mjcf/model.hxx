@@ -10,71 +10,74 @@
 
 namespace pinocchio
 {
-    namespace mjcf
+  namespace mjcf
+  {
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::string & filename,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
     {
-        template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-        ModelTpl <Scalar, Options, JointCollectionTpl> &
-        buildModel(const std::string &filename, 
-                    ModelTpl<Scalar,Options,JointCollectionTpl> &model, 
-                    const bool verbose)
-        {
-            return buildModelFromXML(filename, model, verbose);
-        }
+      return buildModelFromXML(filename, model, verbose);
+    }
 
-        template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-        ModelTpl <Scalar, Options, JointCollectionTpl> &
-        buildModelFromXML(const std::string &xmlStr, 
-                    ModelTpl<Scalar,Options,JointCollectionTpl> &model, 
-                    const bool verbose)
-        {
-            ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
+      const std::string & xmlStr,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor(model);
 
-            typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+      typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
-            MjcfGraph graph (visitor, xmlStr);
-            if (verbose) visitor.log = &std::cout;
+      MjcfGraph graph(visitor, xmlStr);
+      if (verbose)
+        visitor.log = &std::cout;
 
-            graph.parseGraphFromXML(xmlStr);
+      graph.parseGraphFromXML(xmlStr);
 
-            // // Use the Mjcf graph to create the model
-            graph.parseRootTree();
+      // // Use the Mjcf graph to create the model
+      graph.parseRootTree();
 
-            return model;
-        }
-        
-        template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-        ModelTpl <Scalar, Options, JointCollectionTpl> &
-        buildModel(const std::string &filename, 
-                    const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
-                    ModelTpl<Scalar,Options,JointCollectionTpl> &model, 
-                    const bool verbose)
-        {
-            return buildModelFromXML(filename, rootJoint, model, verbose);
-        }
+      return model;
+    }
 
-        template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-        ModelTpl <Scalar, Options, JointCollectionTpl> &
-        buildModelFromXML(const std::string &xmlStr, 
-                    const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
-                    ModelTpl<Scalar,Options,JointCollectionTpl> &model, 
-                    const bool verbose)
-        {
-            ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor (model, rootJoint);
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::string & filename,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      return buildModelFromXML(filename, rootJoint, model, verbose);
+    }
 
-            typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
+      const std::string & xmlStr,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
+        visitor(model, rootJoint);
 
-            MjcfGraph graph (visitor, xmlStr);
-            if (verbose) visitor.log = &std::cout;
+      typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
-            graph.parseGraphFromXML(xmlStr);
+      MjcfGraph graph(visitor, xmlStr);
+      if (verbose)
+        visitor.log = &std::cout;
 
-            // // Use the Mjcf graph to create the model
-            graph.parseRootTree();
+      graph.parseGraphFromXML(xmlStr);
 
-            return model;
-        }
+      // // Use the Mjcf graph to create the model
+      graph.parseRootTree();
 
-    } // mjcf
-}
+      return model;
+    }
+
+  } // namespace mjcf
+} // namespace pinocchio
 
 #endif // __pinocchio_parsers_mjcf_model_hxx__

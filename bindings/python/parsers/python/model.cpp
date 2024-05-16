@@ -11,7 +11,7 @@
 
 // Boost 1.58
 #if BOOST_VERSION / 100 % 1000 == 58
-#include <fstream>
+  #include <fstream>
 #endif
 
 namespace pinocchio
@@ -28,8 +28,10 @@ namespace pinocchio
       // Get a dict for the global namespace to exec further python code with
       bp::dict globals = bp::extract<bp::dict>(main_module.attr("__dict__"));
 
-      // We need to link to the pinocchio PyWrap. We delegate the dynamic loading to the python interpreter.
-      bp::object cpp_module( (bp::handle<>(bp::borrowed(PyImport_AddModule("libpinocchio_pywrap")))) );
+      // We need to link to the pinocchio PyWrap. We delegate the dynamic loading to the python
+      // interpreter.
+      bp::object cpp_module(
+        (bp::handle<>(bp::borrowed(PyImport_AddModule("libpinocchio_pywrap")))));
 
       // That's it, you can exec your python script, starting with a model you
       // can update as you want.
@@ -76,7 +78,7 @@ namespace pinocchio
 
       while ((poAttrName = PyIter_Next(poAttrIter)) != NULL)
       {
-        std::string oAttrName((bp::extract<char const*>(poAttrName)));
+        std::string oAttrName((bp::extract<char const *>(poAttrName)));
 
         // Make sure we don't delete any private objects.
         if (!boost::starts_with(oAttrName, "__") || !boost::ends_with(oAttrName, "__"))

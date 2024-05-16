@@ -4,18 +4,20 @@ import pinocchio
 a = pinocchio.SE3.Random()
 b = pinocchio.SE3.Random()
 assert cpp2pybind11.multiply_se3_1(a, b) == a * b
-assert cpp2pybind11.multiply_se3(a,b) == a * b
+assert cpp2pybind11.multiply_se3(a, b) == a * b
 assert cpp2pybind11.no_wrapper.multiply_se3(a, b) == a * b
 assert cpp2pybind11.multiply_se3(a) == a
-#assert cpp2pybind11.no_wrapper.multiply_se3(a) == a
+# assert cpp2pybind11.no_wrapper.multiply_se3(a) == a
 
-def print_ref_count(v,what=""):
+
+def print_ref_count(v, what=""):
     # - 2 because one for variable v and one for variable inside getrefcount
     idv = id(v)
     gc.collect()
-    #n = len(gc.get_referrers(v))
+    # n = len(gc.get_referrers(v))
     n = sys.getrefcount(v)
     print("ref count of", what, idv, n)
+
 
 m = cpp2pybind11.make_model()
 print_ref_count(m, "m")

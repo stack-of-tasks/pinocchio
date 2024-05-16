@@ -17,14 +17,14 @@
 using namespace pinocchio;
 
 BOOST_AUTO_TEST_SUITE(JointFreeFlyer)
-  
+
 BOOST_AUTO_TEST_CASE(spatial)
 {
   Motion v(Motion::Random());
-  
-  JointMotionSubspaceIdentityTpl<double,0> constraint;
+
+  JointMotionSubspaceIdentityTpl<double, 0> constraint;
   Motion Sv = constraint * v.toVector();
-  
+
   BOOST_CHECK(Sv == v);
 }
 

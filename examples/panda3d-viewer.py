@@ -6,20 +6,34 @@ import sys
 from os.path import dirname, join, abspath
 
 # Add path to the example-robot-data package
-path = join(dirname(dirname(abspath(__file__))), 'models', 'example-robot-data', 'python')
+path = join(
+    dirname(dirname(abspath(__file__))), "models", "example-robot-data", "python"
+)
 sys.path.append(path)
-from example_robot_data.robots_loader import TalosLoader, RomeoLoader, ICubLoader, TiagoLoader
+from example_robot_data.robots_loader import (
+    TalosLoader,
+    RomeoLoader,
+    ICubLoader,
+    TiagoLoader,
+)
 from example_robot_data.robots_loader import Solo8Loader, HyQLoader, HectorLoader
 
 from panda3d_viewer import Viewer
 from pinocchio.visualize.panda3d_visualizer import Panda3dVisualizer
 
 # Open a Panda3D GUI window
-viewer = Viewer(window_title='python-pinocchio')
+viewer = Viewer(window_title="python-pinocchio")
 
 # These RobotLoader classes are defined in example_robot_data
-loaders = (TalosLoader, RomeoLoader, ICubLoader, TiagoLoader,
-           Solo8Loader, HyQLoader, HectorLoader)
+loaders = (
+    TalosLoader,
+    RomeoLoader,
+    ICubLoader,
+    TiagoLoader,
+    Solo8Loader,
+    HyQLoader,
+    HectorLoader,
+)
 
 for i, loader in enumerate(loaders):
     # The robot is loaded as a RobotWrapper object

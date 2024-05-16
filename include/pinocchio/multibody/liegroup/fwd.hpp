@@ -9,7 +9,8 @@
 
 namespace pinocchio
 {
-  template<typename LieGroupCollection> struct LieGroupGenericTpl;
+  template<typename LieGroupCollection>
+  struct LieGroupGenericTpl;
 }
 
 #endif // ifndef __pinocchio_lie_group_fwd_hpp__

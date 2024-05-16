@@ -14,7 +14,7 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
-  
+
     template<typename JointData>
     struct ExtractJointDataVariantTypeVisitor
     {
@@ -27,34 +27,32 @@ namespace pinocchio
         bp::object obj(boost::ref(jdata.derived()));
         return obj;
       }
-      
+
       static result_type extract(const JointData & jdata)
       {
         return boost::apply_visitor(ExtractJointDataVariantTypeVisitor(), jdata);
       }
     };
-    
+
     template<typename JointData>
     struct JointDataPythonVisitor
     {
-      
+
       static void expose()
       {
-        bp::class_<JointData>("JointData",
-                              "Generic Joint Data",
-                              bp::no_init)
-        .def(bp::init<const typename JointData::JointDataVariant &>(bp::args("self","joint_data")))
-        .def(JointDataBasePythonVisitor<JointData>())
-        .def(PrintableVisitor<JointData>())
-        .def("extract",ExtractJointDataVariantTypeVisitor<JointData>::extract,
-             bp::arg("self"),
-             "Returns a reference of the internal joint managed by the JointData",
-             bp::with_custodian_and_ward_postcall<0,1>())
-        ;
+        bp::class_<JointData>("JointData", "Generic Joint Data", bp::no_init)
+          .def(
+            bp::init<const typename JointData::JointDataVariant &>(bp::args("self", "joint_data")))
+          .def(JointDataBasePythonVisitor<JointData>())
+          .def(PrintableVisitor<JointData>())
+          .def(
+            "extract", ExtractJointDataVariantTypeVisitor<JointData>::extract, bp::arg("self"),
+            "Returns a reference of the internal joint managed by the JointData",
+            bp::with_custodian_and_ward_postcall<0, 1>());
       }
+    };
 
-    }; 
-    
-}} // namespace pinocchio::python
+  } // namespace python
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_multibody_joint_joint_data_hpp__

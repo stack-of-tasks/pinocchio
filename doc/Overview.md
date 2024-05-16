@@ -190,18 +190,8 @@ generation. Check out the related papers above for more technical details.
 
 \section OverviewConclu Where to go from here?
 
-This documentation is mostly composed of several examples and tutorials for newcomers, along with a technical documentation and a reference guide. If you want to make sure Pinocchio matches your needs, you may first want to check the list of features. Several examples in C++ and Python will then directly give you the keys to implement the most classical applications based on a rigid-body library. For nonexperts, we also provide the main mathematical fundamentals, based on Featherstone's formulations (you may prefer to buy and read the original book if you never did). A long tutorial in Python contains everything you need if you are not a Python expert and want to start with Pinocchio. This tutorial was first written as course material for a Master class about robotics. 
+This documentation is mostly composed of several examples and tutorials for newcomers, along with a technical documentation and a reference guide. If you want to make sure Pinocchio matches your needs, you may first want to check the list of features. Several examples in C++ and Python will then directly give you the keys to implement the most classical applications based on a rigid-body library. For nonexperts, we also provide the main mathematical fundamentals, based on Featherstone's formulations (you may prefer to buy and read the original book if you never did). A long tutorial in Python contains everything you need if you are not a Python expert and want to start with Pinocchio. This tutorial was first written as course material for a Master class about robotics.
 
-That's it for beginners. We then give an overview of the technical choices we made to write the library and make it efficient. Read this section if you want to extend the C++ library core, in particular if you are not familiar with the curiously-recursive template pattern (used for example in Eigen). A description of the benchmarks we did to test the library efficiency is also provided. 
+That's it for beginners. We then give an overview of the technical choices we made to write the library and make it efficient. Read this section if you want to extend the C++ library core, in particular if you are not familiar with the curiously-recursive template pattern (used for example in Eigen). A description of the benchmarks we did to test the library efficiency is also provided.
 
 By the way, Pinocchio has been deeply inspired by <a href="http://http://eigen.tuxfamily.org/">Eigen</a> (hence the structure of this page and the title of this last section). The API of our library is Eigen-based. If you are not comfortable with Eigen and want to use Pinocchio in C++, you better have to follow the <a href="http://eigen.tuxfamily.org/dox/group__TutorialMatrixClass.html">basic Eigen tutorials</a> first.
-
-
-
-
-
-
-
-
-
-
