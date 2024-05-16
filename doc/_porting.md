@@ -1,14 +1,14 @@
 # Porting from Pinocchio 2 to 3
 
-\section PortingIntro3 What is included
+\section PortingIntro3 Contents
 
 This section describes how to port your code from the Pinocchio 2 to Pinocchio 3.
 
-\section PortingC3 Changes in C++
+\section PortingC3 C++ changes
 
 All Pinocchio 2 deprecated functions had been removed.
 
-The following list show the renamed functions and headers:
+The following functions and headers have been renamed or moved:
 
 - Replace `pinocchio::BiasZeroTpl` by `pinocchio::MotionZeroTpl`
 - Replace `pinocchio::fusion::JointVisitorBase` by `pinocchio::fusion::JointUnaryVisitorBase`
@@ -23,7 +23,7 @@ The following list show the renamed functions and headers:
 - Replace `pinocchio::centerOfMass(const ModelTpl&, DataTpl&, int, bool)` by `pinocchio::centerOfMass(const ModelTpl&, DataTpl&, KinematicLevel, bool)`
 - Replace `pinocchio::copy(const ModelTpl&, const DataTpl&, DataTpl&, int)` by `pinocchio::copy(const ModelTpl&, const DataTpl&, DataTpl&, KinematicLevel)`
 - Replace `pinocchio/algorithm/dynamics.hpp` by `pinocchio/algorithm/constrained-dynamics.hpp`
-- Change parameters order of some `pinocchio::GeometryObject` constructor
+- Change the order of arguments in some of `pinocchio::GeometryObject`'s constructors
 
 If the compiler complains about missing `pinocchio::computeDistances` or `pinocchio::computeCollisions` function you can either:
 - Include the right headers:
@@ -31,13 +31,13 @@ If the compiler complains about missing `pinocchio::computeDistances` or `pinocc
   - `pinocchio/collision/distance.hpp`
 - Define `PINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_2` when building your project
 
-The following list show the removed functions:
+The following functions have been removed:
 
 - Remove `pinocchio::setGeometryMeshScales`
 - Remove some `pinocchio::forwardDynamics` signatures
 - Remove some `pinocchio::impulseDynamics` signatures
 
-The following list show the new deprecated functions and headers:
+The following functions and headers are now deprecated:
 
 - Deprecate `pinocchio/algorithm/parallel/geometry.hpp` moved at `pinocchio/collision/parallel/geometry.hpp`
 - Deprecate `pinocchio/spatial/fcl-pinocchio-conversions.hpp` moved at `pinocchio/collision/fcl-pinocchio-conversions.hpp`
@@ -51,7 +51,7 @@ The following list show the new deprecated functions and headers:
 
 \subsection PortingCTarget3 CMake targets
 
-Pinocchio 3 had been split into many CMake targets:
+Pinocchio 3 has been split into multiple CMake targets:
 
 - `pinocchio`: Link against all available Pinocchio libraries
 - `pinocchio_headers`: Link against Pinocchio header only core library
@@ -65,11 +65,11 @@ Pinocchio 3 had been split into many CMake targets:
 - `pinocchio_collision_parallel`: Link against Pinocchio collision parallel algorithms library
 - `pinocchio_extra`: Link against Pinocchio extra algorithms library
 
-\section PortingPy3 Changes in Python
+\section PortingPy3 Python changes
 
 All Pinocchio 2 deprecated functions had been removed.
 
-The following list show the renamed functions:
+The following functions have been renamed or moved:
 
 - Replace `pinocchio.utils.skew` by `pinocchio.skew`
 - Replace `pinocchio.utils.se3ToXYZQUAT` by `pinocchio.SE3ToXYZQUATtuple`
@@ -87,7 +87,7 @@ The following list show the renamed functions:
 - Replace `pinocchio.rpy.npToTuple` by `pinocchio.utils.npToTuple`
 - Replace `pinocchio.jacobianSubtreeCoMJacobian` by `pinocchio.jacobianSubtreeCenterOfMass`
 
-The following list show the removed functions:
+The following functions have been removed:
 
 - Remove `pinocchio.utils.cross`
 - Remove `pinocchio.robot_wrapper.RobotWrapper.initMeshcatDisplay`

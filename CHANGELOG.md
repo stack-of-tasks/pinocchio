@@ -67,7 +67,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Replace `pinocchio::centerOfMass(const ModelTpl&, DataTpl&, int, bool)` by `pinocchio::centerOfMass(const ModelTpl&, DataTpl&, KinematicLevel, bool)`
 - Replace `pinocchio::copy(const ModelTpl&, const DataTpl&, DataTpl&, int)` by `pinocchio::copy(const ModelTpl&, const DataTpl&, DataTpl&, KinematicLevel)`
 - Replace `pinocchio/algorithm/dynamics.hpp` by `pinocchio/algorithm/constrained-dynamics.hpp`
-- Change parameters order of some `pinocchio::GeometryObject` constructor
+- Change the order of arguments in some of `pinocchio::GeometryObject`'s constructors
 - Deprecate `pinocchio/algorithm/parallel/geometry.hpp` moved at `pinocchio/collision/parallel/geometry.hpp`
 - Deprecate `pinocchio/spatial/fcl-pinocchio-conversions.hpp` moved at `pinocchio/collision/fcl-pinocchio-conversions.hpp`
 - Deprecate `pinocchio/parsers/sample-models.hpp` moved at `pinocchio/multibody/sample-models.hpp`
