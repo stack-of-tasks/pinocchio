@@ -13,7 +13,6 @@ dependencies:
   - ccache
   - pkg-config
   - ninja
-  - llvm-openmp
   - cxx-compiler
   - meshcat-python
   - casadi
