@@ -54,6 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 #### C++
 
+- Change minimum required version of C++ to C++11. Check for compatibility here: https://en.cppreference.com/w/cpp/compiler_support/11
 - Replace `pinocchio::BiasZeroTpl` by `pinocchio::MotionZeroTpl`
 - Replace `pinocchio::fusion::JointVisitorBase` by `pinocchio::fusion::JointUnaryVisitorBase`
 - Replace `pinocchio::fusion::push_front` by `pinocchio::fusion::append`

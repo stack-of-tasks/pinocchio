@@ -130,14 +130,14 @@ int main()
 
     // create csrc_file
     std::string c_type = "double";
-    std::string csrc_file = "jit_JSIM_crba.c";
+    std::string csrc_file = "./jit_JSIM_crba.c";
     std::ofstream ofs;
     ofs.open(csrc_file, std::ofstream::out);
     ad_fun.to_csrc(ofs, c_type);
     ofs.close();
 
     // create dll_file
-    std::string dll_file = "jit_JSIM_crba" DLL_EXT;
+    std::string dll_file = "./jit_JSIM_crba" DLL_EXT;
     CPPAD_TESTVECTOR(std::string) csrc_files(1);
     csrc_files[0] = csrc_file;
     std::map<std::string, std::string> options;
@@ -225,7 +225,7 @@ int main()
     dynamicLibManager_ptr = std::unique_ptr<CppAD::cg::DynamicModelLibraryProcessor<Scalar>>(
       new CppAD::cg::DynamicModelLibraryProcessor<Scalar>(*libcgen_ptr, library_name));
 
-    CppAD::cg::GccCompiler<Scalar> compiler;
+    CppAD::cg::GccCompiler<Scalar> compiler(PINOCCHIO_CXX_COMPILER);
     std::vector<std::string> compile_flags = compiler.getCompileFlags();
     compile_flags[0] = compile_options;
     compiler.setCompileFlags(compile_flags);
@@ -328,14 +328,14 @@ int main()
 
     // create csrc_file
     std::string c_type = "double";
-    std::string csrc_file = "jit_JSIM.c";
+    std::string csrc_file = "./jit_JSIM.c";
     std::ofstream ofs;
     ofs.open(csrc_file, std::ofstream::out);
     ad_fun.to_csrc(ofs, c_type);
     ofs.close();
 
     // create dll_file
-    std::string dll_file = "jit_JSIM" DLL_EXT;
+    std::string dll_file = "./jit_JSIM" DLL_EXT;
     CPPAD_TESTVECTOR(std::string) csrc_files(1);
     csrc_files[0] = csrc_file;
     std::map<std::string, std::string> options;
@@ -497,7 +497,7 @@ int main()
     dynamicLibManager_ptr = std::unique_ptr<CppAD::cg::DynamicModelLibraryProcessor<Scalar>>(
       new CppAD::cg::DynamicModelLibraryProcessor<Scalar>(*libcgen_ptr, library_name));
 
-    CppAD::cg::GccCompiler<Scalar> compiler;
+    CppAD::cg::GccCompiler<Scalar> compiler(PINOCCHIO_CXX_COMPILER);
     std::vector<std::string> compile_flags = compiler.getCompileFlags();
     compile_flags[0] = compile_options;
     compiler.setCompileFlags(compile_flags);
@@ -522,7 +522,7 @@ int main()
     generatedFun_ptr = dynamicLib_ptr->model(function_name.c_str());
 
     CPPAD_TESTVECTOR(Scalar) x((size_t)nv);
-    std::vector<CppAD::cg::ArrayView<const Scalar>> xs;
+    std::vector<size_t> xs;
     for (size_t it = 0; it < NBT; ++it)
     {
       ConfigVectorType q = pinocchio::randomConfiguration(model);
@@ -538,8 +538,7 @@ int main()
       x.segment(i, nv) = a;
       i += nv;
 
-      CppAD::cg::ArrayView<const Scalar> x_(x.data(), (size_t)x.size());
-      xs.push_back(x_);
+      xs.push_back(static_cast<size_t>(x.size()));
     }
 
     CppAD::cg::ArrayView<Scalar> jac_(jac.data(), (size_t)jac.size());
@@ -547,7 +546,7 @@ int main()
     timer.tic();
     SMOOTH(NBT)
     {
-      generatedFun_ptr->Jacobian(xs[_smooth], jac_);
+      generatedFun_ptr->Jacobian(CppAD::cg::ArrayView<const Scalar>(x.data(), xs[_smooth]), jac_);
     }
     std::cout << "Calculate dtau_dx (rnea) with cppad code gen = \t\t";
     timer.toc(std::cout, NBT);

@@ -197,7 +197,6 @@ if(BUILD_PYTHON_INTERFACE)
     pinocchio_python_bindings_specific_type(mpfr)
 
     target_link_libraries(${PYWRAP}_mpfr PRIVATE gmp mpfr)
-    set_property(TARGET ${PYWRAP}_mpfr PROPERTY CXX_STANDARD 11)
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_mpfr")
 
     # --- INSTALL SCRIPTS

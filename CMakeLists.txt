@@ -74,7 +74,7 @@ elseif(UNIX)
   if(${CMAKE_VERSION} VERSION_EQUAL "3.20.0")
     set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
   endif()
-endif(APPLE)
+endif()
 include(CMakeDependentOption)
 
 # If needed, set CMake policy for APPLE systems
@@ -82,6 +82,9 @@ apply_default_apple_configuration()
 if(CMAKE_VERSION VERSION_GREATER "3.12")
   cmake_policy(SET CMP0074 NEW)
 endif()
+
+# Force C++ standard to be C++11 at least
+check_minimal_cxx_standard(11 ENFORCE)
 
 # --- OPTIONS ----------------------------------------
 option(BUILD_BENCHMARK "Build the benchmarks" OFF)

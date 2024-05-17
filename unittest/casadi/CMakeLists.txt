@@ -4,7 +4,6 @@
 
 macro(ADD_CASADI_UNIT_TEST name)
   add_pinocchio_unit_test(${name} PACKAGES casadi)
-  set_property(TARGET test-cpp-casadi-${name} PROPERTY CXX_STANDARD 11)
   set_tests_properties(test-cpp-casadi-${name} PROPERTIES TIMEOUT 3000)
   add_dependencies(test-casadi test-cpp-casadi-${name})
 endmacro()
