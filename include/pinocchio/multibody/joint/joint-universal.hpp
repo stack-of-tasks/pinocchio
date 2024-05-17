@@ -443,7 +443,9 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
       assert(isUnitary(axis1) && "First Rotation axis is not unitary");
       assert(isUnitary(axis2) && "Second Rotation axis is not unitary");
-      assert(check_expression_if_real<Scalar>(axis1.dot(axis2) == 0) && "Axii are not orthogonal");
+      assert(
+        check_expression_if_real<Scalar>(axis1.dot(axis2) == Scalar(0))
+        && "Axii are not orthogonal");
     }
 
     JointDataDerived createData() const

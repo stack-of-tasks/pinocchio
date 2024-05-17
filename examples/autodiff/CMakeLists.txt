@@ -6,7 +6,7 @@ if(BUILD_WITH_AUTODIFF_SUPPORT)
   function(ADD_PINOCCHIO_CPP_AUTODIFF_EXAMPLE EXAMPLE)
     include_directories(SYSTEM ${cppadcg_INCLUDE_DIR})
     add_pinocchio_cpp_example(${EXAMPLE})
-    target_link_libraries(example-cpp-${EXAMPLE} PUBLIC ${CMAKE_DL_LIBS})
+    target_link_libraries(example-cpp-${EXAMPLE} PUBLIC ${CMAKE_DL_LIBS} ${cppad_LIBRARY})
   endfunction()
 
   add_pinocchio_cpp_autodiff_example(autodiff-rnea)

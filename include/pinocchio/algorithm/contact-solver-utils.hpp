@@ -33,7 +33,7 @@ namespace pinocchio
       for (const auto & cone : cones)
       {
         x_proj.template segment<3>(index) = cone.project(x.template segment<3>(index));
-        assert(cone.isInside(x_proj.template segment<3>(index), 1e-12));
+        assert(cone.isInside(x_proj.template segment<3>(index), Scalar(1e-12)));
         index += 3;
       }
     }
@@ -55,7 +55,7 @@ namespace pinocchio
       for (const auto & cone : cones)
       {
         x_proj.template segment<3>(index) = cone.dual().project(x.template segment<3>(index));
-        assert(cone.dual().isInside(x_proj.template segment<3>(index), 1e-12));
+        assert(cone.dual().isInside(x_proj.template segment<3>(index), Scalar(1e-12)));
         index += 3;
       }
     }

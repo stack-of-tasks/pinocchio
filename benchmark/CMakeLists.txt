@@ -47,7 +47,7 @@ endif(cppadcg_FOUND)
 add_bench(timings TRUE)
 if(cppadcg_FOUND)
   add_bench(timings-cg TRUE)
-  target_link_libraries(timings-cg PUBLIC ${CMAKE_DL_LIBS})
+  target_link_libraries(timings-cg PUBLIC ${CMAKE_DL_LIBS} ${cppad_LIBRARY})
 endif(cppadcg_FOUND)
 
 if(BUILD_WITH_OPENMP_SUPPORT)
