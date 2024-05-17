@@ -77,14 +77,16 @@ jobs:
           cmake ^
             -G "Ninja" ^
             -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
+            -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ^
             -DCMAKE_BUILD_TYPE=Release ^
-            -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
-            -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
-            -DBUILD_WITH_URDF_SUPPORT=ON ^
-            -DBUILD_PYTHON_INTERFACE=ON ^
             -DBUILD_WITH_COLLISION_SUPPORT=ON ^
-            -DBUILD_TESTING=ON ^
+            -DBUILD_WITH_CASADI_SUPPORT=ON ^
+            -DBUILD_WITH_AUTODIFF_SUPPORT=ON ^
+            -DBUILD_WITH_CODEGEN_SUPPORT=OFF ^
+            -DBUILD_WITH_EXTRA_SUPPORT=ON ^
+            -DBUILD_WITH_OPENMP_SUPPORT=ON ^
+            -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON ^
             -DINSTALL_DOCUMENTATION=ON ^
             -DGENERATE_PYTHON_STUBS=ON ^
             ..

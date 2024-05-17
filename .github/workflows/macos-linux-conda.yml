@@ -46,8 +46,9 @@ jobs:
         include:
           - os: ubuntu-latest
             BUILD_ADVANCED_TESTING: OFF
+          # Disable BUILD_ADVANCED_TESTING as the test can take many time to run
           - os: macos-latest
-            BUILD_ADVANCED_TESTING: ON
+            BUILD_ADVANCED_TESTING: OFF
 
     steps:
       - uses: actions/checkout@v4
@@ -82,14 +83,16 @@ jobs:
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DBUILD_WITH_COLLISION_SUPPORT=ON \
             -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }} \
-            -DBUILD_WITH_CASADI_SUPPORT=OFF \
-            -DPYTHON_EXECUTABLE=$(which python3) \
+            -DBUILD_WITH_COLLISION_SUPPORT=ON \
+            -DBUILD_WITH_CASADI_SUPPORT=ON \
+            -DBUILD_WITH_AUTODIFF_SUPPORT=ON \
+            -DBUILD_WITH_CODEGEN_SUPPORT=ON \
+            -DBUILD_WITH_EXTRA_SUPPORT=ON \
             -DBUILD_WITH_OPENMP_SUPPORT=ON \
+            -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON \
             -DINSTALL_DOCUMENTATION=ON \
-            -DGENERATE_PYTHON_STUBS=ON \
-            -DOpenMP_ROOT=$CONDA_PREFIX
+            -DGENERATE_PYTHON_STUBS=ON
           cmake --build . -j2
           ctest --output-on-failure
           cmake --install .

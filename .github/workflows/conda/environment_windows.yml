@@ -13,3 +13,13 @@ dependencies:
   - ccache
   - pkg-config
   - ninja
+  - llvm-openmp
+  - cxx-compiler
+  - meshcat-python
+  - panda3d_viewer
+  - casadi
+  - cppad
+  - cppadcodegen
+  - pycppad
+  - matplotlib
+  - mpfr
