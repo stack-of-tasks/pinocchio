@@ -3,7 +3,6 @@ macro(ADD_CPPADCG_UNIT_TEST name)
   include_directories(SYSTEM ${cppadcodegen_INCLUDE_DIR})
   add_pinocchio_unit_test(${name} PACKAGES ${cppad_LIBRARY} ${CMAKE_DL_LIBS})
   add_dependencies(test-cpp-cppadcg test-cpp-cppadcg-${name})
-  set_property(TARGET test-cpp-cppadcg-${name} PROPERTY CXX_STANDARD 11)
   target_compile_definitions(test-cpp-cppadcg-${name}
                              PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\")
 endmacro()

@@ -10,7 +10,6 @@ if(cppadcg_FOUND
       ${EXAMPLE}
       CPPADCG
       PARSERS)
-    set_property(TARGET example-cpp-${EXAMPLE} PROPERTY CXX_STANDARD 11)
     target_link_libraries(example-cpp-${EXAMPLE} PUBLIC ${CMAKE_DL_LIBS})
     target_compile_definitions(example-cpp-${EXAMPLE}
                                PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\")

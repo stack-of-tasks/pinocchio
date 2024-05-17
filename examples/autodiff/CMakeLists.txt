@@ -6,7 +6,6 @@ if(BUILD_WITH_AUTODIFF_SUPPORT)
   function(ADD_PINOCCHIO_CPP_AUTODIFF_EXAMPLE EXAMPLE)
     include_directories(SYSTEM ${cppadcg_INCLUDE_DIR})
     add_pinocchio_cpp_example(${EXAMPLE})
-    set_property(TARGET example-cpp-${EXAMPLE} PROPERTY CXX_STANDARD 11)
     target_link_libraries(example-cpp-${EXAMPLE} PUBLIC ${CMAKE_DL_LIBS})
   endfunction()
 
