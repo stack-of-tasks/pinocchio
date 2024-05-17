@@ -16,7 +16,6 @@ dependencies:
   - llvm-openmp
   - cxx-compiler
   - meshcat-python
-  - panda3d_viewer
   - casadi
   - cppad
   - cppadcodegen
