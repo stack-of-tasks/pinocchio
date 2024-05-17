@@ -13,21 +13,22 @@ namespace pinocchio
 
   /// \brief Projected Gauss Siedel solver
   template<typename _Scalar>
-  struct PGSContactSolverTpl 
-  : ContactSolverBaseTpl<_Scalar>
+  struct PGSContactSolverTpl : ContactSolverBaseTpl<_Scalar>
   {
     typedef _Scalar Scalar;
     typedef ContactSolverBaseTpl<Scalar> Base;
-    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1> VectorXs;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> VectorXs;
 
     explicit PGSContactSolverTpl(const int problem_size)
     : Base(problem_size)
     , x(problem_size)
     , x_previous(problem_size)
-    {}
+    {
+    }
 
     ///
-    /// \brief Solve the constrained conic problem composed of problem data (G,g,cones) and starting from the initial guess.
+    /// \brief Solve the constrained conic problem composed of problem data (G,g,cones) and starting
+    /// from the initial guess.
     ///
     /// \param[in] G Symmetric PSD matrix representing the Delassus of the contact problem.
     /// \param[in] g Free contact acceleration or velicity associted with the contact problem.
@@ -36,14 +37,19 @@ namespace pinocchio
     /// \param[in] over_relax Over relaxation value
     ///
     /// \returns True if the problem has converged.
-    template<typename MatrixLike, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut>
-    bool solve(const MatrixLike & G, const Eigen::MatrixBase<VectorLike> & g,
-               const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
-               const Eigen::DenseBase<VectorLikeOut> & x,
-               const Scalar over_relax = Scalar(1));
+    template<
+      typename MatrixLike,
+      typename VectorLike,
+      typename ConstraintAllocator,
+      typename VectorLikeOut>
+    bool solve(
+      const MatrixLike & G,
+      const Eigen::MatrixBase<VectorLike> & g,
+      const std::vector<CoulombFrictionConeTpl<Scalar>, ConstraintAllocator> & cones,
+      const Eigen::DenseBase<VectorLikeOut> & x,
+      const Scalar over_relax = Scalar(1));
 
   protected:
-
     /// \brief Previous temporary value of the optimum.
     VectorXs x, x_previous;
 #ifdef PINOCCHIO_WITH_HPP_FCL
@@ -51,7 +57,7 @@ namespace pinocchio
 #endif // PINOCCHIO_WITH_HPP_FCL
 
   }; // struct PGSContactSolverTpl
-}
+} // namespace pinocchio
 
 #include "pinocchio/algorithm/pgs-solver.hxx"
 

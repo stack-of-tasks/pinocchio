@@ -3,13 +3,12 @@ from test_case import PinocchioTestCase as TestCase
 
 import pinocchio as pin
 
-class TestSampleModels(TestCase):
 
+class TestSampleModels(TestCase):
     def setUp(self):
         pass
 
     def test_all_sampled_models(self):
-
         huamnoid_1 = pin.buildSampleModelHumanoidRandom()
         huamnoid_2 = pin.buildSampleModelHumanoidRandom(True)
         huamnoid_3 = pin.buildSampleModelHumanoidRandom(False)
@@ -20,7 +19,9 @@ class TestSampleModels(TestCase):
         manipulator_1 = pin.buildSampleModelManipulator()
 
         if pin.WITH_HPP_FCL:
-            geometry_manipulator_1 = pin.buildSampleGeometryModelManipulator(manipulator_1)
+            geometry_manipulator_1 = pin.buildSampleGeometryModelManipulator(
+                manipulator_1
+            )
 
         humanoid_4 = pin.buildSampleModelHumanoid()
         humanoid_5 = pin.buildSampleModelHumanoid(True)
@@ -32,5 +33,6 @@ class TestSampleModels(TestCase):
         if pin.WITH_HPP_FCL:
             geometry_humanoid_2 = pin.buildSampleGeometryModelHumanoid(humanoid_4)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

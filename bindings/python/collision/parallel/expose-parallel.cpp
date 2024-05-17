@@ -10,18 +10,17 @@ namespace pinocchio
 {
   namespace python
   {
-  
+
     void exposeParallelGeometry();
     void exposeParallelBroadPhase();
-    
+
     void exposeParallelCollision()
     {
       namespace bp = boost::python;
-      
+
       exposeParallelGeometry();
       exposeParallelBroadPhase();
     }
-    
+
   } // namespace python
 } // namespace pinocchio
-

@@ -11,8 +11,7 @@ from pinocchio.visualize import MeshcatVisualizer
 
 def XYZRPYtoSE3(xyzrpy):
     rotate = pin.utils.rotate
-    R = rotate("x", xyzrpy[3]) @ rotate("y",
-                                        xyzrpy[4]) @ rotate("z", xyzrpy[5])
+    R = rotate("x", xyzrpy[3]) @ rotate("y", xyzrpy[4]) @ rotate("z", xyzrpy[5])
     p = np.array(xyzrpy[:3])
     return pin.SE3(R, p)
 
@@ -26,9 +25,7 @@ mesh_dir = pinocchio_model_dir
 urdf_path = join(model_path, "panda_description/urdf/panda.urdf")
 srdf_path = join(model_path, "panda_description/srdf/panda.srdf")
 
-robot, collision_model, visual_model = pin.buildModelsFromUrdf(
-    urdf_path, mesh_dir
-)
+robot, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_path, mesh_dir)
 data = robot.createData()
 
 # Obstacle map
@@ -43,8 +40,7 @@ oMobs = [
 color = [1.0, 0.2, 0.2, 1.0]  # color of the capsules
 rad, length = 0.1, 0.4  # radius and length of capsules
 for i, xyzrpy in enumerate(oMobs):
-    obs = pin.GeometryObject.CreateCapsule(
-        rad, length)  # Pinocchio obstacle object
+    obs = pin.GeometryObject.CreateCapsule(rad, length)  # Pinocchio obstacle object
     obs.meshColor = np.array(
         [1.0, 0.2, 0.2, 1.0]
     )  # Don't forget me, otherwise I am transparent ...
@@ -119,7 +115,11 @@ else:
         p1 = he
         p2 = p1.next()
         p3 = p2.next()
-        return [vertex_to_tuple(p1.vertex().point()), vertex_to_tuple(p2.vertex().point()), vertex_to_tuple(p3.vertex().point())]
+        return [
+            vertex_to_tuple(p1.vertex().point()),
+            vertex_to_tuple(p2.vertex().point()),
+            vertex_to_tuple(p3.vertex().point()),
+        ]
 
     def alpha_shape_with_cgal(coords, alpha=None):
         """
@@ -142,10 +142,12 @@ else:
         Q = Polyhedron_3()
         a = alpha_wrap_3(points, alpha_value, 0.01, Q)
         alpha_shape_vertices = np.array(
-            [vertex_to_tuple(vertex.point()) for vertex in Q.vertices()])
+            [vertex_to_tuple(vertex.point()) for vertex in Q.vertices()]
+        )
 
         alpha_shape_faces = np.array(
-            [np.array(halfedge_to_triangle(face.halfedge())) for face in Q.facets()])
+            [np.array(halfedge_to_triangle(face.halfedge())) for face in Q.facets()]
+        )
 
         return alpha_shape_vertices, alpha_shape_faces
 
@@ -165,16 +167,14 @@ print("------------------- Display Vertex")
 # meshcat triangulated mesh
 poly = g.TriangularMeshGeometry(vertices=verts, faces=faces)
 viz.viewer["poly"].set_object(
-    poly, g.MeshBasicMaterial(
-        color=0x000000, wireframe=True, linewidth=12, opacity=0.2)
+    poly, g.MeshBasicMaterial(color=0x000000, wireframe=True, linewidth=12, opacity=0.2)
 )
 
 while True:
     viz.display(q0)
     viz.viewer["poly"].set_object(
         poly,
-        g.MeshBasicMaterial(color=0x000000, wireframe=True,
-                            linewidth=2, opacity=0.2),
+        g.MeshBasicMaterial(color=0x000000, wireframe=True, linewidth=2, opacity=0.2),
     )
 
     time.sleep(1e-2)

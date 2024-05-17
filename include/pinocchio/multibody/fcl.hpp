@@ -12,28 +12,30 @@
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
 
-  #if(WIN32)
+  #if (WIN32)
     // It appears that std::snprintf is missing for Windows.
-    #if !(( defined(_MSC_VER) && _MSC_VER < 1900 ) || ( defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR) ))
+    #if !(                                                                                         \
+      (defined(_MSC_VER) && _MSC_VER < 1900)                                                       \
+      || (defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)))
       #include <cstdio>
       #include <stdarg.h>
-      namespace std
-      {
-        inline int _snprintf(char* buffer, std::size_t buf_size, const char* format, ...)
-        {
-          int res;
-          
-          va_list args;
-          va_start(args, format);
-          res = vsnprintf(buffer, buf_size, format, args);
-          va_end(args);
-          
-          return res;
-        }
-      }
+namespace std
+{
+  inline int _snprintf(char * buffer, std::size_t buf_size, const char * format, ...)
+  {
+    int res;
+
+    va_list args;
+    va_start(args, format);
+    res = vsnprintf(buffer, buf_size, format, args);
+    va_end(args);
+
+    return res;
+  }
+} // namespace std
     #endif
   #endif
-  
+
   #include <hpp/fcl/collision_object.h>
   #include <hpp/fcl/collision.h>
   #include <hpp/fcl/distance.h>
@@ -57,11 +59,11 @@ namespace pinocchio
 
   namespace fcl
   {
- 
+
     struct FakeCollisionGeometry
     {
-      FakeCollisionGeometry(){};
-      
+      FakeCollisionGeometry() {};
+
       bool operator==(const FakeCollisionGeometry &) const
       {
         return true;
@@ -70,15 +72,17 @@ namespace pinocchio
 
     struct AABB
     {
-      AABB(): min_(0), max_(1){};
+      AABB()
+      : min_(0)
+      , max_(1) {};
 
       int min_;
       int max_;
     };
-  
+
     typedef FakeCollisionGeometry CollisionGeometry;
 
-  }
+  } // namespace fcl
 
 #else
 
@@ -87,8 +91,7 @@ namespace pinocchio
   inline bool operator==(const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
   {
     return lhs.collisionGeometry() == rhs.collisionGeometry()
-            && lhs.getAABB().min_ == rhs.getAABB().min_
-            && lhs.getAABB().max_ == rhs.getAABB().max_;
+           && lhs.getAABB().min_ == rhs.getAABB().min_ && lhs.getAABB().max_ == rhs.getAABB().max_;
   }
 
 #endif // PINOCCHIO_WITH_HPP_FCL

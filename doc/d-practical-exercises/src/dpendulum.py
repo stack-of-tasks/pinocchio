@@ -91,10 +91,10 @@ class DPendulum:
     def dynamics(self,ix,iu):
         x   = np.array(d2c (ix))
         u   = d2cu(iu)
-        
+
         self.xc,_ = self.pendulum.dynamics(x,u)
         return c2d(x.T.tolist()[0])
-        
+
 
 '''
 env = DPendulum()

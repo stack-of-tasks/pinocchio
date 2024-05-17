@@ -15,199 +15,232 @@ namespace pinocchio
 {
   namespace fusion
   {
-    
+
     ///
     /// \brief Base structure for \b Unary visitation of a JointModel.
-    ///        This structure provides runners to call the right visitor according to the number of arguments.
-    ///        This should be used when deriving new rigid body algorithms.
+    ///        This structure provides runners to call the right visitor according to the number of
+    ///        arguments. This should be used when deriving new rigid body algorithms.
     ///
     template<typename JointVisitorDerived, typename ReturnType = void>
     struct JointUnaryVisitorBase
     {
-      
-      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ArgsTmp>
-      static ReturnType run(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
-                            JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata,
-                            ArgsTmp args)
+
+      template<
+        typename Scalar,
+        int Options,
+        template<typename, int>
+        class JointCollectionTpl,
+        typename ArgsTmp>
+      static ReturnType run(
+        const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+        JointDataTpl<Scalar, Options, JointCollectionTpl> & jdata,
+        ArgsTmp args)
       {
-        InternalVisitorModelAndData<JointModelTpl<Scalar,Options,JointCollectionTpl>,ArgsTmp> visitor(jdata,args);
-        return boost::apply_visitor(visitor,jmodel);
+        InternalVisitorModelAndData<JointModelTpl<Scalar, Options, JointCollectionTpl>, ArgsTmp>
+          visitor(jdata, args);
+        return boost::apply_visitor(visitor, jmodel);
       }
-      
-      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-      static ReturnType run(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
-                            JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
+
+      template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+      static ReturnType run(
+        const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+        JointDataTpl<Scalar, Options, JointCollectionTpl> & jdata)
       {
-        InternalVisitorModelAndData<JointModelTpl<Scalar,Options,JointCollectionTpl>,NoArg> visitor(jdata);
-        return boost::apply_visitor(visitor,jmodel);
+        InternalVisitorModelAndData<JointModelTpl<Scalar, Options, JointCollectionTpl>, NoArg>
+          visitor(jdata);
+        return boost::apply_visitor(visitor, jmodel);
       }
-      
+
       template<typename JointModelDerived, typename ArgsTmp>
-      static ReturnType run(const JointModelBase<JointModelDerived> & jmodel,
-                            typename JointModelBase<JointModelDerived>::JointDataDerived & jdata,
-                            ArgsTmp args)
+      static ReturnType run(
+        const JointModelBase<JointModelDerived> & jmodel,
+        typename JointModelBase<JointModelDerived>::JointDataDerived & jdata,
+        ArgsTmp args)
       {
-        InternalVisitorModelAndData<JointModelDerived,ArgsTmp> visitor(jdata,args);
+        InternalVisitorModelAndData<JointModelDerived, ArgsTmp> visitor(jdata, args);
         return visitor(jmodel.derived());
       }
-      
+
       template<typename JointModelDerived>
-      static ReturnType run(const JointModelBase<JointModelDerived> & jmodel,
-                            typename JointModelBase<JointModelDerived>::JointDataDerived & jdata)
+      static ReturnType run(
+        const JointModelBase<JointModelDerived> & jmodel,
+        typename JointModelBase<JointModelDerived>::JointDataDerived & jdata)
       {
-        InternalVisitorModelAndData<JointModelDerived,NoArg> visitor(jdata);
+        InternalVisitorModelAndData<JointModelDerived, NoArg> visitor(jdata);
         return visitor(jmodel.derived());
       }
-      
-      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ArgsTmp>
-      static ReturnType run(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
-                            ArgsTmp args)
+
+      template<
+        typename Scalar,
+        int Options,
+        template<typename, int>
+        class JointCollectionTpl,
+        typename ArgsTmp>
+      static ReturnType
+      run(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, ArgsTmp args)
       {
         InternalVisitorModel<ArgsTmp> visitor(args);
-        return boost::apply_visitor(visitor,jmodel);
+        return boost::apply_visitor(visitor, jmodel);
       }
-      
-      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ArgsTmp>
-      static ReturnType run(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata,
-                            ArgsTmp args)
+
+      template<
+        typename Scalar,
+        int Options,
+        template<typename, int>
+        class JointCollectionTpl,
+        typename ArgsTmp>
+      static ReturnType
+      run(const JointDataTpl<Scalar, Options, JointCollectionTpl> & jdata, ArgsTmp args)
       {
         InternalVisitorModel<ArgsTmp> visitor(args);
-        return boost::apply_visitor(visitor,jdata);
+        return boost::apply_visitor(visitor, jdata);
       }
-      
-      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-      static ReturnType run(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
+
+      template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+      static ReturnType run(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
       {
         InternalVisitorModel<NoArg> visitor;
-        return boost::apply_visitor(visitor,jmodel);
+        return boost::apply_visitor(visitor, jmodel);
       }
-      
-      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-      static ReturnType run(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
+
+      template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+      static ReturnType run(const JointDataTpl<Scalar, Options, JointCollectionTpl> & jdata)
       {
         InternalVisitorModel<NoArg> visitor;
-        return boost::apply_visitor(visitor,jdata);
+        return boost::apply_visitor(visitor, jdata);
       }
-      
+
       template<typename JointModelDerived, typename ArgsTmp>
-      static ReturnType run(const JointModelBase<JointModelDerived> & jmodel,
-                            ArgsTmp args)
+      static ReturnType run(const JointModelBase<JointModelDerived> & jmodel, ArgsTmp args)
       {
         InternalVisitorModel<ArgsTmp> visitor(args);
         return visitor(jmodel.derived());
       }
-      
+
       template<typename JointDataDerived, typename ArgsTmp>
-      static ReturnType run(const JointDataBase<JointDataDerived> & jdata,
-                            ArgsTmp args)
+      static ReturnType run(const JointDataBase<JointDataDerived> & jdata, ArgsTmp args)
       {
         InternalVisitorModel<ArgsTmp> visitor(args);
         return visitor(jdata.derived());
       }
-      
+
       template<typename JointModelDerived>
       static ReturnType run(const JointModelBase<JointModelDerived> & jmodel)
       {
         InternalVisitorModel<NoArg> visitor;
         return visitor(jmodel.derived());
       }
-      
+
       template<typename JointDataDerived>
       static ReturnType run(const JointDataBase<JointDataDerived> & jdata)
       {
         InternalVisitorModel<NoArg> visitor;
         return visitor(jdata.derived());
       }
-      
+
     private:
-      
       template<typename JointModel, typename ArgType>
-      struct InternalVisitorModelAndData
-      : public boost::static_visitor<ReturnType>
+      struct InternalVisitorModelAndData : public boost::static_visitor<ReturnType>
       {
         typedef typename JointModel::JointDataDerived JointData;
-        
+
         InternalVisitorModelAndData(JointData & jdata, ArgType args)
-        : jdata(jdata), args(args)
-        {}
-        
+        : jdata(jdata)
+        , args(args)
+        {
+        }
+
         template<typename JointModelDerived>
         ReturnType operator()(const JointModelBase<JointModelDerived> & jmodel) const
         {
-          return bf::invoke(&JointVisitorDerived::template algo<JointModelDerived>,
-                            bf::append(boost::ref(jmodel.derived()),
-                                       boost::ref(boost::get<typename JointModelBase<JointModelDerived>::JointDataDerived >(jdata)),
-                                       args));
+          return bf::invoke(
+            &JointVisitorDerived::template algo<JointModelDerived>,
+            bf::append(
+              boost::ref(jmodel.derived()),
+              boost::ref(
+                boost::get<typename JointModelBase<JointModelDerived>::JointDataDerived>(jdata)),
+              args));
         }
-        
-        ReturnType operator()(const JointModelVoid) {return;}
-        
+
+        ReturnType operator()(const JointModelVoid)
+        {
+          return;
+        }
+
         JointData & jdata;
         ArgType args;
       };
-      
+
       template<typename JointModel>
-      struct InternalVisitorModelAndData<JointModel,NoArg>
+      struct InternalVisitorModelAndData<JointModel, NoArg>
       : public boost::static_visitor<ReturnType>
       {
         typedef typename JointModel::JointDataDerived JointData;
-        
+
         InternalVisitorModelAndData(JointData & jdata)
         : jdata(jdata)
-        {}
-        
+        {
+        }
+
         template<typename JointModelDerived>
         ReturnType operator()(const JointModelBase<JointModelDerived> & jmodel) const
         {
-          return bf::invoke(&JointVisitorDerived::template algo<JointModelDerived>,
-                            bf::make_vector(boost::ref(jmodel.derived()),
-                                            boost::ref(boost::get<typename JointModelBase<JointModelDerived>::JointDataDerived >(jdata))));
+          return bf::invoke(
+            &JointVisitorDerived::template algo<JointModelDerived>,
+            bf::make_vector(
+              boost::ref(jmodel.derived()),
+              boost::ref(
+                boost::get<typename JointModelBase<JointModelDerived>::JointDataDerived>(jdata))));
         }
-        
+
         JointData & jdata;
       };
-      
+
       template<typename ArgType, typename Dummy = void>
-      struct InternalVisitorModel
-      : public boost::static_visitor<ReturnType>
+      struct InternalVisitorModel : public boost::static_visitor<ReturnType>
       {
         InternalVisitorModel(ArgType args)
         : args(args)
-        {}
-        
+        {
+        }
+
         template<typename JointModelDerived>
         ReturnType operator()(const JointModelBase<JointModelDerived> & jmodel) const
         {
-          return bf::invoke(&JointVisitorDerived::template algo<JointModelDerived>,
-                            bf::append(boost::ref(jmodel.derived()),
-                                       args));
+          return bf::invoke(
+            &JointVisitorDerived::template algo<JointModelDerived>,
+            bf::append(boost::ref(jmodel.derived()), args));
         }
-        
+
         template<typename JointDataDerived>
         ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
         {
-          return bf::invoke(&JointVisitorDerived::template algo<JointDataDerived>,
-                            bf::append(boost::ref(jdata.derived()),
-                                       args));
+          return bf::invoke(
+            &JointVisitorDerived::template algo<JointDataDerived>,
+            bf::append(boost::ref(jdata.derived()), args));
         }
-        
-        ReturnType operator()(const JointModelVoid) {return;}
-        
+
+        ReturnType operator()(const JointModelVoid)
+        {
+          return;
+        }
+
         ArgType args;
       };
-      
+
       template<typename Dummy>
-      struct InternalVisitorModel<NoArg,Dummy>
-      : public boost::static_visitor<ReturnType>
+      struct InternalVisitorModel<NoArg, Dummy> : public boost::static_visitor<ReturnType>
       {
-        InternalVisitorModel() {}
+        InternalVisitorModel()
+        {
+        }
 
         template<typename JointModelDerived>
         ReturnType operator()(const JointModelBase<JointModelDerived> & jmodel) const
         {
           return JointVisitorDerived::template algo<JointModelDerived>(jmodel.derived());
         }
-        
+
         template<typename JointDataDerived>
         ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
         {
@@ -215,7 +248,7 @@ namespace pinocchio
         }
       };
     }; // struct JointUnaryVisitorBase
-        
+
   } // namespace fusion
 } // namespace pinocchio
 

@@ -14,8 +14,7 @@ model_path = join(pinocchio_model_dir, "example-robot-data/robots")
 mesh_dir = pinocchio_model_dir
 
 urdf_filename = "panda.urdf"
-urdf_model_path = join(
-    join(model_path, "panda_description/urdf"), urdf_filename)
+urdf_model_path = join(join(model_path, "panda_description/urdf"), urdf_filename)
 
 robot, collision_model, visual_model = pin.buildModelsFromUrdf(
     urdf_model_path, mesh_dir
@@ -70,7 +69,11 @@ else:
         p1 = he
         p2 = p1.next()
         p3 = p2.next()
-        return [vertex_to_tuple(p1.vertex().point()), vertex_to_tuple(p2.vertex().point()), vertex_to_tuple(p3.vertex().point())]
+        return [
+            vertex_to_tuple(p1.vertex().point()),
+            vertex_to_tuple(p2.vertex().point()),
+            vertex_to_tuple(p3.vertex().point()),
+        ]
 
     def alpha_shape_with_cgal(coords, alpha=None):
         """
@@ -94,14 +97,15 @@ else:
         a = alpha_wrap_3(points, alpha_value, 0.01, Q)
 
         alpha_shape_vertices = np.array(
-            [vertex_to_tuple(vertex.point()) for vertex in Q.vertices()])
+            [vertex_to_tuple(vertex.point()) for vertex in Q.vertices()]
+        )
         alpha_shape_faces = np.array(
-            [np.array(halfedge_to_triangle(face.halfedge())) for face in Q.facets()])
+            [np.array(halfedge_to_triangle(face.halfedge())) for face in Q.facets()]
+        )
 
         return alpha_shape_vertices, alpha_shape_faces
 
-    verts = pin.reachableWorkspace(
-        robot, q0, horizon, frame, n_samples, facet_dims)
+    verts = pin.reachableWorkspace(robot, q0, horizon, frame, n_samples, facet_dims)
     verts = verts.T
 
     alpha = 0.2
@@ -115,16 +119,14 @@ print("------------------- Display Vertex")
 # meshcat triangulated mesh
 poly = g.TriangularMeshGeometry(vertices=verts, faces=faces)
 viz.viewer["poly"].set_object(
-    poly, g.MeshBasicMaterial(
-        color=0x000000, wireframe=True, linewidth=12, opacity=0.2)
+    poly, g.MeshBasicMaterial(color=0x000000, wireframe=True, linewidth=12, opacity=0.2)
 )
 
 while True:
     viz.display(q0)
     viz.viewer["poly"].set_object(
         poly,
-        g.MeshBasicMaterial(color=0x000000, wireframe=True,
-                            linewidth=2, opacity=0.2),
+        g.MeshBasicMaterial(color=0x000000, wireframe=True, linewidth=2, opacity=0.2),
     )
 
     time.sleep(1e-2)

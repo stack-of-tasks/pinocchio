@@ -11,20 +11,22 @@ from pinocchio.visualize import MeshcatVisualizer
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
+pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
+pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 
-model_path = join(pinocchio_model_dir,"example-robot-data/robots")
+model_path = join(pinocchio_model_dir, "example-robot-data/robots")
 mesh_dir = pinocchio_model_dir
 urdf_filename = "talos_reduced.urdf"
-urdf_model_path = join(join(model_path,"talos_data/robots"),urdf_filename)
+urdf_model_path = join(join(model_path, "talos_data/robots"), urdf_filename)
 srdf_filename = "talos.srdf"
-srdf_full_path = join(join(model_path,"talos_data/srdf"),srdf_filename)
+srdf_full_path = join(join(model_path, "talos_data/srdf"), srdf_filename)
 
-model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
+model, collision_model, visual_model = pin.buildModelsFromUrdf(
+    urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()
+)
 
 # Start a new MeshCat server and client.
 # Note: the server can also be started separately using the "meshcat-server" command in a terminal:
@@ -36,7 +38,9 @@ try:
     viz = MeshcatVisualizer(model, collision_model, visual_model)
     viz.initViewer(open=False)
 except ImportError as err:
-    print("Error while initializing the viewer. It seems you should install Python meshcat")
+    print(
+        "Error while initializing the viewer. It seems you should install Python meshcat"
+    )
     print(err)
     sys.exit(0)
 
@@ -44,13 +48,13 @@ except ImportError as err:
 viz.loadViewerModel()
 
 # Display a robot configuration.
-pin.loadReferenceConfigurations(model,srdf_full_path)
+pin.loadReferenceConfigurations(model, srdf_full_path)
 q0 = model.referenceConfigurations["half_sitting"]
-q_ref = pin.integrate(model,q0,0.1*np.random.rand((model.nv)))
+q_ref = pin.integrate(model, q0, 0.1 * np.random.rand((model.nv)))
 viz.display(q0)
 
-feet_name = ["left_sole_link","right_sole_link"]
-frame_ids = [ model.getFrameId(frame_name) for frame_name in feet_name ]
+feet_name = ["left_sole_link", "right_sole_link"]
+frame_ids = [model.getFrameId(frame_name) for frame_name in feet_name]
 
 v0 = np.zeros((model.nv))
 v_ref = v0.copy()
@@ -63,7 +67,9 @@ contact_datas = []
 
 for frame_id in frame_ids:
     frame = model.frames[frame_id]
-    contact_model = pin.RigidConstraintModel(pin.ContactType.CONTACT_6D,model,frame.parentJoint,frame.placement)
+    contact_model = pin.RigidConstraintModel(
+        pin.ContactType.CONTACT_6D, model, frame.parentJoint, frame.placement
+    )
 
     contact_models.append(contact_model)
     contact_datas.append(contact_model.createData())
@@ -71,15 +77,15 @@ for frame_id in frame_ids:
 num_constraints = len(frame_ids)
 contact_dim = 6 * num_constraints
 
-pin.initConstraintDynamics(model,data_sim,contact_models)
+pin.initConstraintDynamics(model, data_sim, contact_models)
 
 t = 0
 dt = 5e-3
 
-S = np.zeros((model.nv-6,model.nv))
-S.T[6:,:] = np.eye(model.nv-6)
-Kp_posture = 30.
-Kv_posture = 0.05*math.sqrt(Kp_posture)
+S = np.zeros((model.nv - 6, model.nv))
+S.T[6:, :] = np.eye(model.nv - 6)
+Kp_posture = 30.0
+Kv_posture = 0.05 * math.sqrt(Kp_posture)
 
 q = q0.copy()
 v = v0.copy()
@@ -88,40 +94,49 @@ tau = np.zeros((model.nv))
 T = 5
 
 while t <= T:
-    print("t:",t)
+    print("t:", t)
     t += dt
 
     tic = time.time()
-    J_constraint = np.zeros((contact_dim,model.nv))
-    pin.computeJointJacobians(model,data_control,q)
+    J_constraint = np.zeros((contact_dim, model.nv))
+    pin.computeJointJacobians(model, data_control, q)
     constraint_index = 0
     for k in range(num_constraints):
         contact_model = contact_models[k]
-        J_constraint[constraint_index:constraint_index+6,:] = pin.getFrameJacobian(model,data_control,contact_model.joint1_id,contact_model.joint1_placement,contact_model.reference_frame)
+        J_constraint[constraint_index : constraint_index + 6, :] = pin.getFrameJacobian(
+            model,
+            data_control,
+            contact_model.joint1_id,
+            contact_model.joint1_placement,
+            contact_model.reference_frame,
+        )
         constraint_index += 6
 
-    A = np.vstack((S,J_constraint))
-    b = pin.rnea(model,data_control,q,v,np.zeros((model.nv)))
+    A = np.vstack((S, J_constraint))
+    b = pin.rnea(model, data_control, q, v, np.zeros((model.nv)))
 
-    sol = np.linalg.lstsq(A.T,b,rcond=None)[0]
-    tau = np.concatenate((np.zeros((6)),sol[:model.nv-6]))
+    sol = np.linalg.lstsq(A.T, b, rcond=None)[0]
+    tau = np.concatenate((np.zeros((6)), sol[: model.nv - 6]))
 
-    tau[6:] += -Kp_posture*(pin.difference(model,q_ref,q))[6:] - Kv_posture*(v - v_ref)[6:]
+    tau[6:] += (
+        -Kp_posture * (pin.difference(model, q_ref, q))[6:]
+        - Kv_posture * (v - v_ref)[6:]
+    )
 
-    prox_settings = pin.ProximalSettings(1e-12,1e-12,10)
-    a = pin.constraintDynamics(model,data_sim,q,v,tau,contact_models,contact_datas,prox_settings)
-    print("a:",a.T)
-    print("v:",v.T)
-    print("constraint:",np.linalg.norm(J_constraint@a))
-    print("iter:",prox_settings.iter)
+    prox_settings = pin.ProximalSettings(1e-12, 1e-12, 10)
+    a = pin.constraintDynamics(
+        model, data_sim, q, v, tau, contact_models, contact_datas, prox_settings
+    )
+    print("a:", a.T)
+    print("v:", v.T)
+    print("constraint:", np.linalg.norm(J_constraint @ a))
+    print("iter:", prox_settings.iter)
 
     v += a * dt
-    q = pin.integrate(model,q,v*dt)
+    q = pin.integrate(model, q, v * dt)
 
     viz.display(q)
     elapsed_time = time.time() - tic
 
-    time.sleep(max(0,dt - elapsed_time))
-    #input()
-    
-
+    time.sleep(max(0, dt - elapsed_time))
+    # input()

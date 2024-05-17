@@ -14,7 +14,7 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     void exposeFrame()
     {
       FramePythonVisitor<context::Frame>::expose();
@@ -23,6 +23,6 @@ namespace pinocchio
       serialize<StdAlignedVectorPythonVisitor<context::Frame>::vector_type>();
 #endif
     }
-    
+
   } // namespace python
 } // namespace pinocchio

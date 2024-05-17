@@ -124,7 +124,7 @@ contains the model constants: lengths, masses, names, etc) and Data
 (which contains the working memory used by the model algorithms). Both
 C++ objects are contained in a unique Python class. load_robot_description
 can load common robot models without issue into pinocchio. First install
-the example-robot-data package using: 
+the example-robot-data package using:
 'sudo apt install robotpkg-example-robot-data'
 
 ```py
@@ -137,7 +137,7 @@ visual_model = robot.visual_model
 ```
 
 The code of the RobotWrapper class can also be used to load local URDF's
-and can be found at 
+and can be found at
 `/opt/openrobots/lib/python3.10/site-packages/pinocchio/robot_wrapper.py`.
 Do not hesitate to have a look at it and to take inspiration from the
 implementation of the class functions.

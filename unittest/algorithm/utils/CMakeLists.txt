@@ -1,2 +1,2 @@
-ADD_PINOCCHIO_UNIT_TEST(motion)
-ADD_PINOCCHIO_UNIT_TEST(force)
+add_pinocchio_unit_test(motion)
+add_pinocchio_unit_test(force)

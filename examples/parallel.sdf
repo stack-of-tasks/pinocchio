@@ -23,7 +23,7 @@
         </geometry>
       </visual>
     </link>
-    
+
     <link name="link_B1">
       <pose>0.8 0 0 0 0 0</pose>
       <inertial>
@@ -47,7 +47,7 @@
         </geometry>
       </visual>
     </link>
-    
+
     <link name="link_A2">
       <pose>1.6 0 0 0 0 0</pose>
       <inertial>
@@ -71,7 +71,7 @@
         </geometry>
       </visual>
     </link>
-    
+
     <link name="link_B2">
       <pose>2.4 0 0 0 0 0</pose>
       <inertial>
@@ -95,7 +95,7 @@
         </geometry>
       </visual>
     </link>
-    
+
     <joint name="joint_B1" type="revolute">
       <pose>-0.3 0 0 0 0 0</pose>
       <child>link_B1</child>
@@ -125,6 +125,6 @@
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    
+
   </model>
 </sdf>

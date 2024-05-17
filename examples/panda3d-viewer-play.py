@@ -3,13 +3,14 @@
 # pip install panda3d_viewer
 
 
-
 import sys
 import numpy as np
 from os.path import dirname, join, abspath
 
 # Add path to the example-robot-data package
-path = join(dirname(dirname(abspath(__file__))), 'models', 'example-robot-data', 'python')
+path = join(
+    dirname(dirname(abspath(__file__))), "models", "example-robot-data", "python"
+)
 sys.path.append(path)
 from example_robot_data.robots_loader import TalosLoader
 
@@ -21,7 +22,7 @@ talos = TalosLoader().robot
 # Attach talos to the viewer scene
 talos.setVisualizer(Panda3dVisualizer())
 talos.initViewer()
-talos.loadViewerModel(group_name='talos', color=(1, 1, 1, 1))
+talos.loadViewerModel(group_name="talos", color=(1, 1, 1, 1))
 
 
 # Play a sample trajectory in a loop
@@ -43,7 +44,7 @@ def play_sample_trajectory():
     )
 
     while True:
-        talos.play(traj.T, 1. / update_rate)
+        talos.play(traj.T, 1.0 / update_rate)
         traj = np.flip(traj, 1)
 
 

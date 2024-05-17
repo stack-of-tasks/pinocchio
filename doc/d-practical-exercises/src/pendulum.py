@@ -32,7 +32,7 @@ class Visual:
     '''
     def __init__(self,name,jointParent,placement):
         self.name = name                  # Name in gepetto viewer
-        self.jointParent = jointParent    # ID (int) of the joint 
+        self.jointParent = jointParent    # ID (int) of the joint
         self.placement = placement        # placement of the body wrt joint, i.e. bodyMjoint
     def place(self,display,oMjoint):
         oMbody = oMjoint*self.placement
@@ -40,15 +40,15 @@ class Visual:
 
 class Pendulum:
     '''
-    Define a class Robot with 7DOF (shoulder=3 + elbow=1 + wrist=3). 
-    The configuration is nq=7. The velocity is the same. 
+    Define a class Robot with 7DOF (shoulder=3 + elbow=1 + wrist=3).
+    The configuration is nq=7. The velocity is the same.
     The members of the class are:
     * viewer: a display encapsulating a gepetto viewer client to create 3D objects and place them.
     * model: the kinematic tree of the robot.
     * data: the temporary variables to be used by the kinematic algorithms.
     * visuals: the list of all the 'visual' 3D objects to render the robot, each element of the list being
     an object Visual (see above).
-    
+
     See tp1.py for an example of use.
     '''
 
@@ -117,7 +117,7 @@ class Pendulum:
     def nu(self): return self.nv
 
     def reset(self,x0=None):
-        if x0 is None: 
+        if x0 is None:
             q0 = np.pi*(rand(self.nq)*2-1)
             v0 = rand(self.nv)*2-1
             x0 = np.vstack([q0,v0])
@@ -133,7 +133,7 @@ class Pendulum:
 
     def obs(self,x):
         if self.withSinCos:
-            return np.vstack([ np.vstack([np.cos(qi),np.sin(qi)]) for qi in x[:self.nq] ] 
+            return np.vstack([ np.vstack([np.cos(qi),np.sin(qi)]) for qi in x[:self.nq] ]
                              + [x[self.nq:]],)
         else: return x.copy()
 
@@ -145,7 +145,7 @@ class Pendulum:
     def dynamics(self,x,u,display=False):
         '''
         Dynamic function: x,u -> xnext=f(x,y).
-        Put the result in x (the initial value is destroyed). 
+        Put the result in x (the initial value is destroyed).
         Also compute the cost of making this step.
         Return x for convenience along with the cost.
         '''
@@ -177,12 +177,10 @@ class Pendulum:
 
         x[:self.nq] = modulePi(q)
         x[self.nq:] = np.clip(v,-self.vmax,self.vmax)
-        
+
         return x,-cost
-     
+
     def render(self):
         q = self.x[:self.nq]
         self.display(q)
         time.sleep(self.DT/10)
-
-        

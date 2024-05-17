@@ -8,44 +8,57 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/fwd.hpp"
 
-namespace pinocchio {
+namespace pinocchio
+{
 
   template<class Derived>
   struct ConstraintModelBase : NumericalBase<Derived>
   {
     typedef typename traits<Derived>::Scalar Scalar;
-    enum { Options = traits<Derived>::Options };
+    enum
+    {
+      Options = traits<Derived>::Options
+    };
     typedef typename traits<Derived>::ConstraintData ConstraintData;
 
-    typedef Eigen::Matrix<bool,Eigen::Dynamic,1,Options> BooleanVector;
-//    typedef Eigen::Matrix<Eigen::DenseIndex,Eigen::Dynamic,1,Options> IndexVector;
+    typedef Eigen::Matrix<bool, Eigen::Dynamic, 1, Options> BooleanVector;
+    //    typedef Eigen::Matrix<Eigen::DenseIndex,Eigen::Dynamic,1,Options> IndexVector;
     typedef std::vector<Eigen::DenseIndex> IndexVector;
 
-    Derived & derived() { return static_cast<Derived&>(*this); }
-    const Derived & derived() const { return static_cast<const Derived&>(*this); }
+    Derived & derived()
+    {
+      return static_cast<Derived &>(*this);
+    }
+    const Derived & derived() const
+    {
+      return static_cast<const Derived &>(*this);
+    }
 
     template<typename NewScalar>
-    typename CastType<NewScalar,Derived>::type cast() const
+    typename CastType<NewScalar, Derived>::type cast() const
     {
       return derived().template cast<NewScalar>();
     }
 
-    /// \brief Evaluate the constraint values at the current state given by data and store the results in cdata.
-    template<int Options, template<typename,int> class JointCollectionTpl>
-    void calc(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-              ConstraintData & cdata) const
+    /// \brief Evaluate the constraint values at the current state given by data and store the
+    /// results in cdata.
+    template<int Options, template<typename, int> class JointCollectionTpl>
+    void calc(
+      const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const DataTpl<Scalar, Options, JointCollectionTpl> & data,
+      ConstraintData & cdata) const
     {
-      derived().calc(model,data,cdata);
+      derived().calc(model, data, cdata);
     }
 
-    template<typename JacobianMatrix, int Options, template<typename,int> class JointCollectionTpl>
-    void jacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                  const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                  ConstraintData & cdata,
-                  const Eigen::MatrixBase<JacobianMatrix> & jacobian_matrix) const
+    template<typename JacobianMatrix, int Options, template<typename, int> class JointCollectionTpl>
+    void jacobian(
+      const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const DataTpl<Scalar, Options, JointCollectionTpl> & data,
+      ConstraintData & cdata,
+      const Eigen::MatrixBase<JacobianMatrix> & jacobian_matrix) const
     {
-      derived().jacobian(model,data,cdata,jacobian_matrix.const_cast_derived());
+      derived().jacobian(model, data, cdata, jacobian_matrix.const_cast_derived());
     }
 
     // Attributes common to all constraints
@@ -62,10 +75,8 @@ namespace pinocchio {
     template<typename OtherDerived>
     bool operator==(const ConstraintModelBase<OtherDerived> & other) const
     {
-      return
-         name == other.name
-      && colwise_sparsity == other.colwise_sparsity
-      && colwise_span_indexes == other.colwise_span_indexes;
+      return name == other.name && colwise_sparsity == other.colwise_sparsity
+             && colwise_span_indexes == other.colwise_span_indexes;
     }
 
     template<typename OtherDerived>
@@ -84,8 +95,8 @@ namespace pinocchio {
     }
 
   protected:
-    template<int Options, template<typename,int> class JointCollectionTpl>
-    ConstraintModelBase(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
+    template<int Options, template<typename, int> class JointCollectionTpl>
+    ConstraintModelBase(const ModelTpl<Scalar, Options, JointCollectionTpl> & model)
     : colwise_sparsity(model.nv)
     {
       static const bool default_sparsity_value = false;
@@ -94,13 +105,19 @@ namespace pinocchio {
 
     /// \brief Default constructor
     ConstraintModelBase()
-    {}
+    {
+    }
 
-    ConstraintModelBase & base() { return *this; }
-    const ConstraintModelBase & base() const { return *this; }
+    ConstraintModelBase & base()
+    {
+      return *this;
+    }
+    const ConstraintModelBase & base() const
+    {
+      return *this;
+    }
   };
 
-}
-
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_algorithm_constraint_model_base_hpp__

@@ -6,18 +6,18 @@ A rigid body system is an assembly of different parts which are joints, rigid bo
 
 Rotation matrices form the so-called **Special Orthogonal** group \f$ SO(n) \f$. There are two groups within the latter which interest us as for now: \f$ SO(2) \f$ and \f$ SO(3) \f$. \f$ SO(3) \f$ is the group of all rotations in the 3-dimensionnal space. Its elements are matrices of size 3 by 3. \f$ SO(3) \f$ is useful for planar problems. It is the group of rotations in the 2-dimensionnal space. Its elements are matrices of size 2 by 2.
 
-The set that brings together all the homogeneous transformations matrices is the **Special Euclidean** group \f$ SE(n) \f$. As with rotation matrices, there are two different groups, \f$ SE(3) \f$ for 3-dimensional transformations and \f$ SE(2) \f$ for 2-dimensional transformation, i.e. transformation in a plane. 
+The set that brings together all the homogeneous transformations matrices is the **Special Euclidean** group \f$ SE(n) \f$. As with rotation matrices, there are two different groups, \f$ SE(3) \f$ for 3-dimensional transformations and \f$ SE(2) \f$ for 2-dimensional transformation, i.e. transformation in a plane.
 
 ### Using quaternions for an \\( SO(3) \\) object
 
 To use quaternions for a \f$ SO(3) \f$ object we have several methods, we can do as in the \f$ SE(3) \f$ example in the [Dealing with Lie group geometry](@ref e-lie) section by removing the translation vector.
 
-Or we can just consider one rotation instead of two. For example, in a landmark link to the robot itself, we consider the starting position as the origin of this landmark.  
+Or we can just consider one rotation instead of two. For example, in a landmark link to the robot itself, we consider the starting position as the origin of this landmark.
 
 So let's consider a cube in the 3-dimensional space.
 
 
-![A rotation around its diagonal](cube_rotation.gif) 
+![A rotation around its diagonal](cube_rotation.gif)
 
 
 ![Position and Landmark](cube-rotation_picture.jpg)
@@ -50,16 +50,16 @@ Determining the matrix corresponding to a rotation is not immediate, so that ver
 
 ### Cartesian product
 
-Of course the cartesian product is essential for analysis and description of the movement in our Euclidean space. But here, it's specific to the lie algebra, this is different from the cartesian product which define our space. 
-The cartesian product can also be used to create a specific space by associating spaces related to the lie algebra as \f$ SE(n) \f$ and \f$ SO(n) \f$ groups. 
+Of course the cartesian product is essential for analysis and description of the movement in our Euclidean space. But here, it's specific to the lie algebra, this is different from the cartesian product which define our space.
+The cartesian product can also be used to create a specific space by associating spaces related to the lie algebra as \f$ SE(n) \f$ and \f$ SO(n) \f$ groups.
 
 For example let's consider a wheeled robot like Tiago. It can only move on the ground. It is possible to assimilate the ground as a plane. The robot can rotate around the z-axis so we have to deal with a \f$ SE(2) \f$ object. Then we attach to this \f$ SE(2) \f$ object an articulated arm with four revolute joints spread out his arm, each has one degree of freedom of rotation so they are \f$ SO(2) \f$ objects. To deal with this set we use the cartesian product related to the lie algebra and we get a new space in which we are able to represent all the possible trajectories of the robot and its arm.
 
 
-### Vector space 
+### Vector space
 
-If you want to create a tangent space to simplify calculations of a trajectory it is necessary to use vector spaces. Indeed, a tangent space is a vector space that is the whole of all velocity vectors. 
-Let's consider an object having a trajectory, all points of it have a velocity which is tangent to the trajectory and the space associate to one velocity and passing by one point of the trajectory is the \b tangent \b space. 
+If you want to create a tangent space to simplify calculations of a trajectory it is necessary to use vector spaces. Indeed, a tangent space is a vector space that is the whole of all velocity vectors.
+Let's consider an object having a trajectory, all points of it have a velocity which is tangent to the trajectory and the space associate to one velocity and passing by one point of the trajectory is the \b tangent \b space.
 
 
 Furthermore, by using vector spaces we have the possibility to use its properties as those of the Euclidean cross operator and linear combinations.

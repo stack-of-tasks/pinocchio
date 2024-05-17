@@ -7,7 +7,8 @@
 
 #include "pinocchio/macros.hpp"
 
-PINOCCHIO_PRAGMA_DEPRECATED_HEADER(pinocchio/algorithm/parallel/geometry.hpp,pinocchio/collision/parallel/geometry.hpp)
+PINOCCHIO_PRAGMA_DEPRECATED_HEADER(
+  pinocchio / algorithm / parallel / geometry.hpp, pinocchio / collision / parallel / geometry.hpp)
 
 #include "pinocchio/collision/parallel/geometry.hpp"
 

@@ -2,6 +2,7 @@ import numpy as np
 import pinocchio as pin
 
 from os.path import dirname, join, abspath
+
 np.set_printoptions(linewidth=np.inf)
 
 # ----- PROBLEM STATEMENT ------
@@ -52,17 +53,36 @@ pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 model_path = join(pinocchio_model_dir, "example-robot-data/robots")
 mesh_dir = pinocchio_model_dir
 urdf_filename = "solo12.urdf"
-urdf_model_path = join(join(model_path, "solo_description/robots"),
-                       urdf_filename)
+urdf_model_path = join(join(model_path, "solo_description/robots"), urdf_filename)
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
-    urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
+    urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()
+)
 data = model.createData()
 
-q0 = np.array([
-    0., 0., 0.235, 0., 0., 0., 1., 0., 0.8, -1.6, 0., -0.8, 1.6, 0., 0.8, -1.6,
-    0., -0.8, 1.6
-])
+q0 = np.array(
+    [
+        0.0,
+        0.0,
+        0.235,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.8,
+        -1.6,
+        0.0,
+        -0.8,
+        1.6,
+        0.0,
+        0.8,
+        -1.6,
+        0.0,
+        -0.8,
+        1.6,
+    ]
+)
 v0 = np.zeros(model.nv)
 a0 = np.zeros(model.nv)
 
@@ -77,16 +97,15 @@ g_j = g_grav[6:]
 # 2. FIND CONTACTS
 
 # First, we set the frame for our contacts. We assume the contacts are placed at the following 4 frames and they are 3D
-feet_names = ['FL_FOOT', 'FR_FOOT', 'HL_FOOT', 'HR_FOOT']
+feet_names = ["FL_FOOT", "FR_FOOT", "HL_FOOT", "HR_FOOT"]
 feet_ids = [model.getFrameId(n) for n in feet_names]
-bl_id = model.getFrameId('base_link')
+bl_id = model.getFrameId("base_link")
 ncontact = len(feet_names)
 
 # Now, we need to find the contact Jacobians appearing in (1).
 # These are the Jacobians that relate the joint velocity  to the velocity of each feet
 Js__feet_q = [
-    np.copy(pin.computeFrameJacobian(model, data, q0, id, pin.LOCAL))
-    for id in feet_ids
+    np.copy(pin.computeFrameJacobian(model, data, q0, id, pin.LOCAL)) for id in feet_ids
 ]
 
 Js__feet_bl = [np.copy(J[:3, :6]) for J in Js__feet_q]
@@ -113,12 +132,14 @@ for l__f, foot_id in zip(ls__f, feet_ids):
 
 print("\n--- CONTACT FORCES ---")
 for l__f, foot_id, name in zip(ls__bl, feet_ids, feet_names):
-    print("Contact force at foot {} expressed at the BL is: {}".format(
-        name, l__f))
+    print("Contact force at foot {} expressed at the BL is: {}".format(name, l__f))
 
 # Notice that if we add all the contact forces are equal to the g_grav
-print("Error between contact forces and gravity at base link: {}".format(
-    np.linalg.norm(g_bl - sum(ls__bl))))
+print(
+    "Error between contact forces and gravity at base link: {}".format(
+        np.linalg.norm(g_bl - sum(ls__bl))
+    )
+)
 
 # 3. FIND TAU
 # Find Jc__feet_j
@@ -136,7 +157,7 @@ tau = g_j - Jc__feet_j_T @ ls
 # We can compare this torques with the ones one would obtain when computing the ID considering the external forces in ls
 pin.framesForwardKinematics(model, data, q0)
 
-joint_names = ['FL_KFE', 'FR_KFE', 'HL_KFE', 'HR_KFE']
+joint_names = ["FL_KFE", "FR_KFE", "HL_KFE", "HR_KFE"]
 joint_ids = [model.getJointId(n) for n in joint_names]
 
 fs_ext = [pin.Force(np.zeros(6)) for _ in range(len(model.joints))]
@@ -150,14 +171,20 @@ tau_rnea = pin.rnea(model, data, q0, v0, a0, fs_ext)
 print("\n--- ID: JOINT TORQUES ---")
 print("Tau from RNEA:         {}".format(tau_rnea))
 print("Tau computed manually: {}".format(np.append(np.zeros(6), tau)))
-print("Tau error: {}".format(
-    np.linalg.norm(np.append(np.zeros(6), tau) - tau_rnea)))
+print("Tau error: {}".format(np.linalg.norm(np.append(np.zeros(6), tau) - tau_rnea)))
 
 # FORWARD DYNAMICS
 # We can also check the results using FD. FD with the tau we got, q0 and v0, should give 0 acceleration and the contact forces
 Js_feet3d_q = [np.copy(J[:3, :]) for J in Js__feet_q]
-acc = pin.forwardDynamics(model, data, q0, v0, np.append(np.zeros(6), tau),
-                          np.vstack(Js_feet3d_q), np.zeros(12))
+acc = pin.forwardDynamics(
+    model,
+    data,
+    q0,
+    v0,
+    np.append(np.zeros(6), tau),
+    np.vstack(Js_feet3d_q),
+    np.zeros(12),
+)
 
 print("\n--- FD: ACC. & CONTACT FORCES ---")
 print("Norm of the FD acceleration: {}".format(np.linalg.norm(acc)))

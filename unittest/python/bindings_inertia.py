@@ -1,17 +1,17 @@
 import unittest
 import pinocchio as pin
 import numpy as np
-from pinocchio.utils import eye,zero,rand
+from pinocchio.utils import eye, zero, rand
 
 from test_case import PinocchioTestCase as TestCase
 
-class TestInertiaBindings(TestCase):
 
+class TestInertiaBindings(TestCase):
     def test_zero_getters(self):
         Y = pin.Inertia.Zero()
         self.assertTrue(Y.mass == 0)
         self.assertTrue(np.allclose(zero(3), Y.lever))
-        self.assertTrue(np.allclose(zero([3,3]), Y.inertia))
+        self.assertTrue(np.allclose(zero([3, 3]), Y.inertia))
 
     def test_identity_getters(self):
         Y = pin.Inertia.Identity()
@@ -33,7 +33,7 @@ class TestInertiaBindings(TestCase):
         Y.setZero()
         self.assertTrue(Y.mass == 0)
         self.assertTrue(np.allclose(zero(3), Y.lever))
-        self.assertTrue(np.allclose(zero([3,3]), Y.inertia))
+        self.assertTrue(np.allclose(zero([3, 3]), Y.inertia))
 
     def test_setIdentity(self):
         Y = pin.Inertia.Zero()
@@ -55,8 +55,8 @@ class TestInertiaBindings(TestCase):
 
     def test_set_inertia(self):
         Y = pin.Inertia.Zero()
-        iner = rand([3,3])
-        iner = (iner + iner.T) / 2.  # Symmetrize the matrix
+        iner = rand([3, 3])
+        iner = (iner + iner.T) / 2.0  # Symmetrize the matrix
         Y.inertia = iner
         self.assertTrue(np.allclose(Y.inertia, iner))
 
@@ -71,9 +71,23 @@ class TestInertiaBindings(TestCase):
         Y = pin.Inertia.Random()
         v = pin.Motion.Random()
         self.assertTrue(np.allclose((Y * v).vector, Y.matrix().dot(v.vector)))
-        self.assertTrue(np.allclose((m * Y).matrix(),  m.inverse().action.T.dot(Y.matrix()).dot(m.inverse().action)))
-        self.assertTrue(np.allclose(m.act(Y).matrix(), m.inverse().action.T.dot(Y.matrix()).dot(m.inverse().action)))
-        self.assertTrue(np.allclose((m.actInv(Y)).matrix(), m.action.T.dot(Y.matrix()).dot(m.action)))
+        self.assertTrue(
+            np.allclose(
+                (m * Y).matrix(),
+                m.inverse().action.T.dot(Y.matrix()).dot(m.inverse().action),
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                m.act(Y).matrix(),
+                m.inverse().action.T.dot(Y.matrix()).dot(m.inverse().action),
+            )
+        )
+        self.assertTrue(
+            np.allclose(
+                (m.actInv(Y)).matrix(), m.action.T.dot(Y.matrix()).dot(m.action)
+            )
+        )
 
     def test_dynamic_parameters(self):
         I = pin.Inertia.Random()
@@ -85,28 +99,30 @@ class TestInertiaBindings(TestCase):
 
         I_o = I.inertia + I.mass * pin.skew(I.lever).transpose().dot(pin.skew(I.lever))
         I_ov = np.array(
-                [[float(v[4]), float(v[5]), float(v[7])],
-                 [float(v[5]), float(v[6]), float(v[8])],
-                 [float(v[7]), float(v[8]), float(v[9])]
-                ]
-               )
+            [
+                [float(v[4]), float(v[5]), float(v[7])],
+                [float(v[5]), float(v[6]), float(v[8])],
+                [float(v[7]), float(v[8]), float(v[9])],
+            ]
+        )
 
         self.assertApprox(I_o, I_ov)
 
         I2 = pin.Inertia.FromDynamicParameters(v)
         self.assertApprox(I2, I)
-    
+
     def test_array(self):
         I = pin.Inertia.Random()
         I_array = np.array(I)
 
-        self.assertApprox(I_array,I.matrix())
+        self.assertApprox(I_array, I.matrix())
 
     def test_several_init(self):
         for _ in range(100000):
             i = pin.Inertia.Random() + pin.Inertia.Random()
             s = i.__str__()
-            self.assertTrue(s != '')
+            self.assertTrue(s != "")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

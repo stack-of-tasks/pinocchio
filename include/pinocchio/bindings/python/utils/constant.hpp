@@ -11,7 +11,7 @@ namespace boost
 {
   namespace python
   {
-    
+
     ///
     /// \brief Define a constant given its value and a name within the current Boost Python scope.
     ///
@@ -26,7 +26,7 @@ namespace boost
       namespace bp = boost::python;
       bp::scope().attr(name) = value;
     }
-    
+
   } // namespace python
 } // namespace boost
 

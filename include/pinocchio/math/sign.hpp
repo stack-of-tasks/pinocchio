@@ -15,6 +15,6 @@ namespace pinocchio
   {
     return (t > Scalar(0)) - (t < Scalar(0));
   }
-}
+} // namespace pinocchio
 
-#endif //#ifndef __pinocchio_math_sign_hpp__
+#endif // #ifndef __pinocchio_math_sign_hpp__

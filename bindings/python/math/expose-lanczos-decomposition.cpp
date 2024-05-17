@@ -18,6 +18,6 @@ namespace pinocchio
       LanczosDecompositionPythonVisitor<LanczosDecomposition>::expose();
 #endif // PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
     }
-    
+
   } // namespace python
 } // namespace pinocchio

@@ -70,7 +70,7 @@
         <joint name="RLEG_ANKLE_P"  value="0.0" />
         <joint name="RLEG_ANKLE_R"  value="0.0" />
     </group_state>
-    
+
     <rotor_params>
         <joint name="WAIST_P" mass="1.0" gear_ratio="0.0" />
         <joint name="WAIST_R" mass="0.0" gear_ratio="1.0" />

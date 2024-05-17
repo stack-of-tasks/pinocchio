@@ -23,4 +23,3 @@ namespace pinocchio
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_extra_extras_hpp__
-

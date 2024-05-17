@@ -12,15 +12,19 @@
 namespace pinocchio
 {
   /// Default checker-list, used as the default argument in Model::check().
-  inline AlgorithmCheckerList<ParentChecker,CRBAChecker,ABAChecker> makeDefaultCheckerList()
-  { return makeAlgoCheckerList(ParentChecker(),CRBAChecker(),ABAChecker()); }
+  inline AlgorithmCheckerList<ParentChecker, CRBAChecker, ABAChecker> makeDefaultCheckerList()
+  {
+    return makeAlgoCheckerList(ParentChecker(), CRBAChecker(), ABAChecker());
+  }
 
 #define DEFAULT_CHECKERS makeDefaultCheckerList()
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline bool ModelTpl<Scalar,Options,JointCollectionTpl>::check() const
-  { return this->check(DEFAULT_CHECKERS); }
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  inline bool ModelTpl<Scalar, Options, JointCollectionTpl>::check() const
+  {
+    return this->check(DEFAULT_CHECKERS);
+  }
 
-} // namespace pinocchio 
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_default_check_hpp__

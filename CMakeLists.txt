@@ -3,26 +3,28 @@
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10)
 
-SET(PROJECT_NAME pinocchio)
-SET(PROJECT_DESCRIPTION "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives")
-SET(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
-SET(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
-SET(PROJECT_USE_CMAKE_EXPORT TRUE)
-SET(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
-SET(PROJECT_COMPATIBILITY_VERSION AnyNewerVersion)
-SET(PINOCCHIO_PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(PROJECT_NAME pinocchio)
+set(PROJECT_DESCRIPTION
+    "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives"
+)
+set(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
+set(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
+set(PROJECT_USE_CMAKE_EXPORT TRUE)
+set(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
+set(PROJECT_COMPATIBILITY_VERSION AnyNewerVersion)
+set(PINOCCHIO_PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # Disable -Werror on Unix for now.
-SET(CXX_DISABLE_WERROR True)
-SET(CMAKE_VERBOSE_MAKEFILE True)
+set(CXX_DISABLE_WERROR True)
+set(CMAKE_VERBOSE_MAKEFILE True)
 
 # ----------------------------------------------------
 # --- OPTIONS  ---------------------------------------
 # Need to be set before including base.cmake
 # ----------------------------------------------------
-OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+option(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -42,252 +44,269 @@ else()
         "\nCan't find jrl-cmakemodules. Please either:\n"
         "  - use git submodule: 'git submodule update --init'\n"
         "  - or install https://github.com/jrl-umi3218/jrl-cmakemodules\n"
-        "  - or upgrade your CMake version to >= 3.14 to allow automatic fetching\n"
-    )
+        "  - or upgrade your CMake version to >= 3.14 to allow automatic fetching\n")
   else()
     message(STATUS "JRL cmakemodules not found. Let's fetch it.")
     include(FetchContent)
-    FetchContent_Declare(
-      "jrl-cmakemodules"
-      GIT_REPOSITORY "https://github.com/jrl-umi3218/jrl-cmakemodules.git")
+    FetchContent_Declare("jrl-cmakemodules"
+                         GIT_REPOSITORY "https://github.com/jrl-umi3218/jrl-cmakemodules.git")
     FetchContent_MakeAvailable("jrl-cmakemodules")
     FetchContent_GetProperties("jrl-cmakemodules" SOURCE_DIR JRL_CMAKE_MODULES)
   endif()
 endif()
 
+set(DOXYGEN_USE_MATHJAX YES)
+set(DOXYGEN_USE_TEMPLATE_CSS YES)
 
-SET(DOXYGEN_USE_MATHJAX YES)
-SET(DOXYGEN_USE_TEMPLATE_CSS YES)
+include("${JRL_CMAKE_MODULES}/base.cmake")
 
-INCLUDE("${JRL_CMAKE_MODULES}/base.cmake")
+compute_project_args(PROJECT_ARGS LANGUAGES CXX)
+project(${PROJECT_NAME} ${PROJECT_ARGS})
 
-COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
-PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
-
-INCLUDE("${JRL_CMAKE_MODULES}/boost.cmake")
-INCLUDE("${JRL_CMAKE_MODULES}/ide.cmake")
-INCLUDE("${JRL_CMAKE_MODULES}/apple.cmake")
-IF(APPLE) # Use the handmade approach
-  IF(${CMAKE_VERSION} VERSION_LESS "3.18.0") # Need to find the right version
-    SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
-  ENDIF()
-ELSEIF(UNIX)
-  IF(${CMAKE_VERSION} VERSION_EQUAL "3.20.0")
-    SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
-  ENDIF()
-ENDIF(APPLE)
-INCLUDE(CMakeDependentOption)
+include("${JRL_CMAKE_MODULES}/boost.cmake")
+include("${JRL_CMAKE_MODULES}/ide.cmake")
+include("${JRL_CMAKE_MODULES}/apple.cmake")
+if(APPLE) # Use the handmade approach
+  if(${CMAKE_VERSION} VERSION_LESS "3.18.0") # Need to find the right version
+    set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
+  endif()
+elseif(UNIX)
+  if(${CMAKE_VERSION} VERSION_EQUAL "3.20.0")
+    set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
+  endif()
+endif(APPLE)
+include(CMakeDependentOption)
 
 # If needed, set CMake policy for APPLE systems
-APPLY_DEFAULT_APPLE_CONFIGURATION()
-IF(CMAKE_VERSION VERSION_GREATER "3.12")
-  CMAKE_POLICY(SET CMP0074 NEW)
-ENDIF()
+apply_default_apple_configuration()
+if(CMAKE_VERSION VERSION_GREATER "3.12")
+  cmake_policy(SET CMP0074 NEW)
+endif()
 
 # --- OPTIONS ----------------------------------------
-OPTION(BUILD_BENCHMARK "Build the benchmarks" OFF)
-OPTION(BUILD_UTILS "Build the utils" OFF)
-OPTION(BUILD_PYTHON_INTERFACE "Build the Python bindings" ON)
+option(BUILD_BENCHMARK "Build the benchmarks" OFF)
+option(BUILD_UTILS "Build the utils" OFF)
+option(BUILD_PYTHON_INTERFACE "Build the Python bindings" ON)
 option(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF)
-OPTION(BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
+option(BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
 
-IF(DEFINED BUILD_UNIT_TESTS)
-  MESSAGE(AUTHOR_WARNING "BUILD_UNIT_TESTS is deprecated. Use BUILD_TESTING instead.\
+if(DEFINED BUILD_UNIT_TESTS)
+  message(
+    AUTHOR_WARNING
+      "BUILD_UNIT_TESTS is deprecated. Use BUILD_TESTING instead.\
     If you are manually building Pinocchio from source in an existing build folder,\
     we suggest that you delete your build folder and make a new one.")
-  SET(BUILD_TESTING ${BUILD_UNIT_TESTS})
-ENDIF(DEFINED BUILD_UNIT_TESTS)
+  set(BUILD_TESTING ${BUILD_UNIT_TESTS})
+endif(DEFINED BUILD_UNIT_TESTS)
 
-OPTION(BUILD_ADVANCED_TESTING "Build the advanced tests (multiprecision, etc.) of Pinocchio" OFF)
+option(BUILD_ADVANCED_TESTING "Build the advanced tests (multiprecision, etc.) of Pinocchio" OFF)
 
 # --- OPTIONAL DEPENDENCIES -------------------------
-OPTION(BUILD_WITH_URDF_SUPPORT "Build the library with the URDF format support" ON)
-OPTION(BUILD_WITH_SDF_SUPPORT "Build the library with the SDF format support" OFF)
-OPTION(BUILD_WITH_COLLISION_SUPPORT "Build the library with the collision support (required HPP-FCL)" OFF)
-OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differentiation support (via CppAD)" OFF)
-OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
+option(BUILD_WITH_URDF_SUPPORT "Build the library with the URDF format support" ON)
+option(BUILD_WITH_SDF_SUPPORT "Build the library with the SDF format support" OFF)
+option(BUILD_WITH_COLLISION_SUPPORT
+       "Build the library with the collision support (required HPP-FCL)" OFF)
+option(BUILD_WITH_AUTODIFF_SUPPORT
+       "Build the library with the automatic differentiation support (via CppAD)" OFF)
+option(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
 # cppadcodgen don't build well with CL
-IF(NOT WIN32)
-  OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
-ENDIF()
-OPTION(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
-OPTION(BUILD_WITH_EXTRA_SUPPORT "Build the library with extra algorithms support" OFF)
-cmake_dependent_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT "Build the Python interface with Boost.Multiprecision MPFR support" OFF BUILD_PYTHON_INTERFACE OFF)
-cmake_dependent_option(BUILD_WITH_LIBPYTHON "Link to libpython to embed an interpreter for the python_parser feature" ON
+if(NOT WIN32)
+  option(BUILD_WITH_CODEGEN_SUPPORT
+         "Build the library with the support of code generation (via CppADCodeGen)" OFF)
+endif()
+option(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
+option(BUILD_WITH_EXTRA_SUPPORT "Build the library with extra algorithms support" OFF)
+cmake_dependent_option(
+  BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT
+  "Build the Python interface with Boost.Multiprecision MPFR support" OFF BUILD_PYTHON_INTERFACE
+  OFF)
+cmake_dependent_option(
+  BUILD_WITH_LIBPYTHON "Link to libpython to embed an interpreter for the python_parser feature" ON
   "BUILD_PYTHON_INTERFACE" OFF)
 if(APPLE)
-  option(BUILD_WITH_ACCELERATE_SUPPORT
-         "Build EigenPy with the Accelerate support" OFF)
+  option(BUILD_WITH_ACCELERATE_SUPPORT "Build EigenPy with the Accelerate support" OFF)
 else(APPLE)
   set(BUILD_WITH_ACCELERATE_SUPPORT FALSE)
 endif(APPLE)
-OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF)
+option(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF)
 
-OPTION(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
-OPTION(CHECK_RUNTIME_MALLOC "Check if some memory allocations are performed at runtime" OFF)
+option(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
+option(CHECK_RUNTIME_MALLOC "Check if some memory allocations are performed at runtime" OFF)
 
-OPTION(ENABLE_TEMPLATE_INSTANTIATION "Template instantiation of the main library" ON)
+option(ENABLE_TEMPLATE_INSTANTIATION "Template instantiation of the main library" ON)
 
-# Variable containing all the cflags definition relative to build
-# options
+# Variable containing all the cflags definition relative to build options
 set(CFLAGS_OPTIONS)
 
-IF(BUILD_WITH_COLLISION_SUPPORT)
-  SET(BUILD_WITH_HPP_FCL_SUPPORT TRUE)
-ENDIF()
-IF(BUILD_WITH_CODEGEN_SUPPORT)
-  SET(BUILD_WITH_CPPAD_CODEGEN_SUPPORT TRUE)
-  SET(BUILD_WITH_AUTODIFF_SUPPORT ON)
-ENDIF()
-IF(BUILD_WITH_AUTODIFF_SUPPORT)
-  SET(BUILD_WITH_CPPAD_SUPPORT TRUE)
-ENDIF()
+if(BUILD_WITH_COLLISION_SUPPORT)
+  set(BUILD_WITH_HPP_FCL_SUPPORT TRUE)
+endif()
+if(BUILD_WITH_CODEGEN_SUPPORT)
+  set(BUILD_WITH_CPPAD_CODEGEN_SUPPORT TRUE)
+  set(BUILD_WITH_AUTODIFF_SUPPORT ON)
+endif()
+if(BUILD_WITH_AUTODIFF_SUPPORT)
+  set(BUILD_WITH_CPPAD_SUPPORT TRUE)
+endif()
 
-IF(BUILD_WITH_EXTRA_SUPPORT)
-  LIST(APPEND CFLAGS_OPTIONS "-DPINOCCHIO_WITH_EXTRA_SUPPORT")
-ENDIF()
+if(BUILD_WITH_EXTRA_SUPPORT)
+  list(APPEND CFLAGS_OPTIONS "-DPINOCCHIO_WITH_EXTRA_SUPPORT")
+endif()
 
-IF(INITIALIZE_WITH_NAN)
-  MESSAGE(STATUS "Initialize with NaN all the Eigen entries.")
-ENDIF(INITIALIZE_WITH_NAN)
+if(INITIALIZE_WITH_NAN)
+  message(STATUS "Initialize with NaN all the Eigen entries.")
+endif(INITIALIZE_WITH_NAN)
 
-IF(CHECK_RUNTIME_MALLOC)
-  MESSAGE(STATUS "Check if some memory allocations are performed at runtime.")
-ENDIF(CHECK_RUNTIME_MALLOC)
+if(CHECK_RUNTIME_MALLOC)
+  message(STATUS "Check if some memory allocations are performed at runtime.")
+endif(CHECK_RUNTIME_MALLOC)
 
-IF(ENABLE_TEMPLATE_INSTANTIATION)
-  MESSAGE(STATUS "Template instantiation of the main library")
-  LIST(APPEND CFLAGS_OPTIONS "-DPINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION")
-ENDIF(ENABLE_TEMPLATE_INSTANTIATION)
+if(ENABLE_TEMPLATE_INSTANTIATION)
+  message(STATUS "Template instantiation of the main library")
+  list(APPEND CFLAGS_OPTIONS "-DPINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION")
+endif(ENABLE_TEMPLATE_INSTANTIATION)
 
-MACRO(TAG_LIBRARY_VERSION target)
-  SET_TARGET_PROPERTIES(${target} PROPERTIES SOVERSION ${PROJECT_VERSION})
-ENDMACRO(TAG_LIBRARY_VERSION)
+macro(TAG_LIBRARY_VERSION target)
+  set_target_properties(${target} PROPERTIES SOVERSION ${PROJECT_VERSION})
+endmacro(TAG_LIBRARY_VERSION)
 
-SET(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
+set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
 
 # ----------------------------------------------------
 # --- DEPENDENCIES -----------------------------------
 # ----------------------------------------------------
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/find-external/CppAD/" ${CMAKE_MODULE_PATH})
-ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.5")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/find-external/CppAD/" ${CMAKE_MODULE_PATH})
+add_project_dependency(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.5")
 
 # Variable containing all the cflags definition relative to optional dependencies
-SET(CFLAGS_DEPENDENCIES)
+set(CFLAGS_DEPENDENCIES)
 
-IF(BUILD_WITH_URDF_SUPPORT)
-  ADD_PROJECT_DEPENDENCY(urdfdom_headers REQUIRED)
-  ADD_PROJECT_DEPENDENCY(urdfdom REQUIRED PKG_CONFIG_REQUIRES "urdfdom >= 0.2.0")
-  SET(urdfdom_VERSION ${urdfdom_headers_VERSION})
-  LIST(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_URDFDOM")
+if(BUILD_WITH_URDF_SUPPORT)
+  add_project_dependency(urdfdom_headers REQUIRED)
+  add_project_dependency(urdfdom REQUIRED PKG_CONFIG_REQUIRES "urdfdom >= 0.2.0")
+  set(urdfdom_VERSION ${urdfdom_headers_VERSION})
+  list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_URDFDOM")
 
-  IF(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
-    CHECK_MINIMAL_CXX_STANDARD(11 ENFORCE)
-    MESSAGE(STATUS "Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard.")
-  ENDIF(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
-ENDIF(BUILD_WITH_URDF_SUPPORT)
+  if(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
+    check_minimal_cxx_standard(11 ENFORCE)
+    message(
+      STATUS
+        "Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard."
+    )
+  endif(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
+endif(BUILD_WITH_URDF_SUPPORT)
 
-IF(BUILD_WITH_SDF_SUPPORT)
-  INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/sdformat.cmake)
-  SEARCH_FOR_SDFORMAT(REQUIRED)
-  IF(SDFormat_FOUND)
-    CHECK_MINIMAL_CXX_STANDARD(11 REQUIRED)
-    INCLUDE_DIRECTORIES(${SDFormat_INCLUDE_DIRS})
-    LIST(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_SDFORMAT")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SDFormat_CXX_FLAGS}")
-  ENDIF(SDFormat_FOUND)
-ENDIF(BUILD_WITH_SDF_SUPPORT)
+if(BUILD_WITH_SDF_SUPPORT)
+  include(${CMAKE_CURRENT_LIST_DIR}/cmake/sdformat.cmake)
+  search_for_sdformat(REQUIRED)
+  if(SDFormat_FOUND)
+    check_minimal_cxx_standard(11 REQUIRED)
+    include_directories(${SDFormat_INCLUDE_DIRS})
+    list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_SDFORMAT")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SDFormat_CXX_FLAGS}")
+  endif(SDFormat_FOUND)
+endif(BUILD_WITH_SDF_SUPPORT)
 
-SET(BUILD_WITH_PARSERS_SUPPORT BUILD_WITH_URDF_SUPPORT OR BUILD_WITH_SDF_SUPPORT)
+set(BUILD_WITH_PARSERS_SUPPORT BUILD_WITH_URDF_SUPPORT OR BUILD_WITH_SDF_SUPPORT)
 
-IF(BUILD_WITH_AUTODIFF_SUPPORT)
+if(BUILD_WITH_AUTODIFF_SUPPORT)
   # Check first CppADCodeGen
-  IF(BUILD_WITH_CODEGEN_SUPPORT)
-    FIND_PACKAGE(cppadcg 2.4.1 REQUIRED)
-  ENDIF(BUILD_WITH_CODEGEN_SUPPORT)
+  if(BUILD_WITH_CODEGEN_SUPPORT)
+    find_package(cppadcg 2.4.1 REQUIRED)
+  endif(BUILD_WITH_CODEGEN_SUPPORT)
 
-  ADD_PROJECT_DEPENDENCY(cppad 20180000.0 REQUIRED PKG_CONFIG_REQUIRES "cppad >= 20220624.0")
-ENDIF(BUILD_WITH_AUTODIFF_SUPPORT)
+  add_project_dependency(cppad 20180000.0 REQUIRED PKG_CONFIG_REQUIRES "cppad >= 20220624.0")
+endif(BUILD_WITH_AUTODIFF_SUPPORT)
 
-IF(BUILD_WITH_CASADI_SUPPORT)
-  ADD_PROJECT_DEPENDENCY(casadi 3.4.5 REQUIRED PKG_CONFIG_REQUIRES "casadi >= 3.4.5")
-ENDIF(BUILD_WITH_CASADI_SUPPORT)
+if(BUILD_WITH_CASADI_SUPPORT)
+  add_project_dependency(casadi 3.4.5 REQUIRED PKG_CONFIG_REQUIRES "casadi >= 3.4.5")
+endif(BUILD_WITH_CASADI_SUPPORT)
 
-IF(BUILD_WITH_OPENMP_SUPPORT)
-  ADD_PROJECT_DEPENDENCY(OpenMP REQUIRED)
-ENDIF()
+if(BUILD_WITH_OPENMP_SUPPORT)
+  add_project_dependency(OpenMP REQUIRED)
+endif()
 
-IF(BUILD_WITH_EXTRA_SUPPORT)
-  ADD_PROJECT_DEPENDENCY(Qhull COMPONENTS qhullcpp qhull_r REQUIRED)
-  MESSAGE(STATUS "Found Qhull.")
-ENDIF()
+if(BUILD_WITH_EXTRA_SUPPORT)
+  add_project_dependency(Qhull COMPONENTS qhullcpp qhull_r REQUIRED)
+  message(STATUS "Found Qhull.")
+endif()
 
-SET(BOOST_REQUIRED_COMPONENTS filesystem serialization system)
+set(BOOST_REQUIRED_COMPONENTS filesystem serialization system)
 
-SET_BOOST_DEFAULT_OPTIONS()
-EXPORT_BOOST_DEFAULT_OPTIONS()
-ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
+set_boost_default_options()
+export_boost_default_options()
+add_project_dependency(Boost REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
 
-IF(Boost_VERSION_STRING VERSION_LESS 1.81)
-    IF(BUILD_WITH_URDF_SUPPORT AND ${urdfdom_VERSION} VERSION_GREATER "0.4.2")
-      CHECK_MINIMAL_CXX_STANDARD(11 ENFORCE)
-      MESSAGE(STATUS "Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard.")
-    ENDIF()
-ELSE()
+if(Boost_VERSION_STRING VERSION_LESS 1.81)
+  if(BUILD_WITH_URDF_SUPPORT AND ${urdfdom_VERSION} VERSION_GREATER "0.4.2")
+    check_minimal_cxx_standard(11 ENFORCE)
+    message(
+      STATUS
+        "Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard."
+    )
+  endif()
+else()
   # Boost.Math will be C++14 starting in July 2023 (Boost 1.82 release)
-  CHECK_MINIMAL_CXX_STANDARD(14 ENFORCE)
-ENDIF()
+  check_minimal_cxx_standard(14 ENFORCE)
+endif()
 
-IF(BUILD_PYTHON_INTERFACE)
-  MESSAGE(STATUS "The Python bindings of Pinocchio will be compiled along the main library. If you want to disable this feature, please set the option BUILD_PYTHON_INTERFACE to OFF.")
+if(BUILD_PYTHON_INTERFACE)
+  message(
+    STATUS
+      "The Python bindings of Pinocchio will be compiled along the main library. If you want to disable this feature, please set the option BUILD_PYTHON_INTERFACE to OFF."
+  )
 
   set(PYTHON_COMPONENTS Interpreter Development NumPy)
-  ADD_PROJECT_DEPENDENCY(eigenpy 2.7.10 REQUIRED)
+  add_project_dependency(eigenpy 2.7.10 REQUIRED)
 
-  IF(BUILD_WITH_AUTODIFF_SUPPORT)
-    ADD_PROJECT_DEPENDENCY(pycppad 1.1.0 REQUIRED)
-  ENDIF(BUILD_WITH_AUTODIFF_SUPPORT)
+  if(BUILD_WITH_AUTODIFF_SUPPORT)
+    add_project_dependency(pycppad 1.1.0 REQUIRED)
+  endif(BUILD_WITH_AUTODIFF_SUPPORT)
 
-  IF(BUILD_WITH_URDF_SUPPORT)
+  if(BUILD_WITH_URDF_SUPPORT)
     # console_bridge is urdfdom dependency.
-    # We bind some enum of this library and then must link against it
-    ADD_PROJECT_DEPENDENCY(console_bridge REQUIRED)
-  ENDIF()
+    #
+    # We bind some enum of this library and then must link against it.
+    add_project_dependency(console_bridge REQUIRED)
+  endif()
 
   # Check wether this a PyPy Python
-  EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import platform; print(platform.python_implementation())"
+  execute_process(
+    COMMAND ${PYTHON_EXECUTABLE} -c "import platform; print(platform.python_implementation())"
     OUTPUT_VARIABLE _python_implementation_value
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET)
+    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
 
-  MESSAGE(STATUS "Python compiler: ${_python_implementation_value}")
-  IF(_python_implementation_value MATCHES "PyPy")
-    SET(BUILD_PYTHON_INTERFACE_WITH_PYPY TRUE)
-  ENDIF()
+  message(STATUS "Python compiler: ${_python_implementation_value}")
+  if(_python_implementation_value MATCHES "PyPy")
+    set(BUILD_PYTHON_INTERFACE_WITH_PYPY TRUE)
+  endif()
 
-ELSE(BUILD_PYTHON_INTERFACE)
-  MESSAGE(STATUS "Pinocchio won't be compiled with its Python bindings. If you want to enable this feature, please set the option BUILD_PYTHON_INTERFACE to ON.")
-ENDIF(BUILD_PYTHON_INTERFACE)
+else(BUILD_PYTHON_INTERFACE)
+  message(
+    STATUS
+      "Pinocchio won't be compiled with its Python bindings. If you want to enable this feature, please set the option BUILD_PYTHON_INTERFACE to ON."
+  )
+endif(BUILD_PYTHON_INTERFACE)
 
-IF(BUILD_WITH_HPP_FCL_SUPPORT)
-  LIST(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_HPP_FCL")
-  ADD_PROJECT_DEPENDENCY(hpp-fcl 2.1.2 REQUIRED PKG_CONFIG_REQUIRES "hpp-fcl >= 2.1.2")
+if(BUILD_WITH_HPP_FCL_SUPPORT)
+  list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_HPP_FCL")
+  add_project_dependency(hpp-fcl 2.1.2 REQUIRED PKG_CONFIG_REQUIRES "hpp-fcl >= 2.1.2")
   # Check whether hpp-fcl python bindings are available.
-  SET(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS FALSE)
-  IF(BUILD_PYTHON_INTERFACE)
-    EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import hppfcl"
+  set(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS FALSE)
+  if(BUILD_PYTHON_INTERFACE)
+    execute_process(
+      COMMAND ${PYTHON_EXECUTABLE} -c "import hppfcl"
       RESULT_VARIABLE _hpp_fcl_python_bindings_not_found
-      OUTPUT_QUIET
-      ERROR_QUIET)
-    IF(_hpp_fcl_python_bindings_not_found EQUAL 0)
-      SET(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS TRUE)
-      MESSAGE(STATUS "Found hpp-fcl Python bindings.")
-    ELSE()
-      MESSAGE(STATUS "hpp-fcl Python bindings NOT found.")
-    ENDIF()
-    UNSET(_hpp_fcl_python_bindings_not_found)
-  ENDIF(BUILD_PYTHON_INTERFACE)
-ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
+      OUTPUT_QUIET ERROR_QUIET)
+    if(_hpp_fcl_python_bindings_not_found EQUAL 0)
+      set(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS TRUE)
+      message(STATUS "Found hpp-fcl Python bindings.")
+    else()
+      message(STATUS "hpp-fcl Python bindings NOT found.")
+    endif()
+    unset(_hpp_fcl_python_bindings_not_found)
+  endif(BUILD_PYTHON_INTERFACE)
+endif(BUILD_WITH_HPP_FCL_SUPPORT)
 
 if(BUILD_WITH_ACCELERATE_SUPPORT)
   if(NOT ${Eigen3_VERSION} VERSION_GREATER_EQUAL "3.4.90")
@@ -297,214 +316,221 @@ if(BUILD_WITH_ACCELERATE_SUPPORT)
     )
   endif()
 
-  set(CMAKE_MODULE_PATH ${JRL_CMAKE_MODULES}/find-external/Accelerate
-                        ${CMAKE_MODULE_PATH})
-  find_package(
-    Accelerate REQUIRED # FIND_EXTERNAL "Accelerate" # We don't export yet as
-                        # there might be an issue on AMR64 platforms
-  )
+  set(CMAKE_MODULE_PATH ${JRL_CMAKE_MODULES}/find-external/Accelerate ${CMAKE_MODULE_PATH})
+  # FIND_EXTERNAL "Accelerate".
+  #
+  # We don't export yet as there might be an issue on AMR64 platforms.
+  find_package(Accelerate REQUIRED)
   message(STATUS "Build with Accelerate support framework.")
   add_definitions(-DPINOCCHIO_WITH_ACCELERATE_SUPPORT)
 endif(BUILD_WITH_ACCELERATE_SUPPORT)
 
 # Sources definition
-INCLUDE(sources.cmake)
+include(sources.cmake)
 
 # Template instantiation sources
-IF(ENABLE_TEMPLATE_INSTANTIATION)
-  LIST(APPEND ${PROJECT_NAME}_CORE_SOURCES ${${PROJECT_NAME}_TEMPLATE_INSTANTIATION_SOURCES})
-  LIST(APPEND ${PROJECT_NAME}_CORE_PUBLIC_HEADERS ${${PROJECT_NAME}_TEMPLATE_INSTANTIATION_PUBLIC_HEADERS})
-ENDIF()
+if(ENABLE_TEMPLATE_INSTANTIATION)
+  list(APPEND ${PROJECT_NAME}_CORE_SOURCES ${${PROJECT_NAME}_TEMPLATE_INSTANTIATION_SOURCES})
+  list(APPEND ${PROJECT_NAME}_CORE_PUBLIC_HEADERS
+       ${${PROJECT_NAME}_TEMPLATE_INSTANTIATION_PUBLIC_HEADERS})
+endif()
 
 # URDF sources
-IF(BUILD_WITH_URDF_SUPPORT)
-  LIST(APPEND ${PROJECT_NAME}_PARSERS_SOURCES ${${PROJECT_NAME}_URDF_SOURCES})
-  LIST(APPEND ${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS ${${PROJECT_NAME}_URDF_PUBLIC_HEADERS})
-ENDIF(BUILD_WITH_URDF_SUPPORT)
+if(BUILD_WITH_URDF_SUPPORT)
+  list(APPEND ${PROJECT_NAME}_PARSERS_SOURCES ${${PROJECT_NAME}_URDF_SOURCES})
+  list(APPEND ${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS ${${PROJECT_NAME}_URDF_PUBLIC_HEADERS})
+endif(BUILD_WITH_URDF_SUPPORT)
 
 # SDF sources
-IF(BUILD_WITH_SDF_SUPPORT)
-  LIST(APPEND ${PROJECT_NAME}_PARSERS_SOURCES ${${PROJECT_NAME}_SDF_SOURCES})
-  LIST(APPEND ${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS ${${PROJECT_NAME}_SDF_PUBLIC_HEADERS})
-ENDIF(BUILD_WITH_SDF_SUPPORT)
+if(BUILD_WITH_SDF_SUPPORT)
+  list(APPEND ${PROJECT_NAME}_PARSERS_SOURCES ${${PROJECT_NAME}_SDF_SOURCES})
+  list(APPEND ${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS ${${PROJECT_NAME}_SDF_PUBLIC_HEADERS})
+endif(BUILD_WITH_SDF_SUPPORT)
 
 # Extra sources
-IF(BUILD_WITH_EXTRA_SUPPORT)
-  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
-    ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_SOURCES})
-ENDIF()
+if(BUILD_WITH_EXTRA_SUPPORT)
+  list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+       ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_SOURCES})
+endif()
 
 # LibPython sources
-IF(BUILD_WITH_LIBPYTHON)
-  LIST(APPEND ${PROJECT_NAME}_CORE_PUBLIC_HEADERS
-    ${${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS})
-  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
-    ${${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_SOURCES})
-  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
-    ${${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_PUBLIC_HEADERS})
-ENDIF(BUILD_WITH_LIBPYTHON)
+if(BUILD_WITH_LIBPYTHON)
+  list(APPEND ${PROJECT_NAME}_CORE_PUBLIC_HEADERS ${${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS})
+  list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+       ${${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_SOURCES})
+  list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
+       ${${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_PUBLIC_HEADERS})
+endif(BUILD_WITH_LIBPYTHON)
 
 # HPP-FCL sources
-IF(BUILD_WITH_HPP_FCL_SUPPORT)
-  IF(ENABLE_TEMPLATE_INSTANTIATION)
-    LIST(APPEND ${PROJECT_NAME}_COLLISION_SOURCES
-      ${${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_SOURCES})
-    LIST(APPEND ${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS
-      ${${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_PUBLIC_HEADERS})
-  ENDIF()
-  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
-    ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_SOURCES})
-  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
-    ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PUBLIC_HEADERS})
-  IF(BUILD_WITH_OPENMP_SUPPORT)
-    LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
-      ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PARALLEL_SOURCES})
-    LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
-      ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PARALLEL_PUBLIC_HEADERS})
-  ENDIF()
-ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
+if(BUILD_WITH_HPP_FCL_SUPPORT)
+  if(ENABLE_TEMPLATE_INSTANTIATION)
+    list(APPEND ${PROJECT_NAME}_COLLISION_SOURCES
+         ${${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_SOURCES})
+    list(APPEND ${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS
+         ${${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_PUBLIC_HEADERS})
+  endif()
+  list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+       ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_SOURCES})
+  list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
+       ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PUBLIC_HEADERS})
+  if(BUILD_WITH_OPENMP_SUPPORT)
+    list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+         ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PARALLEL_SOURCES})
+    list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
+         ${${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PARALLEL_PUBLIC_HEADERS})
+  endif()
+endif(BUILD_WITH_HPP_FCL_SUPPORT)
 
 # OpenMP sources
-IF(BUILD_WITH_OPENMP_SUPPORT)
-  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
-    ${${PROJECT_NAME}_BINDINGS_PYTHON_PARALLEL_SOURCES})
-  LIST(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
-    ${${PROJECT_NAME}_BINDINGS_PYTHON_PARALLEL_PUBLIC_HEADERS})
-ENDIF()
+if(BUILD_WITH_OPENMP_SUPPORT)
+  list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+       ${${PROJECT_NAME}_BINDINGS_PYTHON_PARALLEL_SOURCES})
+  list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
+       ${${PROJECT_NAME}_BINDINGS_PYTHON_PARALLEL_PUBLIC_HEADERS})
+endif()
 
 # List headers to install
-LIST(APPEND ${PROJECT_NAME}_HEADERS
-  ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS})
+list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS})
 
-IF(BUILD_WITH_EXTRA_SUPPORT)
-  LIST(APPEND ${PROJECT_NAME}_HEADERS
-    ${${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS})
-ENDIF()
+if(BUILD_WITH_EXTRA_SUPPORT)
+  list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS})
+endif()
 
-IF(BUILD_WITH_PARSERS_SUPPORT)
-  LIST(APPEND ${PROJECT_NAME}_HEADERS
-    ${${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS})
-ENDIF()
+if(BUILD_WITH_PARSERS_SUPPORT)
+  list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS})
+endif()
 
-IF(BUILD_WITH_HPP_FCL_SUPPORT)
-  LIST(APPEND ${PROJECT_NAME}_HEADERS
-    ${${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS})
-  IF(BUILD_WITH_OPENMP_SUPPORT)
-    LIST(APPEND ${PROJECT_NAME}_HEADERS
-      ${${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS})
-  ENDIF()
-ENDIF()
+if(BUILD_WITH_HPP_FCL_SUPPORT)
+  list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS})
+  if(BUILD_WITH_OPENMP_SUPPORT)
+    list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS})
+  endif()
+endif()
 
-IF(BUILD_WITH_OPENMP_SUPPORT)
-  LIST(APPEND ${PROJECT_NAME}_HEADERS
-    ${${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS})
-ENDIF()
+if(BUILD_WITH_OPENMP_SUPPORT)
+  list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS})
+endif()
 
-IF(BUILD_PYTHON_INTERFACE)
-  LIST(APPEND ${PROJECT_NAME}_HEADERS
-    ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS})
-ENDIF()
+if(BUILD_PYTHON_INTERFACE)
+  list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS})
+endif()
 
 # Macros to update sources path in subdirs
-FUNCTION(REMOVE_PATH_FROM_LIST list_name path_name dest_list)
-  SET(list_name_)
-  FOREACH(header ${${list_name}})
-    STRING(REGEX REPLACE "^${path_name}" "" header ${header})
-    LIST(APPEND list_name_ ${header})
-  ENDFOREACH(header ${list_name_})
-  SET(${dest_list} ${list_name_} PARENT_SCOPE)
-ENDFUNCTION(REMOVE_PATH_FROM_LIST)
+function(REMOVE_PATH_FROM_LIST list_name path_name dest_list)
+  set(list_name_)
+  foreach(header ${${list_name}})
+    string(REGEX REPLACE "^${path_name}" "" header ${header})
+    list(APPEND list_name_ ${header})
+  endforeach(header ${list_name_})
+  set(${dest_list}
+      ${list_name_}
+      PARENT_SCOPE)
+endfunction(REMOVE_PATH_FROM_LIST)
 
-FUNCTION(PREPEND_PATH_FROM_LIST list_name path_name dest_list)
-  SET(list_name_)
-  FOREACH(header ${${list_name}})
-    SET(header "${path_name}/${header}")
-    LIST(APPEND list_name_ ${header})
-  ENDFOREACH(header ${list_name_})
-  SET(${dest_list} ${list_name_} PARENT_SCOPE)
-ENDFUNCTION(PREPEND_PATH_FROM_LIST)
+function(PREPEND_PATH_FROM_LIST list_name path_name dest_list)
+  set(list_name_)
+  foreach(header ${${list_name}})
+    set(header "${path_name}/${header}")
+    list(APPEND list_name_ ${header})
+  endforeach(header ${list_name_})
+  set(${dest_list}
+      ${list_name_}
+      PARENT_SCOPE)
+endfunction(PREPEND_PATH_FROM_LIST)
 
 # Define PINOCCHIO_WINDOWS_DLL_PATH environment variable on Windows
-FUNCTION(ADD_WINDOWS_DLL_PATH_TO_TEST TEST_NAME)
-  IF(WIN32)
-    GET_TEST_PROPERTY(${TEST_NAME} ENVIRONMENT ENV_VARIABLES)
+function(ADD_WINDOWS_DLL_PATH_TO_TEST TEST_NAME)
+  if(WIN32)
+    get_test_property(${TEST_NAME} ENVIRONMENT ENV_VARIABLES)
     # TODO don't do this in the future
-    LIST(APPEND ENV_VARIABLES "PINOCCHIO_WINDOWS_DLL_PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}_default>")
-    SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
-  ENDIF()
-ENDFUNCTION()
+    list(APPEND ENV_VARIABLES
+         "PINOCCHIO_WINDOWS_DLL_PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}_default>")
+    set_tests_properties(${TEST_NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
+  endif()
+endfunction()
 
 # --- MAIN LIBRARY -------------------------------------------------------------
-ADD_SUBDIRECTORY(src)
+add_subdirectory(src)
 
 # --- BINDINGS -----------------------------------------------------------------
-ADD_SUBDIRECTORY(bindings)
+add_subdirectory(bindings)
 
 # --- EXECUTABLES --------------------------------------------------------------
-ADD_SUBDIRECTORY(utils)
+add_subdirectory(utils)
 
 # --- UNIT TESTS ---------------------------------------------------------------
-ADD_SUBDIRECTORY(unittest)
+add_subdirectory(unittest)
 
 # --- CHECK EXAMPLES -----------------------------------------------------------
-ADD_SUBDIRECTORY(examples)
+add_subdirectory(examples)
 
 # --- BENCHMARKS ---------------------------------------------------------------
-ADD_SUBDIRECTORY(benchmark)
+add_subdirectory(benchmark)
 
 # --- PACKAGING ----------------------------------------------------------------
-MACRO(EXPORT_VARIABLE var_name var_value)
-  GET_DIRECTORY_PROPERTY(has_parent PARENT_DIRECTORY)
-  IF(has_parent)
-    SET(${var_name} ${var_value} PARENT_SCOPE)
-  ELSE()
-    SET(${var_name} ${var_value})
-  ENDIF()
-ENDMACRO(EXPORT_VARIABLE var_name var_value)
+macro(EXPORT_VARIABLE var_name var_value)
+  get_directory_property(has_parent PARENT_DIRECTORY)
+  if(has_parent)
+    set(${var_name}
+        ${var_value}
+        PARENT_SCOPE)
+  else()
+    set(${var_name} ${var_value})
+  endif()
+endmacro(
+  EXPORT_VARIABLE
+  var_name
+  var_value)
 
-IF(BUILD_WITH_URDF_SUPPORT)
-  EXPORT_VARIABLE(PINOCCHIO_USE_URDFDOM ON)
-  SET(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_URDFDOM \"\")")
-ENDIF()
-IF(BUILD_WITH_HPP_FCL_SUPPORT)
-  EXPORT_VARIABLE(PINOCCHIO_USE_HPP_FCL ON)
-  SET(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_HPP_FCL \"\")")
-ENDIF()
-IF(BUILD_WITH_CPPAD_SUPPORT)
-  EXPORT_VARIABLE(PINOCCHIO_USE_CPPAD ON)
-  SET(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_CPPAD \"\")")
-ENDIF()
-IF(BUILD_WITH_CPPAD_CODEGEN_SUPPORT)
-  EXPORT_VARIABLE(PINOCCHIO_USE_CPPAD_CODEGEN ON)
-  SET(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_CPPAD_CODEGEN \"\")")
-ENDIF()
-IF(BUILD_WITH_CASADI_SUPPORT)
-  EXPORT_VARIABLE(PINOCCHIO_USE_CASADI ON)
-  SET(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_CASADI \"\")")
-ENDIF()
-IF(BUILD_PYTHON_INTERFACE)
-  EXPORT_VARIABLE(PINOCCHIO_WITH_PYTHON_INTERFACE ON)
-  SET(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_WITH_PYTHON_INTERFACE \"\")")
-ENDIF()
-IF(BUILD_WITH_EXTRA_SUPPORT)
-  EXPORT_VARIABLE(PINOCCHIO_USE_EXTRA ON)
-  SET(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_EXTRA \"\")")
-ENDIF()
+if(BUILD_WITH_URDF_SUPPORT)
+  export_variable(PINOCCHIO_USE_URDFDOM ON)
+  set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_URDFDOM \"\")")
+endif()
+if(BUILD_WITH_HPP_FCL_SUPPORT)
+  export_variable(PINOCCHIO_USE_HPP_FCL ON)
+  set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_HPP_FCL \"\")")
+endif()
+if(BUILD_WITH_CPPAD_SUPPORT)
+  export_variable(PINOCCHIO_USE_CPPAD ON)
+  set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_CPPAD \"\")")
+endif()
+if(BUILD_WITH_CPPAD_CODEGEN_SUPPORT)
+  export_variable(PINOCCHIO_USE_CPPAD_CODEGEN ON)
+  set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_CPPAD_CODEGEN \"\")")
+endif()
+if(BUILD_WITH_CASADI_SUPPORT)
+  export_variable(PINOCCHIO_USE_CASADI ON)
+  set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_CASADI \"\")")
+endif()
+if(BUILD_PYTHON_INTERFACE)
+  export_variable(PINOCCHIO_WITH_PYTHON_INTERFACE ON)
+  set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_WITH_PYTHON_INTERFACE \"\")")
+endif()
+if(BUILD_WITH_EXTRA_SUPPORT)
+  export_variable(PINOCCHIO_USE_EXTRA ON)
+  set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_EXTRA \"\")")
+endif()
 
-PKG_CONFIG_APPEND_LIBS(${PROJECT_NAME})
-FOREACH(boostlib ${BOOST_REQUIRED_COMPONENTS})
-  PKG_CONFIG_APPEND_LIBS("boost_${boostlib}")
-ENDFOREACH()
+pkg_config_append_libs(${PROJECT_NAME})
+foreach(boostlib ${BOOST_REQUIRED_COMPONENTS})
+  pkg_config_append_libs("boost_${boostlib}")
+endforeach()
 
-PKG_CONFIG_APPEND_CFLAGS("${CFLAGS_DEPENDENCIES}")
-PKG_CONFIG_APPEND_CFLAGS("${CFLAGS_OPTIONS}")
+pkg_config_append_cflags("${CFLAGS_DEPENDENCIES}")
+pkg_config_append_cflags("${CFLAGS_OPTIONS}")
 
 # Install catkin package.xml
-INSTALL(FILES package.xml DESTINATION share/${PROJECT_NAME})
+install(FILES package.xml DESTINATION share/${PROJECT_NAME})
 # Allows Colcon to find non-Ament packages when using workspace underlays
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} DESTINATION share/ament_index/resource_index/packages)
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv "prepend-non-duplicate;AMENT_PREFIX_PATH;")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv "prepend-non-duplicate;PYTHONPATH;${PYTHON_SITELIB}")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME}
+        DESTINATION share/ament_index/resource_index/packages)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv
+     "prepend-non-duplicate;AMENT_PREFIX_PATH;")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv
+        DESTINATION share/${PROJECT_NAME}/hook)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv
+     "prepend-non-duplicate;PYTHONPATH;${PYTHON_SITELIB}")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv
+        DESTINATION share/${PROJECT_NAME}/hook)

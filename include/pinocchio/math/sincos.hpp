@@ -11,8 +11,9 @@
 namespace pinocchio
 {
   // Forward declaration
-  template<typename S1, typename S2 = S1, typename S3 = S1> struct SINCOSAlgo;
-  
+  template<typename S1, typename S2 = S1, typename S3 = S1>
+  struct SINCOSAlgo;
+
   ///
   /// \brief Computes sin/cos values of a given input scalar.
   ///
@@ -25,36 +26,39 @@ namespace pinocchio
   template<typename S1, typename S2, typename S3>
   void SINCOS(const S1 & a, S2 * sa, S3 * ca)
   {
-    SINCOSAlgo<S1,S2,S3>::run(a,sa,ca);
+    SINCOSAlgo<S1, S2, S3>::run(a, sa, ca);
   }
-  
+
   /// \brief Generic evaluation of sin/cos functions.
   template<typename S1, typename S2, typename S3>
   struct SINCOSAlgo
   {
     static void run(const S1 & a, S2 * sa, S3 * ca)
     {
-      using std::sin; using std::cos;
-      (*sa) = sin(a); (*ca) = cos(a);
-    }   
-  };  
+      using std::cos;
+      using std::sin;
+      (*sa) = sin(a);
+      (*ca) = cos(a);
+    }
+  };
 
   /// \brief Specific evaluation of sin/cos for double type.
   template<>
   struct SINCOSAlgo<double>
   {
-    static void run(const double & a, double * sa, double * ca) 
-    {   
+    static void run(const double & a, double * sa, double * ca)
+    {
 #ifdef __linux__
-      sincos(a,sa,ca);
+      sincos(a, sa, ca);
 #elif __APPLE__
-      __sincos(a,sa,ca);
+      __sincos(a, sa, ca);
 #else // if sincos specialization does not exist
-      (*sa) = std::sin(a); (*ca) = std::cos(a);
+      (*sa) = std::sin(a);
+      (*ca) = std::cos(a);
 #endif
-    }   
+    }
   };
-  
+
   /// \brief Specific evaluation of sin/cos for float type.
   template<>
   struct SINCOSAlgo<float>
@@ -62,15 +66,16 @@ namespace pinocchio
     static void run(const float & a, float * sa, float * ca)
     {
 #ifdef __linux__
-      sincosf(a,sa,ca);
+      sincosf(a, sa, ca);
 #elif __APPLE__
-      __sincosf(a,sa,ca);
+      __sincosf(a, sa, ca);
 #else // if sincosf specialization does not exist
-      (*sa) = std::sin(a); (*ca) = std::cos(a);
+      (*sa) = std::sin(a);
+      (*ca) = std::cos(a);
 #endif
     }
   };
-  
+
   /// \brief Specific evaluation of sin/cos for long double.
   template<>
   struct SINCOSAlgo<long double>
@@ -78,13 +83,14 @@ namespace pinocchio
     static void run(const long double & a, long double * sa, long double * ca)
     {
 #ifdef __linux__
-      sincosl(a,sa,ca);
+      sincosl(a, sa, ca);
 #else // if sincosl specialization does not exist
-      (*sa) = std::sin(a); (*ca) = std::cos(a);
+      (*sa) = std::sin(a);
+      (*ca) = std::cos(a);
 #endif
     }
   };
-  
-}
 
-#endif //#ifndef __pinocchio_math_sincos_hpp__
+} // namespace pinocchio
+
+#endif // #ifndef __pinocchio_math_sincos_hpp__

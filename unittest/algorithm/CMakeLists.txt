@@ -1,1 +1,1 @@
-ADD_SUBDIRECTORY(utils)
+add_subdirectory(utils)

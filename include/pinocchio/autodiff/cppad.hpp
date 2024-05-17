@@ -11,7 +11,7 @@
 // Do not include this file directly.
 // Copy and use directly the intructions from <cppad/example/cppad_eigen.hpp>
 // to avoid redifinition of EIGEN_MATRIXBASE_PLUGIN for Eigen 3.3.0 and later
-//#include <cppad/example/cppad_eigen.hpp>
+// #include <cppad/example/cppad_eigen.hpp>
 
 #define EIGEN_MATRIXBASE_PLUGIN <pinocchio/autodiff/cppad/math/eigen_plugin.hpp>
 
@@ -27,34 +27,34 @@ namespace boost
       namespace detail
       {
         template<typename Scalar>
-        struct constant_pi< CppAD::AD<Scalar> > : constant_pi<Scalar>
+        struct constant_pi<CppAD::AD<Scalar>> : constant_pi<Scalar>
         {
           typedef CppAD::AD<Scalar> ADScalar;
-          
-          template <int N>
+
+          template<int N>
           static inline ADScalar get(const mpl::int_<N> & n)
           {
             return ADScalar(constant_pi<Scalar>::get(n));
           }
 
 #if BOOST_VERSION >= 107700
-          template <class T, T value>
-          static inline ADScalar get(const std::integral_constant<T, value> &n)
+          template<class T, T value>
+          static inline ADScalar get(const std::integral_constant<T, value> & n)
           {
             return ADScalar(constant_pi<Scalar>::get(n));
           }
 #else
-          template <class T, T value>
-          static inline ADScalar get(const boost::integral_constant<T, value> &n)
+          template<class T, T value>
+          static inline ADScalar get(const boost::integral_constant<T, value> & n)
           {
             return ADScalar(constant_pi<Scalar>::get(n));
           }
 #endif
         };
-      }
-    }
-  }
-}
+      } // namespace detail
+    } // namespace constants
+  } // namespace math
+} // namespace boost
 
 namespace Eigen
 {
@@ -62,9 +62,9 @@ namespace Eigen
   {
     // Specialization of Eigen::internal::cast_impl for CppAD input types
     template<typename Scalar>
-    struct cast_impl<CppAD::AD<Scalar>,Scalar>
+    struct cast_impl<CppAD::AD<Scalar>, Scalar>
     {
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
+#if EIGEN_VERSION_AT_LEAST(3, 2, 90)
       EIGEN_DEVICE_FUNC
 #endif
       static inline Scalar run(const CppAD::AD<Scalar> & x)
@@ -72,91 +72,112 @@ namespace Eigen
         return CppAD::Value(x);
       }
     };
-  }
-} //namespace Eigen
+  } // namespace internal
+} // namespace Eigen
 
 // Source from #include <cppad/example/cppad_eigen.hpp>
 namespace Eigen
 {
-  template <class Base> struct NumTraits< CppAD::AD<Base> >
-  {  // type that corresponds to the real part of an AD<Base> value
-    typedef CppAD::AD<Base>   Real;
+  template<class Base>
+  struct NumTraits<CppAD::AD<Base>>
+  { // type that corresponds to the real part of an AD<Base> value
+    typedef CppAD::AD<Base> Real;
     // type for AD<Base> operations that result in non-integer values
-    typedef CppAD::AD<Base>   NonInteger;
+    typedef CppAD::AD<Base> NonInteger;
     //  type to use for numeric literals such as "2" or "0.5".
-    typedef CppAD::AD<Base>   Literal;
+    typedef CppAD::AD<Base> Literal;
     // type for nested value inside an AD<Base> expression tree
-    typedef CppAD::AD<Base>   Nested;
-    
-    enum {
+    typedef CppAD::AD<Base> Nested;
+
+    enum
+    {
       // does not support complex Base types
-      IsComplex             = 0 ,
+      IsComplex = 0,
       // does not support integer Base types
-      IsInteger             = 0 ,
+      IsInteger = 0,
       // only support signed Base types
-      IsSigned              = 1 ,
+      IsSigned = 1,
       // must initialize an AD<Base> object
-      RequireInitialization = 1 ,
+      RequireInitialization = 1,
       // computational cost of the corresponding operations
-      ReadCost              = 1 ,
-      AddCost               = 2 ,
-      MulCost               = 2
+      ReadCost = 1,
+      AddCost = 2,
+      MulCost = 2
     };
-    
+
     // machine epsilon with type of real part of x
     // (use assumption that Base is not complex)
     static CppAD::AD<Base> epsilon(void)
-    {  return CppAD::numeric_limits< CppAD::AD<Base> >::epsilon(); }
-    
+    {
+      return CppAD::numeric_limits<CppAD::AD<Base>>::epsilon();
+    }
+
     // relaxed version of machine epsilon for comparison of different
     // operations that should result in the same value
     static CppAD::AD<Base> dummy_precision(void)
-    {  return 100. *
-      CppAD::numeric_limits< CppAD::AD<Base> >::epsilon();
+    {
+      return 100. * CppAD::numeric_limits<CppAD::AD<Base>>::epsilon();
     }
-    
+
     // minimum normalized positive value
     static CppAD::AD<Base> lowest(void)
-    {  return CppAD::numeric_limits< CppAD::AD<Base> >::min(); }
-    
+    {
+      return CppAD::numeric_limits<CppAD::AD<Base>>::min();
+    }
+
     // maximum finite value
     static CppAD::AD<Base> highest(void)
-    {  return CppAD::numeric_limits< CppAD::AD<Base> >::max(); }
-    
+    {
+      return CppAD::numeric_limits<CppAD::AD<Base>>::max();
+    }
+
     // number of decimal digits that can be represented without change.
     static int digits10(void)
-    {  return CppAD::numeric_limits< CppAD::AD<Base> >::digits10; }
+    {
+      return CppAD::numeric_limits<CppAD::AD<Base>>::digits10;
+    }
   };
 } // namespace Eigen
 
 // Source from #include <cppad/example/cppad_eigen.hpp>
 #include "pinocchio/utils/static-if.hpp"
 
-
 namespace CppAD
 {
   // functions that return references
-  template <class Base> const AD<Base>& conj(const AD<Base>& x)
-  {  return x; }
-  template <class Base> const AD<Base>& real(const AD<Base>& x)
-  {  return x; }
-  
+  template<class Base>
+  const AD<Base> & conj(const AD<Base> & x)
+  {
+    return x;
+  }
+  template<class Base>
+  const AD<Base> & real(const AD<Base> & x)
+  {
+    return x;
+  }
+
   // functions that return values (note abs is defined by cppad.hpp)
-  template <class Base> AD<Base> imag(const AD<Base>& /*x*/)
-  {  return CppAD::AD<Base>(0.); }
-  template <class Base> AD<Base> abs2(const AD<Base>& x)
-  {  return x * x; }
+  template<class Base>
+  AD<Base> imag(const AD<Base> & /*x*/)
+  {
+    return CppAD::AD<Base>(0.);
+  }
+  template<class Base>
+  AD<Base> abs2(const AD<Base> & x)
+  {
+    return x * x;
+  }
 
   template<typename Scalar>
-  AD<Scalar> min(const AD<Scalar>& x, const AD<Scalar>& y)
+  AD<Scalar> min(const AD<Scalar> & x, const AD<Scalar> & y)
   {
     using ::pinocchio::internal::if_then_else;
     using ::pinocchio::internal::LT;
     return if_then_else(LT, y, x, y, x);
   }
-  
+
   template<typename Scalar>
-  AD<Scalar> max(const AD<Scalar>& x, const AD<Scalar>& y)
+  AD<Scalar> max(const AD<Scalar> & x, const AD<Scalar> & y)
   {
     using ::pinocchio::internal::if_then_else;
     using ::pinocchio::internal::LT;
@@ -166,16 +187,19 @@ namespace CppAD
 
 namespace CppAD
 {
-  template <class Scalar>
-  bool isfinite(const AD<Scalar> & x) { return isfinite(Value(x)); }
-}
+  template<class Scalar>
+  bool isfinite(const AD<Scalar> & x)
+  {
+    return isfinite(Value(x));
+  }
+} // namespace CppAD
 
 #include "pinocchio/utils/static-if.hpp"
 
 namespace pinocchio
 {
   template<typename Scalar>
-  struct TaylorSeriesExpansion< CppAD::AD<Scalar> > : TaylorSeriesExpansion<Scalar>
+  struct TaylorSeriesExpansion<CppAD::AD<Scalar>> : TaylorSeriesExpansion<Scalar>
   {
     typedef TaylorSeriesExpansion<Scalar> Base;
     typedef CppAD::AD<Scalar> ADScalar;
@@ -185,18 +209,17 @@ namespace pinocchio
     {
       return ADScalar(Base::template precision<degree>());
     }
-
   };
 
   template<typename Scalar, typename ADScalar>
-  struct ScalarCast< Scalar, CppAD::AD<ADScalar> >
+  struct ScalarCast<Scalar, CppAD::AD<ADScalar>>
   {
     static Scalar cast(const CppAD::AD<ADScalar> & value)
     {
       return scalar_cast<Scalar>(CppAD::Value(value));
     }
   };
-  
+
 } // namespace pinocchio
 
 #include "pinocchio/autodiff/cppad/spatial/se3-tpl.hpp"

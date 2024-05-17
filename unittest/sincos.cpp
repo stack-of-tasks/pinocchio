@@ -11,39 +11,40 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-namespace 
+namespace
 {
-  template <typename Scalar>
+  template<typename Scalar>
   Scalar sinCosTolerance();
 
-  template<> inline float sinCosTolerance<float>()
+  template<>
+  inline float sinCosTolerance<float>()
   {
     return 1e-7f;
   }
 
-  template<> inline double sinCosTolerance<double>()
+  template<>
+  inline double sinCosTolerance<double>()
   {
     return 1e-15;
   }
 
-  template<> inline long double sinCosTolerance<long double>()
+  template<>
+  inline long double sinCosTolerance<long double>()
   {
     return 1e-19;
   }
-}
-
+} // namespace
 
 template<typename Scalar>
 void testSINCOS(int n)
 {
-  for(int k = 0; k < n; ++k)
+  for (int k = 0; k < n; ++k)
   {
     Scalar sin_value, cos_value;
-    Scalar alpha = (Scalar)std::rand()/(Scalar)RAND_MAX;
-    pinocchio::SINCOS(alpha,&sin_value,&cos_value);
-    
-    Scalar sin_value_ref = std::sin(alpha),
-           cos_value_ref = std::cos(alpha);
+    Scalar alpha = (Scalar)std::rand() / (Scalar)RAND_MAX;
+    pinocchio::SINCOS(alpha, &sin_value, &cos_value);
+
+    Scalar sin_value_ref = std::sin(alpha), cos_value_ref = std::cos(alpha);
 
     BOOST_CHECK_CLOSE_FRACTION(sin_value, sin_value_ref, sinCosTolerance<Scalar>());
     BOOST_CHECK_CLOSE_FRACTION(cos_value, cos_value_ref, sinCosTolerance<Scalar>());

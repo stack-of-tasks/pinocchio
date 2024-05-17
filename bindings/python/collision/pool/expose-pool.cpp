@@ -21,15 +21,15 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     void exposePoolCollision()
     {
       GeometryPoolPythonVisitor<GeometryPool>::expose();
-      BroadPhaseManagerPoolPythonVisitor< BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager,double> >::expose();
-      BroadPhaseManagerPoolPythonVisitor< TreeBroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager,double> >::expose();
+      BroadPhaseManagerPoolPythonVisitor<
+        BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double>>::expose();
+      BroadPhaseManagerPoolPythonVisitor<
+        TreeBroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double>>::expose();
     }
-    
+
   } // namespace python
 } // namespace pinocchio
-
-

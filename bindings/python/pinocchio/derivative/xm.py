@@ -9,11 +9,15 @@ from dcrba import *
 
 np.random.seed(0)
 
-robot = RobotWrapper('/home/nmansard/src/pinocchio/pinocchio/models/romeo/urdf/romeo.urdf',
-                     [ '/home/nmansard/src/pinocchio/pinocchio/models/romeo/', ],
-                     pin.JointModelFreeFlyer()
-                     )
-q  = rand(robot.model.nq); q[3:7] /= norm(q[3:7])
+robot = RobotWrapper(
+    "/home/nmansard/src/pinocchio/pinocchio/models/romeo/urdf/romeo.urdf",
+    [
+        "/home/nmansard/src/pinocchio/pinocchio/models/romeo/",
+    ],
+    pin.JointModelFreeFlyer(),
+)
+q = rand(robot.model.nq)
+q[3:7] /= norm(q[3:7])
 vq = rand(robot.model.nv)
 aq = rand(robot.model.nv)
 
@@ -24,11 +28,9 @@ Mp = dcrba()
 
 # d/dvq RNEA(q,vq) = C(q,vq)
 coriolis = Coriolis(robot)
-C = coriolis(q,vq)
+C = coriolis(q, vq)
 
 # d/dq RNEA(q,vq,aq)
 drnea = DRNEA(robot)
-aq    = rand(robot.model.nv)
-R = drnea(q,vq,aq)
-
-
+aq = rand(robot.model.nv)
+R = drnea(q, vq, aq)

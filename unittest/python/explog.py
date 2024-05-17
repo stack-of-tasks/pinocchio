@@ -29,7 +29,8 @@ class TestExpLog(TestCase):
     def test_log3_quat(self):
         """Test log3 over the quaternions."""
         from eigenpy import Quaternion
-        quat_v = np.array([0., 0., 0., 1.])
+
+        quat_v = np.array([0.0, 0.0, 0.0, 1.0])
         quat = Quaternion(quat_v)
         v0 = pin.log3(quat)
         self.assertApprox(v0, zero(3))
@@ -38,7 +39,7 @@ class TestExpLog(TestCase):
         self.assertApprox(v1, zero(3))
 
     def test_exp3_quat(self):
-        self.assertApprox(pin.exp3_quat(zero(3)), np.array([0., 0., 0., 1.]))
+        self.assertApprox(pin.exp3_quat(zero(3)), np.array([0.0, 0.0, 0.0, 1.0]))
 
     def test_Jlog3(self):
         m = eye(3)
@@ -56,10 +57,10 @@ class TestExpLog(TestCase):
     def test_Jexp6(self):
         v = pin.Motion.Zero()
         J = pin.Jexp6(v)
-        self.assertApprox(J,eye(6))
+        self.assertApprox(J, eye(6))
 
         J2 = pin.Jexp6(np.array(v))
-        self.assertApprox(J,J2)
+        self.assertApprox(J, J2)
 
     def test_log6(self):
         m = pin.SE3.Identity()
@@ -72,7 +73,7 @@ class TestExpLog(TestCase):
         self.assertApprox(v.vector, zero(6))
 
     def test_log6_quat(self):
-        q0 = np.array([0., 0., 0., 0., 0., 0., 1.])
+        q0 = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0])
         v = pin.log6_quat(q0)
         self.assertApprox(v.vector, zero(6))
 
@@ -88,12 +89,12 @@ class TestExpLog(TestCase):
         u_skew = pin.skew(u)
         u_unskew = pin.unSkew(u_skew)
 
-        self.assertApprox(u,u_unskew)
+        self.assertApprox(u, u_unskew)
 
         v_skew = pin.skew(v)
-        u_v_square = pin.skewSquare(u,v)
+        u_v_square = pin.skewSquare(u, v)
 
-        self.assertApprox(u_v_square,u_skew.dot(v_skew))
+        self.assertApprox(u_v_square, u_skew.dot(v_skew))
 
     def test_explog(self):
         self.assertApprox(exp(42), math.exp(42))
@@ -102,22 +103,26 @@ class TestExpLog(TestCase):
         self.assertApprox(log(exp(42)), 42)
 
         m = rand(3)
-        self.assertLess(np.linalg.norm(m), np.pi) # necessary for next test
+        self.assertLess(np.linalg.norm(m), np.pi)  # necessary for next test
         self.assertApprox(log(exp(m)), m)
 
         m = np.random.rand(3)
-        self.assertLess(np.linalg.norm(m), np.pi) # necessary for next test
+        self.assertLess(np.linalg.norm(m), np.pi)  # necessary for next test
         self.assertApprox(log(exp(m)), m)
 
         m = pin.SE3.Random()
         self.assertApprox(exp(log(m)), m)
 
         m = rand(6)
-        self.assertLess(np.linalg.norm(m), np.pi) # necessary for next test (actually, only angular part)
+        self.assertLess(
+            np.linalg.norm(m), np.pi
+        )  # necessary for next test (actually, only angular part)
         self.assertApprox(log(exp(m)), m)
 
         m = np.random.rand(6)
-        self.assertLess(np.linalg.norm(m), np.pi) # necessary for next test (actually, only angular part)
+        self.assertLess(
+            np.linalg.norm(m), np.pi
+        )  # necessary for next test (actually, only angular part)
         self.assertApprox(log(exp(m)), m)
 
         m = eye(4)
@@ -132,8 +137,8 @@ class TestExpLog(TestCase):
         with self.assertRaises(ValueError):
             log(zero(5))
         with self.assertRaises(ValueError):
-            log(zero((3,1)))
+            log(zero((3, 1)))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -7,7 +7,9 @@ import numpy as np
 import pinocchio as pin
 import pinocchio.casadi as cpin
 
-path = join(dirname(dirname(abspath(__file__))), 'models', 'example-robot-data', 'python')
+path = join(
+    dirname(dirname(abspath(__file__))), "models", "example-robot-data", "python"
+)
 sys.path.append(path)
 import example_robot_data
 
@@ -20,9 +22,16 @@ dt = 0.02
 # Quadcopter parameters
 d_cog, cf, cm = 0.1525, 6.6e-5, 1e-6
 
-tau_f = np.array([[0., 0., 0., 0.], [0., 0., 0., 0.], [1., 1., 1., 1.],
-                  [0., d_cog, 0., -d_cog], [-d_cog, 0., d_cog, 0.],
-                  [-cm / cf, cm / cf, -cm / cf, cm / cf]])
+tau_f = np.array(
+    [
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [1.0, 1.0, 1.0, 1.0],
+        [0.0, d_cog, 0.0, -d_cog],
+        [-d_cog, 0.0, d_cog, 0.0],
+        [-cm / cf, cm / cf, -cm / cf, cm / cf],
+    ]
+)
 
 # Other variables
 x_nom = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
@@ -32,7 +41,7 @@ def actuation_model():
     u = casadi.SX.sym("u", 4)  # rotor velocities
     tau = tau_f @ u
 
-    return casadi.Function('act_model', [u], [tau], ['u'], ['tau'])
+    return casadi.Function("act_model", [u], [tau], ["u"], ["tau"])
 
 
 def state_integrate(model):
@@ -48,8 +57,7 @@ def state_integrate(model):
     x = casadi.vertcat(q, v)
     x_next = casadi.vertcat(q_next, v_next)
 
-    return casadi.Function('integrate', [x, dx], [x_next], ['x', 'dx'],
-                           ['x_next'])
+    return casadi.Function("integrate", [x, dx], [x_next], ["x", "dx"], ["x_next"])
 
 
 def state_difference(model):
@@ -65,8 +73,7 @@ def state_difference(model):
     x1 = casadi.vertcat(q1, v1)
     x_diff = casadi.vertcat(q_diff, v_diff)
 
-    return casadi.Function('difference', [x0, x1], [x_diff], ['x0', 'x1'],
-                           ['x_diff'])
+    return casadi.Function("difference", [x0, x1], [x_diff], ["x0", "x1"], ["x_diff"])
 
 
 def euler_integration(model, data, dt):
@@ -88,7 +95,7 @@ def euler_integration(model, data, dt):
     dx = casadi.vertcat(dq, dv)
     x_next = state_integrate(model)(x, dx)
 
-    return casadi.Function('int_dyn', [x, u], [x_next], ['x', 'u'], ['x_next'])
+    return casadi.Function("int_dyn", [x, u], [x_next], ["x", "u"], ["x_next"])
 
 
 def cost_quadratic_state_error(model):
@@ -99,7 +106,7 @@ def cost_quadratic_state_error(model):
 
     cost = 0.5 * e_goal.T @ e_goal
 
-    return casadi.Function('quad_cost', [dx], [cost], ['dx'], ['cost'])
+    return casadi.Function("quad_cost", [dx], [cost], ["dx"], ["cost"])
 
 
 class OptimalControlProblem:
@@ -125,12 +132,12 @@ class OptimalControlProblem:
         for i in range(nodes):
             x_i = state_integrate(self.c_model)(x_nom, self.c_dxs[:, i])
             e_reg = state_difference(self.c_model)(x_nom, x_i)
-            obj += 1e-5 * 0.5 * e_reg.T @ e_reg + 1e-5 * 0.5 * self.c_us[:,
-                                                                         i].T @ self.c_us[:,
-                                                                                          i]
+            obj += (
+                1e-5 * 0.5 * e_reg.T @ e_reg
+                + 1e-5 * 0.5 * self.c_us[:, i].T @ self.c_us[:, i]
+            )
         if terminal_soft_constraint:
-            obj += 1000 * cost_quadratic_state_error(self.c_model)(
-                self.c_dxs[:, nodes])
+            obj += 1000 * cost_quadratic_state_error(self.c_model)(self.c_dxs[:, nodes])
 
         self.opti.minimize(obj)
 
@@ -138,8 +145,9 @@ class OptimalControlProblem:
         for i in range(nodes):
             x_i = state_integrate(self.c_model)(x_nom, self.c_dxs[:, i])
             x_i_1 = state_integrate(self.c_model)(x_nom, self.c_dxs[:, i + 1])
-            f_x_u = euler_integration(self.c_model, self.c_data,
-                                      dt)(x_i, self.c_us[:, i])
+            f_x_u = euler_integration(self.c_model, self.c_data, dt)(
+                x_i, self.c_us[:, i]
+            )
             gap = state_difference(self.c_model)(f_x_u, x_i_1)
 
             self.opti.subject_to(gap == [0] * 12)
@@ -155,27 +163,27 @@ class OptimalControlProblem:
 
         # Initial state
         x_0 = state_integrate(self.c_model)(x_nom, self.c_dxs[:, 0])
-        self.opti.subject_to(
-            state_difference(self.c_model)(x0, x_0) == [0] * 12)
+        self.opti.subject_to(state_difference(self.c_model)(x0, x_0) == [0] * 12)
 
         # Warm start
         self.opti.set_initial(
-            self.c_dxs,
-            np.vstack([np.zeros(12) for _ in range(nodes + 1)]).T)
-        self.opti.set_initial(self.c_us,
-                              np.vstack([np.zeros(4) for _ in range(nodes)]).T)
+            self.c_dxs, np.vstack([np.zeros(12) for _ in range(nodes + 1)]).T
+        )
+        self.opti.set_initial(
+            self.c_us, np.vstack([np.zeros(4) for _ in range(nodes)]).T
+        )
 
     def solve(self, approx_hessian=True):
-        opts = {'verbose': False}
-        opts['ipopt'] = {
-            'max_iter': 1000,
-            'linear_solver': 'mumps',
-            'tol': 3.82e-6,
-            'mu_strategy': "adaptive"
+        opts = {"verbose": False}
+        opts["ipopt"] = {
+            "max_iter": 1000,
+            "linear_solver": "mumps",
+            "tol": 3.82e-6,
+            "mu_strategy": "adaptive",
         }
 
         if approx_hessian:
-            opts['ipopt']['hessian_approximation'] = 'limited-memory'
+            opts["ipopt"]["hessian_approximation"] = "limited-memory"
 
         # Solver initialization
         self.opti.solver("ipopt", opts)  # set numerical backend
@@ -185,7 +193,7 @@ class OptimalControlProblem:
         except:
             self.sol = self.opti.debug
 
-        if self.sol.stats()['return_status'] == 'Solve_Succeeded':
+        if self.sol.stats()["return_status"] == "Solve_Succeeded":
             self._retract_trajectory()
             self._compute_gaps()
 
@@ -198,23 +206,22 @@ class OptimalControlProblem:
         nv = self.model.nv
 
         for idx, (dx_sol, u_sol) in enumerate(
-                zip(self.sol.value(self.c_dxs).T,
-                    self.sol.value(self.c_us).T)):
-
+            zip(self.sol.value(self.c_dxs).T, self.sol.value(self.c_us).T)
+        ):
             q = pin.integrate(self.model, np.array(x_nom)[:nq], dx_sol[:nv])
             v = dx_sol[nv:]
 
             self.xs.append(np.concatenate([q, v]))
             self.us.append(u_sol)
 
-        q = pin.integrate(self.model,
-                          np.array(x_nom)[:nq],
-                          self.sol.value(self.c_dxs).T[nodes, :nv])
+        q = pin.integrate(
+            self.model, np.array(x_nom)[:nq], self.sol.value(self.c_dxs).T[nodes, :nv]
+        )
         v = self.sol.value(self.c_dxs).T[nodes, nv:]
         self.xs.append(np.concatenate([q, v]))
 
     def _compute_gaps(self):
-        self.gaps = {'vector': [np.zeros(self.model.nv * 2)], 'norm': [0]}
+        self.gaps = {"vector": [np.zeros(self.model.nv * 2)], "norm": [0]}
 
         nq = self.model.nq
         nv = self.model.nv
@@ -222,13 +229,12 @@ class OptimalControlProblem:
         for idx, (x, u) in enumerate(zip(self.xs, self.us)):
             x_pin = self._simulate_step(x, u)
 
-            gap_q = pin.difference(self.model, x_pin[:nq],
-                                   self.xs[idx + 1][:nq])
+            gap_q = pin.difference(self.model, x_pin[:nq], self.xs[idx + 1][:nq])
             gap_v = self.xs[idx + 1][nq:] - x_pin[nq:]
 
             gap = np.concatenate([gap_q, gap_v])
-            self.gaps['vector'].append(gap)
-            self.gaps['norm'].append(np.linalg.norm(gap))
+            self.gaps["vector"].append(gap)
+            self.gaps["norm"].append(np.linalg.norm(gap))
 
     def _simulate_step(self, x, u):
         nq = self.model.nq
@@ -253,7 +259,7 @@ class OptimalControlProblem:
 
 
 def main():
-    robot = example_robot_data.load('hector')
+    robot = example_robot_data.load("hector")
     model = robot.model
 
     oc_problem = OptimalControlProblem(model, terminal_soft_constraint=False)
@@ -262,14 +268,15 @@ def main():
 
     # --------------PLOTS-----------
     import matplotlib.pyplot as plt
+
     fig0, axs0 = plt.subplots(nrows=2)
 
     xs = np.vstack(oc_problem.xs)
     axs0[0].plot(xs[:, :3])
-    axs0[0].set_title('Quadcopter position')
+    axs0[0].set_title("Quadcopter position")
 
-    axs0[1].plot(oc_problem.gaps['norm'])
-    axs0[1].set_title('Multiple shooting node gaps')
+    axs0[1].plot(oc_problem.gaps["norm"])
+    axs0[1].set_title("Multiple shooting node gaps")
 
     fig1, axs1 = plt.subplots(nrows=4)
     us = np.vstack(oc_problem.us)
@@ -280,5 +287,5 @@ def main():
     plt.show(block=False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

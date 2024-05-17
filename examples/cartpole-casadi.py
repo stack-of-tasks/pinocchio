@@ -8,10 +8,10 @@ import hppfcl as fcl
 def make_cartpole(ub=True):
     model = pin.Model()
 
-    m1 = 1.
-    m2 = .1
-    length = .5
-    base_sizes = (.4, .2, .05)
+    m1 = 1.0
+    m2 = 0.1
+    length = 0.5
+    base_sizes = (0.4, 0.2, 0.05)
 
     base = pin.JointModelPX()
     base_id = model.addJoint(0, base, pin.SE3.Identity(), "base")
@@ -23,12 +23,15 @@ def make_cartpole(ub=True):
     pole_id = model.addJoint(1, pole, pin.SE3.Identity(), "pole")
 
     base_inertia = pin.Inertia.FromBox(m1, *base_sizes)
-    pole_inertia = pin.Inertia(m2, np.array([0., 0., length / 2]),
-                               m2/5 * np.diagflat([1e-2, length**2, 1e-2]))
+    pole_inertia = pin.Inertia(
+        m2,
+        np.array([0.0, 0.0, length / 2]),
+        m2 / 5 * np.diagflat([1e-2, length**2, 1e-2]),
+    )
 
     base_body_pl = pin.SE3.Identity()
     pole_body_pl = pin.SE3.Identity()
-    pole_body_pl.translation = np.array([0., 0., length/2])
+    pole_body_pl.translation = np.array([0.0, 0.0, length / 2])
 
     model.appendBodyToJoint(base_id, base_inertia, base_body_pl)
     model.appendBodyToJoint(pole_id, pole_inertia, pole_body_pl)
@@ -38,13 +41,11 @@ def make_cartpole(ub=True):
     shape_base = fcl.Box(*base_sizes)
     radius = 0.01
     shape_pole = fcl.Capsule(radius, length)
-    RED_COLOR = np.array([1, 0., 0., 1.])
-    WHITE_COLOR = np.array([1, 1., 1., 1.])
-    geom_base = pin.GeometryObject("link_base", base_id, shape_base,
-                                   base_body_pl)
+    RED_COLOR = np.array([1, 0.0, 0.0, 1.0])
+    WHITE_COLOR = np.array([1, 1.0, 1.0, 1.0])
+    geom_base = pin.GeometryObject("link_base", base_id, shape_base, base_body_pl)
     geom_base.meshColor = WHITE_COLOR
-    geom_pole = pin.GeometryObject("link_pole", pole_id, shape_pole,
-                                   pole_body_pl)
+    geom_pole = pin.GeometryObject("link_pole", pole_id, shape_pole, pole_body_pl)
     geom_pole.meshColor = RED_COLOR
 
     collision_model.addGeometryObject(geom_base)
@@ -57,8 +58,8 @@ class PinocchioCasadi:
     """Take a Pinocchio model, turn it into a Casadi model
     and define the appropriate graphs.
     """
-    def __init__(self, model: pin.Model, timestep=0.05):
 
+    def __init__(self, model: pin.Model, timestep=0.05):
         self.model = model
         self.cmodel = cpin.Model(model)  # cast to CasADi model
         self.cdata = self.cmodel.createData()
@@ -105,12 +106,17 @@ class PinocchioCasadi:
         qnext = cpin.integrate(self.cmodel, self.q_dq, dt * vnext)
 
         self.dyn_qv_fn_ = casadi.Function(
-            "discrete_dyn", [q, dq_, v, u],
-            [qnext, vnext], ["q", "dq_", "v", "u"], ["qnext", "vnext"]
+            "discrete_dyn",
+            [q, dq_, v, u],
+            [qnext, vnext],
+            ["q", "dq_", "v", "u"],
+            ["qnext", "vnext"],
         )
 
-        self.dyn_jac_expr = self.dyn_qv_fn_.jacobian()(q=q, dq_=casadi.SX.zeros(nv), v=v, u=u)
-        self.dyn_jac_expr = self.dyn_jac_expr['jac'][:, nq:]
+        self.dyn_jac_expr = self.dyn_qv_fn_.jacobian()(
+            q=q, dq_=casadi.SX.zeros(nv), v=v, u=u
+        )
+        self.dyn_jac_expr = self.dyn_jac_expr["jac"][:, nq:]
         print("dyn jac expr:", self.dyn_jac_expr.shape)
         self.dyn_jac_fn = casadi.Function("Ddyn", [q, v, u], [self.dyn_jac_expr])
 
@@ -144,8 +150,12 @@ class PinocchioCasadi:
 
         residual = casadi.vertcat(res_q, res_v)
         self.dyn_residual = casadi.Function(
-            "residual", [state, u, next_state, dq_, dqn_], [residual],
-            ["x", "u", "xnext", "dq_", "dqn_"], ["r"])
+            "residual",
+            [state, u, next_state, dq_, dqn_],
+            [residual],
+            ["x", "u", "xnext", "dq_", "dqn_"],
+            ["r"],
+        )
 
     def forward(self, x, u):
         nq = self.model.nq
@@ -164,6 +174,7 @@ class PinocchioCasadi:
         res = self.dyn_residual(x, u, xnext, dq, dqn)
         return res
 
+
 class CartpoleDynamics(PinocchioCasadi):
     def __init__(self, timestep=0.05):
         model, collision_model, visual_model = make_cartpole()
@@ -178,7 +189,7 @@ model = cartpole.model
 
 print(model)
 
-q0 = np.array([0., .95, 0.01])
+q0 = np.array([0.0, 0.95, 0.01])
 q0 = pin.normalize(model, q0)
 v = np.zeros(model.nv)
 u = np.zeros(1)
@@ -205,12 +216,14 @@ states_ = np.stack(states_).T
 
 from pinocchio import visualize
 
-viz = visualize.MeshcatVisualizer(model=model,
-                                  collision_model=cartpole.collision_model,
-                                  visual_model=cartpole.visual_model)
+viz = visualize.MeshcatVisualizer(
+    model=model,
+    collision_model=cartpole.collision_model,
+    visual_model=cartpole.visual_model,
+)
 
 viz.initViewer()
 viz.loadViewerModel("pinocchio")
 
-qs_ = states_[:model.nq, :]
+qs_ = states_[: model.nq, :]
 viz.play(q_trajectory=qs_, dt=dt)

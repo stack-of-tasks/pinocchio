@@ -11,9 +11,9 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     void exposeDependencies();
-    
+
   } // namespace python
 } // namespace pinocchio
 

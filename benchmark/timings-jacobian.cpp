@@ -14,96 +14,101 @@
 
 #include "pinocchio/utils/timer.hpp"
 
-
 int main(int argc, const char ** argv)
 {
   using namespace Eigen;
   using namespace pinocchio;
 
   PinocchioTicToc timer(PinocchioTicToc::US);
-  #ifdef NDEBUG
-  const int NBT = 1000*100;
-  #else
-    const int NBT = 1;
-    std::cout << "(the time score in debug mode is not relevant) " << std::endl;
-  #endif
+#ifdef NDEBUG
+  const int NBT = 1000 * 100;
+#else
+  const int NBT = 1;
+  std::cout << "(the time score in debug mode is not relevant) " << std::endl;
+#endif
 
   pinocchio::Model model;
 
   std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
-  if(argc>1) filename = argv[1];
+  if (argc > 1)
+    filename = argv[1];
 
   bool with_ff = true;
-  if(argc>2)
+  if (argc > 2)
   {
     const std::string ff_option = argv[2];
-    if(ff_option == "-no-ff")
+    if (ff_option == "-no-ff")
       with_ff = false;
   }
 
-  if( filename == "HS")
-    pinocchio::buildModels::humanoidRandom(model,true);
+  if (filename == "HS")
+    pinocchio::buildModels::humanoidRandom(model, true);
+  else if (with_ff)
+    pinocchio::urdf::buildModel(filename, JointModelFreeFlyer(), model);
   else
-    if(with_ff)
-      pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(),model);
-    else
-      pinocchio::urdf::buildModel(filename,model);
+    pinocchio::urdf::buildModel(filename, model);
   std::cout << "nq = " << model.nq << std::endl;
 
   pinocchio::Data data(model);
   VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
 
-  pinocchio::Data::Matrix6x J(6,model.nv);
+  pinocchio::Data::Matrix6x J(6, model.nv);
   J.setZero();
-  pinocchio::Model::JointIndex JOINT_ID = (Model::JointIndex)(model.njoints-1);
+  pinocchio::Model::JointIndex JOINT_ID = (Model::JointIndex)(model.njoints - 1);
 
   PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs(NBT);
-  for(size_t i=0;i<NBT;++i)
+  for (size_t i = 0; i < NBT; ++i)
   {
-    qs[i] = randomConfiguration(model,-qmax,qmax);
+    qs[i] = randomConfiguration(model, -qmax, qmax);
   }
 
   timer.tic();
   SMOOTH(NBT)
   {
-    forwardKinematics(model,data,qs[_smooth]);
+    forwardKinematics(model, data, qs[_smooth]);
   }
-  std::cout << "Zero Order Kinematics = \t"; timer.toc(std::cout,NBT);
+  std::cout << "Zero Order Kinematics = \t";
+  timer.toc(std::cout, NBT);
 
   timer.tic();
   SMOOTH(NBT)
   {
-    computeJointJacobian(model,data,qs[_smooth],JOINT_ID,J);
+    computeJointJacobian(model, data, qs[_smooth], JOINT_ID, J);
   }
-  std::cout << "computeJointJacobian = \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "computeJointJacobian = \t\t";
+  timer.toc(std::cout, NBT);
 
   timer.tic();
   SMOOTH(NBT)
   {
-    computeJointJacobians(model,data,qs[_smooth]);
+    computeJointJacobians(model, data, qs[_smooth]);
   }
-  std::cout << "computeJointJacobians(q) = \t"; timer.toc(std::cout,NBT);
+  std::cout << "computeJointJacobians(q) = \t";
+  timer.toc(std::cout, NBT);
 
   timer.tic();
   SMOOTH(NBT)
   {
-    computeJointJacobians(model,data);
+    computeJointJacobians(model, data);
   }
-  std::cout << "computeJointJacobians() = \t"; timer.toc(std::cout,NBT);
+  std::cout << "computeJointJacobians() = \t";
+  timer.toc(std::cout, NBT);
 
   timer.tic();
   SMOOTH(NBT)
   {
-    getJointJacobian(model,data,JOINT_ID,LOCAL,J);
+    getJointJacobian(model, data, JOINT_ID, LOCAL, J);
   }
-  std::cout << "getJointJacobian(LOCAL) = \t"; timer.toc(std::cout,NBT);
+  std::cout << "getJointJacobian(LOCAL) = \t";
+  timer.toc(std::cout, NBT);
 
   timer.tic();
   SMOOTH(NBT)
   {
-    getJointJacobian(model,data,JOINT_ID,WORLD,J);
+    getJointJacobian(model, data, JOINT_ID, WORLD, J);
   }
-  std::cout << "getJointJacobian(WORLD) = \t"; timer.toc(std::cout,NBT);
+  std::cout << "getJointJacobian(WORLD) = \t";
+  timer.toc(std::cout, NBT);
 
   std::cout << "--" << std::endl;
   return 0;

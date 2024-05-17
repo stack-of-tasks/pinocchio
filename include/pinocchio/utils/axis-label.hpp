@@ -7,7 +7,7 @@
 
 namespace pinocchio
 {
-  
+
   ///
   /// \brief Generate the label (X, Y or Z) of the axis relative to its index.
   ///
@@ -15,11 +15,24 @@ namespace pinocchio
   ///
   /// \returns a char containing the label of the axis.
   ///
-  template<int axis> inline char axisLabel();
-  
-  template<> inline char axisLabel<0>() { return 'X'; }
-  template<> inline char axisLabel<1>() { return 'Y'; }
-  template<> inline char axisLabel<2>() { return 'Z'; }
-}
+  template<int axis>
+  inline char axisLabel();
+
+  template<>
+  inline char axisLabel<0>()
+  {
+    return 'X';
+  }
+  template<>
+  inline char axisLabel<1>()
+  {
+    return 'Y';
+  }
+  template<>
+  inline char axisLabel<2>()
+  {
+    return 'Z';
+  }
+} // namespace pinocchio
 
 #endif // __pinocchio_axis_label_hpp__

@@ -8,132 +8,145 @@
 #include "pinocchio/algorithm/fwd.hpp"
 #include "pinocchio/algorithm/delassus-operator-base.hpp"
 
-namespace pinocchio {
-
-template<typename _Scalar, int _Options>
-struct traits<DelassusOperatorDenseTpl<_Scalar,_Options> >
+namespace pinocchio
 {
-  typedef _Scalar Scalar;
-  enum { Options = _Options, RowsAtCompileTime = Eigen::Dynamic };
 
-  typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> Matrix;
-  typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> Vector;
-};
+  template<typename _Scalar, int _Options>
+  struct traits<DelassusOperatorDenseTpl<_Scalar, _Options>>
+  {
+    typedef _Scalar Scalar;
+    enum
+    {
+      Options = _Options,
+      RowsAtCompileTime = Eigen::Dynamic
+    };
 
-template<typename _Scalar, int _Options>
-struct DelassusOperatorDenseTpl
-: DelassusOperatorBase< DelassusOperatorDenseTpl<_Scalar,_Options> >
-{
-  typedef _Scalar Scalar;
-  typedef DelassusOperatorDenseTpl Self;
-  enum {
-    Options = _Options,
-    RowsAtCompileTime = traits<DelassusOperatorDenseTpl>::RowsAtCompileTime
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Options> Matrix;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> Vector;
   };
 
-  typedef typename traits<Self>::Matrix Matrix;
-  typedef typename traits<Self>::Vector Vector;
-  typedef Eigen::LLT<Matrix> CholeskyDecomposition;
-  typedef DelassusOperatorBase<Self> Base;
-
-  template<typename MatrixDerived>
-  explicit DelassusOperatorDenseTpl(const Eigen::MatrixBase<MatrixDerived> & mat)
-  : Base(mat.rows())
-  , delassus_matrix(mat)
-  , mat_tmp(mat.rows(),mat.cols())
-  , llt(mat)
-  , damping(Vector::Zero(mat.rows()))
+  template<typename _Scalar, int _Options>
+  struct DelassusOperatorDenseTpl
+  : DelassusOperatorBase<DelassusOperatorDenseTpl<_Scalar, _Options>>
   {
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(mat.rows(),mat.cols());
-  }
+    typedef _Scalar Scalar;
+    typedef DelassusOperatorDenseTpl Self;
+    enum
+    {
+      Options = _Options,
+      RowsAtCompileTime = traits<DelassusOperatorDenseTpl>::RowsAtCompileTime
+    };
 
-  template<typename VectorLike>
-  void updateDamping(const Eigen::MatrixBase<VectorLike> & vec)
-  {
-    damping = vec;
-    mat_tmp = delassus_matrix;
-    mat_tmp += vec.asDiagonal();
-    llt.compute(mat_tmp);
-  }
+    typedef typename traits<Self>::Matrix Matrix;
+    typedef typename traits<Self>::Vector Vector;
+    typedef Eigen::LLT<Matrix> CholeskyDecomposition;
+    typedef DelassusOperatorBase<Self> Base;
 
-  void updateDamping(const Scalar & mu)
-  {
-    updateDamping(Vector::Constant(size(),mu));
-  }
+    template<typename MatrixDerived>
+    explicit DelassusOperatorDenseTpl(const Eigen::MatrixBase<MatrixDerived> & mat)
+    : Base(mat.rows())
+    , delassus_matrix(mat)
+    , mat_tmp(mat.rows(), mat.cols())
+    , llt(mat)
+    , damping(Vector::Zero(mat.rows()))
+    {
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(mat.rows(), mat.cols());
+    }
 
-  template<typename MatrixLike>
-  void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const
-  {
-    llt.solveInPlace(mat.const_cast_derived());
-  }
+    template<typename VectorLike>
+    void updateDamping(const Eigen::MatrixBase<VectorLike> & vec)
+    {
+      damping = vec;
+      mat_tmp = delassus_matrix;
+      mat_tmp += vec.asDiagonal();
+      llt.compute(mat_tmp);
+    }
 
-  template<typename MatrixLike>
-  typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixLike)
-  solve(const Eigen::MatrixBase<MatrixLike> & mat) const
-  {
-    typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixLike) res(mat);
-    solveInPlace(res);
-    return res;
-  }
+    void updateDamping(const Scalar & mu)
+    {
+      updateDamping(Vector::Constant(size(), mu));
+    }
 
-  template<typename MatrixDerivedIn, typename MatrixDerivedOut>
-  void solve(const Eigen::MatrixBase<MatrixDerivedIn> & x,
-             const Eigen::MatrixBase<MatrixDerivedOut> & res) const
-  {
-    res.const_cast_derived() = x;
-    solveInPlace(res.const_cast_derived());
-  }
+    template<typename MatrixLike>
+    void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const
+    {
+      llt.solveInPlace(mat.const_cast_derived());
+    }
 
-  template<typename MatrixIn, typename MatrixOut>
-  void applyOnTheRight(const Eigen::MatrixBase<MatrixIn> & x,
-                       const Eigen::MatrixBase<MatrixOut> & res_) const
-  {
-    MatrixOut & res = res_.const_cast_derived();
-    res.noalias() = delassus_matrix * x;
-    res.array() += damping.array() * x.array();
-  }
+    template<typename MatrixLike>
+    typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixLike)
+      solve(const Eigen::MatrixBase<MatrixLike> & mat) const
+    {
+      typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixLike) res(mat);
+      solveInPlace(res);
+      return res;
+    }
 
-  template<typename MatrixDerived>
-  typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived)
-  operator*(const Eigen::MatrixBase<MatrixDerived> & x) const
-  {
-    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived) ReturnType;
+    template<typename MatrixDerivedIn, typename MatrixDerivedOut>
+    void solve(
+      const Eigen::MatrixBase<MatrixDerivedIn> & x,
+      const Eigen::MatrixBase<MatrixDerivedOut> & res) const
+    {
+      res.const_cast_derived() = x;
+      solveInPlace(res.const_cast_derived());
+    }
 
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(x.rows(),size());
-    ReturnType res(x.rows(),x.cols());
-    applyOnTheRight(x,res);
-    return res;
-  }
+    template<typename MatrixIn, typename MatrixOut>
+    void applyOnTheRight(
+      const Eigen::MatrixBase<MatrixIn> & x, const Eigen::MatrixBase<MatrixOut> & res_) const
+    {
+      MatrixOut & res = res_.const_cast_derived();
+      res.noalias() = delassus_matrix * x;
+      res.array() += damping.array() * x.array();
+    }
 
-  Eigen::DenseIndex size() const { return delassus_matrix.rows(); }
-  Eigen::DenseIndex rows() const { return delassus_matrix.rows(); }
-  Eigen::DenseIndex cols() const { return delassus_matrix.cols(); }
+    template<typename MatrixDerived>
+    typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived)
+    operator*(const Eigen::MatrixBase<MatrixDerived> & x) const
+    {
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived) ReturnType;
 
-  Matrix matrix() const 
-  {
-    mat_tmp = delassus_matrix;
-    mat_tmp += damping.asDiagonal();
-    return mat_tmp;
-  }
-  
-  Matrix inverse() const
-  {
-    Matrix res = Matrix::Identity(size(),size());
-    llt.solveInPlace(res);
-    return res;
-  }
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(x.rows(), size());
+      ReturnType res(x.rows(), x.cols());
+      applyOnTheRight(x, res);
+      return res;
+    }
 
-protected:
+    Eigen::DenseIndex size() const
+    {
+      return delassus_matrix.rows();
+    }
+    Eigen::DenseIndex rows() const
+    {
+      return delassus_matrix.rows();
+    }
+    Eigen::DenseIndex cols() const
+    {
+      return delassus_matrix.cols();
+    }
 
-  Matrix delassus_matrix;
-  mutable Matrix mat_tmp;
-  CholeskyDecomposition llt;
-  Vector damping;
+    Matrix matrix() const
+    {
+      mat_tmp = delassus_matrix;
+      mat_tmp += damping.asDiagonal();
+      return mat_tmp;
+    }
 
+    Matrix inverse() const
+    {
+      Matrix res = Matrix::Identity(size(), size());
+      llt.solveInPlace(res);
+      return res;
+    }
 
-}; // struct DelassusOperatorDenseTpl
+  protected:
+    Matrix delassus_matrix;
+    mutable Matrix mat_tmp;
+    CholeskyDecomposition llt;
+    Vector damping;
+
+  }; // struct DelassusOperatorDenseTpl
 
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_algorithm_delassus_operator_dense_hpp__
-

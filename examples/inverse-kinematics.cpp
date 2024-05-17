@@ -16,24 +16,24 @@ int main(int /* argc */, char ** /* argv */)
   const pinocchio::SE3 oMdes(Eigen::Matrix3d::Identity(), Eigen::Vector3d(1., 0., 1.));
 
   Eigen::VectorXd q = pinocchio::neutral(model);
-  const double eps  = 1e-4;
-  const int IT_MAX  = 1000;
-  const double DT   = 1e-1;
+  const double eps = 1e-4;
+  const int IT_MAX = 1000;
+  const double DT = 1e-1;
   const double damp = 1e-6;
 
-  pinocchio::Data::Matrix6x J(6,model.nv);
+  pinocchio::Data::Matrix6x J(6, model.nv);
   J.setZero();
 
   bool success = false;
   typedef Eigen::Matrix<double, 6, 1> Vector6d;
   Vector6d err;
   Eigen::VectorXd v(model.nv);
-  for (int i=0;;i++)
+  for (int i = 0;; i++)
   {
-    pinocchio::forwardKinematics(model,data,q);
+    pinocchio::forwardKinematics(model, data, q);
     const pinocchio::SE3 iMd = data.oMi[JOINT_ID].actInv(oMdes);
-    err = pinocchio::log6(iMd).toVector();  // in joint frame
-    if(err.norm() < eps)
+    err = pinocchio::log6(iMd).toVector(); // in joint frame
+    if (err.norm() < eps)
     {
       success = true;
       break;
@@ -43,28 +43,30 @@ int main(int /* argc */, char ** /* argv */)
       success = false;
       break;
     }
-    pinocchio::computeJointJacobian(model,data,q,JOINT_ID,J);  // J in joint frame
+    pinocchio::computeJointJacobian(model, data, q, JOINT_ID, J); // J in joint frame
     pinocchio::Data::Matrix6 Jlog;
     pinocchio::Jlog6(iMd.inverse(), Jlog);
     J = -Jlog * J;
     pinocchio::Data::Matrix6 JJt;
     JJt.noalias() = J * J.transpose();
     JJt.diagonal().array() += damp;
-    v.noalias() = - J.transpose() * JJt.ldlt().solve(err);
-    q = pinocchio::integrate(model,q,v*DT);
-    if(!(i%10))
+    v.noalias() = -J.transpose() * JJt.ldlt().solve(err);
+    q = pinocchio::integrate(model, q, v * DT);
+    if (!(i % 10))
       std::cout << i << ": error = " << err.transpose() << std::endl;
   }
 
-  if(success) 
+  if (success)
   {
     std::cout << "Convergence achieved!" << std::endl;
   }
-  else 
+  else
   {
-    std::cout << "\nWarning: the iterative algorithm has not reached convergence to the desired precision" << std::endl;
+    std::cout
+      << "\nWarning: the iterative algorithm has not reached convergence to the desired precision"
+      << std::endl;
   }
-    
+
   std::cout << "\nresult: " << q.transpose() << std::endl;
   std::cout << "\nfinal error: " << err.transpose() << std::endl;
 }

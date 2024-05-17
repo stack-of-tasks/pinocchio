@@ -15,19 +15,19 @@ data = model.createData()
 
 # Set bounds (by default they are undefinded for a the Simple Humanoid model)
 
-model.lowerPositionLimit = -np.ones((model.nq,1))
-model.upperPositionLimit = np.ones((model.nq,1))
+model.lowerPositionLimit = -np.ones((model.nq, 1))
+model.upperPositionLimit = np.ones((model.nq, 1))
 
-q = pin.randomConfiguration(model) # joint configuration
-v = np.random.rand(model.nv,1) # joint velocity
-a = np.random.rand(model.nv,1) # joint acceleration
+q = pin.randomConfiguration(model)  # joint configuration
+v = np.random.rand(model.nv, 1)  # joint velocity
+a = np.random.rand(model.nv, 1)  # joint acceleration
 
 # Evaluate the derivatives
 
-pin.computeRNEADerivatives(model,data,q,v,a)
+pin.computeRNEADerivatives(model, data, q, v, a)
 
 # Retrieve the derivatives in data
 
-dtau_dq = data.dtau_dq # Derivatives of the ID w.r.t. the joint config vector
-dtau_dv = data.dtau_dv # Derivatives of the ID w.r.t. the joint velocity vector
-dtau_da = data.M # Derivatives of the ID w.r.t. the joint acceleration vector
+dtau_dq = data.dtau_dq  # Derivatives of the ID w.r.t. the joint config vector
+dtau_dv = data.dtau_dv  # Derivatives of the ID w.r.t. the joint velocity vector
+dtau_da = data.M  # Derivatives of the ID w.r.t. the joint acceleration vector

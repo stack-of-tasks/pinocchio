@@ -10,4 +10,4 @@ dependencies:
   - eigenpy
   - urdfdom
   - python
-  - pycppad  #[not win]
+  - pycppad   #[not win]

@@ -31,9 +31,9 @@
   #define PINOCCHIO_MODEL_DIR "path_to_the_model_dir"
 #endif
 
-#define BOOST_CHECK(check) \
-    if (!(check))          \
-        std::cout << BOOST_STRINGIZE(check) << " has failed" << std::endl;
+#define BOOST_CHECK(check)                                                                         \
+  if (!(check))                                                                                    \
+    std::cout << BOOST_STRINGIZE(check) << " has failed" << std::endl;
 
 using namespace pinocchio;
 
@@ -49,13 +49,16 @@ struct call_equality_op
 template<typename T>
 bool run_call_equality_op(const T & v1, const T & v2)
 {
-  return call_equality_op<T,T>::run(v1,v2);
+  return call_equality_op<T, T>::run(v1, v2);
 }
 
 template<typename T>
 struct empty_contructor_algo
 {
-  static T * run() { return new T(); }
+  static T * run()
+  {
+    return new T();
+  }
 };
 
 template<>
@@ -63,7 +66,7 @@ struct empty_contructor_algo<pinocchio::GeometryObject>
 {
   static pinocchio::GeometryObject * run()
   {
-    return new pinocchio::GeometryObject("",0,0,pinocchio::SE3::Identity(),nullptr);
+    return new pinocchio::GeometryObject("", 0, 0, pinocchio::SE3::Identity(), nullptr);
   }
 };
 
@@ -74,37 +77,35 @@ T * empty_contructor()
 }
 
 template<typename T>
-void generic_test(const T & object,
-                  const std::string & filename,
-                  const std::string & tag_name)
+void generic_test(const T & object, const std::string & filename, const std::string & tag_name)
 {
   using namespace pinocchio::serialization;
 
   // Load and save as TXT
   const std::string txt_filename = filename + ".txt";
-  saveToText(object,txt_filename);
+  saveToText(object, txt_filename);
 
   {
     T & object_loaded = *empty_contructor<T>();
-    loadFromText(object_loaded,txt_filename);
+    loadFromText(object_loaded, txt_filename);
 
     // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded,object));
+    BOOST_CHECK(run_call_equality_op(object_loaded, object));
 
     delete &object_loaded;
   }
 
   // Load and save as string stream (TXT format)
   std::stringstream ss_out;
-  saveToStringStream(object,ss_out);
+  saveToStringStream(object, ss_out);
 
   {
     T & object_loaded = *empty_contructor<T>();
     std::istringstream is(ss_out.str());
-    loadFromStringStream(object_loaded,is);
+    loadFromStringStream(object_loaded, is);
 
     // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded,object));
+    BOOST_CHECK(run_call_equality_op(object_loaded, object));
 
     delete &object_loaded;
   }
@@ -115,66 +116,66 @@ void generic_test(const T & object,
   {
     T & object_loaded = *empty_contructor<T>();
     std::string str_in(str_out);
-    loadFromString(object_loaded,str_in);
+    loadFromString(object_loaded, str_in);
 
     // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded,object));
+    BOOST_CHECK(run_call_equality_op(object_loaded, object));
 
     delete &object_loaded;
   }
 
   // Load and save as XML
   const std::string xml_filename = filename + ".xml";
-  saveToXML(object,xml_filename,tag_name);
+  saveToXML(object, xml_filename, tag_name);
 
   {
     T & object_loaded = *empty_contructor<T>();
-    loadFromXML(object_loaded,xml_filename,tag_name);
+    loadFromXML(object_loaded, xml_filename, tag_name);
 
     // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded,object));
+    BOOST_CHECK(run_call_equality_op(object_loaded, object));
 
     delete &object_loaded;
   }
 
   // Load and save as binary
   const std::string bin_filename = filename + ".bin";
-  saveToBinary(object,bin_filename);
+  saveToBinary(object, bin_filename);
 
   {
     T & object_loaded = *empty_contructor<T>();
-    loadFromBinary(object_loaded,bin_filename);
+    loadFromBinary(object_loaded, bin_filename);
 
     // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded,object));
+    BOOST_CHECK(run_call_equality_op(object_loaded, object));
 
     delete &object_loaded;
   }
 
   // Load and save as binary stream
   boost::asio::streambuf buffer;
-  saveToBinary(object,buffer);
+  saveToBinary(object, buffer);
 
   {
     T & object_loaded = *empty_contructor<T>();
-    loadFromBinary(object_loaded,buffer);
+    loadFromBinary(object_loaded, buffer);
 
     // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded,object));
+    BOOST_CHECK(run_call_equality_op(object_loaded, object));
 
     delete &object_loaded;
   }
 
   // Load and save as static binary stream
   pinocchio::serialization::StaticBuffer static_buffer(10000000);
-  saveToBinary(object,static_buffer);
+  saveToBinary(object, static_buffer);
 
   {
     T & object_loaded = *empty_contructor<T>();
-    loadFromBinary(object_loaded,static_buffer);
+    loadFromBinary(object_loaded, static_buffer);
 
     // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded,object));
+    BOOST_CHECK(run_call_equality_op(object_loaded, object));
 
     delete &object_loaded;
   }
@@ -190,7 +191,7 @@ int main(int, char **)
 
   fs::path model_path = fs::temp_directory_path() / "GeometryModel";
   fs::path data_path = fs::temp_directory_path() / "GeometryData";
-//  boost::serialization::void_cast_register<hpp::fcl::BVHModel<hpp::fcl::OBBRSS>,hpp::fcl::CollisionGeometry>();
+  //  boost::serialization::void_cast_register<hpp::fcl::BVHModel<hpp::fcl::OBBRSS>,hpp::fcl::CollisionGeometry>();
   // Empty structures
   {
     GeometryModel geom_model;
@@ -201,30 +202,31 @@ int main(int, char **)
   }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
- #if HPP_FCL_VERSION_AT_LEAST(3, 0, 0)
+  #if HPP_FCL_VERSION_AT_LEAST(3, 0, 0)
   {
     pinocchio::GeometryModel geom_model;
-    pinocchio::buildModels::humanoidGeometries(model,geom_model);
+    pinocchio::buildModels::humanoidGeometries(model, geom_model);
     // Append new objects
     {
       using namespace hpp::fcl;
       BVHModel<OBBRSS> * bvh_ptr = new BVHModel<OBBRSS>();
-//      bvh_ptr->beginModel();
-//      bvh_ptr->addSubModel(p1, t1);
-//      bvh_ptr->endModel();
+      //      bvh_ptr->beginModel();
+      //      bvh_ptr->addSubModel(p1, t1);
+      //      bvh_ptr->endModel();
 
-      GeometryObject obj_bvh("bvh",0,0,SE3::Identity(),GeometryObject::CollisionGeometryPtr(bvh_ptr));
+      GeometryObject obj_bvh(
+        "bvh", 0, 0, SE3::Identity(), GeometryObject::CollisionGeometryPtr(bvh_ptr));
       geom_model.addGeometryObject(obj_bvh);
     }
     generic_test(geom_model, model_path.string(), "GeometryModel");
 
     pinocchio::GeometryData geom_data(geom_model);
     const Eigen::VectorXd q = pinocchio::neutral(model);
-    pinocchio::forwardKinematics(model,data,q);
-    pinocchio::updateGeometryPlacements(model,data,geom_model,geom_data,q);
+    pinocchio::forwardKinematics(model, data, q);
+    pinocchio::updateGeometryPlacements(model, data, geom_model, geom_data, q);
 
     generic_test(geom_data, data_path.string(), "GeometryData");
   }
- #endif // hpp-fcl >= 3.0.0
-#endif // PINOCCHIO_WITH_HPP_FCL
+  #endif // hpp-fcl >= 3.0.0
+#endif   // PINOCCHIO_WITH_HPP_FCL
 }

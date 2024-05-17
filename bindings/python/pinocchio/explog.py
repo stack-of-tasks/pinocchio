@@ -9,6 +9,7 @@ import numpy as np
 
 from . import pinocchio_pywrap_default as pin
 
+
 def exp(x):
     if isinstance(x, pin.Motion):
         return pin.exp6(x)
@@ -19,8 +20,10 @@ def exp(x):
             return pin.exp6(pin.Motion(x))
         if x.shape == (3, 1) or x.shape == (3,):
             return pin.exp3(x)
-        raise ValueError('Error only 3 and 6 vectors are allowed.')
-    raise ValueError('Error exp is only defined for real, vector3, vector6 and pin.Motion objects.')
+        raise ValueError("Error only 3 and 6 vectors are allowed.")
+    raise ValueError(
+        "Error exp is only defined for real, vector3, vector6 and pin.Motion objects."
+    )
 
 
 def log(x):
@@ -33,7 +36,10 @@ def log(x):
             return pin.log6(x)
         if x.shape == (3, 3):
             return pin.log3(x)
-        raise ValueError('Error only 3 and 4 matrices are allowed.')
-    raise ValueError('Error log is only defined for real, matrix3, matrix4 and pin.SE3 objects.')
+        raise ValueError("Error only 3 and 4 matrices are allowed.")
+    raise ValueError(
+        "Error log is only defined for real, matrix3, matrix4 and pin.SE3 objects."
+    )
 
-__all__ = ['exp', 'log']
+
+__all__ = ["exp", "log"]

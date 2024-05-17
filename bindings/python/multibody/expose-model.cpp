@@ -9,11 +9,11 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     void exposeModel()
     {
       ModelPythonVisitor<context::Model>::expose();
     }
-    
+
   } // namespace python
 } // namespace pinocchio

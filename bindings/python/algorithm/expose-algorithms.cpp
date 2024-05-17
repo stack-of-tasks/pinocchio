@@ -8,7 +8,7 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     void exposeAlgorithms()
     {
       exposeJointsAlgo();
@@ -20,7 +20,7 @@ namespace pinocchio
       exposeFramesAlgo();
       exposeEnergy();
       exposeKinematics();
-      
+
       exposeContactJacobian();
       exposeConstraintDynamics();
       exposeConstraintDynamicsDerivatives();
@@ -50,6 +50,6 @@ namespace pinocchio
 
       exposeContactSolvers();
     }
-    
+
   } // namespace python
 } // namespace pinocchio

@@ -22,7 +22,8 @@ namespace pinocchio
 {
   namespace python
   {
-    inline void exposeSpecificTypeFeatures() {
+    inline void exposeSpecificTypeFeatures()
+    {
       boost::python::import("pycppad");
     };
 
@@ -30,8 +31,8 @@ namespace pinocchio
     {
       return eigenpy::getInstanceClass<context::Scalar>();
     }
-    
-  }
-}
+
+  } // namespace python
+} // namespace pinocchio
 
 #endif // #ifndef __pinocchio_python_context_cppad_hpp__

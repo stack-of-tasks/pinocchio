@@ -1,22 +1,22 @@
 import unittest
 import pinocchio as pin
 import numpy as np
-from pinocchio.utils import eye,zero,rand
+from pinocchio.utils import eye, zero, rand
 
 from test_case import PinocchioTestCase as TestCase
 
-class TestSymmetric3Bindings(TestCase):
 
+class TestSymmetric3Bindings(TestCase):
     def test_zero_getter(self):
         S = pin.Symmetric3.Zero()
         self.assertTrue(np.allclose(zero(6), S.data))
 
     def test_identity_getters_matrix_conversion(self):
         S = pin.Symmetric3.Identity()
-        id_vec = np.array([1.,0.,1.,0.,0.,1.])
+        id_vec = np.array([1.0, 0.0, 1.0, 0.0, 0.0, 1.0])
         id_matrix = pin.Symmetric3(id_vec).matrix()
         self.assertTrue(np.allclose(eye(3), id_matrix))
-        self.assertTrue(np.allclose(np.array([1.,0.,1.,0.,0.,1.]), S.data))
+        self.assertTrue(np.allclose(np.array([1.0, 0.0, 1.0, 0.0, 0.0, 1.0]), S.data))
         self.assertTrue(np.allclose(eye(3), S.matrix()))
 
     def test_setRandom_matrix_conversion(self):
@@ -41,8 +41,9 @@ class TestSymmetric3Bindings(TestCase):
 
     def test_setDiagonal(self):
         S = pin.Symmetric3.Zero()
-        S.setDiagonal(np.ones(3)*2)
-        self.assertTrue(np.allclose(eye(3)*2, S.matrix()))
+        S.setDiagonal(np.ones(3) * 2)
+        self.assertTrue(np.allclose(eye(3) * 2, S.matrix()))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

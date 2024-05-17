@@ -7,7 +7,8 @@
 
 #include "pinocchio/macros.hpp"
 
-PINOCCHIO_PRAGMA_DEPRECATED_HEADER(pinocchio/math/cppadcg.hpp,pinocchio/codegen/cppadcg.hpp)
+PINOCCHIO_PRAGMA_DEPRECATED_HEADER(
+  pinocchio / math / cppadcg.hpp, pinocchio / codegen / cppadcg.hpp)
 
 #include "pinocchio/codegen/cppadcg.hpp"
 

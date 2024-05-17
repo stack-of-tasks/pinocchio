@@ -10,37 +10,35 @@
 namespace pinocchio
 {
 
-struct GeometryObjectFilterBase
-: InstanceFilterBase<GeometryObject>
-{
-  
-}; // struct GeometryObjectFilterBase
-
-struct GeometryObjectFilterNothing final
-: GeometryObjectFilterBase
-{
-  bool operator()(const GeometryObject &) const
+  struct GeometryObjectFilterBase : InstanceFilterBase<GeometryObject>
   {
-    return true;
-  }
-  
-}; // struct GeometryObjectFilterNothing
 
-struct GeometryObjectFilterSelectByJoint final
-: GeometryObjectFilterBase
-{
-  GeometryObjectFilterSelectByJoint(const size_t joint_id)
-  : joint_id(joint_id)
-  {}
-  
-  bool operator()(const GeometryObject & geometry_object) const
+  }; // struct GeometryObjectFilterBase
+
+  struct GeometryObjectFilterNothing final : GeometryObjectFilterBase
   {
-    return geometry_object.parentJoint == joint_id;
-  }
-  
-  const size_t joint_id;
-  
-}; // struct GeometryObjectFilterSelectByJoint
+    bool operator()(const GeometryObject &) const
+    {
+      return true;
+    }
+
+  }; // struct GeometryObjectFilterNothing
+
+  struct GeometryObjectFilterSelectByJoint final : GeometryObjectFilterBase
+  {
+    GeometryObjectFilterSelectByJoint(const size_t joint_id)
+    : joint_id(joint_id)
+    {
+    }
+
+    bool operator()(const GeometryObject & geometry_object) const
+    {
+      return geometry_object.parentJoint == joint_id;
+    }
+
+    const size_t joint_id;
+
+  }; // struct GeometryObjectFilterSelectByJoint
 
 } // namespace pinocchio
 

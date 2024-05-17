@@ -14,6 +14,6 @@ namespace pinocchio
     omp_set_num_threads((int)num_threads);
     omp_set_dynamic(0);
   }
-}
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_algorithm_parallel_omp_hpp__

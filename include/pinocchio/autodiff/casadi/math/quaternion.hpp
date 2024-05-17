@@ -13,55 +13,53 @@ namespace pinocchio
   {
     namespace internal
     {
-      
+
       template<typename _Scalar>
-      struct quaternionbase_assign_impl< ::casadi::Matrix<_Scalar>, false >
+      struct quaternionbase_assign_impl<::casadi::Matrix<_Scalar>, false>
       {
         typedef ::casadi::Matrix<_Scalar> Scalar;
         template<typename Matrix3, typename QuaternionDerived>
-        static inline void run(Eigen::QuaternionBase<QuaternionDerived> & q,
-                               const Matrix3 & mat)
+        static inline void run(Eigen::QuaternionBase<QuaternionDerived> & q, const Matrix3 & mat)
         {
-          typedef typename Eigen::internal::traits<QuaternionDerived>::Coefficients QuatCoefficients;
-          
+          typedef
+            typename Eigen::internal::traits<QuaternionDerived>::Coefficients QuatCoefficients;
+
           typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(QuatCoefficients) QuatCoefficientsPlainType;
-          typedef Eigen::Quaternion<Scalar,QuatCoefficientsPlainType::Options> QuaternionPlain;
+          typedef Eigen::Quaternion<Scalar, QuatCoefficientsPlainType::Options> QuaternionPlain;
           QuaternionPlain quat_t_positive;
-          
+
           Scalar t = mat.trace();
-          quaternionbase_assign_impl_if_t_positive::run(t,quat_t_positive,mat);
-          
+          quaternionbase_assign_impl_if_t_positive::run(t, quat_t_positive, mat);
+
           QuaternionPlain quat_t_negative_0, quat_t_negative_1, quat_t_negative_2;
-          
-          quaternionbase_assign_impl_if_t_negative<0>::run(t,quat_t_negative_0,mat);
-          quaternionbase_assign_impl_if_t_negative<1>::run(t,quat_t_negative_1,mat);
-          quaternionbase_assign_impl_if_t_negative<2>::run(t,quat_t_negative_2,mat);
-          
+
+          quaternionbase_assign_impl_if_t_negative<0>::run(t, quat_t_negative_0, mat);
+          quaternionbase_assign_impl_if_t_negative<1>::run(t, quat_t_negative_1, mat);
+          quaternionbase_assign_impl_if_t_negative<2>::run(t, quat_t_negative_2, mat);
+
           // Build the expression graph
           const Scalar t_greater_than_zero = t > Scalar(0);
-          const Scalar cond1 = mat.coeff(1,1) > mat.coeff(0,0);
-          const Scalar cond2 = (cond1 && mat.coeff(2,2) > mat.coeff(1,1)) || (mat.coeff(2,2) > mat.coeff(0,0));
-          
-          for(Eigen::DenseIndex k = 0; k < 4; ++k)
+          const Scalar cond1 = mat.coeff(1, 1) > mat.coeff(0, 0);
+          const Scalar cond2 =
+            (cond1 && mat.coeff(2, 2) > mat.coeff(1, 1)) || (mat.coeff(2, 2) > mat.coeff(0, 0));
+
+          for (Eigen::DenseIndex k = 0; k < 4; ++k)
           {
-            Scalar t_is_negative_cond1 = Scalar::if_else(cond1,
-                                                         quat_t_negative_1.coeffs().coeff(k),
-                                                         quat_t_negative_0.coeffs().coeff(k));
-            Scalar t_is_negative_cond2 = Scalar::if_else(cond2,
-                                                         quat_t_negative_2.coeffs().coeff(k),
-                                                         t_is_negative_cond1);
-            
-            q.coeffs().coeffRef(k) = Scalar::if_else(t_greater_than_zero,
-                                                     quat_t_positive.coeffs().coeff(k),
-                                                     t_is_negative_cond2);
+            Scalar t_is_negative_cond1 = Scalar::if_else(
+              cond1, quat_t_negative_1.coeffs().coeff(k), quat_t_negative_0.coeffs().coeff(k));
+            Scalar t_is_negative_cond2 =
+              Scalar::if_else(cond2, quat_t_negative_2.coeffs().coeff(k), t_is_negative_cond1);
+
+            q.coeffs().coeffRef(k) = Scalar::if_else(
+              t_greater_than_zero, quat_t_positive.coeffs().coeff(k), t_is_negative_cond2);
           }
         }
       };
-      
+
     } // namespace internal
-    
+
   } // namespace quaternion
-  
+
 } // namespace pinocchio
 
 namespace Eigen
@@ -69,16 +67,18 @@ namespace Eigen
   namespace internal
   {
     template<class Scalar, int Options>
-    struct quaternionbase_assign_impl<Eigen::Matrix<::casadi::Matrix<Scalar>,3,3,Options>,3,3 >
+    struct quaternionbase_assign_impl<Eigen::Matrix<::casadi::Matrix<Scalar>, 3, 3, Options>, 3, 3>
     {
       template<typename QuaternionDerived>
-      EIGEN_DEVICE_FUNC static inline void
-      run(QuaternionBase<QuaternionDerived> & q, const Eigen::Matrix<::casadi::Matrix<Scalar>,3,3,Options> & a_mat)
+      EIGEN_DEVICE_FUNC static inline void run(
+        QuaternionBase<QuaternionDerived> & q,
+        const Eigen::Matrix<::casadi::Matrix<Scalar>, 3, 3, Options> & a_mat)
       {
-        ::pinocchio::quaternion::internal::quaternionbase_assign_impl<::casadi::Matrix<Scalar>, false>::run(q,a_mat);
+        ::pinocchio::quaternion::internal::quaternionbase_assign_impl<
+          ::casadi::Matrix<Scalar>, false>::run(q, a_mat);
       }
     };
-  }
-}
+  } // namespace internal
+} // namespace Eigen
 
 #endif // ifndef __pinocchio_autodiff_casadi_math_quaternion_hpp__

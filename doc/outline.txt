@@ -4,7 +4,7 @@
 - Simplest example with compilation command (load urdf and run rnea)
 - More complete example with C++ and Python (load model and run a loop for an IK with 3D task)
   # @GabrieleBndn I don't think it's needed. It can go in the tutorials
-  # @nmansard     Eigen copy-paste. It might be nice for visibility. Let's try, it is not much work.  
+  # @nmansard     Eigen copy-paste. It might be nice for visibility. Let's try, it is not much work.
 - About Python wrapings (philosphy and example)
 - How to cite Pinocchio
 - Presentation of the content of the documentation.

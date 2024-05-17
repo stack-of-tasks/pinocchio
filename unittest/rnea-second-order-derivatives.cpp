@@ -17,7 +17,8 @@
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
-BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
+BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO)
+{
   using namespace Eigen;
   using namespace pinocchio;
 
@@ -43,9 +44,9 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   dtau2_dqdv.setZero();
   dtau2_dadq.setZero();
 
-  ComputeRNEASecondOrderDerivatives(model, data, q, VectorXd::Zero(model.nv),
-                           VectorXd::Zero(model.nv), dtau2_dq, dtau2_dv,
-                           dtau2_dqdv, dtau2_dadq);
+  ComputeRNEASecondOrderDerivatives(
+    model, data, q, VectorXd::Zero(model.nv), VectorXd::Zero(model.nv), dtau2_dq, dtau2_dv,
+    dtau2_dqdv, dtau2_dadq);
 
   Data::Tensor3x dtau2_dq_fd(model.nv, model.nv, model.nv);
   Data::Tensor3x dtau2_dv_fd(model.nv, model.nv, model.nv);
@@ -71,21 +72,24 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   MatrixXd rnea_partial_dv(MatrixXd::Zero(model.nv, model.nv));
   MatrixXd rnea_partial_da(MatrixXd::Zero(model.nv, model.nv));
 
-  computeRNEADerivatives(model, data, q, VectorXd::Zero(model.nv),
-                         VectorXd::Zero(model.nv), rnea_partial_dq,
-                         rnea_partial_dv, rnea_partial_da);
+  computeRNEADerivatives(
+    model, data, q, VectorXd::Zero(model.nv), VectorXd::Zero(model.nv), rnea_partial_dq,
+    rnea_partial_dv, rnea_partial_da);
 
   const double alpha = 1e-7;
 
-  for (int k = 0; k < model.nv; ++k) {
+  for (int k = 0; k < model.nv; ++k)
+  {
     v_eps[k] += alpha;
     q_plus = integrate(model, q, v_eps);
-    computeRNEADerivatives(model, data_fd, q_plus, VectorXd::Zero(model.nv),
-                           VectorXd::Zero(model.nv), drnea_dq_plus,
-                           drnea_dv_plus, drnea_da_plus);
+    computeRNEADerivatives(
+      model, data_fd, q_plus, VectorXd::Zero(model.nv), VectorXd::Zero(model.nv), drnea_dq_plus,
+      drnea_dv_plus, drnea_da_plus);
     temp1 = (drnea_dq_plus - rnea_partial_dq) / alpha;
-    for (int ii = 0; ii < model.nv; ii++) {
-      for (int jj = 0; jj < model.nv; jj++) {
+    for (int ii = 0; ii < model.nv; ii++)
+    {
+      for (int jj = 0; jj < model.nv; jj++)
+      {
         dtau2_dq_fd(jj, ii, k) = temp1(jj, ii);
       }
     }
@@ -101,8 +105,8 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   dtau2_dv.setZero();
   dtau2_dqdv.setZero();
   dtau2_dadq.setZero();
-  ComputeRNEASecondOrderDerivatives(model, data, q, VectorXd::Zero(model.nv), a,
-                           dtau2_dq, dtau2_dv, dtau2_dqdv, dtau2_dadq);
+  ComputeRNEASecondOrderDerivatives(
+    model, data, q, VectorXd::Zero(model.nv), a, dtau2_dq, dtau2_dv, dtau2_dqdv, dtau2_dadq);
 
   rnea_partial_dq.setZero();
   rnea_partial_dv.setZero();
@@ -114,20 +118,24 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   drnea_dv_plus.setZero();
   drnea_da_plus.setZero();
 
-  computeRNEADerivatives(model, data, q, VectorXd::Zero(model.nv), a,
-                         rnea_partial_dq, rnea_partial_dv, rnea_partial_da);
+  computeRNEADerivatives(
+    model, data, q, VectorXd::Zero(model.nv), a, rnea_partial_dq, rnea_partial_dv, rnea_partial_da);
 
-  for (int k = 0; k < model.nv; ++k) {
+  for (int k = 0; k < model.nv; ++k)
+  {
     v_eps[k] += alpha;
     q_plus = integrate(model, q, v_eps);
-    computeRNEADerivatives(model, data_fd, q_plus, VectorXd::Zero(model.nv), a,
-                           drnea_dq_plus, drnea_dv_plus, drnea_da_plus);
+    computeRNEADerivatives(
+      model, data_fd, q_plus, VectorXd::Zero(model.nv), a, drnea_dq_plus, drnea_dv_plus,
+      drnea_da_plus);
     temp1 = (drnea_dq_plus - rnea_partial_dq) / alpha;
     temp2 = (drnea_da_plus - rnea_partial_da) / alpha;
     temp2.triangularView<Eigen::StrictlyLower>() =
-        temp2.transpose().triangularView<Eigen::StrictlyLower>();
-    for (int ii = 0; ii < model.nv; ii++) {
-      for (int jj = 0; jj < model.nv; jj++) {
+      temp2.transpose().triangularView<Eigen::StrictlyLower>();
+    for (int ii = 0; ii < model.nv; ii++)
+    {
+      for (int jj = 0; jj < model.nv; jj++)
+      {
         dtau2_dq_fd(jj, ii, k) = temp1(jj, ii);
         dtau2_dadq_fd(jj, ii, k) = temp2(jj, ii);
       }
@@ -145,14 +153,13 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   dtau2_dv.setZero();
   dtau2_dqdv.setZero();
   dtau2_dadq.setZero();
-  ComputeRNEASecondOrderDerivatives(model, data, q, v, a, dtau2_dq, dtau2_dv, dtau2_dqdv,
-                           dtau2_dadq);
+  ComputeRNEASecondOrderDerivatives(
+    model, data, q, v, a, dtau2_dq, dtau2_dv, dtau2_dqdv, dtau2_dadq);
 
   rnea_partial_dq.setZero();
   rnea_partial_dv.setZero();
   rnea_partial_da.setZero();
-  computeRNEADerivatives(model, data, q, v, a, rnea_partial_dq, rnea_partial_dv,
-                         rnea_partial_da);
+  computeRNEADerivatives(model, data, q, v, a, rnea_partial_dq, rnea_partial_dv, rnea_partial_da);
 
   dtau2_dq_fd.setZero();
   dtau2_dadq_fd.setZero();
@@ -160,17 +167,20 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   drnea_dv_plus.setZero();
   drnea_da_plus.setZero();
 
-  for (int k = 0; k < model.nv; ++k) {
+  for (int k = 0; k < model.nv; ++k)
+  {
     v_eps[k] += alpha;
     q_plus = integrate(model, q, v_eps);
-    computeRNEADerivatives(model, data_fd, q_plus, v, a, drnea_dq_plus,
-                           drnea_dv_plus, drnea_da_plus);
+    computeRNEADerivatives(
+      model, data_fd, q_plus, v, a, drnea_dq_plus, drnea_dv_plus, drnea_da_plus);
     temp1 = (drnea_dq_plus - rnea_partial_dq) / alpha;
     temp2 = (drnea_da_plus - rnea_partial_da) / alpha;
     temp2.triangularView<Eigen::StrictlyLower>() =
-        temp2.transpose().triangularView<Eigen::StrictlyLower>();
-    for (int ii = 0; ii < model.nv; ii++) {
-      for (int jj = 0; jj < model.nv; jj++) {
+      temp2.transpose().triangularView<Eigen::StrictlyLower>();
+    for (int ii = 0; ii < model.nv; ii++)
+    {
+      for (int jj = 0; jj < model.nv; jj++)
+      {
         dtau2_dq_fd(jj, ii, k) = temp1(jj, ii);
         dtau2_dadq_fd(jj, ii, k) = temp2(jj, ii);
       }
@@ -179,15 +189,18 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   }
   dtau2_dv_fd.setZero();
   dtau2_dqdv_fd.setZero();
-  for (int k = 0; k < model.nv; ++k) {
+  for (int k = 0; k < model.nv; ++k)
+  {
     v_eps[k] += alpha;
     v_plus = v + v_eps;
-    computeRNEADerivatives(model, data_fd, q, v_plus, a, drnea_dq_plus,
-                           drnea_dv_plus, drnea_da_plus);
+    computeRNEADerivatives(
+      model, data_fd, q, v_plus, a, drnea_dq_plus, drnea_dv_plus, drnea_da_plus);
     temp1 = (drnea_dv_plus - rnea_partial_dv) / alpha;
     temp2 = (drnea_dq_plus - rnea_partial_dq) / alpha;
-    for (int ii = 0; ii < model.nv; ii++) {
-      for (int jj = 0; jj < model.nv; jj++) {
+    for (int ii = 0; ii < model.nv; ii++)
+    {
+      for (int jj = 0; jj < model.nv; jj++)
+      {
         dtau2_dv_fd(jj, ii, k) = temp1(jj, ii);
         dtau2_dqdv_fd(jj, ii, k) = temp2(jj, ii);
       }

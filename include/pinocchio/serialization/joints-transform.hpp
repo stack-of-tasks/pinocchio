@@ -15,43 +15,47 @@ namespace boost
 {
   namespace serialization
   {
-    
-    template <class Archive, typename Scalar, int Options, int axis>
-    void serialize(Archive & ar,
-                   pinocchio::TransformRevoluteTpl<Scalar,Options,axis> & m,
-                   const unsigned int /*version*/)
+
+    template<class Archive, typename Scalar, int Options, int axis>
+    void serialize(
+      Archive & ar,
+      pinocchio::TransformRevoluteTpl<Scalar, Options, axis> & m,
+      const unsigned int /*version*/)
     {
-      ar & make_nvp("sin",m.sin());
-      ar & make_nvp("cos",m.cos());
-    }
-  
-    template <class Archive, typename Scalar, int Options, int axis>
-    void serialize(Archive & ar,
-                   pinocchio::TransformPrismaticTpl<Scalar,Options,axis> & m,
-                   const unsigned int /*version*/)
-    {
-      ar & make_nvp("displacement",m.displacement());
+      ar & make_nvp("sin", m.sin());
+      ar & make_nvp("cos", m.cos());
     }
 
-    template <class Archive, typename Scalar, int Options, int axis>
-    void serialize(Archive & ar,
-                   pinocchio::TransformHelicalTpl<Scalar,Options,axis> & m,
-                   const unsigned int /*version*/)
+    template<class Archive, typename Scalar, int Options, int axis>
+    void serialize(
+      Archive & ar,
+      pinocchio::TransformPrismaticTpl<Scalar, Options, axis> & m,
+      const unsigned int /*version*/)
     {
-      ar & make_nvp("sin",m.sin());
-      ar & make_nvp("cos",m.cos());
-      ar & make_nvp("displacement",m.displacement());
+      ar & make_nvp("displacement", m.displacement());
     }
-  
-    template <class Archive, typename Scalar, int Options>
-    void serialize(Archive & ar,
-                   pinocchio::TransformTranslationTpl<Scalar,Options> & m,
-                   const unsigned int /*version*/)
+
+    template<class Archive, typename Scalar, int Options, int axis>
+    void serialize(
+      Archive & ar,
+      pinocchio::TransformHelicalTpl<Scalar, Options, axis> & m,
+      const unsigned int /*version*/)
     {
-      ar & make_nvp("translation",m.translation());
+      ar & make_nvp("sin", m.sin());
+      ar & make_nvp("cos", m.cos());
+      ar & make_nvp("displacement", m.displacement());
     }
-    
-  }
-}
+
+    template<class Archive, typename Scalar, int Options>
+    void serialize(
+      Archive & ar,
+      pinocchio::TransformTranslationTpl<Scalar, Options> & m,
+      const unsigned int /*version*/)
+    {
+      ar & make_nvp("translation", m.translation());
+    }
+
+  } // namespace serialization
+} // namespace boost
 
 #endif // ifndef __pinocchio_serialization_joints_transform_hpp__

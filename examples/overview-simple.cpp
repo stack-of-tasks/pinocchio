@@ -14,6 +14,6 @@ int main()
   Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
   Eigen::VectorXd a = Eigen::VectorXd::Zero(model.nv);
 
-  const Eigen::VectorXd & tau = pinocchio::rnea(model,data,q,v,a);
+  const Eigen::VectorXd & tau = pinocchio::rnea(model, data, q, v, a);
   std::cout << "tau = " << tau.transpose() << std::endl;
 }

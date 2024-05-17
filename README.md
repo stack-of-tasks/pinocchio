@@ -40,7 +40,7 @@ or via pip (currently only available on Linux):
 </p>
 
 
-## Table of contents 
+## Table of contents
 
   - [Pinocchio main features](#pinocchio-main-features)
   - [Documentation](#documentation)

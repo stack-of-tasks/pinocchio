@@ -21,31 +21,37 @@ namespace pinocchio
     template<typename VecType>
     struct PickleVector : boost::python::pickle_suite
     {
-      static boost::python::tuple getinitargs(const VecType&)
-      { return boost::python::make_tuple(); }
-      
+      static boost::python::tuple getinitargs(const VecType &)
+      {
+        return boost::python::make_tuple();
+      }
+
       static boost::python::tuple getstate(boost::python::object op)
       {
-        return boost::python::make_tuple(boost::python::list(boost::python::extract<const VecType&>(op)()));
+        return boost::python::make_tuple(
+          boost::python::list(boost::python::extract<const VecType &>(op)()));
       }
-      
+
       static void setstate(boost::python::object op, boost::python::tuple tup)
       {
-        if(boost::python::len(tup) > 0)
+        if (boost::python::len(tup) > 0)
         {
-          VecType & o = boost::python::extract<VecType&>(op)();
+          VecType & o = boost::python::extract<VecType &>(op)();
           boost::python::stl_input_iterator<typename VecType::value_type> begin(tup[0]), end;
-          while(begin != end)
+          while (begin != end)
           {
-             o.push_back(*begin);
-             ++begin;
+            o.push_back(*begin);
+            ++begin;
           }
         }
       }
-      
-      static bool getstate_manages_dict() { return true; }
+
+      static bool getstate_manages_dict()
+      {
+        return true;
+      }
     };
-  }
-}
+  } // namespace python
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_utils_pickle_vector_hpp__

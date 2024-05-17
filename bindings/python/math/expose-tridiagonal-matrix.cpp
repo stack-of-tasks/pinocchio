@@ -13,9 +13,10 @@ namespace pinocchio
 
     void exposeTridiagonalMatrix()
     {
-      typedef TridiagonalSymmetricMatrixTpl<context::Scalar,context::Options> TridiagonalSymmetricMatrix;
+      typedef TridiagonalSymmetricMatrixTpl<context::Scalar, context::Options>
+        TridiagonalSymmetricMatrix;
       TridiagonalSymmetricMatrixPythonVisitor<TridiagonalSymmetricMatrix>::expose();
     }
-    
+
   } // namespace python
 } // namespace pinocchio

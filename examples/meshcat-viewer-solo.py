@@ -1,6 +1,7 @@
 """
 Pose a Solo-12 robot on a surface defined through a function and displayed through an hppfcl.HeightField.
 """
+
 import numpy as np
 import pinocchio as pin
 
@@ -9,30 +10,35 @@ from example_robot_data import load
 
 robot = load("solo12")
 
-q_ref = np.array([[ 0.09906518],
-       [ 0.20099078],
-       [ 0.32502457],
-       [ 0.19414175],
-       [-0.00524735],
-       [-0.97855773],
-       [ 0.06860185],
-       [ 0.00968163],
-       [ 0.60963582],
-       [-1.61206407],
-       [-0.02543309],
-       [ 0.66709088],
-       [-1.50870083],
-       [ 0.32405118],
-       [-1.15305599],
-       [ 1.56867351],
-       [-0.39097222],
-       [-1.29675892],
-       [ 1.39741073]])
+q_ref = np.array(
+    [
+        [0.09906518],
+        [0.20099078],
+        [0.32502457],
+        [0.19414175],
+        [-0.00524735],
+        [-0.97855773],
+        [0.06860185],
+        [0.00968163],
+        [0.60963582],
+        [-1.61206407],
+        [-0.02543309],
+        [0.66709088],
+        [-1.50870083],
+        [0.32405118],
+        [-1.15305599],
+        [1.56867351],
+        [-0.39097222],
+        [-1.29675892],
+        [1.39741073],
+    ]
+)
 
 
 model = robot.model
 vizer = MeshcatVisualizer(model, robot.collision_model, robot.visual_model)
 vizer.initViewer(loadModel=True)
+
 
 def ground(xy):
     return (
@@ -61,6 +67,7 @@ def vizGround(viz, elevation_fn, space, name="ground", color=[1.0, 1.0, 0.6, 0.8
     obj.meshColor[:] = color
     viz.addGeometryObject(obj)
     viz.viewer.open()
+
 
 colorrgb = [128, 149, 255, 200]
 colorrgb = np.array(colorrgb) / 255.0

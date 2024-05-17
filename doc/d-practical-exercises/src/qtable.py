@@ -16,8 +16,8 @@ np.random.seed(RANDOM_SEED)
 ### --- Hyper paramaters
 NEPISODES               = 500           # Number of training episodes
 NSTEPS                  = 50            # Max episode length
-LEARNING_RATE           = 0.85          # 
-DECAY_RATE              = 0.99          # Discount factor 
+LEARNING_RATE           = 0.85          #
+DECAY_RATE              = 0.99          # Discount factor
 
 ### --- Environment
 env = DPendulum()

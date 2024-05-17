@@ -30,11 +30,17 @@ namespace pinocchio
   ///
   /// \note A similar function is available without model, data and q, not recomputing the FK.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  std::size_t computeDistances(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                               const GeometryModel & geom_model,
-                               GeometryData & geom_data);
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType>
+  std::size_t computeDistances(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const GeometryModel & geom_model,
+    GeometryData & geom_data);
 
   ///
   /// Compute the forward kinematics, update the geometry placements and
@@ -51,12 +57,18 @@ namespace pinocchio
   ///
   /// \note A similar function is available without model, data and q, not recomputing the FK.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  std::size_t computeDistances(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                               const GeometryModel & geom_model,
-                               GeometryData & geom_data,
-                               const Eigen::MatrixBase<ConfigVectorType> & q);
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType>
+  std::size_t computeDistances(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const GeometryModel & geom_model,
+    GeometryData & geom_data,
+    const Eigen::MatrixBase<ConfigVectorType> & q);
 
   ///
   /// \brief Compute the minimal distance between collision objects of a *SINGLE* collison pair
@@ -69,28 +81,26 @@ namespace pinocchio
   /// of vector geom_data::distanceResults.
   /// \note The complete distance result is also available in geom_data.distanceResults[pair_id]
   ///
-  fcl::DistanceResult & computeDistance(const GeometryModel & geom_model,
-                                        GeometryData & geom_data,
-                                        const PairIndex pair_id);
-  
+  fcl::DistanceResult & computeDistance(
+    const GeometryModel & geom_model, GeometryData & geom_data, const PairIndex pair_id);
+
   ///
   /// \brief Compute the minimal distance between collision objects of a *ALL* collison pair
   ///
   /// \param[in] GeomModel the geometry model (const)
   /// \param[out] GeomData the corresponding geometry data, where computations are done.
-  /// \return Index of the minimal pair distance in geom_data.DistanceResult 
+  /// \return Index of the minimal pair distance in geom_data.DistanceResult
   ///
   /// \note The complete distance result is available by pair in geom_data.distanceResults
   ///
-  std::size_t computeDistances(const GeometryModel & geom_model,
-                               GeometryData & geom_data);
+  std::size_t computeDistances(const GeometryModel & geom_model, GeometryData & geom_data);
 
 } // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/collision/distance.hxx"
 #if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
-#include "pinocchio/collision/distance.txx"
+  #include "pinocchio/collision/distance.txx"
 #endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_collision_distance_hpp__
