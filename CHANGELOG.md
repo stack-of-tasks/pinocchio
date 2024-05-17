@@ -54,6 +54,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 #### C++
 
+- Require C++11 to build
 - Replace `pinocchio::BiasZeroTpl` by `pinocchio::MotionZeroTpl`
 - Replace `pinocchio::fusion::JointVisitorBase` by `pinocchio::fusion::JointUnaryVisitorBase`
 - Replace `pinocchio::fusion::push_front` by `pinocchio::fusion::append`
