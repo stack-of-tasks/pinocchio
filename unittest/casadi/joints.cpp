@@ -294,6 +294,95 @@ struct TestADOnJoints
     test(jmodel);
   }
 
+  template<typename Scalar, int Options, int axis>
+  void operator()(const pinocchio::JointModelHelicalTpl<Scalar, Options, axis> &) const
+  {
+    typedef pinocchio::JointModelHelicalTpl<Scalar, Options, axis> JointModel;
+    JointModel jmodel(Scalar(0.4));
+    jmodel.setIndexes(0, 0, 0);
+
+    test(jmodel);
+  }
+
+  template<typename Scalar, int Options>
+  void operator()(const pinocchio::JointModelUniversalTpl<Scalar, Options> &) const
+  {
+    typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointModel;
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::UnitX(), Vector3::UnitY());
+    jmodel.setIndexes(0, 0, 0);
+
+    test(jmodel);
+  }
+
+  template<typename Scalar, int Options>
+  void operator()(const pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> &) const
+  {
+    typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> JointModel;
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    jmodel.setIndexes(0, 0, 0);
+
+    test(jmodel);
+  }
+
+  template<typename Scalar, int Options>
+  void operator()(const pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> &) const
+  {
+    typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> JointModel;
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    jmodel.setIndexes(0, 0, 0);
+
+    test(jmodel);
+  }
+
+  template<typename Scalar, int Options>
+  void operator()(const pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> &) const
+  {
+    typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> JointModel;
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    jmodel.setIndexes(0, 0, 0);
+
+    test(jmodel);
+  }
+
+  template<typename Scalar, int Options>
+  void operator()(const pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> &) const
+  {
+    typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> JointModel;
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    jmodel.setIndexes(0, 0, 0);
+
+    test(jmodel);
+  }
+
+  template<typename Scalar, int Options, template<typename, int> class JointCollection>
+  void operator()(const pinocchio::JointModelTpl<Scalar, Options, JointCollection> &) const
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
+    typedef pinocchio::JointModelTpl<Scalar, Options, JointCollection> JointModel;
+    JointModel jmodel((JointModelRX()));
+    jmodel.setIndexes(0, 0, 0);
+
+    test(jmodel);
+  }
+
+  template<typename Scalar, int Options, template<typename, int> class JointCollection>
+  void operator()(const pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> &) const
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 1> JointModelRY;
+    typedef pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> JointModel;
+    JointModel jmodel((JointModelRX()));
+    jmodel.addJoint(JointModelRY());
+    jmodel.setIndexes(0, 0, 0);
+
+    test(jmodel);
+  }
+
   // TODO: get the nq and nv quantity from LieGroups
   template<typename JointModel_>
   static void test(const pinocchio::JointModelMimic<JointModel_> & /*jmodel*/)
