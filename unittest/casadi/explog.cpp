@@ -83,10 +83,10 @@ BOOST_AUTO_TEST_CASE(test_squaredDistance)
 
   ConfigVector q(model.nq);
   std::vector<Scalar> q_vec(nq);
-  ConfigVectorMap(q_vec.data(), model.nq, 1) = q;
   for (size_t it = 0; it < 10; it++)
   {
     q.noalias() = pinocchio::randomConfiguration(model);
+    ConfigVectorMap(q_vec.data(), model.nq, 1) = q;
     auto J_vec = static_cast<std::vector<Scalar>>(eval_Jdist(casadi::DMVector{q_vec, q_vec})[0]);
     Eigen::Map<Eigen::MatrixXd> J_as_mat(J_vec.data(), 2 * model.nv, 1);
     BOOST_CHECK(J_as_mat.isApprox(Eigen::MatrixXd::Zero(2 * model.nv, 1)));
@@ -170,19 +170,13 @@ BOOST_AUTO_TEST_CASE(test_Jlog6)
   std::cout << M2_dm << '\n';
 
   auto J0 = grad_cdM_eval(DMVector{M0_dm, M1_dm})[0];
-  Eigen::Map<Eigen::MatrixXd> J0_mat(
-    static_cast<std::vector<double>>(J0).data(), J0.rows(), J0.columns());
-  std::cout << J0_mat << '\n';
+  std::cout << J0 << '\n';
 
   auto J1 = grad_cdM_eval(DMVector{M0_dm, M2_dm})[0];
-  Eigen::Map<Eigen::MatrixXd> J1_mat(
-    static_cast<std::vector<double>>(J1).data(), J1.rows(), J1.columns());
-  std::cout << J1_mat << '\n';
+  std::cout << J1 << '\n';
 
   auto J2 = grad_cdM_eval(DMVector{M2_dm, M2_dm})[0];
-  Eigen::Map<Eigen::MatrixXd> J2_mat(
-    static_cast<std::vector<double>>(J2).data(), J2.rows(), J2.columns());
-  std::cout << J2_mat << '\n';
+  std::cout << J2 << '\n';
 
   std::cout << hess_cdM_eval(DMVector{M_n_dm, M_n_dm})[0];
   std::cout << hess_cdM_eval(DMVector{M0_dm, M0_dm})[0];
