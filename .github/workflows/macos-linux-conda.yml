@@ -72,7 +72,7 @@ jobs:
       - name: Setup CMAKE_TOOLCHAIN_FILE
         if: contains(matrix.os, 'ubuntu') && contains(matrix.build_type, 'Debug')
         run: |
-          echo "CMAKE_TOOLCHAIN_FILE=.github/workflows/cmake/linux-debug-toolchain.cmake" >> "$GITHUB_ENV"
+          echo "CMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake" >> "$GITHUB_ENV"
 
       - name: Build Pinocchio
         shell: bash -el {0}
