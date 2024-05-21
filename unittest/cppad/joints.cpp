@@ -113,6 +113,27 @@ struct TestADOnJoints
     test(jmodel);
   }
 
+  template<typename Scalar, int Options, int axis>
+  void operator()(const pinocchio::JointModelHelicalTpl<Scalar, Options, axis> &) const
+  {
+    typedef pinocchio::JointModelHelicalTpl<Scalar, Options, axis> JointModel;
+    JointModel jmodel(Scalar(0.4));
+    jmodel.setIndexes(0, 0, 0);
+
+    test(jmodel);
+  }
+
+  template<typename Scalar, int Options>
+  void operator()(const pinocchio::JointModelUniversalTpl<Scalar, Options> &) const
+  {
+    typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointModel;
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::UnitX(), Vector3::UnitY());
+    jmodel.setIndexes(0, 0, 0);
+
+    test(jmodel);
+  }
+
   template<typename Scalar, int Options>
   void operator()(const pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> &) const
   {
