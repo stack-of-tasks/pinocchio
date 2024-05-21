@@ -1069,7 +1069,7 @@ BOOST_AUTO_TEST_CASE(test_correction_CONTACT_6D)
 
     Eigen::VectorXd q(q0), v(v0);
 
-    tau = rnea(model, data_sim, q, v, 0 * a);
+    tau = rnea(model, data_sim, q, v, Eigen::VectorXd::Zero(model.nv));
     ProximalSettings prox_settings(1e-12, mu, 1);
     constraintDynamics(
       model, data_sim, q0, v0, tau, contact_models, contact_data_sim, prox_settings);
