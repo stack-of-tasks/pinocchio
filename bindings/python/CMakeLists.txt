@@ -160,8 +160,13 @@ if(BUILD_PYTHON_INTERFACE)
 
   if(BUILD_WITH_AUTODIFF_SUPPORT)
     pinocchio_python_bindings_specific_type(cppad cppad)
-    target_compile_definitions(${PYWRAP}_cppad
-                               PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION)
+    # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
+    # This can happen when Pinocchio is build in Debug mode and pycppad is build in Release mode.
+    # See
+    # https://coin-or.github.io/CppAD/doc/preprocessor.htm#Documented%20Here.CPPAD_DEBUG_AND_RELEASE.
+    target_compile_definitions(
+      ${PYWRAP}_cppad PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
+                              CPPAD_DEBUG_AND_RELEASE)
     target_include_directories(${PYWRAP}_cppad SYSTEM PUBLIC ${cppad_INCLUDE_DIR})
     target_link_libraries(${PYWRAP}_cppad PUBLIC ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppad")
@@ -172,8 +177,10 @@ if(BUILD_PYTHON_INTERFACE)
 
   if(BUILD_WITH_CODEGEN_SUPPORT)
     pinocchio_python_bindings_specific_type(cppadcg cppadcg)
-    target_compile_definitions(${PYWRAP}_cppadcg
-                               PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION)
+    # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
+    target_compile_definitions(
+      ${PYWRAP}_cppadcg PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
+                                CPPAD_DEBUG_AND_RELEASE)
     target_include_directories(${PYWRAP}_cppadcg SYSTEM PUBLIC ${cppadcg_INCLUDE_DIR})
     target_link_libraries(${PYWRAP}_cppadcg PUBLIC ${cppadcg_LIBRARY} ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppadcg")
