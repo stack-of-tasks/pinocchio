@@ -61,10 +61,14 @@ jobs:
 
       - name: Build Pinocchio
         shell: cmd /C CALL {0}
-        env:
-          CC: ${{ matrix.compiler }}
-          CXX: ${{ matrix.compiler }}
         run: |
+          :: Set compiler to use.
+          :: This must be done here and not in env since
+          :: cxx-compiler activation script set this variable
+          :: and is called before.
+          set CC=${{ matrix.compiler.cmd }}
+          set CXX=${{ matrix.compiler.cmd }}
+
           call conda list
 
           :: Create build directory
