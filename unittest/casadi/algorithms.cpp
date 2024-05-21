@@ -576,7 +576,7 @@ BOOST_AUTO_TEST_CASE(test_kinetic_energy)
   const static double eps = 1e-8;
 
   auto fd_grad_lambda =
-    [&](const Model::ConfigVectorType q0_, const Model::ConfigVectorType & q1_) {
+    [&model, &KE_eval](const Model::ConfigVectorType q0_, const Model::ConfigVectorType & q1_) {
       auto nv = model.nv;
       // finite differencing
       Model::TangentVectorType dq0(nv), dq1(nv);
@@ -632,10 +632,12 @@ BOOST_AUTO_TEST_CASE(test_kinetic_energy)
   std::cout << '\n';
 
   auto fd_hess_ambda =
-    [&](const Model::ConfigVectorType & q0_, const Model::ConfigVectorType & q1_) {
+    [&model, &gKE_eval](const Model::ConfigVectorType & q0_, const Model::ConfigVectorType & q1_) {
       auto nv = model.nv;
       // finite differencing
       Model::TangentVectorType dq0(nv), dq1(nv);
+      dq0.setZero();
+      dq1.setZero();
       Eigen::MatrixXd jac_fd(2 * nv, 2 * nv);
       for (int i = 0; i < nv; i++)
       {
