@@ -168,7 +168,17 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
     BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
     BOOST_CHECK(data.liMi[k].isApprox(data_ref.liMi[k]));
     BOOST_CHECK(data.ov[k].isApprox(data_ref.oMi[k].act(data_ref.v[k])));
-    BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oMi[k].act(data_ref.a_gf[k])));
+    // Since it's gravity, we know linear can't be zero. Angular might be though.
+    const Motion motion_tmp = data_ref.oMi[k].act(data_ref.a_gf[k]);
+    if (data.oa_gf[k].angular().isZero())
+    {
+      BOOST_CHECK(data.oa_gf[k].linear().isApprox(motion_tmp.linear()));
+      BOOST_CHECK(motion_tmp.angular().isZero());
+    }
+    else
+    {
+      BOOST_CHECK(data.oa_gf[k].isApprox(motion_tmp));
+    }
   }
 
   // Check that the decomposition is correct
@@ -1621,7 +1631,15 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
     BOOST_CHECK(data.liMi[joint_id].isApprox(data_ref.liMi[joint_id]));
     BOOST_CHECK(data.oMi[joint_id].isApprox(data_ref.oMi[joint_id]));
     BOOST_CHECK(data.ov[joint_id].isApprox(data_ref.oMi[joint_id].act(data_ref.v[joint_id])));
-    BOOST_CHECK(data.oa_drift[joint_id].isApprox(data_ref.oMi[joint_id].act(data_ref.a[joint_id])));
+    if (data.oa_drift[joint_id].isZero())
+    {
+      BOOST_CHECK((data_ref.oMi[joint_id].act(data_ref.a[joint_id])).isZero());
+    }
+    else
+    {
+      BOOST_CHECK(
+        data.oa_drift[joint_id].isApprox(data_ref.oMi[joint_id].act(data_ref.a[joint_id])));
+    }
   }
 
   computeJointJacobians(model, data_ref, q);
@@ -1723,7 +1741,15 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
   forwardKinematics(model, data_ref, q, v, 0 * v);
   for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
   {
-    BOOST_CHECK(data.oa_drift[joint_id].isApprox(data_ref.oMi[joint_id].act(data_ref.a[joint_id])));
+    if (data.oa_drift[joint_id].isZero())
+    {
+      BOOST_CHECK((data_ref.oMi[joint_id].act(data_ref.a[joint_id])).isZero());
+    }
+    else
+    {
+      BOOST_CHECK(
+        data.oa_drift[joint_id].isApprox(data_ref.oMi[joint_id].act(data_ref.a[joint_id])));
+    }
   }
 
   aba(model, data_ref, q, v, 0 * v);
