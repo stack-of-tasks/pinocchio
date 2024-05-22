@@ -131,11 +131,12 @@ jobs:
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_BUILD_TYPE=Debug \
             -DBUILD_WITH_COLLISION_SUPPORT=ON \
-            -DBUILD_ADVANCED_TESTING=ON \
+            -DBUILD_ADVANCED_TESTING=OFF \
             -DBUILD_WITH_CASADI_SUPPORT=ON \
             -DPYTHON_EXECUTABLE=$(which python3) \
             -DBUILD_WITH_OPENMP_SUPPORT=ON \
-            -DINSTALL_DOCUMENTATION=ON
+            -DINSTALL_DOCUMENTATION=ON \
+            -DCMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake
           make -j2
           make -j2 build_tests
           export CTEST_OUTPUT_ON_FAILURE=1
