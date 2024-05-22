@@ -58,6 +58,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .ccache
+          save-always: true
           key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.python-version }}-${{ github.sha }}
           restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.python-version }}-
 

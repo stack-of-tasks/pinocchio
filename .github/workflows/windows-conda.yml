@@ -48,6 +48,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .ccache
+          save-always: true
           key: ccache-windows-conda-${{ matrix.compiler }}-${{ matrix.os }}-${{ github.sha }}
           restore-keys: ccache-windows-conda-${{ matrix.compiler }}-${{ matrix.os }}-
 
