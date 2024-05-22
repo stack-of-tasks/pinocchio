@@ -372,7 +372,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    minimal::aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
+    abaLocalConvention(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
   }
   std::cout << "ABA (minimal) = \t\t";
   timer.toc(std::cout, NBT);
@@ -380,7 +380,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
+    abaWorldConvention(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
   }
   std::cout << "ABA = \t\t";
   timer.toc(std::cout, NBT);
@@ -404,7 +404,7 @@ int main(int argc, const char ** argv)
   total = 0;
   SMOOTH(NBT)
   {
-    aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
+    abaWorldConvention(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
     timer.tic();
     computeMinverse(model, data);
     total += timer.toc(timer.DEFAULT_UNIT);

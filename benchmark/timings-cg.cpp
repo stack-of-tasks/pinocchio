@@ -161,7 +161,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
+    abaWorldConvention(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
   }
   timer.toc();
 
@@ -200,7 +200,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
+    abaWorldConvention(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
   }
   std::cout << "ABA = \t\t";
   timer.toc(std::cout, NBT);

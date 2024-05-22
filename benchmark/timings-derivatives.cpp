@@ -87,14 +87,14 @@ void aba_fd(
   VectorXd a_plus(model.nv);
   const double alpha = 1e-8;
 
-  VectorXd a0 = pinocchio::minimal::aba(model, data_fd, q, v, tau);
+  VectorXd a0 = pinocchio::abaLocalConvention(model, data_fd, q, v, tau);
 
   // dABA/dq
   for (int k = 0; k < model.nv; ++k)
   {
     v_eps[k] += alpha;
     q_plus = integrate(model, q, v_eps);
-    a_plus = pinocchio::minimal::aba(model, data_fd, q_plus, v, tau);
+    a_plus = pinocchio::abaLocalConvention(model, data_fd, q_plus, v, tau);
 
     daba_dq.col(k) = (a_plus - a0) / alpha;
     v_eps[k] -= alpha;
@@ -105,7 +105,7 @@ void aba_fd(
   for (int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    a_plus = pinocchio::minimal::aba(model, data_fd, q, v_plus, tau);
+    a_plus = pinocchio::abaLocalConvention(model, data_fd, q, v_plus, tau);
 
     daba_dv.col(k) = (a_plus - a0) / alpha;
     v_plus[k] -= alpha;
@@ -243,7 +243,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    pinocchio::minimal::aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
+    pinocchio::abaLocalConvention(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
   }
   std::cout << "ABA= \t\t\t\t";
   timer.toc(std::cout, NBT);
@@ -261,7 +261,7 @@ int main(int argc, const char ** argv)
     double total = 0;
     SMOOTH(NBT)
     {
-      aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
+      abaWorldConvention(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
       timer.tic();
       computeABADerivatives(model, data, daba_dq, daba_dv, daba_dtau);
       total += timer.toc(timer.DEFAULT_UNIT);
@@ -290,7 +290,7 @@ int main(int argc, const char ** argv)
     double total = 0;
     SMOOTH(NBT)
     {
-      aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
+      abaWorldConvention(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
       timer.tic();
       computeMinverse(model, data);
       total += timer.toc(timer.DEFAULT_UNIT);

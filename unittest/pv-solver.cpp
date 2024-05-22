@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   pv(model, data, q, v, tau, empty_contact_models, empty_contact_datas, prox_settings);
 
   // Check solutions
-  aba(model, data_ref, q, v, tau);
+  abaWorldConvention(model, data_ref, q, v, tau);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
 
   // Checking if solving again the same problem gives the same solution

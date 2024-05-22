@@ -93,8 +93,9 @@ BOOST_AUTO_TEST_CASE(vsRXRY)
   BOOST_CHECK(tauUniversal.isApprox(tauRXRY));
 
   // ForwardDynamics == aba
-  Eigen::VectorXd aAbaRXRY = aba(modelRXRY, dataRXRY, q, v, tauRXRY);
-  Eigen::VectorXd aAbaUniversal = aba(modelUniversal, dataUniversal, q, v, tauUniversal);
+  Eigen::VectorXd aAbaRXRY = abaWorldConvention(modelRXRY, dataRXRY, q, v, tauRXRY);
+  Eigen::VectorXd aAbaUniversal =
+    abaWorldConvention(modelUniversal, dataUniversal, q, v, tauUniversal);
 
   BOOST_CHECK(aAbaUniversal.isApprox(aAbaRXRY));
 
@@ -181,8 +182,10 @@ BOOST_AUTO_TEST_CASE(vsRandomAxis)
   BOOST_CHECK(tauUniversal.isApprox(tauRandomAxis));
 
   // ForwardDynamics == aba
-  Eigen::VectorXd aAbaRandomAxis = aba(modelRandomAxis, dataRandomAxis, q, v, tauRandomAxis);
-  Eigen::VectorXd aAbaUniversal = aba(modelUniversal, dataUniversal, q, v, tauUniversal);
+  Eigen::VectorXd aAbaRandomAxis =
+    abaWorldConvention(modelRandomAxis, dataRandomAxis, q, v, tauRandomAxis);
+  Eigen::VectorXd aAbaUniversal =
+    abaWorldConvention(modelUniversal, dataUniversal, q, v, tauUniversal);
 
   BOOST_CHECK(aAbaUniversal.isApprox(aAbaRandomAxis));
 

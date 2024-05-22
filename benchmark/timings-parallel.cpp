@@ -148,7 +148,7 @@ int main(int /*argc*/, const char ** /*argv*/)
   SMOOTH(NBT)
   {
     for (Eigen::DenseIndex i = 0; i < BATCH_SIZE; ++i)
-      res.col(i) = aba(model, data, qs.col(i), vs.col(i), taus.col(i));
+      res.col(i) = abaWorldConvention(model, data, qs.col(i), vs.col(i), taus.col(i));
   }
   std::cout << "mean ABA = \t\t\t\t";
   timer.toc(std::cout, NBT * BATCH_SIZE);

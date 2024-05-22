@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(test_aba)
   ADModel ad_model = model.cast<ADScalar>();
   ADData ad_data(ad_model);
 
-  pinocchio::aba(model, data, q, v, tau);
+  pinocchio::abaWorldConvention(model, data, q, v, tau);
 
   casadi::SX cs_q = casadi::SX::sym("q", model.nq);
   casadi::SX cs_v_int = casadi::SX::sym("v_inc", model.nv);
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(test_aba)
     Eigen::Map<TangentVectorAD>(static_cast<std::vector<ADScalar>>(cs_tau).data(), model.nv, 1);
 
   // ABA
-  aba(ad_model, ad_data, q_int_ad, v_ad, tau_ad);
+  abaWorldConvention(ad_model, ad_data, q_int_ad, v_ad, tau_ad);
   casadi::SX cs_ddq(model.nv, 1);
   for (Eigen::DenseIndex k = 0; k < model.nv; ++k)
     cs_ddq(k) = ad_data.ddq[k];
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(test_aba_casadi_algo)
   TangentVector v(TangentVector::Random(model.nv));
   TangentVector tau(TangentVector::Random(model.nv));
 
-  pinocchio::aba(model, data, q, v, tau);
+  pinocchio::abaWorldConvention(model, data, q, v, tau);
   pinocchio::computeABADerivatives(model, data, q, v, tau);
   data.Minv.triangularView<Eigen::StrictlyLower>() =
     data.Minv.transpose().triangularView<Eigen::StrictlyLower>();

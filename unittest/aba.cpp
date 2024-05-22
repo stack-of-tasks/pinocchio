@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(test_aba_simple)
 
   tau = rnea(model, data_ref, q, v, a);
   forwardKinematics(model, data_ref, q);
-  aba(model, data, q, v, tau);
+  abaWorldConvention(model, data, q, v, tau);
 
   for (size_t k = 1; k < (size_t)model.njoints; ++k)
   {
@@ -155,15 +155,15 @@ BOOST_AUTO_TEST_CASE(test_aba_simple)
 
   // Test against deprecated ABA
   Data data_deprecated(model);
-  minimal::aba(model, data_deprecated, q, v, tau);
+  abaLocalConvention(model, data_deprecated, q, v, tau);
   BOOST_CHECK(data_deprecated.ddq.isApprox(data.ddq));
 
   // Test multiple calls
   {
     Data datas(model);
-    VectorXd a1 = minimal::aba(model, datas, q, v, tau);
-    VectorXd a2 = minimal::aba(model, datas, q, v, tau);
-    VectorXd a3 = minimal::aba(model, datas, q, v, tau);
+    VectorXd a1 = abaLocalConvention(model, datas, q, v, tau);
+    VectorXd a2 = abaLocalConvention(model, datas, q, v, tau);
+    VectorXd a3 = abaLocalConvention(model, datas, q, v, tau);
 
     BOOST_CHECK(a1.isApprox(a2));
     BOOST_CHECK(a1.isApprox(a3));
@@ -173,9 +173,9 @@ BOOST_AUTO_TEST_CASE(test_aba_simple)
   // Test multiple calls
   {
     Data datas(model);
-    VectorXd a1 = aba(model, datas, q, v, tau);
-    VectorXd a2 = aba(model, datas, q, v, tau);
-    VectorXd a3 = aba(model, datas, q, v, tau);
+    VectorXd a1 = abaWorldConvention(model, datas, q, v, tau);
+    VectorXd a2 = abaWorldConvention(model, datas, q, v, tau);
+    VectorXd a3 = abaWorldConvention(model, datas, q, v, tau);
 
     BOOST_CHECK(a1.isApprox(a2));
     BOOST_CHECK(a1.isApprox(a3));
@@ -216,13 +216,13 @@ BOOST_AUTO_TEST_CASE(test_aba_with_fext)
     tau -= J.transpose() * fext[i].toVector();
     J.setZero();
   }
-  aba(model, data, q, v, tau, fext);
+  abaWorldConvention(model, data, q, v, tau, fext);
 
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
 
   // Test against deprecated ABA
   Data data_deprecated(model);
-  minimal::aba(model, data_deprecated, q, v, tau, fext);
+  abaLocalConvention(model, data_deprecated, q, v, tau, fext);
   BOOST_CHECK(data_deprecated.ddq.isApprox(data.ddq));
 }
 
@@ -251,14 +251,14 @@ BOOST_AUTO_TEST_CASE(test_aba_vs_rnea)
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
 
   tau = data_ref.M * a + data_ref.nle;
-  aba(model, data, q, v, tau);
+  abaWorldConvention(model, data, q, v, tau);
 
   VectorXd tau_ref = rnea(model, data_ref, q, v, a);
   BOOST_CHECK(tau_ref.isApprox(tau, 1e-12));
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
 
   Data data_deprecated(model);
-  minimal::aba(model, data_deprecated, q, v, tau);
+  abaLocalConvention(model, data_deprecated, q, v, tau);
   BOOST_CHECK(data_deprecated.ddq.isApprox(a, 1e-12));
 }
 
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE(test_computeMinverse_noupdate)
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   MatrixXd Minv_ref(data_ref.M.inverse());
 
-  aba(model, data, q, v, tau);
+  abaWorldConvention(model, data, q, v, tau);
   computeMinverse(model, data);
   BOOST_CHECK(data.Minv.topRows<6>().isApprox(Minv_ref.topRows<6>()));
 

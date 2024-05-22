@@ -66,6 +66,20 @@ namespace pinocchio
                      ///<  accelerations, center of mass acceleration, etc.).
   };
 
+  ///
+  /// \brief List of convention to call algorithms.
+  ///
+  /// The convention will select in witch frame different quantities will be computed.
+  enum struct Convention
+  {
+    ///  Quantities will be computed in world frame (e.g. DataTpl::ov will be filled
+    ///  instead of DataTpl::v).
+    WORLD = 0,
+    ///  Quantities will be computed in local frame (e.g. DataTpl::v will be filled
+    ///  instead of DataTpl::ov).
+    LOCAL = 1,
+  };
+
   /**
    * @}
    */

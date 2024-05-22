@@ -74,13 +74,13 @@ namespace pinocchio
     Eigen::DenseIndex i = 0;
 
 #pragma omp parallel for schedule(                                                                 \
-    static) // we use static here as this is the same computationnal cost for all threads
+  static) // we use static here as this is the same computationnal cost for all threads
     for (i = 0; i < batch_size; i++)
     {
       const int thread_id = omp_get_thread_num();
       const Model & model = models[(size_t)thread_id];
       Data & data = datas[(size_t)thread_id];
-      res.col(i) = aba(model, data, q.col(i), v.col(i), tau.col(i));
+      res.col(i) = abaWorldConvention(model, data, q.col(i), v.col(i), tau.col(i));
     }
   }
 } // namespace pinocchio

@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_parallel_aba)
 
   for (Eigen::DenseIndex i = 0; i < batch_size; ++i)
   {
-    a_ref.col(i) = aba(model, data_ref, q.col(i), v.col(i), tau.col(i));
+    a_ref.col(i) = abaWorldConvention(model, data_ref, q.col(i), v.col(i), tau.col(i));
   }
 
   BOOST_CHECK(a == a_ref);
