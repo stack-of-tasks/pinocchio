@@ -17,7 +17,7 @@ dependencies:
   - cxx-compiler
   - meshcat-python
   - casadi
-  - cppad
+  - cppad<=20230000
   - cppadcodegen
   - pycppad
   - matplotlib
