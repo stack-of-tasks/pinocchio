@@ -93,6 +93,7 @@ jobs:
                                    texlive-font-utils \
                                    libboost-python-dev \
                                    python3-numpy \
+                                   python3-matplotlib \
                                    robotpkg-py${PYTHON3_VERSION}-eigenpy \
                                    robotpkg-py${PYTHON3_VERSION}-hpp-fcl \
                                    robotpkg-py${PYTHON3_VERSION}-casadi"
