@@ -138,8 +138,10 @@ option(CHECK_RUNTIME_MALLOC "Check if some memory allocations are performed at r
 
 option(ENABLE_TEMPLATE_INSTANTIATION "Template instantiation of the main library" ON)
 
-# Variable containing all the cflags definition relative to build options
+# Variable containing all the cflags definition, options and libraries to setup pkg-config.
 set(CFLAGS_OPTIONS)
+set(CFLAGS_DEPENDENCIES)
+set(LIBRARIES_DEPENDENCIES)
 
 if(BUILD_WITH_COLLISION_SUPPORT)
   set(BUILD_WITH_HPP_FCL_SUPPORT TRUE)
@@ -167,6 +169,7 @@ endif(CHECK_RUNTIME_MALLOC)
 if(ENABLE_TEMPLATE_INSTANTIATION)
   message(STATUS "Template instantiation of the main library")
   list(APPEND CFLAGS_OPTIONS "-DPINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION")
+  list(APPEND LIBRARIES_DEPENDENCIES ${PROJECT_NAME}_default)
 endif(ENABLE_TEMPLATE_INSTANTIATION)
 
 macro(TAG_LIBRARY_VERSION target)
@@ -181,14 +184,12 @@ set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/find-external/CppAD/" ${CMAKE_MODULE_PATH})
 add_project_dependency(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.5")
 
-# Variable containing all the cflags definition relative to optional dependencies
-set(CFLAGS_DEPENDENCIES)
-
 if(BUILD_WITH_URDF_SUPPORT)
   add_project_dependency(urdfdom_headers REQUIRED)
   add_project_dependency(urdfdom REQUIRED PKG_CONFIG_REQUIRES "urdfdom >= 0.2.0")
   set(urdfdom_VERSION ${urdfdom_headers_VERSION})
   list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_URDFDOM")
+  list(APPEND LIBRARIES_DEPENDENCIES "urdfdom_world")
 
   if(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
     check_minimal_cxx_standard(11 ENFORCE)
@@ -205,7 +206,6 @@ if(BUILD_WITH_SDF_SUPPORT)
   if(SDFormat_FOUND)
     check_minimal_cxx_standard(11 REQUIRED)
     include_directories(${SDFormat_INCLUDE_DIRS})
-    list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_SDFORMAT")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SDFormat_CXX_FLAGS}")
   endif(SDFormat_FOUND)
 endif(BUILD_WITH_SDF_SUPPORT)
@@ -293,6 +293,7 @@ endif(BUILD_PYTHON_INTERFACE)
 
 if(BUILD_WITH_HPP_FCL_SUPPORT)
   list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_HPP_FCL")
+  list(APPEND LIBRARIES_DEPENDENCIES "hpp-fcl")
   add_project_dependency(hpp-fcl 2.1.2 REQUIRED PKG_CONFIG_REQUIRES "hpp-fcl >= 2.1.2")
   # Check whether hpp-fcl python bindings are available.
   set(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS FALSE)
@@ -492,11 +493,11 @@ if(BUILD_WITH_EXTRA_SUPPORT)
   set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_EXTRA \"\")")
 endif()
 
-pkg_config_append_libs(${PROJECT_NAME})
+# Setup pkg-configs flags and libs
+pkg_config_append_libs("${LIBRARIES_DEPENDENCIES}")
 foreach(boostlib ${BOOST_REQUIRED_COMPONENTS})
   pkg_config_append_libs("boost_${boostlib}")
 endforeach()
-
 pkg_config_append_cflags("${CFLAGS_DEPENDENCIES}")
 pkg_config_append_cflags("${CFLAGS_OPTIONS}")
 
