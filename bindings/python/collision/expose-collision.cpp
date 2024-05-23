@@ -2,6 +2,7 @@
 // Copyright (c) 2024 INRIA
 //
 
+#include "pinocchio/fwd.hpp"
 #include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 #include "pinocchio/bindings/python/collision/geometry-functors.hpp"
 #include "pinocchio/bindings/python/collision/collision.hpp"
