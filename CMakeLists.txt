@@ -419,29 +419,6 @@ if(BUILD_PYTHON_INTERFACE)
   list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS})
 endif()
 
-# Macros to update sources path in subdirs
-function(REMOVE_PATH_FROM_LIST list_name path_name dest_list)
-  set(list_name_)
-  foreach(header ${${list_name}})
-    string(REGEX REPLACE "^${path_name}" "" header ${header})
-    list(APPEND list_name_ ${header})
-  endforeach(header ${list_name_})
-  set(${dest_list}
-      ${list_name_}
-      PARENT_SCOPE)
-endfunction(REMOVE_PATH_FROM_LIST)
-
-function(PREPEND_PATH_FROM_LIST list_name path_name dest_list)
-  set(list_name_)
-  foreach(header ${${list_name}})
-    set(header "${path_name}/${header}")
-    list(APPEND list_name_ ${header})
-  endforeach(header ${list_name_})
-  set(${dest_list}
-      ${list_name_}
-      PARENT_SCOPE)
-endfunction(PREPEND_PATH_FROM_LIST)
-
 # Define PINOCCHIO_WINDOWS_DLL_PATH environment variable on Windows
 function(ADD_WINDOWS_DLL_PATH_TO_TEST TEST_NAME)
   if(WIN32)

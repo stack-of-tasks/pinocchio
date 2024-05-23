@@ -16,10 +16,6 @@ set(PYWRAP
     PARENT_SCOPE)
 
 # --- COMPILE WRAPPER
-remove_path_from_list(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES "bindings/python/"
-                      ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES)
-prepend_path_from_list(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS "../../"
-                       ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS)
 make_directory("${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
 set(${PYWRAP}_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES})
 set(${PYWRAP}_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS})
@@ -31,9 +27,6 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   string(TOUPPER ${scalar_name} upper_scalar_name)
   set(EXTRA_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_SOURCES})
   set(EXTRA_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_PUBLIC_HEADERS})
-
-  remove_path_from_list(EXTRA_SOURCES "bindings/python/" EXTRA_SOURCES)
-  prepend_path_from_list(EXTRA_HEADERS "../../" EXTRA_HEADERS)
 
   set(${PYTHON_LIB_NAME}_SOURCES ${${PYWRAP}_SOURCES} ${EXTRA_SOURCES})
   set(${PYTHON_LIB_NAME}_HEADERS ${${PYWRAP}_HEADERS} ${EXTRA_HEADERS})

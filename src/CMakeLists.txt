@@ -6,28 +6,10 @@
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
 
-# Extract the compile definitions of the project for export
-
-remove_path_from_list(${PROJECT_NAME}_CORE_SOURCES "src/" ${PROJECT_NAME}_CORE_SOURCES)
-remove_path_from_list(${PROJECT_NAME}_PARSERS_SOURCES "src/" ${PROJECT_NAME}_PARSERS_SOURCES)
-remove_path_from_list(${PROJECT_NAME}_COLLISION_SOURCES "src/" ${PROJECT_NAME}_COLLISION_SOURCES)
-remove_path_from_list(${PROJECT_NAME}_EXTRA_SOURCES "src/" ${PROJECT_NAME}_EXTRA_SOURCES)
-prepend_path_from_list(${PROJECT_NAME}_CORE_PUBLIC_HEADERS "../"
-                       ${PROJECT_NAME}_CORE_PUBLIC_HEADERS)
-prepend_path_from_list(${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS "../"
-                       ${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS)
-prepend_path_from_list(${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS "../"
-                       ${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS)
-prepend_path_from_list(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS "../"
-                       ${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS)
-prepend_path_from_list(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS "../"
-                       ${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS)
-prepend_path_from_list(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS "../"
-                       ${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS)
-
-# Create header-only target All other target will depend on it
-add_library(${PROJECT_NAME}_headers INTERFACE ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS}
-            ${${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS})
+# Create header-only target All other target will depend on it.
+add_library(${PROJECT_NAME}_headers INTERFACE)
+# On CMake 3.16, we can't target_sources(${PROJECT_NAME}_headers INTERFACE
+# ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS})
 
 # Enforce the preprocessed version of boost::list and boost::vector This information is redundant
 # with the content of include/pinocchio/container/boost-container-limits.hpp but it avoids any
@@ -98,15 +80,19 @@ function(PINOCCHIO_TARGET target_name)
         PARENT_SCOPE)
   endif()
 
-  add_library(${LIB_NAME} ${LIBRARY_TYPE} ${ARGS_SOURCES})
-
+  add_library(${LIB_NAME} ${LIBRARY_TYPE})
   target_link_libraries(${LIB_NAME} ${LIBRARY_PUBLIC_SCOPE} ${PROJECT_NAME}_headers)
 
-  set_target_properties(
-    ${LIB_NAME}
-    PROPERTIES LINKER_LANGUAGE CXX
-               INSTALL_RPATH "\$ORIGIN"
-               VERSION ${PROJECT_VERSION})
+  # On CMake 3.16 we can't call target_sources or set_target_properties with LINKER_LANGUAGE,
+  # INSTALL_RPATH and VERSION on an INTERFACE target.
+  if(NOT ARGS_INTERFACE)
+    target_sources(${LIB_NAME} PRIVATE ${ARGS_SOURCES})
+    set_target_properties(
+      ${LIB_NAME}
+      PROPERTIES LINKER_LANGUAGE CXX
+                 INSTALL_RPATH "\$ORIGIN"
+                 VERSION ${PROJECT_VERSION})
+  endif()
 
   if(ENABLE_TEMPLATE_INSTANTIATION AND NOT ARGS_INTERFACE)
     set(PINOCCHIO_CONTEXT_FILE_VALUE "pinocchio/context/${ARGS_SCALAR}.hpp")
