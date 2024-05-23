@@ -43,7 +43,7 @@ namespace pinocchio
     const Eigen::MatrixBase<ConfigVectorType> & q,
     const Eigen::MatrixBase<TangentVectorType1> & v,
     const Eigen::MatrixBase<TangentVectorType2> & tau,
-    const Convention convention = LOCAL);
+    const Convention convention = Convention::LOCAL);
 
   ///
   /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint
@@ -81,7 +81,7 @@ namespace pinocchio
     const Eigen::MatrixBase<TangentVectorType1> & v,
     const Eigen::MatrixBase<TangentVectorType2> & tau,
     const container::aligned_vector<ForceDerived> & fext,
-    const Convention rf = LOCAL);
+    const Convention rf = Convention::LOCAL);
 
   ///
   /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint
