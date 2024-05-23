@@ -294,14 +294,17 @@ set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/utils/version.hpp)
 
 set(${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/parallel/aba.hpp ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/parallel/omp.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/parallel/aba.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/parallel/omp.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/parallel/rnea.hpp)
 
-set(${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_SOURCES ${PROJECT_SOURCE_DIR}/src/collision/collision.cpp
-                                                             ${PROJECT_SOURCE_DIR}/src/collision/distance.cpp)
+set(${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_SOURCES
+    ${PROJECT_SOURCE_DIR}/src/collision/collision.cpp
+    ${PROJECT_SOURCE_DIR}/src/collision/distance.cpp)
 
 set(${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_PUBLIC_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/collision/collision.txx ${PROJECT_SOURCE_DIR}/include/pinocchio/collision/distance.txx)
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/collision/collision.txx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/collision/distance.txx)
 
 set(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/collision/collision.hpp
@@ -329,8 +332,10 @@ set(${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS
     # Deprecated header
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/parallel/geometry.hpp)
 
-set(${PROJECT_NAME}_PARSERS_SOURCES ${PROJECT_SOURCE_DIR}/src/utils/file-explorer.cpp ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph.cpp
-                                    ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph-geom.cpp)
+set(${PROJECT_NAME}_PARSERS_SOURCES
+    ${PROJECT_SOURCE_DIR}/src/utils/file-explorer.cpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph.cpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph-geom.cpp)
 
 set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/srdf.hpp
@@ -343,26 +348,34 @@ set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/mjcf/mjcf-graph.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sample-models.hpp)
 
-set(${PROJECT_NAME}_URDF_SOURCES ${PROJECT_SOURCE_DIR}/src/parsers/urdf/model.cpp ${PROJECT_SOURCE_DIR}/src/parsers/urdf/geometry.cpp
-                                 ${PROJECT_SOURCE_DIR}/src/parsers/urdf/utils.cpp)
+set(${PROJECT_NAME}_URDF_SOURCES
+    ${PROJECT_SOURCE_DIR}/src/parsers/urdf/model.cpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/urdf/geometry.cpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/urdf/utils.cpp)
 
 set(${PROJECT_NAME}_URDF_PUBLIC_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/urdf.hpp ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/urdf/model.hxx
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/urdf/geometry.hxx ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/urdf/utils.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/urdf.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/urdf/model.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/urdf/geometry.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/urdf/utils.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/urdf/types.hpp)
 
-set(${PROJECT_NAME}_SDF_SOURCES ${PROJECT_SOURCE_DIR}/src/parsers/sdf/model.cpp ${PROJECT_SOURCE_DIR}/src/parsers/sdf/geometry.cpp)
+set(${PROJECT_NAME}_SDF_SOURCES ${PROJECT_SOURCE_DIR}/src/parsers/sdf/model.cpp
+                                ${PROJECT_SOURCE_DIR}/src/parsers/sdf/geometry.cpp)
 
 set(${PROJECT_NAME}_SDF_PUBLIC_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sdf.hpp ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sdf/model.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sdf.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sdf/model.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sdf/geometry.hxx)
 
-set(${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/python.hpp)
+set(${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/python.hpp)
 
 set(${PROJECT_NAME}_EXTRA_SOURCES ${PROJECT_SOURCE_DIR}/src/extra/reachable-workspace.cpp)
 
-set(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hpp
-                                         ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hxx)
+set(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hxx)
 
 set(_binary_headers_root ${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio)
 set(${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS
@@ -581,7 +594,8 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/geometry.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/extra/expose-extras.cpp)
 
-set(${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_SOURCES ${PROJECT_SOURCE_DIR}/bindings/python/parsers/python/model.cpp)
+set(${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_SOURCES
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/python/model.cpp)
 
 set(${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/python.hpp)
@@ -589,7 +603,8 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_PUBLIC_HEADERS
 set(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-broadphase.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-broadphase-callbacks.cpp
-    ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-collision.cpp ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-fcl.cpp)
+    ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-collision.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-fcl.cpp)
 
 set(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/fcl/transform.hpp
@@ -597,7 +612,8 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/collision.hpp)
 
 set(${PROJECT_NAME}_BINDINGS_PYTHON_PARALLEL_SOURCES
-    ${PROJECT_SOURCE_DIR}/bindings/python/multibody/pool/expose-pool.cpp ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/parallel/aba.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/multibody/pool/expose-pool.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/parallel/aba.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/parallel/expose-parallel.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/parallel/rnea.cpp)
 
@@ -620,4 +636,5 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_SOURCES
 set(${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_MPFR_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/math/multiprecision/boost/number.hpp)
 
-set(${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_MPFR_SOURCES ${PROJECT_SOURCE_DIR}/bindings/python/extra/mpfr/boost_number.cpp)
+set(${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_MPFR_SOURCES
+    ${PROJECT_SOURCE_DIR}/bindings/python/extra/mpfr/boost_number.cpp)

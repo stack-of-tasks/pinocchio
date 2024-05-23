@@ -74,7 +74,7 @@ namespace pinocchio
     Eigen::DenseIndex i = 0;
 
 #pragma omp parallel for schedule(                                                                 \
-  static) // we use static here as this is the same computationnal cost for all threads
+    static) // we use static here as this is the same computationnal cost for all threads
     for (i = 0; i < batch_size; i++)
     {
       const int thread_id = omp_get_thread_num();

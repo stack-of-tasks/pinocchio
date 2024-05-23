@@ -737,11 +737,11 @@ namespace pinocchio
       const std::string & function_name = "partial_constraintDynamics",
       const std::string & library_name = "cg_partial_constraintDynamics_eval")
     : Base(
-      model,
-      model.nq + 2 * model.nv,
-      3 * model.nv * model.nv + 3 * constraintDim(contact_models) * model.nv,
-      function_name,
-      library_name)
+        model,
+        model.nq + 2 * model.nv,
+        3 * model.nv * model.nv + 3 * constraintDim(contact_models) * model.nv,
+        function_name,
+        library_name)
     , nc(constraintDim(contact_models))
     , dddq_dq(model.nv, model.nv)
     , dddq_dv(model.nv, model.nv)
@@ -921,11 +921,11 @@ namespace pinocchio
       const std::string & function_name = "constraintDynamics",
       const std::string & library_name = "cg_constraintDynamics_eval")
     : Base(
-      model,
-      model.nq + 2 * model.nv,
-      model.nv + constraintDim(contact_models),
-      function_name,
-      library_name)
+        model,
+        model.nq + 2 * model.nv,
+        model.nv + constraintDim(contact_models),
+        function_name,
+        library_name)
     , nc(constraintDim(contact_models))
     , da_dq(MatrixXs::Zero(model.nv, model.nq))
     , da_dv(MatrixXs::Zero(model.nv, model.nv))
