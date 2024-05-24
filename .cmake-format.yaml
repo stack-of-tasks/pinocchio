@@ -51,7 +51,7 @@ parse:
         MODULE: 1
         FILES: '*'
     add_project_dependency:
-      pargs: "*"
+      pargs: '*'
       kwargs:
         PKG_CONFIG_REQUIRES: 1
         FOR_COMPONENT: 1
