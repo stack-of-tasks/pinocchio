@@ -215,10 +215,13 @@ set(BUILD_WITH_PARSERS_SUPPORT BUILD_WITH_URDF_SUPPORT OR BUILD_WITH_SDF_SUPPORT
 if(BUILD_WITH_AUTODIFF_SUPPORT)
   # Check first CppADCodeGen
   if(BUILD_WITH_CODEGEN_SUPPORT)
-    find_package(cppadcg 2.4.1 REQUIRED)
+    add_project_dependency(cppadcg 2.4.1 REQUIRED)
   endif(BUILD_WITH_CODEGEN_SUPPORT)
 
-  add_project_dependency(cppad 20180000.0 REQUIRED PKG_CONFIG_REQUIRES "cppad >= 20220624.0")
+  add_project_dependency(
+    cppad 20180000.0 REQUIRED
+    PKG_CONFIG_REQUIRES "cppad >= 20220624.0"
+    FIND_EXTERNAL "CppAD")
 endif(BUILD_WITH_AUTODIFF_SUPPORT)
 
 if(BUILD_WITH_CASADI_SUPPORT)
@@ -261,10 +264,6 @@ if(BUILD_PYTHON_INTERFACE)
 
   set(PYTHON_COMPONENTS Interpreter Development NumPy)
   add_project_dependency(eigenpy 2.7.10 REQUIRED)
-
-  if(BUILD_WITH_AUTODIFF_SUPPORT)
-    add_project_dependency(pycppad 1.1.0 REQUIRED)
-  endif(BUILD_WITH_AUTODIFF_SUPPORT)
 
   if(BUILD_WITH_URDF_SUPPORT)
     # console_bridge is urdfdom dependency.

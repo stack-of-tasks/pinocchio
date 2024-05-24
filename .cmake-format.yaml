@@ -50,3 +50,9 @@ parse:
       kwargs:
         MODULE: 1
         FILES: '*'
+    add_project_dependency:
+      pargs: "*"
+      kwargs:
+        PKG_CONFIG_REQUIRES: 1
+        FOR_COMPONENT: 1
+        FIND_EXTERNAL: 1
