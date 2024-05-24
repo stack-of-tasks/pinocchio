@@ -113,8 +113,8 @@ BOOST_AUTO_TEST_CASE(vsFreeFlyer)
   BOOST_CHECK(aAbaPlanar.isApprox(a_expected));
 
   // crba
-  crba(modelPlanar, dataPlanar, q);
-  crba(modelFreeflyer, dataFreeFlyer, qff);
+  crba(modelPlanar, dataPlanar, q, Convention::WORLD);
+  crba(modelFreeflyer, dataFreeFlyer, qff, Convention::WORLD);
 
   Eigen::Matrix<double, 3, 3> M_expected;
   M_expected.block<2, 2>(0, 0) = dataFreeFlyer.M.block<2, 2>(0, 0);

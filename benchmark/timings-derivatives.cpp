@@ -66,7 +66,7 @@ void rnea_fd(
   }
 
   // dRNEA/da
-  drnea_da = crba(model, data_fd, q);
+  drnea_da = crba(model, data_fd, q, Convention::WORLD);
   drnea_da.template triangularView<Eigen::StrictlyLower>() =
     drnea_da.transpose().template triangularView<Eigen::StrictlyLower>();
 }
@@ -304,7 +304,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    crba(model, data, qs[_smooth]);
+    crba(model, data, qs[_smooth], Convention::WORLD);
     cholesky::decompose(model, data);
     cholesky::computeMinv(model, data, Minv);
   }

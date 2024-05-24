@@ -162,7 +162,7 @@ int main(int argc, const char ** argv)
   double total_time = 0;
   SMOOTH(NBT)
   {
-    crba(model, data, qs[_smooth]);
+    crba(model, data, qs[_smooth], Convention::WORLD);
     timer.tic();
     cholesky::decompose(model, data);
     total_time += timer.toc(timer.DEFAULT_UNIT);

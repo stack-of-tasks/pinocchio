@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_zero)
   VectorXd q = randomConfiguration(model);
 
   forwardKinematics(model, data_ref, q);
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   updateGlobalPlacements(model, data);
 
   for (Model::JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)

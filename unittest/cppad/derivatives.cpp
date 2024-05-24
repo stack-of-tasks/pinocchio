@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   ADTangentVectorType ad_a = a.cast<ADScalar>();
 
   typedef Eigen::Matrix<ADScalar, Eigen::Dynamic, 1> VectorXAD;
-  pinocchio::crba(model, data, q);
+  pinocchio::crba(model, data, q, pinocchio::Convention::WORLD);
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
 

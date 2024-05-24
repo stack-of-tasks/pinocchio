@@ -29,7 +29,7 @@ void run_test(const Model & model, const Eigen::VectorXd & q, const Eigen::Vecto
   computeAllTerms(model, data, q, v);
 
   nonLinearEffects(model, data_other, q, v);
-  crba(model, data_other, q);
+  crba(model, data_other, q, Convention::WORLD);
   getJacobianComFromCrba(model, data_other);
   computeJointJacobiansTimeVariation(model, data_other, q, v);
   centerOfMass(model, data_other, q, v, true);

@@ -47,7 +47,7 @@ int main(int argc, const char ** argv)
 
   // You can check the result with the classic CRBA
   Data data_check(model);
-  crba(model, data_check, q);
+  crba(model, data_check, q, Convention::WORLD);
 
   data_check.M.triangularView<Eigen::StrictlyLower>() =
     data_check.M.transpose().triangularView<Eigen::StrictlyLower>();

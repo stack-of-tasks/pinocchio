@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(test_crba)
   timer.tic();
   SMOOTH(NBT)
   {
-    crba(model, data, q);
+    pinocchio::crba(model, data, q, pinocchio::Convention::WORLD);
   }
   timer.toc(std::cout, NBT);
 
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(test_crba)
   Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
   Eigen::VectorXd a = Eigen::VectorXd::Zero(model.nv);
   data.M.fill(0);
-  crba(model, data, q);
+  pinocchio::crba(model, data, q, Convention::WORLD);
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
 
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(test_crba)
   timer.tic();
   SMOOTH(NBT)
   {
-    crba(model, data, q);
+    pinocchio::crba(model, data, q, Convention::WORLD);
   }
   timer.toc(std::cout, NBT);
 
@@ -138,11 +138,11 @@ BOOST_AUTO_TEST_CASE(test_minimal_crba)
     randomConfiguration(model, model.lowerPositionLimit, model.upperPositionLimit);
   Eigen::VectorXd v(Eigen::VectorXd::Random(model.nv));
 
-  pinocchio::minimal::crba(model, data_ref, q);
+  pinocchio::crba(model, data_ref, q, pinocchio::Convention::LOCAL);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
 
-  crba(model, data, q);
+  pinocchio::crba(model, data, q, pinocchio::Convention::WORLD);
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
 
@@ -156,8 +156,8 @@ BOOST_AUTO_TEST_CASE(test_minimal_crba)
   // Check double call
   {
     pinocchio::Data data2(model);
-    pinocchio::minimal::crba(model, data2, q);
-    pinocchio::minimal::crba(model, data2, q);
+    pinocchio::crba(model, data2, q, pinocchio::Convention::LOCAL);
+    pinocchio::crba(model, data2, q, pinocchio::Convention::LOCAL);
 
     BOOST_CHECK(data2.Ycrb[0] == data.Ycrb[0]);
   }
@@ -176,12 +176,12 @@ BOOST_AUTO_TEST_CASE(test_roto_inertia_effects)
   model.armature = Eigen::VectorXd::Random(model.nv) + Eigen::VectorXd::Constant(model.nv, 1.);
 
   Eigen::VectorXd q = randomConfiguration(model);
-  crba(model_ref, data_ref, q);
+  pinocchio::crba(model_ref, data_ref, q, pinocchio::Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   data_ref.M.diagonal() += model.armature;
 
-  crba(model, data, q);
+  pinocchio::crba(model, data, q, pinocchio::Convention::WORLD);
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
 

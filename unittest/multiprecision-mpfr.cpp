@@ -151,11 +151,11 @@ BOOST_AUTO_TEST_CASE(test_mutliprecision)
   BOOST_CHECK_IS_APPROX(data.ddq, data_multi.ddq, double);
 
   // Mass matrix
-  crba(model_multi, data_multi, q_multi);
+  crba(model_multi, data_multi, q_multi, Convention::WORLD);
   data_multi.M.triangularView<Eigen::StrictlyLower>() =
     data_multi.M.transpose().triangularView<Eigen::StrictlyLower>();
 
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
 

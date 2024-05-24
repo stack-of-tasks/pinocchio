@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(test_com)
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
 
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
 
   /* Test COM against CRBA*/
   Vector3d com = centerOfMass(model, data, q);

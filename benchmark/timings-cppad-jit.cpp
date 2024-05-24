@@ -103,7 +103,7 @@ int main()
     timer.tic();
     SMOOTH(NBT)
     {
-      pinocchio::crba(model, data, qs[_smooth]);
+      pinocchio::crba(model, data, qs[_smooth], pinocchio::Convention::WORLD);
       data.M.triangularView<Eigen::StrictlyLower>() =
         data.M.transpose().triangularView<Eigen::StrictlyLower>();
     }
@@ -118,7 +118,7 @@ int main()
     ADConfigVectorType ad_q = q.cast<ADScalar>();
 
     CppAD::Independent(ad_q);
-    pinocchio::crba(ad_model, ad_data, ad_q);
+    pinocchio::crba(ad_model, ad_data, ad_q, pinocchio::Convention::WORLD);
     ad_data.M.triangularView<Eigen::StrictlyLower>() =
       ad_data.M.transpose().triangularView<Eigen::StrictlyLower>();
 
@@ -203,7 +203,7 @@ int main()
     const std::string & compile_options = "-Ofast";
 
     CppAD::Independent(ad_q);
-    pinocchio::crba(ad_model, ad_data, ad_q);
+    pinocchio::crba(ad_model, ad_data, ad_q, pinocchio::Convention::WORLD);
     ad_data.M.triangularView<Eigen::StrictlyLower>() =
       ad_data.M.transpose().triangularView<Eigen::StrictlyLower>();
 

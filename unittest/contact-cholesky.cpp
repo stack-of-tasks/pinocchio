@@ -81,10 +81,10 @@ BOOST_AUTO_TEST_CASE(contact_operator_equal)
   humanoid_model.lowerPositionLimit.head<3>().fill(-1.);
   humanoid_model.upperPositionLimit.head<3>().fill(1.);
   VectorXd humanoid_q = randomConfiguration(humanoid_model);
-  crba(humanoid_model, humanoid_data, humanoid_q);
+  crba(humanoid_model, humanoid_data, humanoid_q, Convention::WORLD);
 
   VectorXd manipulator_q = randomConfiguration(manipulator_model);
-  crba(manipulator_model, manipulator_data, manipulator_q);
+  crba(manipulator_model, manipulator_data, manipulator_q, Convention::WORLD);
 
   ContactCholeskyDecomposition humanoid_chol(humanoid_model), manipulator_chol(manipulator_model);
   humanoid_chol.compute(humanoid_model, humanoid_data, contact_models_empty, contact_datas_empty);
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
   VectorXd q = randomConfiguration(model);
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
 
   pinocchio::cholesky::decompose(model, data_ref);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   BOOST_CHECK(contact_chol_decomposition.U.diagonal().isOnes());
 
   Data data(model);
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.triangularView<Eigen::StrictlyUpper>().transpose();
 
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   contact_datas.push_back(RigidConstraintData(ci_LF));
 
   // Compute Mass Matrix
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
 
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   H.triangularView<Eigen::StrictlyLower>() = H.triangularView<Eigen::StrictlyUpper>().transpose();
 
   Data data(model);
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   ContactCholeskyDecomposition contact_chol_decomposition;
   contact_chol_decomposition.allocate(model, contact_models);
 
@@ -575,7 +575,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_LOCAL)
   //  contact_datas.push_back(RigidConstraintData(ci_LA));
 
   // Compute Mass Matrix
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
 
@@ -607,7 +607,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_LOCAL)
   H.triangularView<Eigen::StrictlyLower>() = H.triangularView<Eigen::StrictlyUpper>().transpose();
 
   Data data(model);
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   ContactCholeskyDecomposition contact_chol_decomposition;
   contact_chol_decomposition.allocate(model, contact_models);
 
@@ -798,7 +798,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   contact_datas.push_back(RigidConstraintData(ci_LF));
 
   // Compute Mass Matrix
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
 
@@ -824,7 +824,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   H.triangularView<Eigen::StrictlyLower>() = H.triangularView<Eigen::StrictlyUpper>().transpose();
 
   Data data(model);
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   ContactCholeskyDecomposition contact_chol_decomposition;
   contact_chol_decomposition.allocate(model, contact_models);
   contact_chol_decomposition.compute(model, data, contact_models, contact_datas);
@@ -903,7 +903,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_by_joint_2)
   contact_datas.push_back(RigidConstraintData(ci_LA));
 
   // Compute Mass Matrix
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
 
@@ -939,7 +939,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_by_joint_2)
   H.triangularView<Eigen::StrictlyLower>() = H.triangularView<Eigen::StrictlyUpper>().transpose();
 
   Data data(model);
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   ContactCholeskyDecomposition contact_chol_decomposition;
   contact_chol_decomposition.allocate(model, contact_models);
   contact_chol_decomposition.compute(model, data, contact_models, contact_datas, mu);
@@ -1110,7 +1110,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD_by_joint_2)
   contact_datas.push_back(RigidConstraintData(ci_LA));
 
   // Compute Mass Matrix
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
 
@@ -1144,7 +1144,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD_by_joint_2)
   H.triangularView<Eigen::StrictlyLower>() = H.triangularView<Eigen::StrictlyUpper>().transpose();
 
   Data data(model);
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   ContactCholeskyDecomposition contact_chol_decomposition;
   contact_chol_decomposition.allocate(model, contact_models);
 
@@ -1233,7 +1233,7 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   contact_datas.push_back(RigidConstraintData(loop_RA_LA_lwa));
 
   // Compute Mass Matrix
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
 
@@ -1289,7 +1289,7 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   H.triangularView<Eigen::StrictlyLower>() = H.triangularView<Eigen::StrictlyUpper>().transpose();
 
   Data data(model);
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   ContactCholeskyDecomposition contact_chol_decomposition;
   contact_chol_decomposition.allocate(model, contact_models);
   contact_chol_decomposition.compute(model, data, contact_models, contact_datas, mu);
@@ -1372,7 +1372,7 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   contact_datas.push_back(RigidConstraintData(loop_RA_LA_lwa));
 
   // Compute Mass Matrix
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
 
@@ -1433,7 +1433,7 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   H.triangularView<Eigen::StrictlyLower>() = H.triangularView<Eigen::StrictlyUpper>().transpose();
 
   Data data(model);
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   ContactCholeskyDecomposition contact_chol_decomposition;
   contact_chol_decomposition.allocate(model, contact_models);
   contact_chol_decomposition.compute(model, data, contact_models, contact_datas, mu);
@@ -1511,7 +1511,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_updateDamping)
   contact_datas.push_back(RigidConstraintData(ci_LF));
 
   Data data(model);
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
 
   const double mu1 = 1e-2, mu2 = 1e-10;
 

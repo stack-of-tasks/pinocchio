@@ -126,8 +126,8 @@ BOOST_AUTO_TEST_CASE(vsFreeFlyer)
   BOOST_CHECK(aAbaTranslation.isApprox(a_expected));
 
   // crba
-  crba(modelTranslation, dataTranslation, q);
-  crba(modelFreeflyer, dataFreeFlyer, qff);
+  crba(modelTranslation, dataTranslation, q, Convention::WORLD);
+  crba(modelFreeflyer, dataFreeFlyer, qff, Convention::WORLD);
 
   Eigen::Matrix<double, 3, 3> M_expected(dataFreeFlyer.M.topLeftCorner<3, 3>());
 

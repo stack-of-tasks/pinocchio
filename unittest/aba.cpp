@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(test_aba_with_fext)
 
   PINOCCHIO_ALIGNED_STD_VECTOR(Force) fext(model.joints.size(), Force::Random());
 
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   computeJointJacobians(model, data, q);
   nonLinearEffects(model, data, q, v);
   data.M.triangularView<Eigen::StrictlyLower>() =
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE(test_aba_vs_rnea)
   VectorXd tau = VectorXd::Zero(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
 
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   nonLinearEffects(model, data_ref, q, v);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE(test_computeMinverse)
   VectorXd q = randomConfiguration(model);
   VectorXd v = VectorXd::Random(model.nv);
 
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   MatrixXd Minv_ref(data_ref.M.inverse());
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE(test_computeMinverse_noupdate)
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd tau = VectorXd::Random(model.nv);
 
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   MatrixXd Minv_ref(data_ref.M.inverse());
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE(test_roto_inertia_effects)
   pinocchio::Data data(model), data_ref(model);
 
   Eigen::VectorXd q = randomConfiguration(model);
-  crba(model, data_ref, q);
+  pinocchio::crba(model, data_ref, q, pinocchio::Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
 

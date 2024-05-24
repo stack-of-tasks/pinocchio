@@ -100,8 +100,8 @@ BOOST_AUTO_TEST_CASE(vsRXRY)
   BOOST_CHECK(aAbaUniversal.isApprox(aAbaRXRY));
 
   // CRBA
-  crba(modelRXRY, dataRXRY, q);
-  crba(modelUniversal, dataUniversal, q);
+  crba(modelRXRY, dataRXRY, q, Convention::WORLD);
+  crba(modelUniversal, dataUniversal, q, Convention::WORLD);
 
   BOOST_CHECK(dataUniversal.M.isApprox(dataRXRY.M));
 
@@ -190,8 +190,8 @@ BOOST_AUTO_TEST_CASE(vsRandomAxis)
   BOOST_CHECK(aAbaUniversal.isApprox(aAbaRandomAxis));
 
   // CRBA
-  crba(modelRandomAxis, dataRandomAxis, q);
-  crba(modelUniversal, dataUniversal, q);
+  crba(modelRandomAxis, dataRandomAxis, q, Convention::WORLD);
+  crba(modelUniversal, dataUniversal, q, Convention::WORLD);
 
   BOOST_CHECK(dataUniversal.M.isApprox(dataRandomAxis.M));
 

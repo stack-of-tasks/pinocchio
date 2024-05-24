@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(test_cholesky)
   model.upperPositionLimit.head<3>().fill(1.);
   VectorXd q = randomConfiguration(model);
   data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
 
   pinocchio::cholesky::decompose(model, data);
   data.M.triangularView<Eigen::StrictlyLower>() =
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(test_timings)
   model.upperPositionLimit.head<3>().fill(1.);
   VectorXd q = randomConfiguration(model);
   data.M.fill(0); // Only nonzero coeff of M are initialized by CRBA.
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
 
   long flag = BOOST_BINARY(1111111);
   PinocchioTicToc timer(PinocchioTicToc::US);
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE(test_Minv_from_cholesky)
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
   VectorXd q = randomConfiguration(model);
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.triangularView<Eigen::StrictlyUpper>().transpose();
   MatrixXd Minv_ref(data.M.inverse());
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(test_Minv_from_cholesky)
 
   // Call the second signature of cholesky::computeMinv
   Data data_bis(model);
-  crba(model, data_bis, q);
+  crba(model, data_bis, q, Convention::WORLD);
   cholesky::decompose(model, data_bis);
   cholesky::computeMinv(model, data_bis);
   BOOST_CHECK(data_bis.Minv.isApprox(Minv_ref));

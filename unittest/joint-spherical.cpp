@@ -115,8 +115,8 @@ BOOST_AUTO_TEST_CASE(vsFreeFlyer)
   BOOST_CHECK(aAbaSpherical.isApprox(a_expected));
 
   // crba
-  crba(modelSpherical, dataSpherical, q);
-  crba(modelFreeflyer, dataFreeFlyer, qff);
+  crba(modelSpherical, dataSpherical, q, Convention::WORLD);
+  crba(modelFreeflyer, dataFreeFlyer, qff, Convention::WORLD);
 
   Eigen::Matrix<double, 3, 3> M_expected(dataFreeFlyer.M.bottomRightCorner<3, 3>());
 
@@ -272,14 +272,14 @@ BOOST_AUTO_TEST_CASE(test_crba)
   Eigen::VectorXd q(Eigen::VectorXd::Zero(model.nq));
   Eigen::MatrixXd M_expected(model.nv, model.nv);
 
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   M_expected << 1.25, 0, 0, 0, 1.25, 0, 0, 0, 1;
 
   BOOST_CHECK(M_expected.isApprox(data.M, 1e-14));
 
   q = Eigen::VectorXd::Ones(model.nq);
 
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   M_expected << 1.0729816454316, -5.5511151231258e-17, -0.8414709848079, -5.5511151231258e-17, 1.25,
     0, -0.8414709848079, 0, 1;
 
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE(test_crba)
 
   q << 3, 2, 1;
 
-  crba(model, data, q);
+  crba(model, data, q, Convention::WORLD);
   M_expected << 1.043294547392, 2.7755575615629e-17, -0.90929742682568, 0, 1.25, 0,
     -0.90929742682568, 0, 1;
 

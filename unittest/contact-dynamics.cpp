@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(test_computeKKTMatrix)
   J.bottomRows<6>() = J_LF;
 
   // Check Forward Dynamics
-  pinocchio::crba(model, data_ref, q);
+  pinocchio::crba(model, data_ref, q, pinocchio::Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
 

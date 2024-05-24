@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_constraint_dynamics_derivatives)
     model, data, constraint_models, constraint_data, prox_settings);
 
   // Reference values
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   container::aligned_vector<Force> fext((size_t)model.njoints, Force::Zero());

@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_with_armature)
   VectorXd v(VectorXd::Random(model.nv));
   VectorXd a(VectorXd::Random(model.nv));
 
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
   data_ref.M.triangularView<StrictlyLower>() =
     data_ref.M.transpose().triangularView<StrictlyLower>();
   const VectorXd nle = nonLinearEffects(model, data_ref, q, v);
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
   BOOST_CHECK(data_rnea.tau.isApprox(data.g));
 
   // Compare with Jcom
-  crba(model, data_rnea, q);
+  crba(model, data_rnea, q, Convention::WORLD);
   Data::Matrix3x Jcom = getJacobianComFromCrba(model, data_rnea);
 
   VectorXd g_ref(-data_rnea.mass[0] * Jcom.transpose() * Model::gravity981);
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(test_compute_static_torque)
   BOOST_CHECK(data_rnea.tau.isApprox(data.tau));
 
   // Compare with Jcom + Jacobian of joint
-  crba(model, data_rnea, q);
+  crba(model, data_rnea, q, Convention::WORLD);
   Data::Matrix3x Jcom = getJacobianComFromCrba(model, data_rnea);
 
   VectorXd static_torque_ref = -data_rnea.mass[0] * Jcom.transpose() * Model::gravity981;
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE(test_compute_coriolis)
   BOOST_CHECK(tau.isApprox(data_ref.tau, prec));
 
   dccrba(model, data_ref, q, v);
-  crba(model, data_ref, q);
+  crba(model, data_ref, q, Convention::WORLD);
 
   const Data::Vector3 & com = data_ref.com[0];
   Motion vcom(data_ref.vcom[0], Data::Vector3::Zero());
@@ -332,10 +332,10 @@ BOOST_AUTO_TEST_CASE(test_compute_coriolis)
     Eigen::VectorXd q_plus(model.nq);
     q_plus = integrate(model, q, alpha * v);
 
-    crba(model, data_ref, q);
+    crba(model, data_ref, q, Convention::WORLD);
     data_ref.M.triangularView<Eigen::StrictlyLower>() =
       data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
-    crba(model, data_ref_plus, q_plus);
+    crba(model, data_ref_plus, q_plus, Convention::WORLD);
     data_ref_plus.M.triangularView<Eigen::StrictlyLower>() =
       data_ref_plus.M.transpose().triangularView<Eigen::StrictlyLower>();
 

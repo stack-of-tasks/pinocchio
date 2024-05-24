@@ -188,7 +188,7 @@ namespace pinocchio
       check_expression_if_real<Scalar>(inv_damping >= 0.), "mu must be positive.");
 
     // Compute the mass matrix.
-    crba(model, data, q);
+    crba(model, data, q, Convention::WORLD);
 
     // Compute the UDUt decomposition of data.M.
     cholesky::decompose(model, data);
@@ -273,7 +273,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
 
     // Compute the mass matrix
-    crba(model, data, q);
+    crba(model, data, q, Convention::WORLD);
 
     return impulseDynamics(model, data, v_before, J, r_coeff, inv_damping);
   }

@@ -168,7 +168,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    crba(model, data, qs[_smooth]);
+    crba(model, data, qs[_smooth], Convention::WORLD);
   }
   std::cout << "CRBA = \t\t";
   timer.toc(std::cout, NBT);

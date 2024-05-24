@@ -1087,7 +1087,7 @@ namespace pinocchio
     }
 
     // Backward pass to compute the modified CRBA
-    typedef impl::CrbaBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
+    typedef impl::CrbaWorldConventionBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
     for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
     {
       Pass2::run(model.joints[i], typename Pass2::ArgsType(model, data));

@@ -62,7 +62,7 @@ int main(int argc, const char ** argv)
   double total = 0;
   SMOOTH(NBT)
   {
-    crba(model, data, qs[_smooth]);
+    crba(model, data, qs[_smooth], Convention::WORLD);
     timer.tic();
     cholesky::decompose(model, data);
     total += timer.toc(timer.DEFAULT_UNIT);
@@ -74,7 +74,7 @@ int main(int argc, const char ** argv)
   Eigen::LDLT<Eigen::MatrixXd> Mldlt(data.M);
   SMOOTH(NBT)
   {
-    crba(model, data, qs[_smooth]);
+    crba(model, data, qs[_smooth], Convention::WORLD);
     data.M.triangularView<Eigen::StrictlyLower>() =
       data.M.transpose().triangularView<Eigen::StrictlyLower>();
     timer.tic();

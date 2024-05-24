@@ -11,46 +11,13 @@
 
 namespace pinocchio
 {
-  namespace minimal
-  {
-    ///
-    /// \brief Computes the upper triangular part of the joint space inertia matrix M by
-    ///        using the Composite Rigid Body Algorithm (Chapter 6, Rigid-Body Dynamics Algorithms,
-    ///        R. Featherstone, 2008). The result is accessible through data.M.
-    ///
-    /// \note You can easly get data.M symetric by copying the stricly upper trinangular part
-    ///       in the stricly lower tringular part with
-    ///       data.M.triangularView<Eigen::StrictlyLower>() =
-    ///       data.M.transpose().triangularView<Eigen::StrictlyLower>();
-    ///
-    /// \tparam JointCollection Collection of Joint types.
-    /// \tparam ConfigVectorType Type of the joint configuration vector.
-    ///
-    /// \param[in] model The model structure of the rigid body system.
-    /// \param[in] data The data structure of the rigid body system.
-    /// \param[in] q The joint configuration vector (dim model.nq).
-    ///
-    /// \return The joint space inertia matrix with only the upper triangular part computed.
-    ///
-    template<
-      typename Scalar,
-      int Options,
-      template<typename, int>
-      class JointCollectionTpl,
-      typename ConfigVectorType>
-    const typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs & crba(
-      const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      DataTpl<Scalar, Options, JointCollectionTpl> & data,
-      const Eigen::MatrixBase<ConfigVectorType> & q);
-  } // namespace minimal
-
   ///
   /// \brief Computes the upper triangular part of the joint space inertia matrix M by
   ///        using the Composite Rigid Body Algorithm (Chapter 6, Rigid-Body Dynamics Algorithms, R.
   ///        Featherstone, 2008). The result is accessible through data.M.
   ///
-  /// \note You can easly get data.M symetric by copying the stricly upper trinangular part
-  ///       in the stricly lower tringular part with
+  /// \note You can easily get data.M symmetric by copying the strictly upper triangular part
+  ///       in the strictly lower triangular part with
   ///       data.M.triangularView<Eigen::StrictlyLower>() =
   ///       data.M.transpose().triangularView<Eigen::StrictlyLower>();
   ///
@@ -61,13 +28,14 @@ namespace pinocchio
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
   ///
-  /// \note A direct outcome of this algorithm is the computation of the centroidal momemntum matrix
-  /// (data.Ag), a forward geometry
+  /// \note In WORLD convention, a direct outcome of this algorithm is the computation of the
+  /// centroidal momentum matrix (data.Ag), a forward geometry
   ///       and the joint jacobian matrix (data.J).
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] convention Convention to use.
   ///
   /// \return The joint space inertia matrix with only the upper triangular part computed.
   ///
@@ -80,7 +48,8 @@ namespace pinocchio
   const typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs & crba(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
-    const Eigen::MatrixBase<ConfigVectorType> & q);
+    const Eigen::MatrixBase<ConfigVectorType> & q,
+    const Convention convention = Convention::LOCAL);
 
   PINOCCHIO_DEFINE_ALGO_CHECKER(CRBA);
 
