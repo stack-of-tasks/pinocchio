@@ -629,7 +629,8 @@ namespace pinocchio
               }
             }
             case WORLD: {
-              abort();
+              PINOCCHIO_THROW_PRETTY(
+                std::invalid_argument, "Contact3D in world frame is not managed");
             }
             }
             break;
@@ -653,7 +654,8 @@ namespace pinocchio
               break;
             }
             case WORLD: {
-              abort();
+              PINOCCHIO_THROW_PRETTY(
+                std::invalid_argument, "Contact6D in world frame is not managed");
             }
             }
             break;

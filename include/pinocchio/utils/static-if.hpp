@@ -79,7 +79,8 @@ namespace pinocchio
             return else_value;
           break;
         }
-        abort();
+        PINOCCHIO_THROW_PRETTY(
+          std::logic_error, "ComparisonOperators " << static_cast<int>(op) << " is not managed");
       }
     };
 
