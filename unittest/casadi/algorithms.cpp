@@ -380,7 +380,7 @@ BOOST_AUTO_TEST_CASE(test_aba)
   ADModel ad_model = model.cast<ADScalar>();
   ADData ad_data(ad_model);
 
-  pinocchio::abaWorldConvention(model, data, q, v, tau);
+  pinocchio::aba(model, data, q, v, tau, pinocchio::Convention::WORLD);
 
   casadi::SX cs_q = casadi::SX::sym("q", model.nq);
   ConfigVectorAD q_ad(model.nq);
@@ -396,7 +396,7 @@ BOOST_AUTO_TEST_CASE(test_aba)
     Eigen::Map<TangentVectorAD>(static_cast<std::vector<ADScalar>>(cs_tau).data(), model.nv, 1);
 
   // ABA
-  abaWorldConvention(ad_model, ad_data, q_ad, v_ad, tau_ad);
+  pinocchio::aba(ad_model, ad_data, q_ad, v_ad, tau_ad, pinocchio::Convention::WORLD);
   casadi::SX cs_ddq(model.nv, 1);
   for (Eigen::DenseIndex k = 0; k < model.nv; ++k)
     cs_ddq(k) = ad_data.ddq[k];

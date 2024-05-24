@@ -145,8 +145,8 @@ BOOST_AUTO_TEST_CASE(test_mutliprecision)
   BOOST_CHECK_IS_APPROX(data.tau, data_multi.tau, double);
 
   // Forward Dynamics
-  abaWorldConvention(model_multi, data_multi, q_multi, v_multi, tau_multi);
-  abaWorldConvention(model, data, q, v, tau);
+  aba(model_multi, data_multi, q_multi, v_multi, tau_multi, Convention::WORLD);
+  aba(model, data, q, v, tau, Convention::WORLD);
 
   BOOST_CHECK_IS_APPROX(data.ddq, data_multi.ddq, double);
 

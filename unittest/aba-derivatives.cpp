@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   VectorXd q = randomConfiguration(model);
   VectorXd v(VectorXd::Random(model.nv));
   VectorXd tau(VectorXd::Random(model.nv));
-  VectorXd a(abaLocalConvention(model, data_ref, q, v, tau));
+  VectorXd a(aba(model, data_ref, q, v, tau, Convention::LOCAL));
 
   VectorXd tau_from_a(rnea(model, data_ref, q, v, a));
   BOOST_CHECK(tau_from_a.isApprox(tau));
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
     BOOST_CHECK(data.doYcrb[k].isApprox(data_ref.doYcrb[k]));
   }
 
-  abaLocalConvention(model, data_ref, q, v, tau);
+  aba(model, data_ref, q, v, tau, Convention::LOCAL);
   for (Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
   {
     BOOST_CHECK(data.oYaba[k].isApprox(
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   }
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
 
-  abaWorldConvention(model, data_ref, q, v, tau);
+  aba(model, data_ref, q, v, tau, Convention::WORLD);
   BOOST_CHECK(data.J.isApprox(data_ref.J));
   BOOST_CHECK(data.u.isApprox(data_ref.u));
   for (Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   aba_partial_dtau_fd.setZero();
 
   Data data_fd(model);
-  VectorXd a0 = abaLocalConvention(model, data_fd, q, v, tau);
+  VectorXd a0 = aba(model, data_fd, q, v, tau, Convention::LOCAL);
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
   VectorXd a_plus(model.nv);
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   {
     v_eps[k] += alpha;
     q_plus = integrate(model, q, v_eps);
-    a_plus = abaLocalConvention(model, data_fd, q_plus, v, tau);
+    a_plus = aba(model, data_fd, q_plus, v, tau, Convention::LOCAL);
 
     aba_partial_dq_fd.col(k) = (a_plus - a0) / alpha;
     v_eps[k] -= alpha;
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   for (int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    a_plus = abaLocalConvention(model, data_fd, q, v_plus, tau);
+    a_plus = aba(model, data_fd, q, v_plus, tau, Convention::LOCAL);
 
     aba_partial_dv_fd.col(k) = (a_plus - a0) / alpha;
     v_plus[k] -= alpha;
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   for (int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    a_plus = abaLocalConvention(model, data_fd, q, v, tau_plus);
+    a_plus = aba(model, data_fd, q, v, tau_plus, Convention::LOCAL);
 
     aba_partial_dtau_fd.col(k) = (a_plus - a0) / alpha;
     tau_plus[k] -= alpha;
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(test_aba_minimal_argument)
   VectorXd q = randomConfiguration(model);
   VectorXd v(VectorXd::Random(model.nv));
   VectorXd tau(VectorXd::Random(model.nv));
-  VectorXd a(abaLocalConvention(model, data_ref, q, v, tau));
+  VectorXd a(aba(model, data_ref, q, v, tau, Convention::LOCAL));
 
   MatrixXd aba_partial_dq(model.nv, model.nv);
   aba_partial_dq.setZero();
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   VectorXd q = randomConfiguration(model);
   VectorXd v(VectorXd::Random(model.nv));
   VectorXd tau(VectorXd::Random(model.nv));
-  VectorXd a(abaLocalConvention(model, data_ref, q, v, tau));
+  VectorXd a(aba(model, data_ref, q, v, tau, Convention::LOCAL));
 
   typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceVector;
   ForceVector fext((size_t)model.njoints);
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   computeABADerivatives(
     model, data, q, v, tau, fext, aba_partial_dq, aba_partial_dv, aba_partial_dtau);
 
-  abaLocalConvention(model, data_ref, q, v, tau, fext);
+  aba(model, data_ref, q, v, tau, fext, Convention::LOCAL);
   //  updateGlobalPlacements(model, data_ref);
   //  for(size_t k =1; k < (size_t)model.njoints; ++k)
   //  {
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   aba_partial_dtau_fd.setZero();
 
   Data data_fd(model);
-  const VectorXd a0 = abaLocalConvention(model, data_fd, q, v, tau, fext);
+  const VectorXd a0 = aba(model, data_fd, q, v, tau, fext, Convention::LOCAL);
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
   VectorXd a_plus(model.nv);
@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   {
     v_eps[k] += alpha;
     q_plus = integrate(model, q, v_eps);
-    a_plus = abaLocalConvention(model, data_fd, q_plus, v, tau, fext);
+    a_plus = aba(model, data_fd, q_plus, v, tau, fext, Convention::LOCAL);
 
     aba_partial_dq_fd.col(k) = (a_plus - a0) / alpha;
     v_eps[k] -= alpha;
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   for (int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    a_plus = abaLocalConvention(model, data_fd, q, v_plus, tau, fext);
+    a_plus = aba(model, data_fd, q, v_plus, tau, fext, Convention::LOCAL);
 
     aba_partial_dv_fd.col(k) = (a_plus - a0) / alpha;
     v_plus[k] -= alpha;
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   for (int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    a_plus = abaLocalConvention(model, data_fd, q, v, tau_plus, fext);
+    a_plus = aba(model, data_fd, q, v, tau_plus, fext, Convention::LOCAL);
 
     aba_partial_dtau_fd.col(k) = (a_plus - a0) / alpha;
     tau_plus[k] -= alpha;
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE(test_optimized_aba_derivatives)
   MatrixXd aba_partial_dtau(model.nv, model.nv);
   aba_partial_dtau.setZero();
 
-  abaWorldConvention(model, data, q, v, tau);
+  aba(model, data, q, v, tau, Convention::WORLD);
   computeABADerivatives(model, data, aba_partial_dq, aba_partial_dv, aba_partial_dtau);
 
   MatrixXd aba_partial_dq_ref(model.nv, model.nv);
@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE(test_optimized_aba_derivatives)
 
   // Test multiple calls
   const int num_calls = 20;
-  abaWorldConvention(model, data, q, v, tau);
+  aba(model, data, q, v, tau, Convention::WORLD);
   for (int it = 0; it < num_calls; ++it)
   {
     computeABADerivatives(model, data, aba_partial_dq, aba_partial_dv, aba_partial_dtau);
@@ -483,7 +483,7 @@ BOOST_AUTO_TEST_CASE(test_optimized_aba_derivatives_fext)
   MatrixXd aba_partial_dtau(model.nv, model.nv);
   aba_partial_dtau.setZero();
 
-  abaWorldConvention(model, data, q, v, tau, fext);
+  aba(model, data, q, v, tau, fext, Convention::WORLD);
   computeABADerivatives(model, data, fext, aba_partial_dq, aba_partial_dv, aba_partial_dtau);
 
   MatrixXd aba_partial_dq_ref(model.nv, model.nv);
@@ -505,7 +505,7 @@ BOOST_AUTO_TEST_CASE(test_optimized_aba_derivatives_fext)
 
   // Test multiple calls
   const int num_calls = 20;
-  abaWorldConvention(model, data, q, v, tau, fext);
+  aba(model, data, q, v, tau, fext, Convention::WORLD);
   for (int it = 0; it < num_calls; ++it)
   {
     computeABADerivatives(model, data, fext, aba_partial_dq, aba_partial_dv, aba_partial_dtau);

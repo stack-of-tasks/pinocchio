@@ -186,7 +186,7 @@ namespace pinocchio
       ad_tau = ad_X.segment(it, ad_model.nv);
       it += ad_model.nv;
 
-      pinocchio::abaWorldConvention(ad_model, ad_data, ad_q, ad_v, ad_tau);
+      pinocchio::aba(ad_model, ad_data, ad_q, ad_v, ad_tau, Convention::WORLD);
       ad_Y = ad_data.ddq;
 
       ad_fun.Dependent(ad_X, ad_Y);

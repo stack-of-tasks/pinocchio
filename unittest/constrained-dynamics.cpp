@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   BOOST_CHECK(KKT_matrix.isApprox(KKT_matrix_ref));
 
   // Check solutions
-  abaWorldConvention(model, data_ref, q, v, tau);
+  aba(model, data_ref, q, v, tau, Convention::WORLD);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
 }
 
@@ -1644,7 +1644,7 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
 
   computeJointJacobians(model, data_ref, q);
   BOOST_CHECK(data.J.isApprox(data_ref.J));
-  abaLocalConvention(model, data_ref, q, v, tau);
+  aba(model, data_ref, q, v, tau, Convention::LOCAL);
 
   for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
   {
@@ -1752,7 +1752,7 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
     }
   }
 
-  abaWorldConvention(model, data_ref, q, v, 0 * v);
+  aba(model, data_ref, q, v, 0 * v, Convention::WORLD);
   for (size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
   {
     const RigidConstraintModel & cmodel = contact_models[contact_id];

@@ -107,9 +107,9 @@ BOOST_AUTO_TEST_CASE(vsFreeFlyer)
 
   // ForwardDynamics == aba
   Eigen::VectorXd aAbaSpherical =
-    abaWorldConvention(modelSpherical, dataSpherical, q, v, tauSpherical);
+    aba(modelSpherical, dataSpherical, q, v, tauSpherical, Convention::WORLD);
   Eigen::VectorXd aAbaFreeFlyer =
-    abaWorldConvention(modelFreeflyer, dataFreeFlyer, qff, vff, tauff);
+    aba(modelFreeflyer, dataFreeFlyer, qff, vff, tauff, Convention::WORLD);
   Vector3 a_expected;
   a_expected << aAbaFreeFlyer[3], aAbaFreeFlyer[4], aAbaFreeFlyer[5];
   BOOST_CHECK(aAbaSpherical.isApprox(a_expected));

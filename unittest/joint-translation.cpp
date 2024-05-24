@@ -118,9 +118,9 @@ BOOST_AUTO_TEST_CASE(vsFreeFlyer)
 
   // ForwardDynamics == aba
   Eigen::VectorXd aAbaTranslation =
-    abaWorldConvention(modelTranslation, dataTranslation, q, v, tauTranslation);
+    aba(modelTranslation, dataTranslation, q, v, tauTranslation, Convention::WORLD);
   Eigen::VectorXd aAbaFreeFlyer =
-    abaWorldConvention(modelFreeflyer, dataFreeFlyer, qff, vff, tauff);
+    aba(modelFreeflyer, dataFreeFlyer, qff, vff, tauff, Convention::WORLD);
   Vector3 a_expected;
   a_expected << aAbaFreeFlyer[0], aAbaFreeFlyer[1], aAbaFreeFlyer[2];
   BOOST_CHECK(aAbaTranslation.isApprox(a_expected));

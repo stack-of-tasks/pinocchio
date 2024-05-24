@@ -200,7 +200,7 @@ namespace pinocchio
         // Integrate q + v_int = q_int
         pinocchio::integrate(ad_model, q_ad, v_int_ad, q_int_ad);
         // Run ABA with new q_int
-        pinocchio::abaWorldConvention(ad_model, ad_data, q_int_ad, v_ad, tau_ad);
+        pinocchio::aba(ad_model, ad_data, q_int_ad, v_ad, tau_ad, Convention::WORLD);
         // Copy Output
         pinocchio::casadi::copy(ad_data.ddq, cs_ddq);
 

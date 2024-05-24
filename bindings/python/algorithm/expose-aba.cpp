@@ -39,36 +39,6 @@ namespace pinocchio
       };
 
       bp::def(
-        "abaLocalConvention",
-        &abaLocalConvention<
-          Scalar, Options, JointCollectionDefaultTpl, VectorXs, VectorXs, VectorXs>,
-        bp::args("model", "data", "q", "v", "tau"),
-        "Compute ABA, store the result in data.ddq and return it.\n"
-        "Parameters:\n"
-        "\t model: Model of the kinematic tree\n"
-        "\t data: Data related to the kinematic tree\n"
-        "\t q: joint configuration (size model.nq)\n"
-        "\t v: joint velocity (size model.nv)\n"
-        "\t tau: joint torque (size model.nv)",
-        bp::return_value_policy<bp::return_by_value>());
-
-      bp::def(
-        "abaLocalConvention",
-        &abaLocalConvention<
-          Scalar, Options, JointCollectionDefaultTpl, VectorXs, VectorXs, VectorXs, context::Force>,
-        bp::args("model", "data", "q", "v", "tau", "fext"),
-        "Compute ABA with external forces, store the result in data.ddq and return it.\n"
-        "Parameters:\n"
-        "\t model: Model of the kinematic tree\n"
-        "\t data: Data related to the kinematic tree\n"
-        "\t q: joint configuration (size model.nq)\n"
-        "\t v: joint velocity (size model.nv)\n"
-        "\t tau: joint torque (size model.nv)\n"
-        "\t fext: vector of external forces expressed in the local frame of the joint "
-        "(size model.njoints)",
-        bp::return_value_policy<bp::return_by_value>());
-
-      bp::def(
         "computeMinverse", &computeMinverse_proxy, bp::args("model", "data", "q"),
         "Computes the inverse of the joint space inertia matrix using an extension of the "
         "Articulated Body algorithm.\n"
@@ -77,36 +47,6 @@ namespace pinocchio
         "\t model: Model of the kinematic tree\n"
         "\t data: Data related to the kinematic tree\n"
         "\t q: joint configuration (size model.nq)",
-        bp::return_value_policy<bp::return_by_value>());
-
-      bp::def(
-        "abaWorldConvention",
-        &abaWorldConvention<
-          Scalar, Options, JointCollectionDefaultTpl, VectorXs, VectorXs, VectorXs>,
-        bp::args("model", "data", "q", "v", "tau"),
-        "Compute ABA, store the result in data.ddq and return it.\n"
-        "Parameters:\n"
-        "\t model: Model of the kinematic tree\n"
-        "\t data: Data related to the kinematic tree\n"
-        "\t q: joint configuration (size model.nq)\n"
-        "\t tau: joint velocity (size model.nv)\n"
-        "\t v: joint torque (size model.nv)",
-        bp::return_value_policy<bp::return_by_value>());
-
-      bp::def(
-        "abaWorldConvention",
-        &abaWorldConvention<
-          Scalar, Options, JointCollectionDefaultTpl, VectorXs, VectorXs, VectorXs, context::Force>,
-        bp::args("model", "data", "q", "v", "tau", "fext"),
-        "Compute ABA with external forces, store the result in data.ddq and return it.\n"
-        "Parameters:\n"
-        "\t model: Model of the kinematic tree\n"
-        "\t data: Data related to the kinematic tree\n"
-        "\t q: joint configuration (size model.nq)\n"
-        "\t v: joint velocity (size model.nv)\n"
-        "\t tau: joint torque (size model.nv)\n"
-        "\t fext: vector of external forces expressed in the local frame of the joint (size "
-        "model.njoints)",
         bp::return_value_policy<bp::return_by_value>());
 
       bp::def(

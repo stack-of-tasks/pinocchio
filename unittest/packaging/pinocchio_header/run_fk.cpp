@@ -21,7 +21,7 @@ int main(int /*argc*/, char ** /*argv*/)
   Eigen::VectorXd tau = Eigen::VectorXd::Random(model.nv);
 
   // Computes the forward dynamics (ABA)
-  abaWorldConvention(model, data, q, v, tau);
+  aba(model, data, q, v, tau, Convention::WORLD);
 
   // Get access to the joint acceleration
   std::cout << "Joint acceleration: " << data.ddq << std::endl;

@@ -85,9 +85,9 @@ BOOST_AUTO_TEST_CASE(vsRX)
   BOOST_CHECK(tauRX.isApprox(tauRevoluteUnaligned));
 
   // ForwardDynamics == aba
-  Eigen::VectorXd aAbaRX = abaWorldConvention(modelRX, dataRX, q, v, tauRX);
-  Eigen::VectorXd aAbaRevoluteUnaligned =
-    abaWorldConvention(modelRevoluteUnaligned, dataRevoluteUnaligned, q, v, tauRevoluteUnaligned);
+  Eigen::VectorXd aAbaRX = aba(modelRX, dataRX, q, v, tauRX, Convention::WORLD);
+  Eigen::VectorXd aAbaRevoluteUnaligned = aba(
+    modelRevoluteUnaligned, dataRevoluteUnaligned, q, v, tauRevoluteUnaligned, Convention::WORLD);
 
   BOOST_CHECK(aAbaRX.isApprox(aAbaRevoluteUnaligned));
 
@@ -172,9 +172,10 @@ BOOST_AUTO_TEST_CASE(vsRUX)
   BOOST_CHECK(tauRX.isApprox(tauRevoluteUnaligned));
 
   // ForwardDynamics == aba
-  Eigen::VectorXd aAbaRX = abaWorldConvention(modelRUX, dataRUX, q, v, tauRX);
-  Eigen::VectorXd aAbaRevoluteUnaligned = abaWorldConvention(
-    modelRevoluteUboundedUnaligned, dataRevoluteUnboundedUnaligned, q, v, tauRevoluteUnaligned);
+  Eigen::VectorXd aAbaRX = aba(modelRUX, dataRUX, q, v, tauRX, Convention::WORLD);
+  Eigen::VectorXd aAbaRevoluteUnaligned = aba(
+    modelRevoluteUboundedUnaligned, dataRevoluteUnboundedUnaligned, q, v, tauRevoluteUnaligned,
+    Convention::WORLD);
 
   BOOST_CHECK(aAbaRX.isApprox(aAbaRevoluteUnaligned));
 
@@ -291,9 +292,10 @@ BOOST_AUTO_TEST_CASE(vsRX)
   BOOST_CHECK(tauRX.isApprox(tauRevoluteUnbounded));
 
   // ForwardDynamics == aba
-  Eigen::VectorXd aAbaRX = abaWorldConvention(modelRX, dataRX, q_rx, v_rx, tauRX);
-  Eigen::VectorXd aAbaRevoluteUnbounded = abaWorldConvention(
-    modelRevoluteUnbounded, dataRevoluteUnbounded, q_rubx, v_rubx, tauRevoluteUnbounded);
+  Eigen::VectorXd aAbaRX = aba(modelRX, dataRX, q_rx, v_rx, tauRX, Convention::WORLD);
+  Eigen::VectorXd aAbaRevoluteUnbounded = aba(
+    modelRevoluteUnbounded, dataRevoluteUnbounded, q_rubx, v_rubx, tauRevoluteUnbounded,
+    Convention::WORLD);
 
   BOOST_CHECK(aAbaRX.isApprox(aAbaRevoluteUnbounded));
 

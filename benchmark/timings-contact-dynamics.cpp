@@ -123,7 +123,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    abaWorldConvention(model, data, qs[_smooth], qdots[_smooth], taus[_smooth]);
+    aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth], Convention::WORLD);
   }
   std::cout << "ABA = \t\t";
   timer.toc(std::cout, NBT);

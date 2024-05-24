@@ -285,9 +285,10 @@ BOOST_AUTO_TEST_CASE(vsPX)
   BOOST_CHECK(tauPX.isApprox(tauPrismaticUnaligned));
 
   // ForwardDynamics == aba
-  Eigen::VectorXd aAbaPX = abaWorldConvention(modelPX, dataPX, q, v, tauPX);
-  Eigen::VectorXd aAbaPrismaticUnaligned = abaWorldConvention(
-    modelPrismaticUnaligned, dataPrismaticUnaligned, q, v, tauPrismaticUnaligned);
+  Eigen::VectorXd aAbaPX = aba(modelPX, dataPX, q, v, tauPX, Convention::WORLD);
+  Eigen::VectorXd aAbaPrismaticUnaligned = aba(
+    modelPrismaticUnaligned, dataPrismaticUnaligned, q, v, tauPrismaticUnaligned,
+    Convention::WORLD);
 
   BOOST_CHECK(aAbaPX.isApprox(aAbaPrismaticUnaligned));
 
