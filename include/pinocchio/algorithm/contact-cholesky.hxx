@@ -12,6 +12,10 @@
 namespace pinocchio
 {
 
+  // TODO Remove when API is stabilized
+  PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+  PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+
   template<typename Scalar, int Options>
   template<typename S1, int O1, template<typename, int> class JointCollectionTpl, class Allocator>
   void ContactCholeskyDecompositionTpl<Scalar, Options>::allocate(
@@ -714,6 +718,8 @@ namespace pinocchio
     res_.template triangularView<Eigen::StrictlyLower>() =
       res_.transpose().template triangularView<Eigen::StrictlyLower>();
   }
+
+  PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_algorithm_contact_cholesky_hxx__

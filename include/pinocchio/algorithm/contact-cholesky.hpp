@@ -69,8 +69,12 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> Vector;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Options> Matrix;
     typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Matrix) RowMatrix;
+    // TODO Remove when API is stabilized
+    PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+    PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     typedef RigidConstraintModelTpl<Scalar, Options> RigidConstraintModel;
     typedef RigidConstraintDataTpl<Scalar, Options> RigidConstraintData;
+    PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     typedef Eigen::Matrix<Eigen::DenseIndex, Eigen::Dynamic, 1, Options> IndexVector;
     typedef typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(IndexVector) VectorOfIndexVector;
     typedef Eigen::Matrix<bool, Eigen::Dynamic, 1, Options> BooleanVector;
@@ -112,7 +116,11 @@ namespace pinocchio
     template<typename S1, int O1, template<typename, int> class JointCollectionTpl>
     explicit ContactCholeskyDecompositionTpl(const ModelTpl<S1, O1, JointCollectionTpl> & model)
     {
+      // TODO Remove when API is stabilized
+      PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+      PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) empty_contact_models;
+      PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       allocate(model, empty_contact_models);
     }
 
@@ -123,6 +131,9 @@ namespace pinocchio
     /// \param[in] contact_models Vector of RigidConstraintModel objects containing the contact
     /// information
     ///
+    // TODO Remove when API is stabilized
+    PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+    PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     template<typename S1, int O1, template<typename, int> class JointCollectionTpl, class Allocator>
     ContactCholeskyDecompositionTpl(
       const ModelTpl<S1, O1, JointCollectionTpl> & model,
@@ -130,6 +141,7 @@ namespace pinocchio
     {
       allocate(model, contact_models);
     }
+    PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
     ///
     /// \brief Copy constructor
@@ -142,10 +154,14 @@ namespace pinocchio
     /// \param[in] contact_models Vector of RigidConstraintModel objects containing the contact
     /// information
     ///
+    // TODO Remove when API is stabilized
+    PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+    PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     template<typename S1, int O1, template<typename, int> class JointCollectionTpl, class Allocator>
     void allocate(
       const ModelTpl<S1, O1, JointCollectionTpl> & model,
       const std::vector<RigidConstraintModelTpl<S1, O1>, Allocator> & contact_models);
+    PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
     ///
     /// \brief Returns the Inverse of the Operational Space Inertia Matrix resulting from the
@@ -266,6 +282,9 @@ namespace pinocchio
     /// \remarks The mass matrix and the Jacobians of the dynamical system should have been computed
     /// first. This can be achieved by simply calling pinocchio::crba.
     ///
+    // TODO Remove when API is stabilized
+    PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+    PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     template<
       typename S1,
       int O1,
@@ -313,6 +332,7 @@ namespace pinocchio
       const std::vector<RigidConstraintModelTpl<S1, O1>, ConstraintModelAllocator> & contact_models,
       std::vector<RigidConstraintDataTpl<S1, O1>, ConstraintDataAllocator> & contact_datas,
       const Eigen::MatrixBase<VectorLike> & mus);
+    PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
     ///
     /// \brief Update the damping terms on the upper left block part of the KKT matrix. The damping
@@ -434,6 +454,9 @@ namespace pinocchio
     template<typename MatrixLike, int ColsAtCompileTime>
     friend struct details::UtivAlgo;
 
+    // TODO Remove when API is stabilized
+    PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+    PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     template<typename Scalar, int Options, typename VectorLike>
     friend VectorLike & details::inverseAlgo(
       const ContactCholeskyDecompositionTpl<Scalar, Options> & chol,
@@ -471,6 +494,7 @@ namespace pinocchio
     {
       return !(*this == other);
     }
+    PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   protected:
     IndexVector parents_fromRow;

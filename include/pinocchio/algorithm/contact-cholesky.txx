@@ -9,6 +9,9 @@
 
 namespace pinocchio
 {
+  // TODO Remove when API is stabilized
+  PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+  PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   namespace details
   {
     extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI context::VectorXs &
@@ -107,6 +110,8 @@ namespace pinocchio
     ContactCholeskyDecompositionTpl<context::Scalar, context::Options>::
     operator!= <context::Scalar, context::Options>(
       const ContactCholeskyDecompositionTpl<context::Scalar, context::Options> &) const;
+
+  PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
 } // namespace pinocchio
 

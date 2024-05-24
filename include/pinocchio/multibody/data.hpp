@@ -103,7 +103,11 @@ namespace pinocchio
     ///  \brief The type of Tensor for Kinematics and Dynamics second order derivatives
     typedef Tensor<Scalar, 3, Options> Tensor3x;
 
+    // TODO Remove when API is stabilized
+    PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+    PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
     typedef ContactCholeskyDecompositionTpl<Scalar, Options> ContactCholeskyDecomposition;
+    PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
     /// \brief Vector of pinocchio::JointData associated to the pinocchio::JointModel stored in
     /// model, encapsulated in JointDataAccessor.
