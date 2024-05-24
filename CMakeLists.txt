@@ -127,7 +127,7 @@ cmake_dependent_option(
   BUILD_WITH_LIBPYTHON "Link to libpython to embed an interpreter for the python_parser feature" ON
   "BUILD_PYTHON_INTERFACE" OFF)
 if(APPLE)
-  option(BUILD_WITH_ACCELERATE_SUPPORT "Build EigenPy with the Accelerate support" OFF)
+  option(BUILD_WITH_ACCELERATE_SUPPORT "Build Pinocchio with the Accelerate support" OFF)
 else(APPLE)
   set(BUILD_WITH_ACCELERATE_SUPPORT FALSE)
 endif(APPLE)
