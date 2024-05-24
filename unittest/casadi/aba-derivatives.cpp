@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_casadi_algo)
   TangentVector v(TangentVector::Random(model.nv));
   TangentVector tau(TangentVector::Random(model.nv));
 
-  pinocchio::aba(model, data, q, v, tau, Convention::WORLD);
+  pinocchio::aba(model, data, q, v, tau, pinocchio::Convention::WORLD);
   pinocchio::computeABADerivatives(model, data, q, v, tau);
   data.Minv.triangularView<Eigen::StrictlyLower>() =
     data.Minv.transpose().triangularView<Eigen::StrictlyLower>();

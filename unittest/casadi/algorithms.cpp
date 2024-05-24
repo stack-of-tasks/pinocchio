@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(test_crba)
   ADModel ad_model = model.cast<ADScalar>();
   ADData ad_data(ad_model);
 
-  pinocchio::crba(model, data, q, Convention::WORLD);
+  pinocchio::crba(model, data, q, pinocchio::Convention::WORLD);
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
   pinocchio::rnea(model, data, q, v, a);
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE(test_crba)
   casadi::Function eval_rnea(
     "eval_rnea", casadi::SXVector{cs_q, cs_v, cs_a}, casadi::SXVector{cs_tau});
   // CRBA
-  crba(ad_model, ad_data, q_ad, Convention::WORLD);
+  crba(ad_model, ad_data, q_ad, pinocchio::Convention::WORLD);
   ad_data.M.triangularView<Eigen::StrictlyLower>() =
     ad_data.M.transpose().triangularView<Eigen::StrictlyLower>();
   casadi::SX M_ad(model.nv, model.nv);

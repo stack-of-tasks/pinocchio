@@ -212,13 +212,14 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   data.Minv.triangularView<Eigen::StrictlyLower>() =
     data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
 
-  Data::TangentVectorType ddq = pinocchio::aba(model, data, q, v, tau, Convention::WORLD);
+  Data::TangentVectorType ddq =
+    pinocchio::aba(model, data, q, v, tau, pinocchio::Convention::WORLD);
 
   // dddq_dq
   {
     CppAD::Independent(ad_dq);
     ADConfigVectorType ad_q_plus = pinocchio::integrate(ad_model, ad_q, ad_dq);
-    pinocchio::aba(ad_model, ad_data, ad_q_plus, ad_v, ad_tau, Convention::WORLD);
+    pinocchio::aba(ad_model, ad_data, ad_q_plus, ad_v, ad_tau, pinocchio::Convention::WORLD);
 
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(), model.nv, 1) = ad_data.ddq;
@@ -240,7 +241,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   // dddq_dv
   {
     CppAD::Independent(ad_v);
-    pinocchio::aba(ad_model, ad_data, ad_q, ad_v, ad_tau, Convention::WORLD);
+    pinocchio::aba(ad_model, ad_data, ad_q, ad_v, ad_tau, pinocchio::Convention::WORLD);
 
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(), model.nv, 1) = ad_data.ddq;
@@ -262,7 +263,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   // dddq_da
   {
     CppAD::Independent(ad_tau);
-    pinocchio::aba(ad_model, ad_data, ad_q, ad_v, ad_tau, Convention::WORLD);
+    pinocchio::aba(ad_model, ad_data, ad_q, ad_v, ad_tau, pinocchio::Convention::WORLD);
 
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(), model.nv, 1) = ad_data.ddq;

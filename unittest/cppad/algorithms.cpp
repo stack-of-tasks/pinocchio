@@ -102,10 +102,10 @@ BOOST_AUTO_TEST_CASE(test_mass_matrix)
   data.Minv.triangularView<Eigen::StrictlyLower>() =
     data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
 
-  pinocchio::aba(model, data, q, v, tau, Convention::WORLD);
+  pinocchio::aba(model, data, q, v, tau, pinocchio::Convention::WORLD);
   {
     CppAD::Independent(ad_tau);
-    pinocchio::aba(ad_model, ad_data, ad_q, ad_v, ad_tau, Convention::WORLD);
+    pinocchio::aba(ad_model, ad_data, ad_q, ad_v, ad_tau, pinocchio::Convention::WORLD);
 
     VectorXAD Y(model.nv);
     Eigen::Map<ADData::TangentVectorType>(Y.data(), model.nv, 1) = ad_data.ddq;
