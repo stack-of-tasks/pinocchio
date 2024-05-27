@@ -95,7 +95,7 @@ jobs:
             ..
 
           :: Build
-          cmake --build .
+          cmake --build . -j2
           if errorlevel 1 exit 1
 
           :: Testing
