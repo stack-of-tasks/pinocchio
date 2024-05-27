@@ -1,4 +1,4 @@
-from .. import pinocchio_pywrap as pin
+from .. import pinocchio_pywrap_default as pin
 from ..utils import npToTuple
 
 from . import BaseVisualizer
@@ -6,29 +6,57 @@ from . import BaseVisualizer
 import os
 import warnings
 import numpy as np
+from typing import List
+
+try:
+    import meshcat
+    import meshcat.geometry as mg
+except ImportError:
+    import_meshcat_succeed = False
+else:
+    import_meshcat_succeed = True
+
+# DaeMeshGeometry
+import xml.etree.ElementTree as Et
+import base64
+
+from typing import Optional, Any, Dict, Union, Set
+
+MsgType = Dict[str, Union[str, bytes, bool, float, "MsgType"]]
 
 try:
     import hppfcl
+
     WITH_HPP_FCL_BINDINGS = True
 except ImportError:
     WITH_HPP_FCL_BINDINGS = False
 
 DEFAULT_COLOR_PROFILES = {
     "gray": ([0.98, 0.98, 0.98], [0.8, 0.8, 0.8]),
-    "white": (np.ones(3),),
+    "white": ([1.0, 1.0, 1.0], [1.0, 1.0, 1.0]),
 }
 COLOR_PRESETS = DEFAULT_COLOR_PROFILES.copy()
 
-FRAME_AXIS_POSITIONS = np.array([
-    [0, 0, 0], [1, 0, 0],
-    [0, 0, 0], [0, 1, 0],
-    [0, 0, 0], [0, 0, 1]]).astype(np.float32).T
-FRAME_AXIS_COLORS = np.array([
-    [1, 0, 0], [1, 0.6, 0],
-    [0, 1, 0], [0.6, 1, 0],
-    [0, 0, 1], [0, 0.6, 1]]).astype(np.float32).T
+FRAME_AXIS_POSITIONS = (
+    np.array([[0, 0, 0], [1, 0, 0], [0, 0, 0], [0, 1, 0], [0, 0, 0], [0, 0, 1]])
+    .astype(np.float32)
+    .T
+)
+FRAME_AXIS_COLORS = (
+    np.array([[1, 0, 0], [1, 0.6, 0], [0, 1, 0], [0.6, 1, 0], [0, 0, 1], [0, 0.6, 1]])
+    .astype(np.float32)
+    .T
+)
 
-def isMesh(geometry_object):
+
+def getColor(color):
+    assert color is not None
+    color = np.asarray(color)
+    assert color.shape == (3,)
+    return color.clip(0.0, 1.0)
+
+
+def hasMeshFileInfo(geometry_object):
     """Check whether the geometry object contains a Mesh supported by MeshCat"""
     if geometry_object.meshPath == "":
         return False
@@ -40,145 +68,353 @@ def isMesh(geometry_object):
     return False
 
 
-def loadMesh(mesh):
-    import meshcat.geometry as mg
+if import_meshcat_succeed:
+    # Code adapted from Jiminy
+    class Cone(mg.Geometry):
+        """A cone of the given height and radius. By Three.js convention, the axis
+        of rotational symmetry is aligned with the y-axis.
+        """
 
-    if isinstance(mesh, hppfcl.HeightFieldOBBRSS):
-        heights = mesh.getHeights()
-        x_grid = mesh.getXGrid()
-        y_grid = mesh.getYGrid()
-        min_height = mesh.getMinHeight()
+        def __init__(
+            self,
+            height: float,
+            radius: float,
+            radialSegments: float = 32,
+            openEnded: bool = False,
+        ):
+            super().__init__()
+            self.radius = radius
+            self.height = height
+            self.radialSegments = radialSegments
+            self.openEnded = openEnded
 
-        X, Y = np.meshgrid(x_grid, y_grid)
+        def lower(self, object_data: Any) -> MsgType:
+            return {
+                "uuid": self.uuid,
+                "type": "ConeGeometry",
+                "radius": self.radius,
+                "height": self.height,
+                "radialSegments": self.radialSegments,
+                "openEnded": self.openEnded,
+            }
 
-        nx = len(x_grid) - 1
-        ny = len(y_grid) - 1
+    class DaeMeshGeometry(mg.ReferenceSceneElement):
+        def __init__(self, dae_path: str, cache: Optional[Set[str]] = None) -> None:
+            """Load Collada files with texture images.
+            Inspired from
+            https://gist.github.com/danzimmerman/a392f8eadcf1166eb5bd80e3922dbdc5
+            """
+            # Init base class
+            super().__init__()
 
-        num_cells = (nx) * (ny) * 2 + (nx + ny) * 4 + 2
+            # Attributes to be specified by the user
+            self.path = None
+            self.material = None
 
-        num_vertices = X.size
-        num_tris = num_cells
+            # Raw file content
+            dae_dir = os.path.dirname(dae_path)
+            with open(dae_path, "r") as text_file:
+                self.dae_raw = text_file.read()
 
-        faces = np.empty((num_tris, 3), dtype=int)
-        vertices = np.vstack(
-            (
-                np.stack(
-                    (
-                        X.reshape(num_vertices),
-                        Y.reshape(num_vertices),
-                        heights.reshape(num_vertices),
-                    ),
-                    axis=1,
-                ),
-                np.stack(
-                    (
-                        X.reshape(num_vertices),
-                        Y.reshape(num_vertices),
-                        np.full(num_vertices, min_height),
-                    ),
-                    axis=1,
-                ),
+            # Parse the image resource in Collada file
+            img_resource_paths = []
+            img_lib_element = Et.parse(dae_path).find(
+                "{http://www.collada.org/2005/11/COLLADASchema}library_images"
             )
+            if img_lib_element:
+                img_resource_paths = [
+                    e.text for e in img_lib_element.iter() if e.tag.count("init_from")
+                ]
+
+            # Convert textures to data URL for Three.js ColladaLoader to load them
+            self.img_resources = {}
+            for img_path in img_resource_paths:
+                # Return empty string if already in cache
+                if cache is not None:
+                    if img_path in cache:
+                        self.img_resources[img_path] = ""
+                        continue
+                    cache.add(img_path)
+
+                # Encode texture in base64
+                img_path_abs = img_path
+                if not os.path.isabs(img_path):
+                    img_path_abs = os.path.normpath(os.path.join(dae_dir, img_path_abs))
+                if not os.path.isfile(img_path_abs):
+                    raise UserWarning(f"Texture '{img_path}' not found.")
+                with open(img_path_abs, "rb") as img_file:
+                    img_data = base64.b64encode(img_file.read())
+                img_uri = f"data:image/png;base64,{img_data.decode('utf-8')}"
+                self.img_resources[img_path] = img_uri
+
+        def lower(self) -> Dict[str, Any]:
+            """Pack data into a dictionary of the format that must be passed to
+            `Visualizer.window.send`.
+            """
+            data = {
+                "type": "set_object",
+                "path": self.path.lower() if self.path is not None else "",
+                "object": {
+                    "metadata": {"version": 4.5, "type": "Object"},
+                    "geometries": [],
+                    "materials": [],
+                    "object": {
+                        "uuid": self.uuid,
+                        "type": "_meshfile_object",
+                        "format": "dae",
+                        "data": self.dae_raw,
+                        "resources": self.img_resources,
+                    },
+                },
+            }
+            if self.material is not None:
+                self.material.lower_in_object(data)
+            return data
+
+    # end code adapted from Jiminy
+
+    class Plane(mg.Geometry):
+        """A plane of the given width and height."""
+
+        def __init__(
+            self,
+            width: float,
+            height: float,
+            widthSegments: float = 1,
+            heightSegments: float = 1,
+        ):
+            super().__init__()
+            self.width = width
+            self.height = height
+            self.widthSegments = widthSegments
+            self.heightSegments = heightSegments
+
+        def lower(self, object_data: Any) -> MsgType:
+            return {
+                "uuid": self.uuid,
+                "type": "PlaneGeometry",
+                "width": self.width,
+                "height": self.height,
+                "widthSegments": self.widthSegments,
+                "heightSegments": self.heightSegments,
+            }
+
+
+if (
+    WITH_HPP_FCL_BINDINGS
+    and tuple(map(int, hppfcl.__version__.split("."))) >= (3, 0, 0)
+    and hppfcl.WITH_OCTOMAP
+):
+
+    def loadOctree(octree: hppfcl.OcTree):
+        boxes = octree.toBoxes()
+
+        if len(boxes) == 0:
+            return
+        bs = boxes[0][3] / 2.0
+        num_boxes = len(boxes)
+
+        box_corners = np.array(
+            [
+                [bs, bs, bs],
+                [bs, bs, -bs],
+                [bs, -bs, bs],
+                [bs, -bs, -bs],
+                [-bs, bs, bs],
+                [-bs, bs, -bs],
+                [-bs, -bs, bs],
+                [-bs, -bs, -bs],
+            ]
         )
 
+        all_points = np.empty((8 * num_boxes, 3))
+        all_faces = np.empty((12 * num_boxes, 3), dtype=int)
         face_id = 0
-        for y_id in range(ny):
-            for x_id in range(nx):
-                p0 = x_id + y_id * (nx + 1)
-                p1 = p0 + 1
-                p2 = p1 + nx + 1
-                p3 = p2 - 1
+        for box_id, box_properties in enumerate(boxes):
+            box_center = box_properties[:3]
 
-                faces[face_id] = np.array([p0, p3, p1])
-                face_id += 1
-                faces[face_id] = np.array([p3, p2, p1])
-                face_id += 1
+            corners = box_corners + box_center
+            point_range = range(box_id * 8, (box_id + 1) * 8)
+            all_points[point_range, :] = corners
 
-                if y_id == 0:
-                    p0_low = p0 + num_vertices
-                    p1_low = p1 + num_vertices
+            A = box_id * 8
+            B = A + 1
+            C = B + 1
+            D = C + 1
+            E = D + 1
+            F = E + 1
+            G = F + 1
+            H = G + 1
 
-                    faces[face_id] = np.array([p0, p1_low, p0_low])
+            all_faces[face_id] = np.array([C, D, B])
+            all_faces[face_id + 1] = np.array([B, A, C])
+            all_faces[face_id + 2] = np.array([A, B, F])
+            all_faces[face_id + 3] = np.array([F, E, A])
+            all_faces[face_id + 4] = np.array([E, F, H])
+            all_faces[face_id + 5] = np.array([H, G, E])
+            all_faces[face_id + 6] = np.array([G, H, D])
+            all_faces[face_id + 7] = np.array([D, C, G])
+            # # top
+            all_faces[face_id + 8] = np.array([A, E, G])
+            all_faces[face_id + 9] = np.array([G, C, A])
+            # # bottom
+            all_faces[face_id + 10] = np.array([B, H, F])
+            all_faces[face_id + 11] = np.array([H, B, D])
+
+            face_id += 12
+
+        colors = np.empty((all_points.shape[0], 3))
+        colors[:] = np.ones(3)
+        mesh = mg.TriangularMeshGeometry(all_points, all_faces, colors)
+        return mesh
+else:
+
+    def loadOctree(octree):
+        raise NotImplementedError("loadOctree need hppfcl with octomap support")
+
+
+if WITH_HPP_FCL_BINDINGS:
+
+    def loadMesh(mesh):
+        if isinstance(mesh, (hppfcl.HeightFieldOBBRSS, hppfcl.HeightFieldAABB)):
+            heights = mesh.getHeights()
+            x_grid = mesh.getXGrid()
+            y_grid = mesh.getYGrid()
+            min_height = mesh.getMinHeight()
+
+            X, Y = np.meshgrid(x_grid, y_grid)
+
+            nx = len(x_grid) - 1
+            ny = len(y_grid) - 1
+
+            num_cells = (nx) * (ny) * 2 + (nx + ny) * 4 + 2
+
+            num_vertices = X.size
+            num_tris = num_cells
+
+            faces = np.empty((num_tris, 3), dtype=int)
+            vertices = np.vstack(
+                (
+                    np.stack(
+                        (
+                            X.reshape(num_vertices),
+                            Y.reshape(num_vertices),
+                            heights.reshape(num_vertices),
+                        ),
+                        axis=1,
+                    ),
+                    np.stack(
+                        (
+                            X.reshape(num_vertices),
+                            Y.reshape(num_vertices),
+                            np.full(num_vertices, min_height),
+                        ),
+                        axis=1,
+                    ),
+                )
+            )
+
+            face_id = 0
+            for y_id in range(ny):
+                for x_id in range(nx):
+                    p0 = x_id + y_id * (nx + 1)
+                    p1 = p0 + 1
+                    p2 = p1 + nx + 1
+                    p3 = p2 - 1
+
+                    faces[face_id] = np.array([p0, p3, p1])
                     face_id += 1
-                    faces[face_id] = np.array([p0, p1, p1_low])
+                    faces[face_id] = np.array([p3, p2, p1])
                     face_id += 1
 
-                if y_id == ny - 1:
-                    p2_low = p2 + num_vertices
-                    p3_low = p3 + num_vertices
+                    if y_id == 0:
+                        p0_low = p0 + num_vertices
+                        p1_low = p1 + num_vertices
 
-                    faces[face_id] = np.array([p3, p3_low, p2_low])
-                    face_id += 1
-                    faces[face_id] = np.array([p3, p2_low, p2])
-                    face_id += 1
+                        faces[face_id] = np.array([p0, p1_low, p0_low])
+                        face_id += 1
+                        faces[face_id] = np.array([p0, p1, p1_low])
+                        face_id += 1
 
-                if x_id == 0:
-                    p0_low = p0 + num_vertices
-                    p3_low = p3 + num_vertices
+                    if y_id == ny - 1:
+                        p2_low = p2 + num_vertices
+                        p3_low = p3 + num_vertices
 
-                    faces[face_id] = np.array([p0, p3_low, p3])
-                    face_id += 1
-                    faces[face_id] = np.array([p0, p0_low, p3_low])
-                    face_id += 1
+                        faces[face_id] = np.array([p3, p3_low, p2_low])
+                        face_id += 1
+                        faces[face_id] = np.array([p3, p2_low, p2])
+                        face_id += 1
 
-                if x_id == nx - 1:
-                    p1_low = p1 + num_vertices
-                    p2_low = p2 + num_vertices
+                    if x_id == 0:
+                        p0_low = p0 + num_vertices
+                        p3_low = p3 + num_vertices
 
-                    faces[face_id] = np.array([p1, p2_low, p2])
-                    face_id += 1
-                    faces[face_id] = np.array([p1, p1_low, p2_low])
-                    face_id += 1
+                        faces[face_id] = np.array([p0, p3_low, p3])
+                        face_id += 1
+                        faces[face_id] = np.array([p0, p0_low, p3_low])
+                        face_id += 1
 
-        # Last face
-        p0 = num_vertices
-        p1 = p0 + nx
-        p2 = 2 * num_vertices - 1
-        p3 = p2 - nx
+                    if x_id == nx - 1:
+                        p1_low = p1 + num_vertices
+                        p2_low = p2 + num_vertices
 
-        faces[face_id] = np.array([p0, p1, p2])
-        face_id += 1
-        faces[face_id] = np.array([p0, p2, p3])
-        face_id += 1
+                        faces[face_id] = np.array([p1, p2_low, p2])
+                        face_id += 1
+                        faces[face_id] = np.array([p1, p1_low, p2_low])
+                        face_id += 1
 
-    elif isinstance(mesh, (hppfcl.Convex, hppfcl.BVHModelBase)):
-        if isinstance(mesh, hppfcl.BVHModelBase):
-            num_vertices = mesh.num_vertices
-            num_tris = mesh.num_tris
+            # Last face
+            p0 = num_vertices
+            p1 = p0 + nx
+            p2 = 2 * num_vertices - 1
+            p3 = p2 - nx
 
-            call_triangles = mesh.tri_indices
-            call_vertices = mesh.vertices
+            faces[face_id] = np.array([p0, p1, p2])
+            face_id += 1
+            faces[face_id] = np.array([p0, p2, p3])
+            face_id += 1
 
-        elif isinstance(mesh, hppfcl.Convex):
-            num_vertices = mesh.num_points
-            num_tris = mesh.num_polygons
+        elif isinstance(mesh, (hppfcl.Convex, hppfcl.BVHModelBase)):
+            if isinstance(mesh, hppfcl.BVHModelBase):
+                num_vertices = mesh.num_vertices
+                num_tris = mesh.num_tris
 
-            call_triangles = mesh.polygons
-            call_vertices = mesh.points
+                call_triangles = mesh.tri_indices
+                call_vertices = mesh.vertices
 
-        faces = np.empty((num_tris, 3), dtype=int)
-        for k in range(num_tris):
-            tri = call_triangles(k)
-            faces[k] = [tri[i] for i in range(3)]
+            elif isinstance(mesh, hppfcl.Convex):
+                num_vertices = mesh.num_points
+                num_tris = mesh.num_polygons
 
-        vertices = call_vertices()
-        vertices = vertices.astype(np.float32)
+                call_triangles = mesh.polygons
+                call_vertices = mesh.points
 
-    if num_tris > 0:
-        mesh = mg.TriangularMeshGeometry(vertices, faces)
-    else:
-        mesh = mg.Points(
-            mg.PointsGeometry(
-                vertices.T, color=np.repeat(np.ones((3, 1)), num_vertices, axis=1)
-            ),
-            mg.PointsMaterial(size=0.002),
-        )
+            faces = np.empty((num_tris, 3), dtype=int)
+            for k in range(num_tris):
+                tri = call_triangles(k)
+                faces[k] = [tri[i] for i in range(3)]
 
-    return mesh
+            vertices = call_vertices()
+            vertices = vertices.astype(np.float32)
+
+        if num_tris > 0:
+            mesh = mg.TriangularMeshGeometry(vertices, faces)
+        else:
+            mesh = mg.Points(
+                mg.PointsGeometry(
+                    vertices.T, color=np.repeat(np.ones((3, 1)), num_vertices, axis=1)
+                ),
+                mg.PointsMaterial(size=0.002),
+            )
+
+        return mesh
+else:
+
+    def loadMesh(mesh):
+        raise NotImplementedError("loadMesh need hppfcl")
 
 
 def loadPrimitive(geometry_object):
-
     import meshcat.geometry as mg
 
     # Cylinders need to be rotated
@@ -195,28 +431,30 @@ def loadPrimitive(geometry_object):
     )
 
     geom = geometry_object.geometry
-    if isinstance(geom, hppfcl.Capsule):
-        if hasattr(mg, "TriangularMeshGeometry"):
-            obj = createCapsule(2.0 * geom.halfLength, geom.radius)
-        else:
+    obj = None
+    if WITH_HPP_FCL_BINDINGS and isinstance(geom, hppfcl.ShapeBase):
+        if isinstance(geom, hppfcl.Capsule):
+            if hasattr(mg, "TriangularMeshGeometry"):
+                obj = createCapsule(2.0 * geom.halfLength, geom.radius)
+            else:
+                obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
+        elif isinstance(geom, hppfcl.Cylinder):
             obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
-    elif isinstance(geom, hppfcl.Cylinder):
-        obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
-    elif isinstance(geom, hppfcl.Cone):
-        obj = RotatedCylinder(2.0 * geom.halfLength, 0, geom.radius, 0)
-    elif isinstance(geom, hppfcl.Box):
-        obj = mg.Box(npToTuple(2.0 * geom.halfSide))
-    elif isinstance(geom, hppfcl.Sphere):
-        obj = mg.Sphere(geom.radius)
-    elif isinstance(geom, hppfcl.ConvexBase):
-        obj = loadMesh(geom)
-    else:
+        elif isinstance(geom, hppfcl.Cone):
+            obj = RotatedCylinder(2.0 * geom.halfLength, 0, geom.radius, 0)
+        elif isinstance(geom, hppfcl.Box):
+            obj = mg.Box(npToTuple(2.0 * geom.halfSide))
+        elif isinstance(geom, hppfcl.Sphere):
+            obj = mg.Sphere(geom.radius)
+        elif isinstance(geom, hppfcl.ConvexBase):
+            obj = loadMesh(geom)
+
+    if obj is None:
         msg = "Unsupported geometry type for %s (%s)" % (
             geometry_object.name,
             type(geom),
         )
         warnings.warn(msg, category=UserWarning, stacklevel=2)
-        obj = None
 
     return obj
 
@@ -288,9 +526,7 @@ def createCapsule(length, radius, radial_resolution=30, cap_resolution=10):
                 ]
             )
         index += 4 * (nbv[1] - 1) + 4
-    import meshcat.geometry
-
-    return meshcat.geometry.TriangularMeshGeometry(vertices, indexes)
+    return mg.TriangularMeshGeometry(vertices, indexes)
 
 
 class MeshcatVisualizer(BaseVisualizer):
@@ -315,6 +551,34 @@ class MeshcatVisualizer(BaseVisualizer):
         "talos2": [[0.0, 1.1, 0.0], [1.2, 0.6, 1.5]],
     }
 
+    def __init__(
+        self,
+        model=pin.Model(),
+        collision_model=None,
+        visual_model=None,
+        copy_models=False,
+        data=None,
+        collision_data=None,
+        visual_data=None,
+    ):
+        if not import_meshcat_succeed:
+            msg = (
+                "Error while importing the viewer client.\n"
+                "Check whether meshcat is properly installed (pip install --user meshcat)."
+            )
+            raise ImportError(msg)
+
+        super(MeshcatVisualizer, self).__init__(
+            model,
+            collision_model,
+            visual_model,
+            copy_models,
+            data,
+            collision_data,
+            visual_data,
+        )
+        self.static_objects = []
+
     def getViewerNodeName(self, geometry_object, geometry_type):
         """Return the name of the geometry object inside the viewer."""
         if geometry_type is pin.GeometryType.VISUAL:
@@ -322,15 +586,20 @@ class MeshcatVisualizer(BaseVisualizer):
         elif geometry_type is pin.GeometryType.COLLISION:
             return self.viewerCollisionGroupName + "/" + geometry_object.name
 
-    def initViewer(self, viewer=None, open=False, loadModel=False):
+    def initViewer(self, viewer=None, open=False, loadModel=False, zmq_url=None):
         """Start a new MeshCat server and client.
         Note: the server can also be started separately using the "meshcat-server" command in a terminal:
         this enables the server to remain active after the current script ends.
         """
 
-        import meshcat
+        self.viewer = meshcat.Visualizer(zmq_url) if viewer is None else viewer
 
-        self.viewer = meshcat.Visualizer() if viewer is None else viewer
+        self._node_default_cam = self.viewer["/Cameras/default"]
+        self._node_background = self.viewer["/Background"]
+        self._rot_cam_key = "rotated/<object>"
+        self.static_objects = []
+
+        self._check_meshcat_has_get_image()
 
         self._node_default_cam = self.viewer["/Cameras/default"]
         self._node_background = self.viewer["/Background"]
@@ -345,31 +614,39 @@ class MeshcatVisualizer(BaseVisualizer):
         if loadModel:
             self.loadViewerModel()
 
-    def setBackgroundColor(
-        self, preset_name="gray"
-    ):  # pylint: disable=arguments-differ
+    def reset(self):
+        self.viewer.delete()
+        self.static_objects = []
+
+    def setBackgroundColor(self, preset_name: str = "gray", col_top=None, col_bot=None):
         """Set the background."""
-        col_top, col_bot = COLOR_PRESETS[preset_name]
+        if col_top is not None:
+            if col_bot is None:
+                col_bot = col_top
+        else:
+            assert preset_name in COLOR_PRESETS.keys()
+            col_top, col_bot = COLOR_PRESETS[preset_name]
         self._node_background.set_property("top_color", col_top)
         self._node_background.set_property("bottom_color", col_bot)
 
-    def setCameraTarget(self, target):
+    def setCameraTarget(self, target: np.ndarray):
         self.viewer.set_cam_target(target)
 
-    def setCameraPosition(self, position):
+    def setCameraPosition(self, position: np.ndarray):
         self.viewer.set_cam_pos(position)
 
-    def setCameraPreset(self, preset_key):
+    def setCameraPreset(self, preset_key: str):
         """Set the camera angle and position using a given preset."""
+        assert preset_key in self.CAMERA_PRESETS
         cam_val = self.CAMERA_PRESETS[preset_key]
         self.setCameraTarget(cam_val[0])
         self.setCameraPosition(cam_val[1])
 
-    def setCameraZoom(self, zoom):
+    def setCameraZoom(self, zoom: float):
         elt = self._node_default_cam[self._rot_cam_key]
         elt.set_property("zoom", zoom)
 
-    def setCameraPose(self, pose=np.eye(4)):
+    def setCameraPose(self, pose):
         self._node_default_cam.set_transform(pose)
 
     def disableCameraControl(self):
@@ -378,10 +655,81 @@ class MeshcatVisualizer(BaseVisualizer):
     def enableCameraControl(self):
         self.setCameraPosition([3, 0, 1])
 
-    def loadMesh(self, geometry_object):
+    def loadPrimitive(self, geometry_object: pin.GeometryObject):
+        import meshcat.geometry as mg
 
-        import meshcat.geometry
+        # Cylinders need to be rotated
+        basic_three_js_transform = np.array(
+            [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 0.0, -1.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ]
+        )
+        RotatedCylinder = type(
+            "RotatedCylinder",
+            (mg.Cylinder,),
+            {"intrinsic_transform": lambda self: basic_three_js_transform},
+        )
 
+        # Cones need to be rotated
+
+        geom = geometry_object.geometry
+        obj = None
+        if WITH_HPP_FCL_BINDINGS and isinstance(geom, hppfcl.ShapeBase):
+            if isinstance(geom, hppfcl.Capsule):
+                if hasattr(mg, "TriangularMeshGeometry"):
+                    obj = createCapsule(2.0 * geom.halfLength, geom.radius)
+                else:
+                    obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
+            elif isinstance(geom, hppfcl.Cylinder):
+                obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
+            elif isinstance(geom, hppfcl.Cone):
+                obj = RotatedCylinder(2.0 * geom.halfLength, 0, geom.radius, 0)
+            elif isinstance(geom, hppfcl.Box):
+                obj = mg.Box(npToTuple(2.0 * geom.halfSide))
+            elif isinstance(geom, hppfcl.Sphere):
+                obj = mg.Sphere(geom.radius)
+            elif isinstance(geom, hppfcl.Plane):
+                To = np.eye(4)
+                To[:3, 3] = geom.d * geom.n
+                TranslatedPlane = type(
+                    "TranslatedPlane",
+                    (mg.Plane,),
+                    {"intrinsic_transform": lambda self: To},
+                )
+                sx = geometry_object.meshScale[0] * 10
+                sy = geometry_object.meshScale[1] * 10
+                obj = TranslatedPlane(sx, sy)
+            elif isinstance(geom, hppfcl.Ellipsoid):
+                obj = mg.Ellipsoid(geom.radii)
+            elif isinstance(geom, (hppfcl.Plane, hppfcl.Halfspace)):
+                plane_transform: pin.SE3 = pin.SE3.Identity()
+                # plane_transform.translation[:] = geom.d # Does not work
+                plane_transform.rotation = pin.Quaternion.FromTwoVectors(
+                    pin.ZAxis, geom.n
+                ).toRotationMatrix()
+                TransformedPlane = type(
+                    "TransformedPlane",
+                    (Plane,),
+                    {"intrinsic_transform": lambda self: plane_transform.homogeneous},
+                )
+                obj = TransformedPlane(1000, 1000)
+            elif isinstance(geom, hppfcl.ConvexBase):
+                obj = loadMesh(geom)
+
+        if obj is None:
+            msg = "Unsupported geometry type for %s (%s)" % (
+                geometry_object.name,
+                type(geom),
+            )
+            warnings.warn(msg, category=UserWarning, stacklevel=2)
+            obj = None
+
+        return obj
+
+    def loadMeshFromFile(self, geometry_object):
         # Mesh path is empty if Pinocchio is built without HPP-FCL bindings
         if geometry_object.meshPath == "":
             msg = "Display of geometric primitives is supported only if pinocchio is build with HPP-FCL bindings."
@@ -391,11 +739,11 @@ class MeshcatVisualizer(BaseVisualizer):
         # Get file type from filename extension.
         _, file_extension = os.path.splitext(geometry_object.meshPath)
         if file_extension.lower() == ".dae":
-            obj = meshcat.geometry.DaeMeshGeometry.from_file(geometry_object.meshPath)
+            obj = DaeMeshGeometry(geometry_object.meshPath)
         elif file_extension.lower() == ".obj":
-            obj = meshcat.geometry.ObjMeshGeometry.from_file(geometry_object.meshPath)
+            obj = mg.ObjMeshGeometry.from_file(geometry_object.meshPath)
         elif file_extension.lower() == ".stl":
-            obj = meshcat.geometry.StlMeshGeometry.from_file(geometry_object.meshPath)
+            obj = mg.StlMeshGeometry.from_file(geometry_object.meshPath)
         else:
             msg = "Unknown mesh file format: {}.".format(geometry_object.meshPath)
             warnings.warn(msg, category=UserWarning, stacklevel=2)
@@ -405,33 +753,40 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def loadViewerGeometryObject(self, geometry_object, geometry_type, color=None):
         """Load a single geometry object"""
-        import meshcat.geometry
-
-        viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
+        node_name = self.getViewerNodeName(geometry_object, geometry_type)
+        meshcat_node = self.viewer[node_name]
 
         is_mesh = False
         try:
-            if WITH_HPP_FCL_BINDINGS and isinstance(
-                geometry_object.geometry, hppfcl.ShapeBase
-            ):
-                obj = loadPrimitive(geometry_object)
-            elif isMesh(geometry_object):
-                obj = self.loadMesh(geometry_object)
+            obj = None
+            if WITH_HPP_FCL_BINDINGS:
+                if isinstance(geometry_object.geometry, hppfcl.ShapeBase):
+                    obj = self.loadPrimitive(geometry_object)
+                elif (
+                    tuple(map(int, hppfcl.__version__.split("."))) >= (3, 0, 0)
+                    and hppfcl.WITH_OCTOMAP
+                    and isinstance(geometry_object.geometry, hppfcl.OcTree)
+                ):
+                    obj = loadOctree(geometry_object.geometry)
+                elif isinstance(
+                    geometry_object.geometry,
+                    (
+                        hppfcl.BVHModelBase,
+                        hppfcl.HeightFieldOBBRSS,
+                        hppfcl.HeightFieldAABB,
+                    ),
+                ):
+                    obj = loadMesh(geometry_object.geometry)
+            if obj is None and hasMeshFileInfo(geometry_object):
+                obj = self.loadMeshFromFile(geometry_object)
                 is_mesh = True
-            elif WITH_HPP_FCL_BINDINGS and isinstance(
-                geometry_object.geometry,
-                (hppfcl.BVHModelBase, hppfcl.HeightFieldOBBRSS),
-            ):
-                obj = loadMesh(geometry_object.geometry)
-            else:
+            if obj is None:
                 msg = (
                     "The geometry object named "
                     + geometry_object.name
                     + " is not supported by Pinocchio/MeshCat for vizualization."
                 )
                 warnings.warn(msg, category=UserWarning, stacklevel=2)
-                return
-            if obj is None:
                 return
         except Exception as e:
             msg = "Error while loading geometry object: %s\nError message:\n%s" % (
@@ -441,18 +796,19 @@ class MeshcatVisualizer(BaseVisualizer):
             warnings.warn(msg, category=UserWarning, stacklevel=2)
             return
 
-        if isinstance(obj, meshcat.geometry.Object):
-            self.viewer[viewer_name].set_object(obj)
-        elif isinstance(obj, meshcat.geometry.Geometry):
-            material = meshcat.geometry.MeshPhongMaterial()
+        if isinstance(obj, mg.Object):
+            meshcat_node.set_object(obj)
+        elif isinstance(obj, (mg.Geometry, mg.ReferenceSceneElement)):
+            material = mg.MeshPhongMaterial()
             # Set material color from URDF, converting for triplet of doubles to a single int.
 
             def to_material_color(rgba) -> int:
                 """Convert rgba color as list into rgba color as int"""
-                return (int(rgba[0] * 255) * 256**2
-                        + int(rgba[1] * 255) * 256
-                        + int(rgba[2] * 255)
-                        )
+                return (
+                    int(rgba[0] * 255) * 256**2
+                    + int(rgba[1] * 255) * 256
+                    + int(rgba[2] * 255)
+                )
 
             if color is None:
                 meshColor = geometry_object.meshColor
@@ -464,16 +820,26 @@ class MeshcatVisualizer(BaseVisualizer):
             if float(meshColor[3]) != 1.0:
                 material.transparent = True
                 material.opacity = float(meshColor[3])
+
             geom_material = geometry_object.meshMaterial
-            if geometry_object.overrideMaterial and isinstance(geom_material, pin.GeometryPhongMaterial):
+            if geometry_object.overrideMaterial and isinstance(
+                geom_material, pin.GeometryPhongMaterial
+            ):
                 material.emissive = to_material_color(geom_material.meshEmissionColor)
                 material.specular = to_material_color(geom_material.meshSpecularColor)
-                material.shininess = geom_material.meshShininess*100.
-            self.viewer[viewer_name].set_object(obj, material)
+                material.shininess = geom_material.meshShininess * 100.0
+
+            if isinstance(obj, DaeMeshGeometry):
+                obj.path = meshcat_node.path
+                if geometry_object.overrideMaterial:
+                    obj.material = material
+                meshcat_node.window.send(obj)
+            else:
+                meshcat_node.set_object(obj, material)
 
         if is_mesh:  # Apply the scaling
             scale = list(np.asarray(geometry_object.meshScale).flatten())
-            self.viewer[viewer_name].set_property("scale", scale)
+            meshcat_node.set_property("scale", scale)
 
     def loadViewerModel(self, rootNodeName="pinocchio", color=None):
         """Load the robot in a MeshCat viewer.
@@ -491,7 +857,9 @@ class MeshcatVisualizer(BaseVisualizer):
 
         if self.collision_model is not None:
             for collision in self.collision_model.geometryObjects:
-                self.loadViewerGeometryObject(collision, pin.GeometryType.COLLISION, color)
+                self.loadViewerGeometryObject(
+                    collision, pin.GeometryType.COLLISION, color
+                )
         self.displayCollisions(False)
 
         # Visuals
@@ -555,10 +923,13 @@ class MeshcatVisualizer(BaseVisualizer):
             # Get mesh pose.
             M = geom_data.oMg[geom_model.getGeometryId(visual.name)]
             # Manage scaling: force scaling even if this should be normally handled by MeshCat (but there is a bug here)
-            if isMesh(visual):
-                scale = np.asarray(visual.meshScale).flatten()
-                S = np.diag(np.concatenate((scale, [1.0])))
-                T = np.array(M.homogeneous).dot(S)
+            geom = visual.geometry
+            if WITH_HPP_FCL_BINDINGS and isinstance(
+                geom, (hppfcl.Plane, hppfcl.Halfspace)
+            ):
+                T = M.copy()
+                T.translation += M.rotation @ (geom.d * geom.n)
+                T = T.homogeneous
             else:
                 T = M.homogeneous
 
@@ -567,11 +938,11 @@ class MeshcatVisualizer(BaseVisualizer):
 
         for visual in self.static_objects:
             visual_name = self.getViewerNodeName(visual, pin.GeometryType.VISUAL)
-            M = visual.placement
+            M: pin.SE3 = visual.placement
             T = M.homogeneous
             self.viewer[visual_name].set_transform(T)
 
-    def addGeometryObject(self, obj, color=None):
+    def addGeometryObject(self, obj: pin.GeometryObject, color=None):
         """Add a visual GeometryObject to the viewer, with an optional color."""
         self.loadViewerGeometryObject(obj, pin.GeometryType.VISUAL, color)
         self.static_objects.append(obj)
@@ -625,6 +996,7 @@ class MeshcatVisualizer(BaseVisualizer):
     def initializeFrames(self, frame_ids=None, axis_length=0.2, axis_width=2):
         """Initializes the frame objects for display."""
         import meshcat.geometry as mg
+
         self.viewer[self.viewerFramesGroupName].delete()
         self.frame_ids = []
 
@@ -653,13 +1025,9 @@ class MeshcatVisualizer(BaseVisualizer):
         for fid in self.frame_ids:
             frame_name = self.model.frames[fid].name
             frame_viz_name = "%s/%s" % (self.viewerFramesGroupName, frame_name)
-            self.viewer[frame_viz_name].set_transform(
-                self.data.oMf[fid].homogeneous
-            )
+            self.viewer[frame_viz_name].set_transform(self.data.oMf[fid].homogeneous)
 
-    def drawFrameVelocities(
-        self, frame_id, v_scale=0.2, color=FRAME_VEL_COLOR
-    ):  # pylint: disable=arguments-differ
+    def drawFrameVelocities(self, frame_id: int, v_scale=0.2, color=FRAME_VEL_COLOR):
         pin.updateFramePlacement(self.model, self.data, frame_id)
         vFr = pin.getFrameVelocity(
             self.model, self.data, frame_id, pin.LOCAL_WORLD_ALIGNED
@@ -671,10 +1039,10 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def _draw_vectors_from_frame(
         self,
-        vecs,
-        frame_ids,
-        vec_names,
-        colors,
+        vecs: List[np.ndarray],
+        frame_ids: List[int],
+        vec_names: List[str],
+        colors: List[int],
     ):
         """Draw vectors extending from given frames."""
         import meshcat.geometry as mg

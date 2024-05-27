@@ -5,7 +5,7 @@
 
 import pinocchio as pin
 from pinocchio.robot_wrapper import RobotWrapper
-from pinocchio.visualize import (GepettoVisualizer, MeshcatVisualizer)
+from pinocchio.visualize import GepettoVisualizer, MeshcatVisualizer
 from sys import argv
 import os
 from os.path import dirname, join, abspath
@@ -16,23 +16,23 @@ from os.path import dirname, join, abspath
 # GepettoVisualizer: -g
 # MeshcatVisualizer: -m
 VISUALIZER = None
-if len(argv)>1:
+if len(argv) > 1:
     opt = argv[1]
-    if opt == '-g':
+    if opt == "-g":
         VISUALIZER = GepettoVisualizer
-    elif opt == '-m':
+    elif opt == "-m":
         VISUALIZER = MeshcatVisualizer
     else:
         raise ValueError("Unrecognized option: " + opt)
 
 # Load the URDF model with RobotWrapper
 # Conversion with str seems to be necessary when executing this file with ipython
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
+pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 
-model_path = join(pinocchio_model_dir,"example-robot-data/robots")
+model_path = join(pinocchio_model_dir, "example-robot-data/robots")
 mesh_dir = pinocchio_model_dir
 urdf_filename = "talos_reduced.urdf"
-urdf_model_path = join(join(model_path,"talos_data/robots"),urdf_filename)
+urdf_model_path = join(join(model_path, "talos_data/robots"), urdf_filename)
 
 robot = RobotWrapper.BuildFromURDF(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 
@@ -45,7 +45,7 @@ q0 = robot.q0
 com = robot.com(q0)
 
 # This last command is similar to:
-com2 = pin.centerOfMass(model,data,q0)
+com2 = pin.centerOfMass(model, data, q0)
 
 # Show model with a visualizer of your choice
 if VISUALIZER:

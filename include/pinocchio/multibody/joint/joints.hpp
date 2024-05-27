@@ -2,8 +2,8 @@
 // Copyright (c) 2019 INRIA
 //
 
-#ifndef __pinocchio_joint_joints_hpp__
-#define __pinocchio_joint_joints_hpp__
+#ifndef __pinocchio_multibody_joint_joints_hpp__
+#define __pinocchio_multibody_joint_joints_hpp__
 
 #include "pinocchio/multibody/joint/joint-free-flyer.hpp"
 #include "pinocchio/multibody/joint/joint-planar.hpp"
@@ -17,5 +17,8 @@
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint/joint-translation.hpp"
 #include "pinocchio/multibody/joint/joint-mimic.hpp"
+#include "pinocchio/multibody/joint/joint-helical.hpp"
+#include "pinocchio/multibody/joint/joint-helical-unaligned.hpp"
+#include "pinocchio/multibody/joint/joint-universal.hpp"
 
-#endif // ifndef __pinocchio_joint_joints_hpp__
+#endif // ifndef __pinocchio_multibody_joint_joints_hpp__

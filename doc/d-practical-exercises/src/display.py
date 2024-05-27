@@ -52,4 +52,3 @@ class Display():
         self.viewer.gui.applyConfiguration(objName,
                                            pin.se3ToXYZQUATtuple(M))
         if refresh: self.viewer.gui.refresh()
-

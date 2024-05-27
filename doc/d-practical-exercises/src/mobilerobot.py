@@ -18,7 +18,7 @@ class MobileRobotWrapper(RobotWrapper):
 
     def __init__(self, urdf, pkgs):
         self.initFromURDF(urdf, pkgs, pin.JointModelPlanar())
-        
+
         M0 = pin.SE3(eye(3), np.array([.0, .0, .6]))
         self.model.jointPlacements[2] = M0 * self.model.jointPlacements[2]
         self.visual_model.geometryObjects[0].placement = M0 * self.visual_model.geometryObjects[0].placement

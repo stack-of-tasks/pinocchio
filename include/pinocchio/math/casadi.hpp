@@ -7,7 +7,7 @@
 
 #include "pinocchio/macros.hpp"
 
-PINOCCHIO_PRAGMA_DEPRECATED_HEADER(pinocchio/math/casadi.hpp,pinocchio/autodiff/casadi.hpp)
+PINOCCHIO_PRAGMA_DEPRECATED_HEADER(pinocchio / math / casadi.hpp, pinocchio / autodiff / casadi.hpp)
 
 #include "pinocchio/autodiff/casadi.hpp"
 

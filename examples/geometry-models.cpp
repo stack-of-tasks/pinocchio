@@ -16,13 +16,14 @@ int main(int argc, char ** argv)
 {
   using namespace pinocchio;
 
-  const std::string model_path = (argc<=1) ? PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots") : argv[1];
-  const std::string mesh_dir = (argc<=1) ? PINOCCHIO_MODEL_DIR : argv[1];
+  const std::string model_path =
+    (argc <= 1) ? PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots") : argv[1];
+  const std::string mesh_dir = (argc <= 1) ? PINOCCHIO_MODEL_DIR : argv[1];
   const std::string urdf_filename = model_path + "/ur_description/urdf/ur5_robot.urdf";
 
   // Load the urdf model
   Model model;
-  pinocchio::urdf::buildModel(urdf_filename,model);
+  pinocchio::urdf::buildModel(urdf_filename, model);
   GeometryModel collision_model;
   pinocchio::urdf::buildGeom(model, urdf_filename, COLLISION, collision_model, mesh_dir);
   GeometryModel visual_model;
@@ -39,7 +40,7 @@ int main(int argc, char ** argv)
   std::cout << "q: " << q.transpose() << std::endl;
 
   // Perform the forward kinematics over the kinematic tree
-  forwardKinematics(model,data,q);
+  forwardKinematics(model, data, q);
 
   // Update Geometry models
   updateGeometryPlacements(model, data, collision_model, collision_data);
@@ -47,26 +48,19 @@ int main(int argc, char ** argv)
 
   // Print out the placement of each joint of the kinematic tree
   std::cout << "\nJoint placements:" << std::endl;
-  for(JointIndex joint_id = 0; joint_id < (JointIndex)model.njoints; ++joint_id)
-    std::cout << std::setw(24) << std::left
-              << model.names[joint_id] << ": "
-              << std::fixed << std::setprecision(2)
-              << data.oMi[joint_id].translation().transpose()
-              << std::endl;
+  for (JointIndex joint_id = 0; joint_id < (JointIndex)model.njoints; ++joint_id)
+    std::cout << std::setw(24) << std::left << model.names[joint_id] << ": " << std::fixed
+              << std::setprecision(2) << data.oMi[joint_id].translation().transpose() << std::endl;
 
   // Print out the placement of each collision geometry object
   std::cout << "\nCollision object placements:" << std::endl;
-  for(GeomIndex geom_id = 0; geom_id < (GeomIndex)collision_model.ngeoms; ++geom_id)
-    std::cout << geom_id << ": "
-              << std::fixed << std::setprecision(2)
-              << collision_data.oMg[geom_id].translation().transpose()
-              << std::endl;
+  for (GeomIndex geom_id = 0; geom_id < (GeomIndex)collision_model.ngeoms; ++geom_id)
+    std::cout << geom_id << ": " << std::fixed << std::setprecision(2)
+              << collision_data.oMg[geom_id].translation().transpose() << std::endl;
 
   // Print out the placement of each visual geometry object
   std::cout << "\nVisual object placements:" << std::endl;
-  for(GeomIndex geom_id = 0; geom_id < (GeomIndex)visual_model.ngeoms; ++geom_id)
-    std::cout << geom_id << ": "
-              << std::fixed << std::setprecision(2)
-              << visual_data.oMg[geom_id].translation().transpose()
-              << std::endl;
+  for (GeomIndex geom_id = 0; geom_id < (GeomIndex)visual_model.ngeoms; ++geom_id)
+    std::cout << geom_id << ": " << std::fixed << std::setprecision(2)
+              << visual_data.oMg[geom_id].translation().transpose() << std::endl;
 }

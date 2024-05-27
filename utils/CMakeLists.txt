@@ -5,29 +5,29 @@
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
-MACRO(ADD_UTIL NAME UTIL_SRC)
+macro(ADD_UTIL NAME UTIL_SRC)
 
-  IF(BUILD_UTILS)
-    ADD_EXECUTABLE(${NAME} "${UTIL_SRC}.cpp")
-  ELSE(BUILD_UTILS)
-    ADD_EXECUTABLE(${NAME} EXCLUDE_FROM_ALL "${UTIL_SRC}.cpp")
-  ENDIF(BUILD_UTILS)
+  if(BUILD_UTILS)
+    add_executable(${NAME} "${UTIL_SRC}.cpp")
+  else(BUILD_UTILS)
+    add_executable(${NAME} EXCLUDE_FROM_ALL "${UTIL_SRC}.cpp")
+  endif(BUILD_UTILS)
 
-  TARGET_LINK_LIBRARIES(${NAME} PUBLIC ${PROJECT_NAME})
+  target_link_libraries(${NAME} PUBLIC ${PROJECT_NAME})
 
-  ADD_DEPENDENCIES(utils ${NAME})
+  add_dependencies(utils ${NAME})
 
-  IF(BUILD_UTILS)
-    INSTALL(TARGETS ${NAME} DESTINATION bin)
-  ENDIF(BUILD_UTILS)
+  if(BUILD_UTILS)
+    install(TARGETS ${NAME} DESTINATION bin)
+  endif(BUILD_UTILS)
 
-ENDMACRO(ADD_UTIL)
+endmacro(ADD_UTIL)
 
 # --- RULES -------------------------------------------------------------------
 # --- RULES -------------------------------------------------------------------
 # --- RULES -------------------------------------------------------------------
-ADD_CUSTOM_TARGET(utils)
+add_custom_target(utils)
 
-IF(urdfdom_FOUND)
-  ADD_UTIL(pinocchio_read_model pinocchio_read_model)
-ENDIF(urdfdom_FOUND)
+if(urdfdom_FOUND)
+  add_util(pinocchio_read_model pinocchio_read_model)
+endif(urdfdom_FOUND)

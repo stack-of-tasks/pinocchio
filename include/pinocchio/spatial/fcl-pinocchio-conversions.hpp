@@ -1,25 +1,16 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2024 CNRS INRIA
 //
+//
+#ifndef __pinocchio_spatial_fcl_convertion_hpp__
+#define __pinocchio_spatial_fcl_convertion_hpp__
 
-#ifndef __pinocchio_fcl_convertion_hpp__
-#define __pinocchio_fcl_convertion_hpp__
+#include "pinocchio/macros.hpp"
 
-#include <hpp/fcl/math/transform.h>
-#include "pinocchio/spatial/se3.hpp"
+PINOCCHIO_PRAGMA_DEPRECATED_HEADER(
+  pinocchio / spatial / fcl - pinocchio - conversions.hpp,
+  pinocchio / collision / fcl - pinocchio - conversions.hpp)
 
-namespace pinocchio
-{
-  inline hpp::fcl::Transform3f toFclTransform3f(const SE3 & m)
-  {
-    return hpp::fcl::Transform3f(m.rotation(), m.translation());
-  }
+#include "pinocchio/collision/fcl-pinocchio-conversions.hpp"
 
-  inline SE3 toPinocchioSE3(const hpp::fcl::Transform3f & tf)
-  {
-    return SE3(tf.getRotation(), tf.getTranslation());
-  }
-
-} // namespace pinocchio
-
-#endif // ifndef __pinocchio_fcl_convertion_hpp__
+#endif // ifndef __pinocchio_spatial_fcl_convertion_hpp__

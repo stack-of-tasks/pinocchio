@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 CNRS INRIA
+# Copyright (c) 2015-2021 CNRS INRIA
 #
 
 import numpy
@@ -15,18 +15,19 @@ import numpy
 #  - https://stackoverflow.com/questions/65334494/python-c-extension-packaging-dll-along-with-pyd
 # More resources on https://github.com/diffpy/pyobjcryst/issues/33
 try:
-    from .pinocchio_pywrap import *
-    from .pinocchio_pywrap import __version__, __raw_version__
+    from .pinocchio_pywrap_default import *
+    from .pinocchio_pywrap_default import __version__, __raw_version__
 except ImportError:
     import platform
+
     if platform.system() == "Windows":
         from .windows_dll_manager import get_dll_paths, build_directory_manager
 
         with build_directory_manager() as dll_dir_manager:
             for p in get_dll_paths():
                 dll_dir_manager.add_dll_directory(p)
-            from .pinocchio_pywrap import *
-            from .pinocchio_pywrap import __version__, __raw_version__
+            from .pinocchio_pywrap_default import *
+            from .pinocchio_pywrap_default import __version__, __raw_version__
     else:
         raise
 
@@ -36,21 +37,34 @@ from .explog import exp, log
 # Manually register submodules
 import sys, inspect
 
-submodules = inspect.getmembers(pinocchio_pywrap, inspect.ismodule)
+submodules = inspect.getmembers(pinocchio_pywrap_default, inspect.ismodule)
 for module_info in submodules:
-  sys.modules['pinocchio.' + module_info[0]] = module_info[1]
+    sys.modules["pinocchio." + module_info[0]] = module_info[1]
+
+sys.modules["pinocchio.rpy"] = rpy
+sys.modules["pinocchio.cholesky"] = cholesky
 
 if WITH_HPP_FCL:
-  try:
-    import hppfcl
-    from hppfcl import Contact, StdVec_Contact, CollisionResult, StdVec_CollisionResult, DistanceResult, StdVec_DistanceResult, CollisionGeometry, MeshLoader, CachedMeshLoader
-    WITH_HPP_FCL_BINDINGS = True
-  except ImportError:
-    WITH_HPP_FCL_BINDINGS = False
+    try:
+        import hppfcl
+        from hppfcl import (
+            Contact,
+            StdVec_Contact,
+            CollisionResult,
+            StdVec_CollisionResult,
+            DistanceResult,
+            StdVec_DistanceResult,
+            CollisionGeometry,
+            MeshLoader,
+            CachedMeshLoader,
+        )
+
+        WITH_HPP_FCL_BINDINGS = True
+    except ImportError:
+        WITH_HPP_FCL_BINDINGS = False
 else:
-  WITH_HPP_FCL_BINDINGS = False
+    WITH_HPP_FCL_BINDINGS = False
 
 from .robot_wrapper import RobotWrapper
 from .deprecated import *
 from .shortcuts import *
-from . import visualize

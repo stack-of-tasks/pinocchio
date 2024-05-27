@@ -12,7 +12,10 @@ class TestBuildGeomFromUrdfMemoryCheck(unittest.TestCase):
             os.path.join(self.current_file, "../../models/")
         )
         self.model_path = os.path.abspath(
-            os.path.join(self.model_dir, "example-robot-data/robots/ur_description/urdf/ur5_robot.urdf")
+            os.path.join(
+                self.model_dir,
+                "example-robot-data/robots/ur_description/urdf/ur5_robot.urdf",
+            )
         )
 
     def test_load(self):

@@ -1,19 +1,18 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2016-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_algorithms_hpp__
 #define __pinocchio_python_algorithms_hpp__
 
 #include "pinocchio/bindings/python/fwd.hpp"
-#include <boost/python.hpp>
 
 namespace pinocchio
 {
   namespace python
   {
     namespace bp = boost::python;
-    
+
     void exposeJointsAlgo();
     void exposeABA();
     void exposeCRBA();
@@ -23,7 +22,12 @@ namespace pinocchio
     void exposeFramesAlgo();
     void exposeEnergy();
     void exposeKinematics();
-    void exposeDynamics();
+    void exposeContactJacobian();
+    void exposeContactDynamics();
+    void exposeConstraintDynamics();
+    void exposeConstraintDynamicsDerivatives();
+    void exposeContactInverseDynamics();
+    void exposeDelassus();
     void exposeCAT();
     void exposeJacobian();
     void exposeGeometryAlgo();
@@ -31,17 +35,22 @@ namespace pinocchio
     void exposeRegressor();
     void exposeCholesky();
     void exposeModelAlgo();
-    
+    void exposeImpulseDynamics();
+
     void exposeRNEADerivatives();
     void exposeABADerivatives();
     void exposeKinematicsDerivatives();
     void exposeFramesDerivatives();
     void exposeCentroidalDerivatives();
+    void exposeImpulseDynamicsDerivatives();
+
+    void exposeCones();
+
+    void exposeContactSolvers();
 
     void exposeAlgorithms();
-    
+
   } // namespace python
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_algorithms_hpp__
-

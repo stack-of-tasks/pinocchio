@@ -23,42 +23,40 @@ namespace pinocchio
     template<typename MapType>
     struct PickleMap : boost::python::pickle_suite
     {
-      static boost::python::tuple getinitargs(const MapType&)
+      static boost::python::tuple getinitargs(const MapType &)
       {
         return boost::python::make_tuple();
       }
-           
+
       static boost::python::tuple getstate(boost::python::object op)
       {
-        boost::python::extract<const MapType&> get_map(op);
-        if(get_map.check())
+        boost::python::extract<const MapType &> get_map(op);
+        if (get_map.check())
         {
           const MapType & map = get_map();
           boost::python::list list;
-          for(typename MapType::const_iterator it = map.begin();
-              it != map.end();
-              ++it)
+          for (typename MapType::const_iterator it = map.begin(); it != map.end(); ++it)
           {
-            list.append(boost::python::make_tuple(it->first,it->second));
+            list.append(boost::python::make_tuple(it->first, it->second));
           }
           return boost::python::make_tuple(list);
         }
         return boost::python::make_tuple();
       }
-      
+
       static void setstate(bp::object op, bp::tuple tup)
       {
         typedef typename MapType::key_type key_type;
         typedef typename MapType::mapped_type mapped_type;
-        
-        if(bp::len(tup) > 0)
+
+        if (bp::len(tup) > 0)
         {
-          bp::extract<MapType&> get_map(op);
-          if(get_map.check())
+          bp::extract<MapType &> get_map(op);
+          if (get_map.check())
           {
             MapType & map = get_map();
             boost::python::list list = bp::extract<boost::python::list>(tup[0])();
-            for(boost::python::ssize_t k = 0; k < boost::python::len(list); ++k)
+            for (boost::python::ssize_t k = 0; k < boost::python::len(list); ++k)
             {
               boost::python::tuple entry = bp::extract<boost::python::tuple>(list[k])();
               key_type key = bp::extract<key_type>(entry[0])();
@@ -67,10 +65,13 @@ namespace pinocchio
           }
         }
       }
-      
-      static bool getstate_manages_dict() { return true; }
+
+      static bool getstate_manages_dict()
+      {
+        return true;
+      }
     };
-  }
-}
+  } // namespace python
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_utils_pickle_map_hpp__

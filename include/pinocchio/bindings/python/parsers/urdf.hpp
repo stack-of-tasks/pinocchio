@@ -9,16 +9,18 @@ namespace pinocchio
 {
   namespace python
   {
+    void exposeConsoleBridge();
     void exposeURDFModel();
     void exposeURDFGeometry();
-  
+
     inline void exposeURDFParser()
     {
+      exposeConsoleBridge();
       exposeURDFModel();
       exposeURDFGeometry();
     }
-  
-  }
-}
+
+  } // namespace python
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_parsers_urdf_hpp__

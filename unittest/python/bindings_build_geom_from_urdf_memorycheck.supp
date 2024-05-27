@@ -1,0 +1,275 @@
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr8
+   fun:strncmp
+   fun:is_dst
+   fun:_dl_dst_count
+   fun:expand_dynamic_string_token
+   fun:fillin_rpath.isra.0
+   fun:decompose_rpath
+   fun:cache_rpath
+   fun:cache_rpath
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_exception
+   fun:_dl_map_object_deps
+   fun:dl_open_worker_begin
+   fun:_dl_catch_exception
+   fun:dl_open_worker
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr8
+   fun:strncmp
+   fun:is_dst
+   fun:_dl_dst_substitute
+   fun:fillin_rpath.isra.0
+   fun:decompose_rpath
+   fun:cache_rpath
+   fun:cache_rpath
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_exception
+   fun:_dl_map_object_deps
+   fun:dl_open_worker_begin
+   fun:_dl_catch_exception
+   fun:dl_open_worker
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Free
+   fun:free
+   fun:_ZN5boost6python7objects14pointer_holderISt10unique_ptrIN9pinocchio13GeometryModelESt14default_deleteIS5_EES5_ED1Ev
+   fun:instance_dealloc
+   fun:subtype_dealloc
+   fun:_PyEval_EvalFrameDefault.cold
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:method_vectorcall
+   fun:UnknownInlinedFun
+   fun:_PyEval_EvalFrameDefault.cold
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_PyObject_FastCallDictTstate
+   fun:_PyObject_Call_Prepend
+   fun:slot_tp_call
+   fun:_PyObject_MakeTpCall
+   fun:_PyEval_EvalFrameDefault.cold
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:d_growable_string_resize
+   fun:d_growable_string_append_buffer
+   fun:d_growable_string_callback_adapter
+   fun:d_print_flush
+   fun:d_print_callback
+   fun:d_demangle_callback.constprop.0
+   fun:d_demangle
+   fun:__cxa_demangle
+   fun:_ZN5boost6python6detail12gcc_demangleEPKc
+   fun:_ZNK9pinocchio6python28GeometryFunctorPythonVisitorINS_16ComputeCollisionEE5visitIN5boost6python6class_IS2_NS6_6detail13not_specifiedES9_S9_EEEEvRT_.isra.0
+   fun:_ZN9pinocchio6python15exposeCollisionEv
+   fun:_Z36init_module_pinocchio_pywrap_defaultv
+   fun:_ZN5boost6python21handle_exception_implENS_9function0IvEE
+   fun:_ZN5boost6python6detail11init_moduleER11PyModuleDefPFvvE
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_imp_create_dynamic
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:d_growable_string_resize
+   fun:d_growable_string_append_buffer
+   fun:d_growable_string_callback_adapter
+   fun:d_print_flush
+   fun:d_print_callback
+   fun:d_demangle_callback.constprop.0
+   fun:d_demangle
+   fun:__cxa_demangle
+   fun:_ZN5boost6python6detail12gcc_demangleEPKc
+   fun:_ZNK9pinocchio6python28GeometryFunctorPythonVisitorINS_15ComputeDistanceEE5visitIN5boost6python6class_IS2_NS6_6detail13not_specifiedES9_S9_EEEEvRT_.isra.0
+   fun:_ZN9pinocchio6python15exposeCollisionEv
+   fun:_Z36init_module_pinocchio_pywrap_defaultv
+   fun:_ZN5boost6python21handle_exception_implENS_9function0IvEE
+   fun:_ZN5boost6python6detail11init_moduleER11PyModuleDefPFvvE
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_imp_create_dynamic
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   fun:_PyObject_GC_Resize
+   fun:_PyTuple_Resize
+   fun:PySequence_Tuple
+   fun:_PyEval_EvalFrameDefault.cold
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_PyObject_FastCallDictTstate
+   fun:UnknownInlinedFun
+   fun:slot_tp_init
+   fun:UnknownInlinedFun
+   fun:_PyObject_MakeTpCall
+   fun:_PyEval_EvalFrameDefault.cold
+   fun:bounded_lru_cache_wrapper
+   fun:_PyObject_Call
+   fun:UnknownInlinedFun
+   fun:_PyEval_EvalFrameDefault.cold
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:PyUnicode_Substring
+   fun:_PyEval_EvalFrameDefault.cold
+   fun:PyEval_EvalCode
+   fun:UnknownInlinedFun
+   fun:builtin_exec
+   fun:cfunction_vectorcall_FASTCALL_KEYWORDS
+   fun:UnknownInlinedFun
+   fun:_PyEval_EvalFrameDefault.cold
+   fun:UnknownInlinedFun
+   fun:object_vacall
+   fun:PyObject_CallMethodObjArgs
+   fun:UnknownInlinedFun
+   fun:PyImport_ImportModuleLevelObject
+   fun:UnknownInlinedFun
+   fun:builtin___import__
+   fun:cfunction_vectorcall_FASTCALL_KEYWORDS
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:d_growable_string_resize
+   fun:d_growable_string_append_buffer
+   fun:d_growable_string_callback_adapter
+   fun:d_print_flush
+   fun:d_print_callback
+   fun:d_demangle_callback.constprop.0
+   fun:d_demangle
+   fun:__cxa_demangle
+   fun:_ZN5boost6python6detail12gcc_demangleEPKc
+   fun:_ZN9pinocchio6python15exposeCollisionEv
+   fun:_Z36init_module_pinocchio_pywrap_defaultv
+   fun:_ZN5boost6python21handle_exception_implENS_9function0IvEE
+   fun:_ZN5boost6python6detail11init_moduleER11PyModuleDefPFvvE
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_imp_create_dynamic
+   fun:cfunction_vectorcall_FASTCALL
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Free
+   fun:free
+   fun:_M_release
+   fun:_M_release
+   fun:~__shared_count
+   fun:~__shared_ptr
+   fun:~shared_ptr
+   fun:~GeometryObject
+   fun:destroy<pinocchio::GeometryObject>
+   fun:_S_destroy<Eigen::aligned_allocator<pinocchio::GeometryObject>, pinocchio::GeometryObject>
+   fun:destroy<pinocchio::GeometryObject>
+   fun:_Destroy<pinocchio::GeometryObject*, Eigen::aligned_allocator<pinocchio::GeometryObject> >
+   fun:~vector
+   fun:~GeometryModel
+   fun:operator()
+   fun:operator()
+   fun:~unique_ptr
+   fun:_ZN5boost6python7objects14pointer_holderISt10unique_ptrIN9pinocchio13GeometryModelESt14default_deleteIS5_EES5_ED1Ev
+   fun:instance_dealloc
+   fun:subtype_dealloc
+   fun:_PyEval_EvalFrameDefault.cold
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:method_vectorcall
+   fun:UnknownInlinedFun
+   fun:_PyEval_EvalFrameDefault.cold
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_PyObject_FastCallDictTstate
+   fun:_PyObject_Call_Prepend
+   fun:slot_tp_call
+   fun:_PyObject_MakeTpCall
+   fun:_PyEval_EvalFrameDefault.cold
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:d_growable_string_resize
+   fun:d_growable_string_append_buffer
+   fun:d_growable_string_callback_adapter
+   fun:d_print_flush
+   fun:d_print_callback
+   fun:d_demangle_callback.constprop.0
+   fun:d_demangle
+   fun:__cxa_demangle
+   fun:_ZN5boost6python6detail12gcc_demangleEPKc
+   fun:name
+   fun:visit<boost::python::class_<pinocchio::ComputeCollision> >
+   fun:visit<boost::python::def_visitor<pinocchio::python::GeometryFunctorPythonVisitor<pinocchio::ComputeCollision> >, boost::python::class_<pinocchio::ComputeCollision> >
+   fun:visit<boost::python::class_<pinocchio::ComputeCollision> >
+   fun:def<pinocchio::python::GeometryFunctorPythonVisitor<pinocchio::ComputeCollision> >
+   fun:_ZN9pinocchio6python15exposeCollisionEv
+   fun:_Z36init_module_pinocchio_pywrap_defaultv
+   fun:_ZN5boost6python21handle_exception_implENS_9function0IvEE
+   fun:_ZN5boost6python6detail11init_moduleER11PyModuleDefPFvvE
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_imp_create_dynamic
+   fun:cfunction_vectorcall_FASTCALL
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:d_growable_string_resize
+   fun:d_growable_string_append_buffer
+   fun:d_growable_string_callback_adapter
+   fun:d_print_flush
+   fun:d_print_callback
+   fun:d_demangle_callback.constprop.0
+   fun:d_demangle
+   fun:__cxa_demangle
+   fun:_ZN5boost6python6detail12gcc_demangleEPKc
+   fun:name
+   fun:_ZNK9pinocchio6python28GeometryFunctorPythonVisitorINS_15ComputeDistanceEE5visitIN5boost6python6class_IS2_NS6_6detail13not_specifiedES9_S9_EEEEvRT_.isra.0
+   fun:visit<boost::python::def_visitor<pinocchio::python::GeometryFunctorPythonVisitor<pinocchio::ComputeDistance> >, boost::python::class_<pinocchio::ComputeDistance> >
+   fun:visit<boost::python::class_<pinocchio::ComputeDistance> >
+   fun:def<pinocchio::python::GeometryFunctorPythonVisitor<pinocchio::ComputeDistance> >
+   fun:_ZN9pinocchio6python15exposeCollisionEv
+   fun:_Z36init_module_pinocchio_pywrap_defaultv
+   fun:_ZN5boost6python21handle_exception_implENS_9function0IvEE
+   fun:_ZN5boost6python6detail11init_moduleER11PyModuleDefPFvvE
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_imp_create_dynamic
+}

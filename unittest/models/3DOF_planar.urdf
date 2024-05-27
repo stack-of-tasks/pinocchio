@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+
+<robot name="2dof">
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0. 0.5" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="1" radius="0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="link1">
+    <visual>
+      <origin xyz="0. 0.55 0" rpy="1.57 0 0"/>
+      <geometry>
+        <cylinder length="1" radius="0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="link2">
+    <visual>
+      <origin xyz="0.55 0. 0." rpy="0 1.57 0"/>
+      <geometry>
+        <cylinder length="1" radius="0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+<link name="link3">
+    <visual>
+      <origin xyz="0.05 0.05 0." rpy="1.57 0 0"/>
+      <geometry>
+        <cylinder length=".11" radius="0.05"/>
+      </geometry>
+    </visual>
+  </link>
+
+<!-- Joints -->
+  <joint name="pz" type="prismatic">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <axis xyz="0 0 1" />
+    <limit effort="1000.0" lower="0." upper="1" velocity="1"/>
+  </joint>
+
+  <joint name="py" type="prismatic">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <axis xyz="0 1 0" />
+    <limit effort="1000.0" lower="0." upper="1" velocity="1"/>
+  </joint>
+
+<joint name="px" type="prismatic">
+    <parent link="link2"/>
+    <child link="link3"/>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <axis xyz="1 0 0" />
+    <limit effort="1000.0" lower="0" upper="1" velocity="1"/>
+  </joint>
+</robot>

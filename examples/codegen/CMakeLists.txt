@@ -2,11 +2,33 @@
 # Copyright (c) 2020-2023 INRIA
 #
 
-IF(CPPADCG_FOUND AND BUILD_WITH_CODEGEN_SUPPORT AND BUILD_WITH_URDF_SUPPORT)
-  INCLUDE_DIRECTORIES(SYSTEM ${cppadcg_INCLUDE_DIR})
-  ADD_PINOCCHIO_CPP_EXAMPLE(codegen-crba)
-  SET_PROPERTY(TARGET example-cpp-codegen-crba PROPERTY CXX_STANDARD 11)
-  TARGET_LINK_LIBRARIES(example-cpp-codegen-crba PUBLIC ${CMAKE_DL_LIBS} ${cppad_LIBRARY})
-  TARGET_COMPILE_DEFINITIONS(example-cpp-codegen-crba PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\")
-ENDIF(CPPADCG_FOUND AND BUILD_WITH_CODEGEN_SUPPORT AND BUILD_WITH_URDF_SUPPORT)
+if(cppadcg_FOUND
+   AND BUILD_WITH_CODEGEN_SUPPORT
+   AND BUILD_WITH_URDF_SUPPORT)
+  function(ADD_PINOCCHIO_CPP_CODEGEN_EXAMPLE EXAMPLE)
+    add_pinocchio_cpp_example(
+      ${EXAMPLE}
+      CPPADCG
+      PARSERS)
+    target_link_libraries(example-cpp-${EXAMPLE} PUBLIC ${CMAKE_DL_LIBS})
+    target_compile_definitions(example-cpp-${EXAMPLE}
+                               PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\")
+  endfunction()
 
+  add_pinocchio_cpp_codegen_example(codegen-crba)
+  add_pinocchio_cpp_codegen_example(codegen-rnea)
+
+  if(BUILD_PYTHON_INTERFACE)
+    set(${PROJECT_NAME}_CODEGEN_PYTHON_EXAMPLES codegen-rnea)
+
+    foreach(EXAMPLE ${${PROJECT_NAME}_CODEGEN_PYTHON_EXAMPLES})
+      set(EXAMPLE_NAME "example-py-${EXAMPLE}")
+      add_python_unit_test(${EXAMPLE_NAME} "examples/codegen/${EXAMPLE}.py" "bindings/python")
+      add_windows_dll_path_to_test(${EXAMPLE_NAME})
+    endforeach(EXAMPLE ${${PROJECT_NAME}_CODEGEN_PYTHON_EXAMPLES})
+  endif(BUILD_PYTHON_INTERFACE)
+
+endif(
+  cppadcg_FOUND
+  AND BUILD_WITH_CODEGEN_SUPPORT
+  AND BUILD_WITH_URDF_SUPPORT)

@@ -10,7 +10,7 @@
 
 #include "pinocchio/serialization/eigen.hpp"
 
-#define BOOST_SERIALIZATION_MAKE_NVP(member) boost::serialization::make_nvp(##member,member)
+#define BOOST_SERIALIZATION_MAKE_NVP(member) boost::serialization::make_nvp(##member, member)
 
 namespace pinocchio
 {
@@ -20,6 +20,6 @@ namespace pinocchio
     template<typename Archive>
     static void run(Archive & ar, T & object);
   };
-}
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_serialization_fwd_hpp__

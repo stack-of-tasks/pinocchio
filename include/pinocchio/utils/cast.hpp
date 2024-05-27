@@ -12,7 +12,7 @@ namespace pinocchio
   template<typename NewScalar, typename Scalar>
   NewScalar cast(const Scalar & value)
   {
-    return Eigen::internal::cast_impl<Scalar,NewScalar>::run(value);
+    return Eigen::internal::cast_impl<Scalar, NewScalar>::run(value);
   }
 } // namespace pinocchio
 

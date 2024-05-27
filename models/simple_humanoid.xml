@@ -1,0 +1,129 @@
+<mujoco model="simple_humanoid">
+  <compiler angle="radian" autolimits="true" meshdir="simple_humanoid_description"/>
+  <asset>
+    <mesh name="box" file="box.stl"/>
+  </asset>
+  <worldbody>
+    <body name="WAIST_LINK0" pos="0 0 0">
+      <inertial pos="0 0 0.0375" mass="27" diaginertia="1 1 1"/>
+      <geom name="test" size="1 0.5" type="cylinder"/>
+      <geom name="box" type="mesh" mesh="box"/>
+      <body name="LLEG_LINK1" pos="0 0.09 0">
+        <inertial pos="0 0.1 0" mass="2.5" diaginertia="1 1 1"/>
+        <joint name="LLEG_HIP_R" pos="0 0 0" axis="1 0 0" range="0 0" actuatorfrcrange="-30 30"/>
+        <body name="LLEG_LINK2">
+          <inertial pos="0 0 -0.15" mass="2" diaginertia="1 1 1"/>
+          <joint name="LLEG_HIP_P" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+          <body name="LLEG_LINK3" pos="0 0 -0.3535">
+            <inertial pos="0 0.04 0" mass="5.1" diaginertia="1 1 1"/>
+            <joint name="LLEG_HIP_Y" pos="0 0 0" axis="0 0 1" range="0 0" actuatorfrcrange="-30 30"/>
+            <body name="LLEG_LINK4">
+              <inertial pos="0 0 -0.3" mass="7" diaginertia="1 1 1"/>
+              <joint name="LLEG_KNEE" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+              <body name="LLEG_LINK5" pos="0 0 -0.3">
+                <inertial pos="-0.15 0 0" mass="2.5" diaginertia="1 1 1"/>
+                <joint name="LLEG_ANKLE_P" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+                <body name="LLEG_LINK6">
+                  <inertial pos="0.28 0 -0.2" mass="1.9" diaginertia="1 1 1"/>
+                  <joint name="LLEG_ANKLE_R" pos="0 0 0" axis="1 0 0" range="0 0" actuatorfrcrange="-30 30"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="RLEG_LINK1" pos="0 -0.09 0">
+        <inertial pos="0 -0.1 0" mass="2.5" diaginertia="1 1 1"/>
+        <joint name="RLEG_HIP_R" pos="0 0 0" axis="1 0 0" range="0 0" actuatorfrcrange="-30 30"/>
+        <body name="RLEG_LINK2">
+          <inertial pos="0 0 -0.15" mass="2" diaginertia="1 1 1"/>
+          <joint name="RLEG_HIP_P" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+          <body name="RLEG_LINK3" pos="0 0 -0.3535">
+            <inertial pos="0 -0.04 0" mass="5.1" diaginertia="1 1 1"/>
+            <joint name="RLEG_HIP_Y" pos="0 0 0" axis="0 0 1" range="0 0" actuatorfrcrange="-30 30"/>
+            <body name="RLEG_LINK4">
+              <inertial pos="0 0 -0.3" mass="7" diaginertia="1 1 1"/>
+              <joint name="RLEG_KNEE" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+              <body name="RLEG_LINK5" pos="0 0 -0.3">
+                <inertial pos="-0.15 0 0" mass="2.5" diaginertia="1 1 1"/>
+                <joint name="RLEG_ANKLE_P" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+                <body name="RLEG_LINK6">
+                  <inertial pos="0.28 0 -0.2" mass="1.9" diaginertia="1 1 1"/>
+                  <joint name="RLEG_ANKLE_R" pos="0 0 0" axis="1 0 0" range="0 0" actuatorfrcrange="-30 30"/>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="WAIST_LINK1">
+        <inertial pos="0 0 -0.1" mass="6" diaginertia="1 1 1"/>
+        <joint name="WAIST_P" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+        <body name="WAIST_LINK2">
+          <inertial pos="0.11 0 0.25" mass="30" diaginertia="1 1 1"/>
+          <joint name="WAIST_R" pos="0 0 0" axis="1 0 0" range="0 0" actuatorfrcrange="-30 30"/>
+          <body name="WAIST_LINK3" pos="0 0 0.35">
+            <inertial pos="0 0 0" mass="13" diaginertia="1 1 1"/>
+            <joint name="CHEST" pos="0 0 0" axis="0 0 1" range="0 0" actuatorfrcrange="-30 30"/>
+            <body name="LARM_LINK1" pos="0 0.21 0">
+              <inertial pos="0.1 0 0" mass="3" diaginertia="1 1 1"/>
+              <joint name="LARM_SHOULDER_P" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+              <body name="LARM_LINK2">
+                <inertial pos="0 0 -0.1" mass="0.6" diaginertia="1 1 1"/>
+                <joint name="LARM_SHOULDER_R" pos="0 0 0" axis="1 0 0" range="0 0" actuatorfrcrange="-30 30"/>
+                <body name="LARM_LINK3" pos="0 0 -0.263">
+                  <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+                  <joint name="LARM_SHOULDER_Y" pos="0 0 0" axis="0 0 1" range="0 0" actuatorfrcrange="-30 30"/>
+                  <body name="LARM_LINK4">
+                    <inertial pos="0 0 -0.3" mass="0.6" diaginertia="1 1 1"/>
+                    <joint name="LARM_ELBOW" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+                    <body name="LARM_LINK5" pos="0 0 -0.247">
+                      <inertial pos="0 0 0.1" mass="0.4" diaginertia="1 1 1"/>
+                      <joint name="LARM_WRIST_Y" pos="0 0 0" axis="0 0 1" range="0 0" actuatorfrcrange="-30 30"/>
+                      <body name="LARM_LINK6">
+                        <inertial pos="-0.1 0 0" mass="0.4" diaginertia="1 1 1"/>
+                        <joint name="LARM_WRIST_P" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+                        <body name="LARM_LINK7">
+                          <inertial pos="0 0 -0.1" mass="0.4" diaginertia="1 1 1"/>
+                          <joint name="LARM_WRIST_R" pos="0 0 0" axis="1 0 0" range="0 0" actuatorfrcrange="-30 30"/>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+            <body name="RARM_LINK1" pos="0 -0.21 0">
+              <inertial pos="0.1 0 0" mass="3" diaginertia="1 1 1"/>
+              <joint name="RARM_SHOULDER_P" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+              <body name="RARM_LINK2">
+                <inertial pos="0 0 -0.1" mass="0.6" diaginertia="1 1 1"/>
+                <joint name="RARM_SHOULDER_R" pos="0 0 0" axis="1 0 0" range="0 0" actuatorfrcrange="-30 30"/>
+                <body name="RARM_LINK3" pos="0 0 -0.263">
+                  <inertial pos="0 0 0" mass="1" diaginertia="1 1 1"/>
+                  <joint name="RARM_SHOULDER_Y" pos="0 0 0" axis="0 0 1" range="0 0" actuatorfrcrange="-30 30"/>
+                  <body name="RARM_LINK4">
+                    <inertial pos="0 0 -0.3" mass="0.6" diaginertia="1 1 1"/>
+                    <joint name="RARM_ELBOW" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+                    <body name="RARM_LINK5" pos="0 0 -0.247">
+                      <inertial pos="0 0 0.1" mass="0.4" diaginertia="1 1 1"/>
+                      <joint name="RARM_WRIST_Y" pos="0 0 0" axis="0 0 1" range="0 0" actuatorfrcrange="-30 30"/>
+                      <body name="RARM_LINK6">
+                        <inertial pos="-0.1 0 0" mass="0.4" diaginertia="1 1 1"/>
+                        <joint name="RARM_WRIST_P" pos="0 0 0" axis="0 1 0" range="0 0" actuatorfrcrange="-30 30"/>
+                        <body name="RARM_LINK7">
+                          <inertial pos="0 0 -0.1" mass="0.4" diaginertia="1 1 1"/>
+                          <joint name="RARM_WRIST_R" pos="0 0 0" axis="1 0 0" range="0 0" actuatorfrcrange="-30 30"/>
+                        </body>
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

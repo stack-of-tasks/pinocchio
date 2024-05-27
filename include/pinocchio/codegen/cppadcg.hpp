@@ -27,34 +27,34 @@ namespace boost
       namespace detail
       {
         template<typename Scalar>
-        struct constant_pi< CppAD::cg::CG<Scalar> > : constant_pi<Scalar>
+        struct constant_pi<CppAD::cg::CG<Scalar>> : constant_pi<Scalar>
         {
           typedef CppAD::cg::CG<Scalar> CGScalar;
-          
-          template <int N>
-          static inline CGScalar get(const mpl::int_<N>& n)
+
+          template<int N>
+          static inline CGScalar get(const mpl::int_<N> & n)
           {
             return CGScalar(constant_pi<Scalar>::get(n));
           }
 
 #if BOOST_VERSION >= 107700
-          template <class T, T value>
-          static inline CGScalar get(const std::integral_constant<T, value> &n)
+          template<class T, T value>
+          static inline CGScalar get(const std::integral_constant<T, value> & n)
           {
             return CGScalar(constant_pi<Scalar>::get(n));
           }
 #else
-          template <class T, T value>
-          static inline CGScalar get(const boost::integral_constant<T, value> &n)
+          template<class T, T value>
+          static inline CGScalar get(const boost::integral_constant<T, value> & n)
           {
             return CGScalar(constant_pi<Scalar>::get(n));
           }
 #endif
         };
-      }
-    }
-  }
-}
+      } // namespace detail
+    } // namespace constants
+  } // namespace math
+} // namespace boost
 
 namespace Eigen
 {
@@ -62,9 +62,9 @@ namespace Eigen
   {
     // Specialization of Eigen::internal::cast_impl for CppAD input types
     template<typename Scalar>
-    struct cast_impl<CppAD::cg::CG<Scalar>,Scalar>
+    struct cast_impl<CppAD::cg::CG<Scalar>, Scalar>
     {
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
+#if EIGEN_VERSION_AT_LEAST(3, 2, 90)
       EIGEN_DEVICE_FUNC
 #endif
       static inline Scalar run(const CppAD::cg::CG<Scalar> & x)
@@ -72,25 +72,39 @@ namespace Eigen
         return x.getValue();
       }
     };
-  }
+
+    // Specialization of Eigen::internal::cast_impl for CppAD input types
+    template<typename Scalar>
+    struct cast_impl<CppAD::AD<CppAD::cg::CG<Scalar>>, Scalar>
+    {
+#if EIGEN_VERSION_AT_LEAST(3, 2, 90)
+      EIGEN_DEVICE_FUNC
+#endif
+      static inline Scalar run(const CppAD::AD<CppAD::cg::CG<Scalar>> & x)
+      {
+        return CppAD::Value(x).getValue();
+      }
+    };
+
+  } // namespace internal
 } // namespace Eigen
 
 namespace CppAD
 {
-  template <class Scalar>
-  bool isfinite(const AD<Scalar> & x) { return isfinite(Value(x)); }
-
   namespace cg
   {
-    template <class Scalar>
-    bool isfinite(const CG<Scalar> &x) { return std::isfinite(x.getValue()); }
-  }
-}
+    template<class Scalar>
+    bool isfinite(const CG<Scalar> & x)
+    {
+      return std::isfinite(x.getValue());
+    }
+  } // namespace cg
+} // namespace CppAD
 
 namespace pinocchio
 {
   template<typename Scalar>
-  struct TaylorSeriesExpansion< CppAD::cg::CG<Scalar> >
+  struct TaylorSeriesExpansion<CppAD::cg::CG<Scalar>>
   {
     typedef TaylorSeriesExpansion<Scalar> Base;
     typedef CppAD::cg::CG<Scalar> CGScalar;
@@ -100,8 +114,17 @@ namespace pinocchio
     {
       return CGScalar(Base::template precision<degree>());
     }
-
   };
+
+  template<typename Scalar>
+  struct ScalarCast<Scalar, CppAD::cg::CG<Scalar>>
+  {
+    static Scalar cast(const CppAD::cg::CG<Scalar> & cg_value)
+    {
+      return cg_value.getValue();
+    }
+  };
+
 } // namespace pinocchio
 
 #endif // #ifndef __pinocchio_codegen_ccpadcg_hpp__

@@ -1,4 +1,6 @@
-#include "pinocchio/parsers/sample-models.hpp"
+#include <iostream>
+
+#include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 
@@ -12,6 +14,6 @@ int main()
   Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
   Eigen::VectorXd a = Eigen::VectorXd::Zero(model.nv);
 
-  const Eigen::VectorXd & tau = pinocchio::rnea(model,data,q,v,a);
+  const Eigen::VectorXd & tau = pinocchio::rnea(model, data, q, v, a);
   std::cout << "tau = " << tau.transpose() << std::endl;
 }

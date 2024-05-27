@@ -14,28 +14,29 @@
 
 namespace pinocchio
 {
-  template<typename _Scalar, int _Options = 0>
+  template<typename _Scalar, int _Options = context::Options>
   struct LieGroupCollectionDefaultTpl
   {
     typedef _Scalar Scalar;
-    enum { Options = _Options };
-    
+    enum
+    {
+      Options = _Options
+    };
+
     typedef boost::variant<
-     SpecialOrthogonalOperationTpl<2,Scalar,Options>
-    ,SpecialOrthogonalOperationTpl<3,Scalar,Options>
-    ,SpecialEuclideanOperationTpl<2,Scalar,Options>
-    ,SpecialEuclideanOperationTpl<3,Scalar,Options>
-    ,VectorSpaceOperationTpl<1,Scalar,Options>
-    ,VectorSpaceOperationTpl<2,Scalar,Options>
-    ,VectorSpaceOperationTpl<3,Scalar,Options>
-    ,VectorSpaceOperationTpl<Eigen::Dynamic,Scalar,Options>
-    > LieGroupVariant;
-    
+      SpecialOrthogonalOperationTpl<2, Scalar, Options>,
+      SpecialOrthogonalOperationTpl<3, Scalar, Options>,
+      SpecialEuclideanOperationTpl<2, Scalar, Options>,
+      SpecialEuclideanOperationTpl<3, Scalar, Options>,
+      VectorSpaceOperationTpl<1, Scalar, Options>,
+      VectorSpaceOperationTpl<2, Scalar, Options>,
+      VectorSpaceOperationTpl<3, Scalar, Options>,
+      VectorSpaceOperationTpl<Eigen::Dynamic, Scalar, Options>>
+      LieGroupVariant;
   };
-  
-  typedef LieGroupCollectionDefaultTpl<double> LieGroupCollectionDefault;
-  
-}
+
+  typedef LieGroupCollectionDefaultTpl<context::Scalar> LieGroupCollectionDefault;
+
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_lie_group_collection_hpp__
-

@@ -1,0 +1,14 @@
+<mujoco model="composite">
+  <worldbody>
+    <body pos="0 0 0" name="body0">
+        <body pos="0 1 0" name="body1">
+            <joint pos="0 1 0" damping=".1" name="joint1-1"/>
+            <joint pos="0 0 1" axis="1 0 0" damping=".1" name="joint1-2"/>
+            <joint pos="1 0 0" damping=".1" type="slide" name="joint1-3"/>
+            <body name="body2" pos="2 0 0">
+                <inertial mass="0.1" diaginertia="0.1 0.1 0.1" pos="0 0 0"/>
+            </body>
+        </body>
+    </body>
+  </worldbody>
+</mujoco>

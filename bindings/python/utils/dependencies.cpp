@@ -8,39 +8,39 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     namespace bp = boost::python;
 
     void exposeDependencies()
     {
       bp::scope().attr("WITH_HPP_FCL") =
 #ifdef PINOCCHIO_WITH_HPP_FCL
-      true;
+        true;
 #else
-      false;
+        false;
 #endif
-      
+
       bp::scope().attr("WITH_URDFDOM") =
 #ifdef PINOCCHIO_WITH_URDFDOM
-      true;
+        true;
 #else
-      false;
+        false;
 #endif
-      
+
       bp::scope().attr("WITH_CPPAD") =
 #ifdef PINOCCHIO_WITH_CPPAD
-      true;
+        true;
 #else
-      false;
+        false;
 #endif
-      
+
       bp::scope().attr("WITH_OPENMP") =
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
-      true;
+        true;
 #else
-      false;
+        false;
 #endif
     }
-    
+
   } // namespace python
 } // namespace pinocchio

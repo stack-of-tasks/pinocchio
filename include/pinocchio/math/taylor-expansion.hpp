@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2019 INRIA
+// Copyright (c) 2018-2021 INRIA
 //
 
 #ifndef __pinocchio_math_taylor_expansion_hpp__
@@ -10,7 +10,7 @@
 
 namespace pinocchio
 {
-  
+
   ///
   /// \brief Helper struct to retrieve some useful information for a Taylor series
   ///        expansion according to the a given Scalar type.
@@ -21,7 +21,8 @@ namespace pinocchio
   struct TaylorSeriesExpansion
   {
     ///
-    /// \brief Computes the expected tolerance of the argument of a Taylor series expansion for a certain degree
+    /// \brief Computes the expected tolerance of the argument of a Taylor series expansion for a
+    /// certain degree
     ///        according to the machine precision of the given input Scalar.
     ///
     /// \tparam degree the degree of the Taylor series expansion.
@@ -29,11 +30,17 @@ namespace pinocchio
     template<int degree>
     static Scalar precision()
     {
-      static Scalar value = math::pow(std::numeric_limits<Scalar>::epsilon(),Scalar(1)/Scalar(degree+1));
+      static Scalar value =
+        math::pow(std::numeric_limits<Scalar>::epsilon(), Scalar(1) / Scalar(degree + 1));
       return value;
+    }
+
+    static Scalar precision(const int degree)
+    {
+      return math::pow(std::numeric_limits<Scalar>::epsilon(), Scalar(1) / Scalar(degree + 1));
     }
   }; // struct TaylorSeriesExpansion
 
-}
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_math_taylor_expansion_hpp__

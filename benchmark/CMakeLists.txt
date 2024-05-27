@@ -1,84 +1,96 @@
 #
-# Copyright (c) 2015-2021 CNRS INRIA
+# Copyright (c) 2015-2023 CNRS INRIA
 #
 
 # ----------------------------------------------------
 # --- BENCHMARK --------------------------------------
 # ----------------------------------------------------
-ADD_CUSTOM_TARGET(bench)
+add_custom_target(bench)
 
-MACRO(ADD_BENCH bench_name)
-  IF(BUILD_BENCHMARK)
-    ADD_EXECUTABLE(${bench_name} ${bench_name}.cpp)
-  ELSE(BUILD_BENCHMARK)
-    ADD_EXECUTABLE(${bench_name} EXCLUDE_FROM_ALL ${bench_name}.cpp)
-  ENDIF(BUILD_BENCHMARK)
-  SET(ExtraMacroArgs ${ARGN})
-  LIST(LENGTH ExtraMacroArgs NumExtraMacroArgs)
-  IF(NumExtraMacroArgs GREATER 0)
-    SET(link_to_main_lib ${ARGV1})
-    IF(link_to_main_lib)
-      SET_TARGET_PROPERTIES(${bench_name} PROPERTIES COMPILE_DEFINITIONS PINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
-      TARGET_LINK_LIBRARIES(${bench_name} PUBLIC ${PROJECT_NAME})
-    ENDIF(link_to_main_lib)
-  ENDIF()
+macro(ADD_BENCH bench_name)
+  if(BUILD_BENCHMARK)
+    add_executable(${bench_name} ${bench_name}.cpp)
+  else(BUILD_BENCHMARK)
+    add_executable(${bench_name} EXCLUDE_FROM_ALL ${bench_name}.cpp)
+  endif(BUILD_BENCHMARK)
+  set(ExtraMacroArgs ${ARGN})
+  list(LENGTH ExtraMacroArgs NumExtraMacroArgs)
+  if(NumExtraMacroArgs GREATER 0)
+    set(link_to_main_lib ${ARGV1})
+    if(link_to_main_lib)
+      set_target_properties(${bench_name} PROPERTIES COMPILE_DEFINITIONS
+                                                     PINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
+      target_link_libraries(${bench_name} PUBLIC ${PROJECT_NAME})
+    endif(link_to_main_lib)
+  endif()
 
-  ADD_DEPENDENCIES(bench ${bench_name})
-ENDMACRO(ADD_BENCH)
+  add_dependencies(bench ${bench_name})
+endmacro(ADD_BENCH)
 
-MACRO(ADD_TEST_CFLAGS target flag)
-  SET_PROPERTY(TARGET ${target} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
-ENDMACRO(ADD_TEST_CFLAGS)
+macro(ADD_TEST_CFLAGS target flag)
+  set_property(
+    TARGET ${target}
+    APPEND_STRING
+    PROPERTY COMPILE_FLAGS " ${flag}")
+endmacro(ADD_TEST_CFLAGS)
 
-IF(CPPAD_FOUND)
-  INCLUDE_DIRECTORIES(${cppad_INCLUDE_DIR})
-ENDIF(CPPAD_FOUND)
+if(CPPAD_FOUND)
+  include_directories(${cppad_INCLUDE_DIR})
+endif(CPPAD_FOUND)
 
-IF(CPPADCG_FOUND)
-  INCLUDE_DIRECTORIES(${cppadcg_INCLUDE_DIR})
-ENDIF(CPPADCG_FOUND)
-
-# timings
-#
-ADD_BENCH(timings TRUE)
-IF(CPPADCG_FOUND)
-  ADD_BENCH(timings-cg TRUE)
-  SET_PROPERTY(TARGET timings-cg PROPERTY CXX_STANDARD 11)
-  TARGET_LINK_LIBRARIES(timings-cg PUBLIC ${CMAKE_DL_LIBS})
-ENDIF(CPPADCG_FOUND)
-
-IF(BUILD_WITH_OPENMP_SUPPORT)
-  ADD_BENCH(timings-parallel TRUE)
-  TARGET_LINK_LIBRARIES(timings-parallel PRIVATE OpenMP::OpenMP_CXX)
-ENDIF(BUILD_WITH_OPENMP_SUPPORT)
+if(cppadcg_FOUND)
+  include_directories(${cppadcg_INCLUDE_DIR})
+endif(cppadcg_FOUND)
 
 # timings
 #
-ADD_BENCH(timings-cholesky TRUE)
+add_bench(timings TRUE)
+if(cppadcg_FOUND)
+  add_bench(timings-cg TRUE)
+  target_link_libraries(timings-cg PUBLIC ${CMAKE_DL_LIBS} ${cppad_LIBRARY})
+endif(cppadcg_FOUND)
+
+if(BUILD_WITH_OPENMP_SUPPORT)
+  add_bench(timings-parallel TRUE)
+endif(BUILD_WITH_OPENMP_SUPPORT)
+
+# timings
+#
+add_bench(timings-cholesky TRUE)
 
 # timings derivatives
 
-ADD_BENCH(timings-derivatives TRUE)
-IF(CPPAD_FOUND)
-  TARGET_LINK_LIBRARIES(timings-derivatives PUBLIC ${cppad_LIBRARY})
-ENDIF(CPPAD_FOUND)
-IF(CPPADCG_FOUND)
-  SET_PROPERTY(TARGET timings-derivatives PROPERTY CXX_STANDARD 11)
-ENDIF(CPPADCG_FOUND)
+add_bench(timings-derivatives TRUE)
+if(CPPAD_FOUND)
+  # timings-cppad-jit
+  add_bench(timings-cppad-jit TRUE)
+  target_link_libraries(timings-derivatives PUBLIC ${cppad_LIBRARY})
+  target_link_libraries(timings-cppad-jit PUBLIC ${cppad_LIBRARY} ${CMAKE_DL_LIBS})
+  target_compile_definitions(timings-cppad-jit
+                             PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\")
+endif()
 
 # timings-eigen
 #
-ADD_BENCH(timings-eigen)
-MODERNIZE_TARGET_LINK_LIBRARIES(timings-eigen SCOPE PUBLIC
+add_bench(timings-eigen)
+modernize_target_link_libraries(
+  timings-eigen
+  SCOPE PUBLIC
   TARGETS Eigen3::Eigen
   INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 
 # timings-geometry
 #
-IF(URDFDOM_FOUND AND hpp-fcl_FOUND)
-  ADD_BENCH(timings-geometry TRUE)
-ENDIF(URDFDOM_FOUND AND hpp-fcl_FOUND)
+if(URDFDOM_FOUND AND hpp-fcl_FOUND)
+  add_bench(timings-geometry TRUE)
+endif(URDFDOM_FOUND AND hpp-fcl_FOUND)
 
 # timings-jacobian
 #
-ADD_BENCH(timings-jacobian TRUE)
+add_bench(timings-jacobian TRUE)
+
+# timings-contact-dynamics
+#
+add_bench(timings-delassus-operations TRUE)
+add_bench(timings-contact-dynamics TRUE)
+add_bench(timings-constrained-dynamics-derivatives TRUE)

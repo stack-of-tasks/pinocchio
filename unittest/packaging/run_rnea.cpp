@@ -1,4 +1,4 @@
-#include <pinocchio/parsers/sample-models.hpp>
+#include <pinocchio/multibody/sample-models.hpp>
 #include <pinocchio/algorithm/rnea.hpp>
 #include <pinocchio/algorithm/joint-configuration.hpp>
 
@@ -16,7 +16,7 @@ int main(int /*argc*/, char ** /*argv*/)
   Model::VectorXs a = Model::VectorXs::Random(model.nv);
 
   Data data(model);
-  rnea(model,data,q,v,a);
+  rnea(model, data, q, v, a);
 
   return 0;
 }

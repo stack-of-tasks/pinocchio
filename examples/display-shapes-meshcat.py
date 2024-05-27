@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import pinocchio as pin
+
 try:
     import hppfcl
 except ImportError:

@@ -4,11 +4,15 @@ import numpy as np
 
 from test_case import PinocchioTestCase
 
-class TestFrameBindings(PinocchioTestCase):
 
+class TestFrameBindings(PinocchioTestCase):
     def setUp(self):
         self.model = pin.buildSampleModelHumanoidRandom()
-        self.joint_idx = self.model.getJointId("rarm2_joint") if self.model.existJointName("rarm2_joint") else (self.model.njoints-1)
+        self.joint_idx = (
+            self.model.getJointId("rarm2_joint")
+            if self.model.existJointName("rarm2_joint")
+            else (self.model.njoints - 1)
+        )
 
         self.data = self.model.createData()
         self.q = pin.randomConfiguration(self.model)
@@ -26,15 +30,20 @@ class TestFrameBindings(PinocchioTestCase):
         v = self.v
         a = self.a
 
-        pin.computeForwardKinematicsDerivatives(model,data,q,v,a)
+        pin.computeForwardKinematicsDerivatives(model, data, q, v, a)
 
-        pin.getJointVelocityDerivatives(model,data,self.joint_idx,pin.WORLD)
-        pin.getJointVelocityDerivatives(model,data,self.joint_idx,pin.LOCAL)
-        pin.getJointVelocityDerivatives(model,data,self.joint_idx,pin.LOCAL_WORLD_ALIGNED)
+        pin.getJointVelocityDerivatives(model, data, self.joint_idx, pin.WORLD)
+        pin.getJointVelocityDerivatives(model, data, self.joint_idx, pin.LOCAL)
+        pin.getJointVelocityDerivatives(
+            model, data, self.joint_idx, pin.LOCAL_WORLD_ALIGNED
+        )
 
-        pin.getJointAccelerationDerivatives(model,data,self.joint_idx,pin.WORLD)
-        pin.getJointAccelerationDerivatives(model,data,self.joint_idx,pin.LOCAL)
-        pin.getJointAccelerationDerivatives(model,data,self.joint_idx,pin.LOCAL_WORLD_ALIGNED)
+        pin.getJointAccelerationDerivatives(model, data, self.joint_idx, pin.WORLD)
+        pin.getJointAccelerationDerivatives(model, data, self.joint_idx, pin.LOCAL)
+        pin.getJointAccelerationDerivatives(
+            model, data, self.joint_idx, pin.LOCAL_WORLD_ALIGNED
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

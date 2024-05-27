@@ -10,13 +10,13 @@
 #include <boost/python.hpp>
 
 #if defined _WIN32
-# ifdef pinocchio_pywrap_EXPORTS
-#   define PINOCCHIO_PYWRAP_DLLAPI __declspec(dllexport)
-# else
-#   define PINOCCHIO_PYWRAP_DLLAPI __declspec(dllimport)
-# endif // pinocchio_pywrap_EXPORTS
+  #ifdef pinocchio_pywrap_EXPORTS
+    #define PINOCCHIO_PYWRAP_DLLAPI __declspec(dllexport)
+  #else
+    #define PINOCCHIO_PYWRAP_DLLAPI __declspec(dllimport)
+  #endif // pinocchio_pywrap_EXPORTS
 #else
-# define PINOCCHIO_PYWRAP_DLLAPI
+  #define PINOCCHIO_PYWRAP_DLLAPI
 #endif // _WIN32
 
 namespace pinocchio
@@ -34,22 +34,10 @@ namespace pinocchio
     ///
     // TODO: look inside the context of Python and find an occurence of object Model
     PINOCCHIO_PYWRAP_DLLAPI
-    Model buildModel(const std::string & filename,
-                     const std::string & var_name = "model");
-    
-    ///
-    /// \copydoc pinocchio::python::buildModel(const std::string &, const std::string &)
-    ///
-    PINOCCHIO_DEPRECATED
-    Model buildModel(const std::string & filename,
-                     const std::string & var_name,
-                     const bool /*verbose*/)
-    {
-      return buildModel(filename,var_name);
-    }
-    
+    Model buildModel(const std::string & filename, const std::string & var_name = "model");
+
   } // namespace python
-  
+
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_parser_python_hpp__

@@ -39,7 +39,8 @@ or via pip (currently only available on Linux):
 <strong> pip install pin </strong>
 </p>
 
-## Table of contents 
+
+## Table of contents
 
   - [Pinocchio main features](#pinocchio-main-features)
   - [Documentation](#documentation)
@@ -53,6 +54,38 @@ or via pip (currently only available on Linux):
   - [Credits](#credits)
   - [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
   - [Acknowledgments](#acknowledgments)
+
+## Introducing Pinocchio 3
+**Pinocchio3** is released for development under the branch [pinocchio3-preview](https://github.com/stack-of-tasks/pinocchio/tree/pinocchio3-preview) on the main github repository.
+With **Pinocchio3**, multiple new features are introduced in **Pinocchio**, such as:
+  - Sparse Solution of Constrained Dynamics (Published in Robotics: Science and Systems 2021)
+  - Constrained Dynamics Derivatives (In pre-publishing stages)
+  - Constraint Models for handling loop constraints.
+  - Full casadi support in python and C++
+  - Increased support of CppAD and CppADCodeGen
+  - New SDF parser.
+  - and much more...
+
+**Pinocchio** developers are highly encouraged to check out the new features. However, please keep in mind that this remains a **development** branch, and thus the API between 2.9.x and 2.9.{x+1} could change without backward compatibility.
+
+The new constrained dynamics algorithm can be cited by the following publication:
+
+```bibtex
+@inproceedings{carpentier:hal-03271811,
+  TITLE = {{Proximal and Sparse Resolution of Constrained Dynamic Equations}},
+  AUTHOR = {Carpentier, Justin and Budhiraja, Rohan and Mansard, Nicolas},
+  URL = {https://hal.inria.fr/hal-03271811},
+  BOOKTITLE = {{Robotics: Science and Systems 2021}},
+  ADDRESS = {Austin / Virtual, United States},
+  YEAR = {2021},
+  MONTH = Jul,
+  PDF = {https://hal.inria.fr/hal-03271811/file/rss-proximal-and-sparse.pdf},
+  HAL_ID = {hal-03271811},
+  HAL_VERSION = {v1},
+}
+
+```
+
 
 ## Pinocchio main features
 

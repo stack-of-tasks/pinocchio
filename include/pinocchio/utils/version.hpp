@@ -12,7 +12,7 @@
 
 namespace pinocchio
 {
-  
+
   ///
   /// \brief Returns the current version of Pinocchio as a string using
   ///        the following standard:
@@ -21,13 +21,11 @@ namespace pinocchio
   inline std::string printVersion(const std::string & delimiter = ".")
   {
     std::ostringstream oss;
-    oss
-    << PINOCCHIO_MAJOR_VERSION << delimiter
-    << PINOCCHIO_MINOR_VERSION << delimiter
-    << PINOCCHIO_PATCH_VERSION;
+    oss << PINOCCHIO_MAJOR_VERSION << delimiter << PINOCCHIO_MINOR_VERSION << delimiter
+        << PINOCCHIO_PATCH_VERSION;
     return oss.str();
   }
-  
+
   ///
   /// \brief Checks if the current version of Pinocchio is at least the version provided
   ///        by the input arguments.
@@ -39,17 +37,12 @@ namespace pinocchio
   /// \returns true if the current version of Pinocchio is greater than the version provided
   ///        by the input arguments.
   ///
-  inline bool checkVersionAtLeast(unsigned int major_version,
-                                  unsigned int minor_version,
-                                  unsigned int patch_version)
+  inline bool checkVersionAtLeast(
+    unsigned int major_version, unsigned int minor_version, unsigned int patch_version)
   {
-    return
-    PINOCCHIO_MAJOR_VERSION > major_version
-    || (PINOCCHIO_MAJOR_VERSION >= major_version
-        && (PINOCCHIO_MINOR_VERSION > minor_version
-            || (PINOCCHIO_MINOR_VERSION >= minor_version
-                && PINOCCHIO_PATCH_VERSION >= patch_version)));
+    return PINOCCHIO_MAJOR_VERSION > major_version
+           || (PINOCCHIO_MAJOR_VERSION >= major_version && (PINOCCHIO_MINOR_VERSION > minor_version || (PINOCCHIO_MINOR_VERSION >= minor_version && PINOCCHIO_PATCH_VERSION >= patch_version)));
   }
-}
+} // namespace pinocchio
 
 #endif // __pinocchio_utils_version_hpp__

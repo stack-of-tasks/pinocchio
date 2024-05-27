@@ -1,0 +1,44 @@
+<robot name="test_mjcf">
+
+  <!-- * * * Link Definitions * * * -->
+   <link name="link0">
+    <inertial>
+            <origin xyz="0 0 0.0" rpy="0 0 0"/>
+            <mass value="0"/>
+            <inertia ixx="0"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
+        </inertial>
+  </link>
+
+   <link name="link1">
+        <inertial>
+            <origin xyz="0 0 0.0" rpy="0 0 0"/>
+            <mass value="0"/>
+            <inertia ixx="0"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
+        </inertial>
+  </link>
+
+  <link name="link2">
+        <inertial>
+            <origin xyz="0 0 0.0" rpy="0 0 0"/>
+            <mass value="0"/>
+            <inertia ixx="0"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
+        </inertial>
+  </link>
+  <!-- * * * Joint Definitions * * * -->
+
+  <joint name="joint1" type="revolute">
+      <parent link="link0"/>
+      <child link="link1"/>
+      <origin xyz="0 0 0.333" rpy="0 0 0"/>
+        <axis xyz="1 0 0"/>
+      <limit lower="-2.8973" upper="2.8973" effort="10" velocity="0"/>
+  </joint>
+
+  <joint name="joint2" type="prismatic">
+      <parent link="link1"/>
+      <child link="link2"/>
+      <origin xyz="0 0 0" rpy="-1.57 0 0"/>
+        <axis xyz="0 1 0" />
+        <limit lower="-1.7628" upper="1.7628" effort="10" velocity="0"/>
+  </joint>
+</robot>

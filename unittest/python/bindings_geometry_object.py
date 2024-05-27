@@ -2,18 +2,18 @@ import unittest
 import pinocchio as pin
 import numpy as np
 
-@unittest.skipUnless(pin.WITH_HPP_FCL,"Needs HPP-FCL")
-class TestGeometryObjectBindings(unittest.TestCase):
 
+@unittest.skipUnless(pin.WITH_HPP_FCL, "Needs HPP-FCL")
+class TestGeometryObjectBindings(unittest.TestCase):
     def setUp(self):
         self.model = pin.buildSampleModelHumanoid()
         self.collision_model = pin.buildSampleGeometryModelHumanoid(self.model)
 
     def test_name_get_set(self):
         col = self.collision_model.geometryObjects[0]
-        self.assertTrue(col.name == 'rleg_shoulder_object')
-        col.name = 'new_collision_name'
-        self.assertTrue(col.name == 'new_collision_name')
+        self.assertTrue(col.name == "rleg_shoulder_object")
+        col.name = "new_collision_name"
+        self.assertTrue(col.name == "new_collision_name")
 
     def test_parent_get_set(self):
         col = self.collision_model.geometryObjects[0]
@@ -25,28 +25,13 @@ class TestGeometryObjectBindings(unittest.TestCase):
         m = pin.SE3.Identity()
         new_m = pin.SE3.Random()
         col = self.collision_model.geometryObjects[0]
-        self.assertTrue(np.allclose(col.placement.homogeneous,m.homogeneous))
+        self.assertTrue(np.allclose(col.placement.homogeneous, m.homogeneous))
         col.placement = new_m
-        self.assertTrue(np.allclose(col.placement.homogeneous , new_m.homogeneous))
+        self.assertTrue(np.allclose(col.placement.homogeneous, new_m.homogeneous))
 
     def test_meshpath_get(self):
         col = self.collision_model.geometryObjects[0]
         self.assertTrue(col.meshPath is not None)
-
-    def test_scale(self):
-        scale = np.array([1.,2.,3.])
-        pin.setGeometryMeshScales(self.collision_model,scale)
-        for obj in self.collision_model.geometryObjects:
-            self.assertTrue(obj.meshScale[0] == scale[0])
-            self.assertTrue(obj.meshScale[1] == scale[1])
-            self.assertTrue(obj.meshScale[2] == scale[2])
-
-    def test_scalar_scale(self):
-        scale = 2.
-        vec = np.array([scale]*3)
-        pin.setGeometryMeshScales(self.collision_model,scale)
-        for obj in self.collision_model.geometryObjects:
-            self.assertTrue(np.allclose(obj.meshScale, vec))
 
     def test_create_data(self):
         collision_data = self.collision_model.createData()
@@ -63,11 +48,11 @@ class TestGeometryObjectBindings(unittest.TestCase):
 
     def test_copy(self):
         collision_model_copy = self.collision_model.copy()
-        self.assertEqual(self.collision_model.ngeoms,collision_model_copy.ngeoms)
+        self.assertEqual(self.collision_model.ngeoms, collision_model_copy.ngeoms)
 
         collision_data = self.collision_model.createData()
         collision_data_copy = collision_data.copy()
-        self.assertEqual(len(collision_data.oMg),len(collision_data_copy.oMg))
+        self.assertEqual(len(collision_data.oMg), len(collision_data_copy.oMg))
 
     def test_material_get_set(self):
         col = self.collision_model.geometryObjects[0]
@@ -76,10 +61,13 @@ class TestGeometryObjectBindings(unittest.TestCase):
         self.assertTrue(isinstance(col.meshMaterial, (pin.GeometryPhongMaterial)))
         material = col.meshMaterial
         self.assertTrue(isinstance(material, (pin.GeometryPhongMaterial)))
-        material.meshEmissionColor = np.array([1., 1., 1., 1.])
+        material.meshEmissionColor = np.array([1.0, 1.0, 1.0, 1.0])
         material.meshShininess = 0.7
-        self.assertTrue((material.meshEmissionColor == col.meshMaterial.meshEmissionColor).all())
+        self.assertTrue(
+            (material.meshEmissionColor == col.meshMaterial.meshEmissionColor).all()
+        )
         self.assertEqual(material.meshShininess, col.meshMaterial.meshShininess)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

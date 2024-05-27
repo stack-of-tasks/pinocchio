@@ -5,6 +5,7 @@
 #ifndef __pinocchio_parsers_urdf_utils_hpp__
 #define __pinocchio_parsers_urdf_utils_hpp__
 
+#include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include <urdf_model/pose.h>
 
@@ -22,8 +23,8 @@ namespace pinocchio
       /// \return The converted pose/transform pinocchio::SE3.
       ///
       SE3 convertFromUrdf(const ::urdf::Pose & M);
-    }
-  }
-}
+    } // namespace details
+  } // namespace urdf
+} // namespace pinocchio
 
 #endif // __pinocchio_parsers_urdf_utils_hpp__

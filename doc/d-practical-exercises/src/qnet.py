@@ -20,7 +20,7 @@ tf.set_random_seed(RANDOM_SEED)
 NEPISODES               = 500           # Number of training episodes
 NSTEPS                  = 50            # Max episode length
 LEARNING_RATE           = 0.1           # Step length in optimizer
-DECAY_RATE              = 0.99          # Discount factor 
+DECAY_RATE              = 0.99          # Discount factor
 
 ### --- Environment
 env = DPendulum()
@@ -43,7 +43,7 @@ class QValueNetwork:
         self.qvalue     = qvalue        # Q-value as a function of x
         self.u          = u             # Policy  as a function of x
         self.qref       = qref          # Reference Q-value at next step (to be set to l+Q o f)
-        self.optim      = optim         # Optimizer      
+        self.optim      = optim         # Optimizer
 
 ### --- Tensor flow initialization
 tf.reset_default_graph()
@@ -54,7 +54,7 @@ tf.global_variables_initializer().run()
 def onehot(ix,n=NX):
     '''Return a vector which is 0 everywhere except index <i> set to 1.'''
     return np.array([[ (i==ix) for i in range(n) ],],np.float)
-   
+
 def disturb(u,i):
     u += int(np.random.randn()*10/(i/50+10))
     return np.clip(u,0,NU-1)
@@ -101,4 +101,3 @@ print "Total rate of success: %.3f" % (sum(h_rwd)/NEPISODES)
 rendertrial()
 plt.plot( np.cumsum(h_rwd)/range(1,NEPISODES) )
 plt.show()
-

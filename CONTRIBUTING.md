@@ -51,7 +51,7 @@ Any contribution that you make to this repository will be under the BSD Clause 2
 ~~~
 BSD 2-Clause License
 
-Copyright (c) 2014-2021, CNRS 
+Copyright (c) 2014-2021, CNRS
 Copyright (c) 2018-2021, INRIA
 All rights reserved.
 

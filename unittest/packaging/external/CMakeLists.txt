@@ -7,21 +7,24 @@ message(STATUS "PINOCCHIO_GIT_TAG: $ENV{PINOCCHIO_GIT_TAG}")
 
 include(FetchContent)
 FetchContent_Declare(
-#FetchContent_Populate(
+  # FetchContent_Populate(
   Pinocchio
   GIT_REPOSITORY $ENV{PINOCCHIO_GIT_REPOSITORY}
   GIT_TAG $ENV{PINOCCHIO_GIT_TAG}
   GIT_SUBMODULES cmake
-  GIT_SHALLOW ON
-)
+  GIT_SHALLOW ON)
 
 FetchContent_GetProperties(Pinocchio)
-if(NOT pinocchio_POPULATED)   # name is lowercased
+if(NOT pinocchio_POPULATED) # name is lowercased
   FetchContent_Populate(Pinocchio)
   message(STATUS "pinocchio source dir: ${pinocchio_SOURCE_DIR}")
   message(STATUS "pinocchio binary dir: ${pinocchio_BINARY_DIR}")
-  set(BUILD_PYTHON_INTERFACE OFF CACHE INTERNAL "Build Python bindings")
-  set(BUILD_TESTING OFF CACHE INTERNAL "Build unit tests")
+  set(BUILD_PYTHON_INTERFACE
+      OFF
+      CACHE INTERNAL "Build Python bindings")
+  set(BUILD_TESTING
+      OFF
+      CACHE INTERNAL "Build unit tests")
   add_subdirectory(${pinocchio_SOURCE_DIR} ${pinocchio_BINARY_DIR}) # name is lowercased
 endif()
 # or simply FetchContent_MakeAvailable(Pinocchio)

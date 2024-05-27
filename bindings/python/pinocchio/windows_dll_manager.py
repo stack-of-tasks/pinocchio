@@ -4,7 +4,7 @@ import contextlib
 
 
 def get_dll_paths():
-    pinocchio_paths = os.getenv('PINOCCHIO_WINDOWS_DLL_PATH')
+    pinocchio_paths = os.getenv("PINOCCHIO_WINDOWS_DLL_PATH")
     if pinocchio_paths is None:
         # Standard site-packages to bin path
         RELATIVE_DLL_PATH = "..\\..\\..\\bin"

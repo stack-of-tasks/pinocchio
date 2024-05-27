@@ -1,4 +1,3 @@
-
 # This config uses industrial_ci (https://github.com/ros-industrial/industrial_ci.git).
 # For troubleshooting, see readme (https://github.com/ros-industrial/industrial_ci/blob/master/README.rst)
 
@@ -8,22 +7,22 @@ name: CI - Linux via ROS
 on:
   push:
     paths-ignore:
-      - 'doc/**'
-      - '.gitlab-ci.yml'
-      - '.gitignore'
+      - doc/**
+      - .gitlab-ci.yml
+      - .gitignore
       - '*.md'
-      - 'CITATION.*'
-      - 'COPYING.LESSER'
-      - '.pre-commit-config.yaml'
+      - CITATION.*
+      - COPYING.LESSER
+      - .pre-commit-config.yaml
   pull_request:
     paths-ignore:
-      - 'doc/**'
-      - '.gitlab-ci.yml'
-      - '.gitignore'
+      - doc/**
+      - .gitlab-ci.yml
+      - .gitignore
       - '*.md'
-      - 'CITATION.*'
-      - 'COPYING.LESSER'
-      - '.pre-commit-config.yaml'
+      - CITATION.*
+      - COPYING.LESSER
+      - .pre-commit-config.yaml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -47,7 +46,7 @@ jobs:
       # The work-around is thus to use catkin_tools for building and sourcing, and to manually specify execution of the test
       # target after completion of the regular test target. The output of this step does affect the output of the CI process.
       # Note, this does not affect projects that do not have pure CMake projects in their upstream_ws.
-      AFTER_RUN_TARGET_TEST: 'ici_with_unset_variables source /root/target_ws/install/setup.bash && cd /root/target_ws/build/pinocchio && make test'
+      AFTER_RUN_TARGET_TEST: ici_with_unset_variables source /root/target_ws/install/setup.bash && cd /root/target_ws/build/pinocchio && make test
       IMMEDIATE_TEST_OUTPUT: 1
     runs-on: ubuntu-latest
     steps:
@@ -61,5 +60,5 @@ jobs:
           key: ccache-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}-${{ github.sha }}
           restore-keys: ccache-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}-
       # Run industrial_ci
-      - uses: 'ros-industrial/industrial_ci@3ed9846c96ed1e0bb36193e8e250632eaac980d0'
+      - uses: ros-industrial/industrial_ci@3ed9846c96ed1e0bb36193e8e250632eaac980d0
         env: ${{ matrix.env }}

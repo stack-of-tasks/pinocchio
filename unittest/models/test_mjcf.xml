@@ -1,0 +1,31 @@
+<mujoco model="test">
+    <default class="mother">
+        <joint armature="0.1" damping="1" axis="1 0 0" range="-2.8973 2.8973"/>
+        <default class="second">
+            <joint axis="0 1 0" type="slide"/>
+        </default>
+        <default class="third">
+            <joint type="ball"/>
+        </default>
+    </default>
+
+    <worldbody>
+        <body name="link0" childclass="mother">
+            <body name="link1" pos="0 0 0.333">
+                <inertial mass="0.629769" pos="-0.041018 -0.00014 0.049974"
+                fullinertia="0.00315 0.00388 0.004285 8.2904e-7 0.00015 8.2299e-6"/>
+                <joint name="joint1"/>
+                <body name="link2" quat="1 -1 0 0">
+                    <inertial mass="0.629769" pos="-0.041018 -0.00014 0.049974"
+                    fullinertia="0.00315 0.00388 0.004285 8.2904e-7 0.00015 8.2299e-6"/>
+                    <joint name="joint2" range="-1.7628 1.7628" class="second"/>
+                    <body name="link3" pos="0 0 0">
+                        <inertial mass="0.629769" pos="-0.041018 -0.00014 0.049974"
+                        fullinertia="0.00315 0.00388 0.004285 8.2904e-7 0.00015 8.2299e-6"/>
+                        <joint name="joint3" class="third"/>
+                    </body>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>

@@ -11,6 +11,6 @@ namespace pinocchio
   {
     void exposeSRDFParser();
   }
-}
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_parsers_srdf_hpp__

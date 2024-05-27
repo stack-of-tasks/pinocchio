@@ -57,7 +57,7 @@ signal.signal(signal.SIGTSTP, lambda x,y:callback.setWithDisplay())
 U0     = zero(NSTEPS*env.nu)-env.umax             # Initial guess for the control trajectory.
 bounds = [ [-env.umax,env.umax], ]*env.nu*NSTEPS  # Set control bounds to environment umax.
 
-# Start BFGS optimization routine 
+# Start BFGS optimization routine
 U,c,info = fmin_l_bfgs_b(cost,x0=U0,callback=callback,
                          approx_grad=True,bounds=bounds)
 
@@ -66,4 +66,3 @@ display(U,True)
 
 plt.plot(callback.h_rwd)
 plt.show()
-
