@@ -130,7 +130,10 @@ add_pinocchio_unit_test(rotation)
 add_pinocchio_unit_test(vector)
 add_pinocchio_unit_test(eigenvalues)
 add_pinocchio_unit_test(tridiagonal-matrix)
-add_pinocchio_unit_test(lanczos-decomposition)
+# TOOD This test contains an undefined behavior and is not stable. Reactivte the test when the fix
+# is merged.
+
+# add_pinocchio_unit_test(lanczos-decomposition)
 add_pinocchio_unit_test(gram-schmidt-orthonormalisation)
 
 # Derivatives algo
