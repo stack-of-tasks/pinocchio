@@ -71,7 +71,7 @@ jobs:
           auto-activate-base: false
 
       - name: Setup CMAKE_TOOLCHAIN_FILE
-        if: contains(matrix.os, 'ubuntu') && contains(matrix.build_type, 'Debug')
+        if: (contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')) && contains(matrix.build_type, 'Debug')
         run: |
           echo "CMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake" >> "$GITHUB_ENV"
 
