@@ -33,7 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Extended testing and support of Lie groups operations by [@jcarpent](https://github.com/jcarpent) and [@ManifoldFR](https://github.com/ManifoldFR)
 - Full support of AVX512 and AVX2 vectorization for Python bindings by [@jcarpent](https://github.com/jcarpent)
 - Full support of the robot armature in RNEA, CRBA and ABA
-- Extended formulation of RNEA, CRBA and ABA using WORLD convention for reduced computational burden in the derivative algorithms
+- Extended formulation of CRBA and ABA using WORLD convention for reduced computational burden in the derivative algorithms
 
 #### Parsers
 
