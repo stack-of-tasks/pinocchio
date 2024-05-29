@@ -38,7 +38,7 @@ namespace pinocchio
           if (parent.get_child_optional(path))
           {
             const ptree default_value = ptree(); 
-            const ptree & attr_parent = parent.get_child(path, default_value);
+            ptree attr_parent = parent.get_child(path, default_value);
             const ptree & attr_current = current.get_child(path, default_value);
             // To only copy non existing attribute in current, we copy all current
             // attribute (replacing) into a parent copy then we replace current with the new
