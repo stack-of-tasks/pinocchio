@@ -37,8 +37,9 @@ namespace pinocchio
           std::string path = el + ".<xmlattr>";
           if (parent.get_child_optional(path))
           {
-            ptree attr_parent = parent.get_child(path, ptree());
-            ptree attr_current = current.get_child(path, ptree());
+            const ptree default_value = ptree();
+            ptree attr_parent = parent.get_child(path, default_value);
+            const ptree & attr_current = current.get_child(path, default_value);
             // To only copy non existing attribute in current, we copy all current
             // attribute (replacing) into a parent copy then we replace current with the new
             // ptree
