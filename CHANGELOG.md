@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- fix compilation issue for Boost 1.85 [#2255](https://github.com/stack-of-tasks/pinocchio/pull/2255)
+- Fix compilation issue for Boost 1.85 ([#2255](https://github.com/stack-of-tasks/pinocchio/pull/2255))
 
 ## [3.0.0] - 2024-05-27
 
