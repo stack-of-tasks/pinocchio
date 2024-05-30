@@ -273,3 +273,67 @@
    fun:UnknownInlinedFun
    fun:_imp_create_dynamic
 }
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:d_growable_string_resize
+   fun:d_growable_string_append_buffer
+   fun:d_growable_string_callback_adapter
+   fun:d_print_flush
+   fun:d_print_callback
+   fun:d_demangle_callback.constprop.0
+   fun:d_demangle
+   fun:__cxa_demangle
+   fun:_ZN5boost6python6detail12gcc_demangleEPKc
+   fun:name
+   fun:visit<boost::python::class_<pinocchio::ComputeCollision> >
+   fun:visit<boost::python::def_visitor<pinocchio::python::GeometryFunctorPythonVisitor<pinocchio::ComputeCollision> >, boost::python::class_<pinocchio::ComputeCollision> >
+   fun:visit<boost::python::class_<pinocchio::ComputeCollision> >
+   fun:def<pinocchio::python::GeometryFunctorPythonVisitor<pinocchio::ComputeCollision> >
+   fun:_ZN9pinocchio6python15exposeCollisionEv
+   fun:_Z36init_module_pinocchio_pywrap_defaultv
+   fun:UnknownInlinedFun
+   fun:_ZN5boost6python21handle_exception_implENS_9function0IvEE
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_ZN5boost6python6detail11init_moduleER11PyModuleDefPFvvE
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_imp_create_dynamic
+   fun:cfunction_vectorcall_FASTCALL
+   fun:UnknownInlinedFun
+   fun:_PyEval_EvalFrameDefault.cold
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:realloc
+   fun:d_growable_string_resize
+   fun:d_growable_string_append_buffer
+   fun:d_growable_string_callback_adapter
+   fun:d_print_flush
+   fun:d_print_callback
+   fun:d_demangle_callback.constprop.0
+   fun:d_demangle
+   fun:__cxa_demangle
+   fun:_ZN5boost6python6detail12gcc_demangleEPKc
+   fun:name
+   fun:_ZNK9pinocchio6python28GeometryFunctorPythonVisitorINS_15ComputeDistanceEE5visitIN5boost6python6class_IS2_NS6_6detail13not_specifiedES9_S9_EEEEvRT_.isra.0
+   fun:visit<boost::python::def_visitor<pinocchio::python::GeometryFunctorPythonVisitor<pinocchio::ComputeDistance> >, boost::python::class_<pinocchio::ComputeDistance> >
+   fun:visit<boost::python::class_<pinocchio::ComputeDistance> >
+   fun:def<pinocchio::python::GeometryFunctorPythonVisitor<pinocchio::ComputeDistance> >
+   fun:_ZN9pinocchio6python15exposeCollisionEv
+   fun:_Z36init_module_pinocchio_pywrap_defaultv
+   fun:UnknownInlinedFun
+   fun:_ZN5boost6python21handle_exception_implENS_9function0IvEE
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_ZN5boost6python6detail11init_moduleER11PyModuleDefPFvvE
+   fun:UnknownInlinedFun
+   fun:UnknownInlinedFun
+   fun:_imp_create_dynamic
+   fun:cfunction_vectorcall_FASTCALL
+}
