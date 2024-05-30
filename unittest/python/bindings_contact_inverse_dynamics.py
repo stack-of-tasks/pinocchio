@@ -3,10 +3,11 @@ import unittest
 import numpy as np
 
 import pinocchio as pin
+from test_case import PinocchioTestCase as TestCase
 
 
 @unittest.skipUnless(pin.WITH_URDFDOM, "Needs URDFDOM")
-class TestContactInverseDynamics(unittest.TestCase):
+class TestContactInverseDynamics(TestCase):
     def setUp(self):
         self.current_file = os.path.dirname(str(os.path.abspath(__file__)))
         self.model_dir = os.path.abspath(
@@ -132,8 +133,8 @@ class TestContactInverseDynamics(unittest.TestCase):
             prox_settings,
             lambda_guess,
         )
-        assert np.allclose(tau1, tau2)
-        assert np.allclose(tau1, tau3)
+        self.assertApprox(tau1, tau2)
+        self.assertApprox(tau1, tau3)
 
 
 if __name__ == "__main__":
