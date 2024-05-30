@@ -54,7 +54,7 @@ endif(hpp-fcl_FOUND)
 
 if(urdfdom_FOUND)
   set(${PROJECT_NAME}_PYTHON_TESTS ${${PROJECT_NAME}_PYTHON_TESTS} bindings_urdf
-                                   bindings_geometry_model_urdf)
+                                   bindings_geometry_model_urdf bindings_contact_inverse_dynamics)
 endif(urdfdom_FOUND)
 
 foreach(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
