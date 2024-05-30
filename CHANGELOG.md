@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - Fix compilation issue for Boost 1.85 ([#2255](https://github.com/stack-of-tasks/pinocchio/pull/2255))
+- Fix python bindings of `contactInverseDynamics` ([#2263](https://github.com/stack-of-tasks/pinocchio/pull/2263))
 
 
 ### Added
