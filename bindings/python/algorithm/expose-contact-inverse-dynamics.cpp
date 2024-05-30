@@ -5,7 +5,7 @@
 #define BOOST_PYTHON_MAX_ARITY 24
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
-#include "pinocchio/bindings/python/utils/list.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/algorithm/contact-inverse-dynamics.hpp"
 
 namespace pinocchio
