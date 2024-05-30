@@ -1,9 +1,8 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2019-2024 INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
-#include "pinocchio/bindings/python/utils/list.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/algorithm/model.hpp"
 
