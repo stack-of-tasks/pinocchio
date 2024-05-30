@@ -98,7 +98,6 @@ class TestContactInverseDynamics(unittest.TestCase):
             prox_settings,
             lambda_guess,
         )
-        print(f"{tau1=}")
 
         # test 2 with list of contact models, cones
         tau2 = pin.contactInverseDynamics(
@@ -116,26 +115,25 @@ class TestContactInverseDynamics(unittest.TestCase):
             prox_settings,
             lambda_guess,
         )
-        print(f"{tau2=}")
 
-        # Not working
         # test 3 with list of contact models, contact datas and cones
-        # tau3 = pin.contactInverseDynamics(
-        #     model,
-        #     data,
-        #     q,
-        #     v,
-        #     a,
-        #     dt,
-        #     contact_models_list,
-        #     contact_datas_list,
-        #     cones_list,
-        #     R,
-        #     constraint_correction,
-        #     prox_settings,
-        #     lambda_guess,
-        # )
-        # print(f"{tau3=}")
+        tau3 = pin.contactInverseDynamics(
+            model,
+            data,
+            q,
+            v,
+            a,
+            dt,
+            contact_models_list,
+            contact_datas_list,
+            cones_list,
+            R,
+            constraint_correction,
+            prox_settings,
+            lambda_guess,
+        )
+        assert np.allclose(tau1, tau2)
+        assert np.allclose(tau1, tau3)
 
 
 if __name__ == "__main__":
