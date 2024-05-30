@@ -1,9 +1,8 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2024 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
-#include "pinocchio/bindings/python/utils/list.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 
 namespace pinocchio
