@@ -56,6 +56,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Support of SDF format by [@proyan](https://github.com/proyan)
 - Support of MuJoCo format by [@MegMll](https://github.com/MegMll) and [@jorisv](https://github.com/jorisv)
 
+### Extra Algorithms
+- Added reachable workspace computation and vizualisation in collaboration with [@askuric](https://github.com/askuric) based on [pycapacity](https://gitlab.inria.fr/auctus-team/people/antunskuric/pycapacity) by [@MegMll](https://github.com/MegMll) and [@jorisv](https://github.com/jorisv)
+
 #### Packaging
 
 - Full support of template instantiation by [@fabinsch](https://github.com/fabinsch) and [@jorisv](https://github.com/jorisv)
