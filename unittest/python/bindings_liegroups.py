@@ -133,6 +133,13 @@ class TestLiegroupBindings(TestCase):
 
             self.assertApprox(tvec_at_q1, tvec_at_q0_)
 
+            # same test for matrix
+            J_at_q1 = np.random.rand(lg.nv, lg.nv)
+            J_at_q0 = lg.dIntegrateTransport(q0, v, J_at_q1, pin.ARG0)
+            self.assertApprox(
+                J_at_q1, lg.dIntegrateTransport(q0_, v_, J_at_q0, pin.ARG0)
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
