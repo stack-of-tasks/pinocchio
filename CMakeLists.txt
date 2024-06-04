@@ -280,15 +280,17 @@ if(BUILD_PYTHON_INTERFACE)
 
   message(STATUS "Python compiler: ${_python_implementation_value}")
   if(_python_implementation_value MATCHES "PyPy")
-    set(BUILD_PYTHON_INTERFACE_WITH_PYPY TRUE)
+    set(BUILD_WITH_LIBPYTHON OFF)
+    message(
+      STATUS
+        "PyPy detected, therefore libpython is not available and BUILD_WITH_LIBPYTHON set to OFF.")
   endif()
-
-else(BUILD_PYTHON_INTERFACE)
+else()
   message(
     STATUS
       "Pinocchio won't be compiled with its Python bindings. If you want to enable this feature, please set the option BUILD_PYTHON_INTERFACE to ON."
   )
-endif(BUILD_PYTHON_INTERFACE)
+endif()
 
 if(BUILD_WITH_HPP_FCL_SUPPORT)
   list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_HPP_FCL")
