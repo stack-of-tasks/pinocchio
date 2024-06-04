@@ -104,6 +104,35 @@ class TestLiegroupBindings(TestCase):
                 Jout1_ref = Jint.dot(J0)
                 self.assertApprox(Jout1, Jout1_ref)
 
+    def test_dIntegrateTransport_inverse(self):
+        for lg in [
+            pin.liegroups.R3(),
+            pin.liegroups.SO3(),
+            pin.liegroups.SO2(),
+            pin.liegroups.SE3(),
+            pin.liegroups.SE2(),
+            pin.liegroups.R3() * pin.liegroups.SO3(),
+        ]:
+            q0 = lg.random()
+            v = np.random.rand(lg.nv)
+            q1 = lg.integrate(q0, v)
+
+            # transport random tangent vector from q1 to q0
+            tvec_at_q1 = np.random.rand(lg.nv)
+            tvec_at_q0 = lg.dIntegrateTransport(q0, v, tvec_at_q1, pin.ARG0)
+
+            # test opposite direction
+            q0_ = q1.copy()
+            v_ = -v.copy()  # reverse path
+            q1_ = lg.integrate(q0_, v_)
+
+            self.assertApprox(q0, q1_)  # recover init point on manifold
+
+            tvec_at_q1_ = tvec_at_q0
+            tvec_at_q0_ = lg.dIntegrateTransport(q0_, v_, tvec_at_q1_, pin.ARG0)
+
+            self.assertApprox(tvec_at_q1, tvec_at_q0_)
+
 
 if __name__ == "__main__":
     unittest.main()
