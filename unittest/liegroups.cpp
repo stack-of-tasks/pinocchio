@@ -505,35 +505,31 @@ struct LieGroup_dIntegrateTransport
     BOOST_TEST_MESSAGE(lg.name());
     ConfigVector_t qa, qb(lg.nq());
     qa = lg.random();
-    TangentVector_t v(lg.nv()), tvec_at_q1(lg.nv()), tvec_at_q0(lg.nv()), tvec_at_q0_(lg.nv());
+    TangentVector_t v(lg.nv()), tvec_at_qb(lg.nv()), tvec_at_qa(lg.nv()), tvec_at_qa_r(lg.nv());
     v.setRandom();
     lg.integrate(qa, v, qb);
 
     // transport random tangent vector from q1 to q0
-    tvec_at_q1.setRandom();
-    lg.dIntegrateTransport(qa, v, tvec_at_q1, tvec_at_q0, ARG0);
+    tvec_at_qb.setRandom();
+    lg.dIntegrateTransport(qa, v, tvec_at_qb, tvec_at_qa, ARG0);
 
-    // test opposite direction
-    ConfigVector_t qa_ = qb;
-    TangentVector_t v_ = -v; // reverse path
-    ConfigVector_t qb_ = lg.integrate(qa_, v_);
+    // test reverse direction
+    TangentVector_t v_r = -v; // reverse path
+    ConfigVector_t qa_r = lg.integrate(qb, v_r);
+    lg.dIntegrateTransport(qa_r, v_r, tvec_at_qa, tvec_at_qa_r, ARG0);
 
-    BOOST_CHECK_SMALL((qa - qb_).norm(), 1e-6); // recover init point on manifold
-
-    TangentVector_t tvec_at_q1_ = tvec_at_q0;
-    lg.dIntegrateTransport(qa_, v_, tvec_at_q1_, tvec_at_q0_, ARG0);
-
-    BOOST_CHECK_SMALL((tvec_at_q1 - tvec_at_q0_).norm(), 1e-6);
+    BOOST_CHECK_SMALL((qa - qa_r).norm(), 1e-6); // recover init point on manifold
+    BOOST_CHECK_SMALL((tvec_at_qb - tvec_at_qa_r).norm(), 1e-6);
 
     // same test for matrix
-    JacobianMatrix_t J_at_q1(lg.nv(), lg.nv());
-    J_at_q1.setRandom();
-    JacobianMatrix_t J_at_q0(lg.nv(), lg.nv());
-    lg.dIntegrateTransport(qa, v, J_at_q1, J_at_q0, ARG0);
-    JacobianMatrix_t J_at_q1_(lg.nv(), lg.nv());
-    lg.dIntegrateTransport(qa_, v_, J_at_q0, J_at_q1_, ARG0);
+    JacobianMatrix_t J_at_qa(lg.nv(), lg.nv());
+    J_at_qa.setRandom();
+    JacobianMatrix_t J_at_qb(lg.nv(), lg.nv());
+    lg.dIntegrateTransport(qa, v, J_at_qa, J_at_qb, ARG0);
+    JacobianMatrix_t J_at_qa_r(lg.nv(), lg.nv());
+    lg.dIntegrateTransport(qa_r, v_r, J_at_qb, J_at_qa_r, ARG0);
 
-    BOOST_CHECK_SMALL((J_at_q1 - J_at_q1_).norm(), 1e-6);
+    BOOST_CHECK_SMALL((J_at_qa - J_at_qa_r).norm(), 1e-6);
   }
 };
 

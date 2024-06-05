@@ -121,23 +121,21 @@ class TestLiegroupBindings(TestCase):
             tvec_at_q1 = np.random.rand(lg.nv)
             tvec_at_q0 = lg.dIntegrateTransport(q0, v, tvec_at_q1, pin.ARG0)
 
-            # test opposite direction
-            q0_ = q1.copy()
-            v_ = -v.copy()  # reverse path
-            q1_ = lg.integrate(q0_, v_)
+            # test reverse direction
+            v_r = -v.copy()  # reverse path
+            q0_r = lg.integrate(q1, v_r)
 
-            self.assertApprox(q0, q1_)  # recover init point on manifold
+            self.assertApprox(q0, q0_r)  # recover init point on manifold
 
-            tvec_at_q1_ = tvec_at_q0
-            tvec_at_q0_ = lg.dIntegrateTransport(q0_, v_, tvec_at_q1_, pin.ARG0)
+            tvec_at_q1_r = lg.dIntegrateTransport(q1, v_r, tvec_at_q0, pin.ARG0)
 
-            self.assertApprox(tvec_at_q1, tvec_at_q0_)
+            self.assertApprox(tvec_at_q1, tvec_at_q1_r)
 
             # same test for matrix
             J_at_q1 = np.random.rand(lg.nv, lg.nv)
             J_at_q0 = lg.dIntegrateTransport(q0, v, J_at_q1, pin.ARG0)
             self.assertApprox(
-                J_at_q1, lg.dIntegrateTransport(q0_, v_, J_at_q0, pin.ARG0)
+                J_at_q1, lg.dIntegrateTransport(q1, v_r, J_at_q0, pin.ARG0)
             )
 
 
