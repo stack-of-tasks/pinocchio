@@ -5,6 +5,7 @@
 #ifndef __pinocchio_autodiff_code_generator_algo_hpp__
 #define __pinocchio_autodiff_code_generator_algo_hpp__
 
+#include <casadi/core/casadi_types.hpp>
 #include <casadi/core/code_generator.hpp>
 
 #include "pinocchio/autodiff/casadi.hpp"
@@ -121,12 +122,12 @@ namespace pinocchio
         }
       }
 
-      long get_fun_operation_count()
+      casadi_int getFunOperationCount() const
       {
         return fun_operation_count;
       }
 
-      long get_fun_derivs_operation_count()
+      casadi_int getFunDerivsOperationCount() const
       {
         return  fun_derivs_operation_count;
       }
@@ -145,7 +146,7 @@ namespace pinocchio
       ADFun ad_fun, ad_fun_derivs;
       ADFun fun, fun_derivs;
       std::vector<DMMatrix> fun_output, fun_output_derivs;
-      long fun_operation_count, fun_derivs_operation_count;
+      casadi_int fun_operation_count, fun_derivs_operation_count;
 
     };
 
