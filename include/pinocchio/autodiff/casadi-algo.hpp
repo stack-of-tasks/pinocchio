@@ -76,9 +76,11 @@ namespace pinocchio
         buildMap();
         // Generated code;
         cg_generated.add(ad_fun);
+        fun_operation_count = ad_fun.n_instructions() - ad_fun.nnz_in() - ad_fun.nnz_out();
         if (build_jacobian)
         {
           cg_generated.add(ad_fun_derivs);
+          fun_derivs_operation_count = ad_fun_derivs.n_instructions() - ad_fun_derivs.nnz_in() - ad_fun_derivs.nnz_out();
         }
         cg_generated.generate();
       }
@@ -119,6 +121,16 @@ namespace pinocchio
         }
       }
 
+      long get_fun_operation_count()
+      {
+        return fun_operation_count;
+      }
+
+      long get_fun_derivs_operation_count()
+      {
+        return  fun_derivs_operation_count;
+      }
+
     protected:
       ADModel ad_model;
       ADData ad_data;
@@ -133,6 +145,8 @@ namespace pinocchio
       ADFun ad_fun, ad_fun_derivs;
       ADFun fun, fun_derivs;
       std::vector<DMMatrix> fun_output, fun_output_derivs;
+      long fun_operation_count, fun_derivs_operation_count;
+
     };
 
     template<typename _Scalar>
