@@ -15,8 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Python unittest for `contactInverseDynamics` function ([#2263](https://github.com/stack-of-tasks/pinocchio/pull/2263))
-- Cpp unittest for `dIntegrateTransport` to check vector transport and its inverse ([#2273](https://github.com/stack-of-tasks/pinocchio/pull/2273))
-- Python unittest for `dIntegrateTransport` to check vector transport and its inverse ([#2273](https://github.com/stack-of-tasks/pinocchio/pull/2273))
+- c++ and Python unittest for `dIntegrateTransport` to check vector transport and its inverse ([#2273](https://github.com/stack-of-tasks/pinocchio/pull/2273))
 
 ### Removed
 
