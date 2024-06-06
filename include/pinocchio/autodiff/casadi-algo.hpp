@@ -81,7 +81,8 @@ namespace pinocchio
         if (build_jacobian)
         {
           cg_generated.add(ad_fun_derivs);
-          fun_derivs_operation_count = ad_fun_derivs.n_instructions() - ad_fun_derivs.nnz_in() - ad_fun_derivs.nnz_out();
+          fun_derivs_operation_count =
+            ad_fun_derivs.n_instructions() - ad_fun_derivs.nnz_in() - ad_fun_derivs.nnz_out();
         }
         cg_generated.generate();
       }
@@ -129,7 +130,7 @@ namespace pinocchio
 
       casadi_int getFunDerivsOperationCount() const
       {
-        return  fun_derivs_operation_count;
+        return fun_derivs_operation_count;
       }
 
     protected:
@@ -147,7 +148,6 @@ namespace pinocchio
       ADFun fun, fun_derivs;
       std::vector<DMMatrix> fun_output, fun_output_derivs;
       casadi_int fun_operation_count, fun_derivs_operation_count;
-
     };
 
     template<typename _Scalar>
