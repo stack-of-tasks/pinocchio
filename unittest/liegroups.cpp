@@ -490,6 +490,49 @@ struct LieGroup_JintegrateJdifference
   }
 };
 
+struct LieGroup_dIntegrateTransport
+{
+  template<typename T>
+  void operator()(const T) const
+  {
+    typedef typename T::ConfigVector_t ConfigVector_t;
+    typedef typename T::TangentVector_t TangentVector_t;
+    typedef typename T::JacobianMatrix_t JacobianMatrix_t;
+
+    PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+    PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
+    T lg;
+    BOOST_TEST_MESSAGE(lg.name());
+    ConfigVector_t qa, qb(lg.nq());
+    qa = lg.random();
+    TangentVector_t v(lg.nv()), tvec_at_qb(lg.nv()), tvec_at_qa(lg.nv()), tvec_at_qa_r(lg.nv());
+    v.setRandom();
+    lg.integrate(qa, v, qb);
+
+    // transport random tangent vector from q1 to q0
+    tvec_at_qb.setRandom();
+    lg.dIntegrateTransport(qa, v, tvec_at_qb, tvec_at_qa, ARG0);
+
+    // test reverse direction
+    TangentVector_t v_r = -v; // reverse path
+    ConfigVector_t qa_r = lg.integrate(qb, v_r);
+    lg.dIntegrateTransport(qa_r, v_r, tvec_at_qa, tvec_at_qa_r, ARG0);
+
+    BOOST_CHECK_SMALL((qa - qa_r).norm(), 1e-6); // recover init point on manifold
+    BOOST_CHECK_SMALL((tvec_at_qb - tvec_at_qa_r).norm(), 1e-6);
+
+    // same test for matrix
+    JacobianMatrix_t J_at_qa(lg.nv(), lg.nv());
+    J_at_qa.setRandom();
+    JacobianMatrix_t J_at_qb(lg.nv(), lg.nv());
+    lg.dIntegrateTransport(qa, v, J_at_qa, J_at_qb, ARG0);
+    JacobianMatrix_t J_at_qa_r(lg.nv(), lg.nv());
+    lg.dIntegrateTransport(qa_r, v_r, J_at_qb, J_at_qa_r, ARG0);
+
+    BOOST_CHECK_SMALL((J_at_qa - J_at_qa_r).norm(), 1e-6);
+  }
+};
+
 struct LieGroup_JintegrateCoeffWise
 {
   template<typename T>
@@ -564,6 +607,31 @@ BOOST_AUTO_TEST_CASE(Jdifference)
     Types;
   for (int i = 0; i < 20; ++i)
     boost::mpl::for_each<Types>(LieGroup_Jdifference());
+}
+
+BOOST_AUTO_TEST_CASE(dIntegrateTransport)
+{
+  typedef double Scalar;
+  enum
+  {
+    Options = 0
+  };
+
+  typedef boost::mpl::vector<
+    VectorSpaceOperationTpl<1, Scalar, Options>, VectorSpaceOperationTpl<2, Scalar, Options>,
+    SpecialOrthogonalOperationTpl<2, Scalar, Options>,
+    SpecialOrthogonalOperationTpl<3, Scalar, Options>,
+    SpecialEuclideanOperationTpl<2, Scalar, Options>,
+    SpecialEuclideanOperationTpl<3, Scalar, Options>,
+    CartesianProductOperation<
+      VectorSpaceOperationTpl<2, Scalar, Options>,
+      SpecialOrthogonalOperationTpl<2, Scalar, Options>>,
+    CartesianProductOperation<
+      VectorSpaceOperationTpl<3, Scalar, Options>,
+      SpecialOrthogonalOperationTpl<3, Scalar, Options>>>
+    Types;
+  for (int i = 0; i < 20; ++i)
+    boost::mpl::for_each<Types>(LieGroup_dIntegrateTransport());
 }
 
 BOOST_AUTO_TEST_CASE(Jintegrate)
