@@ -768,6 +768,9 @@ class MeshcatVisualizer(BaseVisualizer):
                     and isinstance(geometry_object.geometry, hppfcl.OcTree)
                 ):
                     obj = loadOctree(geometry_object.geometry)
+                elif hasMeshFileInfo(geometry_object):
+                    obj = self.loadMeshFromFile(geometry_object)
+                    is_mesh = True
                 elif isinstance(
                     geometry_object.geometry,
                     (
