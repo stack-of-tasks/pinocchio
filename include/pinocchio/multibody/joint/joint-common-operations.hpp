@@ -45,7 +45,7 @@ namespace pinocchio
 
   ///
   /// \brief Linear affine transformation of the configuration vector.
-  ///        Valide for most common joints which are evolving on a vectorial space.
+  ///        Valide for most common joints which are evolving on a vector space.
   ///
   struct LinearAffineTransform
   {
