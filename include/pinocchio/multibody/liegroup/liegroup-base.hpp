@@ -221,7 +221,7 @@ namespace pinocchio
 
     /**
      *
-     * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate
+     * @brief   Transport a matrix from the terminal to the initial tangent space of the integrate
      * operation, with respect to the configuration or the velocity arguments.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns
@@ -231,7 +231,7 @@ namespace pinocchio
      * the change of configuration between \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of
      * this tangent vector. A typical example of parallel transportation is the action operated by a
      * rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in
-     * \text{se}(3)\f$. In the context of configuration spaces assimilated as vectorial spaces, this
+     * \text{se}(3)\f$. In the context of configuration spaces assimilated to vector spaces, this
      * operation corresponds to Identity. For Lie groups, its corresponds to the canonical vector
      * field transportation.
      *
@@ -254,7 +254,7 @@ namespace pinocchio
 
     /**
      *
-     * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate
+     * @brief   Transport a matrix from the terminal to the initial tangent space of the integrate
      * operation, with respect to the configuration argument.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns
@@ -264,7 +264,7 @@ namespace pinocchio
      * the change of configuration between \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of
      * this tangent vector. A typical example of parallel transportation is the action operated by a
      * rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in
-     * \text{se}(3)\f$. In the context of configuration spaces assimilated as vectorial spaces, this
+     * \text{se}(3)\f$. In the context of configuration spaces assimilated to vector spaces, this
      * operation corresponds to Identity. For Lie groups, its corresponds to the canonical vector
      * field transportation.
      *
@@ -282,7 +282,7 @@ namespace pinocchio
       const Eigen::MatrixBase<JacobianOut_t> & Jout) const;
     /**
      *
-     * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate
+     * @brief   Transport a matrix from the terminal to the initial tangent space of the integrate
      * operation, with respect to the velocity argument.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns
@@ -292,7 +292,7 @@ namespace pinocchio
      * the change of configuration between \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of
      * this tangent vector. A typical example of parallel transportation is the action operated by a
      * rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in
-     * \text{se}(3)\f$. In the context of configuration spaces assimilated as vectorial spaces, this
+     * \text{se}(3)\f$. In the context of configuration spaces assimilated to vector spaces, this
      * operation corresponds to Identity. For Lie groups, its corresponds to the canonical vector
      * field transportation.
      *
@@ -311,7 +311,7 @@ namespace pinocchio
 
     /**
      *
-     * @brief   Transport in place a matrix from the terminal to the originate tangent space of the
+     * @brief   Transport in place a matrix from the terminal to the initial tangent space of the
      * integrate operation, with respect to the configuration or the velocity arguments.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns
@@ -321,7 +321,7 @@ namespace pinocchio
      * the change of configuration between \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of
      * this tangent vector. A typical example of parallel transportation is the action operated by a
      * rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in
-     * \text{se}(3)\f$. In the context of configuration spaces assimilated as vectorial spaces, this
+     * \text{se}(3)\f$. In the context of configuration spaces assimilated to vector spaces, this
      * operation corresponds to Identity. For Lie groups, its corresponds to the canonical vector
      * field transportation.
      *
@@ -340,7 +340,7 @@ namespace pinocchio
 
     /**
      *
-     * @brief   Transport in place a matrix from the terminal to the originate tangent space of the
+     * @brief   Transport in place a matrix from the terminal to the initial tangent space of the
      * integrate operation, with respect to the configuration argument.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns
@@ -350,7 +350,7 @@ namespace pinocchio
      * the change of configuration between \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of
      * this tangent vector. A typical example of parallel transportation is the action operated by a
      * rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in
-     * \text{se}(3)\f$. In the context of configuration spaces assimilated as vectorial spaces, this
+     * \text{se}(3)\f$. In the context of configuration spaces assimilated to vector spaces, this
      * operation corresponds to Identity. For Lie groups, its corresponds to the canonical vector
      * field transportation.
      *
@@ -366,7 +366,7 @@ namespace pinocchio
       const Eigen::MatrixBase<Jacobian_t> & J) const;
     /**
      *
-     * @brief   Transport in place a matrix from the terminal to the originate tangent space of the
+     * @brief   Transport in place a matrix from the terminal to the initial tangent space of the
      * integrate operation, with respect to the velocity argument.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns
@@ -376,7 +376,7 @@ namespace pinocchio
      * the change of configuration between \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of
      * this tangent vector. A typical example of parallel transportation is the action operated by a
      * rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in
-     * \text{se}(3)\f$. In the context of configuration spaces assimilated as vectorial spaces, this
+     * \text{se}(3)\f$. In the context of configuration spaces assimilated to vector spaces, this
      * operation corresponds to Identity. For Lie groups, its corresponds to the canonical vector
      * field transportation.
      *
