@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Python unittest for `contactInverseDynamics` function ([#2263](https://github.com/stack-of-tasks/pinocchio/pull/2263))
+- Added helper functions to return operation count of CasADi functions. ([#2275](https://github.com/stack-of-tasks/pinocchio/pull/2275))
 - c++ and Python unittest for `dIntegrateTransport` to check vector transport and its inverse ([#2273](https://github.com/stack-of-tasks/pinocchio/pull/2273))
 
 ### Removed

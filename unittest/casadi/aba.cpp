@@ -206,6 +206,10 @@ BOOST_AUTO_TEST_CASE(test_aba_casadi_algo)
 
   pinocchio::casadi::AutoDiffABA<Scalar> ad_casadi(model);
   ad_casadi.initLib();
+  std::cout << "Number of operations in the ABA function = " << ad_casadi.getFunOperationCount()
+            << "\n";
+  std::cout << "Number of operations in the ABA derivs function = "
+            << ad_casadi.getFunDerivsOperationCount() << "\n";
   ad_casadi.loadLib();
 
   ad_casadi.evalFunction(q, v, tau);
