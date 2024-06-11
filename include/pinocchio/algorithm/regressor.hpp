@@ -320,6 +320,66 @@ namespace pinocchio
     const Eigen::MatrixBase<TangentVectorType1> & v,
     const Eigen::MatrixBase<TangentVectorType2> & a);
 
+
+  ///
+  /// \brief Computes the kinetic energy regressor that links the kinetic energy of the system to the
+  /// dynamic parameters of each link according to the current robot motion.
+  ///
+  /// The result is stored in `data.kineticEnergyRegressor` and it corresponds to a matrix
+  /// \f$ Y_e \f$ such that \f$ K = Y_e(q,\dot{q})\pi \f$ where
+  /// \pi_i = \text{model.inertias[i].toDynamicParameters()} \f$
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  ///
+  /// \return The kinetic energy regressor of the system.
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType,
+    typename TangentVectorType1>
+  inline typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs &
+  computeKineticEnergyRegressor(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q,
+    const Eigen::MatrixBase<TangentVectorType1> & v);
+
+  ///
+  /// \brief Computes the potential energy regressor that links the potential energy
+  /// of the system to the dynamic parameters of each link according to the current robot motion.
+  ///
+  /// The result is stored in `data.potentialEnergyRegressor` and it corresponds to a matrix
+  /// \f$ Y_p \f$ such that \f$ P = Y_p(q)\pi \f$ where
+  /// \pi_i = \text{model.inertias[i].toDynamicParameters()} \f$
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  ///
+  /// \return The kinetic energy regressor of the system.
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType>
+  inline typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs &
+  computePotentialEnergyRegressor(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q);
 } // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
