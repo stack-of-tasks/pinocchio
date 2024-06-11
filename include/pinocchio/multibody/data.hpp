@@ -498,6 +498,12 @@ namespace pinocchio
     /// \brief Matrix related to joint torque regressor
     MatrixXs jointTorqueRegressor;
 
+    /// \brief Matrix related to kinetic energy regressor
+    MatrixXs kineticEnergyRegressor;
+
+    /// \brief Matrix related to potential energy regressor
+    MatrixXs potentialEnergyRegressor;
+
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) KA;
     PINOCCHIO_ALIGNED_STD_VECTOR(MatrixXs) LA;
     PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) lA;

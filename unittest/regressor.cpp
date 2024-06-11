@@ -10,6 +10,7 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
+#include "pinocchio/algorithm/compute-all-terms.hpp"
 
 #include <iostream>
 
@@ -364,6 +365,68 @@ BOOST_AUTO_TEST_CASE(test_joint_torque_regressor)
   Eigen::VectorXd tau_regressor = data.jointTorqueRegressor * params;
 
   BOOST_CHECK(tau_regressor.isApprox(data_ref.tau));
+}
+
+BOOST_AUTO_TEST_CASE(test_kinetic_energy_regressor)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  buildModels::humanoidRandom(model);
+
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill(1.);
+
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
+
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = Eigen::VectorXd::Random(model.nv);
+
+  computeAllTerms(model, data, q, v);
+  auto target_energy = computeKineticEnergy(model, data);
+
+  auto regressor = computeKineticEnergyRegressor(model, data, q, v);
+
+  Eigen::VectorXd params(10 * (model.njoints - 1));
+  for (JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
+    params.segment<10>((int)((i - 1) * 10)) = model.inertias[i].toDynamicParameters();
+
+  Eigen::VectorXd kinetic_energy_regressor = data.kineticEnergyRegressor * params;
+
+  BOOST_CHECK_CLOSE(kinetic_energy_regressor.sum(), target_energy, 1e-12);
+}
+
+BOOST_AUTO_TEST_CASE(test_potential_energy_regressor)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  buildModels::humanoidRandom(model);
+
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill(1.);
+
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
+
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = Eigen::VectorXd::Random(model.nv);
+
+  computeAllTerms(model, data, q, v);
+  auto target_energy = computePotentialEnergy(model, data);
+
+  auto regressor = computePotentialEnergyRegressor(model, data, q);
+
+  Eigen::VectorXd params(10 * (model.njoints - 1));
+  for (JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
+    params.segment<10>((int)((i - 1) * 10)) = model.inertias[i].toDynamicParameters();
+
+  Eigen::VectorXd potential_energy_regressor = data.potentialEnergyRegressor * params;
+
+  BOOST_CHECK_CLOSE(potential_energy_regressor.sum(), target_energy, 1e-12);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

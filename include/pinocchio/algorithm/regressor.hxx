@@ -498,20 +498,21 @@ namespace pinocchio
       auto vel_lin = data.v[i].linear();
       auto vel_ang = data.v[i].angular();
 
-      data.kineticEnergyRegressor(0, i * 10 + 0) =
-        0.5 * (vel_lin[0] * vel_lin[0] + vel_lin[1] * vel_lin[1] + vel_lin[2] * vel_lin[2]);
-      data.kineticEnergyRegressor(0, i * 10 + 1) =
+      auto body_idx = i - 1;
+
+      data.kineticEnergyRegressor(body_idx * 10) = 0.5 * vel_lin.dot(vel_lin);
+      data.kineticEnergyRegressor(body_idx * 10 + 1) =
         -vel_ang[1] * vel_lin[2] + vel_ang[2] * vel_lin[1];
-      data.kineticEnergyRegressor(0, i * 10 + 2) =
+      data.kineticEnergyRegressor(body_idx * 10 + 2) =
         vel_ang[0] * vel_lin[2] - vel_ang[2] * vel_lin[0];
-      data.kineticEnergyRegressor(0, i * 10 + 3) =
+      data.kineticEnergyRegressor(body_idx * 10 + 3) =
         -vel_ang[0] * vel_lin[1] + vel_ang[1] * vel_lin[0];
-      data.kineticEnergyRegressor(0, i * 10 + 4) = 0.5 * vel_ang[0] * vel_ang[0];
-      data.kineticEnergyRegressor(0, i * 10 + 5) = vel_ang[0] * vel_ang[1];
-      data.kineticEnergyRegressor(0, i * 10 + 6) = 0.5 * vel_ang[1] * vel_ang[1];
-      data.kineticEnergyRegressor(0, i * 10 + 7) = vel_ang[0] * vel_ang[2];
-      data.kineticEnergyRegressor(0, i * 10 + 8) = vel_ang[1] * vel_ang[2];
-      data.kineticEnergyRegressor(0, i * 10 + 9) = 0.5 * vel_ang[2] * vel_ang[2];
+      data.kineticEnergyRegressor(body_idx * 10 + 4) = 0.5 * vel_ang[0] * vel_ang[0];
+      data.kineticEnergyRegressor(body_idx * 10 + 5) = vel_ang[0] * vel_ang[1];
+      data.kineticEnergyRegressor(body_idx * 10 + 6) = 0.5 * vel_ang[1] * vel_ang[1];
+      data.kineticEnergyRegressor(body_idx * 10 + 7) = vel_ang[0] * vel_ang[2];
+      data.kineticEnergyRegressor(body_idx * 10 + 8) = vel_ang[1] * vel_ang[2];
+      data.kineticEnergyRegressor(body_idx * 10 + 9) = 0.5 * vel_ang[2] * vel_ang[2];
     }
 
     return data.kineticEnergyRegressor;
@@ -534,19 +535,21 @@ namespace pinocchio
 
     data.potentialEnergyRegressor.setZero();
 
-    // iterate over each joint and compute the kinetic energy regressor
-    for (JointIndex i = 1; i < (JointIndex)model.njoints; ++i)
-    {
-      auto r = data.oMi[i].translation();
-      auto R = data.oMi[i].rotation();
-      auto g = -model.gravity.linear();
+        // iterate over each joint and compute the kinetic energy regressor
+        for (JointIndex i = 1; i < (JointIndex)model.njoints; ++i)
+        {
+          auto r = data.oMi[i].translation();
+          auto R = data.oMi[i].rotation();
+          auto g = -model.gravity.linear();
 
-      auto rotatedGravity = R.transpose() * g;
-      data.potentialEnergyRegressor(0, i * 10 + 0) = g.dot(r);
-      data.potentialEnergyRegressor(0, i * 10 + 1) = rotatedGravity[0];
-      data.potentialEnergyRegressor(0, i * 10 + 2) = rotatedGravity[1];
-      data.potentialEnergyRegressor(0, i * 10 + 3) = rotatedGravity[2];
-    }
+          auto body_idx = i - 1;
+
+          auto rotatedGravity = R.transpose() * g;
+          data.potentialEnergyRegressor(body_idx * 10 + 0) = g.dot(r);
+          data.potentialEnergyRegressor(body_idx * 10 + 1) = rotatedGravity[0];
+          data.potentialEnergyRegressor(body_idx * 10 + 2) = rotatedGravity[1];
+          data.potentialEnergyRegressor(body_idx * 10 + 3) = rotatedGravity[2];
+        }
 
     return data.potentialEnergyRegressor;
   }
