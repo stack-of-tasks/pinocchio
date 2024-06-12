@@ -320,10 +320,9 @@ namespace pinocchio
     const Eigen::MatrixBase<TangentVectorType1> & v,
     const Eigen::MatrixBase<TangentVectorType2> & a);
 
-
   ///
-  /// \brief Computes the kinetic energy regressor that links the kinetic energy of the system to the
-  /// dynamic parameters of each link according to the current robot motion.
+  /// \brief Computes the kinetic energy regressor that links the kinetic energy of the system to
+  /// the dynamic parameters of each link according to the current robot motion.
   ///
   /// The result is stored in `data.kineticEnergyRegressor` and it corresponds to a matrix
   /// \f$ Y_e \f$ such that \f$ K = Y_e(q,\dot{q})\pi \f$ where

@@ -535,21 +535,21 @@ namespace pinocchio
 
     data.potentialEnergyRegressor.setZero();
 
-        // iterate over each joint and compute the kinetic energy regressor
-        for (JointIndex i = 1; i < (JointIndex)model.njoints; ++i)
-        {
-          auto r = data.oMi[i].translation();
-          auto R = data.oMi[i].rotation();
-          auto g = -model.gravity.linear();
+    // iterate over each joint and compute the kinetic energy regressor
+    for (JointIndex i = 1; i < (JointIndex)model.njoints; ++i)
+    {
+      auto r = data.oMi[i].translation();
+      auto R = data.oMi[i].rotation();
+      auto g = -model.gravity.linear();
 
-          auto body_idx = i - 1;
+      auto body_idx = i - 1;
 
-          auto rotatedGravity = R.transpose() * g;
-          data.potentialEnergyRegressor(body_idx * 10 + 0) = g.dot(r);
-          data.potentialEnergyRegressor(body_idx * 10 + 1) = rotatedGravity[0];
-          data.potentialEnergyRegressor(body_idx * 10 + 2) = rotatedGravity[1];
-          data.potentialEnergyRegressor(body_idx * 10 + 3) = rotatedGravity[2];
-        }
+      auto rotatedGravity = R.transpose() * g;
+      data.potentialEnergyRegressor(body_idx * 10 + 0) = g.dot(r);
+      data.potentialEnergyRegressor(body_idx * 10 + 1) = rotatedGravity[0];
+      data.potentialEnergyRegressor(body_idx * 10 + 2) = rotatedGravity[1];
+      data.potentialEnergyRegressor(body_idx * 10 + 3) = rotatedGravity[2];
+    }
 
     return data.potentialEnergyRegressor;
   }
