@@ -534,6 +534,7 @@ namespace pinocchio
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
+    typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 
     forwardKinematics(model, data, q.derived());
 
@@ -549,7 +550,7 @@ namespace pinocchio
       auto joint_regressor =
         data.potentialEnergyRegressor.template segment<10>(10 * Eigen::DenseIndex(joint_id - 1));
 
-      const Data::Vector3 gravity_local = R.transpose() * g;
+      const typename Data::Vector3 gravity_local = R.transpose() * g;
       joint_regressor[0] = g.dot(t);
       joint_regressor.template segment<3>(1) = gravity_local;
     }
