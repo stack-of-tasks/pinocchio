@@ -489,7 +489,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
 
-    forwardKinematics(model,data,q.derived(),v.derived());
+    forwardKinematics(model, data, q.derived(), v.derived());
 
     data.kineticEnergyRegressor.setZero();
     // iterate over each joint and compute the kinetic energy regressor
@@ -499,16 +499,16 @@ namespace pinocchio
       const auto linear_vel = data.v[joint_id].linear();
       const auto angular_vel = data.v[joint_id].angular();
 
-      const Scalar 
-      v_x = linear_vel[0], v_y = linear_vel[1], v_z = linear_vel[2], 
-      w_x = angular_vel[0], w_y = angular_vel[1], w_z = angular_vel[2]; 
+      const Scalar v_x = linear_vel[0], v_y = linear_vel[1], v_z = linear_vel[2],
+                   w_x = angular_vel[0], w_y = angular_vel[1], w_z = angular_vel[2];
 
-      auto joint_regressor = data.kineticEnergyRegressor.template segment<10>(Eigen::DenseIndex(joint_id-1));
+      auto joint_regressor =
+        data.kineticEnergyRegressor.template segment<10>(Eigen::DenseIndex(joint_id - 1));
 
       joint_regressor[0] = 0.5 * linear_vel.dot(linear_vel);
-      joint_regressor[1] =-w_y * v_z + w_z * v_y;
+      joint_regressor[1] = -w_y * v_z + w_z * v_y;
       joint_regressor[2] = w_x * v_z - w_z * v_x;
-      joint_regressor[3] =-w_x * v_y + w_y * v_x;
+      joint_regressor[3] = -w_x * v_y + w_y * v_x;
       joint_regressor[4] = 0.5 * w_x * w_x;
       joint_regressor[5] = w_x * w_y;
       joint_regressor[6] = 0.5 * w_y * w_y;
@@ -535,7 +535,7 @@ namespace pinocchio
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
 
-    forwardKinematics(model,data,q.derived());
+    forwardKinematics(model, data, q.derived());
 
     data.potentialEnergyRegressor.setZero();
 
@@ -546,11 +546,12 @@ namespace pinocchio
       const auto & R = data.oMi[joint_id].rotation();
       const auto g = -model.gravity.linear();
 
-      auto joint_regressor = data.potentialEnergyRegressor.template segment<10>(Eigen::DenseIndex(joint_id-1));
+      auto joint_regressor =
+        data.potentialEnergyRegressor.template segment<10>(Eigen::DenseIndex(joint_id - 1));
 
       const Data::Vector3 gravity_local = R.transpose() * g;
       joint_regressor[0] = g.dot(t);
-      joint_regressor.template segment<3>(1) = gravity_local; 
+      joint_regressor.template segment<3>(1) = gravity_local;
     }
 
     return data.potentialEnergyRegressor;
