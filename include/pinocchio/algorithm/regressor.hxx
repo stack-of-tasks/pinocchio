@@ -526,7 +526,7 @@ namespace pinocchio
     template<typename, int>
     class JointCollectionTpl,
     typename ConfigVectorType>
-  inline typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs &
+  const typename DataTpl<Scalar, Options, JointCollectionTpl>::RowVectorXs &
   computePotentialEnergyRegressor(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
@@ -535,22 +535,22 @@ namespace pinocchio
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
 
+    forwardKinematics(model,data,q.derived());
+
     data.potentialEnergyRegressor.setZero();
 
     // iterate over each joint and compute the kinetic energy regressor
-    for (JointIndex i = 1; i < (JointIndex)model.njoints; ++i)
+    for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
     {
-      auto r = data.oMi[i].translation();
-      auto R = data.oMi[i].rotation();
-      auto g = -model.gravity.linear();
+      const auto & t = data.oMi[joint_id].translation();
+      const auto & R = data.oMi[joint_id].rotation();
+      const auto g = -model.gravity.linear();
 
-      auto body_idx = i - 1;
+      auto joint_regressor = data.potentialEnergyRegressor.template segment<10>(Eigen::DenseIndex(joint_id-1));
 
-      auto rotatedGravity = R.transpose() * g;
-      data.potentialEnergyRegressor(body_idx * 10 + 0) = g.dot(r);
-      data.potentialEnergyRegressor(body_idx * 10 + 1) = rotatedGravity[0];
-      data.potentialEnergyRegressor(body_idx * 10 + 2) = rotatedGravity[1];
-      data.potentialEnergyRegressor(body_idx * 10 + 3) = rotatedGravity[2];
+      const Data::Vector3 gravity_local = R.transpose() * g;
+      joint_regressor[0] = g.dot(t);
+      joint_regressor.template segment<3>(1) = gravity_local; 
     }
 
     return data.potentialEnergyRegressor;

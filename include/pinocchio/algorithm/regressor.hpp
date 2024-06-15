@@ -374,7 +374,7 @@ namespace pinocchio
     template<typename, int>
     class JointCollectionTpl,
     typename ConfigVectorType>
-  inline typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs &
+  const typename DataTpl<Scalar, Options, JointCollectionTpl>::RowVectorXs &
   computePotentialEnergyRegressor(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
