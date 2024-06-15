@@ -73,6 +73,7 @@ namespace pinocchio
 
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Options> MatrixXs;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> VectorXs;
+    typedef Eigen::Matrix<Scalar, 1, Eigen::Dynamic, Options | Eigen::RowMajor> RowVectorXs;
     typedef Eigen::Matrix<Scalar, 3, 1, Options> Vector3;
     typedef Eigen::Matrix<Scalar, 6, 1, Options> Vector6;
 
@@ -499,7 +500,7 @@ namespace pinocchio
     MatrixXs jointTorqueRegressor;
 
     /// \brief Matrix related to kinetic energy regressor
-    MatrixXs kineticEnergyRegressor;
+    RowVectorXs kineticEnergyRegressor;
 
     /// \brief Matrix related to potential energy regressor
     MatrixXs potentialEnergyRegressor;
