@@ -239,12 +239,12 @@ namespace pinocchio
   /// effects.
   ///
   /// The result is such that
-  /// \f$ f = \text{jointBodyRegressor(model,data,jointId) * I.toDynamicParameters()} \f$
+  /// \f$ f = \text{jointBodyRegressor(model,data,joint_id) * I.toDynamicParameters()} \f$
   /// where \f$ f \f$ is the net force acting on the body, including gravity
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] jointId The id of the joint.
+  /// \param[in] joint_id The id of the joint.
   ///
   /// \return The regressor of the body.
   ///
@@ -253,7 +253,7 @@ namespace pinocchio
   jointBodyRegressor(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
-    JointIndex jointId);
+    JointIndex joint_id);
 
   ///
   /// \brief Computes the regressor for the dynamic parameters of a rigid body attached to a given
@@ -264,12 +264,12 @@ namespace pinocchio
   /// effects.
   ///
   /// The result is such that
-  /// \f$ f = \text{frameBodyRegressor(model,data,frameId) * I.toDynamicParameters()} \f$
+  /// \f$ f = \text{frameBodyRegressor(model,data,frame_id) * I.toDynamicParameters()} \f$
   /// where \f$ f \f$ is the net force acting on the body, including gravity
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] frameId The id of the frame.
+  /// \param[in] frame_id The id of the frame.
   ///
   /// \return The dynamic regressor of the body.
   ///
@@ -278,7 +278,7 @@ namespace pinocchio
   frameBodyRegressor(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
-    FrameIndex frameId);
+    FrameIndex frame_id);
 
   ///
   /// \brief Computes the joint torque regressor that links the joint torque

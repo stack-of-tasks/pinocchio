@@ -298,13 +298,13 @@ namespace pinocchio
   jointBodyRegressor(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
-    JointIndex jointId)
+    JointIndex joint_id)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
     PINOCCHIO_UNUSED_VARIABLE(model);
 
-    bodyRegressor(data.v[jointId], data.a_gf[jointId], data.bodyRegressor);
+    bodyRegressor(data.v[joint_id], data.a_gf[joint_id], data.bodyRegressor);
     return data.bodyRegressor;
   }
 
@@ -313,7 +313,7 @@ namespace pinocchio
   frameBodyRegressor(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
-    FrameIndex frameId)
+    FrameIndex frame_id)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
@@ -322,7 +322,7 @@ namespace pinocchio
     typedef typename Model::JointIndex JointIndex;
     typedef typename Model::SE3 SE3;
 
-    const Frame & frame = model.frames[frameId];
+    const Frame & frame = model.frames[frame_id];
     const JointIndex & parent = frame.parentJoint;
     const SE3 & placement = frame.placement;
 
