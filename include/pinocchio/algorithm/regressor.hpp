@@ -330,7 +330,7 @@ namespace pinocchio
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
-  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -344,13 +344,13 @@ namespace pinocchio
     template<typename, int>
     class JointCollectionTpl,
     typename ConfigVectorType,
-    typename TangentVectorType1>
-  inline typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs &
+    typename TangentVectorType>
+  const typename DataTpl<Scalar, Options, JointCollectionTpl>::RowVectorXs &
   computeKineticEnergyRegressor(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
     const Eigen::MatrixBase<ConfigVectorType> & q,
-    const Eigen::MatrixBase<TangentVectorType1> & v);
+    const Eigen::MatrixBase<TangentVectorType> & v);
 
   ///
   /// \brief Computes the potential energy regressor that links the potential energy

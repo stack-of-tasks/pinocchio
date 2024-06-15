@@ -477,13 +477,13 @@ namespace pinocchio
     template<typename, int>
     class JointCollectionTpl,
     typename ConfigVectorType,
-    typename TangentVectorType1>
-  inline typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs &
+    typename TangentVectorType>
+  const typename DataTpl<Scalar, Options, JointCollectionTpl>::RowVectorXs &
   computeKineticEnergyRegressor(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
     const Eigen::MatrixBase<ConfigVectorType> & q,
-    const Eigen::MatrixBase<TangentVectorType1> & v)
+    const Eigen::MatrixBase<TangentVectorType> & v)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
@@ -492,27 +492,28 @@ namespace pinocchio
     data.kineticEnergyRegressor.setZero();
 
     // iterate over each joint and compute the kinetic energy regressor
-    for (JointIndex i = 1; i < (JointIndex)model.njoints; ++i)
+    for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
     {
       // linear and angular velocities
-      auto vel_lin = data.v[i].linear();
-      auto vel_ang = data.v[i].angular();
+      const auto linear_vel = data.v[joint_id].linear();
+      const auto angular_vel = data.v[joint_id].angular();
 
-      auto body_idx = i - 1;
+      const Scalar 
+      v_x = linear_vel[0], v_y = linear_vel[1], v_z = linear_vel[2], 
+      w_x = angular_vel[0], w_y = angular_vel[1], w_z = angular_vel[2]; 
 
-      data.kineticEnergyRegressor(body_idx * 10) = 0.5 * vel_lin.dot(vel_lin);
-      data.kineticEnergyRegressor(body_idx * 10 + 1) =
-        -vel_ang[1] * vel_lin[2] + vel_ang[2] * vel_lin[1];
-      data.kineticEnergyRegressor(body_idx * 10 + 2) =
-        vel_ang[0] * vel_lin[2] - vel_ang[2] * vel_lin[0];
-      data.kineticEnergyRegressor(body_idx * 10 + 3) =
-        -vel_ang[0] * vel_lin[1] + vel_ang[1] * vel_lin[0];
-      data.kineticEnergyRegressor(body_idx * 10 + 4) = 0.5 * vel_ang[0] * vel_ang[0];
-      data.kineticEnergyRegressor(body_idx * 10 + 5) = vel_ang[0] * vel_ang[1];
-      data.kineticEnergyRegressor(body_idx * 10 + 6) = 0.5 * vel_ang[1] * vel_ang[1];
-      data.kineticEnergyRegressor(body_idx * 10 + 7) = vel_ang[0] * vel_ang[2];
-      data.kineticEnergyRegressor(body_idx * 10 + 8) = vel_ang[1] * vel_ang[2];
-      data.kineticEnergyRegressor(body_idx * 10 + 9) = 0.5 * vel_ang[2] * vel_ang[2];
+      auto joint_regressor = data.kineticEnergyRegressor.template segment<10>(Eigen::DenseIndex(joint_id-1));
+
+      joint_regressor[0] = 0.5 * linear_vel.dot(linear_vel);
+      joint_regressor[1] =-w_y * v_z + w_z * v_y;
+      joint_regressor[2] = w_x * v_z - w_z * v_x;
+      joint_regressor[3] =-w_x * v_y + w_y * v_x;
+      joint_regressor[4] = 0.5 * w_x * w_x;
+      joint_regressor[5] = w_x * w_y;
+      joint_regressor[6] = 0.5 * w_y * w_y;
+      joint_regressor[7] = w_x * w_z;
+      joint_regressor[8] = w_y * w_z;
+      joint_regressor[9] = 0.5 * w_z * w_z;
     }
 
     return data.kineticEnergyRegressor;
