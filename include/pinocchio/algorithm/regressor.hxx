@@ -489,8 +489,9 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
 
-    data.kineticEnergyRegressor.setZero();
+    forwardKinematics(model,data,q.derived(),v.derived());
 
+    data.kineticEnergyRegressor.setZero();
     // iterate over each joint and compute the kinetic energy regressor
     for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
     {
