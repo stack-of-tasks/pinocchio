@@ -503,7 +503,7 @@ namespace pinocchio
                    w_x = angular_vel[0], w_y = angular_vel[1], w_z = angular_vel[2];
 
       auto joint_regressor =
-        data.kineticEnergyRegressor.template segment<10>(Eigen::DenseIndex(joint_id - 1));
+        data.kineticEnergyRegressor.template segment<10>(10 * Eigen::DenseIndex(joint_id - 1));
 
       joint_regressor[0] = 0.5 * linear_vel.dot(linear_vel);
       joint_regressor[1] = -w_y * v_z + w_z * v_y;
@@ -547,7 +547,7 @@ namespace pinocchio
       const auto g = -model.gravity.linear();
 
       auto joint_regressor =
-        data.potentialEnergyRegressor.template segment<10>(Eigen::DenseIndex(joint_id - 1));
+        data.potentialEnergyRegressor.template segment<10>(10 * Eigen::DenseIndex(joint_id - 1));
 
       const Data::Vector3 gravity_local = R.transpose() * g;
       joint_regressor[0] = g.dot(t);
