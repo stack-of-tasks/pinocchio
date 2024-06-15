@@ -503,7 +503,7 @@ namespace pinocchio
     RowVectorXs kineticEnergyRegressor;
 
     /// \brief Matrix related to potential energy regressor
-    MatrixXs potentialEnergyRegressor;
+    RowVectorXs potentialEnergyRegressor;
 
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) KA;
     PINOCCHIO_ALIGNED_STD_VECTOR(MatrixXs) LA;
