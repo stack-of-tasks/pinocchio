@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2024 CNRS INRIA
 //
 
 #include "pinocchio/spatial/fwd.hpp"
@@ -381,11 +381,11 @@ BOOST_AUTO_TEST_CASE(test_kinetic_energy_regressor)
   pinocchio::Data data(model);
   pinocchio::Data data_ref(model);
 
-  VectorXd q = randomConfiguration(model);
-  VectorXd v = Eigen::VectorXd::Random(model.nv);
+  const VectorXd q = randomConfiguration(model);
+  const VectorXd v = Eigen::VectorXd::Random(model.nv);
 
-  computeAllTerms(model, data, q, v);
-  auto target_energy = computeKineticEnergy(model, data);
+  computeAllTerms(model, data_ref, q, v);
+  auto target_energy = computeKineticEnergy(model, data_ref);
 
   const auto regressor = computeKineticEnergyRegressor(model, data, q, v);
 
@@ -393,9 +393,9 @@ BOOST_AUTO_TEST_CASE(test_kinetic_energy_regressor)
   for (JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
     params.segment<10>(Eigen::DenseIndex((i - 1) * 10)) = model.inertias[i].toDynamicParameters();
 
-  Eigen::VectorXd kinetic_energy_regressor = data.kineticEnergyRegressor * params;
+  const double kinetic_energy_regressor = data.kineticEnergyRegressor * params;
 
-  BOOST_CHECK_CLOSE(kinetic_energy_regressor.sum(), target_energy, 1e-12);
+  BOOST_CHECK_CLOSE(kinetic_energy_regressor, target_energy, 1e-12);
 }
 
 BOOST_AUTO_TEST_CASE(test_potential_energy_regressor)
@@ -412,19 +412,20 @@ BOOST_AUTO_TEST_CASE(test_potential_energy_regressor)
   pinocchio::Data data(model);
   pinocchio::Data data_ref(model);
 
-  VectorXd q = randomConfiguration(model);
-  VectorXd v = Eigen::VectorXd::Random(model.nv);
+  const VectorXd q = randomConfiguration(model);
+  const VectorXd v = Eigen::VectorXd::Random(model.nv);
 
-  computeAllTerms(model, data, q, v);
-  double target_energy = computePotentialEnergy(model, data);
+  computeAllTerms(model, data_ref, q, v);
+  const double target_energy = computePotentialEnergy(model, data_ref);
 
   Eigen::VectorXd params(10 * (model.njoints - 1));
   for (JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
     params.segment<10>(Eigen::DenseIndex((i - 1) * 10)) = model.inertias[i].toDynamicParameters();
 
-  const Eigen::VectorXd potential_energy_regressor = data.potentialEnergyRegressor * params;
+  computePotentialEnergyRegressor(model, data, q);
+  const double potential_energy_regressor = data.potentialEnergyRegressor * params;
 
-  BOOST_CHECK_CLOSE(potential_energy_regressor.sum(), target_energy, 1e-12);
+  BOOST_CHECK_CLOSE(potential_energy_regressor, target_energy, 1e-12);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
