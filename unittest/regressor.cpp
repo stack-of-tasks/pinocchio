@@ -387,11 +387,11 @@ BOOST_AUTO_TEST_CASE(test_kinetic_energy_regressor)
   computeAllTerms(model, data, q, v);
   auto target_energy = computeKineticEnergy(model, data);
 
-  auto regressor = computeKineticEnergyRegressor(model, data, q, v);
+  const auto regressor = computeKineticEnergyRegressor(model, data, q, v);
 
   Eigen::VectorXd params(10 * (model.njoints - 1));
   for (JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
-    params.segment<10>((int)((i - 1) * 10)) = model.inertias[i].toDynamicParameters();
+    params.segment<10>(Eigen::DenseIndex((i - 1) * 10)) = model.inertias[i].toDynamicParameters();
 
   Eigen::VectorXd kinetic_energy_regressor = data.kineticEnergyRegressor * params;
 
@@ -416,15 +416,15 @@ BOOST_AUTO_TEST_CASE(test_potential_energy_regressor)
   VectorXd v = Eigen::VectorXd::Random(model.nv);
 
   computeAllTerms(model, data, q, v);
-  auto target_energy = computePotentialEnergy(model, data);
+  double target_energy = computePotentialEnergy(model, data);
 
-  auto regressor = computePotentialEnergyRegressor(model, data, q);
+  const auto & regressor = computePotentialEnergyRegressor(model, data, q);
 
   Eigen::VectorXd params(10 * (model.njoints - 1));
   for (JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
-    params.segment<10>((int)((i - 1) * 10)) = model.inertias[i].toDynamicParameters();
+    params.segment<10>(Eigen::DenseIndex((i - 1) * 10)) = model.inertias[i].toDynamicParameters();
 
-  Eigen::VectorXd potential_energy_regressor = data.potentialEnergyRegressor * params;
+  const Eigen::VectorXd potential_energy_regressor = data.potentialEnergyRegressor * params;
 
   BOOST_CHECK_CLOSE(potential_energy_regressor.sum(), target_energy, 1e-12);
 }
