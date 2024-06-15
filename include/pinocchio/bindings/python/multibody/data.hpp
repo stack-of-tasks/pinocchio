@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2022 CNRS INRIA
+// Copyright (c) 2015-2024 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_multibody_data_hpp__
@@ -254,6 +254,8 @@ namespace pinocchio
           .ADD_DATA_PROPERTY(dq_after, "Generalized velocity after the impact.")
           .ADD_DATA_PROPERTY(staticRegressor, "Static regressor.")
           .ADD_DATA_PROPERTY(jointTorqueRegressor, "Joint torque regressor.")
+          .ADD_DATA_PROPERTY(kineticEnergyRegressor, "Kinetic energy regressor.")
+          .ADD_DATA_PROPERTY(potentialEnergyRegressor, "Potential energy regressor.")
 
 #ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
           .def(bp::self == bp::self)
