@@ -418,8 +418,6 @@ BOOST_AUTO_TEST_CASE(test_potential_energy_regressor)
   computeAllTerms(model, data, q, v);
   double target_energy = computePotentialEnergy(model, data);
 
-  const auto & regressor = computePotentialEnergyRegressor(model, data, q);
-
   Eigen::VectorXd params(10 * (model.njoints - 1));
   for (JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
     params.segment<10>(Eigen::DenseIndex((i - 1) * 10)) = model.inertias[i].toDynamicParameters();
