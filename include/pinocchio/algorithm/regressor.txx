@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 INRIA
+// Copyright (c) 2022-2024 INRIA
 //
 
 #ifndef __pinocchio_algorithm_regressor_txx__
@@ -100,6 +100,28 @@ namespace pinocchio
     const Eigen::MatrixBase<context::VectorXs> &,
     const Eigen::MatrixBase<context::VectorXs> &,
     const Eigen::MatrixBase<context::VectorXs> &);
+
+  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI const
+    context::Data::RowVectorXs &
+    computeKineticEnergyRegressor<
+      context::Scalar,
+      context::Options,
+      JointCollectionDefaultTpl,
+      context::VectorXs,
+      context::VectorXs>(
+      const context::Model &,
+      context::Data &,
+      const Eigen::MatrixBase<context::VectorXs> &,
+      const Eigen::MatrixBase<context::VectorXs> &);
+
+  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI const
+    context::Data::RowVectorXs &
+    computePotentialEnergyRegressor<
+      context::Scalar,
+      context::Options,
+      JointCollectionDefaultTpl,
+      context::VectorXs>(
+      const context::Model &, context::Data &, const Eigen::MatrixBase<context::VectorXs> &);
 
 } // namespace pinocchio
 

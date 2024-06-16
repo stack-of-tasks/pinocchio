@@ -298,13 +298,13 @@ namespace pinocchio
   jointBodyRegressor(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
-    JointIndex jointId)
+    JointIndex joint_id)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
     PINOCCHIO_UNUSED_VARIABLE(model);
 
-    bodyRegressor(data.v[jointId], data.a_gf[jointId], data.bodyRegressor);
+    bodyRegressor(data.v[joint_id], data.a_gf[joint_id], data.bodyRegressor);
     return data.bodyRegressor;
   }
 
@@ -313,7 +313,7 @@ namespace pinocchio
   frameBodyRegressor(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
-    FrameIndex frameId)
+    FrameIndex frame_id)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
@@ -322,7 +322,7 @@ namespace pinocchio
     typedef typename Model::JointIndex JointIndex;
     typedef typename Model::SE3 SE3;
 
-    const Frame & frame = model.frames[frameId];
+    const Frame & frame = model.frames[frame_id];
     const JointIndex & parent = frame.parentJoint;
     const SE3 & placement = frame.placement;
 
@@ -471,6 +471,92 @@ namespace pinocchio
     return data.jointTorqueRegressor;
   }
 
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType,
+    typename TangentVectorType>
+  const typename DataTpl<Scalar, Options, JointCollectionTpl>::RowVectorXs &
+  computeKineticEnergyRegressor(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q,
+    const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
+
+    forwardKinematics(model, data, q.derived(), v.derived());
+
+    data.kineticEnergyRegressor.setZero();
+    // iterate over each joint and compute the kinetic energy regressor
+    for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
+    {
+      // linear and angular velocities
+      const auto linear_vel = data.v[joint_id].linear();
+      const auto angular_vel = data.v[joint_id].angular();
+
+      const Scalar v_x = linear_vel[0], v_y = linear_vel[1], v_z = linear_vel[2],
+                   w_x = angular_vel[0], w_y = angular_vel[1], w_z = angular_vel[2];
+
+      auto joint_regressor =
+        data.kineticEnergyRegressor.template segment<10>(10 * Eigen::DenseIndex(joint_id - 1));
+
+      joint_regressor[0] = 0.5 * linear_vel.dot(linear_vel);
+      joint_regressor[1] = -w_y * v_z + w_z * v_y;
+      joint_regressor[2] = w_x * v_z - w_z * v_x;
+      joint_regressor[3] = -w_x * v_y + w_y * v_x;
+      joint_regressor[4] = 0.5 * w_x * w_x;
+      joint_regressor[5] = w_x * w_y;
+      joint_regressor[6] = 0.5 * w_y * w_y;
+      joint_regressor[7] = w_x * w_z;
+      joint_regressor[8] = w_y * w_z;
+      joint_regressor[9] = 0.5 * w_z * w_z;
+    }
+
+    return data.kineticEnergyRegressor;
+  }
+
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType>
+  const typename DataTpl<Scalar, Options, JointCollectionTpl>::RowVectorXs &
+  computePotentialEnergyRegressor(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
+    typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
+
+    forwardKinematics(model, data, q.derived());
+
+    data.potentialEnergyRegressor.setZero();
+
+    // iterate over each joint and compute the kinetic energy regressor
+    for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
+    {
+      const auto & t = data.oMi[joint_id].translation();
+      const auto & R = data.oMi[joint_id].rotation();
+      const auto g = -model.gravity.linear();
+
+      auto joint_regressor =
+        data.potentialEnergyRegressor.template segment<10>(10 * Eigen::DenseIndex(joint_id - 1));
+
+      const typename Data::Vector3 gravity_local = R.transpose() * g;
+      joint_regressor[0] = g.dot(t);
+      joint_regressor.template segment<3>(1) = gravity_local;
+    }
+
+    return data.potentialEnergyRegressor;
+  }
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_algorithm_regressor_hxx__

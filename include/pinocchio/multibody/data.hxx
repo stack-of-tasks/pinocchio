@@ -113,6 +113,8 @@ namespace pinocchio
   , staticRegressor(Matrix3x::Zero(3, 4 * (model.njoints - 1)))
   , bodyRegressor(BodyRegressorType::Zero())
   , jointTorqueRegressor(MatrixXs::Zero(model.nv, 10 * (model.njoints - 1)))
+  , kineticEnergyRegressor(RowVectorXs::Zero(10 * (model.njoints - 1)))
+  , potentialEnergyRegressor(RowVectorXs::Zero(10 * (model.njoints - 1)))
   , KA((std::size_t)model.njoints, Matrix6x::Zero(6, 0))
   , LA((std::size_t)model.njoints, MatrixXs::Zero(0, 0))
   , lA((std::size_t)model.njoints, VectorXs::Zero(0))

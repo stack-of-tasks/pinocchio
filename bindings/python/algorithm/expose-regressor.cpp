@@ -95,6 +95,34 @@ namespace pinocchio
         "\tv: the joint velocity vector (size model.nv)\n"
         "\ta: the joint acceleration vector (size model.nv)\n",
         bp::return_value_policy<bp::return_by_value>());
+
+      bp::def(
+        "computeKineticEnergyRegressor",
+        &computeKineticEnergyRegressor<
+          Scalar, Options, JointCollectionDefaultTpl, VectorXs, VectorXs>,
+        bp::args("model", "data", "q", "v"),
+        "Compute the kinetic energy regressor that links the kinetic energy"
+        "to the dynamic parameters of each link according to the current the robot motion,\n"
+        "store the result in context::Data and return it.\n\n"
+        "Parameters:\n"
+        "\tmodel: model of the kinematic tree\n"
+        "\tdata: data related to the model\n"
+        "\tq: the joint configuration vector (size model.nq)\n"
+        "\tv: the joint velocity vector (size model.nv)\n",
+        bp::return_value_policy<bp::return_by_value>());
+
+      bp::def(
+        "computePotentialEnergyRegressor",
+        &computePotentialEnergyRegressor<Scalar, Options, JointCollectionDefaultTpl, VectorXs>,
+        bp::args("model", "data", "q"),
+        "Compute the potential energy regressor that links the potential energy"
+        "to the dynamic parameters of each link according to the current the robot motion,\n"
+        "store the result in context::Data and return it.\n\n"
+        "Parameters:\n"
+        "\tmodel: model of the kinematic tree\n"
+        "\tdata: data related to the model\n"
+        "\tq: the joint configuration vector (size model.nq)\n",
+        bp::return_value_policy<bp::return_by_value>());
     }
 
   } // namespace python
