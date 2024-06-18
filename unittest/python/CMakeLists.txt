@@ -45,12 +45,10 @@ set(${PROJECT_NAME}_PYTHON_TESTS
     bindings_std_vector
     bindings_std_map)
 
-if(hpp-fcl_FOUND)
+if(BUILD_WITH_HPP_FCL_SUPPORT)
   set(${PROJECT_NAME}_PYTHON_TESTS ${${PROJECT_NAME}_PYTHON_TESTS} bindings_geometry_object)
-  if(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
-    set(${PROJECT_NAME}_PYTHON_TESTS ${${PROJECT_NAME}_PYTHON_TESTS} bindings_fcl_transform)
-  endif(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
-endif(hpp-fcl_FOUND)
+  set(${PROJECT_NAME}_PYTHON_TESTS ${${PROJECT_NAME}_PYTHON_TESTS} bindings_fcl_transform)
+endif()
 
 if(urdfdom_FOUND)
   set(${PROJECT_NAME}_PYTHON_TESTS ${${PROJECT_NAME}_PYTHON_TESTS} bindings_urdf
