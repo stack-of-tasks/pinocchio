@@ -193,6 +193,18 @@ struct TestJointModelIsEqual : TestJointModel<TestJointModelIsEqual>
   }
 };
 
+struct TestJointModelTransform : TestJointModel<TestJointModelTransform>
+{
+  template<typename JointModel>
+  static void test(const JointModelBase<JointModel> & jmodel)
+  {
+    typedef typename JointModel::JointDataDerived JointData;
+    JointData jdata = jmodel.createData();
+    Eigen::Matrix<typename JointModel::Scalar, 3, 1> v = jdata.M_accessor().translation();
+    Eigen::Matrix<typename JointModel::Scalar, 3, 3> R = jdata.M_accessor().rotation();
+  }
+};
+
 BOOST_AUTO_TEST_CASE(isEqual)
 {
   typedef JointCollectionDefault::JointModelVariant JointModelVariant;
@@ -209,6 +221,14 @@ BOOST_AUTO_TEST_CASE(isEqual)
 
   JointModel jmodel_any;
   BOOST_CHECK(jmodel_any != jmodelx);
+}
+
+BOOST_AUTO_TEST_CASE(transform)
+{
+  typedef JointCollectionDefault::JointModelVariant JointModelVariant;
+  boost::mpl::for_each<JointModelVariant::types>(TestJointModelTransform());
+
+  TestJointModelTransform()(JointModel());
 }
 
 struct TestJointModelCast : TestJointModel<TestJointModelCast>

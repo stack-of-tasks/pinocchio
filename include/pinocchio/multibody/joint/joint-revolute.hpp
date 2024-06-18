@@ -186,7 +186,7 @@ namespace pinocchio
     }
     AngularType rotation() const
     {
-      AngularType m(AngularType::Identity(3));
+      AngularType m(AngularType::Identity());
       _setRotation(m);
       return m;
     }

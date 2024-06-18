@@ -79,7 +79,7 @@ namespace pinocchio
     typedef Matrix3 AngularType;
     typedef Matrix3 AngularRef;
     typedef Matrix3 ConstAngularRef;
-    typedef typename Vector3::ConstantReturnType LinearType;
+    typedef Vector3 LinearType;
     typedef typename Vector3::ConstantReturnType LinearRef;
     typedef const typename Vector3::ConstantReturnType ConstLinearRef;
     typedef typename traits<PlainType>::ActionMatrixType ActionMatrixType;
@@ -201,7 +201,7 @@ namespace pinocchio
     }
     AngularType rotation() const
     {
-      AngularType m(AngularType::Identity(3));
+      AngularType m(AngularType::Identity());
       _setRotation(m);
       return m;
     }

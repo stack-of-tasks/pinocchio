@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- Fix `appendModel` build when called with template arguments different than the ones from `context` ([#2284](https://github.com/stack-of-tasks/pinocchio/pull/2284))
+- Fix `TransformRevoleTpl::rotation` and `TransformHelicalTpl::rotation` build ([#2284](https://github.com/stack-of-tasks/pinocchio/pull/2284))
 - Fix compilation issue for Boost 1.85 ([#2255](https://github.com/stack-of-tasks/pinocchio/pull/2255))
 - Fix python bindings of `contactInverseDynamics` ([#2263](https://github.com/stack-of-tasks/pinocchio/pull/2263))
 - Deactivate `BUILD_WITH_LIBPYTHON` when building with PyPy ([#2274](https://github.com/stack-of-tasks/pinocchio/pull/2274))
