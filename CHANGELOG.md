@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix python bindings of `contactInverseDynamics` ([#2263](https://github.com/stack-of-tasks/pinocchio/pull/2263))
 - Deactivate `BUILD_WITH_LIBPYTHON` when building with PyPy ([#2274](https://github.com/stack-of-tasks/pinocchio/pull/2274))
 - Fix Python bindings cross building with `hpp-fcl` ([#2288](https://github.com/stack-of-tasks/pinocchio/pull/2288))
+- Fix build issue on Windows when a deprecated header is included ([#2292](https://github.com/stack-of-tasks/pinocchio/pull/2292))
 
 ### Added
 
