@@ -565,6 +565,72 @@ namespace pinocchio
         mass, lever, Symmetric3(params.template segment<6>(4)) + AlphaSkewSquare(mass, lever));
     }
 
+    /**
+     * Converts logarithmic Cholesky parameters directly to theta parameters.
+     *
+     * @param[in] log_cholesky A 10-dimensional vector containing logarithmic Cholesky parameters.
+     * The parameters are given as
+     * \f$ log\_cholesky = [\alpha, d_1, d_2, d_3, s_{12}, s_{23}, s_{13}, t_1, t_2, t_3] \f$
+     *
+     * @return A 10-dimensional vector containing mass, first moments, and inertia tensor
+     * components. The parameters are given as \f$ \theta = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy},
+     * I_{yy}, I_{xz}, I_{yz}, I_{zz}] \f$
+     */
+    template<typename Vector10Like>
+    static Vector10
+    LogcholToDynamicParameters(const Eigen::MatrixBase<Vector10Like> & log_cholesky)
+    {
+      using Scalar = typename Vector10Like::Scalar;
+      Vector10 dynamic_params;
+
+      const Scalar alpha = log_cholesky[0];
+      const Scalar d1 = log_cholesky[1];
+      const Scalar d2 = log_cholesky[2];
+      const Scalar d3 = log_cholesky[3];
+      const Scalar s12 = log_cholesky[4];
+      const Scalar s23 = log_cholesky[5];
+      const Scalar s13 = log_cholesky[6];
+      const Scalar t1 = log_cholesky[7];
+      const Scalar t2 = log_cholesky[8];
+      const Scalar t3 = log_cholesky[9];
+
+      const Scalar exp_d1 = math::exp(d1);
+      const Scalar exp_d2 = math::exp(d2);
+      const Scalar exp_d3 = math::exp(d3);
+
+      dynamic_params[0] = 1;
+      dynamic_params[1] = t1;
+      dynamic_params[2] = t2;
+      dynamic_params[3] = t3;
+      dynamic_params[4] = s23 * s23 + t2 * t2 + t3 * t3 + exp_d2 * exp_d2 + exp_d3 * exp_d3;
+      dynamic_params[5] = -s12 * exp_d2 - s13 * s23 - t1 * t2;
+      dynamic_params[6] = s12 * s12 + s13 * s13 + t1 * t1 + t3 * t3 + exp_d1 * exp_d1 + exp_d3 * exp_d3;
+      dynamic_params[7] = -s13 * exp_d3 - t1 * t3;
+      dynamic_params[8] = -s23 * exp_d3 - t2 * t3;
+      dynamic_params[9] = s12 * s12 + s13 * s13 + s23 * s23 + t1 * t1 + t2 * t2 + exp_d1 * exp_d2;
+
+      const Scalar exp_2_alpha = math::exp(2 * alpha);
+      dynamic_params *= exp_2_alpha;
+
+      return dynamic_params;
+    }
+
+    /**
+     * Builds an InertiaTpl from log Cholesky parameters.
+     *
+     * @param[in] log_cholesky A 10-dimensional vector containing logarithmic Cholesky parameters.
+     * The parameters are given as
+     * \f$ log\_cholesky = [\alpha, d_1, d_2, d_3, s_{12}, s_{23}, s_{13}, t_1, t_2, t_3] \f$
+     *
+     * @return An InertiaTpl object constructed from the provided log Cholesky parameters.
+     */
+    template<typename Vector10Like>
+    static InertiaTpl FromLogCholeskyParameters(const Eigen::MatrixBase<Vector10Like> & log_cholesky)
+    {
+      Vector10 dynamic_params = LogcholToDynamicParameters(log_cholesky);
+      return FromDynamicParameters(dynamic_params);
+    }
+
     // Arithmetic operators
     InertiaTpl & __equl__(const InertiaTpl & clone)
     {

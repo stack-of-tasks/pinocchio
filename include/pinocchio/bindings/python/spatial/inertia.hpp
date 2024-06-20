@@ -165,7 +165,15 @@ namespace pinocchio
             "I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T "
             "where I = I_C + mS^T(c)S(c) and I_C has its origin at the barycenter.")
           .staticmethod("FromDynamicParameters")
-
+          .def(
+            "FromLogCholeskyParameters", &Inertia::template FromLogCholeskyParameters<VectorXs>,
+            bp::args("log_cholesky"),
+            "Builds an InertiaTpl from log Cholesky parameters."
+            "\nThe parameters are given as log_cholesky = [alpha, d_1, d_2, d_3, s_{12}, s_{23}, "
+            "s_{13}, t_1, t_2, t_3] "
+            "\nThe returned InertiaTpl object is constructed from the provided log Cholesky "
+            "parameters.")
+          .staticmethod("FromLogCholeskyParameters")
           .def(
             "FromSphere", &Inertia::FromSphere, bp::args("mass", "radius"),
             "Returns the Inertia of a sphere defined by a given mass and radius.")
@@ -237,6 +245,7 @@ namespace pinocchio
       {
         return self.toDynamicParameters();
       }
+
 
       static Inertia *
       makeFromMCI(const Scalar & mass, const Vector3 & lever, const Matrix3 & inertia)
