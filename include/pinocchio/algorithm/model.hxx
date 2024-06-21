@@ -348,7 +348,7 @@ namespace pinocchio
       geomModel);
     for (JointIndex jid = 1; jid < modelB.joints.size(); ++jid)
     {
-      SE3 pMi = (jid == 1 ? frame.placement * aMb : id);
+      SE3 pMi = (model.parents[jid] == 0 ? frame.placement * aMb : id);
       ArgsType args(modelB, geomModelB, frame.parentJoint, pMi, model, geomModel);
       AppendJointOfModelAlgo::run(modelB.joints[jid], args);
     }
