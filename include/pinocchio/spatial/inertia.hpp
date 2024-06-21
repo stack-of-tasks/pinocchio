@@ -241,6 +241,7 @@ namespace pinocchio
     typedef Eigen::Matrix<T, 3, 3, U> Matrix3;
     typedef Eigen::Matrix<T, 4, 4, U> Matrix4;
     typedef Eigen::Matrix<T, 6, 6, U> Matrix6;
+    typedef Eigen::Matrix<T, 10, 10, U> Matrix10;
     typedef Matrix6 ActionMatrix_t;
     typedef Vector3 Angular_t;
     typedef Vector3 Linear_t;
@@ -271,6 +272,7 @@ namespace pinocchio
 
     typedef typename Symmetric3::AlphaSkewSquare AlphaSkewSquare;
     typedef typename Eigen::Matrix<Scalar, 10, 1, Options> Vector10;
+    typedef typename Eigen::Matrix<Scalar, 10, 10, Options> Matrix10;
 
     // Constructors
     InertiaTpl()
@@ -576,9 +578,9 @@ namespace pinocchio
       Scalar m = dynamic_params[0];
       Vector3 h = dynamic_params.template segment<3>(1);
       Matrix3 I_bar;
-      I_bar << dynamic_params[4], dynamic_params[5], dynamic_params[7], 
-               dynamic_params[5], dynamic_params[6], dynamic_params[8], 
-               dynamic_params[7], dynamic_params[8], dynamic_params[9];
+      I_bar << dynamic_params[4], dynamic_params[5], dynamic_params[7], dynamic_params[5],
+        dynamic_params[6], dynamic_params[8], dynamic_params[7], dynamic_params[8],
+        dynamic_params[9];
 
       Matrix3 Sigma = 0.5 * I_bar.trace() * Matrix3::Identity() - I_bar;
       Matrix4 pseudo_inertia = Matrix4::Zero();
@@ -618,11 +620,11 @@ namespace pinocchio
     }
 
     /**
-     * Converts logarithmic Cholesky parameters directly to theta parameters.
+     * Converts logarithmic Cholesky parameters directly to dynamic parameters.
      *
      * @param[in] log_cholesky A 10-dimensional vector containing logarithmic Cholesky parameters.
      * The parameters are given as
-     * \f$ log\_cholesky = [\alpha, d_1, d_2, d_3, s_{12}, s_{23}, s_{13}, t_1, t_2, t_3] \f$
+     * \f$ \eta = [\alpha, d_1, d_2, d_3, s_{12}, s_{23}, s_{13}, t_1, t_2, t_3] \f$
      *
      * @return A 10-dimensional vector containing mass, first moments, and inertia tensor
      * components. The parameters are given as \f$ \theta = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy},
@@ -660,7 +662,8 @@ namespace pinocchio
         s12 * s12 + s13 * s13 + t1 * t1 + t3 * t3 + exp_d1 * exp_d1 + exp_d3 * exp_d3;
       dynamic_params[7] = -s13 * exp_d3 - t1 * t3;
       dynamic_params[8] = -s23 * exp_d3 - t2 * t3;
-      dynamic_params[9] = s12 * s12 + s13 * s13 + s23 * s23 + t1 * t1 + t2 * t2 + exp_d1 * exp_d1 + exp_d2 * exp_d2;
+      dynamic_params[9] =
+        s12 * s12 + s13 * s13 + s23 * s23 + t1 * t1 + t2 * t2 + exp_d1 * exp_d1 + exp_d2 * exp_d2;
 
       const Scalar exp_2_alpha = math::exp(2 * alpha);
       dynamic_params *= exp_2_alpha;
@@ -673,7 +676,7 @@ namespace pinocchio
      *
      * @param[in] log_cholesky A 10-dimensional vector containing logarithmic Cholesky parameters.
      * The parameters are given as
-     * \f$ log\_cholesky = [\alpha, d_1, d_2, d_3, s_{12}, s_{23}, s_{13}, t_1, t_2, t_3] \f$
+     * \f$ \eta = [\alpha, d_1, d_2, d_3, s_{12}, s_{23}, s_{13}, t_1, t_2, t_3] \f$
      *
      * @return An Inertia object constructed from the provided log Cholesky parameters.
      */
@@ -684,6 +687,98 @@ namespace pinocchio
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector10Like, log_cholesky, 10, 1);
       Vector10 dynamic_params = LogcholToDynamicParameters(log_cholesky);
       return FromDynamicParameters(dynamic_params);
+    }
+
+    /**
+     * Calculates the Jacobian of the dynamic parameters with respect to the log-Cholesky
+     * parameters.
+     *
+     * @param[in] log_cholesky A 10-dimensional vector containing the log-Cholesky parameters.
+     *
+     * @return A 10x10 matrix containing the Jacobian of dynamic parameters with respect to
+     * log-Cholesky parameters.
+     */
+    static Matrix10 calculateLogCholeskyJacobian(const Vector10 & log_cholesky)
+    {
+      Matrix10 jacobian = Matrix10::Zero();
+      const Scalar alpha = log_cholesky[0];
+      const Scalar d1 = log_cholesky[1];
+      const Scalar d2 = log_cholesky[2];
+      const Scalar d3 = log_cholesky[3];
+      const Scalar s12 = log_cholesky[4];
+      const Scalar s23 = log_cholesky[5];
+      const Scalar s13 = log_cholesky[6];
+      const Scalar t1 = log_cholesky[7];
+      const Scalar t2 = log_cholesky[8];
+      const Scalar t3 = log_cholesky[9];
+
+      const Scalar exp_2alpha = math::exp(2 * alpha);
+      const Scalar exp_2d1 = math::exp(2 * d1);
+      const Scalar exp_2d2 = math::exp(2 * d2);
+      const Scalar exp_2d3 = math::exp(2 * d3);
+      const Scalar exp_d1 = math::exp(d1);
+      const Scalar exp_d2 = math::exp(d2);
+      const Scalar exp_d3 = math::exp(d3);
+
+      jacobian(0, 0) = 2 * exp_2alpha;
+
+      jacobian(1, 0) = 2 * t1 * exp_2alpha;
+      jacobian(1, 7) = exp_2alpha;
+
+      jacobian(2, 0) = 2 * t2 * exp_2alpha;
+      jacobian(2, 8) = exp_2alpha;
+
+      jacobian(3, 0) = 2 * t3 * exp_2alpha;
+      jacobian(3, 9) = exp_2alpha;
+
+      jacobian(4, 0) = 2 * (s23 * s23 + t2 * t2 + t3 * t3 + exp_2d2 + exp_2d3) * exp_2alpha;
+      jacobian(4, 2) = 2 * exp_2alpha * exp_2d2;
+      jacobian(4, 3) = 2 * exp_2alpha * exp_2d3;
+      jacobian(4, 5) = 2 * s23 * exp_2alpha;
+      jacobian(4, 8) = 2 * t2 * exp_2alpha;
+      jacobian(4, 9) = 2 * t3 * exp_2alpha;
+
+      jacobian(5, 0) = -2 * (s12 * exp_d2 + s13 * s23 + t1 * t2) * exp_2alpha;
+      jacobian(5, 2) = -s12 * exp_2alpha * exp_d2;
+      jacobian(5, 4) = -exp_2alpha * exp_d2;
+      jacobian(5, 5) = -s13 * exp_2alpha;
+      jacobian(5, 6) = -s23 * exp_2alpha;
+      jacobian(5, 7) = - t2 * exp_2alpha;
+      jacobian(5, 8) = - t1 * exp_2alpha;
+
+      jacobian(6, 0) =
+        2 * (s12 * s12 + s13 * s13 + t1 * t1 + t3 * t3 + exp_2d1 + exp_2d3) * exp_2alpha;
+      jacobian(6, 1) = 2 * exp_2alpha * exp_2d1;
+      jacobian(6, 3) = 2 * exp_2alpha * exp_2d3;
+      jacobian(6, 4) = 2 * s12 * exp_2alpha;
+      jacobian(6, 6) = 2 * s13 * exp_2alpha;
+      jacobian(6, 7) = 2 * t1 * exp_2alpha;
+      jacobian(6, 9) = 2 * t3 * exp_2alpha;
+
+      jacobian(7, 0) = -2 * (s13 * exp_d3 + t1 * t3) * exp_2alpha;
+      jacobian(7, 3) = -s13 * exp_2alpha * exp_d3;
+      jacobian(7, 6) = -exp_2alpha * exp_d3;
+      jacobian(7, 7) = -t3 * exp_2alpha;
+      jacobian(7, 9) = -t1 * exp_2alpha;
+
+      jacobian(8, 0) = -2 * (s23 * exp_d3 + t2 * t3) * exp_2alpha;
+      jacobian(8, 3) = - s23 * exp_2alpha * exp_d3;
+      jacobian(8, 5) = - exp_2alpha * exp_d3;
+      jacobian(8, 8) = -t3 * exp_2alpha;
+      jacobian(8, 9) = -t2 * exp_2alpha;
+
+      jacobian(9, 0) = 2
+                       * (s12 * s12 + s13 * s13 + s23 * s23 + t1 * t1 + t2 * t2 + exp_2d1 + exp_2d2)
+                       * exp_2alpha;
+      jacobian(9, 1) = 2 * exp_2alpha * exp_2d1;
+      jacobian(9, 2) = 2 * exp_2alpha * exp_2d2;
+      jacobian(9, 4) = 2 * s12 * exp_2alpha;
+      jacobian(9, 5) = 2 * s23 * exp_2alpha;
+      jacobian(9, 6) = 2 * s13 * exp_2alpha;
+      jacobian(9, 7) = 2 * t1 * exp_2alpha;
+      jacobian(9, 8) = 2 * t2 * exp_2alpha;
+
+      return jacobian;
     }
 
     // Arithmetic operators
