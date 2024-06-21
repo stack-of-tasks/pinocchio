@@ -576,9 +576,9 @@ namespace pinocchio
       Scalar m = dynamic_params[0];
       Vector3 h = dynamic_params.template segment<3>(1);
       Matrix3 I_bar;
-      I_bar << dynamic_params[4], dynamic_params[5], dynamic_params[7], dynamic_params[5],
-        dynamic_params[6], dynamic_params[8], dynamic_params[7], dynamic_params[8],
-        dynamic_params[9];
+      I_bar << dynamic_params[4], dynamic_params[5], dynamic_params[7], 
+               dynamic_params[5], dynamic_params[6], dynamic_params[8], 
+               dynamic_params[7], dynamic_params[8], dynamic_params[9];
 
       Matrix3 Sigma = 0.5 * I_bar.trace() * Matrix3::Identity() - I_bar;
       Matrix4 pseudo_inertia = Matrix4::Zero();
@@ -656,10 +656,11 @@ namespace pinocchio
       dynamic_params[3] = t3;
       dynamic_params[4] = s23 * s23 + t2 * t2 + t3 * t3 + exp_d2 * exp_d2 + exp_d3 * exp_d3;
       dynamic_params[5] = -s12 * exp_d2 - s13 * s23 - t1 * t2;
-      dynamic_params[6] = s12 * s12 + s13 * s13 + t1 * t1 + t3 * t3 + exp_d1 * exp_d1 + exp_d3 * exp_d3;
+      dynamic_params[6] =
+        s12 * s12 + s13 * s13 + t1 * t1 + t3 * t3 + exp_d1 * exp_d1 + exp_d3 * exp_d3;
       dynamic_params[7] = -s13 * exp_d3 - t1 * t3;
       dynamic_params[8] = -s23 * exp_d3 - t2 * t3;
-      dynamic_params[9] = s12 * s12 + s13 * s13 + s23 * s23 + t1 * t1 + t2 * t2 + exp_d1 * exp_d2;
+      dynamic_params[9] = s12 * s12 + s13 * s13 + s23 * s23 + t1 * t1 + t2 * t2 + exp_d1 * exp_d1 + exp_d2 * exp_d2;
 
       const Scalar exp_2_alpha = math::exp(2 * alpha);
       dynamic_params *= exp_2_alpha;
