@@ -566,6 +566,58 @@ namespace pinocchio
     }
 
     /**
+     * Converts the inertia to a pseudo inertia matrix.
+     *
+     * @return A 4x4 pseudo inertia matrix.
+     */
+    Matrix4 toPseudoInertia() const
+    {
+      Vector10 dynamic_params = toDynamicParameters();
+      Scalar m = dynamic_params[0];
+      Vector3 h = dynamic_params.template segment<3>(1);
+      Matrix3 I_bar;
+      I_bar << dynamic_params[4], dynamic_params[5], dynamic_params[7], dynamic_params[5],
+        dynamic_params[6], dynamic_params[8], dynamic_params[7], dynamic_params[8],
+        dynamic_params[9];
+
+      Matrix3 Sigma = 0.5 * I_bar.trace() * Matrix3::Identity() - I_bar;
+      Matrix4 pseudo_inertia = Matrix4::Zero();
+      pseudo_inertia.template block<3, 3>(0, 0) = Sigma;
+      pseudo_inertia.template block<3, 1>(0, 3) = h;
+      pseudo_inertia.template block<1, 3>(3, 0) = h.transpose();
+      pseudo_inertia(3, 3) = m;
+
+      return pseudo_inertia;
+    }
+
+    /**
+     * Builds an inertia matrix from a 4x4 pseudo inertia matrix.
+     *
+     * @param[in] pseudo_inertia A 4x4 pseudo inertia matrix.
+     *
+     * @return An InertiaTpl object constructed from the provided pseudo inertia matrix.
+     */
+    static InertiaTpl FromPseudoInertia(const Matrix4 & pseudo_inertia)
+    {
+      Scalar m = pseudo_inertia(3, 3);
+      Vector3 h = pseudo_inertia.template block<3, 1>(0, 3);
+      Matrix3 Sigma = pseudo_inertia.template block<3, 3>(0, 0);
+      Matrix3 I_bar = Sigma.trace() * Matrix3::Identity() - Sigma;
+
+      Vector10 dynamic_params;
+      dynamic_params[0] = m; /*  */
+      dynamic_params.template segment<3>(1) = h;
+      dynamic_params[4] = I_bar(0, 0);
+      dynamic_params[5] = I_bar(0, 1);
+      dynamic_params[6] = I_bar(1, 1);
+      dynamic_params[7] = I_bar(0, 2);
+      dynamic_params[8] = I_bar(1, 2);
+      dynamic_params[9] = I_bar(2, 2);
+
+      return FromDynamicParameters(dynamic_params);
+    }
+
+    /**
      * Converts logarithmic Cholesky parameters directly to theta parameters.
      *
      * @param[in] log_cholesky A 10-dimensional vector containing logarithmic Cholesky parameters.
@@ -577,9 +629,9 @@ namespace pinocchio
      * I_{yy}, I_{xz}, I_{yz}, I_{zz}] \f$
      */
     template<typename Vector10Like>
-    static Vector10
-    LogcholToDynamicParameters(const Eigen::MatrixBase<Vector10Like> & log_cholesky)
+    static Vector10 LogcholToDynamicParameters(const Eigen::MatrixBase<Vector10Like> & log_cholesky)
     {
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector10Like, log_cholesky, 10, 1);
       using Scalar = typename Vector10Like::Scalar;
       Vector10 dynamic_params;
 
@@ -616,17 +668,19 @@ namespace pinocchio
     }
 
     /**
-     * Builds an InertiaTpl from log Cholesky parameters.
+     * Builds an Inertia from log Cholesky parameters.
      *
      * @param[in] log_cholesky A 10-dimensional vector containing logarithmic Cholesky parameters.
      * The parameters are given as
      * \f$ log\_cholesky = [\alpha, d_1, d_2, d_3, s_{12}, s_{23}, s_{13}, t_1, t_2, t_3] \f$
      *
-     * @return An InertiaTpl object constructed from the provided log Cholesky parameters.
+     * @return An Inertia object constructed from the provided log Cholesky parameters.
      */
     template<typename Vector10Like>
-    static InertiaTpl FromLogCholeskyParameters(const Eigen::MatrixBase<Vector10Like> & log_cholesky)
+    static InertiaTpl
+    FromLogCholeskyParameters(const Eigen::MatrixBase<Vector10Like> & log_cholesky)
     {
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector10Like, log_cholesky, 10, 1);
       Vector10 dynamic_params = LogcholToDynamicParameters(log_cholesky);
       return FromDynamicParameters(dynamic_params);
     }

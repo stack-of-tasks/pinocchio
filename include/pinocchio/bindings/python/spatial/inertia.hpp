@@ -39,6 +39,7 @@ namespace pinocchio
       typedef typename Inertia::Matrix3 Matrix3;
       typedef typename Inertia::Vector6 Vector6;
       typedef typename Inertia::Matrix6 Matrix6;
+      typedef typename Inertia::Matrix4 Matrix4;
 
       typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> VectorXs;
       typedef MotionTpl<Scalar, Options> Motion;
@@ -57,7 +58,6 @@ namespace pinocchio
               &InertiaPythonVisitor::makeFromMCI, bp::default_call_policies(),
               bp::args("mass", "lever", "inertia")),
             "Initialize from mass, lever and 3d inertia.")
-
           .def(bp::init<>(bp::arg("self"), "Default constructor."))
           .def(bp::init<const Inertia &>((bp::arg("self"), bp::arg("clone")), "Copy constructor"))
 
@@ -166,6 +166,33 @@ namespace pinocchio
             "where I = I_C + mS^T(c)S(c) and I_C has its origin at the barycenter.")
           .staticmethod("FromDynamicParameters")
           .def(
+            "toPseudoInertia", &InertiaPythonVisitor::toPseudoInertia_proxy, 
+            bp::arg("self"),
+            "Converts the inertia to a pseudo inertia matrix."
+            "\nThe returned 4x4 pseudo inertia matrix has the form:"
+            "\n[[ -0.5*I_xx + 0.5*I_yy + 0.5*I_zz, -I_xy, -I_xz, mr_x],"
+            "\n [ -I_xy, 0.5*I_xx - 0.5*I_yy + 0.5*I_zz, -I_yz, mr_y],"
+            "\n [ -I_xz, -I_yz, 0.5*I_xx + 0.5*I_yy - 0.5*I_zz, mr_z],"
+            "\n [ mr_x, mr_y, mr_z, m ]].")
+          .def(
+            "FromPseudoInertia", &Inertia::FromPseudoInertia, 
+            bp::args("pseudo_inertia"),
+            "Builds an inertia matrix from a 4x4 pseudo inertia matrix."
+            "\nThe parameters are given as"
+            "\npseudo_inertia = [[ -0.5*I_xx + 0.5*I_yy + 0.5*I_zz, -I_xy, -I_xz, mr_x],"
+            "\n [ -I_xy, 0.5*I_xx - 0.5*I_yy + 0.5*I_zz, -I_yz, mr_y],"
+            "\n [ -I_xz, -I_yz, 0.5*I_xx + 0.5*I_yy - 0.5*I_zz, mr_z],"
+            "\n [ mr_x, mr_y, mr_z, m ]].")
+          .staticmethod("FromPseudoInertia")
+          .def(
+            "LogcholToDynamicParameters", &Inertia::template LogcholToDynamicParameters<VectorXs>,
+            bp::args("log_cholesky"),
+            "Converts logarithmic Cholesky parameters directly to theta parameters."
+            "\nThe parameters are given as log_cholesky = [alpha, d_1, d_2, d_3, s_{12}, s_{23}, "
+            "s_{13}, t_1, t_2, t_3]."
+            "\nThe returned vector contains the dynamic parameters.")
+          .staticmethod("LogcholToDynamicParameters")
+          .def(
             "FromLogCholeskyParameters", &Inertia::template FromLogCholeskyParameters<VectorXs>,
             bp::args("log_cholesky"),
             "Builds an InertiaTpl from log Cholesky parameters."
@@ -246,6 +273,10 @@ namespace pinocchio
         return self.toDynamicParameters();
       }
 
+      static Matrix4 toPseudoInertia_proxy(const Inertia & self)
+      {
+        return self.toPseudoInertia();
+      }
 
       static Inertia *
       makeFromMCI(const Scalar & mass, const Vector3 & lever, const Matrix3 & inertia)
