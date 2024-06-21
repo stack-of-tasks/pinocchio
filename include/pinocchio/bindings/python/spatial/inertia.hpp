@@ -42,9 +42,7 @@ namespace pinocchio
       typedef typename Inertia::Matrix4 Matrix4;
       typedef typename Inertia::Matrix10 Matrix10;
       typedef typename Inertia::Vector10 Vector10;
-      // typedef Eigen::Matrix<Scalar, 10, 1, Options> Vector10;
-      // typedef Eigen::Matrix<Scalar, 10, 10, Options> Matrix10;
-
+      
       typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> VectorXs;
       typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Options> MatrixXs;
       typedef MotionTpl<Scalar, Options> Motion;
