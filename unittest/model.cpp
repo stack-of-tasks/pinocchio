@@ -449,6 +449,35 @@ BOOST_AUTO_TEST_CASE(append)
       geomModel4);
     BOOST_CHECK(model4.inertias[1] == model4.inertias[1]);
   }
+
+  {
+    Model model5, gripperModel;
+
+    Inertia inertia(1., SE3::Vector3(0.5, 0., 0.0), SE3::Matrix3::Identity());
+    SE3 pos(1);
+
+    pos.translation() = SE3::LinearType(0.1, 0., 0.);
+    JointIndex idx = gripperModel.addJoint(0, JointModelPX(), pos, "left_finger");
+    gripperModel.addJointFrame(idx);
+
+    pos.translation() = SE3::LinearType(-0.1, 0., 0.);
+    idx = gripperModel.addJoint(0, JointModelPX(), pos, "right_finger");
+    gripperModel.addJointFrame(idx);
+
+    SE3 transformManGr = SE3::Random();
+    FrameIndex fid = (FrameIndex)(manipulator.frames.size() - 1);
+    appendModel(manipulator, gripperModel, fid, transformManGr, model5);
+
+    JointIndex jid5 = model5.getJointId("left_finger");
+    JointIndex jidG = gripperModel.getJointId("left_finger");
+    BOOST_CHECK(
+      model5.jointPlacements[jid5].isApprox(transformManGr * gripperModel.jointPlacements[jidG]));
+
+    jid5 = model5.getJointId("right_finger");
+    jidG = gripperModel.getJointId("right_finger");
+    BOOST_CHECK(
+      model5.jointPlacements[jid5].isApprox(transformManGr * gripperModel.jointPlacements[jidG]));
+  }
 }
 #endif
 
