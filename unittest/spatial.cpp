@@ -14,6 +14,7 @@
 #include "pinocchio/spatial/cartesian-axis.hpp"
 #include "pinocchio/spatial/spatial-axis.hpp"
 
+
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -630,6 +631,15 @@ BOOST_AUTO_TEST_CASE(test_Inertia)
   BOOST_CHECK(I1.inertia().matrix().isApprox(
     Symmetric3(3.79705882, 0., 3.79705882, 0., 0., 1.81176471).matrix(),
     1e-5)); // Computed with hppfcl::Capsule
+
+  // Test Inertia From Pseudo Inertia and backward
+  I1 = Inertia::FromCapsule(1., 2., 3);
+  BOOST_CHECK(I1.isApprox(Inertia::FromPseudoInertia(I1.toPseudoInertia())));
+
+  // Test Inertia From LogCholesky parameters and backward
+  Inertia::Vector10 logChol = Inertia::Vector10::Random();
+  I1 = Inertia::FromLogCholeskyParameters(logChol);
+  BOOST_CHECK(I1.isApprox(Inertia::FromDynamicParameters(I1.toDynamicParameters())));
 
   // Copy operator
   Inertia aI_copy(aI);
