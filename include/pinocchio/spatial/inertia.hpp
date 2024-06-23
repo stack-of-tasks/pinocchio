@@ -743,8 +743,8 @@ namespace pinocchio
       jacobian(5, 4) = -exp_2alpha * exp_d2;
       jacobian(5, 5) = -s13 * exp_2alpha;
       jacobian(5, 6) = -s23 * exp_2alpha;
-      jacobian(5, 7) = - t2 * exp_2alpha;
-      jacobian(5, 8) = - t1 * exp_2alpha;
+      jacobian(5, 7) = -t2 * exp_2alpha;
+      jacobian(5, 8) = -t1 * exp_2alpha;
 
       jacobian(6, 0) =
         2 * (s12 * s12 + s13 * s13 + t1 * t1 + t3 * t3 + exp_2d1 + exp_2d3) * exp_2alpha;
@@ -762,8 +762,8 @@ namespace pinocchio
       jacobian(7, 9) = -t1 * exp_2alpha;
 
       jacobian(8, 0) = -2 * (s23 * exp_d3 + t2 * t3) * exp_2alpha;
-      jacobian(8, 3) = - s23 * exp_2alpha * exp_d3;
-      jacobian(8, 5) = - exp_2alpha * exp_d3;
+      jacobian(8, 3) = -s23 * exp_2alpha * exp_d3;
+      jacobian(8, 5) = -exp_2alpha * exp_d3;
       jacobian(8, 8) = -t3 * exp_2alpha;
       jacobian(8, 9) = -t2 * exp_2alpha;
 

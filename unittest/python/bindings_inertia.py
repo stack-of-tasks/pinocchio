@@ -132,12 +132,14 @@ class TestInertiaBindings(TestCase):
         exp_d3 = np.exp(d3)
 
         # Create the matrix U
-        U = exp_alpha * np.array([
-            [exp_d1, s12, s13, t1],
-            [0, exp_d2, s23, t2],
-            [0, 0, exp_d3, t3],
-            [0, 0, 0, 1]
-        ])
+        U = exp_alpha * np.array(
+            [
+                [exp_d1, s12, s13, t1],
+                [0, exp_d2, s23, t2],
+                [0, 0, exp_d3, t3],
+                [0, 0, 0, 1],
+            ]
+        )
         pseudo_chol = U @ U.T
 
         inertia = pin.Inertia.FromLogCholeskyParameters(eta)

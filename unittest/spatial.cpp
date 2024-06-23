@@ -14,7 +14,6 @@
 #include "pinocchio/spatial/cartesian-axis.hpp"
 #include "pinocchio/spatial/spatial-axis.hpp"
 
-
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
