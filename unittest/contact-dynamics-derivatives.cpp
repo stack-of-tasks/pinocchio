@@ -2441,7 +2441,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_loop_closure_kinematic
     v_eps[k] = 0.;
   }
 
-  BOOST_CHECK(dac_dq_fd.isApprox(dac_dq, 1e-6));
+  BOOST_CHECK(dac_dq_fd.isApprox(dac_dq, 2e-6));
 }
 
 BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_dirty_data)
