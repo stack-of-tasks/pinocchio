@@ -254,7 +254,7 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Shubham Singh](https://github.com/shubhamsingh91) (UT Austin): second-order inverse dynamics derivatives
 -   [Stéphane Caron](https://scaron.info) (Inria): core developper
 -   [Joris Vaillant](https://github.com/jorisv) (Inria): core developer and manager of the project
--   [Sebastian Castro](https://roboticseabass.com) (PickNik Robotics): MeshCat viewer features extension
+-   [Sebastian Castro](https://roboticseabass.com) (The AI Institute): MeshCat viewer features extension
 -   [Lev Kozlov](https://github.com/lvjonok): Kinetic and potential energy regressors
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
@@ -268,6 +268,7 @@ If you have participated in the development of **Pinocchio**, please add your na
 -   [ocs2](https://github.com/leggedrobotics/ocs2) A toolbox for Optimal Control for Switched Systems (OCS2)
 -   [TriFingerSimulation](https://github.com/open-dynamic-robot-initiative/trifinger_simulation) TriFinger Robot Simulation (a Robot to perform RL on manipulation).
 -   [Casadi_Kin_Dyn](https://github.com/ADVRHumanoids/casadi_kin_dyn) IIT Package for generation of symbolic (SX) expressions of robot kinematics and dynamics.
+-   [PyRoboPlan](https://github.com/sea-bass/pyroboplan) An educational Python library for manipulator motion planning, using the Pinocchio Python bindings.
 
 ## Acknowledgments
 
