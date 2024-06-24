@@ -17,9 +17,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix Python bindings cross building with `hpp-fcl` ([#2288](https://github.com/stack-of-tasks/pinocchio/pull/2288))
 - Fix build issue on Windows when a deprecated header is included ([#2292](https://github.com/stack-of-tasks/pinocchio/pull/2292))
 - Fix build issue on Windows when building in Debug mode ([#2292](https://github.com/stack-of-tasks/pinocchio/pull/2292))
-- Fix visualization of meshes in meshcat ([2294](https://github.com/stack-of-tasks/pinocchio/pull/2294))
-- Fix Anymal simulation test ([2299](https://github.com/stack-of-tasks/pinocchio/pull/2299))
-- Fix contact derivatives and impulse dynamics tests ([2300](https://github.com/stack-of-tasks/pinocchio/pull/2300))
+- Fix visualization of meshes in meshcat ([#2294](https://github.com/stack-of-tasks/pinocchio/pull/2294))
+- Fix Anymal simulation test ([#2299](https://github.com/stack-of-tasks/pinocchio/pull/2299))
+- Fix contact derivatives and impulse dynamics tests ([#2300](https://github.com/stack-of-tasks/pinocchio/pull/2300))
 
 ### Added
 
