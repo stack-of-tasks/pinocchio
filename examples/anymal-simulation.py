@@ -34,6 +34,7 @@ constraint_models = []
 for j, frame_id in enumerate(foot_frame_ids):
     contact_model_lf1 = pinocchio.RigidConstraintModel(
         pinocchio.ContactType.CONTACT_3D,
+        robot.model,
         foot_joint_ids[j],
         robot.model.frames[frame_id].placement,
         0,
