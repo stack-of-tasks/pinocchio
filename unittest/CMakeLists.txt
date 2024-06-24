@@ -167,10 +167,14 @@ add_pinocchio_unit_test(sample-models COLLISION_OPTIONAL)
 add_pinocchio_unit_test(kinematics)
 # Test for unstable features TODO fix and reactivate these tests in next version
 # ADD_PINOCCHIO_UNIT_TEST(delassus) ADD_PINOCCHIO_UNIT_TEST(pv-solver)
-# ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics-derivatives) IF(BUILD_WITH_SDF_SUPPORT)
-# ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives PARSERS) ELSE()
-# ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives) ENDIF()
-# ADD_PINOCCHIO_UNIT_TEST(constraint-variants) ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics)
+add_pinocchio_unit_test(impulse-dynamics-derivatives)
+if(BUILD_WITH_SDF_SUPPORT)
+  add_pinocchio_unit_test(contact-dynamics-derivatives PARSERS)
+else()
+  add_pinocchio_unit_test(contact-dynamics-derivatives)
+endif()
+add_pinocchio_unit_test(constraint-variants)
+add_pinocchio_unit_test(impulse-dynamics)
 
 add_pinocchio_unit_test(
   mjcf
