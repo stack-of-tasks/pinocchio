@@ -448,11 +448,9 @@ namespace pinocchio
     for (size_t k = 0; k < contact_models.size(); ++k)
     {
       typedef typename RigidConstraintModel::BooleanVector BooleanVector;
-      typedef typename RigidConstraintModel::IndexVector IndexVector;
 
       const RigidConstraintModel & cmodel = contact_models[k];
       RigidConstraintData & cdata = contact_data[k];
-      const IndexVector & loop_span_indexes = cmodel.loop_span_indexes;
       //      const BooleanVector & joint1_indexes = cmodel.colwise_joint1_sparsity;
       const BooleanVector & joint2_indexes = cmodel.colwise_joint2_sparsity;
 
@@ -507,7 +505,7 @@ namespace pinocchio
           const Motion a2_in_c1 = cdata.oMc1.actInv(data.oa[cmodel.joint2_id]);
 
           Eigen::DenseIndex k = Eigen::DenseIndex(cmodel.colwise_span_indexes.size()) - 1;
-          Eigen::DenseIndex col_id;
+          Eigen::DenseIndex col_id(0);
           while (cmodel.reference_frame == LOCAL && cmodel.colwise_span_indexes.size() > 0)
           {
             if (k >= 0)
@@ -608,8 +606,9 @@ namespace pinocchio
         break;
       }
 
-      assert(loop_span_indexes.size() > 0 && "Must never happened, the sparsity pattern is empty");
-
+      assert(
+        cmodel.loop_span_indexes.size() > 0
+        && "Must never happened, the sparsity pattern is empty");
       // Derivative of closed loop kinematic tree
       if (cmodel.joint2_id > 0)
       {
