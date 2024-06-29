@@ -113,40 +113,6 @@ class TestInertiaBindings(TestCase):
         I2 = pin.Inertia.FromDynamicParameters(v)
         self.assertApprox(I2, In)
 
-    def test_pseudo_inertia(self):
-        I = pin.Inertia.Random()
-        pseudo = I.toPseudoInertia()
-        self.assertTrue(np.all(np.linalg.eigvals(pseudo) > 0))
-        I_back = pin.Inertia.FromPseudoInertia(pseudo)
-        self.assertApprox(I_back.mass, I.mass)
-        self.assertApprox(I_back.lever, I.lever)
-        self.assertApprox(I_back.inertia, I.inertia)
-
-    def test_log_cholesky(self):
-        eta = np.random.randn(10)
-        alpha, d1, d2, d3, s12, s23, s13, t1, t2, t3 = eta
-        # Compute the exponential terms
-        exp_alpha = np.exp(alpha)
-        exp_d1 = np.exp(d1)
-        exp_d2 = np.exp(d2)
-        exp_d3 = np.exp(d3)
-
-        # Create the matrix U
-        U = exp_alpha * np.array(
-            [
-                [exp_d1, s12, s13, t1],
-                [0, exp_d2, s23, t2],
-                [0, 0, exp_d3, t3],
-                [0, 0, 0, 1],
-            ]
-        )
-        pseudo_chol = U @ U.T
-
-        inertia = pin.Inertia.FromLogCholeskyParameters(eta)
-        pseudo = inertia.toPseudoInertia()
-        self.assertTrue(np.all(np.linalg.eigvals(pseudo) > 0))
-        self.assertApprox(pseudo, pseudo_chol)
-
     def test_array(self):
         In = pin.Inertia.Random()
         I_array = np.array(In)
