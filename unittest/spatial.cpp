@@ -746,6 +746,89 @@ BOOST_AUTO_TEST_CASE(test_Inertia)
 
   // Test disp
   std::cout << aI << std::endl;
+
+  // Test Inertia parametrizations
+  {
+    typedef LogCholeskyParametersTpl<double, 0> LogCholeskyParameters;
+    typedef PseudoInertiaTpl<double, 0> PseudoInertia;
+
+    Inertia::Vector10 eta;
+    eta.setRandom();
+    LogCholeskyParameters log_cholesky = LogCholeskyParameters(eta);
+
+    // Convert logcholesky parametrization to pseudo-inertia
+    Eigen::Matrix4d pseudo = log_cholesky.toPseudoInertia().toMatrix();
+
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix4d> eigensolver(pseudo);
+
+    // Check if the resulting matrix is positive definite
+    BOOST_CHECK((eigensolver.eigenvalues().array() > 0).all());
+
+    // Convert logcholesky to inertia tpl
+    Inertia I_from_log_cholesky = Inertia::FromLogCholeskyParameters(log_cholesky.log_cholesky);
+
+    // Check if conversion from inertia tpl to pseudo inertia gives same result as from logcholesky
+    // parametrization to pseudo-inertia
+    Eigen::Matrix4d pseudo_from_inertia = I_from_log_cholesky.toPseudoInertiaMatrix();
+    BOOST_CHECK(pseudo.isApprox(pseudo_from_inertia, 1e-10));
+
+    // Calculate Jacobian of logcholesky parametrization
+    Eigen::Matrix<double, 10, 10> jacobian = log_cholesky.calculateJacobian();
+
+    // Check if determinant is non-zero
+    BOOST_CHECK(std::abs(jacobian.determinant()) > 1e-10);
+
+    // // Check if log-cholesky parametrization to pseudo-inertia gives same result as their calculations
+    // double alpha = log_cholesky.alpha, d1 = eta[1], d2 = eta[2], d3 = eta[3];
+    // double s12 = eta[4], s23 = eta[5], s13 = eta[6];
+    // double t1 = eta[7], t2 = eta[8], t3 = eta[9];
+
+    double exp_alpha = std::exp(log_cholesky.alpha);
+    double exp_d1 = std::exp(log_cholesky.d1);
+    double exp_d2 = std::exp(log_cholesky.d2);
+    double exp_d3 = std::exp(log_cholesky.d3);
+
+    Eigen::Matrix4d U;
+    U << exp_d1, log_cholesky.s12, log_cholesky.s13, log_cholesky.t1, 
+         0, exp_d2, log_cholesky.s23, log_cholesky.t2, 
+         0, 0, exp_d3, log_cholesky.t3, 
+         0, 0, 0, 1;
+    U *= exp_alpha;
+
+    Eigen::Matrix4d pseudo_chol = U * U.transpose();
+    BOOST_CHECK(pseudo.isApprox(pseudo_chol, 1e-10));
+
+    // Additional checks: Convert back from pseudo-inertia to inertia and validate
+    Inertia I_back = Inertia::FromPseudoInertiaMatrix(pseudo);
+    BOOST_CHECK_CLOSE(I_back.mass(), I_from_log_cholesky.mass(), 1e-12);
+    BOOST_CHECK(I_back.lever().isApprox(I_from_log_cholesky.lever(), 1e-12));
+    BOOST_CHECK(I_back.inertia().isApprox(I_from_log_cholesky.inertia(), 1e-12));
+
+    // Convert Inertia to dynamic parameters
+    Inertia::Vector10 dynamic_params_inertia = I_from_log_cholesky.toDynamicParameters();
+
+    // Convert log Cholesky to dynamic parameters
+    Inertia::Vector10 dynamic_params_log_cholesky = log_cholesky.toDynamicParameters();
+
+    // Compare dynamic parameters from Inertia and log Cholesky
+    BOOST_CHECK(dynamic_params_inertia.isApprox(dynamic_params_log_cholesky, 1e-10));
+
+    // Convert Pseudo Inertia to dynamic parameters
+    PseudoInertia pseudo_inertia = PseudoInertia::FromMatrix(pseudo);
+    Inertia::Vector10 dynamic_params_pseudo_inertia =
+      pseudo_inertia.toDynamicParameters();
+
+    // Compare dynamic parameters from Inertia and Pseudo Inertia
+    BOOST_CHECK(dynamic_params_inertia.isApprox(dynamic_params_pseudo_inertia, 1e-10));
+
+    // Compare dynamic parameters from log Cholesky and Pseudo Inertia
+    BOOST_CHECK(dynamic_params_log_cholesky.isApprox(dynamic_params_pseudo_inertia, 1e-10));
+
+    // Test disp
+    std::cout << I_from_log_cholesky << std::endl;
+    std::cout << log_cholesky << std::endl;
+    std::cout << pseudo_inertia << std::endl;
+  }
 }
 
 BOOST_AUTO_TEST_CASE(cast_inertia)
