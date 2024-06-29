@@ -1,3 +1,5 @@
+// TODO:
+
 //
 // Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
@@ -14,7 +16,6 @@
 
 namespace pinocchio
 {
-
   template<class Derived>
   struct InertiaBase : NumericalBase<Derived>
   {
@@ -228,9 +229,16 @@ namespace pinocchio
       X.disp(os);
       return os;
     }
+  };
 
-  }; // class InertiaBase
+  // Forward declare the PseudoInertia and LogCholeskyParameters structs
+  template<typename Scalar, int Options>
+  struct PseudoInertiaTpl;
 
+  template<typename Scalar, int Options>
+  struct LogCholeskyParametersTpl;
+
+  // class InertiaBase
   template<typename T, int U>
   struct traits<InertiaTpl<T, U>>
   {
@@ -252,6 +260,8 @@ namespace pinocchio
     typedef ForceTpl<T, U> Force;
     typedef MotionTpl<T, U> Motion;
     typedef Symmetric3Tpl<T, U> Symmetric3;
+    typedef PseudoInertiaTpl<T, U> PseudoInertia;
+    typedef LogCholeskyParametersTpl<T, U> LogCholeskyParameters;
     enum
     {
       LINEAR = 0,
@@ -273,6 +283,9 @@ namespace pinocchio
     typedef typename Symmetric3::AlphaSkewSquare AlphaSkewSquare;
     typedef typename Eigen::Matrix<Scalar, 10, 1, Options> Vector10;
     typedef typename Eigen::Matrix<Scalar, 10, 10, Options> Matrix10;
+    typedef PseudoInertiaTpl<Scalar, Options> PseudoInertia;
+    typedef LogCholeskyParametersTpl<Scalar, Options> LogCholeskyParameters;
+
 
     // Constructors
     InertiaTpl()
@@ -568,217 +581,60 @@ namespace pinocchio
     }
 
     /**
-     * Converts the inertia to a pseudo inertia matrix.
+
+     * @brief Create an InertiaTpl object from a PseudoInertia object.
+     *
+     * @param pseudo_inertia A PseudoInertia object.
+     * @return An InertiaTpl object.
+     */
+    template<typename Scalar, int Options>
+    static InertiaTpl<Scalar, Options> FromPseudoInertia(const PseudoInertia & pseudo_inertia)
+    {
+      return pseudo_inertia.toInertia();
+    }
+
+    /**
+     * @brief Create an InertiaTpl object from a 4x4 pseudo inertia matrix.
+     *
+     * @param pseudo_inertia_matrix 4x4 pseudo inertia matrix.
+     * @return An InertiaTpl object.
+     */
+    template<typename Matrix4Like>
+    static InertiaTpl<Scalar, Options>
+    FromPseudoInertiaMatrix(const Eigen::MatrixBase<Matrix4Like> & pseudo_inertia_matrix)
+    {
+      PseudoInertia pseudo_inertia = PseudoInertia::FromMatrix(pseudo_inertia_matrix);
+      return pseudo_inertia.toInertia();
+    }
+
+    /**
+     * @brief Convert the InertiaTpl object to a 4x4 pseudo inertia matrix.
      *
      * @return A 4x4 pseudo inertia matrix.
      */
-    Matrix4 toPseudoInertia() const
+    typename PseudoInertia::Matrix4 toPseudoInertiaMatrix() const
     {
-      Vector10 dynamic_params = toDynamicParameters();
-      Scalar m = dynamic_params[0];
-      Vector3 h = dynamic_params.template segment<3>(1);
-      Matrix3 I_bar;
-      I_bar << dynamic_params[4], dynamic_params[5], dynamic_params[7], dynamic_params[5],
-        dynamic_params[6], dynamic_params[8], dynamic_params[7], dynamic_params[8],
-        dynamic_params[9];
-
-      Matrix3 Sigma = 0.5 * I_bar.trace() * Matrix3::Identity() - I_bar;
-      Matrix4 pseudo_inertia = Matrix4::Zero();
-      pseudo_inertia.template block<3, 3>(0, 0) = Sigma;
-      pseudo_inertia.template block<3, 1>(0, 3) = h;
-      pseudo_inertia.template block<1, 3>(3, 0) = h.transpose();
-      pseudo_inertia(3, 3) = m;
-
-      return pseudo_inertia;
+      PseudoInertia pseudo_inertia = PseudoInertia::FromInertia(*this);
+      return pseudo_inertia.toMatrix();
     }
 
     /**
-     * Builds an inertia matrix from a 4x4 pseudo inertia matrix.
+     * @brief Create an InertiaTpl object from log Cholesky parameters.
      *
-     * @param[in] pseudo_inertia A 4x4 pseudo inertia matrix.
-     *
-     * @return An InertiaTpl object constructed from the provided pseudo inertia matrix.
-     */
-    static InertiaTpl FromPseudoInertia(const Matrix4 & pseudo_inertia)
-    {
-      Scalar m = pseudo_inertia(3, 3);
-      Vector3 h = pseudo_inertia.template block<3, 1>(0, 3);
-      Matrix3 Sigma = pseudo_inertia.template block<3, 3>(0, 0);
-      Matrix3 I_bar = Sigma.trace() * Matrix3::Identity() - Sigma;
-
-      Vector10 dynamic_params;
-      dynamic_params[0] = m; /*  */
-      dynamic_params.template segment<3>(1) = h;
-      dynamic_params[4] = I_bar(0, 0);
-      dynamic_params[5] = I_bar(0, 1);
-      dynamic_params[6] = I_bar(1, 1);
-      dynamic_params[7] = I_bar(0, 2);
-      dynamic_params[8] = I_bar(1, 2);
-      dynamic_params[9] = I_bar(2, 2);
-
-      return FromDynamicParameters(dynamic_params);
-    }
-
-    /**
-     * Converts logarithmic Cholesky parameters directly to dynamic parameters.
-     *
-     * @param[in] log_cholesky A 10-dimensional vector containing logarithmic Cholesky parameters.
+     * @param log_cholesky A 10-dimensional vector containing logarithmic Cholesky parameters.
      * The parameters are given as
      * \f$ \eta = [\alpha, d_1, d_2, d_3, s_{12}, s_{23}, s_{13}, t_1, t_2, t_3] \f$
      *
-     * @return A 10-dimensional vector containing mass, first moments, and inertia tensor
-     * components. The parameters are given as \f$ \theta = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy},
-     * I_{yy}, I_{xz}, I_{yz}, I_{zz}] \f$
+     * @return An InertiaTpl object.
      */
     template<typename Vector10Like>
-    static Vector10 LogcholToDynamicParameters(const Eigen::MatrixBase<Vector10Like> & log_cholesky)
-    {
-      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector10Like, log_cholesky, 10, 1);
-      using Scalar = typename Vector10Like::Scalar;
-      Vector10 dynamic_params;
-
-      const Scalar alpha = log_cholesky[0];
-      const Scalar d1 = log_cholesky[1];
-      const Scalar d2 = log_cholesky[2];
-      const Scalar d3 = log_cholesky[3];
-      const Scalar s12 = log_cholesky[4];
-      const Scalar s23 = log_cholesky[5];
-      const Scalar s13 = log_cholesky[6];
-      const Scalar t1 = log_cholesky[7];
-      const Scalar t2 = log_cholesky[8];
-      const Scalar t3 = log_cholesky[9];
-
-      const Scalar exp_d1 = math::exp(d1);
-      const Scalar exp_d2 = math::exp(d2);
-      const Scalar exp_d3 = math::exp(d3);
-
-      dynamic_params[0] = 1;
-      dynamic_params[1] = t1;
-      dynamic_params[2] = t2;
-      dynamic_params[3] = t3;
-      dynamic_params[4] = s23 * s23 + t2 * t2 + t3 * t3 + exp_d2 * exp_d2 + exp_d3 * exp_d3;
-      dynamic_params[5] = -s12 * exp_d2 - s13 * s23 - t1 * t2;
-      dynamic_params[6] =
-        s12 * s12 + s13 * s13 + t1 * t1 + t3 * t3 + exp_d1 * exp_d1 + exp_d3 * exp_d3;
-      dynamic_params[7] = -s13 * exp_d3 - t1 * t3;
-      dynamic_params[8] = -s23 * exp_d3 - t2 * t3;
-      dynamic_params[9] =
-        s12 * s12 + s13 * s13 + s23 * s23 + t1 * t1 + t2 * t2 + exp_d1 * exp_d1 + exp_d2 * exp_d2;
-
-      const Scalar exp_2_alpha = math::exp(2 * alpha);
-      dynamic_params *= exp_2_alpha;
-
-      return dynamic_params;
-    }
-
-    /**
-     * Builds an Inertia from log Cholesky parameters.
-     *
-     * @param[in] log_cholesky A 10-dimensional vector containing logarithmic Cholesky parameters.
-     * The parameters are given as
-     * \f$ \eta = [\alpha, d_1, d_2, d_3, s_{12}, s_{23}, s_{13}, t_1, t_2, t_3] \f$
-     *
-     * @return An Inertia object constructed from the provided log Cholesky parameters.
-     */
-    template<typename Vector10Like>
-    static InertiaTpl
+    static InertiaTpl<Scalar, Options>
     FromLogCholeskyParameters(const Eigen::MatrixBase<Vector10Like> & log_cholesky)
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector10Like, log_cholesky, 10, 1);
-      Vector10 dynamic_params = LogcholToDynamicParameters(log_cholesky);
+      LogCholeskyParameters params(log_cholesky);
+      Vector10 dynamic_params = params.toDynamicParameters();
       return FromDynamicParameters(dynamic_params);
-    }
-
-    /**
-     * Calculates the Jacobian of the dynamic parameters with respect to the log-Cholesky
-     * parameters.
-     *
-     * @param[in] log_cholesky A 10-dimensional vector containing the log-Cholesky parameters.
-     *
-     * @return A 10x10 matrix containing the Jacobian of dynamic parameters with respect to
-     * log-Cholesky parameters.
-     */
-    static Matrix10 calculateLogCholeskyJacobian(const Vector10 & log_cholesky)
-    {
-      Matrix10 jacobian = Matrix10::Zero();
-      const Scalar alpha = log_cholesky[0];
-      const Scalar d1 = log_cholesky[1];
-      const Scalar d2 = log_cholesky[2];
-      const Scalar d3 = log_cholesky[3];
-      const Scalar s12 = log_cholesky[4];
-      const Scalar s23 = log_cholesky[5];
-      const Scalar s13 = log_cholesky[6];
-      const Scalar t1 = log_cholesky[7];
-      const Scalar t2 = log_cholesky[8];
-      const Scalar t3 = log_cholesky[9];
-
-      const Scalar exp_2alpha = math::exp(2 * alpha);
-      const Scalar exp_2d1 = math::exp(2 * d1);
-      const Scalar exp_2d2 = math::exp(2 * d2);
-      const Scalar exp_2d3 = math::exp(2 * d3);
-      const Scalar exp_d1 = math::exp(d1);
-      const Scalar exp_d2 = math::exp(d2);
-      const Scalar exp_d3 = math::exp(d3);
-
-      jacobian(0, 0) = 2 * exp_2alpha;
-
-      jacobian(1, 0) = 2 * t1 * exp_2alpha;
-      jacobian(1, 7) = exp_2alpha;
-
-      jacobian(2, 0) = 2 * t2 * exp_2alpha;
-      jacobian(2, 8) = exp_2alpha;
-
-      jacobian(3, 0) = 2 * t3 * exp_2alpha;
-      jacobian(3, 9) = exp_2alpha;
-
-      jacobian(4, 0) = 2 * (s23 * s23 + t2 * t2 + t3 * t3 + exp_2d2 + exp_2d3) * exp_2alpha;
-      jacobian(4, 2) = 2 * exp_2alpha * exp_2d2;
-      jacobian(4, 3) = 2 * exp_2alpha * exp_2d3;
-      jacobian(4, 5) = 2 * s23 * exp_2alpha;
-      jacobian(4, 8) = 2 * t2 * exp_2alpha;
-      jacobian(4, 9) = 2 * t3 * exp_2alpha;
-
-      jacobian(5, 0) = -2 * (s12 * exp_d2 + s13 * s23 + t1 * t2) * exp_2alpha;
-      jacobian(5, 2) = -s12 * exp_2alpha * exp_d2;
-      jacobian(5, 4) = -exp_2alpha * exp_d2;
-      jacobian(5, 5) = -s13 * exp_2alpha;
-      jacobian(5, 6) = -s23 * exp_2alpha;
-      jacobian(5, 7) = -t2 * exp_2alpha;
-      jacobian(5, 8) = -t1 * exp_2alpha;
-
-      jacobian(6, 0) =
-        2 * (s12 * s12 + s13 * s13 + t1 * t1 + t3 * t3 + exp_2d1 + exp_2d3) * exp_2alpha;
-      jacobian(6, 1) = 2 * exp_2alpha * exp_2d1;
-      jacobian(6, 3) = 2 * exp_2alpha * exp_2d3;
-      jacobian(6, 4) = 2 * s12 * exp_2alpha;
-      jacobian(6, 6) = 2 * s13 * exp_2alpha;
-      jacobian(6, 7) = 2 * t1 * exp_2alpha;
-      jacobian(6, 9) = 2 * t3 * exp_2alpha;
-
-      jacobian(7, 0) = -2 * (s13 * exp_d3 + t1 * t3) * exp_2alpha;
-      jacobian(7, 3) = -s13 * exp_2alpha * exp_d3;
-      jacobian(7, 6) = -exp_2alpha * exp_d3;
-      jacobian(7, 7) = -t3 * exp_2alpha;
-      jacobian(7, 9) = -t1 * exp_2alpha;
-
-      jacobian(8, 0) = -2 * (s23 * exp_d3 + t2 * t3) * exp_2alpha;
-      jacobian(8, 3) = -s23 * exp_2alpha * exp_d3;
-      jacobian(8, 5) = -exp_2alpha * exp_d3;
-      jacobian(8, 8) = -t3 * exp_2alpha;
-      jacobian(8, 9) = -t2 * exp_2alpha;
-
-      jacobian(9, 0) = 2
-                       * (s12 * s12 + s13 * s13 + s23 * s23 + t1 * t1 + t2 * t2 + exp_2d1 + exp_2d2)
-                       * exp_2alpha;
-      jacobian(9, 1) = 2 * exp_2alpha * exp_2d1;
-      jacobian(9, 2) = 2 * exp_2alpha * exp_2d2;
-      jacobian(9, 4) = 2 * s12 * exp_2alpha;
-      jacobian(9, 5) = 2 * s23 * exp_2alpha;
-      jacobian(9, 6) = 2 * s13 * exp_2alpha;
-      jacobian(9, 7) = 2 * t1 * exp_2alpha;
-      jacobian(9, 8) = 2 * t2 * exp_2alpha;
-
-      return jacobian;
     }
 
     // Arithmetic operators
@@ -1104,6 +960,310 @@ namespace pinocchio
     Symmetric3 m_inertia;
 
   }; // class InertiaTpl
+
+  /**
+   * @brief A structure representing a pseudo inertia matrix.
+   *
+   * References:
+   * - Wensing, Patrick M., Sangbae Kim, and Jean-Jacques E. Slotine. "Linear matrix inequalities
+   * for physically consistent inertial parameter identification: A statistical perspective on the
+   * mass distribution." IEEE Robotics and Automation Letters 3.1 (2017): 60-67.
+   */
+  template<typename Scalar, int Options>
+  struct PseudoInertiaTpl
+  {
+    typedef Eigen::Matrix<Scalar, 4, 4, Options> Matrix4;
+    typedef Eigen::Matrix<Scalar, 3, 1, Options> Vector3;
+    typedef Eigen::Matrix<Scalar, 3, 3, Options> Matrix3;
+    typedef Eigen::Matrix<Scalar, 10, 1, Options> Vector10;
+    typedef LogCholeskyParametersTpl<Scalar, Options> LogCholeskyParameters;
+
+    Scalar mass;    ///< Mass of the pseudo inertia
+    Vector3 h;      ///< Vector part of the pseudo inertia
+    Matrix3 Sigma;  ///< 3x3 matrix part of the pseudo inertia
+    Matrix4 matrix; ///< Full 4x4 pseudo inertia matrix
+
+    PseudoInertiaTpl(Scalar mass, const Vector3 & h, const Matrix3 & Sigma)
+    : mass(mass)
+    , h(h)
+    , Sigma(Sigma)
+    {
+      matrix = toMatrix();
+    }
+
+    explicit PseudoInertiaTpl(const Matrix4 & pseudo_inertia_matrix)
+    {
+      *this = FromMatrix(pseudo_inertia_matrix);
+    }
+
+    PseudoInertiaTpl(const InertiaTpl<Scalar, Options> & inertia)
+    {
+      *this = FromInertia(inertia);
+    }
+
+    PseudoInertiaTpl(const Vector10 & dynamic_params)
+    {
+      *this = FromDynamicParameters(dynamic_params);
+    }
+
+    PseudoInertiaTpl(const LogCholeskyParameters & log_cholesky)
+    {
+      *this = log_cholesky.toPseudoInertia();
+    }
+
+    Matrix4 toMatrix() const
+    {
+      Matrix4 pseudo_inertia = Matrix4::Zero();
+      pseudo_inertia.template block<3, 3>(0, 0) = Sigma;
+      pseudo_inertia.template block<3, 1>(0, 3) = h;
+      pseudo_inertia.template block<1, 3>(3, 0) = h.transpose();
+      pseudo_inertia(3, 3) = mass;
+      return pseudo_inertia;
+    }
+
+    static PseudoInertiaTpl FromMatrix(const Matrix4 & pseudo_inertia)
+    {
+      Scalar mass = pseudo_inertia(3, 3);
+      Vector3 h = pseudo_inertia.template block<3, 1>(0, 3);
+      Matrix3 Sigma = pseudo_inertia.template block<3, 3>(0, 0);
+      return PseudoInertiaTpl(mass, h, Sigma);
+    }
+
+    static PseudoInertiaTpl FromDynamicParameters(const Vector10 & dynamic_params)
+    {
+      Scalar mass = dynamic_params[0];
+      Vector3 h = dynamic_params.template segment<3>(1);
+      Matrix3 I_bar;
+      I_bar << dynamic_params[4], dynamic_params[5], dynamic_params[7], dynamic_params[5],
+        dynamic_params[6], dynamic_params[8], dynamic_params[7], dynamic_params[8],
+        dynamic_params[9];
+
+      Matrix3 Sigma = 0.5 * I_bar.trace() * Matrix3::Identity() - I_bar;
+      return PseudoInertiaTpl(mass, h, Sigma);
+    }
+
+    Vector10 toDynamicParameters() const
+    {
+      Matrix3 I_bar = Sigma.trace() * Matrix3::Identity() - Sigma;
+
+      Vector10 dynamic_params;
+      dynamic_params[0] = mass;
+      dynamic_params.template segment<3>(1) = h;
+      dynamic_params[4] = I_bar(0, 0);
+      dynamic_params[5] = I_bar(0, 1);
+      dynamic_params[6] = I_bar(1, 1);
+      dynamic_params[7] = I_bar(0, 2);
+      dynamic_params[8] = I_bar(1, 2);
+      dynamic_params[9] = I_bar(2, 2);
+
+      return dynamic_params;
+    }
+
+    static PseudoInertiaTpl FromInertia(const InertiaTpl<Scalar, Options> & inertia)
+    {
+      Vector10 dynamic_params = inertia.toDynamicParameters();
+      return FromDynamicParameters(dynamic_params);
+    }
+
+    InertiaTpl<Scalar, Options> toInertia() const
+    {
+      Vector10 dynamic_params = toDynamicParameters();
+      return InertiaTpl<Scalar, Options>::FromDynamicParameters(dynamic_params);
+    }
+
+    static PseudoInertiaTpl
+    FromLogCholeskyParameters(const typename LogCholeskyParameters::Vector10 & log_cholesky)
+    {
+      LogCholeskyParameters params(log_cholesky);
+      Vector10 dynamic_params = params.toDynamicParameters();
+      return FromDynamicParameters(dynamic_params);
+    }
+
+    void disp_impl(std::ostream & os) const
+    {
+      os << "  matrix = \n" <<  matrix << "\n"
+         << "  m = " << mass << "\n"
+         << "  h = " << h.transpose() << "\n"
+         << "  sigma = \n"
+         << Sigma << "";
+    }
+
+    friend std::ostream & operator<<(std::ostream & os, const PseudoInertiaTpl & pi)
+    {
+      pi.disp_impl(os);
+      return os;
+    }
+  };
+
+  /**
+   * @brief A structure representing log Cholesky parameters.
+   *
+   * References:
+   * - Rucker, Caleb, and Patrick M. Wensing. "Smooth parameterization of rigid-body inertia."
+   * IEEE Robotics and Automation Letters 7.2 (2022): 2771-2778.
+   */
+  // Correcting constructors for LogCholeskyParametersTpl
+  template<typename Scalar, int Options>
+  struct LogCholeskyParametersTpl
+  {
+    typedef Eigen::Matrix<Scalar, 10, 1, Options> Vector10;
+    typedef Eigen::Matrix<Scalar, 10, 10, Options> Matrix10;
+    typedef PseudoInertiaTpl<Scalar, Options> PseudoInertia;
+
+    Vector10 log_cholesky; ///< 10-dimensional vector of log Cholesky parameters
+
+    Scalar alpha;
+    Scalar d1;   
+    Scalar d2;   
+    Scalar d3;   
+    Scalar s12;  
+    Scalar s23;  
+    Scalar s13;  
+    Scalar t1;   
+    Scalar t2;   
+    Scalar t3;   
+
+    LogCholeskyParametersTpl(const Vector10 & log_cholesky)
+    : log_cholesky(log_cholesky)
+    , alpha(log_cholesky[0])
+    , d1(log_cholesky[1])
+    , d2(log_cholesky[2])
+    , d3(log_cholesky[3])
+    , s12(log_cholesky[4])
+    , s23(log_cholesky[5])
+    , s13(log_cholesky[6])
+    , t1(log_cholesky[7])
+    , t2(log_cholesky[8])
+    , t3(log_cholesky[9])
+    {
+    }
+
+    Vector10 toDynamicParameters() const
+    {
+      Vector10 dynamic_params;
+
+      const Scalar exp_d1 = math::exp(d1);
+      const Scalar exp_d2 = math::exp(d2);
+      const Scalar exp_d3 = math::exp(d3);
+
+      dynamic_params[0] = 1;
+      dynamic_params[1] = t1;
+      dynamic_params[2] = t2;
+      dynamic_params[3] = t3;
+      dynamic_params[4] = s23 * s23 + t2 * t2 + t3 * t3 + exp_d2 * exp_d2 + exp_d3 * exp_d3;
+      dynamic_params[5] = -s12 * exp_d2 - s13 * s23 - t1 * t2;
+      dynamic_params[6] =
+        s12 * s12 + s13 * s13 + t1 * t1 + t3 * t3 + exp_d1 * exp_d1 + exp_d3 * exp_d3;
+      dynamic_params[7] = -s13 * exp_d3 - t1 * t3;
+      dynamic_params[8] = -s23 * exp_d3 - t2 * t3;
+      dynamic_params[9] =
+        s12 * s12 + s13 * s13 + s23 * s23 + t1 * t1 + t2 * t2 + exp_d1 * exp_d1 + exp_d2 * exp_d2;
+
+      const Scalar exp_2_alpha = math::exp(2 * alpha);
+      dynamic_params *= exp_2_alpha;
+
+      return dynamic_params;
+    }
+
+    PseudoInertia toPseudoInertia() const
+    {
+      Vector10 dynamic_params = toDynamicParameters();
+      return PseudoInertia::FromDynamicParameters(dynamic_params);
+    }
+
+    Matrix10 calculateJacobian() const
+    {
+      Matrix10 jacobian = Matrix10::Zero();
+
+      const Scalar exp_2alpha = math::exp(2 * alpha);
+      const Scalar exp_2d1 = math::exp(2 * d1);
+      const Scalar exp_2d2 = math::exp(2 * d2);
+      const Scalar exp_2d3 = math::exp(2 * d3);
+      const Scalar exp_d1 = math::exp(d1);
+      const Scalar exp_d2 = math::exp(d2);
+      const Scalar exp_d3 = math::exp(d3);
+
+      jacobian(0, 0) = 2 * exp_2alpha;
+
+      jacobian(1, 0) = 2 * t1 * exp_2alpha;
+      jacobian(1, 7) = exp_2alpha;
+
+      jacobian(2, 0) = 2 * t2 * exp_2alpha;
+      jacobian(2, 8) = exp_2alpha;
+
+      jacobian(3, 0) = 2 * t3 * exp_2alpha;
+      jacobian(3, 9) = exp_2alpha;
+
+      jacobian(4, 0) = 2 * (s23 * s23 + t2 * t2 + t3 * t3 + exp_2d2 + exp_2d3) * exp_2alpha;
+      jacobian(4, 2) = 2 * exp_2alpha * exp_2d2;
+      jacobian(4, 3) = 2 * exp_2alpha * exp_2d3;
+      jacobian(4, 5) = 2 * s23 * exp_2alpha;
+      jacobian(4, 8) = 2 * t2 * exp_2alpha;
+      jacobian(4, 9) = 2 * t3 * exp_2alpha;
+
+      jacobian(5, 0) = -2 * (s12 * exp_d2 + s13 * s23 + t1 * t2) * exp_2alpha;
+      jacobian(5, 2) = -s12 * exp_2alpha * exp_d2;
+      jacobian(5, 4) = -exp_2alpha * exp_d2;
+      jacobian(5, 5) = -s13 * exp_2alpha;
+      jacobian(5, 6) = -s23 * exp_2alpha;
+      jacobian(5, 7) = -t2 * exp_2alpha;
+      jacobian(5, 8) = -t1 * exp_2alpha;
+
+      jacobian(6, 0) =
+        2 * (s12 * s12 + s13 * s13 + t1 * t1 + t3 * t3 + exp_2d1 + exp_2d3) * exp_2alpha;
+      jacobian(6, 1) = 2 * exp_2alpha * exp_2d1;
+      jacobian(6, 3) = 2 * exp_2alpha * exp_2d3;
+      jacobian(6, 4) = 2 * s12 * exp_2alpha;
+      jacobian(6, 6) = 2 * s13 * exp_2alpha;
+      jacobian(6, 7) = 2 * t1 * exp_2alpha;
+      jacobian(6, 9) = 2 * t3 * exp_2alpha;
+
+      jacobian(7, 0) = -2 * (s13 * exp_d3 + t1 * t3) * exp_2alpha;
+      jacobian(7, 3) = -s13 * exp_2alpha * exp_d3;
+      jacobian(7, 6) = -exp_2alpha * exp_d3;
+      jacobian(7, 7) = -t3 * exp_2alpha;
+      jacobian(7, 9) = -t1 * exp_2alpha;
+
+      jacobian(8, 0) = -2 * (s23 * exp_d3 + t2 * t3) * exp_2alpha;
+      jacobian(8, 3) = -s23 * exp_2alpha * exp_d3;
+      jacobian(8, 5) = -exp_2alpha * exp_d3;
+      jacobian(8, 8) = -t3 * exp_2alpha;
+      jacobian(8, 9) = -t2 * exp_2alpha;
+
+      jacobian(9, 0) = 2
+                       * (s12 * s12 + s13 * s13 + s23 * s23 + t1 * t1 + t2 * t2 + exp_2d1 + exp_2d2)
+                       * exp_2alpha;
+      jacobian(9, 1) = 2 * exp_2alpha * exp_2d1;
+      jacobian(9, 2) = 2 * exp_2alpha * exp_2d2;
+      jacobian(9, 4) = 2 * s12 * exp_2alpha;
+      jacobian(9, 5) = 2 * s23 * exp_2alpha;
+      jacobian(9, 6) = 2 * s13 * exp_2alpha;
+      jacobian(9, 7) = 2 * t1 * exp_2alpha;
+      jacobian(9, 8) = 2 * t2 * exp_2alpha;
+
+      return jacobian;
+    }
+
+    void disp_impl(std::ostream & os) const
+    {
+      os << "  alpha: " << alpha << "\n"
+         << "  d1: " << d1 << "\n"
+         << "  d2: " << d2 << "\n"
+         << "  d3: " << d3 << "\n"
+         << "  s12: " << s12 << "\n"
+         << "  s23: " << s23 << "\n"
+         << "  s13: " << s13 << "\n"
+         << "  t1: " << t1 << "\n"
+         << "  t2: " << t2 << "\n"
+         << "  t3: " << t3 << "";
+    }
+
+    friend std::ostream & operator<<(std::ostream & os, const LogCholeskyParametersTpl & lcp)
+    {
+      lcp.disp_impl(os);
+      return os;
+    }
+  };
 
 } // namespace pinocchio
 
