@@ -749,14 +749,8 @@ BOOST_AUTO_TEST_CASE(test_Inertia)
 
     // Convert logcholesky parametrization to pseudo-inertia
     Eigen::Matrix4d pseudo = log_cholesky.toPseudoInertia().toMatrix();
-
-    Eigen::SelfAdjointEigenSolver<Eigen::Matrix4d> eigensolver(pseudo);
-
-    // Check if the resulting matrix is positive definite
-    BOOST_CHECK((eigensolver.eigenvalues().array() > 0).all());
-
     // Convert logcholesky to inertia tpl
-    Inertia I_from_log_cholesky = Inertia::FromLogCholeskyParameters(log_cholesky.log_cholesky);
+    Inertia I_from_log_cholesky = Inertia::FromLogCholeskyParameters(log_cholesky.parameters);
 
     // Check if conversion from inertia tpl to pseudo inertia gives same result as from logcholesky
     // parametrization to pseudo-inertia
@@ -810,6 +804,11 @@ BOOST_AUTO_TEST_CASE(test_Inertia)
 
     // Check if determinant is non-zero
     BOOST_CHECK(std::abs(jacobian.determinant()) > 1e-10);
+
+
+    // Check physical consistency by positive definiteness of pseudo inertia
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix4d> eigensolver(pseudo);
+    BOOST_CHECK((eigensolver.eigenvalues().array() > 0).all());
 
     // Test disp
     std::cout << I_from_log_cholesky << std::endl;
