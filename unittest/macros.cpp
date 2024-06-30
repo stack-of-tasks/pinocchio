@@ -26,10 +26,7 @@ void function_1(std::vector<int> v, size_t size)
 }
 void function_2(std::vector<int> v, size_t size)
 {
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(
-    v.size(), size,
-    "custom message "
-      << "with stream");
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), size, "custom message " << "with stream");
 }
 
 BOOST_AUTO_TEST_CASE(test_check_arguments)
