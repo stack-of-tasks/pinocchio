@@ -995,17 +995,17 @@ namespace pinocchio
       *this = FromMatrix(pseudo_inertia_matrix);
     }
 
-    PseudoInertiaTpl(const InertiaTpl<Scalar, Options> & inertia)
+    explicit PseudoInertiaTpl(const InertiaTpl<Scalar, Options> & inertia)
     {
       *this = FromInertia(inertia);
     }
 
-    PseudoInertiaTpl(const Vector10 & dynamic_params)
+    explicit PseudoInertiaTpl(const Vector10 & dynamic_params)
     {
       *this = FromDynamicParameters(dynamic_params);
     }
 
-    PseudoInertiaTpl(const LogCholeskyParameters & log_cholesky)
+    explicit PseudoInertiaTpl(const LogCholeskyParameters & log_cholesky)
     {
       *this = log_cholesky.toPseudoInertia();
     }
@@ -1157,7 +1157,7 @@ namespace pinocchio
      * @brief Constructor for LogCholeskyParametersTpl.
      * @param log_cholesky A 10-dimensional vector of log Cholesky parameters.
      */
-    LogCholeskyParametersTpl(const Vector10 & log_cholesky)
+    explicit LogCholeskyParametersTpl(const Vector10 & log_cholesky)
     : parameters(log_cholesky)
     , alpha(log_cholesky[0])
     , d1(log_cholesky[1])

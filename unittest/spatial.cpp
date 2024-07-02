@@ -805,7 +805,6 @@ BOOST_AUTO_TEST_CASE(test_Inertia)
     // Check if determinant is non-zero
     BOOST_CHECK(std::abs(jacobian.determinant()) > 1e-10);
 
-
     // Check physical consistency by positive definiteness of pseudo inertia
     Eigen::SelfAdjointEigenSolver<Eigen::Matrix4d> eigensolver(pseudo);
     BOOST_CHECK((eigensolver.eigenvalues().array() > 0).all());
