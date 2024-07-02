@@ -174,9 +174,30 @@ If you only need the Python bindings of Pinocchio, you may prefer to install it 
 
 ### ROS
 
-**Pinocchio** is also deployed on ROS. You may follow its deployment status below. If you're interested in using Pinocchio on systems and/or with packages that integrate with the ROS ecosystem, we recommend the installation of Pinocchio via the binaries distributed via the ROS PPA. Here, you can install Pinocchio using `sudo apt install ros-$ROS_DISTRO-pinocchio`. This installs Pinocchio with HPP-FCL support and with Python bindings. You can then depend on Pinocchio in your `package.xml` config (`<depend>pinocchio</depend>`) and include it via CMake (`find_package(pinocchio REQUIRED)`) -- we include support and hooks to discover the package for both ROS1 and ROS2. An example can be found [here](https://github.com/wxmerkt/pinocchio_ros_example). Please note that we always advise including the `pinocchio/fwd.hpp` header as the first include to avoid compilation errors from differing Boost-variant sizes.
+**Pinocchio** is also deployed on ROS.
+You may follow its deployment status below.
 
-| ROS1        |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | ROS2         |                                                                                                                                                                            |
+If you're interested in using Pinocchio on systems and/or with packages that integrate with the ROS ecosystem, we recommend the installation of Pinocchio via the binaries distributed via the ROS PPA.
+Here, you can install Pinocchio using:
+
+```
+sudo apt install ros-$ROS_DISTRO-pinocchio
+```
+
+This installs Pinocchio with HPP-FCL support and with Python bindings.
+You can then use Pinocchio in your ROS packages by:
+
+* Depending on Pinocchio in your `package.xml` config (`<depend>pinocchio</depend>`)
+* Including Pinocchio via CMake (`find_package(pinocchio REQUIRED)`) and linking against Pinocchio (`target_link_libraries(my_library pinocchio::pinocchio)`)
+
+We include support and hooks to discover the package for both ROS 1 and ROS 2.
+Examples can be found at the following repositories:
+* [ROS 1 example](https://github.com/wxmerkt/pinocchio_ros_example)
+* [ROS 2 example](https://github.com/sea-bass/pinocchio_ros_cpp_example)
+
+Please note that we always advise including the `pinocchio/fwd.hpp` header as the first include to avoid compilation errors from differing Boost-variant sizes.
+
+| ROS 1       |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | ROS 2        |                                                                                                                                                                            |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Melodic** | [![](https://build.ros.org/job/Mbin_uB64__pinocchio__ubuntu_bionic_amd64__binary/badge/icon)](https://build.ros.org/job/Mbin_uB64__pinocchio__ubuntu_bionic_amd64__binary) | &nbsp;&nbsp;&nbsp;&nbsp; | **Foxy**     | [![](https://build.ros2.org/job/Fbin_uF64__pinocchio__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros2.org/job/Fbin_uF64__pinocchio__ubuntu_focal_amd64__binary) |
 | **Noetic**  | [![](https://build.ros.org/job/Nbin_uF64__pinocchio__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros.org/job/Nbin_uF64__pinocchio__ubuntu_focal_amd64__binary)   | &nbsp;&nbsp;&nbsp;&nbsp; | **Galactic** | [![](https://build.ros2.org/job/Gbin_uF64__pinocchio__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros2.org/job/Gbin_uF64__pinocchio__ubuntu_focal_amd64__binary) |
