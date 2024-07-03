@@ -8,6 +8,7 @@
 #include <eigenpy/memory.hpp>
 #include <eigenpy/eigen-from-python.hpp>
 #include <eigenpy/eigen-to-python.hpp>
+#include <eigenpy/variant.hpp>
 
 #include "pinocchio/bindings/python/utils/address.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
@@ -28,76 +29,6 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    namespace
-    {
-      /// Convert GeometryMaterial boost variant to a Python object.
-      /// This converter copy the GeometryMaterial content.
-      struct GeometryMaterialValueToObject : boost::static_visitor<PyObject *>
-      {
-        static result_type convert(GeometryMaterial const & gm)
-        {
-          return apply_visitor(GeometryMaterialValueToObject(), gm);
-        }
-
-        template<typename T>
-        result_type operator()(T & t) const
-        {
-          return bp::incref(bp::object(t).ptr());
-        }
-      };
-
-      /// Convert GeometryMaterial boost variant to a Python object.
-      /// This converter return the GeometryMaterial reference.
-      /// The code the create the reference holder is taken from \see
-      /// boost::python::to_python_indirect.
-      struct GeometryMaterialRefToObject : boost::static_visitor<PyObject *>
-      {
-        static result_type convert(GeometryMaterial const & gm)
-        {
-          return apply_visitor(GeometryMaterialRefToObject(), gm);
-        }
-
-        template<typename T>
-        result_type operator()(T & t) const
-        {
-          return bp::detail::make_reference_holder::execute(&t);
-        }
-      };
-
-      /// Converter used in \see ReturnInternalVariant.
-      /// This is inspired by \see boost::python::reference_existing_object.
-      ///  It will call GeometryMaterialRefToObject to extract the variant reference.
-      struct GeometryMaterialConverter
-      {
-        template<class T>
-        struct apply
-        {
-          struct type
-          {
-            inline PyObject * operator()(const GeometryMaterial & gm) const
-            {
-              return GeometryMaterialRefToObject::convert(gm);
-            }
-
-#ifndef BOOST_PYTHON_NO_PY_SIGNATURES
-            inline PyTypeObject const * get_pytype() const
-            {
-              return bp::converter::registered_pytype<GeometryMaterial>::get_pytype();
-            }
-#endif
-          };
-        };
-      };
-
-      /// Variant of \see boost::python::return_internal_reference that
-      /// extract GeometryMaterial variant before converting it into a PyObject*
-      struct GeometryMaterialReturnInternalVariant : bp::return_internal_reference<>
-      {
-      public:
-        typedef GeometryMaterialConverter result_converter;
-      };
-    } // namespace
-
     struct GeometryObjectPythonVisitor
     : public boost::python::def_visitor<GeometryObjectPythonVisitor>
     {
@@ -107,6 +38,9 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass & cl) const
       {
+        typedef eigenpy::VariantConverter<GeometryMaterial> Converter;
+        Converter::registration();
+
         cl.def(bp::init<
                  std::string, JointIndex, FrameIndex, const SE3 &, CollisionGeometryPtr,
                  bp::optional<
@@ -186,7 +120,7 @@ namespace pinocchio
             "Perform a deep copy of this. It will create a copy of the underlying FCL geometry.")
           .add_property(
             "meshMaterial",
-            bp::make_getter(&GeometryObject::meshMaterial, GeometryMaterialReturnInternalVariant()),
+            bp::make_getter(&GeometryObject::meshMaterial, Converter::return_internal_reference()),
             bp::make_setter(&GeometryObject::meshMaterial),
             "Material associated to the mesh (applied only if overrideMaterial is True)")
 
@@ -288,14 +222,6 @@ namespace pinocchio
               "meshShininess", &GeometryPhongMaterial::meshShininess,
               "Shininess associated to the specular lighting model (between 0 and 1)");
         }
-
-        /// Define material conversion from C++ variant to python object
-        bp::to_python_converter<GeometryMaterial, GeometryMaterialValueToObject>();
-
-        /// Define material conversion from python object to C++ object
-        bp::implicitly_convertible<GeometryNoMaterial, GeometryMaterial>();
-        bp::implicitly_convertible<GeometryPhongMaterial, GeometryMaterial>();
-
         if (!register_symbolic_link_to_registered_type<GeometryType>())
         {
           bp::enum_<GeometryType>("GeometryType")
