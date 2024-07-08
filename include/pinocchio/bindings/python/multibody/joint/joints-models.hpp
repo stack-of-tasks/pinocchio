@@ -26,7 +26,7 @@ namespace pinocchio
       return cl;
     }
 
-    // specialization for JointModelPrismatic
+    // specialization for JointModelRevolute
     template<>
     bp::class_<context::JointModelRX> &
     expose_joint_model<context::JointModelRX>(bp::class_<context::JointModelRX> & cl)
@@ -73,6 +73,37 @@ namespace pinocchio
         .def_readwrite(
           "axis", &context::JointModelRevoluteUnaligned::axis,
           "Rotation axis of the JointModelRevoluteUnaligned.");
+    }
+
+    // specialization for JointModelRevoluteUnbounded
+    template<>
+    bp::class_<context::JointModelRUBX> &
+    expose_joint_model<context::JointModelRUBX>(bp::class_<context::JointModelRUBX> & cl)
+    {
+      return cl.def(bp::init<>(bp::args("self"), "Init JointModelRUBX with x as rotation axis"))
+        .def(
+          "getMotionAxis", &context::JointModelRUBX::getMotionAxis,
+          "Rotation axis of the JointModelRUBX.");
+    }
+
+    template<>
+    bp::class_<context::JointModelRUBY> &
+    expose_joint_model<context::JointModelRUBY>(bp::class_<context::JointModelRUBY> & cl)
+    {
+      return cl.def(bp::init<>(bp::args("self"), "Init JointModelRUBY with y as rotation axis"))
+        .def(
+          "getMotionAxis", &context::JointModelRUBY::getMotionAxis,
+          "Rotation axis of the JointModelRUBY.");
+    }
+
+    template<>
+    bp::class_<context::JointModelRUBZ> &
+    expose_joint_model<context::JointModelRUBZ>(bp::class_<context::JointModelRUBZ> & cl)
+    {
+      return cl.def(bp::init<>(bp::args("self"), "Init JointModelRUBZ with z as rotation axis"))
+        .def(
+          "getMotionAxis", &context::JointModelRUBZ::getMotionAxis,
+          "Rotation axis of the JointModelRUBZ.");
     }
 
     // specialization for JointModelPrismatic
