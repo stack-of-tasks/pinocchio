@@ -26,6 +26,37 @@ namespace pinocchio
       return cl;
     }
 
+    // specialization for JointModelPrismatic
+    template<>
+    bp::class_<context::JointModelRX> &
+    expose_joint_model<context::JointModelRX>(bp::class_<context::JointModelRX> & cl)
+    {
+      return cl.def(bp::init<>(bp::args("self"), "Init JointModelRX with x as rotation axis"))
+        .def(
+          "getMotionAxis", &context::JointModelRX::getMotionAxis,
+          "Rotation axis of the JointModelRX.");
+    }
+
+    template<>
+    bp::class_<context::JointModelRY> &
+    expose_joint_model<context::JointModelRY>(bp::class_<context::JointModelRY> & cl)
+    {
+      return cl.def(bp::init<>(bp::args("self"), "Init JointModelRY with y as rotation axis"))
+        .def(
+          "getMotionAxis", &context::JointModelRY::getMotionAxis,
+          "Rotation axis of the JointModelRY.");
+    }
+
+    template<>
+    bp::class_<context::JointModelRZ> &
+    expose_joint_model<context::JointModelRZ>(bp::class_<context::JointModelRZ> & cl)
+    {
+      return cl.def(bp::init<>(bp::args("self"), "Init JointModelRZ with z as rotation axis"))
+        .def(
+          "getMotionAxis", &context::JointModelRZ::getMotionAxis,
+          "Rotation axis of the JointModelRZ.");
+    }
+
     // specialization for JointModelRevoluteUnaligned
     template<>
     bp::class_<context::JointModelRevoluteUnaligned> &
@@ -42,6 +73,37 @@ namespace pinocchio
         .def_readwrite(
           "axis", &context::JointModelRevoluteUnaligned::axis,
           "Rotation axis of the JointModelRevoluteUnaligned.");
+    }
+
+    // specialization for JointModelPrismatic
+    template<>
+    bp::class_<context::JointModelPX> &
+    expose_joint_model<context::JointModelPX>(bp::class_<context::JointModelPX> & cl)
+    {
+      return cl.def(bp::init<>(bp::args("self"), "Init JointModelPX with x as rotation axis"))
+        .def(
+          "getMotionAxis", &context::JointModelPX::getMotionAxis,
+          "Rotation axis of the JointModelPX.");
+    }
+
+    template<>
+    bp::class_<context::JointModelPY> &
+    expose_joint_model<context::JointModelPY>(bp::class_<context::JointModelPY> & cl)
+    {
+      return cl.def(bp::init<>(bp::args("self"), "Init JointModelPY with y as rotation axis"))
+        .def(
+          "getMotionAxis", &context::JointModelPY::getMotionAxis,
+          "Rotation axis of the JointModelPY.");
+    }
+
+    template<>
+    bp::class_<context::JointModelPZ> &
+    expose_joint_model<context::JointModelPZ>(bp::class_<context::JointModelPZ> & cl)
+    {
+      return cl.def(bp::init<>(bp::args("self"), "Init JointModelPZ with z as rotation axis"))
+        .def(
+          "getMotionAxis", &context::JointModelPZ::getMotionAxis,
+          "Rotation axis of the JointModelPZ.");
     }
 
     // specialization for JointModelPrismaticUnaligned
@@ -92,6 +154,9 @@ namespace pinocchio
         .def(bp::init<context::Scalar>(
           bp::args("self", "pitch"), "Init JointModelHX with pitch value"))
         .def(bp::init<>(bp::args("self"), "Init JointModelHX with pitch 0.0"))
+        .def(
+          "getMotionAxis", &context::JointModelHX::getMotionAxis,
+          "Rotation axis of the JointModelHX.")
         .def_readwrite("pitch", &context::JointModelHX::m_pitch, "Pitch h of the JointModelHX.");
     }
 
@@ -103,6 +168,9 @@ namespace pinocchio
         .def(bp::init<context::Scalar>(
           bp::args("self", "pitch"), "Init JointModelHY with pitch value."))
         .def(bp::init<>(bp::args("self"), "Init JointModelHY with pitch 0.0"))
+        .def(
+          "getMotionAxis", &context::JointModelHY::getMotionAxis,
+          "Rotation axis of the JointModelHY.")
         .def_readwrite("pitch", &context::JointModelHY::m_pitch, "Pitch h of the JointModelHY.");
     }
 
@@ -114,6 +182,9 @@ namespace pinocchio
         .def(bp::init<context::Scalar>(
           bp::args("self", "pitch"), "Init JointModelHZ with pitch value"))
         .def(bp::init<>(bp::args("self"), "Init JointModelHZ with pitch 0.0"))
+        .def(
+          "getMotionAxis", &context::JointModelHZ::getMotionAxis,
+          "Rotation axis of the JointModelHZ.")
         .def_readwrite("pitch", &context::JointModelHZ::m_pitch, "Pitch h of the JointModelHZ.");
     }
 
