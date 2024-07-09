@@ -29,9 +29,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container:
-      image: ${{ matrix.container }}
-      options: --user root
+    container: ${{ matrix.container }}
     strategy:
       matrix:
         container: ['ubuntu:20.04', 'ubuntu:20.04']
