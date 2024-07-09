@@ -202,7 +202,7 @@ namespace pinocchio
       return classname();
     }
 
-    Vector3 getMotionAxis()
+    Vector3 getMotionAxis() const
     {
       switch (axis)
       {
@@ -213,7 +213,8 @@ namespace pinocchio
       case 2:
         return Vector3::UnitZ();
       default:
-        return Vector3::Zero();
+        assert(false && "must never happen");
+        break;
       }
     }
 
