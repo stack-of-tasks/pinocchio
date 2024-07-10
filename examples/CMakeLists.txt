@@ -39,7 +39,7 @@ function(ADD_PINOCCHIO_CPP_EXAMPLE EXAMPLE)
   if(WIN32)
     string(REPLACE ";" "\\\;" _PATH "$ENV{PATH}")
     set(ENV_VARIABLES
-        "PATH=${_PATH}\\\;${CMAKE_BINARY_DIR}/src\\\;${CMAKE_BINARY_DIR}/bindings/python/pinocchio")
+      "PATH=${_PATH}\\\;${PROJECT_BINARY_DIR}/src\\\;${PROJECT_BINARY_DIR}/bindings/python/pinocchio")
     set_tests_properties(${EXAMPLE_NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
   endif()
 endfunction()
