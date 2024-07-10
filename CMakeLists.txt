@@ -15,6 +15,7 @@ set(PROJECT_USE_CMAKE_EXPORT TRUE)
 set(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
 set(PROJECT_COMPATIBILITY_VERSION AnyNewerVersion)
 set(PINOCCHIO_PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(PROJECT_AUTO_RUN_FINALIZE FALSE)
 
 # Disable -Werror on Unix for now.
 set(CXX_DISABLE_WERROR True)
@@ -515,3 +516,5 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.ds
      "prepend-non-duplicate;PYTHONPATH;${PYTHON_SITELIB}")
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv
         DESTINATION share/${PROJECT_NAME}/hook)
+
+setup_project_finalize()
