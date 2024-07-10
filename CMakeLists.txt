@@ -278,6 +278,7 @@ if(BUILD_PYTHON_INTERFACE)
   )
 
   set(PYTHON_COMPONENTS Interpreter Development NumPy)
+  findpython(REQUIRED)
   add_project_dependency(eigenpy 2.7.10 REQUIRED)
 
   if(BUILD_WITH_URDF_SUPPORT)
