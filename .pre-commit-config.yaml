@@ -1,6 +1,7 @@
 ci:
   autoupdate_branch: devel
   autofix_prs: false
+  autoupdate_schedule: quarterly
 repos:
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v18.1.8

@@ -129,6 +129,8 @@ namespace pinocchio
     using Base::idx_v;
     using Base::setIndexes;
 
+    typedef Eigen::Matrix<Scalar, 3, 1, _Options> Vector3;
+
     JointDataDerived createData() const
     {
       return JointDataDerived();
@@ -198,6 +200,22 @@ namespace pinocchio
     std::string shortname() const
     {
       return classname();
+    }
+
+    Vector3 getMotionAxis() const
+    {
+      switch (axis)
+      {
+      case 0:
+        return Vector3::UnitX();
+      case 1:
+        return Vector3::UnitY();
+      case 2:
+        return Vector3::UnitZ();
+      default:
+        assert(false && "must never happen");
+        break;
+      }
     }
 
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
