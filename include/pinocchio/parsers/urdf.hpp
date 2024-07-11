@@ -6,6 +6,7 @@
 #ifndef __pinocchio_parsers_urdf_hpp__
 #define __pinocchio_parsers_urdf_hpp__
 
+#include <hpp/fcl/config.hh>
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
@@ -20,6 +21,14 @@ namespace urdf
   class ModelInterface;
 }
 
+#ifdef COAL_VERSION
+namespace coal
+{
+  class MeshLoader;
+  typedef std::shared_ptr<MeshLoader> MeshLoaderPtr;
+} // namespace coal
+/// \endcond
+#else
 namespace hpp
 {
   namespace fcl
@@ -28,6 +37,7 @@ namespace hpp
     typedef std::shared_ptr<MeshLoader> MeshLoaderPtr;
   } // namespace fcl
 } // namespace hpp
+#endif
 /// \endcond
 
 namespace pinocchio
