@@ -189,7 +189,6 @@ if(BUILD_WITH_URDF_SUPPORT)
   add_project_dependency(urdfdom REQUIRED PKG_CONFIG_REQUIRES "urdfdom >= 0.2.0")
   set(urdfdom_VERSION ${urdfdom_headers_VERSION})
   list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_URDFDOM")
-  list(APPEND LIBRARIES_DEPENDENCIES "urdfdom_world")
 
   if(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
     check_minimal_cxx_standard(11 ENFORCE)
@@ -197,8 +196,8 @@ if(BUILD_WITH_URDF_SUPPORT)
       STATUS
         "Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard."
     )
-  endif(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
-endif(BUILD_WITH_URDF_SUPPORT)
+  endif()
+endif()
 
 if(BUILD_WITH_SDF_SUPPORT)
   include(${CMAKE_CURRENT_LIST_DIR}/cmake/sdformat.cmake)
@@ -207,25 +206,34 @@ if(BUILD_WITH_SDF_SUPPORT)
     check_minimal_cxx_standard(11 REQUIRED)
     include_directories(${SDFormat_INCLUDE_DIRS})
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SDFormat_CXX_FLAGS}")
-  endif(SDFormat_FOUND)
-endif(BUILD_WITH_SDF_SUPPORT)
+    list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_SDFORMAT")
+  endif()
+endif()
 
 set(BUILD_WITH_PARSERS_SUPPORT BUILD_WITH_URDF_SUPPORT OR BUILD_WITH_SDF_SUPPORT)
+
+if(BUILD_WITH_PARSERS_SUPPORT)
+  list(APPEND LIBRARIES_DEPENDENCIES ${PROJECT_NAME}_parsers)
+endif()
 
 if(BUILD_WITH_AUTODIFF_SUPPORT)
   # Check first CppADCodeGen
   if(BUILD_WITH_CODEGEN_SUPPORT)
+    # No need to add cppadcg to pkg-config (no lib and header in the same directory than cppad)
     add_project_dependency(cppadcg 2.4.1 REQUIRED)
+    list(APPEND LIBRARIES_DEPENDENCIES ${PROJECT_NAME}_cppadcg)
   endif(BUILD_WITH_CODEGEN_SUPPORT)
 
   add_project_dependency(
     cppad 20180000.0 REQUIRED
     PKG_CONFIG_REQUIRES "cppad >= 20220624.0"
     FIND_EXTERNAL "CppAD")
+  list(APPEND LIBRARIES_DEPENDENCIES ${PROJECT_NAME}_cppad)
 endif(BUILD_WITH_AUTODIFF_SUPPORT)
 
 if(BUILD_WITH_CASADI_SUPPORT)
   add_project_dependency(casadi 3.4.5 REQUIRED PKG_CONFIG_REQUIRES "casadi >= 3.4.5")
+  list(APPEND LIBRARIES_DEPENDENCIES ${PROJECT_NAME}_casadi)
 endif(BUILD_WITH_CASADI_SUPPORT)
 
 if(BUILD_WITH_OPENMP_SUPPORT)
@@ -233,6 +241,7 @@ if(BUILD_WITH_OPENMP_SUPPORT)
 endif()
 
 if(BUILD_WITH_EXTRA_SUPPORT)
+  list(APPEND LIBRARIES_DEPENDENCIES ${PROJECT_NAME}_extra qhullcpp qhull_r)
   add_project_dependency(Qhull COMPONENTS qhullcpp qhull_r REQUIRED)
   message(STATUS "Found Qhull.")
 endif()
@@ -294,7 +303,7 @@ endif()
 
 if(BUILD_WITH_HPP_FCL_SUPPORT)
   list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_HPP_FCL")
-  list(APPEND LIBRARIES_DEPENDENCIES "hpp-fcl")
+  list(APPEND LIBRARIES_DEPENDENCIES ${PROJECT_NAME}_collision)
   add_project_dependency(hpp-fcl 2.1.2 REQUIRED PKG_CONFIG_REQUIRES "hpp-fcl >= 2.1.2")
 endif()
 
