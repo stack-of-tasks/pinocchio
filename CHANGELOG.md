@@ -6,8 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Append pinocchio optional libraries into pkg-config file ([#2322](https://github.com/stack-of-tasks/pinocchio/pull/2322))
+
 ### Added
-- Add getMotionAxis method to helical, prismatic, revolute and ubounded revolute joint. ([#2315](https://github.com/stack-of-tasks/pinocchio/pull/2315))
+- Add getMotionAxis method to helical, prismatic, revolute and ubounded revolute joint ([#2315](https://github.com/stack-of-tasks/pinocchio/pull/2315))
 
 ### Changed
 - Use eigenpy to expose `GeometryObject::meshMaterial` variant ([#2315](https://github.com/stack-of-tasks/pinocchio/pull/2315))
