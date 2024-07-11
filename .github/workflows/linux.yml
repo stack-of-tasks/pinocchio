@@ -145,12 +145,15 @@ jobs:
           mkdir build
           cd build
           export CMAKE_PREFIX_PATH=/usr/local
+          # Test CMake module packaging
           cmake .. \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DPYTHON_EXECUTABLE=$(which python3)
           make -j2
           ./run_rnea
           ./load_urdf
+
+          # Test pkg-config packaging
           cd ../../pkgconfig
           mkdir build
           cd build
@@ -159,6 +162,9 @@ jobs:
             -DPYTHON_EXECUTABLE=$(which python3)
           make -j2
           ./run_rnea
+          ./load_urdf
+
+          # Test FetchContent packaging
           cd ../../external
           export PINOCCHIO_GIT_REPOSITORY="file://"$GITHUB_WORKSPACE
           #export PINOCCHIO_GIT_REPOSITORY=$(git remote get-url origin)
@@ -172,6 +178,8 @@ jobs:
           make -j2
           ./run_rnea
           ./load_urdf
+
+          # Test CMake module packaging and pinocchio_header target
           cd ../../pinocchio_header
           mkdir build
           cd build
