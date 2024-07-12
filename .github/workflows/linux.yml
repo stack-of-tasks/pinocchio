@@ -32,7 +32,7 @@ jobs:
     container: ${{ matrix.container }}
     strategy:
       matrix:
-        container: ['ubuntu:20.04', 'ubuntu:22.04']
+        container: [ubuntu:20.04, ubuntu:22.04, ubuntu:24.04]
 
     env:
       CCACHE_BASEDIR: ${GITHUB_WORKSPACE}
@@ -43,7 +43,7 @@ jobs:
     steps:
       - name: Setup Container
         run: |
-          apt update && DEBIAN_FRONTEND="noninteractive" apt install -y sudo lsb-release gnupg2 cmake git
+          apt update && DEBIAN_FRONTEND="noninteractive" apt install -y sudo lsb-release gnupg2 cmake git python3
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -194,3 +194,18 @@ jobs:
         run: |
           cd build
           sudo make uninstall
+
+  check:
+    if: always()
+    name: check-linux-apt
+
+    needs:
+      - build
+
+    runs-on: Ubuntu-latest
+
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
