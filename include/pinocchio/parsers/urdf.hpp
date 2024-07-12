@@ -6,13 +6,11 @@
 #ifndef __pinocchio_parsers_urdf_hpp__
 #define __pinocchio_parsers_urdf_hpp__
 
-#include <hpp/fcl/config.hh>
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
+#include "pinocchio/parsers/meshloader-fwd.hpp"
 
-#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
-  #include <memory>
-#endif
+#include <memory>
 
 /// \cond
 // forward declaration of the unique type from urdfdom which is expose.
@@ -20,24 +18,6 @@ namespace urdf
 {
   class ModelInterface;
 }
-
-#ifdef COAL_VERSION
-namespace coal
-{
-  class MeshLoader;
-  typedef std::shared_ptr<MeshLoader> MeshLoaderPtr;
-} // namespace coal
-/// \endcond
-#else
-namespace hpp
-{
-  namespace fcl
-  {
-    class MeshLoader;
-    typedef std::shared_ptr<MeshLoader> MeshLoaderPtr;
-  } // namespace fcl
-} // namespace hpp
-#endif
 /// \endcond
 
 namespace pinocchio
