@@ -748,34 +748,48 @@ BOOST_AUTO_TEST_CASE(test_Inertia)
     LogCholeskyParameters log_cholesky = LogCholeskyParameters(eta);
 
     // Convert logcholesky parametrization to pseudo-inertia
-    Eigen::Matrix4d pseudo = log_cholesky.toPseudoInertia().toMatrix();
+    PseudoInertia pseudo = log_cholesky.toPseudoInertia();
+    Eigen::Matrix4d pseudo_matrix = pseudo.toMatrix();
     // Convert logcholesky to inertia tpl
-    Inertia I_from_log_cholesky = Inertia::FromLogCholeskyParameters(log_cholesky.parameters);
+    Inertia I_from_log_cholesky = Inertia::FromLogCholeskyParameters(log_cholesky);
 
     // Check if conversion from inertia tpl to pseudo inertia gives same result as from logcholesky
     // parametrization to pseudo-inertia
-    Eigen::Matrix4d pseudo_from_inertia = I_from_log_cholesky.toPseudoInertiaMatrix();
-    BOOST_CHECK(pseudo.isApprox(pseudo_from_inertia, 1e-10));
+    Eigen::Matrix4d pseudo_from_inertia = I_from_log_cholesky.toPseudoInertia().toMatrix();
+    BOOST_CHECK(pseudo_matrix.isApprox(pseudo_from_inertia, 1e-10));
 
     // // Check if log-cholesky parametrization to pseudo-inertia gives same result as their
-    // calculations double alpha = log_cholesky.alpha, d1 = eta[1], d2 = eta[2], d3 = eta[3]; double
-    // s12 = eta[4], s23 = eta[5], s13 = eta[6]; double t1 = eta[7], t2 = eta[8], t3 = eta[9];
+    // calculations
+    double alpha = log_cholesky.parameters[0];
+    double d1 = log_cholesky.parameters[1];
+    double d2 = log_cholesky.parameters[2];
+    double d3 = log_cholesky.parameters[3];
+    double s12 = log_cholesky.parameters[4];
+    double s23 = log_cholesky.parameters[5];
+    double s13 = log_cholesky.parameters[6];
+    double t1 = log_cholesky.parameters[7];
+    double t2 = log_cholesky.parameters[8];
+    double t3 = log_cholesky.parameters[9];
 
-    double exp_alpha = std::exp(log_cholesky.alpha);
-    double exp_d1 = std::exp(log_cholesky.d1);
-    double exp_d2 = std::exp(log_cholesky.d2);
-    double exp_d3 = std::exp(log_cholesky.d3);
+    double exp_alpha = std::exp(alpha);
+    double exp_d1 = std::exp(d1);
+    double exp_d2 = std::exp(d2);
+    double exp_d3 = std::exp(d3);
 
     Eigen::Matrix4d U;
-    U << exp_d1, log_cholesky.s12, log_cholesky.s13, log_cholesky.t1, 0, exp_d2, log_cholesky.s23,
-      log_cholesky.t2, 0, 0, exp_d3, log_cholesky.t3, 0, 0, 0, 1;
+    // clang-format off
+    U << exp_d1, s12, s13, t1,
+         0, exp_d2, s23, t2,
+         0, 0, exp_d3, t3,
+         0, 0, 0, 1;
+    // clang-format on
     U *= exp_alpha;
 
     Eigen::Matrix4d pseudo_chol = U * U.transpose();
-    BOOST_CHECK(pseudo.isApprox(pseudo_chol, 1e-10));
+    BOOST_CHECK(pseudo_matrix.isApprox(pseudo_chol, 1e-10));
 
     // Additional checks: Convert back from pseudo-inertia to inertia and validate
-    Inertia I_back = Inertia::FromPseudoInertiaMatrix(pseudo);
+    Inertia I_back = pseudo.toInertia();
     BOOST_CHECK_CLOSE(I_back.mass(), I_from_log_cholesky.mass(), 1e-12);
     BOOST_CHECK(I_back.lever().isApprox(I_from_log_cholesky.lever(), 1e-12));
     BOOST_CHECK(I_back.inertia().isApprox(I_from_log_cholesky.inertia(), 1e-12));
@@ -790,7 +804,7 @@ BOOST_AUTO_TEST_CASE(test_Inertia)
     BOOST_CHECK(dynamic_params_inertia.isApprox(dynamic_params_log_cholesky, 1e-10));
 
     // Convert Pseudo Inertia to dynamic parameters
-    PseudoInertia pseudo_inertia = PseudoInertia::FromMatrix(pseudo);
+    PseudoInertia pseudo_inertia = PseudoInertia::FromMatrix(pseudo_matrix);
     Inertia::Vector10 dynamic_params_pseudo_inertia = pseudo_inertia.toDynamicParameters();
 
     // Compare dynamic parameters from Inertia and Pseudo Inertia
@@ -806,7 +820,7 @@ BOOST_AUTO_TEST_CASE(test_Inertia)
     BOOST_CHECK(std::abs(jacobian.determinant()) > 1e-10);
 
     // Check physical consistency by positive definiteness of pseudo inertia
-    Eigen::SelfAdjointEigenSolver<Eigen::Matrix4d> eigensolver(pseudo);
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix4d> eigensolver(pseudo_matrix);
     BOOST_CHECK((eigensolver.eigenvalues().array() > 0).all());
 
     // Test disp
