@@ -996,9 +996,11 @@ namespace pinocchio
       Scalar mass = dynamic_params[0];
       Vector3 h = dynamic_params.template segment<3>(1);
       Matrix3 I_bar;
-      I_bar << dynamic_params[4], dynamic_params[5], dynamic_params[7], dynamic_params[5],
-        dynamic_params[6], dynamic_params[8], dynamic_params[7], dynamic_params[8],
-        dynamic_params[9];
+      // clang-format off
+      I_bar << dynamic_params[4], dynamic_params[5], dynamic_params[7],
+               dynamic_params[5], dynamic_params[6], dynamic_params[8],
+               dynamic_params[7], dynamic_params[8], dynamic_params[9];
+      // clang-format on
 
       Matrix3 sigma = 0.5 * I_bar.trace() * Matrix3::Identity() - I_bar;
       return PseudoInertiaTpl(mass, h, sigma);
