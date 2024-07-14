@@ -19,6 +19,7 @@
 
 #if EIGENPY_VERSION_AT_MOST(2, 8, 1)
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Inertia)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::PseudoInertiaTpl)
 #endif
 
 namespace pinocchio
@@ -309,6 +310,152 @@ namespace pinocchio
       };
 
     }; // struct InertiaPythonVisitor
+
+    template<typename PseudoInertia>
+    struct PseudoInertiaPythonVisitor
+    : public boost::python::def_visitor<PseudoInertiaPythonVisitor<PseudoInertia>>
+    {
+      enum
+      {
+        Options = PseudoInertia::Options
+      };
+      typedef typename PseudoInertia::Scalar Scalar;
+      typedef typename PseudoInertia::Vector3 Vector3;
+      typedef typename PseudoInertia::Matrix3 Matrix3;
+      typedef typename PseudoInertia::Vector10 Vector10;
+      typedef typename PseudoInertia::Matrix4 Matrix4;
+      typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> VectorXs;
+
+    public:
+      template<class PyClass>
+      void visit(PyClass & cl) const
+      {
+        PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+        PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
+        cl.def(
+            "__init__",
+            bp::make_constructor(
+              &PseudoInertiaPythonVisitor::makeFromMatrix, bp::default_call_policies(),
+              bp::args("pseudo_inertia_matrix")),
+            "Initialize from a 4x4 pseudo inertia matrix.")
+
+          .def(bp::init<>(bp::arg("self"), "Default constructor."))
+          .def(bp::init<const PseudoInertia &>(
+            (bp::arg("self"), bp::arg("clone")), "Copy constructor"))
+
+          .add_property(
+            "mass", &PseudoInertiaPythonVisitor::getMass, &PseudoInertiaPythonVisitor::setMass,
+            "Mass of the Pseudo Inertia.")
+          .add_property(
+            "h",
+            bp::make_function(
+              (typename PseudoInertia::Vector3 & (PseudoInertia::*)()) & PseudoInertia::h,
+              bp::return_internal_reference<>()),
+            &PseudoInertiaPythonVisitor::setH, "Vector part of the Pseudo Inertia.")
+          .add_property(
+            "sigma", &PseudoInertiaPythonVisitor::getSigma, &PseudoInertiaPythonVisitor::setSigma,
+            "Matrix part of the Pseudo Inertia.")
+
+          .def(
+            "toMatrix", &PseudoInertia::toMatrix, bp::arg("self"),
+            "Returns the pseudo inertia as a 4x4 matrix.")
+          .def(
+            "toDynamicParameters", &PseudoInertia::toDynamicParameters, bp::arg("self"),
+            "Returns the dynamic parameters representation.")
+          .def(
+            "FromDynamicParameters", &PseudoInertia::template FromDynamicParameters<VectorXs>,
+            bp::args("dynamic_parameters"),
+            "Builds a pseudo inertia matrix from a vector of dynamic parameters."
+            "\nThe parameters are given as dynamic_parameters = [m, h_x, h_y, h_z, I_{xx}, "
+            "I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T.")
+          .staticmethod("FromDynamicParameters")
+
+          .def(
+            "FromMatrix", &PseudoInertia::FromMatrix, bp::args("pseudo_inertia_matrix"),
+            "Returns the Pseudo Inertia from a 4x4 matrix.")
+          .staticmethod("FromMatrix")
+
+          .def(
+            "FromInertia", &PseudoInertia::FromInertia, bp::args("inertia"),
+            "Returns the Pseudo Inertia from an Inertia object.")
+          .staticmethod("FromInertia")
+
+          .def("__array__", &PseudoInertia::toMatrix)
+          .def("__array__", &__array__)
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+          .def_pickle(Pickle())
+#endif
+          ;
+        PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+      }
+
+      static Scalar getMass(const PseudoInertia & self)
+      {
+        return self.mass;
+      }
+      static void setMass(PseudoInertia & self, Scalar mass)
+      {
+        self.mass = mass;
+      }
+
+      static void setH(PseudoInertia & self, const Vector3 & h)
+      {
+        self.h = h;
+      }
+
+      static Matrix3 getSigma(const PseudoInertia & self)
+      {
+        return self.sigma;
+      }
+      static void setSigma(PseudoInertia & self, const Matrix3 & sigma)
+      {
+        self.sigma = sigma;
+      }
+
+      static PseudoInertia * makeFromMatrix(const Matrix4 & pseudo_inertia_matrix)
+      {
+        return new PseudoInertia(PseudoInertia::FromMatrix(pseudo_inertia_matrix));
+      }
+
+      static void expose()
+      {
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 && EIGENPY_VERSION_AT_LEAST(2, 9, 0)
+        typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(PseudoInertia) HolderType;
+#else
+        typedef ::boost::python::detail::not_specified HolderType;
+#endif
+        bp::class_<PseudoInertia, HolderType>(
+          "PseudoInertia",
+          "This class represents a pseudo inertia matrix and it is defined by its mass, vector "
+          "part, and 3x3 matrix part.\n\n"
+          "Supported operations ...",
+          bp::no_init)
+          .def(PseudoInertiaPythonVisitor<PseudoInertia>())
+          .def(CastVisitor<PseudoInertia>())
+          .def(CopyableVisitor<PseudoInertia>())
+          .def(PrintableVisitor<PseudoInertia>());
+      }
+
+    private:
+      static Matrix4 __array__(const PseudoInertia & self, bp::object)
+      {
+        return self.toMatrix();
+      }
+
+      struct Pickle : bp::pickle_suite
+      {
+        static boost::python::tuple getinitargs(const PseudoInertia & pi)
+        {
+          return bp::make_tuple(pi.toMatrix());
+        }
+
+        static bool getstate_manages_dict()
+        {
+          return true;
+        }
+      };
+
+    }; // struct PseudoInertiaPythonVisitor
 
   } // namespace python
 } // namespace pinocchio
