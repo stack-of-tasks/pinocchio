@@ -192,6 +192,21 @@ namespace pinocchio
             "Z axis. Assumes a uniform density.")
           .staticmethod("FromCapsule")
 
+          .def(
+            "FromPseudoInertia", &Inertia::FromPseudoInertia, bp::args("pseudo_inertia"),
+            "Returns the Inertia created from a pseudo inertia object.")
+          .staticmethod("FromPseudoInertia")
+
+          .def(
+            "toPseudoInertia", &Inertia::toPseudoInertia, bp::arg("self"),
+            "Returns the pseudo inertia representation of the inertia.")
+
+          .def(
+            "FromLogCholeskyParameters", &Inertia::FromLogCholeskyParameters,
+            bp::args("log_cholesky_parameters"),
+            "Returns the Inertia created from log Cholesky parameters.")
+          .staticmethod("FromLogCholeskyParameters")
+
           .def("__array__", (Matrix6(Inertia::*)() const) & Inertia::matrix)
           .def(
             "__array__", &__array__,
