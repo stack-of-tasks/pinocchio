@@ -1,3 +1,4 @@
+//
 // Copyright (c) 2015-2021 CNRS INRIA
 //
 
@@ -16,7 +17,6 @@ namespace pinocchio
 
     void exposeInertia()
     {
-      // Expose Inertia class
       InertiaPythonVisitor<context::Inertia>::expose();
       StdAlignedVectorPythonVisitor<context::Inertia>::expose("StdVec_Inertia");
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
