@@ -20,6 +20,7 @@
 #if EIGENPY_VERSION_AT_MOST(2, 8, 1)
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Inertia)
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::PseudoInertiaTpl)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::LogCholeskyParametersTpl)
 #endif
 
 namespace pinocchio
@@ -456,6 +457,114 @@ namespace pinocchio
       };
 
     }; // struct PseudoInertiaPythonVisitor
+
+    template<typename LogCholeskyParameters>
+    struct LogCholeskyParametersPythonVisitor
+    : public boost::python::def_visitor<LogCholeskyParametersPythonVisitor<LogCholeskyParameters>>
+    {
+      enum
+      {
+        Options = LogCholeskyParameters::Options
+      };
+      typedef typename LogCholeskyParameters::Scalar Scalar;
+      typedef typename LogCholeskyParameters::Vector10 Vector10;
+      typedef typename LogCholeskyParameters::Matrix10 Matrix10;
+
+    public:
+      template<class PyClass>
+      void visit(PyClass & cl) const
+      {
+        PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+        PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
+        cl.def(
+            "__init__",
+            bp::make_constructor(
+              &LogCholeskyParametersPythonVisitor::makeFromVector, bp::default_call_policies(),
+              bp::args("log_cholesky_parameters")),
+            "Initialize from a 10-dimensional vector of log Cholesky parameters.")
+
+          .def(bp::init<>(bp::arg("self"), "Default constructor."))
+          .def(bp::init<const LogCholeskyParameters &>(
+            (bp::arg("self"), bp::arg("clone")), "Copy constructor"))
+
+          .add_property(
+            "parameters", &LogCholeskyParametersPythonVisitor::getParameters,
+            &LogCholeskyParametersPythonVisitor::setParameters, "Log Cholesky parameters.")
+
+          .def(
+            "toDynamicParameters", &LogCholeskyParameters::toDynamicParameters, bp::arg("self"),
+            "Returns the dynamic parameters representation.")
+          .def(
+            "toPseudoInertia", &LogCholeskyParameters::toPseudoInertia, bp::arg("self"),
+            "Returns the Pseudo Inertia representation.")
+          .def(
+            "toInertia", &LogCholeskyParameters::toInertia, bp::arg("self"),
+            "Returns the Inertia representation.")
+          .def(
+            "calculateJacobian", &LogCholeskyParameters::calculateJacobian, bp::arg("self"),
+            "Calculates the Jacobian of the log Cholesky parameters.")
+
+          .def("__array__", &LogCholeskyParameters::toDynamicParameters)
+          .def("__array__", &__array__)
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+          .def_pickle(Pickle())
+#endif
+          ;
+        PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+      }
+
+      static Vector10 getParameters(const LogCholeskyParameters & self)
+      {
+        return self.parameters;
+      }
+      static void setParameters(LogCholeskyParameters & self, const Vector10 & parameters)
+      {
+        self.parameters = parameters;
+      }
+
+      static LogCholeskyParameters * makeFromVector(const Vector10 & log_cholesky_parameters)
+      {
+        return new LogCholeskyParameters(log_cholesky_parameters);
+      }
+
+      static void expose()
+      {
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 && EIGENPY_VERSION_AT_LEAST(2, 9, 0)
+        typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(LogCholeskyParameters) HolderType;
+#else
+        typedef ::boost::python::detail::not_specified HolderType;
+#endif
+        bp::class_<LogCholeskyParameters, HolderType>(
+          "LogCholeskyParameters",
+          "This class represents log Cholesky parameters.\n\n"
+          "Supported operations ...",
+          bp::no_init)
+          .def(LogCholeskyParametersPythonVisitor<LogCholeskyParameters>())
+          .def(CastVisitor<LogCholeskyParameters>())
+          .def(CopyableVisitor<LogCholeskyParameters>())
+          .def(PrintableVisitor<LogCholeskyParameters>());
+      }
+
+    private:
+      static Vector10 __array__(const LogCholeskyParameters & self, bp::object)
+      {
+        return self.toDynamicParameters();
+      }
+
+      struct Pickle : bp::pickle_suite
+      {
+        static boost::python::tuple getinitargs(const LogCholeskyParameters & lcp)
+        {
+          return bp::make_tuple(lcp.parameters);
+        }
+
+        static bool getstate_manages_dict()
+        {
+          return true;
+        }
+      };
+
+    }; // struct LogCholeskyParametersPythonVisitor
 
   } // namespace python
 } // namespace pinocchio
