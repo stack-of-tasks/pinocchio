@@ -5,9 +5,8 @@
 
 include(${JRL_CMAKE_MODULES}/python-helpers.cmake)
 include(${JRL_CMAKE_MODULES}/stubs.cmake)
-set(CMAKE_MODULE_PATH
-    "${PINOCCHIO_PROJECT_SOURCE_DIR}/cmake/find-external/GMP"
-    "${PINOCCHIO_PROJECT_SOURCE_DIR}/cmake/find-external/MPFR" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${JRL_CMAKE_MODULES}/find-external/GMP"
+                      "${JRL_CMAKE_MODULES}/find-external/MPFR" ${CMAKE_MODULE_PATH})
 
 # --- PYTHON TARGET --- #
 set(PYWRAP ${PROJECT_NAME}_pywrap)

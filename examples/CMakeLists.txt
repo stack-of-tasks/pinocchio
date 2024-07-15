@@ -12,7 +12,7 @@ function(ADD_PINOCCHIO_CPP_EXAMPLE EXAMPLE)
   cmake_parse_arguments(example "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   get_filename_component(EXAMPLE_NAME ${EXAMPLE} NAME)
-  set(EXAMPLE_NAME "example-cpp-${EXAMPLE_NAME}")
+  set(EXAMPLE_NAME "${PROJECT_NAME}-example-cpp-${EXAMPLE_NAME}")
   add_unit_test(${EXAMPLE_NAME} "${EXAMPLE}.cpp")
   target_link_libraries(${EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 
@@ -39,7 +39,8 @@ function(ADD_PINOCCHIO_CPP_EXAMPLE EXAMPLE)
   if(WIN32)
     string(REPLACE ";" "\\\;" _PATH "$ENV{PATH}")
     set(ENV_VARIABLES
-      "PATH=${_PATH}\\\;${PROJECT_BINARY_DIR}/src\\\;${PROJECT_BINARY_DIR}/bindings/python/pinocchio")
+        "PATH=${_PATH}\\\;${PROJECT_BINARY_DIR}/src\\\;${PROJECT_BINARY_DIR}/bindings/python/pinocchio"
+    )
     set_tests_properties(${EXAMPLE_NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
   endif()
 endfunction()
@@ -111,7 +112,7 @@ if(BUILD_PYTHON_INTERFACE)
   endif()
 
   foreach(EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
-    set(EXAMPLE_NAME "example-py-${EXAMPLE}")
+    set(EXAMPLE_NAME "${PROJECT_NAME}-example-py-${EXAMPLE}")
     add_python_unit_test("${EXAMPLE_NAME}" "examples/${EXAMPLE}.py" "bindings/python")
     add_windows_dll_path_to_test(${EXAMPLE_NAME})
   endforeach()
