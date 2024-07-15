@@ -22,3 +22,5 @@ dependencies:
   - pycppad
   - matplotlib
   - mpfr
+  - qhull
+  - qhull-static
