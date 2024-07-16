@@ -96,7 +96,7 @@ jobs:
             -G "Ninja" \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
-            "${{ steps.get_labels.outputs.cmakeFlags }}"
+            ${{ steps.get_labels.outputs.cmakeFlags }}
           cmake --build . -j2
           ctest --output-on-failure
           cmake --install .
