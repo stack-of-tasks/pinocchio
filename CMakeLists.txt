@@ -495,6 +495,7 @@ if(BUILD_WITH_EXTRA_SUPPORT)
   export_variable(PINOCCHIO_USE_EXTRA ON)
   set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_EXTRA \"\")")
 endif()
+export_variable(pinocchio_VERSION ${pinocchio_VERSION})
 
 # Setup pkg-configs flags and libs
 pkg_config_append_libs("${LIBRARIES_DEPENDENCIES}")
