@@ -39,8 +39,9 @@ modernize_target_link_libraries(
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 
 target_include_directories(
-  ${PROJECT_NAME}_headers INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                                    $<INSTALL_INTERFACE:include>)
+  ${PROJECT_NAME}_headers
+  INTERFACE $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 
 cxx_flags_by_compiler_frontend(
   MSVC "/bigobj"
@@ -107,7 +108,10 @@ function(PINOCCHIO_TARGET target_name)
       PRIVATE PINOCCHIO_CONTEXT_FILE="${PINOCCHIO_CONTEXT_FILE_VALUE}")
   endif()
 
-  target_include_directories(${LIB_NAME} ${LIBRARY_PUBLIC_SCOPE} $<INSTALL_INTERFACE:include>)
+  target_include_directories(
+    ${LIB_NAME} ${LIBRARY_PUBLIC_SCOPE} $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 
   if(BUILD_WITH_COMMIT_VERSION)
     tag_library_version(${LIB_NAME})
@@ -321,6 +325,7 @@ endif()
 
 # Define main target (default, parsers, extra).
 add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 if(ENABLE_TEMPLATE_INSTANTIATION)
   target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_default)
 endif()
