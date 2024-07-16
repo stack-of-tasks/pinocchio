@@ -8,7 +8,7 @@ module.exports = async ({github, context, core}) => {
   
     const prNumber = context.issue.number || getPullRequestNumber(context.ref);
 
-    let cmakeFlags = '-DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${GITHUB_WORKSPACE}/.github/workflows/cmake/linux-debug-toolchain.cmake -DPYTHON_EXECUTABLE=$(which python3)';
+    let cmakeFlags = '-DCMAKE_CXX_COMPILER_LAUNCHER=ccache ';
     console.log(cmakeFlags);
     if(isNaN(prNumber))
     {
@@ -23,24 +23,38 @@ module.exports = async ({github, context, core}) => {
     });
     const labelNames = data.labels.map(label => label.name);
 
-    labelNames.forEach((label, index) => {
-        // Collision
-        if(label == 'build_collision')
-        {
-            cmakeFlags += ' -DBUILD_WITH_COLLISION_SUPPORT=ON';
-        }
-        // URDF
-        if(label == "build_with_urdf")
-        {
-            cmakeFlags += ' -DBUILD_WITH_URDF_SUPPORT=ON';
-        }
-        else
-        {
-            cmakeFlags += ' -DBUILD_WITH_URDF_SUPPORT=OFF';
-        }
+    const labelFlags = {
+        build_all: [
+            ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
+            ' -DBUILD_WITH_CASADI_SUPPORT=ON',
+            ' -DBUILD_WITH_AUTODIFF_SUPPORT=ON',
+            ' -DBUILD_WITH_CODEGEN_SUPPORT=ON',
+            ' -DBUILD_WITH_EXTRA_SUPPORT=ON',
+            ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
+            ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
+            ' -DINSTALL_DOCUMENTATION=ON',
+            ' -DGENERATE_PYTHON_STUBS=ON'
+        ],
+        build_collision: ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
+        build_casadi: ' -DBUILD_WITH_CASADI_SUPPORT=ON',
+        build_autodiff: ' -DBUILD_WITH_AUTODIFF_SUPPORT=ON',
+        build_codegen: ' -DBUILD_WITH_CODEGEN_SUPPORT=ON',
+        build_extra: ' -DBUILD_WITH_EXTRA_SUPPORT=ON',
+        build_openmp: ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
+        build_mpfr: ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
+        build_sdf: ' -DBUILD_WITH_SDF_SUPPORT=ON'
+    };
 
+    labelNames.forEach(label => {
+        if (labelFlags[label]) {
+            if (Array.isArray(labelFlags[label])) {
+                cmakeFlags += labelFlags[label].join(' ');
+            } else {
+                cmakeFlags += labelFlags[label];
+            }
+        }
     });
 
     core.setOutput("cmakeFlags", cmakeFlags);
-    return cmakeFlags;
+    return;
 }
