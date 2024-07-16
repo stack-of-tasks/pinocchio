@@ -2,7 +2,7 @@ import numpy as np
 import hppfcl as fcl
 import pinocchio
 from example_robot_data import load
-from pinocchio.visualize import GepettoVisualizer
+from pinocchio.visualize import MeshcatVisualizer
 from pinocchio import GeometryType
 from time import sleep
 
