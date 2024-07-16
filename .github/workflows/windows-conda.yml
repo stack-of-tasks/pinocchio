@@ -94,7 +94,7 @@ jobs:
             -G "Ninja" ^
             -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
             -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
-            "${{ steps.get_labels.outputs.cmakeFlags }}"
+            ${{ steps.get_labels.outputs.cmakeFlags }}
             ..
 
           :: Build
