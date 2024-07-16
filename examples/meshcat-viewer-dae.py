@@ -23,13 +23,6 @@ model, collision_model, visual_model = pin.buildModelsFromUrdf(
     urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()
 )
 
-# Currently, MeshCat is not able to retrieve the scaling from DAE files. Set it manually.
-for geom in visual_model.geometryObjects:
-    s = geom.meshScale
-    s *= 0.01
-    geom.meshScale = s
-
-
 # Start a new MeshCat server and client.
 # Note: the server can also be started separately using the "meshcat-server" command in a terminal:
 # this enables the server to remain active after the current script ends.
