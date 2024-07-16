@@ -739,7 +739,7 @@ class MeshcatVisualizer(BaseVisualizer):
         # Get file type from filename extension.
         _, file_extension = os.path.splitext(geometry_object.meshPath)
         if file_extension.lower() == ".dae":
-            obj = DaeMeshGeometry(geometry_object.meshPath)
+            obj = mg.DaeMeshGeometry.from_file(geometry_object.meshPath)
         elif file_extension.lower() == ".obj":
             obj = mg.ObjMeshGeometry.from_file(geometry_object.meshPath)
         elif file_extension.lower() == ".stl":
@@ -832,7 +832,7 @@ class MeshcatVisualizer(BaseVisualizer):
                 material.specular = to_material_color(geom_material.meshSpecularColor)
                 material.shininess = geom_material.meshShininess * 100.0
 
-            if isinstance(obj, DaeMeshGeometry):
+            if isinstance(obj, mg.DaeMeshGeometry):
                 obj.path = meshcat_node.path
                 if geometry_object.overrideMaterial:
                     obj.material = material
