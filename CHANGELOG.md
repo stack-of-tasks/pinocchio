@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Add getMotionAxis method to helical, prismatic, revolute and ubounded revolute joint ([#2315](https://github.com/stack-of-tasks/pinocchio/pull/2315))
 - Add initial compatiblity with coal (coal needs `-DCOAL_BACKWARD_COMPATIBILITY_WITH_HPP_FCL=ON`) ([#2323](https://github.com/stack-of-tasks/pinocchio/pull/2323))
+- Add compatibility with jrl-cmakemodules workspace ([#2333](https://github.com/stack-of-tasks/pinocchio/pull/2333))
 
 ### Changed
 - Use eigenpy to expose `GeometryObject::meshMaterial` variant ([#2315](https://github.com/stack-of-tasks/pinocchio/pull/2315))
