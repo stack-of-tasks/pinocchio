@@ -1501,8 +1501,10 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id
     case LOCAL: {
       contact_force_bis = cdata_bis.contact_force;
 
-      if (cmodel.type == CONTACT_3D)
+      if (cmodel.type == CONTACT_3D) {
         contact_force.linear() = cdata.c1Mc2.actInv(cdata.contact_force).linear();
+        contact_force.angular().setZero();
+      }
       else
       {
         contact_force = cdata.c1Mc2.actInv(cdata.contact_force);
