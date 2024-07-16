@@ -46,3 +46,4 @@ repos:
     hooks:
       - id: yamlfmt
         args: [--mapping=2, --offset=2, --sequence=4, --implicit_start]
+        exclude: ^.github/workflows/linux.yml$
