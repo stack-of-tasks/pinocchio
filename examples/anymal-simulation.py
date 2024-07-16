@@ -45,18 +45,6 @@ for j, frame_id in enumerate(foot_frame_ids):
 
 robot.initViewer()
 robot.loadViewerModel("pinocchio")
-gui = robot.viewer.gui
-robot.display(robot.q0)
-window_id = robot.viewer.gui.getWindowID("python-pinocchio")
-
-robot.viewer.gui.setBackgroundColor1(window_id, [1.0, 1.0, 1.0, 1.0])
-robot.viewer.gui.setBackgroundColor2(window_id, [1.0, 1.0, 1.0, 1.0])
-robot.viewer.gui.addFloor("hpp-gui/floor")
-
-robot.viewer.gui.setScale("hpp-gui/floor", [0.5, 0.5, 0.5])
-robot.viewer.gui.setColor("hpp-gui/floor", [0.7, 0.7, 0.7, 1.0])
-robot.viewer.gui.setLightingMode("hpp-gui/floor", "OFF")
-
 robot.display(robot.q0)
 
 constraint_datas = [cm.createData() for cm in constraint_models]
