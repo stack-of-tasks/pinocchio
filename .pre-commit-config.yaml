@@ -27,7 +27,7 @@ repos:
               doc/doxygen-awesome.*
           )$
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.1
+    rev: v0.5.2
     hooks:
       - id: ruff-format
         exclude: doc/
@@ -46,3 +46,4 @@ repos:
     hooks:
       - id: yamlfmt
         args: [--mapping=2, --offset=2, --sequence=4, --implicit_start]
+        exclude: ^.github/workflows/linux.yml$
