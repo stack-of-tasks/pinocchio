@@ -12,7 +12,7 @@ module.exports = async ({github, context, core}) => {
     if(isNaN(prNumber))
     {
         core.setOutput("cmakeFlags", cmakeFlags);
-        return cmakeFlags;
+        return;
     }
 
     const { data } = await github.rest.pulls.get({
@@ -41,7 +41,8 @@ module.exports = async ({github, context, core}) => {
         build_extra: ' -DBUILD_WITH_EXTRA_SUPPORT=ON',
         build_openmp: ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
         build_mpfr: ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
-        build_sdf: ' -DBUILD_WITH_SDF_SUPPORT=ON'
+        build_sdf: ' -DBUILD_WITH_SDF_SUPPORT=ON',
+        build_accelerate: '-DBUILD_WITH_ACCELERATE_SUPPORT=ON'
     };
 
     labelNames.forEach(label => {
