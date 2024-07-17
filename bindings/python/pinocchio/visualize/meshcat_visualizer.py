@@ -110,6 +110,7 @@ if import_meshcat_succeed:
             # Attributes to be specified by the user
             self.path = None
             self.material = None
+            self.intrinsic_transform = mg.tf.identity_matrix()
 
             # Raw file content
             dae_dir = os.path.dirname(dae_path)
@@ -164,12 +165,16 @@ if import_meshcat_succeed:
                         "format": "dae",
                         "data": self.dae_raw,
                         "resources": self.img_resources,
+                        "matrix": list(self.intrinsic_transform.flatten()),
                     },
                 },
             }
             if self.material is not None:
                 self.material.lower_in_object(data)
             return data
+
+        def set_scale(self, scale) -> None:
+            self.intrinsic_transform[:3, :3] = np.diag(scale)
 
     # end code adapted from Jiminy
 
@@ -834,13 +839,16 @@ class MeshcatVisualizer(BaseVisualizer):
 
             if isinstance(obj, DaeMeshGeometry):
                 obj.path = meshcat_node.path
+                scale = list(np.asarray(geometry_object.meshScale).flatten())
+                obj.set_scale(scale)
                 if geometry_object.overrideMaterial:
                     obj.material = material
                 meshcat_node.window.send(obj)
             else:
                 meshcat_node.set_object(obj, material)
 
-        if is_mesh:  # Apply the scaling
+        # Apply the scaling
+        if is_mesh and not isinstance(obj, DaeMeshGeometry):
             scale = list(np.asarray(geometry_object.meshScale).flatten())
             meshcat_node.set_property("scale", scale)
 
