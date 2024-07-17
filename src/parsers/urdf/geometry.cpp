@@ -151,7 +151,7 @@ namespace pinocchio
         if (urdf_geometry->type == ::urdf::Geometry::MESH)
         {
           const ::urdf::MeshSharedPtr urdf_mesh =
-            ::urdf::dynamic_pointer_cast<::urdf::Mesh>(urdf_geometry);
+            ::urdf::static_pointer_cast<::urdf::Mesh>(urdf_geometry);
           std::string collisionFilename = urdf_mesh->filename;
 
           meshPath = retrieveResourcePath(collisionFilename, package_dirs);
@@ -189,7 +189,7 @@ namespace pinocchio
           const bool is_capsule = tree.isCapsule(linkName, geomName);
           meshScale << 1, 1, 1;
           const ::urdf::CylinderSharedPtr collisionGeometry =
-            ::urdf::dynamic_pointer_cast<::urdf::Cylinder>(urdf_geometry);
+            ::urdf::static_pointer_cast<::urdf::Cylinder>(urdf_geometry);
 
           double radius = collisionGeometry->radius;
           double length = collisionGeometry->length;
@@ -212,7 +212,7 @@ namespace pinocchio
           meshPath = "BOX";
           meshScale << 1, 1, 1;
           const ::urdf::BoxSharedPtr collisionGeometry =
-            ::urdf::dynamic_pointer_cast<::urdf::Box>(urdf_geometry);
+            ::urdf::static_pointer_cast<::urdf::Box>(urdf_geometry);
 
           double x = collisionGeometry->dim.x;
           double y = collisionGeometry->dim.y;
@@ -226,7 +226,7 @@ namespace pinocchio
           meshPath = "SPHERE";
           meshScale << 1, 1, 1;
           const ::urdf::SphereSharedPtr collisionGeometry =
-            ::urdf::dynamic_pointer_cast<::urdf::Sphere>(urdf_geometry);
+            ::urdf::static_pointer_cast<::urdf::Sphere>(urdf_geometry);
 
           double radius = collisionGeometry->radius;
 
