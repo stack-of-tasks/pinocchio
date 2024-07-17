@@ -229,8 +229,9 @@ if(BUILD_WITH_LIBPYTHON)
 
   target_link_libraries(${python_parser_target} PUBLIC ${PYWRAP}_default)
   target_link_libraries(${python_parser_target} PUBLIC ${PYTHON_LIBRARIES})
-
-  compute_pythonpath(ENV_VARIABLES "bindings/python")
+  get_test_property(${python_parser_target} ENVIRONMENT ENV_VARIABLES)
+  compute_pythonpath(PYTHON_ENV_VARIABLES "bindings/python")
+  list(APPEND ENV_VARIABLES ${PYTHON_ENV_VARIABLES})
   set_tests_properties(${python_parser_target} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
   add_subdirectory(python)
 endif()
