@@ -231,9 +231,14 @@ if(BUILD_WITH_LIBPYTHON)
   target_link_libraries(${python_parser_target} PUBLIC ${PYTHON_LIBRARIES})
   get_test_property(${python_parser_target} ENVIRONMENT ENV_VARIABLES)
   compute_pythonpath(PYTHON_ENV_VARIABLES "bindings/python")
-  message(WARNING "ENV_VARIABLES pre append ${ENV_VARIABLES}")
   list(APPEND ENV_VARIABLES ${PYTHON_ENV_VARIABLES})
-  message(WARNING "ENV_VARIABLES post append ${ENV_VARIABLES}")
+  if(WIN32)
+    # This line is mandatory because of Github action. The test run well on Windowns + Conda. This
+    # hide something wrong. Maybe the test is linking against the wrong Python library or call the
+    # wrong interpreter.
+    get_filename_component(_PYTHONHOME ${PYTHON_EXECUTABLE} PATH)
+    list(APPEND ENV_VARIABLES "PYTHONHOME=${_PYTHONHOME}")
+  endif()
   set_tests_properties(${python_parser_target} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
   add_subdirectory(python)
 endif()
