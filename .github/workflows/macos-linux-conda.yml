@@ -96,6 +96,8 @@ jobs:
             -G "Ninja" \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }} \
             ${{ steps.get_labels.outputs.cmakeFlags }}
           cmake --build . -j2
           ctest --output-on-failure

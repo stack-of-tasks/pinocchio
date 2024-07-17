@@ -8,8 +8,7 @@ module.exports = async ({github, context, core}) => {
   
     const prNumber = context.issue.number || getPullRequestNumber(context.ref);
 
-    let cmakeFlags = '-DCMAKE_CXX_COMPILER_LAUNCHER=ccache ';
-    console.log(cmakeFlags);
+    let cmakeFlags = '';
     if(isNaN(prNumber))
     {
         core.setOutput("cmakeFlags", cmakeFlags);
