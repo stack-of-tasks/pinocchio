@@ -22,3 +22,4 @@ dependencies:
   - matplotlib
   - mpfr
   - qhull
+  - libsdformat
