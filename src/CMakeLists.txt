@@ -80,23 +80,18 @@ function(PINOCCHIO_TARGET target_name)
         PARENT_SCOPE)
   endif()
 
-  if(NOT "${LIBRARY_TYPE}" STREQUAL "INTERFACE")
-    add_library(${LIB_NAME} ${LIBRARY_TYPE} ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS})
-  else()
-    add_library(${LIB_NAME} ${LIBRARY_TYPE})
-  endif()
-  target_link_libraries(${LIB_NAME} ${LIBRARY_PUBLIC_SCOPE} ${PROJECT_NAME}_headers)
-
-  # On CMake 3.16 we can't call target_sources or set_target_properties with LINKER_LANGUAGE,
-  # INSTALL_RPATH and VERSION on an INTERFACE target.
   if(NOT ARGS_INTERFACE)
+    add_library(${LIB_NAME} ${LIBRARY_TYPE} ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS})
     target_sources(${LIB_NAME} PRIVATE ${ARGS_SOURCES})
     set_target_properties(
       ${LIB_NAME}
       PROPERTIES LINKER_LANGUAGE CXX
                  INSTALL_RPATH "\$ORIGIN"
                  VERSION ${PROJECT_VERSION})
+  else()
+    add_library(${LIB_NAME} ${LIBRARY_TYPE})
   endif()
+  target_link_libraries(${LIB_NAME} ${LIBRARY_PUBLIC_SCOPE} ${PROJECT_NAME}_headers)
 
   if(ENABLE_TEMPLATE_INSTANTIATION AND NOT ARGS_INTERFACE)
     set(PINOCCHIO_CONTEXT_FILE_VALUE "pinocchio/context/${ARGS_SCALAR}.hpp")
