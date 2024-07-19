@@ -80,7 +80,11 @@ function(PINOCCHIO_TARGET target_name)
         PARENT_SCOPE)
   endif()
 
-  add_library(${LIB_NAME} ${LIBRARY_TYPE} ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS})
+  if(NOT "${LIBRARY_TYPE}" STREQUAL "INTERFACE")
+    add_library(${LIB_NAME} ${LIBRARY_TYPE} ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS})
+  else()
+    add_library(${LIB_NAME} ${LIBRARY_TYPE})
+  endif()
   target_link_libraries(${LIB_NAME} ${LIBRARY_PUBLIC_SCOPE} ${PROJECT_NAME}_headers)
 
   # On CMake 3.16 we can't call target_sources or set_target_properties with LINKER_LANGUAGE,
