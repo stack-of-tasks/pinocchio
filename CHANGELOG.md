@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Append pinocchio optional libraries into pkg-config file ([#2322](https://github.com/stack-of-tasks/pinocchio/pull/2322))
 - Fixed support of DAE meshes with MeshCat ([#2331](https://github.com/stack-of-tasks/pinocchio/pull/2331))
 - Fixed pointer casts in urdf parser ([#2339](https://github.com/stack-of-tasks/pinocchio/pull/2339))
+- Fixed urdfdom in ROS packaging ([#2341](https://github.com/stack-of-tasks/pinocchio/pull/2341))
 
 ### Added
 - Add getMotionAxis method to helical, prismatic, revolute and ubounded revolute joint ([#2315](https://github.com/stack-of-tasks/pinocchio/pull/2315))
