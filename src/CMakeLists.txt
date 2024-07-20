@@ -38,7 +38,9 @@ modernize_target_link_libraries(
   LIBRARIES ${Boost_SERIALIZATION_LIBRARY}
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 
-target_include_directories(${PROJECT_NAME}_headers INTERFACE $<INSTALL_INTERFACE:include>)
+target_include_directories(
+  ${PROJECT_NAME}_headers INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                                    $<INSTALL_INTERFACE:include>)
 
 cxx_flags_by_compiler_frontend(
   MSVC "/bigobj"
