@@ -6,7 +6,7 @@ on: [pull_request_target]
 jobs:
   verify_pr_labels:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Verify Pull Request Labels
         uses: actions/github-script@v7

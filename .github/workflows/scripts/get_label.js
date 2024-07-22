@@ -6,7 +6,7 @@ module.exports = async ({github, context, core}) => {
         const prNumber = ref.replace(/refs\/pull\/(\d+)\/merge/, '$1');
         return parseInt(prNumber, 10);
     };
-  
+
     const prNumber = context.issue.number || getPullRequestNumber(context.ref);
 
     let cmakeFlags = '';

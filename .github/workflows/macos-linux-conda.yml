@@ -82,7 +82,7 @@ jobs:
             const script = require('./.github/workflows/scripts/get_label.js');
             await script({github, context, core})
           result-encoding: string
-      
+
       - name: Build Pinocchio
         shell: bash -el {0}
         run: |
