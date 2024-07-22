@@ -8,18 +8,10 @@
 #include "pinocchio/parsers/config.hpp"
 #include "pinocchio/parsers/sdf.hpp"
 #include "pinocchio/parsers/utils.hpp"
+#include "pinocchio/parsers/meshloader-fwd.hpp"
 
 #include <string>
 #include <vector>
-
-namespace hpp
-{
-  namespace fcl
-  {
-    class MeshLoader;
-    typedef std::shared_ptr<MeshLoader> MeshLoaderPtr;
-  } // namespace fcl
-} // namespace hpp
 
 namespace pinocchio
 {

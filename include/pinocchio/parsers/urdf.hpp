@@ -8,10 +8,9 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
+#include "pinocchio/parsers/meshloader-fwd.hpp"
 
-#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
-  #include <memory>
-#endif
+#include <memory>
 
 /// \cond
 // forward declaration of the unique type from urdfdom which is expose.
@@ -19,15 +18,6 @@ namespace urdf
 {
   class ModelInterface;
 }
-
-namespace hpp
-{
-  namespace fcl
-  {
-    class MeshLoader;
-    typedef std::shared_ptr<MeshLoader> MeshLoaderPtr;
-  } // namespace fcl
-} // namespace hpp
 /// \endcond
 
 namespace pinocchio
