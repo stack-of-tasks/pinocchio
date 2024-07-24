@@ -56,7 +56,7 @@ if(urdfdom_FOUND)
 endif(urdfdom_FOUND)
 
 foreach(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
-  set(TEST_NAME "test-py-${TEST}")
+  set(TEST_NAME "${PROJECT_NAME}-test-py-${TEST}")
   add_python_unit_test(${TEST_NAME} "unittest/python/${TEST}.py" "bindings/python")
   add_windows_dll_path_to_test(${TEST_NAME})
 endforeach(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
@@ -72,7 +72,7 @@ if(MEMORYCHECK_COMMAND AND MEMORYCHECK_COMMAND MATCHES ".*valgrind$")
   set(${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS bindings_build_geom_from_urdf_memorycheck)
 
   foreach(TEST ${${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS})
-    set(TEST_NAME "test-py-memory-${TEST}")
+    set(TEST_NAME "${PROJECT_NAME}-test-py-memory-${TEST}")
     add_python_memorycheck_unit_test_v2(
       NAME
       ${TEST_NAME}

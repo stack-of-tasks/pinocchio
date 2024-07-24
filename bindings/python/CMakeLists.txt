@@ -5,9 +5,8 @@
 
 include(${JRL_CMAKE_MODULES}/python-helpers.cmake)
 include(${JRL_CMAKE_MODULES}/stubs.cmake)
-set(CMAKE_MODULE_PATH
-    "${PINOCCHIO_PROJECT_SOURCE_DIR}/cmake/find-external/GMP"
-    "${PINOCCHIO_PROJECT_SOURCE_DIR}/cmake/find-external/MPFR" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${JRL_CMAKE_MODULES}/find-external/GMP"
+                      "${JRL_CMAKE_MODULES}/find-external/MPFR" ${CMAKE_MODULE_PATH})
 
 # --- PYTHON TARGET --- #
 set(PYWRAP ${PROJECT_NAME}_pywrap)
@@ -43,7 +42,7 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
     # OpenMP is linked with pinocchio_parallel target
     target_compile_definitions(${PYTHON_LIB_NAME} PRIVATE -DPINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP)
   endif()
-  add_dependencies(python ${PYTHON_LIB_NAME})
+  add_dependencies(${PROJECT_NAME}_python ${PYTHON_LIB_NAME})
 
   # Remove lib prefix for the target and use the right define for DLLAPI definition
   set_target_properties(${PYTHON_LIB_NAME} PROPERTIES PREFIX "" DEFINE_SYMBOL "${PYWRAP}_EXPORTS")
@@ -103,9 +102,9 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
     PROPERTIES PREFIX ""
                SUFFIX ${PYTHON_EXT_SUFFIX}
                OUTPUT_NAME "${PYTHON_LIB_NAME}"
-               LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bindings/python/${PROJECT_NAME}"
+               LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bindings/python/${PROJECT_NAME}"
                # On Windows, shared library are treat as binary
-               RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
+               RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
 
   if(UNIX AND NOT APPLE)
     get_relative_rpath(${${PYWRAP}_INSTALL_DIR} ${PYWRAP}_INSTALL_RPATH)
@@ -138,11 +137,11 @@ function(INSTALL_PYTHON_FILES)
 endfunction()
 
 if(BUILD_PYTHON_INTERFACE)
-  add_custom_target(python)
-  set_target_properties(python PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
+  add_custom_target(${PROJECT_NAME}_python)
+  set_target_properties(${PROJECT_NAME}_python PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
 
   python_build_get_target(python_build_target)
-  add_dependencies(python ${python_build_target})
+  add_dependencies(${PROJECT_NAME}_python ${python_build_target})
 
   set(PKG_CONFIG_PYWRAP_REQUIRES "eigenpy >= 2.6.5")
   if(IS_ABSOLUTE ${PYTHON_SITELIB})

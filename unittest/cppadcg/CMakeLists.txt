@@ -2,15 +2,16 @@ macro(ADD_CPPADCG_UNIT_TEST name)
   include_directories(SYSTEM ${cppad_INCLUDE_DIR})
   include_directories(SYSTEM ${cppadcodegen_INCLUDE_DIR})
   add_pinocchio_unit_test(${name} PACKAGES ${cppad_LIBRARY} ${CMAKE_DL_LIBS})
-  add_dependencies(test-cpp-cppadcg test-cpp-cppadcg-${name})
-  target_compile_definitions(test-cpp-cppadcg-${name}
-                             PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\")
+  get_cpp_test_name(${name} ${CMAKE_CURRENT_SOURCE_DIR} TEST_NAME)
+  add_dependencies(${PROJECT_NAME}-test-cpp-cppadcg ${TEST_NAME})
+  target_compile_definitions(${TEST_NAME} PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\")
 endmacro()
 
 if(BUILD_WITH_AUTODIFF_SUPPORT)
   if(BUILD_WITH_CODEGEN_SUPPORT)
-    add_custom_target(test-cpp-cppadcg)
-    set_target_properties(test-cpp-cppadcg PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
+    add_custom_target(${PROJECT_NAME}-test-cpp-cppadcg)
+    set_target_properties(${PROJECT_NAME}-test-cpp-cppadcg PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD
+                                                                      True)
 
     add_cppadcg_unit_test(basic)
     if(BUILD_ADVANCED_TESTING)

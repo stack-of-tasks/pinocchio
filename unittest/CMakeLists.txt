@@ -25,7 +25,7 @@ function(GET_CPP_TEST_NAME name src_dir full_test_name)
   string(REGEX REPLACE "[/]" "-" prefix_name "${prefix_name}-")
 
   set(${full_test_name}
-      "test-cpp${prefix_name}${name}"
+      "${PROJECT_NAME}-test-cpp${prefix_name}${name}"
       PARENT_SCOPE)
 endfunction()
 
@@ -62,7 +62,8 @@ function(ADD_PINOCCHIO_UNIT_TEST name)
   if(WIN32)
     string(REPLACE ";" "\\\;" _PATH "$ENV{PATH}")
     set(ENV_VARIABLES
-        "PATH=${_PATH}\\\;${CMAKE_BINARY_DIR}/src\\\;${CMAKE_BINARY_DIR}/bindings/python/pinocchio")
+        "PATH=${_PATH}\\\;${PROJECT_BINARY_DIR}/src\\\;${PROJECT_BINARY_DIR}/bindings/python/pinocchio"
+    )
     set_tests_properties(${TEST_NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
   endif()
 
@@ -102,11 +103,6 @@ function(ADD_PINOCCHIO_UNIT_TEST name)
     target_link_libraries(${TEST_NAME} PRIVATE ${PKGS})
   endif()
 endfunction()
-
-macro(ADD_OPTIONAL_COMPILE_DEPENDENCY PKG_CONFIG_STRING)
-  _get_pkg_config_debug_string("${PKG_CONFIG_STRING}" ${ARGN})
-  add_dependency(0 1 ${PKG_CONFIG_STRING} "${PKG_CONFIG_DEBUG_STRING}")
-endmacro()
 
 macro(ADD_PINOCCHIO_PARALLEL_UNIT_TEST NAME)
   if(BUILD_WITH_OPENMP_SUPPORT)
@@ -228,25 +224,22 @@ endif()
 
 if(BUILD_WITH_LIBPYTHON)
   add_pinocchio_unit_test(python_parser PACKAGES Python3::Python)
-  target_include_directories(test-cpp-python_parser SYSTEM PUBLIC ${PYTHON_INCLUDE_DIRS})
+  get_cpp_test_name(python_parser ${CMAKE_CURRENT_SOURCE_DIR} python_parser_target)
+  target_include_directories(${python_parser_target} SYSTEM PUBLIC ${PYTHON_INCLUDE_DIRS})
 
-  target_link_libraries(test-cpp-python_parser PUBLIC ${PYWRAP}_default)
-  target_link_libraries(test-cpp-python_parser PUBLIC ${PYTHON_LIBRARIES})
-  get_test_property(test-cpp-python_parser ENVIRONMENT ENV_VARIABLES)
+  target_link_libraries(${python_parser_target} PUBLIC ${PYWRAP}_default)
+  target_link_libraries(${python_parser_target} PUBLIC ${PYTHON_LIBRARIES})
+  get_test_property(${python_parser_target} ENVIRONMENT ENV_VARIABLES)
+  compute_pythonpath(PYTHON_ENV_VARIABLES "bindings/python")
+  list(APPEND ENV_VARIABLES ${PYTHON_ENV_VARIABLES})
   if(WIN32)
-    get_filename_component(PYTHONHOME ${PYTHON_EXECUTABLE} PATH)
-    list(APPEND ENV_VARIABLES "PYTHONHOME=${PYTHONHOME}")
-    unset(PYTHONHOME)
-    string(REPLACE ";" "\\\;" _PYTHONPATH "$ENV{PYTHONPATH}")
-    list(APPEND ENV_VARIABLES "PYTHONPATH=${_PYTHONPATH}\\\;${CMAKE_BINARY_DIR}/bindings/python")
-  else()
-    list(APPEND ENV_VARIABLES "PYTHONPATH=$ENV{PYTHONPATH}:${CMAKE_BINARY_DIR}/bindings/python")
+    # This line is mandatory because of Github action. The test run well on Windowns + Conda. This
+    # hide something wrong. Maybe the test is linking against the wrong Python library or call the
+    # wrong interpreter.
+    get_filename_component(_PYTHONHOME ${PYTHON_EXECUTABLE} PATH)
+    list(APPEND ENV_VARIABLES "PYTHONHOME=${_PYTHONHOME}")
   endif()
-  if(APPLE)
-    list(APPEND ENV_VARIABLES "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}")
-    list(APPEND ENV_VARIABLES "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}")
-  endif()
-  set_tests_properties(test-cpp-python_parser PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
+  set_tests_properties(${python_parser_target} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
   add_subdirectory(python)
 endif()
 
@@ -310,9 +303,6 @@ add_subdirectory(algorithm)
 # Multiprecision arithmetic
 if(BUILD_ADVANCED_TESTING)
   add_pinocchio_unit_test(multiprecision)
-
-  add_optional_compile_dependency(gmp)
-  add_optional_compile_dependency(mpfr)
 
   if(MPFR_FOUND)
     add_pinocchio_unit_test(multiprecision-mpfr PACKAGES mpfr gmp)

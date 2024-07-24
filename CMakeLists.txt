@@ -15,6 +15,9 @@ set(PROJECT_USE_CMAKE_EXPORT TRUE)
 set(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
 set(PROJECT_COMPATIBILITY_VERSION AnyNewerVersion)
 set(PINOCCHIO_PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
+# To enable jrl-cmakemodules compatibility with workspace we must define the two following lines
+set(PROJECT_AUTO_RUN_FINALIZE FALSE)
+set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # Disable -Werror on Unix for now.
 set(CXX_DISABLE_WERROR True)
@@ -68,16 +71,17 @@ include("${JRL_CMAKE_MODULES}/base.cmake")
 compute_project_args(PROJECT_ARGS LANGUAGES CXX)
 project(${PROJECT_NAME} ${PROJECT_ARGS})
 
+include("${JRL_CMAKE_MODULES}/python.cmake")
 include("${JRL_CMAKE_MODULES}/boost.cmake")
 include("${JRL_CMAKE_MODULES}/ide.cmake")
 include("${JRL_CMAKE_MODULES}/apple.cmake")
 if(APPLE) # Use the handmade approach
   if(${CMAKE_VERSION} VERSION_LESS "3.18.0") # Need to find the right version
-    set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
+    set(CMAKE_MODULE_PATH ${JRL_CMAKE_MODULES}/find-external/OpenMP ${CMAKE_MODULE_PATH})
   endif()
 elseif(UNIX)
   if(${CMAKE_VERSION} VERSION_EQUAL "3.20.0")
-    set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
+    set(CMAKE_MODULE_PATH ${JRL_CMAKE_MODULES}/find-external/OpenMP ${CMAKE_MODULE_PATH})
   endif()
 endif()
 include(CMakeDependentOption)
@@ -186,7 +190,7 @@ set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
 # ----------------------------------------------------
 # --- DEPENDENCIES -----------------------------------
 # ----------------------------------------------------
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/find-external/CppAD/" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${JRL_CMAKE_MODULES}/find-external/CppAD/" ${CMAKE_MODULE_PATH})
 add_project_dependency(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.5")
 
 if(BUILD_WITH_URDF_SUPPORT)
@@ -277,6 +281,7 @@ if(BUILD_PYTHON_INTERFACE)
   )
 
   set(PYTHON_COMPONENTS Interpreter Development NumPy)
+  findpython(REQUIRED)
   add_project_dependency(eigenpy 2.7.10 REQUIRED)
 
   if(BUILD_WITH_URDF_SUPPORT)
@@ -492,6 +497,7 @@ if(BUILD_WITH_EXTRA_SUPPORT)
   export_variable(PINOCCHIO_USE_EXTRA ON)
   set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_EXTRA \"\")")
 endif()
+export_variable(pinocchio_VERSION ${pinocchio_VERSION})
 
 # Setup pkg-configs flags and libs
 pkg_config_append_libs("${LIBRARIES_DEPENDENCIES}")
@@ -515,3 +521,5 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.ds
      "prepend-non-duplicate;PYTHONPATH;${PYTHON_SITELIB}")
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv
         DESTINATION share/${PROJECT_NAME}/hook)
+
+setup_project_finalize()
