@@ -43,18 +43,23 @@ or via pip (currently only available on Linux):
 
 ## Table of contents
 
-  - [Pinocchio main features](#pinocchio-main-features)
-  - [Documentation](#documentation)
-  - [Examples](#examples)
-  - [Tutorials](#tutorials)
-  - [Performances](#performances)
-  - [Ongoing developments](#ongoing-developments)
-  - [Visualization](#visualization)
-  - [Citing Pinocchio](#citing-pinocchio)
-  - [Questions and Issues](#questions-and-issues)
-  - [Credits](#credits)
-  - [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
-  - [Acknowledgments](#acknowledgments)
+- [Table of contents](#table-of-contents)
+- [Introducing Pinocchio 3](#introducing-pinocchio-3)
+- [Pinocchio main features](#pinocchio-main-features)
+- [Documentation](#documentation)
+- [Examples](#examples)
+- [Tutorials](#tutorials)
+- [Pinocchio continuous integrations](#pinocchio-continuous-integrations)
+- [Performances](#performances)
+- [Ongoing developments](#ongoing-developments)
+- [Installation](#installation)
+  - [ROS](#ros)
+- [Visualization](#visualization)
+- [Citing Pinocchio](#citing-pinocchio)
+- [Questions and Issues](#questions-and-issues)
+- [Credits](#credits)
+- [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
+- [Acknowledgments](#acknowledgments)
 
 ## Introducing Pinocchio 3
 **Pinocchio3** is released for development under the branch [pinocchio3-preview](https://github.com/stack-of-tasks/pinocchio/tree/pinocchio3-preview) on the main github repository.
@@ -277,6 +282,7 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Joris Vaillant](https://github.com/jorisv) (Inria): core developer and manager of the project
 -   [Sebastian Castro](https://roboticseabass.com) (The AI Institute): MeshCat viewer features extension
 -   [Lev Kozlov](https://github.com/lvjonok): Kinetic and potential energy regressors
+-   [Simeon Nedelchev](https://github.com/simeon-ned): Pseudo inertia and Log-cholesky parametrization
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 

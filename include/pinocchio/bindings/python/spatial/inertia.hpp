@@ -19,6 +19,8 @@
 
 #if EIGENPY_VERSION_AT_MOST(2, 8, 1)
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Inertia)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::PseudoInertiaTpl)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::LogCholeskyParametersTpl)
 #endif
 
 namespace pinocchio
@@ -192,6 +194,21 @@ namespace pinocchio
             "Z axis. Assumes a uniform density.")
           .staticmethod("FromCapsule")
 
+          .def(
+            "FromPseudoInertia", &Inertia::FromPseudoInertia, bp::args("pseudo_inertia"),
+            "Returns the Inertia created from a pseudo inertia object.")
+          .staticmethod("FromPseudoInertia")
+
+          .def(
+            "toPseudoInertia", &Inertia::toPseudoInertia, bp::arg("self"),
+            "Returns the pseudo inertia representation of the inertia.")
+
+          .def(
+            "FromLogCholeskyParameters", &Inertia::FromLogCholeskyParameters,
+            bp::args("log_cholesky_parameters"),
+            "Returns the Inertia created from log Cholesky parameters.")
+          .staticmethod("FromLogCholeskyParameters")
+
           .def("__array__", (Matrix6(Inertia::*)() const) & Inertia::matrix)
           .def("__array__", &__array__)
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
@@ -292,6 +309,260 @@ namespace pinocchio
       };
 
     }; // struct InertiaPythonVisitor
+
+    template<typename PseudoInertia>
+    struct PseudoInertiaPythonVisitor
+    : public boost::python::def_visitor<PseudoInertiaPythonVisitor<PseudoInertia>>
+    {
+      enum
+      {
+        Options = PseudoInertia::Options
+      };
+      typedef typename PseudoInertia::Scalar Scalar;
+      typedef typename PseudoInertia::Vector3 Vector3;
+      typedef typename PseudoInertia::Matrix3 Matrix3;
+      typedef typename PseudoInertia::Vector10 Vector10;
+      typedef typename PseudoInertia::Matrix4 Matrix4;
+      typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> VectorXs;
+
+    public:
+      template<class PyClass>
+      void visit(PyClass & cl) const
+      {
+        PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+        PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
+        cl.def(
+            "__init__",
+            bp::make_constructor(
+              &PseudoInertiaPythonVisitor::makeFromMatrix, bp::default_call_policies(),
+              bp::args("pseudo_inertia_matrix")),
+            "Initialize from a 4x4 pseudo inertia matrix.")
+
+          .def(bp::init<>(bp::arg("self"), "Default constructor."))
+          .def(bp::init<const PseudoInertia &>(
+            (bp::arg("self"), bp::arg("clone")), "Copy constructor"))
+
+          .add_property(
+            "mass", &PseudoInertiaPythonVisitor::getMass, &PseudoInertiaPythonVisitor::setMass,
+            "Mass of the Pseudo Inertia.")
+          .add_property(
+            "h",
+            bp::make_function(
+              (typename PseudoInertia::Vector3 & (PseudoInertia::*)()) & PseudoInertia::h,
+              bp::return_internal_reference<>()),
+            &PseudoInertiaPythonVisitor::setH, "Vector part of the Pseudo Inertia.")
+          .add_property(
+            "sigma", &PseudoInertiaPythonVisitor::getSigma, &PseudoInertiaPythonVisitor::setSigma,
+            "Matrix part of the Pseudo Inertia.")
+
+          .def(
+            "toMatrix", &PseudoInertia::toMatrix, bp::arg("self"),
+            "Returns the pseudo inertia as a 4x4 matrix.")
+          .def(
+            "toDynamicParameters", &PseudoInertia::toDynamicParameters, bp::arg("self"),
+            "Returns the dynamic parameters representation.")
+          .def(
+            "FromDynamicParameters", &PseudoInertia::template FromDynamicParameters<VectorXs>,
+            bp::args("dynamic_parameters"),
+            "Builds a pseudo inertia matrix from a vector of dynamic parameters."
+            "\nThe parameters are given as dynamic_parameters = [m, h_x, h_y, h_z, I_{xx}, "
+            "I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T.")
+          .staticmethod("FromDynamicParameters")
+
+          .def(
+            "FromMatrix", &PseudoInertia::FromMatrix, bp::args("pseudo_inertia_matrix"),
+            "Returns the Pseudo Inertia from a 4x4 matrix.")
+          .staticmethod("FromMatrix")
+
+          .def(
+            "FromInertia", &PseudoInertia::FromInertia, bp::args("inertia"),
+            "Returns the Pseudo Inertia from an Inertia object.")
+          .staticmethod("FromInertia")
+
+          .def("__array__", &PseudoInertia::toMatrix)
+          .def("__array__", &__array__)
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+          .def_pickle(Pickle())
+#endif
+          ;
+        PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+      }
+
+      static Scalar getMass(const PseudoInertia & self)
+      {
+        return self.mass;
+      }
+      static void setMass(PseudoInertia & self, Scalar mass)
+      {
+        self.mass = mass;
+      }
+
+      static void setH(PseudoInertia & self, const Vector3 & h)
+      {
+        self.h = h;
+      }
+
+      static Matrix3 getSigma(const PseudoInertia & self)
+      {
+        return self.sigma;
+      }
+      static void setSigma(PseudoInertia & self, const Matrix3 & sigma)
+      {
+        self.sigma = sigma;
+      }
+
+      static PseudoInertia * makeFromMatrix(const Matrix4 & pseudo_inertia_matrix)
+      {
+        return new PseudoInertia(PseudoInertia::FromMatrix(pseudo_inertia_matrix));
+      }
+
+      static void expose()
+      {
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 && EIGENPY_VERSION_AT_LEAST(2, 9, 0)
+        typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(PseudoInertia) HolderType;
+#else
+        typedef ::boost::python::detail::not_specified HolderType;
+#endif
+        bp::class_<PseudoInertia, HolderType>(
+          "PseudoInertia",
+          "This class represents a pseudo inertia matrix and it is defined by its mass, vector "
+          "part, and 3x3 matrix part.\n\n"
+          "Supported operations ...",
+          bp::no_init)
+          .def(PseudoInertiaPythonVisitor<PseudoInertia>())
+          .def(CastVisitor<PseudoInertia>())
+          .def(CopyableVisitor<PseudoInertia>())
+          .def(PrintableVisitor<PseudoInertia>());
+      }
+
+    private:
+      static Matrix4 __array__(const PseudoInertia & self, bp::object)
+      {
+        return self.toMatrix();
+      }
+
+      struct Pickle : bp::pickle_suite
+      {
+        static boost::python::tuple getinitargs(const PseudoInertia & pi)
+        {
+          return bp::make_tuple(pi.toMatrix());
+        }
+
+        static bool getstate_manages_dict()
+        {
+          return true;
+        }
+      };
+
+    }; // struct PseudoInertiaPythonVisitor
+
+    template<typename LogCholeskyParameters>
+    struct LogCholeskyParametersPythonVisitor
+    : public boost::python::def_visitor<LogCholeskyParametersPythonVisitor<LogCholeskyParameters>>
+    {
+      enum
+      {
+        Options = LogCholeskyParameters::Options
+      };
+      typedef typename LogCholeskyParameters::Scalar Scalar;
+      typedef typename LogCholeskyParameters::Vector10 Vector10;
+      typedef typename LogCholeskyParameters::Matrix10 Matrix10;
+
+    public:
+      template<class PyClass>
+      void visit(PyClass & cl) const
+      {
+        PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+        PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
+        cl.def(
+            "__init__",
+            bp::make_constructor(
+              &LogCholeskyParametersPythonVisitor::makeFromVector, bp::default_call_policies(),
+              bp::args("log_cholesky_parameters")),
+            "Initialize from a 10-dimensional vector of log Cholesky parameters.")
+
+          .def(bp::init<>(bp::arg("self"), "Default constructor."))
+          .def(bp::init<const LogCholeskyParameters &>(
+            (bp::arg("self"), bp::arg("clone")), "Copy constructor"))
+
+          .add_property(
+            "parameters", &LogCholeskyParametersPythonVisitor::getParameters,
+            &LogCholeskyParametersPythonVisitor::setParameters, "Log Cholesky parameters.")
+
+          .def(
+            "toDynamicParameters", &LogCholeskyParameters::toDynamicParameters, bp::arg("self"),
+            "Returns the dynamic parameters representation.")
+          .def(
+            "toPseudoInertia", &LogCholeskyParameters::toPseudoInertia, bp::arg("self"),
+            "Returns the Pseudo Inertia representation.")
+          .def(
+            "toInertia", &LogCholeskyParameters::toInertia, bp::arg("self"),
+            "Returns the Inertia representation.")
+          .def(
+            "calculateJacobian", &LogCholeskyParameters::calculateJacobian, bp::arg("self"),
+            "Calculates the Jacobian of the log Cholesky parameters.")
+
+          .def("__array__", &LogCholeskyParameters::toDynamicParameters)
+          .def("__array__", &__array__)
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+          .def_pickle(Pickle())
+#endif
+          ;
+        PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+      }
+
+      static Vector10 getParameters(const LogCholeskyParameters & self)
+      {
+        return self.parameters;
+      }
+      static void setParameters(LogCholeskyParameters & self, const Vector10 & parameters)
+      {
+        self.parameters = parameters;
+      }
+
+      static LogCholeskyParameters * makeFromVector(const Vector10 & log_cholesky_parameters)
+      {
+        return new LogCholeskyParameters(log_cholesky_parameters);
+      }
+
+      static void expose()
+      {
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 && EIGENPY_VERSION_AT_LEAST(2, 9, 0)
+        typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(LogCholeskyParameters) HolderType;
+#else
+        typedef ::boost::python::detail::not_specified HolderType;
+#endif
+        bp::class_<LogCholeskyParameters, HolderType>(
+          "LogCholeskyParameters",
+          "This class represents log Cholesky parameters.\n\n"
+          "Supported operations ...",
+          bp::no_init)
+          .def(LogCholeskyParametersPythonVisitor<LogCholeskyParameters>())
+          .def(CastVisitor<LogCholeskyParameters>())
+          .def(CopyableVisitor<LogCholeskyParameters>())
+          .def(PrintableVisitor<LogCholeskyParameters>());
+      }
+
+    private:
+      static Vector10 __array__(const LogCholeskyParameters & self, bp::object)
+      {
+        return self.toDynamicParameters();
+      }
+
+      struct Pickle : bp::pickle_suite
+      {
+        static boost::python::tuple getinitargs(const LogCholeskyParameters & lcp)
+        {
+          return bp::make_tuple(lcp.parameters);
+        }
+
+        static bool getstate_manages_dict()
+        {
+          return true;
+        }
+      };
+
+    }; // struct LogCholeskyParametersPythonVisitor
 
   } // namespace python
 } // namespace pinocchio
