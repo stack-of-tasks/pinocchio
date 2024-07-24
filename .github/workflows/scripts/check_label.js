@@ -7,7 +7,7 @@ module.exports = async ({github, context, core}) => {
         const prNumber = ref.replace(/refs\/pull\/(\d+)\/merge/, '$1');
         return parseInt(prNumber, 10);
     };
-  
+
     const prNumber = context.issue.number || getPullRequestNumber(context.ref);
 
     const { data } = await github.rest.pulls.get({
@@ -66,7 +66,7 @@ module.exports = async ({github, context, core}) => {
                 return;
         }
         else
-        {       
+        {
             const reviewMessage = `👋 Hi,
 This is a reminder message to please assign a proper label to this Pull Request.
 The possible labels are:
