@@ -21,7 +21,8 @@
   <exec_depend condition="$ROS_VERSION == 1">catkin</exec_depend>
   <depend>python3</depend>
   <depend>python3-numpy</depend>
-  <depend>liburdfdom-dev</depend>
+  <depend condition="$ROS_VERSION == 2">urdfdom</depend>
+  <depend condition="$ROS_VERSION == 1">liburdfdom-dev</depend>
   <depend>eigen</depend>
   <depend>boost</depend>
   <depend>eigenpy</depend>
