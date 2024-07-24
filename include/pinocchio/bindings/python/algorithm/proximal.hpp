@@ -28,11 +28,11 @@ namespace pinocchio
         cl.def(bp::init<>("Default constructor.", bp::arg("self")))
           .def(bp::init<const Scalar, const Scalar, int>(
             (bp::arg("self"), bp::arg("accuracy"), bp::arg("mu"), bp::arg("max_iter")),
-            "Structure containing all the settings paramters for the proximal algorithms."))
+            "Structure containing all the settings parameters for the proximal algorithms."))
           .def(bp::init<const Scalar, const Scalar, const Scalar, int>(
             (bp::arg("self"), bp::arg("absolute_accuracy"), bp::arg("relative_accuracy"),
              bp::arg("mu"), bp::arg("max_iter")),
-            "Structure containing all the settings paramters for the proximal algorithms."))
+            "Structure containing all the settings parameters for the proximal algorithms."))
 
           .add_property(
             "absolute_accuracy", &ProximalSettings::absolute_accuracy,
@@ -61,7 +61,7 @@ namespace pinocchio
       {
         bp::class_<ProximalSettings>(
           "ProximalSettings",
-          "Structure containing all the settings paramters for Proximal algorithms.", bp::no_init)
+          "Structure containing all the settings parameters for proximal algorithms.", bp::no_init)
           .def(ProximalSettingsPythonVisitor<ProximalSettings>());
       }
 
