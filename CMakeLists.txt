@@ -58,6 +58,11 @@ endif()
 set(DOXYGEN_USE_MATHJAX YES)
 set(DOXYGEN_USE_TEMPLATE_CSS YES)
 
+# Use BoostConfig module distributed by boost library instead of using FindBoost module distributed
+# by CMake
+if(POLICY CMP0167)
+  cmake_policy(SET CMP0167 NEW)
+endif()
 include("${JRL_CMAKE_MODULES}/base.cmake")
 
 compute_project_args(PROJECT_ARGS LANGUAGES CXX)

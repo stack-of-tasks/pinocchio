@@ -38,7 +38,9 @@ modernize_target_link_libraries(
   LIBRARIES ${Boost_SERIALIZATION_LIBRARY}
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 
-target_include_directories(${PROJECT_NAME}_headers INTERFACE $<INSTALL_INTERFACE:include>)
+target_include_directories(
+  ${PROJECT_NAME}_headers INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                                    $<INSTALL_INTERFACE:include>)
 
 cxx_flags_by_compiler_frontend(
   MSVC "/bigobj"
@@ -85,8 +87,11 @@ function(PINOCCHIO_TARGET target_name)
 
   # On CMake 3.16 we can't call target_sources or set_target_properties with LINKER_LANGUAGE,
   # INSTALL_RPATH and VERSION on an INTERFACE target.
-  if(NOT ARGS_INTERFACE)
+  if(NOT ARGS_INTERFACE OR CMAKE_VERSION GREATER 3.16)
     target_sources(${LIB_NAME} PRIVATE ${ARGS_SOURCES})
+    target_sources(
+      ${LIB_NAME} PRIVATE ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS}) # For IDE to get includes part of
+                                                                  # the project automatically.
     set_target_properties(
       ${LIB_NAME}
       PROPERTIES LINKER_LANGUAGE CXX
