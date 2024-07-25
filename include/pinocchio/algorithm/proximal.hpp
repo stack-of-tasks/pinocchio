@@ -13,7 +13,7 @@ namespace pinocchio
 {
 
   ///
-  /// \brief Structure containing all the settings paramters for the proximal algorithms.
+  /// \brief Structure containing all the settings parameters for the proximal algorithms.
   ///
   ///  \tparam _Scalar Scalar type of the for the regularization and the accuracy parameter.
   ///
@@ -91,7 +91,7 @@ namespace pinocchio
     /// \brief Relative proximal accuracy between two iterates.
     Scalar relative_accuracy;
 
-    /// \brief Regularization parameter of the Proximal algorithms.
+    /// \brief Regularization parameter of the proximal algorithm.
     Scalar mu;
 
     /// \brief Maximal number of iterations.
