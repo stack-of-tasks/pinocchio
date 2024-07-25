@@ -852,12 +852,16 @@ class MeshcatVisualizer(BaseVisualizer):
             scale = list(np.asarray(geometry_object.meshScale).flatten())
             meshcat_node.set_property("scale", scale)
 
-    def loadViewerModel(self, rootNodeName="pinocchio", color=None):
+    def loadViewerModel(self, rootNodeName="pinocchio", color=None, collision_color=None):
         """Load the robot in a MeshCat viewer.
         Parameters:
             rootNodeName: name to give to the robot in the viewer
-            color: optional, color to give to the robot. This overwrites the color present in the urdf.
-                   Format is a list of four RGBA floats (between 0 and 1)
+            color: optional, color to give to the visual model of the robot.
+                This overwrites the color present in the urdf. Format is a list
+                of four RGBA floats (between 0 and 1)
+            collision_color: optional, color to give to the collision model of
+                the robot. Format is a list of four RGBA floating point numbers
+                (between 0 and 1)
         """
 
         # Set viewer to use to gepetto-gui.
@@ -869,7 +873,7 @@ class MeshcatVisualizer(BaseVisualizer):
         if self.collision_model is not None:
             for collision in self.collision_model.geometryObjects:
                 self.loadViewerGeometryObject(
-                    collision, pin.GeometryType.COLLISION, color
+                    collision, pin.GeometryType.COLLISION, collision_color
                 )
         self.displayCollisions(False)
 
