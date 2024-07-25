@@ -201,7 +201,7 @@ This last form cost five \f$\times\f$, four \f$+\f$ and one \f$3\times3\f$ matri
 
 ## Joint
 
-We denote by \f$1\f$ the coordinate system attached to the parent (predecessor) body at the joint input, ad by \f$2\f$
+We denote by \f$1\f$ the coordinate system attached to the parent (predecessor) body at the joint input, and by \f$2\f$
 the coordinate system attached to the (child) successor body at the joint output. We neglect the possible time
 variation of the joint model (ie the bias velocity \f$\sigma = \nu(q,0)\f$ is null).
 
@@ -238,7 +238,7 @@ initial position \f$q_0\f$, the velocity \f$v_q\f$  and the length of the integr
 
 \f$ q_t = q_0 + \int_0^t v_q dt\f$
 
-For the simple vectorial case where \f$v_q=\dot q\f$, we have \f$q_t=q_0 + t v_q\f$. Written in the more general case of a Lie groupe, we have \f$q_t = q_0 exp(t v_q)\f$ where \f$exp\f$ denotes the exponential map (i.e. integration of a constant vector field from the Lie algebra into the Lie group). This integration only consider first order explicit Euler. More general integrators (e.g. Runge-Kutta in Lie groupes) remains to be written. Adequate references are welcome.
+For the simple vectorial case where \f$v_q=\dot q\f$, we have \f$q_t=q_0 + t v_q\f$. Written in the more general case of a Lie group, we have \f$q_t = q_0 exp(t v_q)\f$ where \f$exp\f$ denotes the exponential map (i.e. integration of a constant vector field from the Lie algebra into the Lie group). This integration only considers first order explicit Euler. More general integrators (e.g. Runge-Kutta in Lie groups) remains to be written. Adequate references are welcome.
 
 ## RNEA
 

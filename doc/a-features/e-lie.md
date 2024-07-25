@@ -193,7 +193,7 @@ Indeed, we find :
 
 Assuming that we want to make the robot pass through known positions, we can use interpolations to plot a trajectory.
 
-The problem is an interpolation such as Lagrange's one only takes into account translations whlie the robot interact with its environment by performing translations and rotations.
+The problem is an interpolation such as Lagrange's one only takes into account translations while the robot interact with its environment by performing translations and rotations.
 
 A possibility is to use the \f$ \delta_{theta} \f$ method by using quaternions. The method is simple, we just vary the angle, the scalar component of the quaternion, with very small variations.
 

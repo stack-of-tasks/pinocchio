@@ -35,7 +35,7 @@ all the algorithms in Pinocchio follow the signature:
 algorithm(model, data, arg1, arg2, ...)
 ```
 
-where are the arguments of the function (e.g. configuration or
+where ??? are the arguments of the function (e.g. configuration or
 velocity). Keeping model and data separated reduces memory footprint
 when performing several different tasks on the same robot, notably when
 this involves parallel computation. Each process can employ its own data
@@ -57,7 +57,7 @@ belongs to one of the following categories:
 - **Revolute** joints, rotating around a fixed axis, either one of \f$X,Y,Z\f$ or a custom one;
 - **Prismatic** joints, translating along any fixed axis, as in the revolute case;
 - **Spherical** joints, free rotations in the 3D space;
-- **Translation** joint, for free translations in the 3D space;
+- **Translation** joints, for free translations in the 3D space;
 - **Planar** joints, for free movements in the 2D space;
 - **Free-floating** joints, for free movements in the 3D space. Planar and free-floating joints are meant to be
   employed as the basis of kinematic tree of mobile robots (humanoids, automated vehicles, or objects in manipulation
@@ -83,13 +83,13 @@ operators.
 
 ## Geometric models
 
-Aside the kinematic model, Pinocchio defines a geometric model, i.e. the
+Aside from the kinematic model, Pinocchio defines a geometric model, i.e. the
 volumes attached to the kinematic tree. This model can be used for
 displaying the robot and computing quantities associated to collisions.
 Like the kinematic model, the fixed quantities (placement and shape of
 the volumes) are stored in a *GeometricModel* object, while buffers and
-quantities used by associated algorithms are defined in a object. The
-volumes are represented using the FCL library . Bodies
+quantities used by associated algorithms are defined in an object. The
+volumes are represented using the FCL library. Bodies
 of the robot are attached to each joint, while obstacles of the
 environment are defined in the world frame. Collision and distance
 algorithms for the kinematic trees are implemented, based on FCL
