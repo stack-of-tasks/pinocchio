@@ -852,7 +852,9 @@ class MeshcatVisualizer(BaseVisualizer):
             scale = list(np.asarray(geometry_object.meshScale).flatten())
             meshcat_node.set_property("scale", scale)
 
-    def loadViewerModel(self, rootNodeName="pinocchio", color=None, collision_color=None):
+    def loadViewerModel(
+        self, rootNodeName="pinocchio", color=None, collision_color=None
+    ):
         """Load the robot in a MeshCat viewer.
         Parameters:
             rootNodeName: name to give to the robot in the viewer
