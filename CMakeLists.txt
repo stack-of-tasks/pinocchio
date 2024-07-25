@@ -262,7 +262,7 @@ export_boost_default_options()
 add_project_dependency(Boost REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
 
 if(Boost_VERSION_STRING VERSION_LESS 1.81)
-  if(BUILD_WITH_URDF_SUPPORT AND ${urdfdom_VERSION} VERSION_GREATER "0.4.2")
+  if(BUILD_WITH_URDF_SUPPORT AND "${urdfdom_VERSION}" VERSION_GREATER "0.4.2")
     check_minimal_cxx_standard(11 ENFORCE)
     message(
       STATUS
