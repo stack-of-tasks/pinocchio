@@ -2,7 +2,7 @@
 
 ## Geometry
 
-Joints are not simple objects, it can be difficult to deal with. To facilitate their description Pinocchio use the lie algebra which is describe in the *Dealing with Lie bgroup geometry * chapter. Let's take the base joints and express them using lie algebra :
+Joints are not simple objects, it can be difficult to deal with. To facilitate their description Pinocchio uses the Lie algebra which is described in the *Dealing with Lie bgroup geometry * chapter. Let's take the base joints and express them using Lie algebra :
 
 - the **revolute** joint is a \f$ SO(2)\f$ object.
 
@@ -12,7 +12,7 @@ Joints are not simple objects, it can be difficult to deal with. To facilitate t
 - the **cylindrical** joint :
 
 \f$Mat_{move} =
-\begin{bmatrix} 0 &0 \\ 0 &0 \\ 1 &0 \\ 0 &0 \\ 0 &0 \\ 0 &1 \end{bmatrix} \ \ Mat_{const} = \begin{bmatrix} 1 &0 &0 &0 \\ 0 &1 &0 &0 \\ 0 &0 &1 &0 \\ 0 &0 &0 &1 \\ 0 &0 &0 &0 \end{bmatrix} \f$
+\begin{bmatrix} 0 &0 \\ 0 &0 \\ 1 &0 \\ 0 &0 \\ 0 &0 \\ 0 &1 \end{bmatrix} \ \ Mat_{const} = \begin{bmatrix} 1 &0 &0 &0 \\ 0 &1 &0 &0 \\ 0 &0 &0 &0 \\ 0 &0 &1 &0 \\ 0 &0 &0 &1 \\ 0 &0 &0 &0 \end{bmatrix} \f$
 
 
 - The **spherical** joint is a \f$ SO(3) \f$ object.
@@ -54,20 +54,20 @@ TODO : Pyrene's moving picture
 
 ## List of Joints
 
-Joints are essentials components of a robot to allow it to move in his environment. Joints are in some ways robot's articulations. There are several types of them, each caracterised by its shape and degrees of freedom:
+Joints are essential components of a robot to allow it to move in his environment. Joints are in some ways robot's articulations. There are several types of them, each caracterised by its shape and degrees of freedom:
 
 - Revolute
 - Prismatic
-- cylindrical
+- Cylindrical
 - Spherical
 - Translation
 - Free-flyer
 
-Furthermore, we can creat more complicated joints called **composite joints** by combining them with each other.
+Furthermore, we can create more complicated joints called **composite joints** by combining them with each other.
 
 ### Revolute joint
 
-The most simple rotational joint we have to deal with is the revolute joint, he has juste one degree of freedom so it is possible just to focus on it. We can find three differents types of revolute joints, each type can rotate around one of the 3-axis, x-axis, y-axis or z-axis.
+The most simple rotational joint we have to deal with is the revolute joint, he has just one degree of freedom so it is possible just to focus on it. We can find three different types of revolute joints, each type can rotate around one of the 3-axis, x-axis, y-axis or z-axis.
 Revolute joints are used to describe rotational movements.
 
 ![Revolute joint. One rotation possible](revolute_laas.gif)
@@ -84,13 +84,13 @@ The cylindrical joint has two degrees of freedom, one of rotation and this other
 ![Cylindrical joint. It can slide along an axis and turn around](cylindrical_laas.gif)
 ### Spherical joint
 
-The spherical joint is the closest thing to an human's articulation, it is very close for our hip for example but even our body is restricted, we can not do a full tour around one of the 3-axis. This joint is almost the same except for the fact it can do a full rotation on itself. So this joint can moved around the 3-axis. He allows the robot to move its members as we do and even better.
+The spherical joint is the closest thing to an human's articulation, it is very close for our hip for example but even our body is restricted, we can not do a full tour around one of the 3-axis. This joint is almost the same except for the fact it can do a full rotation on itself. So this joint can move around the 3-axis. He allows the robot to move its members as we do and even better.
 
 ![Spherical joint. It can perform three rotations at the same time](spherical_laas.gif)
 
 ### Planar joint
 
-As its name suggests, a planar joint allows movements that a object can do in a plan. Indeed, he allows two translations and one rotation, therefore it has three degrees of freedom. We find this type of movement all over our daily lives, a car has this movement, we have it most of the time when we walk on a flat floor and for example this is exactly Tiago's movement.
+As its name suggests, a planar joint allows movements that an object can do in a plane. Indeed, he allows two translations and one rotation, therefore it has three degrees of freedom. We find this type of movement all over our daily lives, a car has this movement, we have it most of the time when we walk on a flat floor and for example this is exactly Tiago's movement.
 
 ![Planar joint. It is subject to moving only on the map](planar_laas.gif)
 

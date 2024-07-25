@@ -1,1 +1,1 @@
-# Dynamc algorithms
+# Dynamic algorithms
