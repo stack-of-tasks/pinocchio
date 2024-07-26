@@ -35,7 +35,7 @@ all the algorithms in Pinocchio follow the signature:
 algorithm(model, data, arg1, arg2, ...)
 ```
 
-where ??? are the arguments of the function (e.g. configuration or
+where `arg1, arg2, ...` are the arguments of the function (e.g. configuration or
 velocity). Keeping model and data separated reduces memory footprint
 when performing several different tasks on the same robot, notably when
 this involves parallel computation. Each process can employ its own data
