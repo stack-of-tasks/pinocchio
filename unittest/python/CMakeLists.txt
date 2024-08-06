@@ -39,6 +39,7 @@ set(${PROJECT_NAME}_PYTHON_TESTS
     # Parsers
     bindings_sample_models
     # Others
+    robot_wrapper
     utils
     serialization
     version
