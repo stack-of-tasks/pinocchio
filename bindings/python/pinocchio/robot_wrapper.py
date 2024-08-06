@@ -92,16 +92,15 @@ class RobotWrapper(object):
 
     @staticmethod
     def BuildFromMJCF(
-        filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None
+        filename, root_joint=None, verbose=False, meshLoader=None
     ):
         robot = RobotWrapper()
-        robot.initFromMJCF(filename, package_dirs, root_joint, verbose, meshLoader)
+        robot.initFromMJCF(filename, root_joint, verbose, meshLoader)
         return robot
 
     def initFromMJCF(
         self,
         filename,
-        package_dirs=None,
         root_joint=None,
         verbose=False,
         meshLoader=None,
