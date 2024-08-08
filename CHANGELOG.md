@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add initial compatiblity with coal (coal needs `-DCOAL_BACKWARD_COMPATIBILITY_WITH_HPP_FCL=ON`) ([#2323](https://github.com/stack-of-tasks/pinocchio/pull/2323))
 - Add compatibility with jrl-cmakemodules workspace ([#2333](https://github.com/stack-of-tasks/pinocchio/pull/2333))
 - Add ``collision_color`` parameter to `MeshcatVisualizer.loadViewerModel` ([#2350](https://github.com/stack-of-tasks/pinocchio/pull/2350))
+- Add ``BuildFromMJCF`` function to RobotWrapper ([#2363](https://github.com/stack-of-tasks/pinocchio/pull/2363))
 
 ### Changed
 - Use eigenpy to expose `GeometryObject::meshMaterial` variant ([#2315](https://github.com/stack-of-tasks/pinocchio/pull/2315))

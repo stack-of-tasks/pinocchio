@@ -4,7 +4,12 @@
 
 from . import pinocchio_pywrap_default as pin
 from . import utils
-from .shortcuts import buildModelsFromUrdf, createDatas, buildModelsFromSdf
+from .shortcuts import (
+    buildModelsFromMJCF,
+    buildModelsFromSdf,
+    buildModelsFromUrdf,
+    createDatas,
+)
 
 import numpy as np
 
@@ -84,6 +89,31 @@ class RobotWrapper(object):
             visual_model=visual_model,
         )
         self.constraint_models = constraint_models
+
+    @staticmethod
+    def BuildFromMJCF(
+        filename, root_joint=None, verbose=False, meshLoader=None
+    ):
+        robot = RobotWrapper()
+        robot.initFromMJCF(filename, root_joint, verbose, meshLoader)
+        return robot
+
+    def initFromMJCF(
+        self,
+        filename,
+        root_joint=None,
+        verbose=False,
+        meshLoader=None,
+    ):
+        model, collision_model, visual_model = buildModelsFromMJCF(
+            filename, root_joint, verbose, meshLoader
+        )
+        RobotWrapper.__init__(
+            self,
+            model=model,
+            collision_model=collision_model,
+            visual_model=visual_model,
+        )
 
     def __init__(
         self, model=pin.Model(), collision_model=None, visual_model=None, verbose=False
