@@ -104,7 +104,6 @@ class PolicyNetwork:
         self.variables = tf.trainable_variables()[nvars:]  # Variables to be trained
 
     def setupOptim(self):
-
         qgradient = tf.placeholder(tf.float32, [None, NU])
         grad = tf.gradients(self.policy, self.variables, -qgradient)
         optim = tf.train.AdamOptimizer(POLICY_LEARNING_RATE).apply_gradients(

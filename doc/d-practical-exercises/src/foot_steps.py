@@ -1,5 +1,5 @@
 class FootSteps(object):
-    '''
+    """
     The class stores three functions of time: left, right and flying_foot.
     Each function is piecewise constant. For each function, the user can ask
     what is the value of this function at time t.
@@ -26,36 +26,36 @@ class FootSteps(object):
     Functions get_phase_start(t), get_phase_duration(t) and get_phase_remaining(t)
     can be used to get the starting time, the duration and the remaining time of the
     current phase at time t.
-    '''
+    """
 
     def __init__(self, right, left):
-        '''
+        """
         The class is initiated from the initial positions of left and right feet.
-        '''
+        """
         self.right = [right]
         self.left = [left]
-        self.time = [0.]
+        self.time = [0.0]
         self.flying_foot = []
 
     def add_phase(self, duration, foot, position=None):
-        '''
+        """
         Add a phase lasting <duration> where the flyhing foot <foot> (either 'left' or 'right')
         moves to <position> (being a vector or a SE3 placement).
         Alternatively, <foot> might be set to 'none' (i.e double support). In that case, <position>
         is not specified (or is set to None, default).
-        '''
-        assert(foot == 'left' or foot == 'right' or foot == 'none')
+        """
+        assert foot == "left" or foot == "right" or foot == "none"
         self.time.append(self.time[-1] + duration)
         self.right.append(self.right[-1])
         self.left.append(self.left[-1])
         self.flying_foot.append(foot)
-        if foot == 'left':
+        if foot == "left":
             self.left[-1] = position
-        elif foot == 'right':
+        elif foot == "right":
             self.right[-1] = position
 
     def get_index_from_time(self, t):
-        '''Return the index i of the interval containing t, i.e. t in time[i], time[i+1] '''
+        """Return the index i of the interval containing t, i.e. t in time[i], time[i+1]"""
         if t > self.time[-1]:
             return len(self.time) - 1
         return next(i for i, ti in enumerate(self.time) if ti > t) - 1
@@ -65,13 +65,17 @@ class FootSteps(object):
         return self.flying_foot[i]
 
     def is_double_from_left_to_right(self, t):
-        '''
+        """
         Suppose that phase at time <t> is a double support phase.
         Return True if the previous phase is left and/or the next phase is right.
-        '''
-        assert(self.get_phase_type(t) == 'none')
+        """
+        assert self.get_phase_type(t) == "none"
         i = self.get_index_from_time(t)
-        return self.flying_foot[i - 1] == 'left' if i > 0 else self.flying_foot[i + 1] == 'right'
+        return (
+            self.flying_foot[i - 1] == "left"
+            if i > 0
+            else self.flying_foot[i + 1] == "right"
+        )
 
     def get_left_position(self, t):
         return self.left[self.get_index_from_time(t)]
