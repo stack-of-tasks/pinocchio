@@ -1,7 +1,6 @@
 import unittest
 import pinocchio as pin
 from pinocchio.utils import *
-from numpy.linalg import norm
 
 
 def df_dq(model, func, q, h=1e-9):

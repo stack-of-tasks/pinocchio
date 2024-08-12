@@ -1,5 +1,4 @@
 from .. import pinocchio_pywrap_default as pin
-from ..shortcuts import buildModelsFromUrdf, createDatas
 from ..utils import npToTuple
 
 import numpy as np
@@ -53,7 +52,7 @@ class GepettoVisualizer(BaseVisualizer):
 
             # Create window
             window_l = gui.getWindowList()
-            if not windowName in window_l:
+            if windowName not in window_l:
                 self.windowID = self.viewer.gui.createWindow(windowName)
             else:
                 self.windowID = self.viewer.gui.getWindowID(windowName)

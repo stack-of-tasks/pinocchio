@@ -4,7 +4,6 @@ import pinocchio as pin
 from pinocchio.utils import rand, zero
 import numpy as np
 
-import warnings
 
 # common quantities for all tests.
 # They correspond to the default values of the arguments, and they need to stay this way

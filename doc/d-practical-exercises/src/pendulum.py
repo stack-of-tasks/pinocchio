@@ -13,12 +13,9 @@ for i in range(1000):
 
 
 from pinocchio.utils import *
-from pinocchio.explog import exp,log
-from numpy.linalg import pinv,norm
 import pinocchio as pin
-import gepetto.corbaserver
 from display import Display
-from numpy.linalg import pinv,norm,inv
+from numpy.linalg import inv
 import time
 
 

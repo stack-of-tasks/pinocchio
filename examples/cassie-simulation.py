@@ -1,13 +1,8 @@
 import numpy as np
-import hppfcl as fcl
 import pinocchio
 from example_robot_data import readParamsFromSrdf
-from pinocchio import buildModelFromSdf, buildGeomFromSdf, neutral, JointModelFreeFlyer
-from pinocchio.visualize import GepettoVisualizer
-from pinocchio import GeometryType
+from pinocchio import JointModelFreeFlyer
 from time import sleep
-
-from os.path import join, dirname, abspath
 
 
 model_dir = "/local/rbudhira/devel/install/sot/share/example-robot-data/robots/"

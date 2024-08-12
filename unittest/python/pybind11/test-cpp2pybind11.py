@@ -1,4 +1,6 @@
-import cpp2pybind11, sys, gc
+import cpp2pybind11
+import sys
+import gc
 import pinocchio
 
 a = pinocchio.SE3.Random()

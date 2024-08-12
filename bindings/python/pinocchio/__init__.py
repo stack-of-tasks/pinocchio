@@ -35,7 +35,8 @@ from . import utils
 from .explog import exp, log
 
 # Manually register submodules
-import sys, inspect
+import sys
+import inspect
 
 submodules = inspect.getmembers(pinocchio_pywrap_default, inspect.ismodule)
 for module_info in submodules:

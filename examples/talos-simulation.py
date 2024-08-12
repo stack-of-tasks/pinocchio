@@ -1,12 +1,8 @@
 import numpy as np
-import hppfcl as fcl
 import pinocchio
 from example_robot_data import loadTalos
-from pinocchio.visualize import GepettoVisualizer
-from pinocchio import GeometryType
 from time import sleep
 
-from os.path import join, dirname, abspath
 
 robot = loadTalos()
 model = robot.model

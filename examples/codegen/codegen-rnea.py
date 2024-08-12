@@ -1,9 +1,7 @@
 from pycppad import (
-    AD,
     ADCG,
     CG,
     Independent,
-    Value,
     ADCGFun,
     CodeHandler,
     LanguageC,

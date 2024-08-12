@@ -259,7 +259,7 @@ class RVizVisualizer(BaseVisualizer):
         # Remove unused markers
         new_ids = [marker.id for marker in marker_array.markers]
         for old_id in previous_ids:
-            if not old_id in new_ids:
+            if old_id not in new_ids:
                 marker_remove = Marker()
                 marker_remove.header = header
                 marker_remove.id = old_id

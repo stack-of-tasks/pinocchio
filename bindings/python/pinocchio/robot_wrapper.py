@@ -11,8 +11,6 @@ from .shortcuts import (
     createDatas,
 )
 
-import numpy as np
-
 
 class RobotWrapper(object):
     @staticmethod

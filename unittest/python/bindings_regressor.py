@@ -1,8 +1,7 @@
 import unittest
 from test_case import PinocchioTestCase as TestCase
 import pinocchio as pin
-from pinocchio.utils import rand, zero
-import numpy as np
+from pinocchio.utils import zero
 
 
 class TestRegressorBindings(TestCase):
