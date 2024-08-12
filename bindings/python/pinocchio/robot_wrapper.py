@@ -91,9 +91,7 @@ class RobotWrapper(object):
         self.constraint_models = constraint_models
 
     @staticmethod
-    def BuildFromMJCF(
-        filename, root_joint=None, verbose=False, meshLoader=None
-    ):
+    def BuildFromMJCF(filename, root_joint=None, verbose=False, meshLoader=None):
         robot = RobotWrapper()
         robot.initFromMJCF(filename, root_joint, verbose, meshLoader)
         return robot
