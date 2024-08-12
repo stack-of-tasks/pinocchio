@@ -1,8 +1,8 @@
 import casadi
+import hppfcl as fcl
 import numpy as np
 import pinocchio as pin
 import pinocchio.casadi as cpin
-import hppfcl as fcl
 
 
 def make_cartpole(ub=True):
@@ -214,9 +214,7 @@ states_ = integrate_no_control(x0, nsteps=400)
 states_ = np.stack(states_).T
 
 
-from pinocchio import visualize
-
-viz = visualize.MeshcatVisualizer(
+viz = pin.visualize.MeshcatVisualizer(
     model=model,
     collision_model=cartpole.collision_model,
     visual_model=cartpole.visual_model,

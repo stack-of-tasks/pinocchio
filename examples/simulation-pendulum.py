@@ -1,12 +1,13 @@
-import pinocchio as pin
-import hppfcl as fcl
-import numpy as np
-import math
-import time
-import sys
-
 # Parse input arguments
 import argparse
+import math
+import sys
+import time
+
+import hppfcl as fcl
+import numpy as np
+import pinocchio as pin
+from pinocchio.visualize import MeshcatVisualizer as Visualizer
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -99,7 +100,6 @@ for k in range(N):
     parent_id = joint_id
     joint_placement = body_placement.copy()
 
-from pinocchio.visualize import MeshcatVisualizer as Visualizer
 
 visual_model = geom_model
 # Initialize the viewer.

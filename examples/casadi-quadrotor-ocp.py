@@ -1,17 +1,18 @@
 import sys
-from os.path import dirname, join, abspath
+from os.path import abspath, dirname, join
 
 import casadi
 import numpy as np
-
 import pinocchio as pin
 import pinocchio.casadi as cpin
 
+# This use the example-robot-data submodule, but if you have it already properly
+# installed in your PYTHONPATH, there is no need for this sys.path thing
 path = join(
     dirname(dirname(abspath(__file__))), "models", "example-robot-data", "python"
 )
 sys.path.append(path)
-import example_robot_data
+import example_robot_data  # noqa: E402
 
 # Problem parameters
 x_goal = [1, 0, 1.5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
@@ -190,7 +191,7 @@ class OptimalControlProblem:
 
         try:
             self.sol = self.opti.solve()
-        except:
+        except:  # noqa: E722
             self.sol = self.opti.debug
 
         if self.sol.stats()["return_status"] == "Solve_Succeeded":
@@ -224,7 +225,7 @@ class OptimalControlProblem:
         self.gaps = {"vector": [np.zeros(self.model.nv * 2)], "norm": [0]}
 
         nq = self.model.nq
-        nv = self.model.nv
+        _nv = self.model.nv
 
         for idx, (x, u) in enumerate(zip(self.xs, self.us)):
             x_pin = self._simulate_step(x, u)
@@ -238,7 +239,7 @@ class OptimalControlProblem:
 
     def _simulate_step(self, x, u):
         nq = self.model.nq
-        nv = self.model.nv
+        _nv = self.model.nv
 
         q = x[:nq]
         v = x[nq:]

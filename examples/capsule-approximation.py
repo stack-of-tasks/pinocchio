@@ -4,10 +4,9 @@ Inspired from Antonio El Khoury PhD: https://tel.archives-ouvertes.fr/file/index
 Section 3.8.1 Computing minimum bounding capsules
 """
 
+import hppfcl
 import numpy as np
 import scipy.optimize as optimize
-
-import hppfcl
 
 """
 Capsule definition
@@ -51,8 +50,13 @@ def capsule_approximation(vertices):
     a0, b0, r0 = pca_approximation(vertices)
     constraint_inflation = CONSTRAINT_INFLATION_RATIO * r0
     x0 = np.array(list(a0) + list(b0) + [r0])
-    constraint_cap = lambda x: distance_points_segment(vertices, x[:3], x[3:6]) - x[6]
-    capsule_vol = lambda x: capsule_volume(x[:3], x[3:6], x[6])
+
+    def constraint_cap(x):
+        return distance_points_segment(vertices, x[:3], x[3:6]) - x[6]
+
+    def capsule_vol(x):
+        return capsule_volume(x[:3], x[3:6], x[6])
+
     constraint = optimize.NonlinearConstraint(
         constraint_cap, lb=-np.inf, ub=-constraint_inflation
     )
@@ -101,7 +105,7 @@ def parse_urdf(infile, outfile):
         return SE3(rpy.rpyToMatrix(*_rpy), np.array(_xyz))
 
     def set_transform(origin, a, b):
-        from pinocchio import rpy, Quaternion
+        from pinocchio import Quaternion, rpy
 
         length = np.linalg.norm(b - a)
         z = (b - a) / length
@@ -159,6 +163,8 @@ if __name__ == "__main__":
 
     # Example for a whole URDF model
     # This path refers to Pinocchio source code but you can define your own directory here.
+    from os.path import abspath, dirname, join
+
     pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
     urdf_filename = (
         pinocchio_model_dir

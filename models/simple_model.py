@@ -120,7 +120,7 @@ class RobotDisplay(object):
         self.viewer = corbaserver.Client()
         try:
             window_id = self.viewer.gui.getWindowID(window_name)
-        except:
+        except:  # noqa: E722
             window_id = self.viewer.gui.createWindow(window_name)
             self.viewer.gui.createSceneWithFloor("world")
             self.viewer.gui.addSceneToWindow("world", window_id)

@@ -1,9 +1,11 @@
-import pinocchio as pin
+import math
+import sys
+import time
+
 import hppfcl as fcl
 import numpy as np
-import math
-import time
-import sys
+import pinocchio as pin
+from pinocchio.visualize import GepettoVisualizer
 
 N = 10  # number of pendulums
 model = pin.Model()
@@ -48,7 +50,6 @@ for k in range(N):
     parent_id = joint_id
     joint_placement = body_placement.copy()
 
-from pinocchio.visualize import GepettoVisualizer
 
 visual_model = geom_model
 viz = GepettoVisualizer(model, geom_model, visual_model)

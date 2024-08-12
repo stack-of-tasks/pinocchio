@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2016 CNRS
 #
+# ruff: noqa: E731
 
 import numpy as np
 from pinocchio import Motion, Force, skew

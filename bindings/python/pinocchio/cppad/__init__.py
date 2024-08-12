@@ -1,15 +1,14 @@
 #
 # Copyright (c) 2020-2021 INRIA
 #
-from ..pinocchio_pywrap_cppad import *
-
-from ..pinocchio_pywrap_cppad import __version__, __raw_version__
+# ruff: noqa: F401, F403, F405
+# Manually register submodules
+import sys
 
 from .. import utils
 from ..explog import exp, log
-
-# Manually register submodules
-import sys
+from ..pinocchio_pywrap_cppad import *
+from ..pinocchio_pywrap_cppad import __raw_version__, __version__
 
 sys.modules["pinocchio.cppad.rpy"] = rpy
 sys.modules["pinocchio.cppad.cholesky"] = cholesky
@@ -18,15 +17,15 @@ if WITH_HPP_FCL:
     try:
         import hppfcl
         from hppfcl import (
-            Contact,
-            StdVec_Contact,
-            CollisionResult,
-            StdVec_CollisionResult,
-            DistanceResult,
-            StdVec_DistanceResult,
-            CollisionGeometry,
-            MeshLoader,
             CachedMeshLoader,
+            CollisionGeometry,
+            CollisionResult,
+            Contact,
+            DistanceResult,
+            MeshLoader,
+            StdVec_CollisionResult,
+            StdVec_Contact,
+            StdVec_DistanceResult,
         )
 
         WITH_HPP_FCL_BINDINGS = True
