@@ -1,9 +1,6 @@
 import pinocchio as pin
-import numpy as np
 
-from numpy.linalg import norm, inv
 from os.path import join, dirname, abspath
-from math import sqrt
 
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 urdf_filename = (

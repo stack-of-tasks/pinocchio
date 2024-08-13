@@ -48,11 +48,11 @@ class Panda3dVisualizer(BaseVisualizer):
             if WITH_HPP_FCL_BINDINGS and isinstance(geom, hppfcl.ShapeBase):
                 # append a primitive geometry
                 if isinstance(geom, hppfcl.Capsule):
-                    r, l = geom.radius, 2 * geom.halfLength
-                    self.viewer.append_capsule(root, obj.name, r, l)
+                    r, fl = geom.radius, 2 * geom.halfLength
+                    self.viewer.append_capsule(root, obj.name, r, fl)
                 elif isinstance(geom, hppfcl.Cylinder):
-                    r, l = geom.radius, 2 * geom.halfLength
-                    self.viewer.append_cylinder(root, obj.name, r, l)
+                    r, fl = geom.radius, 2 * geom.halfLength
+                    self.viewer.append_cylinder(root, obj.name, r, fl)
                 elif isinstance(geom, hppfcl.Box):
                     size = npToTuple(2.0 * geom.halfSide)
                     self.viewer.append_box(root, obj.name, size)

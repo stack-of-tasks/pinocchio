@@ -1,6 +1,7 @@
 import unittest
-import pinocchio as pin
+
 import numpy as np
+import pinocchio as pin
 
 from test_case import PinocchioTestCase as TestCase
 
@@ -36,7 +37,7 @@ class TestLiegroupBindings(TestCase):
 
             q_int = lg.integrate(q, v)
 
-            q_interpolate = lg.interpolate(q, q_int, 0.5)
+            _q_interpolate = lg.interpolate(q, q_int, 0.5)
 
             v_diff = lg.difference(q, q_int)
             self.assertApprox(v, v_diff)

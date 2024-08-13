@@ -1,8 +1,6 @@
 from __future__ import print_function
 import pinocchio as pin
-import hppfcl as fcl
 
-import os
 from os.path import dirname, join, abspath
 
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")

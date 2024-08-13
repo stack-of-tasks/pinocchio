@@ -174,7 +174,8 @@ class BaseVisualizer(abc.ABC):
         Code inspired from https://github.com/petrikvladimir/RoboMeshCat.
         """
         if not IMAGEIO_SUPPORT:
-            import warnings, contextlib
+            import warnings
+            import contextlib
 
             warnings.warn(
                 "Video context cannot be created because imageio is not available.",

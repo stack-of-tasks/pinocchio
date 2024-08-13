@@ -1,12 +1,8 @@
-import numpy as np
-import hppfcl as fcl
-import pinocchio
-from example_robot_data import loadTalos
-from pinocchio.visualize import GepettoVisualizer
-from pinocchio import GeometryType
 from time import sleep
 
-from os.path import join, dirname, abspath
+import numpy as np
+import pinocchio
+from example_robot_data import loadTalos
 
 robot = loadTalos()
 model = robot.model
@@ -103,9 +99,16 @@ def squashing(model, data, q_in):
     com_base = data.com[0].copy()
     kp = 1.0
     speed = 1.0
-    com_des = lambda k: com_base - np.array(
-        [0.0, 0.0, np.abs(com_drop_amp * np.sin(2.0 * np.pi * k * speed / (N_full)))]
-    )
+
+    def com_des(k):
+        return com_base - np.array(
+            [
+                0.0,
+                0.0,
+                np.abs(com_drop_amp * np.sin(2.0 * np.pi * k * speed / (N_full))),
+            ]
+        )
+
     for k in range(N):
         pinocchio.computeAllTerms(model, data, q, np.zeros(model.nv))
         pinocchio.computeJointJacobians(model, data, q)

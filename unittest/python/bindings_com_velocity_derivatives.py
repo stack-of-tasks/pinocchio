@@ -1,7 +1,8 @@
 import unittest
+
+import numpy as np
 import pinocchio as pin
-from pinocchio.utils import *
-from numpy.linalg import norm
+from pinocchio.utils import rand
 
 
 def df_dq(model, func, q, h=1e-9):
@@ -12,9 +13,9 @@ def df_dq(model, func, q, h=1e-9):
 
     :returns df/dq
     """
-    dq = zero(model.nv)
+    dq = np.zeros(model.nv)
     f0 = func(q)
-    res = zero([len(f0), model.nv])
+    res = np.zeros([len(f0), model.nv])
     for iq in range(model.nv):
         dq[iq] = h
         res[:, iq] = (func(pin.integrate(model, q, dq)) - f0) / h

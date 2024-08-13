@@ -1,7 +1,7 @@
-import pinocchio as pin
-import numpy as np
+from os.path import abspath, dirname, join
 
-from os.path import *
+import numpy as np
+import pinocchio as pin
 
 # Goal: Build a reduced model from an existing URDF model by fixing the desired joints at a specified position.
 

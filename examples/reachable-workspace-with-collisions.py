@@ -1,11 +1,11 @@
-import meshcat.geometry as g
-import pinocchio as pin
-import numpy as np
-import sys
-from os.path import dirname, join, abspath
-import time
 import itertools
+import sys
+import time
+from os.path import abspath, dirname, join
 
+import meshcat.geometry as g
+import numpy as np
+import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
 
 
@@ -100,10 +100,10 @@ if convex:
 
 else:
     try:
-        from CGAL.CGAL_Alpha_wrap_3 import *
-        from CGAL.CGAL_Kernel import *
+        from CGAL.CGAL_Alpha_wrap_3 import *  # noqa: F403
+        from CGAL.CGAL_Kernel import *  # noqa: F403
+        from CGAL.CGAL_Mesh_3 import *  # noqa: F403
         from CGAL.CGAL_Polyhedron_3 import Polyhedron_3
-        from CGAL.CGAL_Mesh_3 import *
     except ModuleNotFoundError:
         print("To compute non convex Polytope CGAL library needs to be installed.")
         sys.exit(0)
@@ -137,10 +137,10 @@ else:
         else:
             alpha_value = np.mean(alpha)
         # Convert to CGAL point
-        points = [Point_3(pt[0], pt[1], pt[2]) for pt in coords]
+        points = [Point_3(pt[0], pt[1], pt[2]) for pt in coords]  # noqa: F405
         # Compute alpha shape
         Q = Polyhedron_3()
-        a = alpha_wrap_3(points, alpha_value, 0.01, Q)
+        _a = alpha_wrap_3(points, alpha_value, 0.01, Q)  # noqa: F405
         alpha_shape_vertices = np.array(
             [vertex_to_tuple(vertex.point()) for vertex in Q.vertices()]
         )

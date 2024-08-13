@@ -1,16 +1,16 @@
+import os
+import sys
 import unittest
-import sys, os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from test_case import PinocchioTestCase as TestCase
-
+import numpy as np
 import pinocchio as pin
 import pinocchio.casadi as cpin
+from test_case import PinocchioTestCase as TestCase
 
 import casadi
 from casadi import SX
-import numpy as np
 
 
 class TestLogExpDerivatives(TestCase):
@@ -40,9 +40,9 @@ class TestLogExpDerivatives(TestCase):
         """Test the exp map and its derivative."""
         dw = self.cdv2
         exp_expr = self.cR0_i @ cpin.exp3(self.cv2 + dw)
-        repl_dargs = lambda e: casadi.substitute(
-            e, casadi.vertcat(self.dv0, dw), np.zeros(6)
-        )
+
+        def repl_dargs(e):
+            return casadi.substitute(e, casadi.vertcat(self.dv0, dw), np.zeros(6))
 
         exp_eval = casadi.Function("exp", [self.cR0, self.cv2], [repl_dargs(exp_expr)])
 
@@ -126,7 +126,9 @@ class TestLogExpDerivatives(TestCase):
         cquat = SX.sym("quat", 4)
         cdv = SX.sym("dv", 3)
         SO3 = cpin.liegroups.SO3()
-        repl_dargs = lambda e: casadi.substitute(e, cdv, np.zeros(3))
+
+        def repl_dargs(e):
+            return casadi.substitute(e, cdv, np.zeros(3))
 
         cquat_i = SO3.integrate(cquat, cdv)
 
@@ -164,7 +166,9 @@ class TestLogExpDerivatives(TestCase):
 
     def test_exp6(self):
         exp_expr = cpin.exp6(self.cw2 + self.cdw2)
-        repl_dargs = lambda e: casadi.substitute(e, self.cdw2, np.zeros(6))
+
+        def repl_dargs(e):
+            return casadi.substitute(e, self.cdw2, np.zeros(6))
 
         exp_eval = casadi.Function("exp6", [self.cw2], [repl_dargs(exp_expr.np)])
 
@@ -197,9 +201,11 @@ class TestLogExpDerivatives(TestCase):
     def test_log6(self):
         log_expr = cpin.log6(self.cM0_i.actInv(self.cM1_i))
 
-        repl_dargs = lambda e: casadi.substitute(
-            e, casadi.vertcat(self.cdw0, self.cdw1), np.zeros(12)
-        )
+        def repl_dargs(e):
+            return casadi.substitute(
+                e, casadi.vertcat(self.cdw0, self.cdw1), np.zeros(12)
+            )
+
         log_eval = casadi.Function(
             "log6", [self.cM0, self.cM1], [repl_dargs(log_expr.np)]
         )
@@ -235,7 +241,10 @@ class TestLogExpDerivatives(TestCase):
     def test_log6_quat(self):
         cq0 = SX.sym("q0", 7)
         cv0 = SX.sym("q0", 6)
-        repl_dargs = lambda e: casadi.substitute(e, cv0, np.zeros(6))
+
+        def repl_dargs(e):
+            return casadi.substitute(e, cv0, np.zeros(6))
+
         SE3 = cpin.liegroups.SE3()
 
         cq0_i = SE3.integrate(cq0, cv0)

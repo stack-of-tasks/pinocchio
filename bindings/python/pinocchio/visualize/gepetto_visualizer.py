@@ -1,19 +1,17 @@
-from .. import pinocchio_pywrap_default as pin
-from ..shortcuts import buildModelsFromUrdf, createDatas
-from ..utils import npToTuple
+import warnings
 
 import numpy as np
 from numpy.linalg import norm
 
+from .. import pinocchio_pywrap_default as pin
+from ..utils import npToTuple
 from . import BaseVisualizer
-
-import warnings
 
 try:
     import hppfcl
 
     WITH_HPP_FCL_BINDINGS = True
-except:
+except:  # noqa: E722
     WITH_HPP_FCL_BINDINGS = False
 
 
@@ -53,7 +51,7 @@ class GepettoVisualizer(BaseVisualizer):
 
             # Create window
             window_l = gui.getWindowList()
-            if not windowName in window_l:
+            if windowName not in window_l:
                 self.windowID = self.viewer.gui.createWindow(windowName)
             else:
                 self.windowID = self.viewer.gui.getWindowID(windowName)
@@ -67,7 +65,7 @@ class GepettoVisualizer(BaseVisualizer):
 
             if loadModel:
                 self.loadViewerModel()
-        except:
+        except:  # noqa: E722
             import warnings
 
             msg = (

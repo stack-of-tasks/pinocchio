@@ -1,14 +1,9 @@
-import numpy as np
-import hppfcl as fcl
-import pinocchio
-from example_robot_data import readParamsFromSrdf
-from pinocchio import buildModelFromSdf, buildGeomFromSdf, neutral, JointModelFreeFlyer
-from pinocchio.visualize import GepettoVisualizer
-from pinocchio import GeometryType
 from time import sleep
 
-from os.path import join, dirname, abspath
-
+import numpy as np
+import pinocchio
+from example_robot_data import readParamsFromSrdf
+from pinocchio import JointModelFreeFlyer
 
 model_dir = "/local/rbudhira/devel/install/sot/share/example-robot-data/robots/"
 # pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
@@ -196,14 +191,17 @@ mass = robot.data.mass[0]
 com_base = robot.data.com[0].copy()
 com_base[:2] = mid_point[:2]
 com_drop_amp = 0.1
-com_des = lambda k: com_base - np.array([0.0, 0.0, np.abs(com_drop_amp)])
+
+
+def com_des(k):
+    return com_base - np.array([0.0, 0.0, np.abs(com_drop_amp)])
 
 
 def squashing(model, data, q_in, Nin=N, epsin=eps, verbose=True):
     q = q_in.copy()
     y = np.ones((constraint_dim))
 
-    N_full = 200
+    _N_full = 200
 
     # Decrease CoMz by 0.2
     pinocchio.computeAllTerms(robot.model, robot.data, q, np.zeros(robot.model.nv))

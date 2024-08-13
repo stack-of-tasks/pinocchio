@@ -1,10 +1,10 @@
 import unittest
-from test_case import PinocchioTestCase as TestCase
+
+import numpy as np
 import pinocchio as pin
 from pinocchio.utils import rand, zero
-import numpy as np
 
-import warnings
+from test_case import PinocchioTestCase as TestCase
 
 # common quantities for all tests.
 # They correspond to the default values of the arguments, and they need to stay this way
@@ -107,7 +107,7 @@ class TestDynamicsBindings(TestCase):
     def test_forwardDynamics_q(self):
         data7 = self.data
         data8 = self.model.createData()
-        data9_deprecated = self.model.createData()
+        _data9_deprecated = self.model.createData()
         ddq7 = pin.forwardDynamics(
             self.model, data7, self.q, self.v, self.tau, self.J, self.gamma
         )
@@ -178,7 +178,7 @@ class TestDynamicsBindings(TestCase):
         data5 = self.data
         data6 = self.model.createData()
         data7 = self.model.createData()
-        data7_deprecated = self.model.createData()
+        _data7_deprecated = self.model.createData()
         vnext5 = pin.impulseDynamics(self.model, data5, self.q, self.v, self.J)
         vnext6 = pin.impulseDynamics(self.model, data6, self.q, self.v, self.J, r_coeff)
         vnext7 = pin.impulseDynamics(

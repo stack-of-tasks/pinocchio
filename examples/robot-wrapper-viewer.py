@@ -7,7 +7,6 @@ import pinocchio as pin
 from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.visualize import GepettoVisualizer, MeshcatVisualizer
 from sys import argv
-import os
 from os.path import dirname, join, abspath
 
 # If you want to visualize the robot in this example,

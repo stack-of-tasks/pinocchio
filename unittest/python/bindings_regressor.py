@@ -1,8 +1,9 @@
 import unittest
-from test_case import PinocchioTestCase as TestCase
+
 import pinocchio as pin
-from pinocchio.utils import rand, zero
-import numpy as np
+from pinocchio.utils import zero
+
+from test_case import PinocchioTestCase as TestCase
 
 
 class TestRegressorBindings(TestCase):
@@ -30,13 +31,13 @@ class TestRegressorBindings(TestCase):
         self.assertApprox(static_com, static_com_ref)
 
     def test_bodyRegressor(self):
-        I = pin.Inertia.Random()
+        In = pin.Inertia.Random()
         v = pin.Motion.Random()
         a = pin.Motion.Random()
 
-        f = I * a + I.vxiv(v)
+        f = In * a + In.vxiv(v)
 
-        f_regressor = pin.bodyRegressor(v, a).dot(I.toDynamicParameters())
+        f_regressor = pin.bodyRegressor(v, a).dot(In.toDynamicParameters())
 
         self.assertApprox(f_regressor, f.vector)
 
@@ -77,10 +78,10 @@ class TestRegressorBindings(TestCase):
         pin.rnea(model, data, q, v, a)
 
         f = framePlacement.actInv(data.f[JOINT_ID])
-        I = framePlacement.actInv(model.inertias[JOINT_ID])
+        In = framePlacement.actInv(model.inertias[JOINT_ID])
 
         f_regressor = pin.frameBodyRegressor(model, data, FRAME_ID).dot(
-            I.toDynamicParameters()
+            In.toDynamicParameters()
         )
 
         self.assertApprox(f_regressor, f.vector)

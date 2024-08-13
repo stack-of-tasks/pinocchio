@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2015-2021 CNRS INRIA
 #
+# ruff: noqa: E402, F401, F403, F405
 
 import numpy
 
@@ -16,26 +17,28 @@ import numpy
 # More resources on https://github.com/diffpy/pyobjcryst/issues/33
 try:
     from .pinocchio_pywrap_default import *
-    from .pinocchio_pywrap_default import __version__, __raw_version__
+    from .pinocchio_pywrap_default import __raw_version__, __version__
 except ImportError:
     import platform
 
     if platform.system() == "Windows":
-        from .windows_dll_manager import get_dll_paths, build_directory_manager
+        from .windows_dll_manager import build_directory_manager, get_dll_paths
 
         with build_directory_manager() as dll_dir_manager:
             for p in get_dll_paths():
                 dll_dir_manager.add_dll_directory(p)
             from .pinocchio_pywrap_default import *
-            from .pinocchio_pywrap_default import __version__, __raw_version__
+            from .pinocchio_pywrap_default import __raw_version__, __version__
     else:
         raise
 
-from . import utils
-from .explog import exp, log
+import inspect
 
 # Manually register submodules
-import sys, inspect
+import sys
+
+from . import utils
+from .explog import exp, log
 
 submodules = inspect.getmembers(pinocchio_pywrap_default, inspect.ismodule)
 for module_info in submodules:
@@ -48,15 +51,15 @@ if WITH_HPP_FCL:
     try:
         import hppfcl
         from hppfcl import (
-            Contact,
-            StdVec_Contact,
-            CollisionResult,
-            StdVec_CollisionResult,
-            DistanceResult,
-            StdVec_DistanceResult,
-            CollisionGeometry,
-            MeshLoader,
             CachedMeshLoader,
+            CollisionGeometry,
+            CollisionResult,
+            Contact,
+            DistanceResult,
+            MeshLoader,
+            StdVec_CollisionResult,
+            StdVec_Contact,
+            StdVec_DistanceResult,
         )
 
         WITH_HPP_FCL_BINDINGS = True
@@ -65,6 +68,6 @@ if WITH_HPP_FCL:
 else:
     WITH_HPP_FCL_BINDINGS = False
 
-from .robot_wrapper import RobotWrapper
 from .deprecated import *
+from .robot_wrapper import RobotWrapper
 from .shortcuts import *

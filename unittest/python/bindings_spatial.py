@@ -1,17 +1,17 @@
 import unittest
 
 import numpy as np
-from numpy.random import rand
-
 import pinocchio as pin
-from pinocchio import skew, unSkew, skewSquare
+from numpy.random import rand
+from pinocchio import skew, skewSquare, unSkew
 
 try:
-    import casadi
     from pinocchio import casadi as cpin
 
+    import casadi
+
     WITH_CASADI = True
-except:
+except ImportError:
     WITH_CASADI = False
 
 from test_case import PinocchioTestCase

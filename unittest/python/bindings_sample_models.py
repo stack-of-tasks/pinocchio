@@ -1,7 +1,8 @@
 import unittest
-from test_case import PinocchioTestCase as TestCase
 
 import pinocchio as pin
+
+from test_case import PinocchioTestCase as TestCase
 
 
 class TestSampleModels(TestCase):
@@ -19,7 +20,7 @@ class TestSampleModels(TestCase):
         manipulator_1 = pin.buildSampleModelManipulator()
 
         if pin.WITH_HPP_FCL:
-            geometry_manipulator_1 = pin.buildSampleGeometryModelManipulator(
+            _geometry_manipulator_1 = pin.buildSampleGeometryModelManipulator(
                 manipulator_1
             )
 
@@ -31,7 +32,7 @@ class TestSampleModels(TestCase):
         self.assertTrue(humanoid_4 != humanoid_6)
 
         if pin.WITH_HPP_FCL:
-            geometry_humanoid_2 = pin.buildSampleGeometryModelHumanoid(humanoid_4)
+            _geometry_humanoid_2 = pin.buildSampleGeometryModelHumanoid(humanoid_4)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 import unittest
 import pinocchio as pin
 import numpy as np
-from pinocchio.utils import eye, zero, rand
+from pinocchio.utils import eye, zero
 
 from test_case import PinocchioTestCase as TestCase
 

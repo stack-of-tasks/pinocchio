@@ -1,10 +1,13 @@
 import unittest
-import pinocchio as pin
-import numpy as np
-from pinocchio.utils import eye, zero, rand
-from copy import deepcopy, copy
+from copy import copy, deepcopy
 
-ones = lambda n: np.ones([n, 1] if isinstance(n, int) else n)
+import numpy as np
+import pinocchio as pin
+from pinocchio.utils import eye, rand, zero
+
+
+def ones(n):
+    return np.ones([n, 1] if isinstance(n, int) else n)
 
 
 class TestSE3Bindings(unittest.TestCase):
