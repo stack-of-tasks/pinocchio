@@ -325,8 +325,9 @@ namespace eigenpy
       else
       {
         Scalar tmp_value;
-        PyArray_DESCR(py_array)->f->copyswap(
-          &tmp_value, ip, PyArray_ISBYTESWAPPED(py_array), array);
+        PyArray_Descr * descr = PyArray_DESCR(py_array);
+        PyArray_ArrFuncs * f = PyDataType_GetArrFuncs(descr);
+        f->copyswap(&tmp_value, ip, PyArray_ISBYTESWAPPED(py_array), array);
         return (npy_bool)(tmp_value.is_zero());
       }
     }
