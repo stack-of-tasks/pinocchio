@@ -27,7 +27,8 @@ module.exports = async ({github, context, core}) => {
             ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
             ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
             ' -DINSTALL_DOCUMENTATION=ON',
-            ' -DGENERATE_PYTHON_STUBS=ON'
+            ' -DGENERATE_PYTHON_STUBS=ON',
+            ' -DBUILD_WITH_ACCELERATE_SUPPORT=ON'
         ],
         build_collision: ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
         build_casadi: ' -DBUILD_WITH_CASADI_SUPPORT=ON',
@@ -37,7 +38,7 @@ module.exports = async ({github, context, core}) => {
         build_openmp: ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
         build_mpfr: ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
         build_sdf: ' -DBUILD_WITH_SDF_SUPPORT=ON',
-        build_accelerate: '-DBUILD_WITH_ACCELERATE_SUPPORT=ON'
+        build_accelerate: ' -DBUILD_WITH_ACCELERATE_SUPPORT=ON'
     };
     var hasLabel = false;
     labelNames.forEach(label => {
@@ -68,20 +69,22 @@ module.exports = async ({github, context, core}) => {
         else
         {
             const reviewMessage = `👋 Hi,
-This is a reminder message to please assign a proper label to this Pull Request.
-The possible labels are:
+This is a reminder message to assign an extra build label to this Pull Request if needed.
+By default, this PR will be build with minimal build options (URDF support and Python bindings)
+The possible extra labels are:
 
-- build_collision (build pinocchio with coal support)
-- build_casadi (build pinoochio with casadi support)
-- build_autodiff (build pinocchio with cppad support)
-- build_codegen (build pinocchio with cppadcg support)
-- build_extra (build pinocchio with extra algorithms)
-- build_mpfr (build pinocchio with Boost.Multiprecision support)
-- build_sdf (build pinocchio with sdf parser)
-- build_accelerate
-- build_all (build pinocchio with all the options stated above)
+\t- build_collision (build Pinocchio with coal support)
+\t- build_casadi (build Pinocchio with CasADi support)
+\t- build_autodiff (build Pinocchio with CppAD support)
+\t- build_codegen (build Pinocchio with CppADCodeGen support)
+\t- build_extra (build Pinocchio with extra algorithms)
+\t- build_mpfr (build Pinocchio with Boost.Multiprecision support)
+\t- build_sdf (build Pinocchio with SDF parser)
+\t- build_accelerate (build Pinocchio with APPLE Accelerate framework support)
+\t- build_all (build Pinocchio with ALL the options stated above)
 
-Thanks.`;
+Thanks.
+The Pinocchio development team.`;
             await github.rest.pulls.createReview({
                 owner:context.repo.owner,
                 repo: context.repo.repo,
