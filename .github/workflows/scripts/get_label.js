@@ -33,7 +33,8 @@ module.exports = async ({github, context, core}) => {
             ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
             ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
             ' -DINSTALL_DOCUMENTATION=ON',
-            ' -DGENERATE_PYTHON_STUBS=ON'
+            ' -DGENERATE_PYTHON_STUBS=ON',
+            ' -DBUILD_WITH_ACCELERATE_SUPPORT=ON'
         ],
         build_collision: ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
         build_casadi: ' -DBUILD_WITH_CASADI_SUPPORT=ON',
@@ -43,7 +44,7 @@ module.exports = async ({github, context, core}) => {
         build_openmp: ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
         build_mpfr: ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
         build_sdf: ' -DBUILD_WITH_SDF_SUPPORT=ON',
-        build_accelerate: '-DBUILD_WITH_ACCELERATE_SUPPORT=ON'
+        build_accelerate: ' -DBUILD_WITH_ACCELERATE_SUPPORT=ON'
     };
 
     labelNames.forEach(label => {
