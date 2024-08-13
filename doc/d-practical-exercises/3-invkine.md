@@ -152,7 +152,7 @@ the null space of task 1 is:
 
 \f$P_1 = I_9 - J_1^+ J_1\f$
 
-\f$vq_2 = vq_1 + (J_2 P_1)^+ ( v_2^* - J_2 vq_1)\f$
+\f$vq_2 = vq_1 + P_1 (J_2 P_1)^+ ( v_2^* - J_2 vq_1)\f$
 
 #### Question 2
 
