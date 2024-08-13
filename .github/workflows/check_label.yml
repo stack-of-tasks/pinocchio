@@ -1,7 +1,8 @@
 name: Verify Pull Request Labels
 
-on: [pull_request_target]
-
+on:
+  pull_request_target:
+    types: [opened, reopened, labeled, unlabeled]
 
 jobs:
   verify_pr_labels:
