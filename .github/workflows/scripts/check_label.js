@@ -73,15 +73,15 @@ This is a reminder message to assign an extra build label to this Pull Request i
 By default, this PR will be build with minimal build options (URDF support and Python bindings)
 The possible extra labels are:
 
-\t- build_collision (build Pinocchio with coal support)
-\t- build_casadi (build Pinocchio with CasADi support)
-\t- build_autodiff (build Pinocchio with CppAD support)
-\t- build_codegen (build Pinocchio with CppADCodeGen support)
-\t- build_extra (build Pinocchio with extra algorithms)
-\t- build_mpfr (build Pinocchio with Boost.Multiprecision support)
-\t- build_sdf (build Pinocchio with SDF parser)
-\t- build_accelerate (build Pinocchio with APPLE Accelerate framework support)
-\t- build_all (build Pinocchio with ALL the options stated above)
+- **build_collision** (build Pinocchio with coal support)
+- **build_casadi** (build Pinocchio with CasADi support)
+- **build_autodiff** (build Pinocchio with CppAD support)
+- **build_codegen** (build Pinocchio with CppADCodeGen support)
+- **build_extra** (build Pinocchio with extra algorithms)
+- **build_mpfr** (build Pinocchio with Boost.Multiprecision support)
+- **build_sdf** (build Pinocchio with SDF parser)
+- **build_accelerate** (build Pinocchio with APPLE Accelerate framework support)
+- **build_all** (build Pinocchio with ALL the options stated above)
 
 Thanks.
 The Pinocchio development team.`;
