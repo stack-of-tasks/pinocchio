@@ -6,5 +6,5 @@ cd pinocchio
 makepkg -i
 ```
 
-ref. https://wiki.archlinux.org/title/Arch_User_Repository
-and: https://aur.archlinux.org/packages/pinocchio
+ref. <https://wiki.archlinux.org/title/Arch_User_Repository>
+and: <https://aur.archlinux.org/packages/pinocchio>
