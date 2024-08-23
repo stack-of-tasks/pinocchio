@@ -6,10 +6,10 @@ versions and to resolve the dependencies.
 robotpkg is a package manager tailored for robotics softwares. It greatly simplifies the release of new versions along
 with the management of their dependencies.
 
-## Ubuntu LTS 18.04, 20.04 and 22.04
+## Ubuntu LTS 20.04, 22.04 and 24.04
 
 The software binaries of the packages managed by robotpkg are directly available through the apt repository
-of robotpkg for the Ubuntu LTS 18.04, 20.04 and 22.04. You just need to add the robotpkg apt repository to your
+of robotpkg for the Ubuntu LTS 20.04, 22.04 and 24.04. You just need to add the robotpkg apt repository to your
 sources.list and typically use `sudo apt install robotpkg- + packagename` to install a missing software and its
 dependencies. Below, we recall the steps to first add the robotpkg apt repository and then install Pinocchio.
 
@@ -72,11 +72,9 @@ export CMAKE_PREFIX_PATH=/opt/openrobots:$CMAKE_PREFIX_PATH
 
 You may directly add those lines to your `$HOME/.bashrc` for a persistent configuration.
 
-## ArchLinux
-
-Pinocchio and all its dependencies are available in [AUR](https://aur.archlinux.org/packages/pinocchio/)
-
 ## Other distributions
+
+Nix and Arch packages are available, see the other tabs in this page.
 
 For the other distributions, the easiest way to get Pinocchio is to install robotpkg and let it manage the Pinocchio
 installation (see From robotpkg for the instructions). You can check the compilation status on various distributions

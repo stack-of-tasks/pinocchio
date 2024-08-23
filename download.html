@@ -11,8 +11,11 @@ category: Getting Started
   <li class="nav-item"><a href="#Install_2" id="install_2_tab" role="tab" data-toggle="tab" aria-controls="install_2" aria-selected="false" class="nav-link" >Mac OS X</a></li>
   <li class="nav-item"><a href="#Install_3" id="install_3_tab" role="tab" data-toggle="tab" aria-controls="install_3" aria-selected="false" class="nav-link" >pip</a></li>
   <li class="nav-item"><a href="#Install_4" id="install_4_tab" role="tab" data-toggle="tab" aria-controls="install_4" aria-selected="false" class="nav-link" >conda</a></li>
-  <li class="nav-item"><a href="#Install_5" id="install_5_tab" role="tab" data-toggle="tab" aria-controls="install_5" aria-selected="false" class="nav-link" >Build with <em>robotpkg</em></a></li>
-  <li class="nav-item"><a href="#Install_6" id="install_6_tab" role="tab" data-toggle="tab" aria-controls="install_6" aria-selected="false" class="nav-link" >Build from source</a></li>
+  <li class="nav-item"><a href="#Install_5" id="install_5_tab" role="tab" data-toggle="tab" aria-controls="install_5" aria-selected="false" class="nav-link" >ROS</a></li>
+  <li class="nav-item"><a href="#Install_6" id="install_6_tab" role="tab" data-toggle="tab" aria-controls="install_6" aria-selected="false" class="nav-link" >Nix</a></li>
+  <li class="nav-item"><a href="#Install_7" id="install_7_tab" role="tab" data-toggle="tab" aria-controls="install_7" aria-selected="false" class="nav-link" >Arch</a></li>
+  <li class="nav-item"><a href="#Install_8" id="install_8_tab" role="tab" data-toggle="tab" aria-controls="install_8" aria-selected="false" class="nav-link" >Build with <em>robotpkg</em></a></li>
+  <li class="nav-item"><a href="#Install_9" id="install_9_tab" role="tab" data-toggle="tab" aria-controls="install_9" aria-selected="false" class="nav-link" >Build from source</a></li>
 </ul>
 
 <div class="tab-content" id="howtoContent">
@@ -37,11 +40,26 @@ category: Getting Started
   </div>
 
   <div class="tab-pane fade" id="Install_5" role="tabpanel" aria-labelledby="install_5_tab">
-    {% capture my_include %}{% include doc/install-robotpkg.md %}{% endcapture %}
+    {% capture my_include %}{% include doc/install-ros.md %}{% endcapture %}
     {{ my_include | markdownify }}
   </div>
 
   <div class="tab-pane fade" id="Install_6" role="tabpanel" aria-labelledby="install_6_tab">
+    {% capture my_include %}{% include doc/install-nix.md %}{% endcapture %}
+    {{ my_include | markdownify }}
+  </div>
+
+  <div class="tab-pane fade" id="Install_7" role="tabpanel" aria-labelledby="install_7_tab">
+    {% capture my_include %}{% include doc/install-arch.md %}{% endcapture %}
+    {{ my_include | markdownify }}
+  </div>
+
+  <div class="tab-pane fade" id="Install_8" role="tabpanel" aria-labelledby="install_8_tab">
+    {% capture my_include %}{% include doc/install-robotpkg.md %}{% endcapture %}
+    {{ my_include | markdownify }}
+  </div>
+
+  <div class="tab-pane fade" id="Install_9" role="tabpanel" aria-labelledby="install_9_tab">
     {% capture my_include %}{% include doc/install-source.md %}{% endcapture %}
     {{ my_include | markdownify }}
   </div>

@@ -5,3 +5,5 @@ python -m pip install pin
 ```
 
 It is highly recommended to work in a virtual environment.
+
+ref. https://pypi.org/project/pin/
