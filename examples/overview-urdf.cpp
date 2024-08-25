@@ -2,27 +2,6 @@
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/multibody/sample-models.hpp"
-
-#include "pinocchio/multibody/data.hpp"
-#include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/algorithm/geometry.hpp"
-
-#include "pinocchio/serialization/fwd.hpp"
-#include "pinocchio/serialization/archive.hpp"
-
-#include "pinocchio/serialization/spatial.hpp"
-
-#include "pinocchio/serialization/frame.hpp"
-
-#include "pinocchio/serialization/joints.hpp"
-#include "pinocchio/serialization/model.hpp"
-#include "pinocchio/serialization/data.hpp"
-
-#include "pinocchio/serialization/geometry.hpp"
-
-#include <boost/filesystem.hpp>
 
 #include <iostream>
 
@@ -31,202 +10,34 @@
   #define PINOCCHIO_MODEL_DIR "path_to_the_model_dir"
 #endif
 
-#define BOOST_CHECK(check)                                                                         \
-  if (!(check))                                                                                    \
-    std::cout << BOOST_STRINGIZE(check) << " has failed" << std::endl;
-
-using namespace pinocchio;
-
-template<typename T1, typename T2 = T1>
-struct call_equality_op
+int main(int argc, char ** argv)
 {
-  static bool run(const T1 & v1, const T2 & v2)
-  {
-    return v1 == v2;
-  }
-};
+  using namespace pinocchio;
 
-template<typename T>
-bool run_call_equality_op(const T & v1, const T & v2)
-{
-  return call_equality_op<T, T>::run(v1, v2);
-}
+  // You should change here to set up your own URDF file or just pass it as an argument of this
+  // example.
+  const std::string urdf_filename =
+    (argc <= 1) ? PINOCCHIO_MODEL_DIR
+                    + std::string("/example-robot-data/robots/ur_description/urdf/ur5_robot.urdf")
+                : argv[1];
 
-template<typename T>
-struct empty_contructor_algo
-{
-  static T * run()
-  {
-    return new T();
-  }
-};
-
-template<>
-struct empty_contructor_algo<pinocchio::GeometryObject>
-{
-  static pinocchio::GeometryObject * run()
-  {
-    return new pinocchio::GeometryObject("", 0, 0, pinocchio::SE3::Identity(), nullptr);
-  }
-};
-
-template<typename T>
-T * empty_contructor()
-{
-  return empty_contructor_algo<T>::run();
-}
-
-template<typename T>
-void generic_test(const T & object, const std::string & filename, const std::string & tag_name)
-{
-  using namespace pinocchio::serialization;
-
-  // Load and save as TXT
-  const std::string txt_filename = filename + ".txt";
-  saveToText(object, txt_filename);
-
-  {
-    T & object_loaded = *empty_contructor<T>();
-    loadFromText(object_loaded, txt_filename);
-
-    // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded, object));
-
-    delete &object_loaded;
-  }
-
-  // Load and save as string stream (TXT format)
-  std::stringstream ss_out;
-  saveToStringStream(object, ss_out);
-
-  {
-    T & object_loaded = *empty_contructor<T>();
-    std::istringstream is(ss_out.str());
-    loadFromStringStream(object_loaded, is);
-
-    // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded, object));
-
-    delete &object_loaded;
-  }
-
-  // Load and save as string
-  std::string str_out = saveToString(object);
-
-  {
-    T & object_loaded = *empty_contructor<T>();
-    std::string str_in(str_out);
-    loadFromString(object_loaded, str_in);
-
-    // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded, object));
-
-    delete &object_loaded;
-  }
-
-  // Load and save as XML
-  const std::string xml_filename = filename + ".xml";
-  saveToXML(object, xml_filename, tag_name);
-
-  {
-    T & object_loaded = *empty_contructor<T>();
-    loadFromXML(object_loaded, xml_filename, tag_name);
-
-    // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded, object));
-
-    delete &object_loaded;
-  }
-
-  // Load and save as binary
-  const std::string bin_filename = filename + ".bin";
-  saveToBinary(object, bin_filename);
-
-  {
-    T & object_loaded = *empty_contructor<T>();
-    loadFromBinary(object_loaded, bin_filename);
-
-    // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded, object));
-
-    delete &object_loaded;
-  }
-
-  // Load and save as binary stream
-  boost::asio::streambuf buffer;
-  saveToBinary(object, buffer);
-
-  {
-    T & object_loaded = *empty_contructor<T>();
-    loadFromBinary(object_loaded, buffer);
-
-    // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded, object));
-
-    delete &object_loaded;
-  }
-
-  // Load and save as static binary stream
-  pinocchio::serialization::StaticBuffer static_buffer(10000000);
-  saveToBinary(object, static_buffer);
-
-  {
-    T & object_loaded = *empty_contructor<T>();
-    loadFromBinary(object_loaded, static_buffer);
-
-    // Check
-    BOOST_CHECK(run_call_equality_op(object_loaded, object));
-
-    delete &object_loaded;
-  }
-}
-
-int main(int, char **)
-{
-  namespace fs = boost::filesystem;
-
+  // Load the urdf model
   Model model;
-  buildModels::humanoid(model);
+  pinocchio::urdf::buildModel(urdf_filename, model);
+  std::cout << "model name: " << model.name << std::endl;
+
+  // Create data required by the algorithms
   Data data(model);
 
-  fs::path model_path = fs::temp_directory_path() / "GeometryModel";
-  fs::path data_path = fs::temp_directory_path() / "GeometryData";
-  //  boost::serialization::void_cast_register<hpp::fcl::BVHModel<hpp::fcl::OBBRSS>,hpp::fcl::CollisionGeometry>();
-  // Empty structures
-  {
-    GeometryModel geom_model;
-    generic_test(geom_model, model_path.string(), "GeometryModel");
+  // Sample a random configuration
+  Eigen::VectorXd q = randomConfiguration(model);
+  std::cout << "q: " << q.transpose() << std::endl;
 
-    GeometryData geom_data(geom_model);
-    generic_test(geom_data, data_path.string(), "GeometryData");
-  }
+  // Perform the forward kinematics over the kinematic tree
+  forwardKinematics(model, data, q);
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
-  #if HPP_FCL_VERSION_AT_LEAST(3, 0, 0)
-  {
-    pinocchio::GeometryModel geom_model;
-    pinocchio::buildModels::humanoidGeometries(model, geom_model);
-    // Append new objects
-    {
-      using namespace hpp::fcl;
-      BVHModel<OBBRSS> * bvh_ptr = new BVHModel<OBBRSS>();
-      //      bvh_ptr->beginModel();
-      //      bvh_ptr->addSubModel(p1, t1);
-      //      bvh_ptr->endModel();
-
-      GeometryObject obj_bvh(
-        "bvh", 0, 0, SE3::Identity(), GeometryObject::CollisionGeometryPtr(bvh_ptr));
-      geom_model.addGeometryObject(obj_bvh);
-    }
-    generic_test(geom_model, model_path.string(), "GeometryModel");
-
-    pinocchio::GeometryData geom_data(geom_model);
-    const Eigen::VectorXd q = pinocchio::neutral(model);
-    pinocchio::forwardKinematics(model, data, q);
-    pinocchio::updateGeometryPlacements(model, data, geom_model, geom_data, q);
-
-    generic_test(geom_data, data_path.string(), "GeometryData");
-  }
-  #endif // hpp-fcl >= 3.0.0
-#endif   // PINOCCHIO_WITH_HPP_FCL
+  // Print out the placement of each joint of the kinematic tree
+  for (JointIndex joint_id = 0; joint_id < (JointIndex)model.njoints; ++joint_id)
+    std::cout << std::setw(24) << std::left << model.names[joint_id] << ": " << std::fixed
+              << std::setprecision(2) << data.oMi[joint_id].translation().transpose() << std::endl;
 }
