@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fixed pointer casts in urdf parser ([#2339](https://github.com/stack-of-tasks/pinocchio/pull/2339))
 - Remove CMake CMP0167 warnings ([#2347](https://github.com/stack-of-tasks/pinocchio/pull/2347))
 - Fixed urdfdom in ROS packaging ([#2341](https://github.com/stack-of-tasks/pinocchio/pull/2341))
+- Fixed overview-urdf cpp example ([#2384](https://github.com/stack-of-tasks/pinocchio/pull/2384))
 
 ### Added
 - Add getMotionAxis method to helical, prismatic, revolute and ubounded revolute joint ([#2315](https://github.com/stack-of-tasks/pinocchio/pull/2315))
