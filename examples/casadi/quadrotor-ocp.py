@@ -274,7 +274,7 @@ def main():
     try:
         import matplotlib.pyplot as plt
 
-        fig0, axs0 = plt.subplots(nrows=2)
+        _, axs0 = plt.subplots(nrows=2)
 
         xs = np.vstack(oc_problem.xs)
         axs0[0].plot(xs[:, :3])
