@@ -2,8 +2,9 @@ import casadi
 import hppfcl as fcl
 import numpy as np
 import pinocchio as pin
-import pinocchio.visualize
+from pinocchio.visualize import MeshcatVisualizer
 import pinocchio.casadi as cpin
+import sys
 
 
 def make_cartpole(ub=True):
@@ -168,15 +169,21 @@ def integrate_no_control(x0, nsteps):
 states_ = integrate_no_control(x0, nsteps=400)
 states_ = np.stack(states_).T
 
+try:
+    viz = MeshcatVisualizer(
+        model=model,
+        collision_model=cartpole.collision_model,
+        visual_model=cartpole.visual_model,
+    )
 
-viz = pin.visualize.MeshcatVisualizer(
-    model=model,
-    collision_model=cartpole.collision_model,
-    visual_model=cartpole.visual_model,
-)
+    viz.initViewer()
+    viz.loadViewerModel("pinocchio")
 
-viz.initViewer()
-viz.loadViewerModel("pinocchio")
-
-qs_ = states_[: model.nq, :].T
-viz.play(q_trajectory=qs_, dt=dt)
+    qs_ = states_[: model.nq, :].T
+    viz.play(q_trajectory=qs_, dt=dt)
+except ImportError as err:
+    print(
+        "Error while initializing the viewer. It seems you should install Python meshcat"
+    )
+    print(err)
+    sys.exit(0)
