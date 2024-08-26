@@ -8,6 +8,7 @@ endfunction()
 
 if(BUILD_WITH_CASADI_SUPPORT)
 
+  add_pinocchio_cpp_casadi_example(casadi-aba)
   add_pinocchio_cpp_casadi_example(casadi-rnea)
 
   if(BUILD_PYTHON_INTERFACE)
