@@ -1,0 +1,16 @@
+#
+# Copyright (c) 2024 INRIA
+#
+
+if(BUILD_WITH_CASADI_SUPPORT)
+  if(BUILD_PYTHON_INTERFACE)
+
+    set(${PROJECT_NAME}_CASADI_PYTHON_EXAMPLES quadrotor-ocp cartpole)
+
+    foreach(EXAMPLE ${${PROJECT_NAME}_CASADI_PYTHON_EXAMPLES})
+      set(EXAMPLE_NAME "${PROJECT_NAME}-example-py-${EXAMPLE}")
+      add_python_unit_test(${EXAMPLE_NAME} "examples/casadi/${EXAMPLE}.py" "bindings/python")
+      add_windows_dll_path_to_test(${EXAMPLE_NAME})
+    endforeach()
+  endif()
+endif()
