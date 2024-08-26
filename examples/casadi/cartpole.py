@@ -90,7 +90,6 @@ class PinocchioCasadi:
 
     def create_discrete_dynamics(self):
         """Create the map `(q,v) -> (qnext, vnext)` using semi-implicit Euler integration."""
-        nv = self.model.nv
         q = self.q_node
         v = self.v_node
         u = self.u_node
@@ -112,24 +111,6 @@ class PinocchioCasadi:
             ["q", "dq_", "v", "u"],
             ["qnext", "vnext"],
         )
-
-        self.dyn_jac_expr = self.dyn_qv_fn_.jacobian()(
-            q=q, dq_=casadi.SX.zeros(nv), v=v, u=u
-        )
-
-        keys = [
-            "jac_qnext_dq_",
-            "jac_qnext_u",
-            "jac_qnext_v",
-            "jac_vnext_dq_",
-            "jac_vnext_u",
-            "jac_vnext_v",
-        ]
-        jac = []
-        for k in keys:
-            jac.append(self.dyn_jac_expr[k])
-        self.dyn_jac_expr = jac
-        self.dyn_jac_fn = casadi.Function("Ddyn", [q, v, u], self.dyn_jac_expr)
 
     def forward(self, x, u):
         nq = self.model.nq
