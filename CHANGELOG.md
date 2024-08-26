@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add compatibility with jrl-cmakemodules workspace ([#2333](https://github.com/stack-of-tasks/pinocchio/pull/2333))
 - Add ``collision_color`` parameter to `MeshcatVisualizer.loadViewerModel` ([#2350](https://github.com/stack-of-tasks/pinocchio/pull/2350))
 - Add ``BuildFromMJCF`` function to RobotWrapper ([#2363](https://github.com/stack-of-tasks/pinocchio/pull/2363))
+- Add more CasADi examples ([#2388](https://github.com/stack-of-tasks/pinocchio/pull/2388))
 
 ### Removed
 - Remove deprecated headers related to joint constraints ([#2382](https://github.com/stack-of-tasks/pinocchio/pull/2382))
@@ -29,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use eigenpy to expose `GeometryObject::meshMaterial` variant ([#2315](https://github.com/stack-of-tasks/pinocchio/pull/2315))
 - GepettoViewer is no more the default viewer for RobotWrapper ([#2331](https://github.com/stack-of-tasks/pinocchio/pull/2331))
 - Modernize python code base with ruff ([#2367](https://github.com/stack-of-tasks/pinocchio/pull/2367))
+- Restructure CppAD and CasADi examples ([#2388](https://github.com/stack-of-tasks/pinocchio/pull/2388))
 
 ## [3.1.0] - 2024-07-04
 
