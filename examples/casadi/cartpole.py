@@ -2,6 +2,7 @@ import casadi
 import hppfcl as fcl
 import numpy as np
 import pinocchio as pin
+import pinocchio.visualize
 import pinocchio.casadi as cpin
 
 
@@ -90,7 +91,6 @@ class PinocchioCasadi:
     def create_discrete_dynamics(self):
         """Create the map `(q,v) -> (qnext, vnext)` using semi-implicit Euler integration."""
         nv = self.model.nv
-        nq = self.model.nq
         q = self.q_node
         v = self.v_node
         u = self.u_node
@@ -116,46 +116,20 @@ class PinocchioCasadi:
         self.dyn_jac_expr = self.dyn_qv_fn_.jacobian()(
             q=q, dq_=casadi.SX.zeros(nv), v=v, u=u
         )
-        self.dyn_jac_expr = self.dyn_jac_expr["jac"][:, nq:]
-        print("dyn jac expr:", self.dyn_jac_expr.shape)
-        self.dyn_jac_fn = casadi.Function("Ddyn", [q, v, u], [self.dyn_jac_expr])
 
-        self.create_discrete_dynamics_state()
-
-    def create_discrete_dynamics_state(self):
-        nq = self.model.nq
-        nv = self.model.nv
-        dt = self.timestep
-        u = self.u_node
-        model = self.cmodel
-
-        # discrete dynamics in terms of x:
-        state = casadi.SX.sym("x", nq + nv)
-        self.x_node = state
-        q, v = casadi.vertsplit(state, nq)
-        dq_ = self.dq_
-        q_dq = self.q_dq
-
-        a = self.acc_func(q_dq, v, u)
-        vnext = v + a * dt
-
-        # implicit form
-        next_state = casadi.SX.sym("xnext", nq + nv)
-        qn, vn = casadi.vertsplit(next_state, nq)
-        dqn_ = casadi.SX.sym("dqn_", nv)
-        qn_dq = cpin.integrate(model, qn, dqn_)
-
-        res_q = cpin.difference(model, q_dq, qn_dq) - dt * vnext
-        res_v = (vn - v) - dt * a
-
-        residual = casadi.vertcat(res_q, res_v)
-        self.dyn_residual = casadi.Function(
-            "residual",
-            [state, u, next_state, dq_, dqn_],
-            [residual],
-            ["x", "u", "xnext", "dq_", "dqn_"],
-            ["r"],
-        )
+        keys = [
+            "jac_qnext_dq_",
+            "jac_qnext_u",
+            "jac_qnext_v",
+            "jac_vnext_dq_",
+            "jac_vnext_u",
+            "jac_vnext_v",
+        ]
+        jac = []
+        for k in keys:
+            jac.append(self.dyn_jac_expr[k])
+        self.dyn_jac_expr = jac
+        self.dyn_jac_fn = casadi.Function("Ddyn", [q, v, u], self.dyn_jac_expr)
 
     def forward(self, x, u):
         nq = self.model.nq
@@ -223,5 +197,5 @@ viz = pin.visualize.MeshcatVisualizer(
 viz.initViewer()
 viz.loadViewerModel("pinocchio")
 
-qs_ = states_[: model.nq, :]
+qs_ = states_[: model.nq, :].T
 viz.play(q_trajectory=qs_, dt=dt)
