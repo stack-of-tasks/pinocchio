@@ -783,10 +783,17 @@ namespace pinocchio
       void MjcfGraph::addSoloJoint(
         const MjcfJoint & joint, const MjcfBody & currentBody, SE3 & bodyInJoint)
       {
-        const FrameIndex parentFrameId = urdfVisitor.getBodyId(currentBody.bodyParent);
+
+        FrameIndex parentFrameId = 0;
+        Inertia inert = Inertia::Zero();
+        if (!currentBody.bodyParent.empty())
+        {
+          parentFrameId = urdfVisitor.getBodyId(currentBody.bodyParent);
+          inert = currentBody.bodyInertia;
+        }
         // get body pose in body parent
         const SE3 bodyPose = currentBody.bodyPlacement;
-        Inertia inert = currentBody.bodyInertia;
+
         SE3 jointInParent = bodyPose * joint.jointPlacement;
         bodyInJoint = joint.jointPlacement.inverse();
         UrdfVisitor::JointType jType;
@@ -834,8 +841,12 @@ namespace pinocchio
         typedef UrdfVisitor::SE3 SE3;
 
         MjcfBody currentBody = mapOfBodies.at(nameOfBody);
+
         // get parent body frame
-        const FrameIndex parentFrameId = urdfVisitor.getBodyId(currentBody.bodyParent);
+        FrameIndex parentFrameId = 0;
+        if (!currentBody.bodyParent.empty())
+          parentFrameId = urdfVisitor.getBodyId(currentBody.bodyParent);
+
         const Frame & frame = urdfVisitor.model.frames[parentFrameId];
         // get body pose in body parent
         const SE3 bodyPose = currentBody.bodyPlacement;
@@ -844,6 +855,9 @@ namespace pinocchio
         // Fixed Joint
         if (currentBody.jointChildren.size() == 0)
         {
+          if (currentBody.bodyParent.empty())
+            return;
+
           std::string jointName = nameOfBody + "_fixed";
           urdfVisitor << jointName << " being parsed." << '\n';
 
@@ -1023,11 +1037,11 @@ namespace pinocchio
         std::string rootLinkName = bodiesList.at(0);
         MjcfBody rootBody = mapOfBodies.find(rootLinkName)->second;
         urdfVisitor.addRootJoint(rootBody.bodyInertia, rootLinkName);
+
         fillReferenceConfig(rootBody);
         for (const auto & entry : bodiesList)
         {
-          if (entry != rootLinkName)
-            fillModel(entry);
+          fillModel(entry);
         }
 
         for (const auto & entry : mapOfConfigs)
