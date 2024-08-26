@@ -928,7 +928,7 @@ BOOST_AUTO_TEST_CASE(adding_keyframes)
   auto namefile = createTempFile(xmlData);
 
   pinocchio::Model model_m;
-  pinocchio::mjcf::buildModel(namefile.name(), pinocchio::JointModelFreeFlyer(), model_m);
+  pinocchio::mjcf::buildModel(namefile.name(), model_m);
 
   Eigen::VectorXd vect_model = model_m.referenceConfigurations.at("test");
 

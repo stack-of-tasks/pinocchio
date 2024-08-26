@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove CMake CMP0167 warnings ([#2347](https://github.com/stack-of-tasks/pinocchio/pull/2347))
 - Fixed urdfdom in ROS packaging ([#2341](https://github.com/stack-of-tasks/pinocchio/pull/2341))
 - Fixed overview-urdf cpp example ([#2384](https://github.com/stack-of-tasks/pinocchio/pull/2384))
+- Fixed mjcf model without a base link parsing ([#2386](https://github.com/stack-of-tasks/pinocchio/pull/2386))
 
 ### Added
 - Add getMotionAxis method to helical, prismatic, revolute and ubounded revolute joint ([#2315](https://github.com/stack-of-tasks/pinocchio/pull/2315))
