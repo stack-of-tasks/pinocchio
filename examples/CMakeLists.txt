@@ -118,5 +118,5 @@ if(BUILD_PYTHON_INTERFACE)
   endforeach()
 endif()
 
-add_subdirectory(autodiff)
+add_subdirectory(cppad)
 add_subdirectory(codegen)
