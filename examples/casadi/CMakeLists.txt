@@ -2,7 +2,14 @@
 # Copyright (c) 2024 INRIA
 #
 
+function(ADD_PINOCCHIO_CPP_CASADI_EXAMPLE EXAMPLE)
+  add_pinocchio_cpp_example(${EXAMPLE} CASADI)
+endfunction()
+
 if(BUILD_WITH_CASADI_SUPPORT)
+
+  add_pinocchio_cpp_casadi_example(casadi-rnea)
+
   if(BUILD_PYTHON_INTERFACE)
 
     set(${PROJECT_NAME}_CASADI_PYTHON_EXAMPLES quadrotor-ocp cartpole)
