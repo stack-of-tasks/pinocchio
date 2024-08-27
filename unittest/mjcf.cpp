@@ -464,7 +464,8 @@ BOOST_AUTO_TEST_CASE(parse_default_class)
   pinocchio::Model::JointIndex idx;
   pinocchio::Inertia inertia(0, Vector3(0.0, 0., 0.0), Matrix3::Identity());
   idx = model_u.addJoint(
-    model_u.njoints - 1, pinocchio::JointModelSpherical(), pinocchio::SE3::Identity(), "joint3");
+    size_t(model_u.njoints - 1), pinocchio::JointModelSpherical(), pinocchio::SE3::Identity(),
+    "joint3");
   model_u.appendBodyToJoint(idx, inertia);
 
   for (int i = 0; i < model_m.njoints; i++)
