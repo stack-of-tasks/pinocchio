@@ -12,10 +12,6 @@ from pinocchio.visualize import MeshcatVisualizer
 # Conversion with str seems to be necessary when executing this file with ipython
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 
-# Load the URDF model.
-# Conversion with str seems to be necessary when executing this file with ipython
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
-
 model_path = join(pinocchio_model_dir, "example-robot-data/robots")
 mesh_dir = pinocchio_model_dir
 urdf_filename = "talos_reduced.urdf"
