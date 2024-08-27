@@ -290,8 +290,12 @@ def main():
             ax.plot(us[:, idx])
 
         plt.show(block=False)
-    except Exception:
-        pass
+    except ImportError as err:
+        print(
+            "Error while initializing the viewer. It seems you should install Python meshcat"
+        )
+        print(err)
+        sys.exit(0)
 
 
 if __name__ == "__main__":
