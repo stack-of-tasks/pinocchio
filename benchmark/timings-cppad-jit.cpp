@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 INRIA
+// Copyright (c) 2022-2024 INRIA
 //
 #include "pinocchio/codegen/cppadcg.hpp"
 #include "pinocchio/codegen/code-generator-algo.hpp"
@@ -107,7 +107,7 @@ int main()
       data.M.triangularView<Eigen::StrictlyLower>() =
         data.M.transpose().triangularView<Eigen::StrictlyLower>();
     }
-    std::cout << "Calculate data.M (JSIM) with crba = \t\t";
+    std::cout << "Calculate data.M (JSIM) with CRBA =\t\t";
     timer.toc(std::cout, NBT);
   }
 
@@ -181,7 +181,7 @@ int main()
     {
       ad_fun_ptr(nx, xs[_smooth].data(), nM_vector, M_vector_jit.data(), &compare_change);
     }
-    std::cout << "Calculate data.M (JSIM) with crba using cppad-jit = \t\t";
+    std::cout << "Calculate data.M (JSIM) using CppAD-jit =\t";
     timer.toc(std::cout, NBT);
   }
 
@@ -265,9 +265,11 @@ int main()
     {
       generatedFun_ptr->ForwardZero(xs[_smooth], y);
     }
-    std::cout << "Calculate data.M (JSIM) with crba using cppadcg = \t\t";
+    std::cout << "Calculate data.M (JSIM) using CppADCodeGen =\t";
     timer.toc(std::cout, NBT);
   }
+
+  std::cout << std::endl;
 
   {
     Data data(model);
@@ -288,7 +290,7 @@ int main()
     {
       computeRNEADerivatives(model, data, qs[_smooth], vs[_smooth], as[_smooth]);
     }
-    std::cout << "Calculate dtau_dx using computeRNEADerivatives = \t\t";
+    std::cout << "Calculate dtau_dx with computeRNEADerivatives =\t";
     timer.toc(std::cout, NBT);
   }
 
@@ -390,7 +392,7 @@ int main()
     {
       ad_fun_ptr(nx_, xs[_smooth].data(), ndtau_dx, dtau_dx_jit.data(), &compare_change);
     }
-    std::cout << "Calculate dtau_dx (rnea) with cppad using jit  = \t\t";
+    std::cout << "Calculate dtau_dx (∂RNEA) using CppAD-jit  =\t";
     timer.toc(std::cout, NBT);
   }
 
@@ -444,7 +446,7 @@ int main()
     {
       CPPAD_TESTVECTOR(Scalar) dtau_da = ad_fun.Jacobian(xs[_smooth]);
     }
-    std::cout << "Calculate dtau_dx (rnea) with cppad = \t\t";
+    std::cout << "Calculate dtau_dx (∂RNEA) using CppAD =\t\t\t";
     timer.toc(std::cout, NBT);
   }
 
@@ -548,7 +550,7 @@ int main()
     {
       generatedFun_ptr->Jacobian(CppAD::cg::ArrayView<const Scalar>(x.data(), xs[_smooth]), jac_);
     }
-    std::cout << "Calculate dtau_dx (rnea) with cppad code gen = \t\t";
+    std::cout << "Calculate dtau_dx (∂RNEA) using CppADCodeGen =\t";
     timer.toc(std::cout, NBT);
   }
 
