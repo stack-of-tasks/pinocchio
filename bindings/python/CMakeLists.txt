@@ -42,7 +42,7 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
     # OpenMP is linked with pinocchio_parallel target
     target_compile_definitions(${PYTHON_LIB_NAME} PRIVATE -DPINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP)
   endif()
-  add_dependencies(${PROJECT_NAME}_python ${PYTHON_LIB_NAME})
+  add_dependencies(${PROJECT_NAME}-python ${PYTHON_LIB_NAME})
 
   # Remove lib prefix for the target and use the right define for DLLAPI definition
   set_target_properties(${PYTHON_LIB_NAME} PROPERTIES PREFIX "" DEFINE_SYMBOL "${PYWRAP}_EXPORTS")
@@ -137,11 +137,11 @@ function(INSTALL_PYTHON_FILES)
 endfunction()
 
 if(BUILD_PYTHON_INTERFACE)
-  add_custom_target(${PROJECT_NAME}_python)
-  set_target_properties(${PROJECT_NAME}_python PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
+  add_custom_target(${PROJECT_NAME}-python)
+  set_target_properties(${PROJECT_NAME}-python PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
 
   python_build_get_target(python_build_target)
-  add_dependencies(${PROJECT_NAME}_python ${python_build_target})
+  add_dependencies(${PROJECT_NAME}-python ${python_build_target})
 
   set(PKG_CONFIG_PYWRAP_REQUIRES "eigenpy >= 2.6.5")
   if(IS_ABSOLUTE ${PYTHON_SITELIB})

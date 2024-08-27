@@ -107,10 +107,6 @@ if(BUILD_PYTHON_INTERFACE)
     list(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES run-algo-in-parallel)
   endif()
 
-  if(BUILD_WITH_CASADI_SUPPORT)
-    list(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES casadi-quadrotor-ocp)
-  endif()
-
   foreach(EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
     set(EXAMPLE_NAME "${PROJECT_NAME}-example-py-${EXAMPLE}")
     add_python_unit_test("${EXAMPLE_NAME}" "examples/${EXAMPLE}.py" "bindings/python")
@@ -118,5 +114,6 @@ if(BUILD_PYTHON_INTERFACE)
   endforeach()
 endif()
 
-add_subdirectory(autodiff)
+add_subdirectory(casadi)
+add_subdirectory(cppad)
 add_subdirectory(codegen)

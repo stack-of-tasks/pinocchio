@@ -9,7 +9,10 @@ import pinocchio.casadi as cpin
 # This use the example-robot-data submodule, but if you have it already properly
 # installed in your PYTHONPATH, there is no need for this sys.path thing
 path = join(
-    dirname(dirname(abspath(__file__))), "models", "example-robot-data", "python"
+    dirname(dirname(dirname(abspath(__file__)))),
+    "models",
+    "example-robot-data",
+    "python",
 )
 sys.path.append(path)
 import example_robot_data  # noqa: E402
@@ -268,24 +271,31 @@ def main():
     oc_problem.solve(approx_hessian=True)
 
     # --------------PLOTS-----------
-    import matplotlib.pyplot as plt
+    try:
+        import matplotlib.pyplot as plt
 
-    fig0, axs0 = plt.subplots(nrows=2)
+        _, axs0 = plt.subplots(nrows=2)
 
-    xs = np.vstack(oc_problem.xs)
-    axs0[0].plot(xs[:, :3])
-    axs0[0].set_title("Quadcopter position")
+        xs = np.vstack(oc_problem.xs)
+        axs0[0].plot(xs[:, :3])
+        axs0[0].set_title("Quadcopter position")
 
-    axs0[1].plot(oc_problem.gaps["norm"])
-    axs0[1].set_title("Multiple shooting node gaps")
+        axs0[1].plot(oc_problem.gaps["norm"])
+        axs0[1].set_title("Multiple shooting node gaps")
 
-    fig1, axs1 = plt.subplots(nrows=4)
-    us = np.vstack(oc_problem.us)
+        _, axs1 = plt.subplots(nrows=4)
+        us = np.vstack(oc_problem.us)
 
-    for idx, ax in enumerate(axs1):
-        ax.plot(us[:, idx])
+        for idx, ax in enumerate(axs1):
+            ax.plot(us[:, idx])
 
-    plt.show(block=False)
+        plt.show(block=False)
+    except ImportError as err:
+        print(
+            "Error while initializing the viewer. It seems you should install Python meshcat"
+        )
+        print(err)
+        sys.exit(0)
 
 
 if __name__ == "__main__":
