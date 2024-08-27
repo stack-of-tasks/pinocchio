@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 INRIA
+// Copyright (c) 2022-2024 INRIA
 //
 #include "pinocchio/codegen/cppadcg.hpp"
 #include "pinocchio/codegen/code-generator-algo.hpp"
@@ -107,7 +107,42 @@ int main()
       data.M.triangularView<Eigen::StrictlyLower>() =
         data.M.transpose().triangularView<Eigen::StrictlyLower>();
     }
-    std::cout << "Calculate data.M (JSIM) with crba = \t\t";
+    std::cout << "Calculate data.M (JSIM) with CRBA =\t\t";
+    timer.toc(std::cout, NBT);
+  }
+
+  {
+    ADModel ad_model = model.cast<ADScalar>();
+    ADData ad_data(ad_model);
+
+    ADConfigVectorType ad_q = q.cast<ADScalar>();
+
+    CppAD::Independent(ad_q);
+    pinocchio::crba(ad_model, ad_data, ad_q);
+    ad_data.M.triangularView<Eigen::StrictlyLower>() =
+      ad_data.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+    ADVectorXs M_vector =
+      Eigen::Map<ADVectorXs>(ad_data.M.data(), ad_data.M.cols() * ad_data.M.rows());
+
+    CppAD::ADFun<Scalar> ad_fun(ad_q, M_vector);
+    ad_fun.function_name_set("ad_fun_crba");
+
+    CPPAD_TESTVECTOR(Scalar) x((size_t)nq);
+    std::vector<CPPAD_TESTVECTOR(Scalar)> xs;
+    for (size_t it = 0; it < NBT; ++it)
+    {
+      q = pinocchio::randomConfiguration(model);
+      Eigen::Map<Data::ConfigVectorType>(x.data(), nq, 1) = q;
+      xs.push_back(x);
+    }
+
+    timer.tic();
+    SMOOTH(NBT)
+    {
+      CPPAD_TESTVECTOR(Scalar) M_vector = ad_fun.Forward(0, xs[_smooth]);
+    }
+    std::cout << "Calculate data.M (JSIM) using CppAD =\t\t";
     timer.toc(std::cout, NBT);
   }
 
@@ -181,7 +216,7 @@ int main()
     {
       ad_fun_ptr(nx, xs[_smooth].data(), nM_vector, M_vector_jit.data(), &compare_change);
     }
-    std::cout << "Calculate data.M (JSIM) with crba using cppad-jit = \t\t";
+    std::cout << "Calculate data.M (JSIM) using CppAD-jit =\t";
     timer.toc(std::cout, NBT);
   }
 
@@ -265,9 +300,11 @@ int main()
     {
       generatedFun_ptr->ForwardZero(xs[_smooth], y);
     }
-    std::cout << "Calculate data.M (JSIM) with crba using cppadcg = \t\t";
+    std::cout << "Calculate data.M (JSIM) using CppADCodeGen =\t";
     timer.toc(std::cout, NBT);
   }
+
+  std::cout << std::endl;
 
   {
     Data data(model);
@@ -288,7 +325,61 @@ int main()
     {
       computeRNEADerivatives(model, data, qs[_smooth], vs[_smooth], as[_smooth]);
     }
-    std::cout << "Calculate dtau_dx using computeRNEADerivatives = \t\t";
+    std::cout << "Calculate dtau_dx with computeRNEADerivatives =\t";
+    timer.toc(std::cout, NBT);
+  }
+
+  {
+    ADModel ad_model = model.cast<ADScalar>();
+    ADData ad_data(ad_model);
+
+    ADConfigVectorType ad_q = q.cast<ADScalar>();
+    ADTangentVectorType ad_v = v.cast<ADScalar>();
+    ADTangentVectorType ad_a = a.cast<ADScalar>();
+
+    ADConfigVectorType ad_X = ADConfigVectorType::Zero(nq + 2 * nv);
+    Eigen::DenseIndex i = 0;
+    ad_X.segment(i, nq) = ad_q;
+    i += nq;
+    ad_X.segment(i, nv) = ad_v;
+    i += nv;
+    ad_X.segment(i, nv) = ad_a;
+    i += nv;
+
+    CppAD::Independent(ad_X);
+    pinocchio::rnea(
+      ad_model, ad_data, ad_X.segment(0, nq), ad_X.segment(nq, nv), ad_X.segment(nq + nv, nv));
+
+    ADVectorXs ad_Y(nv);
+    Eigen::Map<ADData::TangentVectorType>(ad_Y.data(), nv, 1) = ad_data.tau;
+
+    CppAD::ADFun<Scalar> ad_fun(ad_X, ad_Y);
+
+    CPPAD_TESTVECTOR(Scalar) x((size_t)nx);
+    std::vector<CPPAD_TESTVECTOR(Scalar)> xs;
+    for (size_t it = 0; it < NBT; ++it)
+    {
+      q = pinocchio::randomConfiguration(model);
+      TangentVectorType v(TangentVectorType::Random(nv));
+      TangentVectorType a(TangentVectorType::Random(nv));
+      ConfigVectorType _x = ConfigVectorType::Zero(nq + 2 * nv);
+      Eigen::DenseIndex i = 0;
+      _x.segment(i, nq) = q;
+      i += nq;
+      _x.segment(i, nv) = v;
+      i += nv;
+      _x.segment(i, nv) = a;
+      i += nv;
+
+      Eigen::Map<Data::TangentVectorType>(x.data(), nx, 1) = _x;
+      xs.push_back(x);
+    }
+    timer.tic();
+    SMOOTH(NBT)
+    {
+      CPPAD_TESTVECTOR(Scalar) dtau_da = ad_fun.Jacobian(xs[_smooth]);
+    }
+    std::cout << "Calculate dtau_dx (∂RNEA) using CppAD =\t\t";
     timer.toc(std::cout, NBT);
   }
 
@@ -390,61 +481,7 @@ int main()
     {
       ad_fun_ptr(nx_, xs[_smooth].data(), ndtau_dx, dtau_dx_jit.data(), &compare_change);
     }
-    std::cout << "Calculate dtau_dx (rnea) with cppad using jit  = \t\t";
-    timer.toc(std::cout, NBT);
-  }
-
-  {
-    ADModel ad_model = model.cast<ADScalar>();
-    ADData ad_data(ad_model);
-
-    ADConfigVectorType ad_q = q.cast<ADScalar>();
-    ADTangentVectorType ad_v = v.cast<ADScalar>();
-    ADTangentVectorType ad_a = a.cast<ADScalar>();
-
-    ADConfigVectorType ad_X = ADConfigVectorType::Zero(nq + 2 * nv);
-    Eigen::DenseIndex i = 0;
-    ad_X.segment(i, nq) = ad_q;
-    i += nq;
-    ad_X.segment(i, nv) = ad_v;
-    i += nv;
-    ad_X.segment(i, nv) = ad_a;
-    i += nv;
-
-    CppAD::Independent(ad_X);
-    pinocchio::rnea(
-      ad_model, ad_data, ad_X.segment(0, nq), ad_X.segment(nq, nv), ad_X.segment(nq + nv, nv));
-
-    ADVectorXs ad_Y(nv);
-    Eigen::Map<ADData::TangentVectorType>(ad_Y.data(), nv, 1) = ad_data.tau;
-
-    CppAD::ADFun<Scalar> ad_fun(ad_X, ad_Y);
-
-    CPPAD_TESTVECTOR(Scalar) x((size_t)nx);
-    std::vector<CPPAD_TESTVECTOR(Scalar)> xs;
-    for (size_t it = 0; it < NBT; ++it)
-    {
-      q = pinocchio::randomConfiguration(model);
-      TangentVectorType v(TangentVectorType::Random(nv));
-      TangentVectorType a(TangentVectorType::Random(nv));
-      ConfigVectorType _x = ConfigVectorType::Zero(nq + 2 * nv);
-      Eigen::DenseIndex i = 0;
-      _x.segment(i, nq) = q;
-      i += nq;
-      _x.segment(i, nv) = v;
-      i += nv;
-      _x.segment(i, nv) = a;
-      i += nv;
-
-      Eigen::Map<Data::TangentVectorType>(x.data(), nx, 1) = _x;
-      xs.push_back(x);
-    }
-    timer.tic();
-    SMOOTH(NBT)
-    {
-      CPPAD_TESTVECTOR(Scalar) dtau_da = ad_fun.Jacobian(xs[_smooth]);
-    }
-    std::cout << "Calculate dtau_dx (rnea) with cppad = \t\t";
+    std::cout << "Calculate dtau_dx (∂RNEA) using CppAD-jit  =\t";
     timer.toc(std::cout, NBT);
   }
 
@@ -548,7 +585,7 @@ int main()
     {
       generatedFun_ptr->Jacobian(CppAD::cg::ArrayView<const Scalar>(x.data(), xs[_smooth]), jac_);
     }
-    std::cout << "Calculate dtau_dx (rnea) with cppad code gen = \t\t";
+    std::cout << "Calculate dtau_dx (∂RNEA) using CppADCodeGen =\t";
     timer.toc(std::cout, NBT);
   }
 
