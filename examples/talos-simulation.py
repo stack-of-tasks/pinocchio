@@ -2,9 +2,9 @@ from time import sleep
 
 import numpy as np
 import pinocchio
-from example_robot_data import loadTalos
+import example_robot_data
 
-robot = loadTalos()
+robot = example_robot_data.load("talos")
 model = robot.model
 data = robot.data
 
@@ -35,6 +35,7 @@ constraint_models = []
 for j, frame_id in enumerate(foot_frame_ids):
     contact_model_lf1 = pinocchio.RigidConstraintModel(
         pinocchio.ContactType.CONTACT_6D,
+        robot.model,
         foot_joint_ids[j],
         robot.model.frames[frame_id].placement,
         0,
