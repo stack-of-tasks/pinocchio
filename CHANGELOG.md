@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - GepettoViewer is no more the default viewer for RobotWrapper ([#2331](https://github.com/stack-of-tasks/pinocchio/pull/2331))
 - Modernize python code base with ruff ([#2367](https://github.com/stack-of-tasks/pinocchio/pull/2367))
 - Restructure CppAD and CasADi examples ([#2388](https://github.com/stack-of-tasks/pinocchio/pull/2388))
+- Enhance and fix CppAD benchmarks outputs ([#2393](https://github.com/stack-of-tasks/pinocchio/pull/2393))
 
 ## [3.1.0] - 2024-07-04
 
