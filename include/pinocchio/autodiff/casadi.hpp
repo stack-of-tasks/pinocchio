@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2021 INRIA CNRS
+// Copyright (c) 2019-2024 INRIA CNRS
 //
 
 #ifndef __pinocchio_autodiff_casadi_hpp__
@@ -38,7 +38,7 @@ namespace boost
 // This is a workaround to make the code compiling with Eigen.
 namespace casadi
 {
-  inline bool operator||(const bool x, const casadi::Matrix<SXElem> & /*y*/)
+  inline bool operator||(const bool x, const ::casadi::Matrix<SXElem> & /*y*/)
   {
     return x;
   }
@@ -95,12 +95,12 @@ namespace Eigen
   /// @brief Eigen::NumTraits<> specialization for casadi::SX
   ///
   template<typename Scalar>
-  struct NumTraits<casadi::Matrix<Scalar>>
+  struct NumTraits<::casadi::Matrix<Scalar>>
   {
-    using Real = casadi::Matrix<Scalar>;
-    using NonInteger = casadi::Matrix<Scalar>;
-    using Literal = casadi::Matrix<Scalar>;
-    using Nested = casadi::Matrix<Scalar>;
+    using Real = ::casadi::Matrix<Scalar>;
+    using NonInteger = ::casadi::Matrix<Scalar>;
+    using Literal = ::casadi::Matrix<Scalar>;
+    using Nested = ::casadi::Matrix<Scalar>;
 
     enum
     {
@@ -118,24 +118,24 @@ namespace Eigen
       MulCost = 2
     };
 
-    static casadi::Matrix<Scalar> epsilon()
+    static ::casadi::Matrix<Scalar> epsilon()
     {
-      return casadi::Matrix<Scalar>(std::numeric_limits<double>::epsilon());
+      return ::casadi::Matrix<Scalar>(std::numeric_limits<double>::epsilon());
     }
 
-    static casadi::Matrix<Scalar> dummy_precision()
+    static ::casadi::Matrix<Scalar> dummy_precision()
     {
-      return casadi::Matrix<Scalar>(NumTraits<double>::dummy_precision());
+      return ::casadi::Matrix<Scalar>(NumTraits<double>::dummy_precision());
     }
 
-    static casadi::Matrix<Scalar> highest()
+    static ::casadi::Matrix<Scalar> highest()
     {
-      return casadi::Matrix<Scalar>(std::numeric_limits<double>::max());
+      return ::casadi::Matrix<Scalar>(std::numeric_limits<double>::max());
     }
 
-    static casadi::Matrix<Scalar> lowest()
+    static ::casadi::Matrix<Scalar> lowest()
     {
-      return casadi::Matrix<Scalar>(std::numeric_limits<double>::min());
+      return ::casadi::Matrix<Scalar>(std::numeric_limits<double>::min());
     }
 
     static int digits10()
