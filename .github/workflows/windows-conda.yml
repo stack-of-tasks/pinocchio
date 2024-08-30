@@ -76,8 +76,9 @@ jobs:
           :: This must be done here and not in env since
           :: cxx-compiler activation script set this variable
           :: and is called before.
-          set CC=${{ matrix.compiler.cmd }}
-          set CXX=${{ matrix.compiler.cmd }}
+          set CC=${{ matrix.compiler }}.exe
+          set CXX=${{ matrix.compiler }}.exe
+          echo Compiler set to: %CC%
 
           call conda list
 
