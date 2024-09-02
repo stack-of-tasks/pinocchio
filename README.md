@@ -58,36 +58,17 @@ or via pip (currently only available on Linux):
   - [Acknowledgments](#acknowledgments)
 
 ## Introducing Pinocchio 3
-**Pinocchio3** is released for development under the branch [pinocchio3-preview](https://github.com/stack-of-tasks/pinocchio/tree/pinocchio3-preview) on the main github repository.
-With **Pinocchio3**, multiple new features are introduced in **Pinocchio**, such as:
-  - Sparse Solution of Constrained Dynamics (Published in Robotics: Science and Systems 2021)
-  - Constrained Dynamics Derivatives (In pre-publishing stages)
-  - Constraint Models for handling loop constraints.
-  - Full casadi support in python and C++
-  - Increased support of CppAD and CppADCodeGen
-  - New SDF parser.
-  - and much more...
 
-**Pinocchio** developers are highly encouraged to check out the new features. However, please keep in mind that this remains a **development** branch, and thus the API between 2.9.x and 2.9.{x+1} could change without backward compatibility.
-
-The new constrained dynamics algorithm can be cited by the following publication:
-
-```bibtex
-@inproceedings{carpentier:hal-03271811,
-  TITLE = {{Proximal and Sparse Resolution of Constrained Dynamic Equations}},
-  AUTHOR = {Carpentier, Justin and Budhiraja, Rohan and Mansard, Nicolas},
-  URL = {https://hal.inria.fr/hal-03271811},
-  BOOKTITLE = {{Robotics: Science and Systems 2021}},
-  ADDRESS = {Austin / Virtual, United States},
-  YEAR = {2021},
-  MONTH = Jul,
-  PDF = {https://hal.inria.fr/hal-03271811/file/rss-proximal-and-sparse.pdf},
-  HAL_ID = {hal-03271811},
-  HAL_VERSION = {v1},
-}
-
-```
-
+**Pinocchio3** is the latest major release of Pinocchio. It comes with multiple new features, such as:
+  - [Sparse constrained dynamics](https://laas.hal.science/hal-01790971v2/file/18-rss-analytical-derivatives-carpentier.pdf) and its analytical derivatives
+  - Full support of closed-loop mechanisms
+  - [State-of-the-art frictional contact solvers](https://hal.science/hal-04588906v1/file/simplecontacts2024.pdf) 
+  - [Low-complexity constrained articulated body algorithms]()
+  - Full support of [multiple-precision floating-point (MPFR)](https://www.mpfr.org/) in Python and C++
+  - Full [CasADi](https://web.casadi.org/) support in Python and C++
+  - Increased support of [CppAD](https://github.com/coin-or/CppAD) and [CppADCodeGen]()
+  - New SDF and MJCF parsers
+  - and much more.
 
 ## Pinocchio main features
 
@@ -122,7 +103,7 @@ The online **Pinocchio** documentation of the last release is available [here](h
 
 ## Examples
 
-We provide some basic examples of using **Pinocchio** in Python in the [examples](https://github.com/stack-of-tasks/pinocchio/tree/master/examples) directory.
+In the [examples](https://github.com/stack-of-tasks/pinocchio/tree/master/examples) directory, we provide some basic examples of using Pinocchio in Python.
 Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html).
 
 ## Tutorials
