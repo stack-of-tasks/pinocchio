@@ -51,6 +51,7 @@ or via pip (currently only available on Linux):
   - [Ongoing developments](#ongoing-developments)
   - [Visualization](#visualization)
   - [Citing Pinocchio](#citing-pinocchio)
+  - [Citing specific algorithmic contributions](#citing-specific-algorithmic-contributions)
   - [Questions and Issues](#questions-and-issues)
   - [Credits](#credits)
   - [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
