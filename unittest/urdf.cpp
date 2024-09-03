@@ -291,8 +291,8 @@ BOOST_AUTO_TEST_CASE(test_getFrameId_identical_link_and_joint_name)
   pinocchio::urdf::buildModel(filename, model);
 
   BOOST_CHECK_THROW(model.getFrameId("base"), std::invalid_argument);
-  BOOST_CHECK(model.getFrameId("base", pinocchio::FrameType::BODY) == 2);
-  BOOST_CHECK(model.getFrameId("base", pinocchio::FrameType::FIXED_JOINT) == 3);
+  BOOST_CHECK(model.getFrameId("base", pinocchio::FrameType::BODY) == 1);
+  BOOST_CHECK(model.getFrameId("base", pinocchio::FrameType::FIXED_JOINT) == 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
