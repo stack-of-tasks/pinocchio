@@ -487,10 +487,11 @@ namespace pinocchio
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose)
+      const bool verbose,
+      const std::string rootJointName)
     {
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
-        model, root_joint);
+        model, root_joint, rootJointName);
       if (verbose)
         visitor.log = &std::cout;
       details::parseRootTree(filename, visitor);
@@ -515,10 +516,11 @@ namespace pinocchio
       const std::string & xmlStream,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose)
+      const bool verbose,
+      const std::string rootJointName)
     {
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
-        model, rootJoint);
+        model, rootJoint, rootJointName);
       if (verbose)
         visitor.log = &std::cout;
       details::parseRootTreeFromXML(xmlStream, visitor);
@@ -543,11 +545,12 @@ namespace pinocchio
       const std::shared_ptr<::urdf::ModelInterface> urdfTree,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose)
+      const bool verbose,
+      const std::string rootJointName)
     {
       PINOCCHIO_CHECK_INPUT_ARGUMENT(urdfTree != NULL);
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
-        model, rootJoint);
+        model, rootJoint, rootJointName);
       if (verbose)
         visitor.log = &std::cout;
       details::parseRootTree(urdfTree.get(), visitor);
