@@ -24,6 +24,7 @@ namespace pinocchio
     /// \param[in] rootJoint The joint at the root of the model tree.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
+    /// \param[in] rootJointName Name of the rootJoint.
     /// \return Return the reference on argument model for convenience.
     ///
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -31,7 +32,8 @@ namespace pinocchio
       const std::string & xmlStream,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose = false);
+      const bool verbose = false,
+      const std::string rootJointName = "rootJoint");
 
     ///
     /// \brief Build the model from a MJCF file with a particular joint as root of the model tree
@@ -41,6 +43,7 @@ namespace pinocchio
     /// \param[in] rootJoint The joint at the root of the model tree.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
+    /// \param[in] rootJointName Name of the rootJoint.
     /// \return Return the reference on argument model for convenience.
     ///
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -48,7 +51,8 @@ namespace pinocchio
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose = false);
+      const bool verbose = false,
+      const std::string rootJointName = "root_joint");
 
     ///
     /// \brief Build the model from a MJCF file with a fixed joint as root of the model tree

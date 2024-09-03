@@ -84,9 +84,10 @@ namespace pinocchio
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose)
+      const bool verbose,
+      const std::string rootJointName)
     {
-      return buildModelFromXML(filename, rootJoint, model, verbose);
+      return buildModelFromXML(filename, rootJoint, model, verbose, rootJointName);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -94,10 +95,11 @@ namespace pinocchio
       const std::string & xmlStr,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose)
+      const bool verbose,
+      const std::string rootJointName)
     {
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
-        visitor(model, rootJoint);
+        visitor(model, rootJoint, rootJointName);
 
       typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
