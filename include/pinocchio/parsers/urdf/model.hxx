@@ -445,10 +445,15 @@ namespace pinocchio
         typedef typename Model::JointModel JointModel;
 
         JointModel root_joint;
+        std::string root_joint_name;
 
-        UrdfVisitorWithRootJoint(Model & model, const JointModelBase<JointModel> & root_joint)
+        UrdfVisitorWithRootJoint(
+          Model & model,
+          const JointModelBase<JointModel> & root_joint,
+          const std::string rootJointName = "root_joint")
         : Base(model)
         , root_joint(root_joint.derived())
+        , root_joint_name(rootJointName)
         {
         }
 
@@ -457,11 +462,11 @@ namespace pinocchio
           const Frame & frame = model.frames[0];
 
           PINOCCHIO_THROW(
-            !model.existJointName("root_joint"), std::invalid_argument,
+            !model.existJointName(root_joint_name), std::invalid_argument,
             "root_joint already exists as a joint in the kinematic tree.");
 
           JointIndex idx = model.addJoint(
-            frame.parentJoint, root_joint, SE3::Identity(), "root_joint"
+            frame.parentJoint, root_joint, SE3::Identity(), root_joint_name
             // TODO ,max_effort,max_velocity,min_config,max_config
           );
 
