@@ -17,6 +17,7 @@ def buildModelsFromUrdf(
     filename,
     package_dirs=None,
     root_joint=None,
+    root_joint_name=None,
     verbose=False,
     meshLoader=None,
     geometry_types=[pin.GeometryType.COLLISION, pin.GeometryType.VISUAL],
@@ -42,7 +43,7 @@ def buildModelsFromUrdf(
     if root_joint is None:
         model = pin.buildModelFromUrdf(filename)
     else:
-        model = pin.buildModelFromUrdf(filename, root_joint)
+        model = pin.buildModelFromUrdf(filename, root_joint, root_joint_name)
 
     if verbose and not WITH_HPP_FCL and meshLoader is not None:
         print(
@@ -91,6 +92,7 @@ def buildModelsFromSdf(
     filename,
     package_dirs=None,
     root_joint=None,
+    root_joint_name=None,
     root_link_name="",
     parent_guidance=[],
     verbose=False,
@@ -115,7 +117,7 @@ def buildModelsFromSdf(
         )
     else:
         model, constraint_models = pin.buildModelFromSdf(
-            filename, root_joint, root_link_name, parent_guidance
+            filename, root_joint, root_link_name, root_joint_name, parent_guidance
         )
 
     if verbose and not WITH_HPP_FCL and meshLoader is not None:
@@ -150,7 +152,12 @@ def buildModelsFromSdf(
 
 
 def buildModelsFromMJCF(
-    filename, root_joint=None, verbose=False, meshLoader=None, geometry_types=None
+    filename,
+    root_joint=None,
+    root_joint_name=None,
+    verbose=False,
+    meshLoader=None,
+    geometry_types=None,
 ):
     """Parse the Mjcf file given in input and return a Pinocchio Model, followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
     Examples of usage:
@@ -170,7 +177,7 @@ def buildModelsFromMJCF(
     if root_joint is None:
         model = pin.buildModelFromMJCF(filename)
     else:
-        model = pin.buildModelFromMJCF(filename, root_joint)
+        model = pin.buildModelFromMJCF(filename, root_joint, root_joint_name)
 
     if verbose and not WITH_HPP_FCL and meshLoader is not None:
         print(

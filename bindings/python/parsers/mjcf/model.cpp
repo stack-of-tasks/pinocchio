@@ -21,10 +21,13 @@ namespace pinocchio
       return model;
     }
 
-    Model buildModelFromMJCF(const std::string & filename, const JointModel & root_joint)
+    Model buildModelFromMJCF(
+      const std::string & filename,
+      const JointModel & root_joint,
+      const std::string & rootJointName)
     {
       Model model;
-      ::pinocchio::mjcf::buildModel(filename, root_joint, model);
+      ::pinocchio::mjcf::buildModel(filename, root_joint, rootJointName, model);
       return model;
     }
 
@@ -38,10 +41,10 @@ namespace pinocchio
 
       bp::def(
         "buildModelFromMJCF",
-        static_cast<Model (*)(const std::string &, const JointModel &)>(
+        static_cast<Model (*)(const std::string &, const JointModel &, const std::string &)>(
           pinocchio::python::buildModelFromMJCF),
-        bp::args("mjcf_filename", "root_joint"),
-        "Parse the MJCF file and return a pinocchio Model with the given root Joint.");
+        bp::args("mjcf_filename", "root_joint", "root_joint_name"),
+        "Parse the MJCF file and return a pinocchio Model with the given root Joint and its name.");
     }
   } // namespace python
 } // namespace pinocchio
