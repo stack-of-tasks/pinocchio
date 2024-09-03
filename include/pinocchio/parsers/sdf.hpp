@@ -148,7 +148,7 @@ namespace pinocchio
       const std::string & rootLinkName = "",
       const std::vector<std::string> & parentGuidance = {},
       const bool verbose = false,
-      const std::string rootJointName = "root_joint");
+      const std::string & rootJointName = "root_joint");
 
     ///
     /// \brief Build the model from a SDF file with a particular joint as root of the model tree
@@ -173,7 +173,7 @@ namespace pinocchio
       const std::string & rootLinkName = "",
       const std::vector<std::string> & parentGuidance = {},
       const bool verbose = false,
-      const std::string rootJointName = "root_joint");
+      const std::string & rootJointName = "root_joint");
 
     ///
     /// \brief Build the model from an xml stream with a fixed joint as root of the model tree.

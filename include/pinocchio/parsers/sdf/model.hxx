@@ -692,10 +692,10 @@ namespace pinocchio
       const std::string & rootLinkName,
       const std::vector<std::string> & parentGuidance,
       const bool verbose,
-      const std::string jointRootName)
+      const std::string & rootJointName)
     {
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
-        visitor(model, root_joint, jointRootName);
+        visitor(model, root_joint, rootJointName);
 
       typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
 
@@ -729,10 +729,10 @@ namespace pinocchio
       const std::string & rootLinkName,
       const std::vector<std::string> & parentGuidance,
       const bool verbose,
-      const std::string jointRootName)
+      const std::string & rootJointName)
     {
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
-        visitor(model, root_joint, jointRootName);
+        visitor(model, root_joint, rootJointName);
 
       typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
 

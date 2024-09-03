@@ -85,7 +85,7 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose,
-      const std::string rootJointName)
+      const std::string & rootJointName)
     {
       return buildModelFromXML(filename, rootJoint, model, verbose, rootJointName);
     }
@@ -96,7 +96,7 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose,
-      const std::string rootJointName)
+      const std::string & rootJointName)
     {
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
         visitor(model, rootJoint, rootJointName);

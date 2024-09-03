@@ -450,7 +450,7 @@ namespace pinocchio
         UrdfVisitorWithRootJoint(
           Model & model,
           const JointModelBase<JointModel> & root_joint,
-          const std::string rootJointName = "root_joint")
+          const std::string & rootJointName = "root_joint")
         : Base(model)
         , root_joint(root_joint.derived())
         , root_joint_name(rootJointName)
@@ -493,7 +493,7 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose,
-      const std::string rootJointName)
+      const std::string & rootJointName)
     {
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
         model, root_joint, rootJointName);
@@ -522,7 +522,7 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose,
-      const std::string rootJointName)
+      const std::string & rootJointName)
     {
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
         model, rootJoint, rootJointName);
@@ -551,7 +551,7 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose,
-      const std::string rootJointName)
+      const std::string & rootJointName)
     {
       PINOCCHIO_CHECK_INPUT_ARGUMENT(urdfTree != NULL);
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(

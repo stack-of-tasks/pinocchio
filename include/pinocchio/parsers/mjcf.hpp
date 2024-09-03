@@ -33,7 +33,7 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose = false,
-      const std::string rootJointName = "rootJoint");
+      const std::string & rootJointName = "root_joint");
 
     ///
     /// \brief Build the model from a MJCF file with a particular joint as root of the model tree
@@ -52,7 +52,7 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose = false,
-      const std::string rootJointName = "root_joint");
+      const std::string & rootJointName = "root_joint");
 
     ///
     /// \brief Build the model from a MJCF file with a fixed joint as root of the model tree
