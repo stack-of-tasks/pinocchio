@@ -691,10 +691,11 @@ namespace pinocchio
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
       const std::string & rootLinkName,
       const std::vector<std::string> & parentGuidance,
-      const bool verbose)
+      const bool verbose,
+      const std::string jointRootName)
     {
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
-        visitor(model, root_joint);
+        visitor(model, root_joint, jointRootName);
 
       typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
 
@@ -727,10 +728,11 @@ namespace pinocchio
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
       const std::string & rootLinkName,
       const std::vector<std::string> & parentGuidance,
-      const bool verbose)
+      const bool verbose,
+      const std::string jointRootName)
     {
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
-        visitor(model, root_joint);
+        visitor(model, root_joint, jointRootName);
 
       typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
 
