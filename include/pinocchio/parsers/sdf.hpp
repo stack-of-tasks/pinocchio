@@ -131,11 +131,11 @@ namespace pinocchio
     ///
     /// \param[in] xmlStream xml stream containing SDF model
     /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] rootJointName Name of the rootJoint.
     /// \param[in] parentGuidance Joint names which should be preferred for cases where two joints
     /// can qualify as parent. The other joint appears in the constraint_model. If empty, joint
     /// appearance order in .sdf is taken as default.
     /// \param[in] verbose Print parsing info.
-    /// \param[in] rootJointName Name of the rootJoint.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
     ///
@@ -143,24 +143,24 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
       const std::string & xmlStream,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
       const std::string & rootLinkName = "",
       const std::vector<std::string> & parentGuidance = {},
-      const bool verbose = false,
-      const std::string & rootJointName = "root_joint");
+      const bool verbose = false);
 
     ///
     /// \brief Build the model from a SDF file with a particular joint as root of the model tree
     /// inside the model given as reference argument.
     ///
     /// \param[in] filename The SDF complete file path.
-    /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] rootJoint The joint at the root of the model tree.*
+    /// \param[in] rootJointName Name of the rootJoint.
     /// \param[in] parentGuidance Joint names which should be preferred for cases where two joints
     /// can qualify as parent. The other joint appears in the constraint_model. If empty, joint
     /// appearance order in .sdf is taken as default.
     /// \param[in] verbose Print parsing info.
-    /// \param[in] rootJointName Name of the rootJoint.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
     ///
@@ -168,12 +168,12 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
       const std::string & rootLinkName = "",
       const std::vector<std::string> & parentGuidance = {},
-      const bool verbose = false,
-      const std::string & rootJointName = "root_joint");
+      const bool verbose = false);
 
     ///
     /// \brief Build the model from an xml stream with a fixed joint as root of the model tree.

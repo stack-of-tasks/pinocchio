@@ -22,18 +22,18 @@ namespace pinocchio
     ///
     /// \param[in] xmlStream xml stream containing MJCF model
     /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] rootJointName Name of the rootJoint.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
-    /// \param[in] rootJointName Name of the rootJoint.
     /// \return Return the reference on argument model for convenience.
     ///
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
       const std::string & xmlStream,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose = false,
-      const std::string & rootJointName = "root_joint");
+      const bool verbose = false);
 
     ///
     /// \brief Build the model from a MJCF file with a particular joint as root of the model tree
@@ -41,18 +41,18 @@ namespace pinocchio
     ///
     /// \param[in] filename The MJCF complete file path.
     /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] rootJointName Name of the rootJoint.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
-    /// \param[in] rootJointName Name of the rootJoint.
     /// \return Return the reference on argument model for convenience.
     ///
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose = false,
-      const std::string & rootJointName = "root_joint");
+      const bool verbose = false);
 
     ///
     /// \brief Build the model from a MJCF file with a fixed joint as root of the model tree

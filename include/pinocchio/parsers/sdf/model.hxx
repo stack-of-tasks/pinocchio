@@ -687,13 +687,16 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
       const std::string & xmlStream,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
       const std::string & rootLinkName,
       const std::vector<std::string> & parentGuidance,
-      const bool verbose,
-      const std::string & rootJointName)
+      const bool verbose)
     {
+      if (rootJointName.empty())
+        const_cast<std::string &>(rootJointName) = "root_joint";
+
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
         visitor(model, root_joint, rootJointName);
 
@@ -724,13 +727,16 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
       const std::string & rootLinkName,
       const std::vector<std::string> & parentGuidance,
-      const bool verbose,
-      const std::string & rootJointName)
+      const bool verbose)
     {
+      if (rootJointName.empty())
+        const_cast<std::string &>(rootJointName) = "root_joint";
+
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
         visitor(model, root_joint, rootJointName);
 

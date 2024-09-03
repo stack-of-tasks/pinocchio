@@ -491,10 +491,13 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose,
-      const std::string & rootJointName)
+      const bool verbose)
     {
+      if (rootJointName.empty())
+        const_cast<std::string &>(rootJointName) = "root_joint";
+
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
         model, root_joint, rootJointName);
       if (verbose)
@@ -520,10 +523,13 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
       const std::string & xmlStream,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose,
-      const std::string & rootJointName)
+      const bool verbose)
     {
+      if (rootJointName.empty())
+        const_cast<std::string &>(rootJointName) = "root_joint";
+
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
         model, rootJoint, rootJointName);
       if (verbose)
@@ -549,10 +555,13 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::shared_ptr<::urdf::ModelInterface> urdfTree,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose,
-      const std::string & rootJointName)
+      const bool verbose)
     {
+      if (rootJointName.empty())
+        const_cast<std::string &>(rootJointName) = "root_joint";
+
       PINOCCHIO_CHECK_INPUT_ARGUMENT(urdfTree != NULL);
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
         model, rootJoint, rootJointName);
