@@ -500,15 +500,29 @@ namespace pinocchio
         namespace fs = boost::filesystem;
         MjcfTexture text;
         auto file = el.get_optional<std::string>("<xmlattr>.file");
+        auto name_ = el.get_optional<std::string>("<xmlattr>.name");
+        auto type = el.get_optional<std::string>("<xmlattr>.type");
+
+        std::string name;
+        if (name_)
+          name = *name_;
+        else if (*type == "skybox")
+          name = *type;
         if (!file)
-          throw std::invalid_argument("Only textures with files are supported");
+        {
+          std::cout << "Warning - Only texture with files are supported" << std::endl;
+          if (name.empty())
+            throw std::invalid_argument("Textures need a name.");
+        }
+        else
+        {
+          fs::path filePath(*file);
+          name = getName(el, filePath);
 
-        fs::path filePath(*file);
-        std::string name = getName(el, filePath);
-
-        text.filePath =
-          updatePath(compilerInfo.strippath, compilerInfo.texturedir, modelPath, filePath).string();
-
+          text.filePath =
+            updatePath(compilerInfo.strippath, compilerInfo.texturedir, modelPath, filePath)
+              .string();
+        }
         auto str_v = el.get_optional<std::string>("<xmlattr>.type");
         if (str_v)
           text.textType = *str_v;
