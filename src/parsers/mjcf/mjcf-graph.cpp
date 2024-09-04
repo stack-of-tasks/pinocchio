@@ -785,15 +785,12 @@ namespace pinocchio
       {
 
         FrameIndex parentFrameId = 0;
-        Inertia inert = Inertia::Zero();
         if (!currentBody.bodyParent.empty())
-        {
           parentFrameId = urdfVisitor.getBodyId(currentBody.bodyParent);
-          inert = currentBody.bodyInertia;
-        }
+
         // get body pose in body parent
         const SE3 bodyPose = currentBody.bodyPlacement;
-
+        Inertia inert = currentBody.bodyInertia;
         SE3 jointInParent = bodyPose * joint.jointPlacement;
         bodyInJoint = joint.jointPlacement.inverse();
         UrdfVisitor::JointType jType;
@@ -1036,7 +1033,8 @@ namespace pinocchio
         // get name and inertia of first root link
         std::string rootLinkName = bodiesList.at(0);
         MjcfBody rootBody = mapOfBodies.find(rootLinkName)->second;
-        urdfVisitor.addRootJoint(rootBody.bodyInertia, rootLinkName);
+        if (rootBody.jointChildren.size() == 0)
+          urdfVisitor.addRootJoint(rootBody.bodyInertia, rootLinkName);
 
         fillReferenceConfig(rootBody);
         for (const auto & entry : bodiesList)
