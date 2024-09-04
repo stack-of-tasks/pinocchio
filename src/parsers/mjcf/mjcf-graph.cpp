@@ -506,7 +506,7 @@ namespace pinocchio
         std::string name;
         if (name_)
           name = *name_;
-        else if (*type == "skybox")
+        else if (type && *type == "skybox")
           name = *type;
         if (!file)
         {
