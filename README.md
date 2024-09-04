@@ -62,7 +62,7 @@ or via pip (currently only available on Linux):
 **Pinocchio3** is the latest major release of Pinocchio. It comes with multiple new features, such as:
   - [Sparse constrained dynamics](https://laas.hal.science/hal-01790971v2/file/18-rss-analytical-derivatives-carpentier.pdf) and its analytical derivatives
   - Full support of closed-loop mechanisms
-  - [State-of-the-art frictional contact solvers](https://hal.science/hal-04588906v1/file/simplecontacts2024.pdf) 
+  - [State-of-the-art frictional contact solvers](https://hal.science/hal-04588906v1/file/simplecontacts2024.pdf)
   - [Low-complexity constrained articulated body algorithms]()
   - Full support of [multiple-precision floating-point (MPFR)](https://www.mpfr.org/) in Python and C++
   - Full [CasADi](https://web.casadi.org/) support in Python and C++
@@ -220,7 +220,7 @@ And the following one for the link to the GitHub codebase:
 
 ## Citing specific algorithmic contributions
 
-**Pinocchio** goes beyond implementing the standard rigid-body dynamics algorithms and results from active research on simulation, learning and control. 
+**Pinocchio** goes beyond implementing the standard rigid-body dynamics algorithms and results from active research on simulation, learning and control.
 **Pinocchio** provides state-of-the-art algorithms for handling constraints, differentiating forward and inverse dynamics, etc.
 If you use these algorithms, please consider citing them in your research articles.
 
