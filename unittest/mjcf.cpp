@@ -940,6 +940,39 @@ BOOST_AUTO_TEST_CASE(adding_keyframes)
   BOOST_CHECK(vect_model == vect_ref);
 }
 
+// Test on which joints inertias are append
+BOOST_AUTO_TEST_CASE(joint_and_inertias)
+{
+  typedef pinocchio::SE3::Vector3 Vector3;
+  typedef pinocchio::SE3::Matrix3 Matrix3;
+
+  std::istringstream xmlData(R"(
+            <mujoco model="testKeyFrame">
+                <worldbody>
+                    <body name="body1">
+                        <freejoint/>
+                        <inertial mass="0.629769" pos="-0.041018 -0.00014 0.049974"
+                        diaginertia="0.00315 0.00388 0.004285"/>
+                    </body>
+                </worldbody>
+                </mujoco>)");
+
+  auto namefile = createTempFile(xmlData);
+
+  pinocchio::Model model_m;
+  pinocchio::mjcf::buildModel(namefile.name(), model_m);
+
+  BOOST_CHECK(model_m.inertias[0].isApprox(pinocchio::Inertia::Zero()));
+
+  Matrix3 inertia_matrix = Eigen::Matrix3d::Zero();
+  inertia_matrix(0, 0) = 0.00315;
+  inertia_matrix(1, 1) = 0.00388;
+  inertia_matrix(2, 2) = 0.004285;
+  pinocchio::Inertia real_inertia(0.629769, Vector3(-0.041018, -0.00014, 0.049974), inertia_matrix);
+
+  BOOST_CHECK(model_m.inertias[1].isApprox(real_inertia));
+}
+
 // Test reference positions and how it's included in keyframe
 BOOST_AUTO_TEST_CASE(reference_positions)
 {
