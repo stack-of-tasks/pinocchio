@@ -724,6 +724,21 @@ namespace pinocchio
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
+      const std::string & xmlStream,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
+      const std::string & rootLinkName,
+      const std::vector<std::string> & parentGuidance,
+      const bool verbose)
+    {
+      return buildModelFromXML(
+        xmlStream, root_joint, "root_joint", model, contact_models, rootLinkName, parentGuidance,
+        verbose);
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
@@ -761,6 +776,21 @@ namespace pinocchio
       details::parseContactInformation(graph, visitor, model, contact_models);
 
       return model;
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::string & filename,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
+      const std::string & rootLinkName,
+      const std::vector<std::string> & parentGuidance,
+      const bool verbose)
+    {
+      return buildModel(
+        filename, root_joint, "root_joint", model, contact_models, rootLinkName, parentGuidance,
+        verbose);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>

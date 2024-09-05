@@ -91,6 +91,26 @@ namespace pinocchio
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::string & xmlStr,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      return buildModelFromXML(xmlStr, rootJoint, model, verbose);
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
+      const std::string & xmlStr,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      return buildModelFromXML(xmlStr, rootJoint, "root_joint", model, verbose);
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
       const std::string & xmlStr,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,

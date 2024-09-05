@@ -509,6 +509,16 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      return buildModel(filename, root_joint, "root_joint", model, verbose);
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::string & filename,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose)
     {
@@ -536,6 +546,16 @@ namespace pinocchio
         visitor.log = &std::cout;
       details::parseRootTreeFromXML(xmlStream, visitor);
       return model;
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
+      const std::string & xmlStream,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      return buildModelFromXML(xmlStream, rootJoint, "root_joint", model, verbose);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -569,6 +589,16 @@ namespace pinocchio
         visitor.log = &std::cout;
       details::parseRootTree(urdfTree.get(), visitor);
       return model;
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::shared_ptr<::urdf::ModelInterface> urdfTree,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      return buildModel(urdfTree, rootJoint, "root_joint", model, verbose);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
