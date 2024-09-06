@@ -253,6 +253,30 @@ namespace pinocchio
 
   }; // struct JointDataFreeFlyerTpl
 
+  /// @brief Free-flyer joint in \f$SE(3)\f$.
+  ///
+  /// A free-flyer joint adds seven coordinates to the configuration space.
+  /// Given a configuration vector `q`:
+  ///
+  /// - `q[idx_q:idx_q + 3]` are the translation coordinates, in meters,
+  ///   representing the position of the child frame in the parent frame.
+  /// - `q[idx_q + 3:idx_q + 7]` is a unit quaternion representing the rotation
+  ///   from the child frame to the parent frame, with quaternion coordinates
+  ///   ordered as (x, y, z, w).
+  ///
+  /// Likewise, a free-flyer joint adds six coordinates to the tangent space.
+  /// Let's consider a tangent vector `v`, say, a velocity vector. Following
+  /// Featherstone's convention, all our tangent vectors are body rather than
+  /// spatial vectors:
+  ///
+  /// - `v[idx_v:idx_v + 3]` is the linear velocity, in meters / second,
+  ///   corresponding to the linear velocity of the child frame with respect
+  ///   to the parent frame, expressed in the child frame (body linear velocity
+  ///   of the child frame).
+  /// - `v[idx_v + 3:idx_v + 6]` is the angular velocity, in radians / second,
+  ///   corresponding to the angular velocity from the child frame to the
+  ///   parent frame, expressed in the child frame (body angular velocity of the
+  ///   child frame).
   PINOCCHIO_JOINT_CAST_TYPE_SPECIALIZATION(JointModelFreeFlyerTpl);
   template<typename _Scalar, int _Options>
   struct JointModelFreeFlyerTpl : public JointModelBase<JointModelFreeFlyerTpl<_Scalar, _Options>>
