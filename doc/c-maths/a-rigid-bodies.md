@@ -10,7 +10,7 @@ The set that brings together all the homogeneous transformations matrices is the
 
 ### Using quaternions for an SO(3) object
 
-To use quaternions for a \f$ SO(3) \f$ object we have several methods, we can do as in the \f$ SE(3) \f$ example in the [Dealing with Lie group geometry](@ref e-lie) section by removing the translation vector.
+To use quaternions for a \f$ SO(3) \f$ object we have several methods, we can do as in the \f$ SE(3) \f$ example in the [Dealing with Lie group geometry](@ref md_doc_a-features_e-lie) section by removing the translation vector.
 
 Or we can just consider one rotation instead of two. For example, in a landmark link to the robot itself, we consider the starting position as the origin of this landmark.
 

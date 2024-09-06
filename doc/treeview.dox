@@ -26,7 +26,6 @@ namespace pinocchio {
         - \subpage md_doc_a-features_f-kinematic
         - \subpage md_doc_a-features_g-dynamic
         - \subpage md_doc_a-features_h-frames
-        - \subpage md_doc_a-features_i-geometric-models
         - \subpage md_doc_a-features_j-analytical-derivatives
         - \subpage md_doc_a-features_k-automatic-differentiation
         - \subpage md_doc_a-features_l-python
