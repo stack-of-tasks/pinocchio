@@ -379,6 +379,23 @@ namespace pinocchio
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
     const Eigen::MatrixBase<ConfigVectorType> & q);
+
+  // TODO: Add documentation
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType,
+    typename TangentVectorType>
+  std::pair<
+    typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs,
+    typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs>
+  computeMomentumRegressor(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q,
+    const Eigen::MatrixBase<TangentVectorType> & v);
 } // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
