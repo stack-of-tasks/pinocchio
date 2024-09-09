@@ -450,10 +450,10 @@ namespace pinocchio
         UrdfVisitorWithRootJoint(
           Model & model,
           const JointModelBase<JointModel> & root_joint,
-          const std::string & rootJointName = "root_joint")
+          const std::string & root_joint_name = "root_joint")
         : Base(model)
         , root_joint(root_joint.derived())
-        , root_joint_name(rootJointName)
+        , root_joint_name(root_joint_name)
         {
         }
 
@@ -490,7 +490,7 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
-      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose)
@@ -499,7 +499,7 @@ namespace pinocchio
         const_cast<std::string &>(rootJointName) = "root_joint";
 
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
-        model, root_joint, rootJointName);
+        model, rootJoint, rootJointName);
       if (verbose)
         visitor.log = &std::cout;
       details::parseRootTree(filename, visitor);
@@ -509,7 +509,7 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
-      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose)
     {

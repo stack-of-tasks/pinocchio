@@ -686,7 +686,7 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
       const std::string & xmlStream,
-      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
@@ -698,7 +698,7 @@ namespace pinocchio
         const_cast<std::string &>(rootJointName) = "root_joint";
 
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
-        visitor(model, root_joint, rootJointName);
+        visitor(model, rootJoint, rootJointName);
 
       typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
 
@@ -726,7 +726,7 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
       const std::string & xmlStream,
-      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
       const std::string & rootLinkName,
@@ -734,14 +734,14 @@ namespace pinocchio
       const bool verbose)
     {
       return buildModelFromXML(
-        xmlStream, root_joint, "root_joint", model, contact_models, rootLinkName, parentGuidance,
+        xmlStream, rootJoint, "root_joint", model, contact_models, rootLinkName, parentGuidance,
         verbose);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
-      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
@@ -753,7 +753,7 @@ namespace pinocchio
         const_cast<std::string &>(rootJointName) = "root_joint";
 
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
-        visitor(model, root_joint, rootJointName);
+        visitor(model, rootJoint, rootJointName);
 
       typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
 
@@ -781,7 +781,7 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
-      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
       const std::string & rootLinkName,
@@ -789,7 +789,7 @@ namespace pinocchio
       const bool verbose)
     {
       return buildModel(
-        filename, root_joint, "root_joint", model, contact_models, rootLinkName, parentGuidance,
+        filename, rootJoint, "root_joint", model, contact_models, rootLinkName, parentGuidance,
         verbose);
     }
 
