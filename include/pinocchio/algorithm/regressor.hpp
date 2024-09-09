@@ -380,7 +380,29 @@ namespace pinocchio
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
     const Eigen::MatrixBase<ConfigVectorType> & q);
 
-  // TODO: Add documentation
+  ///
+  /// \brief Computes the momentum regressor and component of time derivative
+  /// of momentum regressor of the system based on the current robot state.
+  ///
+  /// The result stored in `data.momentumRegressor` corresponds to a matrix \f$ Y_p \f$ such that
+  /// \f$ P = Y_p(q, v) \pi = M v \f$ where \f$ \pi \f$ represents the vector of dynamic parameters
+  /// of each link.
+  ///
+  /// The result stored in `data.dpartial_lagrangian_q` corresponds to a matrix
+  /// \f$ Y_h \f$ such that \f$ \frac{\partial L}{\partial q} = Y_h(q, v) \f$.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
+  /// \param[in] model The model structure representing the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  ///
+  /// \return A pair containing:
+  ///         - The momentum regressor matrix.
+  ///         - A matrix containing a component of the time derivative of the momentum regressor.
+  ///
   template<
     typename Scalar,
     int Options,
