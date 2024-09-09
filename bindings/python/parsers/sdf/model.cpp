@@ -46,14 +46,14 @@ namespace pinocchio
     bp::tuple buildModelFromSdf(
       const std::string & filename,
       const JointModel & root_joint,
-      const std::string & rootJointName,
+      const std::string & root_joint_name,
       const std::string & root_link_name,
       const std::vector<std::string> & parent_guidance)
     {
       Model model;
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
       pinocchio::sdf::buildModel(
-        filename, root_joint, rootJointName, model, contact_models, root_link_name,
+        filename, root_joint, root_joint_name, model, contact_models, root_link_name,
         parent_guidance);
       return bp::make_tuple(model, contact_models);
     }

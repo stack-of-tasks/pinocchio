@@ -31,10 +31,10 @@ namespace pinocchio
     Model buildModelFromMJCF(
       const std::string & filename,
       const JointModel & root_joint,
-      const std::string & rootJointName)
+      const std::string & root_joint_name)
     {
       Model model;
-      ::pinocchio::mjcf::buildModel(filename, root_joint, rootJointName, model);
+      ::pinocchio::mjcf::buildModel(filename, root_joint, root_joint_name, model);
       return model;
     }
 

@@ -34,66 +34,66 @@ namespace pinocchio
     Model buildModelFromUrdf(const std::string & filename, const JointModel & root_joint)
     {
       Model model;
-      pinocchio::urdf::buildModel(filename, root_joint, "root_joint", model);
+      pinocchio::urdf::buildModel(filename, root_joint, model);
       return model;
     }
 
     Model buildModelFromUrdf(
       const std::string & filename,
       const JointModel & root_joint,
-      const std::string & rootJointName)
+      const std::string & root_joint_name)
     {
       Model model;
-      pinocchio::urdf::buildModel(filename, root_joint, rootJointName, model);
+      pinocchio::urdf::buildModel(filename, root_joint, root_joint_name, model);
       return model;
     }
 
     Model &
     buildModelFromUrdf(const std::string & filename, const JointModel & root_joint, Model & model)
     {
-      return pinocchio::urdf::buildModel(filename, root_joint, "root_joint", model);
+      return pinocchio::urdf::buildModel(filename, root_joint, model);
     }
 
     Model & buildModelFromUrdf(
       const std::string & filename,
       const JointModel & root_joint,
-      const std::string & rootJointName,
+      const std::string & root_joint_name,
       Model & model)
     {
-      return pinocchio::urdf::buildModel(filename, root_joint, rootJointName, model);
+      return pinocchio::urdf::buildModel(filename, root_joint, root_joint_name, model);
     }
 
     Model buildModelFromXML(const std::string & XMLstream, const JointModel & root_joint)
     {
       Model model;
-      pinocchio::urdf::buildModelFromXML(XMLstream, root_joint, "root_joint", model);
+      pinocchio::urdf::buildModelFromXML(XMLstream, root_joint, model);
       return model;
     }
 
     Model buildModelFromXML(
       const std::string & XMLstream,
       const JointModel & root_joint,
-      const std::string & rootJointName)
+      const std::string & root_joint_name)
     {
       Model model;
-      pinocchio::urdf::buildModelFromXML(XMLstream, root_joint, rootJointName, model);
+      pinocchio::urdf::buildModelFromXML(XMLstream, root_joint, root_joint_name, model);
       return model;
     }
 
     Model &
     buildModelFromXML(const std::string & XMLstream, const JointModel & root_joint, Model & model)
     {
-      pinocchio::urdf::buildModelFromXML(XMLstream, root_joint, "root_joint", model);
+      pinocchio::urdf::buildModelFromXML(XMLstream, root_joint, model);
       return model;
     }
 
     Model & buildModelFromXML(
       const std::string & XMLstream,
       const JointModel & root_joint,
-      const std::string & rootJointName,
+      const std::string & root_joint_name,
       Model & model)
     {
-      pinocchio::urdf::buildModelFromXML(XMLstream, root_joint, rootJointName, model);
+      pinocchio::urdf::buildModelFromXML(XMLstream, root_joint, root_joint_name, model);
       return model;
     }
 
