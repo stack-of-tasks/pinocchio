@@ -695,7 +695,8 @@ namespace pinocchio
       const bool verbose)
     {
       if (rootJointName.empty())
-        const_cast<std::string &>(rootJointName) = "root_joint";
+        throw std::invalid_argument(
+          "rootJoint was given without a name. Please fill the argument rootJointName");
 
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
         visitor(model, rootJoint, rootJointName);
@@ -750,7 +751,8 @@ namespace pinocchio
       const bool verbose)
     {
       if (rootJointName.empty())
-        const_cast<std::string &>(rootJointName) = "root_joint";
+        throw std::invalid_argument(
+          "rootJoint was given without a name. Please fill the argument rootJointName");
 
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
         visitor(model, rootJoint, rootJointName);

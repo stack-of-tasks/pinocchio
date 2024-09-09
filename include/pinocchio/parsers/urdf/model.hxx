@@ -496,7 +496,8 @@ namespace pinocchio
       const bool verbose)
     {
       if (rootJointName.empty())
-        const_cast<std::string &>(rootJointName) = "root_joint";
+        throw std::invalid_argument(
+          "rootJoint was given without a name. Please fill the argument root_joint_name");
 
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
         model, rootJoint, rootJointName);
@@ -513,7 +514,7 @@ namespace pinocchio
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose)
     {
-      return buildModel(filename, root_joint, "root_joint", model, verbose);
+      return buildModel(filename, rootJoint, "root_joint", model, verbose);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
