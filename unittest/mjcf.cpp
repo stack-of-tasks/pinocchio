@@ -948,7 +948,7 @@ BOOST_AUTO_TEST_CASE(joint_and_inertias)
   typedef pinocchio::SE3::Matrix3 Matrix3;
 
   std::istringstream xmlData(R"(
-            <mujoco model="testKeyFrame">
+            <mujoco model="testJointInertia">
                 <worldbody>
                     <body name="body1">
                         <freejoint/>
