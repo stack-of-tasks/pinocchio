@@ -89,7 +89,7 @@ namespace pinocchio
         (bp::arg("sdf_filename"), bp::arg("root_joint"), bp::arg("root_joint_name"),
          bp::arg("root_link_name"), bp::arg("parent_guidance") = bp::list()),
         "Parse the SDF file given in input and return a pinocchio Model and constraint "
-        "models starting with the given root joint.");
+        "models starting with the given root joint and its specified name.");
 #endif
     }
   } // namespace python

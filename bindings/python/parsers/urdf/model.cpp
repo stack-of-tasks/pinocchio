@@ -131,7 +131,7 @@ namespace pinocchio
           pinocchio::python::buildModelFromUrdf),
         bp::args("urdf_filename", "root_joint", "root_joint_name"),
         "Parse the URDF file given in input and return a pinocchio Model starting with the "
-        "given root joint.");
+        "given root joint with its specified name.");
 
       bp::def(
         "buildModelFromUrdf",
@@ -162,7 +162,8 @@ namespace pinocchio
         static_cast<Model & (*)(const std::string &, const JointModel &, const std::string &,
                                 Model &)>(pinocchio::python::buildModelFromUrdf),
         bp::args("urdf_filename", "root_joint", "root_joint_name", "model"),
-        "Append to a given model a URDF structure given by its filename and the root joint.\n"
+        "Append to a given model a URDF structure given by its filename and the root joint with "
+        "its specified name.\n"
         "Remark: In the URDF format, a joint of type fixed can be defined. For efficiency reasons,"
         "it is treated as operational frame and not as a joint of the model.",
         bp::return_internal_reference<3>());
@@ -181,7 +182,7 @@ namespace pinocchio
           pinocchio::python::buildModelFromXML),
         bp::args("urdf_xml_stream", "root_joint", "root_joint_name"),
         "Parse the URDF XML stream given in input and return a pinocchio Model starting with "
-        "the given root joint.");
+        "the given root joint with its specified name.");
 
       bp::def(
         "buildModelFromXML",
@@ -198,7 +199,7 @@ namespace pinocchio
                                 Model &)>(pinocchio::python::buildModelFromXML),
         bp::args("urdf_xml_stream", "root_joint", "root_joint_name", "model"),
         "Parse the URDF XML stream given in input and append it to the input model with the "
-        "given interfacing joint.",
+        "given interfacing joint with its specified name.",
         bp::return_internal_reference<3>());
 
       bp::def(
