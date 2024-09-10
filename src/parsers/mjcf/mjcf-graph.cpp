@@ -735,6 +735,73 @@ namespace pinocchio
         }
       }
 
+      void MjcfGraph::parseEquality(const ptree & el)
+      {
+        for (const ptree::value_type & v : el)
+        {
+          // std::cout << v.first << " " << v.second << std::endl;
+
+          std::string type = v.first;
+          // List of supported constraints from mjcf description
+          // equality -> connect
+          // equality -> weld
+
+          // The constraints below are not supported and will be ignored with the following
+          // warning equality -> joint equality -> flex equality -> distance
+          if (type != "connect" && type != "weld")
+          {
+            std::cout << "Warning - Constraint " << type << " is not supported" << std::endl;
+            continue;
+          }
+
+          MjcfEquality eq;
+          eq.type = type;
+
+          // get the name of first body
+          auto body1 = v.second.get_optional<std::string>("<xmlattr>.body1");
+          if (body1)
+            eq.body1 = *body1;
+          else
+            throw std::invalid_argument("Equality constraint needs a first body");
+
+          // get the name of second body
+          auto body2 = v.second.get_optional<std::string>("<xmlattr>.body2");
+          if (body2)
+            eq.body2 = *body2;
+          else
+            eq.body2 = "world"; // TODO: find out what is the right name for the world in pinocchio
+
+          // get the name of the constraint (if it exists)
+          auto name = v.second.get_optional<std::string>("<xmlattr>.name");
+          if (name)
+            eq.name = *name;
+          else
+            eq.name = eq.body1 + "_" + eq.body2 + "_constraint";
+
+          // get the anchor position
+          auto anchor = v.second.get_optional<std::string>("<xmlattr>.anchor");
+          if (anchor)
+            eq.anchor = internal::getVectorFromStream<3>(*anchor);
+
+          // get the relative position
+          auto relpose = v.second.get_optional<std::string>("<xmlattr>.relpose");
+          if (relpose)
+            eq.relativePose = internal::getVectorFromStream<3>(*relpose);
+
+          // print what constraint is being added
+          std::cout << "MjcfEquality: {" << std::endl;
+          std::cout << "  Name: " << eq.name << std::endl;
+          std::cout << "  Type: " << eq.type << std::endl;
+          std::cout << "  Body1: " << eq.body1 << std::endl;
+          std::cout << "  Body2: " << eq.body2 << std::endl;
+          std::cout << "  Anchor: [" << eq.anchor.transpose() << "]" << std::endl;
+          std::cout << "  Relative Pose: [" << eq.relativePose.transpose() << "]" << std::endl;
+          std::cout << "}" << std::endl;
+
+          mapOfEqualities.insert(std::make_pair("equality", eq));
+        }
+      }
+
       void MjcfGraph::parseGraph()
       {
         boost::property_tree::ptree el;
@@ -771,6 +838,11 @@ namespace pinocchio
           {
             boost::optional<std::string> childClass;
             parseJointAndBody(el.get_child("worldbody").get_child("body"), childClass);
+          }
+
+          if (v.first == "equality")
+          {
+            parseEquality(el.get_child("equality"));
           }
         }
       }

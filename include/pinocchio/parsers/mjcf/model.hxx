@@ -39,6 +39,7 @@ namespace pinocchio
 
       // // Use the Mjcf graph to create the model
       graph.parseRootTree();
+      // TODO: insert the parse contact information here
 
       return model;
     }
@@ -73,6 +74,7 @@ namespace pinocchio
 
       // // Use the Mjcf graph to create the model
       graph.parseRootTree();
+      // TODO: insert the parse contact information here
 
       return model;
     }
