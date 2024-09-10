@@ -14,7 +14,7 @@ nle = pin.nonLinearEffects
 
 
 def buildModelsFromUrdf(
-    filename, **kwargs
+    filename, *args, **kwargs
 ) -> Tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
     """Parse the URDF file given in input and return a Pinocchio Model followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
     Arguments:
@@ -28,11 +28,19 @@ def buildModelsFromUrdf(
     Return:
         Tuple of the models, in this order : model, collision model, and visual model.
 
-        Remark: In the URDF format, a joint of type fixed can be defined.
-        For efficiency reasons, it is treated as operational frame and not as a joint of the model.
+    Example:
+        model, collision_model, visual_model = buildModelsFromUrdf(filename, root_joint, verbose, meshLoader, geometry_types, root_joint_name="root_joint_name")
+
+    Remark: In the URDF format, a joint of type fixed can be defined. For efficiency reasons, it is treated as operational frame and not as a joint of the model.
     """
 
-    # Set default values for optional arguments if they are not provided in kwargs
+    arg_keys = ["package_dirs", "root_joint", "verbose", "meshLoader", "geometry_types"]
+
+    for i, arg in enumerate(args):
+        if i < len(arg_keys):
+            kwargs[arg_keys[i]] = arg
+
+    # Set default values for optional arguments if they are not provided in kwargs or args
     kwargs.setdefault("package_dirs", None)
     kwargs.setdefault("root_joint", None)
     kwargs.setdefault("verbose", False)
@@ -40,13 +48,14 @@ def buildModelsFromUrdf(
     kwargs.setdefault(
         "geometry_types", [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
     )
+
     if "root_joint_name" in kwargs.keys():
-        return _buildModelFromUrdfWithRootJointName(filename, **kwargs)
+        return _buildModelsFromUrdfWithRootJointName(filename, **kwargs)
     else:
-        return _buildModelFromUrdfWithoutRootJointName(filename, **kwargs)
+        return _buildModelsFromUrdfWithoutRootJointName(filename, **kwargs)
 
 
-def _buildModelFromUrdfWithoutRootJointName(
+def _buildModelsFromUrdfWithoutRootJointName(
     filename,
     package_dirs=None,
     root_joint=None,
@@ -95,7 +104,7 @@ def _buildModelFromUrdfWithoutRootJointName(
     return tuple(lst)
 
 
-def _buildModelFromUrdfWithRootJointName(
+def _buildModelsFromUrdfWithRootJointName(
     filename,
     package_dirs=None,
     root_joint=None,
@@ -156,7 +165,7 @@ def createDatas(*models):
 
 
 def buildModelsFromSdf(
-    filename, **kwargs
+    filename, *args, **kwargs
 ) -> Tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
     """Parse the Sdf file given in input and return a Pinocchio Model and a list of Constraint Models, followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
     Arguments:
@@ -171,7 +180,24 @@ def buildModelsFromSdf(
         - geometry_types - Which geometry model to load. Can be pin.GeometryType.COLLISION, pin.GeometryType.VISUAL, both or None. (default - None])
     Return:
         Tuple of the models, in this order : model, collision model, and visual model.
+
+    Example:
+        model, collision_model, visual_model = buildModelsFromSdf(filename, root_joint, root_link_name, parent_guidance, verbose, meshLoader, geometry_types, root_joint_name="root_joint_name")
     """
+
+    arg_keys = [
+        "package_dirs",
+        "root_joint",
+        "root_link_name",
+        "parent_guidance",
+        "verbose",
+        "meshLoader",
+        "geometry_types",
+    ]
+
+    for i, arg in enumerate(args):
+        if i < len(arg_keys):
+            kwargs[arg_keys[i]] = arg
 
     # Set default values for optional arguments if they are not provided in kwargs
     kwargs.setdefault("package_dirs", None)
@@ -182,12 +208,12 @@ def buildModelsFromSdf(
     kwargs.setdefault("meshLoader", None)
     kwargs.setdefault("geometry_types", None)
     if "root_joint_name" in kwargs.keys():
-        return _buildModelFromSdfWithRootJointName(filename, **kwargs)
+        return _buildModelsFromSdfWithRootJointName(filename, **kwargs)
     else:
-        return _buildModelFromSdfWithoutRootJointName(filename, **kwargs)
+        return _buildModelsFromSdfWithoutRootJointName(filename, **kwargs)
 
 
-def _buildModelFromSdfWithoutRootJointName(
+def _buildModelsFromSdfWithoutRootJointName(
     filename,
     package_dirs=None,
     root_joint=None,
@@ -240,7 +266,7 @@ def _buildModelFromSdfWithoutRootJointName(
     return tuple(lst)
 
 
-def _buildModelFromSdfWithRootJointName(
+def _buildModelsFromSdfWithRootJointName(
     filename,
     package_dirs=None,
     root_joint=None,
@@ -290,7 +316,7 @@ def _buildModelFromSdfWithRootJointName(
     return tuple(lst)
 
 
-def buildModelsFromMJCF(filename, **kwargs):
+def buildModelsFromMJCF(filename, *args, **kwargs):
     """Parse the Mjcf file given in input and return a Pinocchio Model followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
     Arguments:
         - filename - name of the urdf file to load
@@ -303,9 +329,14 @@ def buildModelsFromMJCF(filename, **kwargs):
     Return:
         Tuple of the models, in this order : model, collision model, and visual model.
 
-        Remark: In the URDF format, a joint of type fixed can be defined.
-        For efficiency reasons, it is treated as operational frame and not as a joint of the model.
+    Example:
+        model, collision_model, visual_model = buildModelsFromMJCF(filename, root_joint, verbose, meshLoader, geometry_types, root_joint_name="root_joint_name")
     """
+    arg_keys = ["package_dirs", "root_joint", "verbose", "meshLoader", "geometry_types"]
+
+    for i, arg in enumerate(args):
+        if i < len(arg_keys):
+            kwargs[arg_keys[i]] = arg
 
     # Set default values for optional arguments if they are not provided in kwargs
     kwargs.setdefault("package_dirs", None)
@@ -316,12 +347,12 @@ def buildModelsFromMJCF(filename, **kwargs):
         "geometry_types", [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
     )
     if "root_joint_name" in kwargs.keys():
-        return _buildModelFromUrdfWithRootJointName(filename, **kwargs)
+        return _buildModelsFromMJCFWithRootJointName(filename, **kwargs)
     else:
-        return _buildModelFromUrdfWithoutRootJointName(filename, **kwargs)
+        return _buildModelsFromMJCFWithoutRootJointName(filename, **kwargs)
 
 
-def _buildModelFromMJCFWithoutRootJointName(
+def _buildModelsFromMJCFWithoutRootJointName(
     filename, root_joint=None, verbose=False, meshLoader=None, geometry_types=None
 ):
     if geometry_types is None:
@@ -358,7 +389,7 @@ def _buildModelFromMJCFWithoutRootJointName(
     return tuple(lst)
 
 
-def _buildModelFromMJCFWithRootJointName(
+def _buildModelsFromMJCFWithRootJointName(
     filename,
     root_joint=None,
     root_joint_name="",
