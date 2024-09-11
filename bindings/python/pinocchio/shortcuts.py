@@ -36,9 +36,8 @@ def buildModelsFromUrdf(
 
     arg_keys = ["package_dirs", "root_joint", "verbose", "meshLoader", "geometry_types"]
 
-    for i, arg in enumerate(args):
-        if i < len(arg_keys):
-            kwargs[arg_keys[i]] = arg
+    for key, arg in zip(arg_keys, args):
+        kwargs[key] = arg
 
     # Set default values for optional arguments if they are not provided in kwargs or args
     kwargs.setdefault("package_dirs", None)
@@ -195,10 +194,8 @@ def buildModelsFromSdf(
         "geometry_types",
     ]
 
-    for i, arg in enumerate(args):
-        if i < len(arg_keys):
-            kwargs[arg_keys[i]] = arg
-
+    for key, arg in zip(arg_keys, args):
+        kwargs[key] = arg
     # Set default values for optional arguments if they are not provided in kwargs
     kwargs.setdefault("package_dirs", None)
     kwargs.setdefault("root_joint", None)
@@ -334,9 +331,8 @@ def buildModelsFromMJCF(filename, *args, **kwargs):
     """
     arg_keys = ["package_dirs", "root_joint", "verbose", "meshLoader", "geometry_types"]
 
-    for i, arg in enumerate(args):
-        if i < len(arg_keys):
-            kwargs[arg_keys[i]] = arg
+    for key, arg in zip(arg_keys, args):
+        kwargs[key] = arg
 
     # Set default values for optional arguments if they are not provided in kwargs
     kwargs.setdefault("package_dirs", None)
