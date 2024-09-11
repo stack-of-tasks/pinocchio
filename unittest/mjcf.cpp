@@ -1249,4 +1249,15 @@ BOOST_AUTO_TEST_CASE(test_geometry_parsing)
 }
 #endif // if defined(PINOCCHIO_WITH_HPP_FCL)
 
+BOOST_AUTO_TEST_CASE(test_contact_parsing)
+{
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/../unittest/models/closed_chain.xml");
+
+  pinocchio::Model model;
+  pinocchio::mjcf::buildModel(filename, model, contact_models);
+
+  BOOST_CHECK_EQUAL(contact_models.size(), 4);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -39,9 +39,8 @@ namespace pinocchio
 
       graph.parseGraphFromXML(xmlStr);
 
-      // // Use the Mjcf graph to create the model
+      // Use the Mjcf graph to create the model
       graph.parseRootTree();
-      // TODO: insert the parse contact information here
 
       return model;
     }
@@ -73,9 +72,9 @@ namespace pinocchio
 
       graph.parseGraphFromXML(xmlStr);
 
-      // // Use the Mjcf graph to create the model
+      // Use the Mjcf graph to create the model
       graph.parseRootTree();
-      // TODO: insert the parse contact information here
+      graph.parseContactInformation(model, contact_models);
 
       return model;
     }
@@ -108,7 +107,7 @@ namespace pinocchio
 
       graph.parseGraphFromXML(xmlStr);
 
-      // // Use the Mjcf graph to create the model
+      // Use the Mjcf graph to create the model
       graph.parseRootTree();
 
       return model;
@@ -144,9 +143,9 @@ namespace pinocchio
 
       graph.parseGraphFromXML(xmlStr);
 
-      // // Use the Mjcf graph to create the model
+      // Use the Mjcf graph to create the model
       graph.parseRootTree();
-      // TODO: insert the parse contact information here
+      graph.parseContactInformation(model, contact_models);
 
       return model;
     }

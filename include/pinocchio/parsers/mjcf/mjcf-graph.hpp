@@ -8,7 +8,7 @@
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/joint/joints.hpp"
-
+#include "pinocchio/algorithm/contact-info.hpp"
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/foreach.hpp>
@@ -346,7 +346,7 @@ namespace pinocchio
         // Optional name of the equality constraint
         std::string name;
 
-        // Type of the constraint: (weld or connect for now)
+        // Type of the constraint: (connect for now)
         std::string type;
 
         // // Optional class for setting unspecified attributes
@@ -364,13 +364,14 @@ namespace pinocchio
         // Specified relative to the local coordinate frame of the first body.
         Eigen::Vector3d anchor = Eigen::Vector3d::Zero();
 
+        // TODO: implement when weld is introduced
         // This attribute specifies the relative pose (3D position followed by 4D quaternion
         // orientation) of body2 relative to body1. If the quaternion part (i.e., last 4 components
         // of the vector) are all zeros, as in the default setting, this attribute is ignored and
         // the relative pose is the one corresponding to the model reference pose in qpos0. The
         // unusual default is because all equality constraint types share the same default for their
         // numeric parameters.
-        Eigen::VectorXd relativePose = Eigen::VectorXd::Zero(7);
+        // Eigen::VectorXd relativePose = Eigen::VectorXd::Zero(7);
       };
 
       /// @brief The graph which contains all information taken from the mjcf file
@@ -523,6 +524,13 @@ namespace pinocchio
         /// @param keyframe Keyframe to add
         /// @param keyName Name of the keyframe
         void addKeyFrame(const Eigen::VectorXd & keyframe, const std::string & keyName);
+
+        /// @brief Parse the equality constraints and add them to the model
+        /// @param model Model to add the constraints to
+        /// @param contact_models Vector of contact models to add the constraints to
+        PINOCCHIO_PARSERS_DLLAPI void parseContactInformation(
+          const Model & model,
+          PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models);
 
         /// @brief Fill geometry model with all the info taken from the mjcf model file
         /// @param type Type of geometry to parse (COLLISION or VISUAL)

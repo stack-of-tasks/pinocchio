@@ -3,6 +3,8 @@
 //
 
 #include "pinocchio/parsers/mjcf/mjcf-graph.hpp"
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/contact-info.hpp"
 
 namespace pinocchio
 {
@@ -744,11 +746,10 @@ namespace pinocchio
           std::string type = v.first;
           // List of supported constraints from mjcf description
           // equality -> connect
-          // equality -> weld
 
           // The constraints below are not supported and will be ignored with the following
-          // warning equality -> joint equality -> flex equality -> distance
-          if (type != "connect" && type != "weld")
+          // warning: joint, flex, distance, weld
+          if (type != "connect")
           {
             std::cout << "Warning - Constraint " << type << " is not supported" << std::endl;
             continue;
@@ -768,8 +769,6 @@ namespace pinocchio
           auto body2 = v.second.get_optional<std::string>("<xmlattr>.body2");
           if (body2)
             eq.body2 = *body2;
-          else
-            eq.body2 = "world"; // TODO: find out what is the right name for the world in pinocchio
 
           // get the name of the constraint (if it exists)
           auto name = v.second.get_optional<std::string>("<xmlattr>.name");
@@ -783,22 +782,16 @@ namespace pinocchio
           if (anchor)
             eq.anchor = internal::getVectorFromStream<3>(*anchor);
 
-          // get the relative position
-          auto relpose = v.second.get_optional<std::string>("<xmlattr>.relpose");
-          if (relpose)
-            eq.relativePose = internal::getVectorFromStream<3>(*relpose);
+          // // print what constraint is being added
+          // std::cout << "MjcfEquality: {" << std::endl;
+          // std::cout << "  Name: " << eq.name << std::endl;
+          // std::cout << "  Type: " << eq.type << std::endl;
+          // std::cout << "  Body1: " << eq.body1 << std::endl;
+          // std::cout << "  Body2: " << eq.body2 << std::endl;
+          // std::cout << "  Anchor: [" << eq.anchor.transpose() << "]" << std::endl;
+          // std::cout << "}" << std::endl;
 
-          // print what constraint is being added
-          std::cout << "MjcfEquality: {" << std::endl;
-          std::cout << "  Name: " << eq.name << std::endl;
-          std::cout << "  Type: " << eq.type << std::endl;
-          std::cout << "  Body1: " << eq.body1 << std::endl;
-          std::cout << "  Body2: " << eq.body2 << std::endl;
-          std::cout << "  Anchor: [" << eq.anchor.transpose() << "]" << std::endl;
-          std::cout << "  Relative Pose: [" << eq.relativePose.transpose() << "]" << std::endl;
-          std::cout << "}" << std::endl;
-
-          mapOfEqualities.insert(std::make_pair("equality", eq));
+          mapOfEqualities.insert(std::make_pair(eq.name, eq));
         }
       }
 
@@ -1110,6 +1103,37 @@ namespace pinocchio
         }
         else
           throw std::invalid_argument("Keyframe size does not match model size");
+      }
+
+      void MjcfGraph::parseContactInformation(
+        const Model & model,
+        PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models)
+      {
+        for (const auto & entry : mapOfEqualities)
+        {
+          const MjcfEquality & eq = entry.second;
+
+          SE3 jointPlacement;
+          jointPlacement.setIdentity();
+          jointPlacement.translation() = eq.anchor;
+
+          // Get Joint Indices from the model
+          const JointIndex body1 = urdfVisitor.getParentId(eq.body1);
+
+          // when body2 is not specified, we link to the world
+          if (eq.body2 == "")
+          {
+            RigidConstraintModel rcm(CONTACT_3D, model, body1, jointPlacement, LOCAL);
+            contact_models.push_back(rcm);
+          }
+          else
+          {
+            const JointIndex body2 = urdfVisitor.getParentId(eq.body2);
+            RigidConstraintModel rcm(
+              CONTACT_3D, model, body1, jointPlacement, body2, jointPlacement.inverse(), LOCAL);
+            contact_models.push_back(rcm);
+          }
+        }
       }
 
       void MjcfGraph::parseRootTree()
