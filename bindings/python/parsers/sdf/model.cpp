@@ -39,7 +39,7 @@ namespace pinocchio
       Model model;
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
       pinocchio::sdf::buildModel(
-        filename, root_joint, "root_joint", model, contact_models, root_link_name, parent_guidance);
+        filename, root_joint, model, contact_models, root_link_name, parent_guidance);
       return bp::make_tuple(model, contact_models);
     }
 
