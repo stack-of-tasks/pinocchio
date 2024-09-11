@@ -22,8 +22,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Modernize python code base with ruff ([#2418](https://github.com/stack-of-tasks/pinocchio/pull/2418))
 
+### Changed
+-  Does not create a root_joint frame from parsed models (urdf, mjcf and sdf) when no root joint is provided ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
+
 ### Added
-- Change parsing of model (urdf, mjcf and sdf) when no root joint is provided and let users decide of root joint name ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
+- Added argument to let users decide of root joint name when parsing models (urdf, mjcf, sdf) ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
 
 ## [3.2.0] - 2024-08-27
 
