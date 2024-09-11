@@ -5,12 +5,9 @@
 from . import pinocchio_pywrap_default as pin
 from . import utils
 from .shortcuts import (
-    _buildModelsFromMJCFWithRootJointName,
-    _buildModelsFromMJCFWithoutRootJointName,
-    _buildModelsFromSdfWithRootJointName,
-    _buildModelsFromSdfWithoutRootJointName,
-    _buildModelsFromUrdfWithRootJointName,
-    _buildModelsFromUrdfWithoutRootJointName,
+    buildModelsFromSdf,
+    buildModelsFromMJCF,
+    buildModelsFromUrdf,
     createDatas,
 )
 
@@ -19,40 +16,15 @@ class RobotWrapper:
     @staticmethod
     def BuildFromURDF(filename, *args, **kwargs):
         robot = RobotWrapper()
-        arg_keys = [
-            "package_dirs",
-            "root_joint",
-            "verbose",
-            "meshLoader",
-            "geometry_types",
-        ]
-
-        for i, arg in enumerate(args):
-            if i < len(arg_keys):
-                kwargs[arg_keys[i]] = arg
-
-        # Set default values for optional arguments if they are not provided in kwargs or args
-        kwargs.setdefault("package_dirs", None)
-        kwargs.setdefault("root_joint", None)
-        kwargs.setdefault("verbose", False)
-        kwargs.setdefault("meshLoader", None)
-        kwargs.setdefault(
-            "geometry_types", [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
-        )
 
         robot.initFromURDF(filename, kwargs)
 
         return robot
 
-    def initFromURDF(self, filename, **kwargs):
-        if "root_joint_name" in kwargs.keys():
-            model, collision_model, visual_model = (
-                _buildModelsFromUrdfWithRootJointName(filename, kwargs)
-            )
-        else:
-            model, collision_model, visual_model = (
-                _buildModelsFromUrdfWithoutRootJointName(filename, kwargs)
-            )
+    def initFromURDF(self, filename, *args, **kwargs):
+        model, collision_model, visual_model = buildModelsFromUrdf(
+            filename, args, kwargs
+        )
 
         RobotWrapper.__init__(
             self,
@@ -63,41 +35,15 @@ class RobotWrapper:
 
     @staticmethod
     def BuildFromSDF(filename, *args, **kwargs):
-        arg_keys = [
-            "package_dirs",
-            "root_joint",
-            "root_link_name",
-            "parent_guidance",
-            "verbose",
-            "meshLoader",
-            "geometry_types",
-        ]
-
-        for i, arg in enumerate(args):
-            if i < len(arg_keys):
-                kwargs[arg_keys[i]] = arg
-
-        # Set default values for optional arguments if they are not provided in kwargs
-        kwargs.setdefault("package_dirs", None)
-        kwargs.setdefault("root_joint", None)
-        kwargs.setdefault("root_link_name", "")
-        kwargs.setdefault("parent_guidance", [])
-        kwargs.setdefault("verbose", False)
-        kwargs.setdefault("meshLoader", None)
-        kwargs.setdefault("geometry_types", None)
         robot = RobotWrapper()
-        robot.initFromSDF(filename, kwargs)
+        robot.initFromSDF(filename, args, kwargs)
         return robot
 
-    def initFromSDF(self, filename, **kwargs):
-        if "root_joint_name" in kwargs.keys():
-            model, constraint_models, collision_model, visual_model = (
-                _buildModelsFromSdfWithRootJointName(filename, kwargs)
-            )
-        else:
-            model, constraint_models, collision_model, visual_model = (
-                _buildModelsFromSdfWithoutRootJointName(filename, kwargs)
-            )
+    def initFromSDF(self, filename, *args, **kwargs):
+        model, constraint_models, collision_model, visual_model = buildModelsFromSdf(
+            filename, args, kwargs
+        )
+
         RobotWrapper.__init__(
             self,
             model=model,
@@ -109,40 +55,14 @@ class RobotWrapper:
     @staticmethod
     def BuildFromMJCF(filename, *args, **kwargs):
         robot = RobotWrapper()
-        arg_keys = [
-            "package_dirs",
-            "root_joint",
-            "verbose",
-            "meshLoader",
-            "geometry_types",
-        ]
-
-        for i, arg in enumerate(args):
-            if i < len(arg_keys):
-                kwargs[arg_keys[i]] = arg
-
-        # Set default values for optional arguments if they are not provided in kwargs or args
-        kwargs.setdefault("package_dirs", None)
-        kwargs.setdefault("root_joint", None)
-        kwargs.setdefault("verbose", False)
-        kwargs.setdefault("meshLoader", None)
-        kwargs.setdefault(
-            "geometry_types", [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
-        )
-
-        robot.initFromMJCF(filename, kwargs)
+        robot.initFromMJCF(filename, args, kwargs)
 
         return robot
 
-    def initFromMJCF(self, filename, **kwargs):
-        if "root_joint_name" in kwargs.keys():
-            model, collision_model, visual_model = (
-                _buildModelsFromMJCFWithRootJointName(filename, kwargs)
-            )
-        else:
-            model, collision_model, visual_model = (
-                _buildModelsFromMJCFWithoutRootJointName(filename, kwargs)
-            )
+    def initFromMJCF(self, filename, *args, **kwargs):
+        model, collision_model, visual_model = buildModelsFromMJCF(
+            filename, args, kwargs
+        )
 
         RobotWrapper.__init__(
             self,

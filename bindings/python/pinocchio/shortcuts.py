@@ -33,51 +33,30 @@ def buildModelsFromUrdf(
 
     Remark: In the URDF format, a joint of type fixed can be defined. For efficiency reasons, it is treated as operational frame and not as a joint of the model.
     """
-
+    # Handle the switch from old to new api
     arg_keys = ["package_dirs", "root_joint", "verbose", "meshLoader", "geometry_types"]
+    if len(args) >= 3:
+        if isinstance(args[2], str):
+            arg_keys = [
+                "package_dirs",
+                "root_joint",
+                "root_joint_name",
+                "verbose",
+                "meshLoader",
+                "geometry_types",
+            ]
 
     for key, arg in zip(arg_keys, args):
         kwargs[key] = arg
 
-    # Set default values for optional arguments if they are not provided in kwargs or args
-    kwargs.setdefault("package_dirs", None)
-    kwargs.setdefault("root_joint", None)
-    kwargs.setdefault("verbose", False)
-    kwargs.setdefault("meshLoader", None)
-    kwargs.setdefault(
-        "geometry_types", [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
-    )
-
-    if "root_joint_name" in kwargs.keys():
-        return _buildModelsFromUrdfWithRootJointName(filename, **kwargs)
-    else:
-        return _buildModelsFromUrdfWithoutRootJointName(filename, **kwargs)
+    return _buildModelsFromUrdf(filename, **kwargs)
 
 
-def _buildModelsFromUrdfWithoutRootJointName(
+def _buildModelsFromUrdf(
     filename,
     package_dirs=None,
     root_joint=None,
-    verbose=False,
-    meshLoader=None,
-    geometry_types=[pin.GeometryType.COLLISION, pin.GeometryType.VISUAL],
-) -> Tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
-    return _buildModelsFromUrdfWithRootJointName(
-        filename,
-        package_dirs,
-        root_joint,
-        "root_joint",
-        verbose,
-        meshLoader,
-        geometry_types,
-    )
-
-
-def _buildModelsFromUrdfWithRootJointName(
-    filename,
-    package_dirs=None,
-    root_joint=None,
-    root_joint_name="",
+    root_joint_name=None,
     verbose=False,
     meshLoader=None,
     geometry_types=[pin.GeometryType.COLLISION, pin.GeometryType.VISUAL],
@@ -86,6 +65,8 @@ def _buildModelsFromUrdfWithRootJointName(
         geometry_types = [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
 
     if root_joint is None:
+        model = pin.buildModelFromUrdf(filename)
+    elif root_joint is not None and root_joint_name is None:
         model = pin.buildModelFromUrdf(filename, root_joint)
     else:
         model = pin.buildModelFromUrdf(filename, root_joint, root_joint_name)
@@ -163,50 +144,34 @@ def buildModelsFromSdf(
         "meshLoader",
         "geometry_types",
     ]
+    # Handle the switch from old to new api
+    if len(args) >= 3:
+        if isinstance(args[2], str):
+            arg_keys = [
+                "package_dirs",
+                "root_joint",
+                "root_joint_name",
+                "root_link_name",
+                "parent_guidance",
+                "verbose",
+                "meshLoader",
+                "geometry_types",
+            ]
 
     for key, arg in zip(arg_keys, args):
-        kwargs[key] = arg
-    # Set default values for optional arguments if they are not provided in kwargs
-    kwargs.setdefault("package_dirs", None)
-    kwargs.setdefault("root_joint", None)
-    kwargs.setdefault("root_link_name", "")
-    kwargs.setdefault("parent_guidance", [])
-    kwargs.setdefault("verbose", False)
-    kwargs.setdefault("meshLoader", None)
-    kwargs.setdefault("geometry_types", None)
-    if "root_joint_name" in kwargs.keys():
-        return _buildModelsFromSdfWithRootJointName(filename, **kwargs)
-    else:
-        return _buildModelsFromSdfWithoutRootJointName(filename, **kwargs)
+        if key in kwargs.keys():
+            raise TypeError("Function got multiple values for argument ", key)
+        else:
+            kwargs[key] = arg
+
+    return _buildModelsFromSdf(filename, **kwargs)
 
 
-def _buildModelsFromSdfWithoutRootJointName(
+def _buildModelsFromSdf(
     filename,
     package_dirs=None,
     root_joint=None,
-    root_link_name="",
-    parent_guidance=[],
-    verbose=False,
-    meshLoader=None,
-    geometry_types=None,
-):
-    return _buildModelsFromSdfWithRootJointName(
-        filename,
-        root_joint,
-        "root_joint",
-        root_link_name,
-        parent_guidance,
-        verbose,
-        meshLoader,
-        geometry_types,
-    )
-
-
-def _buildModelsFromSdfWithRootJointName(
-    filename,
-    package_dirs=None,
-    root_joint=None,
-    root_joint_name="",
+    root_joint_name=None,
     root_link_name="",
     parent_guidance=[],
     verbose=False,
@@ -215,15 +180,19 @@ def _buildModelsFromSdfWithRootJointName(
 ):
     if geometry_types is None:
         geometry_types = [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
+
     if root_joint is None:
         model, constraint_models = pin.buildModelFromSdf(
             filename, root_link_name, parent_guidance
+        )
+    elif root_joint is not None and root_joint_name is None:
+        model, constraint_models = pin.buildModelFromSdf(
+            filename, root_joint, root_link_name, parent_guidance
         )
     else:
         model, constraint_models = pin.buildModelFromSdf(
             filename, root_joint, root_joint_name, root_link_name, parent_guidance
         )
-
     if verbose and not WITH_HPP_FCL and meshLoader is not None:
         print(
             "Info: MeshLoader is ignored. Pinocchio has not been compiled with HPP-FCL."
@@ -270,47 +239,45 @@ def buildModelsFromMJCF(filename, *args, **kwargs):
     Example:
         model, collision_model, visual_model = buildModelsFromMJCF(filename, root_joint, verbose, meshLoader, geometry_types, root_joint_name="root_joint_name")
     """
+    # Handle the switch from old to new api
     arg_keys = ["package_dirs", "root_joint", "verbose", "meshLoader", "geometry_types"]
+    if len(args) >= 3:
+        if isinstance(args[2], str):
+            arg_keys = [
+                "package_dirs",
+                "root_joint",
+                "root_joint_name",
+                "verbose",
+                "meshLoader",
+                "geometry_types",
+            ]
 
     for key, arg in zip(arg_keys, args):
-        kwargs[key] = arg
+        if key in kwargs.keys():
+            raise TypeError("Function got multiple values for argument ", key)
+        else:
+            kwargs[key] = arg
 
-    # Set default values for optional arguments if they are not provided in kwargs
-    kwargs.setdefault("package_dirs", None)
-    kwargs.setdefault("root_joint", None)
-    kwargs.setdefault("verbose", False)
-    kwargs.setdefault("meshLoader", None)
-    kwargs.setdefault(
-        "geometry_types", [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
-    )
-    if "root_joint_name" in kwargs.keys():
-        return _buildModelsFromMJCFWithRootJointName(filename, **kwargs)
-    else:
-        return _buildModelsFromMJCFWithoutRootJointName(filename, **kwargs)
+    return _buildModelsFromMJCF(filename, **kwargs)
 
 
-def _buildModelsFromMJCFWithoutRootJointName(
-    filename, root_joint=None, verbose=False, meshLoader=None, geometry_types=None
-):
-    return _buildModelsFromMJCFWithRootJointName(
-        filename, root_joint, "root_joint", verbose, meshLoader, geometry_types
-    )
-
-
-def _buildModelsFromMJCFWithRootJointName(
+def _buildModelsFromMJCF(
     filename,
     root_joint=None,
-    root_joint_name="",
+    root_joint_name=None,
     verbose=False,
     meshLoader=None,
     geometry_types=None,
 ):
     if geometry_types is None:
         geometry_types = [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
+
     if root_joint is None:
-        model = pin.buildModelFromMJCF(filename)
+        model = pin.buildModelFromUrdf(filename)
+    elif root_joint is not None and root_joint_name is None:
+        model = pin.buildModelFromUrdf(filename, root_joint)
     else:
-        model = pin.buildModelFromMJCF(filename, root_joint, root_joint_name)
+        model = pin.buildModelFromUrdf(filename, root_joint, root_joint_name)
 
     if verbose and not WITH_HPP_FCL and meshLoader is not None:
         print(
