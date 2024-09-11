@@ -152,7 +152,29 @@ the null space of task 1 is:
 
 \f$P_1 = I_9 - J_1^+ J_1\f$
 
-\f$vq_2 = vq_1 + P_1 (J_2 P_1)^+ ( v_2^* - J_2 vq_1)\f$
+\f$vq_2 = vq_1 + P_1 (J_2 P_1)^+ (v_2^* - J_2 vq_1)\f$
+
+With the mathematical property
+
+\f$(J_2 P_1)^+ = P_1 (J_2 P_1)^+\f$
+
+we can save a matrix multiplication:
+
+\f$vq_2 = vq_1 + (J_2 P_1)^+ (v_2^* - J_2 vq_1)\f$
+
+It is important to note that the null space of `J1` is defined up to a numeric
+threshold on its eigen values. A low threshold will lead to a trivial null space
+of `J1`, and task 2 could numerically interfere with task 1. It translates into
+setting an appropriate `rcond` or `rtol` when computing the pseudo-inverse of
+`J2 P1`:
+
+```py
+pinv_J2_P1 = pinv(J2 @ P1, rcond=1e-3)
+```
+
+Tuning `rcond` is a tradeoff: if `rcond` is too low (its default is `1e-15`),
+task 2 could interfere with task 1. If it is too high, there won't be enough
+DoFs to complete task 2.
 
 #### Question 2
 
