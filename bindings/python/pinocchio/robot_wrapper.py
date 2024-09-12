@@ -17,13 +17,13 @@ class RobotWrapper:
     def BuildFromURDF(filename, *args, **kwargs):
         robot = RobotWrapper()
 
-        robot.initFromURDF(filename, kwargs)
+        robot.initFromURDF(filename, *args, **kwargs)
 
         return robot
 
     def initFromURDF(self, filename, *args, **kwargs):
         model, collision_model, visual_model = buildModelsFromUrdf(
-            filename, args, kwargs
+            filename, *args, **kwargs
         )
 
         RobotWrapper.__init__(
@@ -36,12 +36,12 @@ class RobotWrapper:
     @staticmethod
     def BuildFromSDF(filename, *args, **kwargs):
         robot = RobotWrapper()
-        robot.initFromSDF(filename, args, kwargs)
+        robot.initFromSDF(filename, *args, **kwargs)
         return robot
 
     def initFromSDF(self, filename, *args, **kwargs):
         model, constraint_models, collision_model, visual_model = buildModelsFromSdf(
-            filename, args, kwargs
+            filename, *args, **kwargs
         )
 
         RobotWrapper.__init__(
@@ -55,13 +55,13 @@ class RobotWrapper:
     @staticmethod
     def BuildFromMJCF(filename, *args, **kwargs):
         robot = RobotWrapper()
-        robot.initFromMJCF(filename, args, kwargs)
+        robot.initFromMJCF(filename, *args, **kwargs)
 
         return robot
 
     def initFromMJCF(self, filename, *args, **kwargs):
         model, collision_model, visual_model = buildModelsFromMJCF(
-            filename, args, kwargs
+            filename, *args, **kwargs
         )
 
         RobotWrapper.__init__(
