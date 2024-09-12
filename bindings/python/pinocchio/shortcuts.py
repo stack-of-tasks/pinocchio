@@ -47,7 +47,10 @@ def buildModelsFromUrdf(
             ]
 
     for key, arg in zip(arg_keys, args):
-        kwargs[key] = arg
+        if key in kwargs.keys():
+            raise TypeError("Function got multiple values for argument ", key)
+        else:
+            kwargs[key] = arg
 
     return _buildModelsFromUrdf(filename, **kwargs)
 
