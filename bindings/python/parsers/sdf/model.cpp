@@ -46,8 +46,8 @@ namespace pinocchio
     bp::tuple buildModelFromSdf(
       const std::string & filename,
       const JointModel & root_joint,
-      const std::string & root_joint_name,
       const std::string & root_link_name,
+      const std::string & root_joint_name,
       const std::vector<std::string> & parent_guidance)
     {
       Model model;
@@ -86,8 +86,8 @@ namespace pinocchio
         static_cast<bp::tuple (*)(
           const std::string &, const JointModel &, const std::string &, const std::string &,
           const std::vector<std::string> &)>(pinocchio::python::buildModelFromSdf),
-        (bp::arg("sdf_filename"), bp::arg("root_joint"), bp::arg("root_joint_name"),
-         bp::arg("root_link_name"), bp::arg("parent_guidance") = bp::list()),
+        (bp::arg("sdf_filename"), bp::arg("root_joint"), bp::arg("root_link_name"),
+         bp::arg("root_joint_name"), bp::arg("parent_guidance") = bp::list()),
         "Parse the SDF file given in input and return a pinocchio Model and constraint "
         "models starting with the given root joint and its specified name.");
 #endif

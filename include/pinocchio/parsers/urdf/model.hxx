@@ -141,9 +141,16 @@ namespace pinocchio
         typedef typename Model::Frame Frame;
 
         Model & model;
+        std::string root_joint_name;
 
         UrdfVisitor(Model & model)
         : model(model)
+        {
+        }
+
+        UrdfVisitor(Model & model, const std::string & rjn)
+        : model(model)
+        , root_joint_name(rjn)
         {
         }
 
@@ -445,15 +452,13 @@ namespace pinocchio
         typedef typename Model::JointModel JointModel;
 
         JointModel root_joint;
-        std::string root_joint_name;
 
         UrdfVisitorWithRootJoint(
           Model & model,
           const JointModelBase<JointModel> & root_joint,
-          const std::string & root_joint_name = "root_joint")
-        : Base(model)
+          const std::string & rjn = "root_joint")
+        : Base(model, rjn)
         , root_joint(root_joint.derived())
-        , root_joint_name(root_joint_name)
         {
         }
 
@@ -462,11 +467,11 @@ namespace pinocchio
           const Frame & frame = model.frames[0];
 
           PINOCCHIO_THROW(
-            !model.existJointName(root_joint_name), std::invalid_argument,
+            !model.existJointName(this->root_joint_name), std::invalid_argument,
             "root_joint already exists as a joint in the kinematic tree.");
 
           JointIndex idx = model.addJoint(
-            frame.parentJoint, root_joint, SE3::Identity(), root_joint_name
+            frame.parentJoint, root_joint, SE3::Identity(), this->root_joint_name
             // TODO ,max_effort,max_velocity,min_config,max_config
           );
 
@@ -539,7 +544,8 @@ namespace pinocchio
       const bool verbose)
     {
       if (rootJointName.empty())
-        const_cast<std::string &>(rootJointName) = "root_joint";
+        throw std::invalid_argument(
+          "rootJoint was given without a name. Please fill the argument rootJointName");
 
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
         model, rootJoint, rootJointName);
@@ -581,7 +587,8 @@ namespace pinocchio
       const bool verbose)
     {
       if (rootJointName.empty())
-        const_cast<std::string &>(rootJointName) = "root_joint";
+        throw std::invalid_argument(
+          "rootJoint was given without a name. Please fill the argument rootJointName");
 
       PINOCCHIO_CHECK_INPUT_ARGUMENT(urdfTree != NULL);
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(

@@ -416,7 +416,7 @@ namespace pinocchio
             pMj(SE3::Identity());
 
           // Find pose of parent link w.r.t. parent joint.
-          if (parentJointName != "root_joint" && parentJointName != "universe")
+          if (parentJointName != urdfVisitor.root_joint_name && parentJointName != "universe")
           {
             const ::sdf::ElementPtr parentJointElement = mapOfJoints.find(parentJointName)->second;
 

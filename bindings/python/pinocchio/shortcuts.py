@@ -194,7 +194,7 @@ def _buildModelsFromSdf(
         )
     else:
         model, constraint_models = pin.buildModelFromSdf(
-            filename, root_joint, root_joint_name, root_link_name, parent_guidance
+            filename, root_joint, root_link_name, root_joint_name, parent_guidance
         )
     if verbose and not WITH_HPP_FCL and meshLoader is not None:
         print(
@@ -243,11 +243,10 @@ def buildModelsFromMJCF(filename, *args, **kwargs):
         model, collision_model, visual_model = buildModelsFromMJCF(filename, root_joint, verbose, meshLoader, geometry_types, root_joint_name="root_joint_name")
     """
     # Handle the switch from old to new api
-    arg_keys = ["package_dirs", "root_joint", "verbose", "meshLoader", "geometry_types"]
-    if len(args) >= 3:
-        if isinstance(args[2], str):
+    arg_keys = ["root_joint", "verbose", "meshLoader", "geometry_types"]
+    if len(args) >= 2:
+        if isinstance(args[1], str):
             arg_keys = [
-                "package_dirs",
                 "root_joint",
                 "root_joint_name",
                 "verbose",
@@ -276,11 +275,11 @@ def _buildModelsFromMJCF(
         geometry_types = [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
 
     if root_joint is None:
-        model = pin.buildModelFromUrdf(filename)
+        model = pin.buildModelFromMJCF(filename)
     elif root_joint is not None and root_joint_name is None:
-        model = pin.buildModelFromUrdf(filename, root_joint)
+        model = pin.buildModelFromMJCF(filename, root_joint)
     else:
-        model = pin.buildModelFromUrdf(filename, root_joint, root_joint_name)
+        model = pin.buildModelFromMJCF(filename, root_joint, root_joint_name)
 
     if verbose and not WITH_HPP_FCL and meshLoader is not None:
         print(
