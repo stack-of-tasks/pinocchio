@@ -125,8 +125,8 @@ def buildModelsFromSdf(
         - filename - name of the urdf file to load
         - package_dirs - where the meshes of the urdf are located. (default - None)
         - root_joint - Joint at the base of the model (default - None)
-        - root_joint_name - Name for the root_joint (default - "root_joint")
         - root_link_name - Name of the body to use as root of the model (default - "")
+        - root_joint_name - Name for the root_joint (default - "root_joint")
         - parent_guidance - Joint names which should be preferred for cases where two joints can qualify as parent. The other joint appears in the constraint_model. If empty, joint appearance order in .sdf is taken as default.
         - verbose - print information of parsing (default - False)
         - meshLoader - object used to load meshes (default - hpp::fcl::MeshLoader)
@@ -148,13 +148,13 @@ def buildModelsFromSdf(
         "geometry_types",
     ]
     # Handle the switch from old to new api
-    if len(args) >= 3:
-        if isinstance(args[2], str):
+    if len(args) >= 4:
+        if isinstance(args[3], str):
             arg_keys = [
                 "package_dirs",
                 "root_joint",
-                "root_joint_name",
                 "root_link_name",
+                "root_joint_name",
                 "parent_guidance",
                 "verbose",
                 "meshLoader",
@@ -174,8 +174,8 @@ def _buildModelsFromSdf(
     filename,
     package_dirs=None,
     root_joint=None,
-    root_joint_name=None,
     root_link_name="",
+    root_joint_name=None,
     parent_guidance=[],
     verbose=False,
     meshLoader=None,
