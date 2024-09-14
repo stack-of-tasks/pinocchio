@@ -470,6 +470,7 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/version.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/pickle-vector.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/macros.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/path.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/std-vector.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/printable.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/dependencies.hpp
@@ -568,6 +569,7 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/utils/version.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/utils/dependencies.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/utils/conversions.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/utils/path.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/math/expose-linalg.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/math/expose-tridiagonal-matrix.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/math/expose-lanczos-decomposition.cpp

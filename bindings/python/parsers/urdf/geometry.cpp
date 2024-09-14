@@ -7,6 +7,7 @@
 #endif
 #include "pinocchio/bindings/python/parsers/urdf.hpp"
 #include "pinocchio/bindings/python/utils/list.hpp"
+#include "pinocchio/bindings/python/utils/path.hpp"
 
 #include <boost/python.hpp>
 
@@ -50,18 +51,24 @@ namespace pinocchio
       bp::extract<const std::vector<std::string> &> pkg_dirs_vect_extract(py_pkg_dirs);
       if (py_pkg_dirs.is_none())
       {
-      } // Provided None
+      }
       else if (pkg_dir_extract.check()) // Provided a string
         pkg_dirs.push_back(pkg_dir_extract());
       else if (pkg_dirs_list_extract.check()) // Provided a list of string
         extract(pkg_dirs_list_extract(), pkg_dirs);
       else if (pkg_dirs_vect_extract.check()) // Provided a vector of string
         pkg_dirs = pkg_dirs_vect_extract();
+      else if (
+        PyObject_HasAttrString(py_pkg_dirs.ptr(), "__module__")
+        && bp::extract<std::string>(py_pkg_dirs.attr("__module__"))() == std::string("pathlib"))
+      {
+        pkg_dirs.push_back(path(py_pkg_dirs));
+      }
       else
       { // Did not understand the provided argument
         std::string what = bp::extract<std::string>(py_pkg_dirs.attr("__str__")())();
         throw std::invalid_argument(
-          "pkg_dirs must be either None, a string or a list of strings. Provided " + what);
+          "pkg_dirs must be either None, a string, a Path, or a list of strings. Provided " + what);
       }
 
       pinocchio::urdf::buildGeom(model, stream, type, geometry_model, pkg_dirs, mesh_loader);
@@ -121,16 +128,17 @@ namespace pinocchio
 
     GeometryModel * buildGeomFromUrdfFile(
       const Model & model,
-      const std::string & filename,
+      const bp::object & filename,
       const GeometryType type,
       bp::object geom_model,
       bp::object package_dirs,
       bp::object mesh_loader)
     {
-      std::ifstream stream(filename.c_str());
+      const std::string filename_s = path(filename);
+      std::ifstream stream(filename_s.c_str());
       if (!stream.is_open())
       {
-        throw std::invalid_argument(filename + " does not seem to be a valid file.");
+        throw std::invalid_argument(filename_s + " does not seem to be a valid file.");
       }
       return buildGeomFromUrdfStream(model, stream, type, geom_model, package_dirs, mesh_loader);
     }
