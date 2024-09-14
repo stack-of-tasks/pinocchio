@@ -3,7 +3,6 @@ import unittest
 import numpy as np
 import pinocchio as pin
 from pinocchio.utils import eye, rand, zero
-
 from test_case import PinocchioTestCase as TestCase
 
 

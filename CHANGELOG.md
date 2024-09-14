@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix mjcf parser appending of inertias at root joint ([#2403](https://github.com/stack-of-tasks/pinocchio/pull/2403))
 - Fix unit tests with GCC 13.3 ([#2406](https://github.com/stack-of-tasks/pinocchio/pull/2416)
 
+### Changed
+
+- Modernize python code base with ruff ([#2418](https://github.com/stack-of-tasks/pinocchio/pull/2418))
+
 ## [3.2.0] - 2024-08-27
 
 ### Fixed

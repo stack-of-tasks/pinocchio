@@ -1,16 +1,14 @@
-import unittest
-import sys
 import os
+import sys
+import unittest
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from test_case import PinocchioTestCase as TestCase
-
-import pinocchio as pin
-from pinocchio import casadi as cpin
-
 import casadi
-from casadi import SX
 import numpy as np
+import pinocchio as pin
+from casadi import SX
+from pinocchio import casadi as cpin
+from test_case import PinocchioTestCase as TestCase
 
 
 class TestMainAlgos(TestCase):

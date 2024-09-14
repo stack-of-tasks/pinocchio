@@ -47,9 +47,9 @@ if args.with_cart:
 
     body_inertia = pin.Inertia.FromCylinder(cart_mass, cart_radius, cart_length)
     body_placement = geometry_placement
-    model.appendBodyToJoint(
-        joint_id, body_inertia, body_placement
-    )  # We need to rotate the inertia as it is expressed in the LOCAL frame of the geometry
+    # We need to rotate the inertia as it is expressed in the LOCAL frame of the
+    # geometry.
+    model.appendBodyToJoint(joint_id, body_inertia, body_placement)
 
     shape_cart = fcl.Cylinder(cart_radius, cart_length)
 
@@ -85,7 +85,7 @@ for k in range(N):
     geom1_name = "ball_" + str(k + 1)
     shape1 = fcl.Sphere(body_radius)
     geom1_obj = pin.GeometryObject(geom1_name, joint_id, body_placement, shape1)
-    geom1_obj.meshColor = np.ones((4))
+    geom1_obj.meshColor = np.ones(4)
     geom_model.addGeometryObject(geom1_obj)
 
     geom2_name = "bar_" + str(k + 1)
@@ -108,7 +108,8 @@ try:
     viz.initViewer()
 except ImportError as err:
     print(
-        "Error while initializing the viewer. It seems you should install gepetto-viewer"
+        "Error while initializing the viewer. "
+        "It seems you should install gepetto-viewer"
     )
     print(err)
     sys.exit(0)
@@ -117,7 +118,8 @@ try:
     viz.loadViewerModel("pinocchio")
 except AttributeError as err:
     print(
-        "Error while loading the viewer model. It seems you should start gepetto-viewer"
+        "Error while loading the viewer model. "
+        "It seems you should start gepetto-viewer"
     )
     print(err)
     sys.exit(0)
@@ -142,8 +144,8 @@ data_sim = model.createData()
 
 t = 0.0
 q = pin.randomConfiguration(model)
-v = np.zeros((model.nv))
-tau_control = np.zeros((model.nv))
+v = np.zeros(model.nv)
+tau_control = np.zeros(model.nv)
 damping_value = 0.1
 for k in range(N):
     tic = time.time()

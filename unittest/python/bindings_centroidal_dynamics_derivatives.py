@@ -1,8 +1,8 @@
 import unittest
-from test_case import PinocchioTestCase as TestCase
 
-import pinocchio as pin
 import numpy as np
+import pinocchio as pin
+from test_case import PinocchioTestCase as TestCase
 
 
 class TestDeriavtives(TestCase):
@@ -12,8 +12,8 @@ class TestDeriavtives(TestCase):
 
         qmax = np.full((self.model.nq, 1), np.pi)
         self.q = pin.randomConfiguration(self.model, -qmax, qmax)
-        self.v = np.random.rand((self.model.nv))
-        self.a = np.random.rand((self.model.nv))
+        self.v = np.random.rand(self.model.nv)
+        self.a = np.random.rand(self.model.nv)
 
     def test_centroidal_derivatives(self):
         res = pin.computeCentroidalDynamicsDerivatives(

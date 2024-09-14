@@ -2,11 +2,11 @@
 # Note: this feature requires Meshcat to be installed, this can be done using
 # pip install --user meshcat
 
-import pinocchio as pin
-import numpy as np
 import sys
-from os.path import dirname, join, abspath
+from os.path import abspath, dirname, join
 
+import numpy as np
+import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
 
 # Load the URDF model.
@@ -23,7 +23,8 @@ model, collision_model, visual_model = pin.buildModelsFromUrdf(
 )
 
 # Start a new MeshCat server and client.
-# Note: the server can also be started separately using the "meshcat-server" command in a terminal:
+# Note: the server can also be started separately using the "meshcat-server" command in
+# a terminal:
 # this enables the server to remain active after the current script ends.
 #
 # Option open=True pens the visualizer.
@@ -33,14 +34,15 @@ try:
     viz.initViewer(open=True)
 except ImportError as err:
     print(
-        "Error while initializing the viewer. It seems you should install Python meshcat"
+        "Error while initializing the viewer. "
+        "It seems you should install Python meshcat"
     )
     print(err)
     sys.exit(0)
 
 # Load the robot in the viewer.
-# Color is needed here because the Romeo URDF doesn't contain any color, so the default color results in an
-# invisible robot (alpha value set to 0).
+# Color is needed here because the Romeo URDF doesn't contain any color, so the default
+# color results in an invisible robot (alpha value set to 0).
 viz.loadViewerModel(color=[0.0, 0.0, 0.0, 1.0])
 
 # Display a robot configuration.

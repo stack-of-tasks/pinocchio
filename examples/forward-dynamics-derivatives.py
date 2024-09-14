@@ -1,11 +1,13 @@
-import pinocchio as pin
 import numpy as np
+import pinocchio as pin
 
 ##
 ## In this short script, we show how to compute the derivatives of the
 ## forward dynamics, using the algorithms explained in:
 ##
-## Analytical Derivatives of Rigid Body Dynamics Algorithms, Justin Carpentier and Nicolas Mansard, Robotics: Science and Systems, 2018
+## Analytical Derivatives of Rigid Body Dynamics Algorithms,
+## Justin Carpentier and Nicolas Mansard,
+## Robotics: Science and Systems, 2018
 ##
 
 # Create model and data

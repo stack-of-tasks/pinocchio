@@ -1,12 +1,11 @@
-from os.path import dirname, join, abspath
 import math
 import sys
+from os.path import abspath, dirname, join
 
+import hppfcl as fcl
 import numpy as np
-
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer as Visualizer
-import hppfcl as fcl
 
 # load model from example-robot urdf
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models/")
@@ -43,7 +42,7 @@ model2.appendBodyToJoint(joint_id, body_inertia, body_placement)
 geom1_name = "ball"
 shape1 = fcl.Sphere(body_radius)
 geom1_obj = pin.GeometryObject(geom1_name, joint_id, body_placement, shape1)
-geom1_obj.meshColor = np.ones((4))
+geom1_obj.meshColor = np.ones(4)
 geom_model.addGeometryObject(geom1_obj)
 
 geom2_name = "bar"
@@ -69,8 +68,8 @@ model, visual_model = pin.appendModel(
 )
 
 print(
-    "Check the joints of the appended model:\n %s \n ->Notice the spherical joint at the end."
-    % model
+    f"Check the joints of the appended model:\n {model} \n "
+    "->Notice the spherical joint at the end."
 )
 
 try:
@@ -78,7 +77,8 @@ try:
     viz.initViewer(open=True)
 except ImportError as err:
     print(
-        "Error while initializing the viewer. It seems you should install Python meshcat"
+        "Error while initializing the viewer. "
+        "It seems you should install Python meshcat"
     )
     print(err)
     sys.exit(0)

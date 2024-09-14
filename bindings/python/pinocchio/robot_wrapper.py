@@ -12,7 +12,7 @@ from .shortcuts import (
 )
 
 
-class RobotWrapper(object):
+class RobotWrapper:
     @staticmethod
     def BuildFromURDF(
         filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None
@@ -160,13 +160,16 @@ class RobotWrapper(object):
 
     def centroidalMap(self, q):
         """
-        Computes the centroidal momentum matrix which maps from the joint velocity vector to the centroidal momentum expressed around the center of mass.
+        Computes the centroidal momentum matrix which maps from the joint velocity
+        vector to the centroidal momentum expressed around the center of mass.
         """
         return pin.computeCentroidalMap(self.model, self.data, q)
 
     def centroidal(self, q, v):
         """
-        Computes all the quantities related to the centroidal dynamics (hg, Ag and Ig), corresponding to the centroidal momentum, the centroidal map and the centroidal rigid inertia.
+        Computes all the quantities related to the centroidal dynamics (hg, Ag and Ig),
+        corresponding to the centroidal momentum, the centroidal map and the centroidal
+        rigid inertia.
         """
         pin.ccrba(self.model, self.data, q, v)
         return (self.data.hg, self.data.Ag, self.data.Ig)
@@ -350,15 +353,16 @@ class RobotWrapper(object):
 
     def getFrameJacobian(self, frame_id, rf_frame=pin.ReferenceFrame.LOCAL):
         """
-        It computes the Jacobian of frame given by its id (frame_id) either expressed in the
-        local coordinate frame or in the world coordinate frame.
+        It computes the Jacobian of frame given by its id (frame_id) either expressed in
+        the local coordinate frame or in the world coordinate frame.
         """
         return pin.getFrameJacobian(self.model, self.data, frame_id, rf_frame)
 
     def computeFrameJacobian(self, q, frame_id):
         """
         Similar to getFrameJacobian but does not need pin.computeJointJacobians and
-        pin.updateFramePlacements to update internal value of self.data related to frames.
+        pin.updateFramePlacements to update internal value of self.data related to
+        frames.
         """
         return pin.computeFrameJacobian(self.model, self.data, q, frame_id)
 
@@ -396,8 +400,10 @@ class RobotWrapper(object):
         return self.viz.viewer
 
     def setVisualizer(self, visualizer, init=True, copy_models=False):
-        """Set the visualizer. If init is True, the visualizer is initialized with this wrapper's models.
-        If copy_models is also True, the models are copied. Otherwise, they are simply kept as a reference.
+        """
+        Set the visualizer. If init is True, the visualizer is initialized with this
+        wrapper's models.  If copy_models is also True, the models are copied.
+        Otherwise, they are simply kept as a reference.
         """
         if init:
             visualizer.__init__(
@@ -406,7 +412,10 @@ class RobotWrapper(object):
         self.viz = visualizer
 
     def getViewerNodeName(self, geometry_object, geometry_type):
-        """For each geometry object, returns the corresponding name of the node in the display."""
+        """
+        For each geometry object, returns the corresponding name of the node in the
+        display.
+        """
         return self.viz.getViewerNodeName(geometry_object, geometry_type)
 
     def initViewer(self, share_data=True, *args, **kwargs):
@@ -437,7 +446,9 @@ class RobotWrapper(object):
         self.viz.loadViewerModel(*args, **kwargs)
 
     def display(self, q):
-        """Display the robot at configuration q in the viewer by placing all the bodies."""
+        """
+        Display the robot at configuration q in the viewer by placing all the bodies.
+        """
         self.viz.display(q)
 
     def displayCollisions(self, visibility):

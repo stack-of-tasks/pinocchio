@@ -1,7 +1,7 @@
 import unittest
-import pinocchio as pin
-import numpy as np
 
+import numpy as np
+import pinocchio as pin
 from test_case import PinocchioTestCase
 
 
@@ -148,7 +148,7 @@ class TestFrameBindings(PinocchioTestCase):
         data = model.createData()
 
         q = pin.neutral(model)
-        v = np.random.rand((model.nv))
+        v = np.random.rand(model.nv)
         frame_id = self.frame_idx
 
         J1 = pin.computeFrameJacobian(model, data, q, frame_id)

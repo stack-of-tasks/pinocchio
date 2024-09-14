@@ -1,10 +1,11 @@
+import sys
+
 import casadi
 import hppfcl as fcl
 import numpy as np
 import pinocchio as pin
-from pinocchio.visualize import MeshcatVisualizer
 import pinocchio.casadi as cpin
-import sys
+from pinocchio.visualize import MeshcatVisualizer
 
 
 def make_cartpole(ub=True):
@@ -90,7 +91,9 @@ class PinocchioCasadi:
         self.acc_func = casadi.Function("acc", [q, v, u], [a], ["q", "v", "u"], ["a"])
 
     def create_discrete_dynamics(self):
-        """Create the map `(q,v) -> (qnext, vnext)` using semi-implicit Euler integration."""
+        """
+        Create the map `(q,v) -> (qnext, vnext)` using semi-implicit Euler integration.
+        """
         q = self.q_node
         v = self.v_node
         u = self.u_node
@@ -183,7 +186,8 @@ try:
     viz.play(q_trajectory=qs_, dt=dt)
 except ImportError as err:
     print(
-        "Error while initializing the viewer. It seems you should install Python meshcat"
+        "Error while initializing the viewer. "
+        "It seems you should install Python meshcat"
     )
     print(err)
     sys.exit(0)

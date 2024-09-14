@@ -1,10 +1,10 @@
 # NOTE: this example needs gepetto-gui to be installed
 # usage: launch gepetto-gui and then run this test
 
-import pinocchio as pin
 import sys
-from os.path import dirname, join, abspath
+from os.path import abspath, dirname, join
 
+import pinocchio as pin
 from pinocchio.visualize import GepettoVisualizer
 
 # Load the URDF model.
@@ -26,7 +26,8 @@ try:
     viz.initViewer()
 except ImportError as err:
     print(
-        "Error while initializing the viewer. It seems you should install gepetto-viewer"
+        "Error while initializing the viewer. "
+        "It seems you should install gepetto-viewer"
     )
     print(err)
     sys.exit(0)
@@ -35,7 +36,8 @@ try:
     viz.loadViewerModel("pinocchio")
 except AttributeError as err:
     print(
-        "Error while loading the viewer model. It seems you should start gepetto-viewer"
+        "Error while loading the viewer model. "
+        "It seems you should start gepetto-viewer"
     )
     print(err)
     sys.exit(0)

@@ -1,8 +1,9 @@
 import unittest
-from test_case import PinocchioTestCase as TestCase
+
+import numpy as np
 import pinocchio as pin
 from pinocchio.utils import rand
-import numpy as np
+from test_case import PinocchioTestCase as TestCase
 
 
 class TestComBindings(TestCase):

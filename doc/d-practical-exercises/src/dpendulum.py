@@ -2,7 +2,6 @@ import time
 
 import numpy as np
 from numpy import pi
-
 from pendulum import Pendulum
 
 p = Pendulum(1)

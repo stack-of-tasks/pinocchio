@@ -4,10 +4,11 @@ from pinocchio.utils import se3ToXYZQUATtuple
 
 
 def display_prm(robot, graph):
-    """Take a graph object containing a list of configurations q and
-    a dictionnary of graph relations edge. Display the configurations by the correspond
-    placement of the robot end effector. Display the graph relation by vertices connecting
-    the robot end effector positions.
+    """
+    Take a graph object containing a list of configurations q and a dictionnary of graph
+    relations edge. Display the configurations by the correspond placement of the robot
+    end effector. Display the graph relation by vertices connecting the robot end
+    effector positions.
     """
 
     gui = robot.viewer.gui

@@ -7,12 +7,13 @@ from pinocchio.utils import eye
 class MobileRobotWrapper(RobotWrapper):
     """
     The class models a mobile robot with UR5 arm, feature 3+6 DOF.
-    The configuration of the basis is represented by [X, Y, cos, sin], with the additionnal constraint
-    that (cos, sin) should have norm 1. Hence take care when sampling and integrating configurations.
-    The robot is depicted as an orange box with two black cylinders (wheels) atop of which is the
-    classical (realistic) UR5 model.
-    The model also features to OPERATIONAL frames, named "mobile" (on the front of the mobile basis, 30cm
-    above the ground) and "tool" (at the very end of the effector).
+    The configuration of the basis is represented by [X, Y, cos, sin], with the
+    additionnal constraint that (cos, sin) should have norm 1. Hence take care when
+    sampling and integrating configurations.
+    The robot is depicted as an orange box with two black cylinders (wheels) atop of
+    which is the classical (realistic) UR5 model.
+    The model also features to OPERATIONAL frames, named "mobile" (on the front of the
+    mobile basis, 30cm above the ground) and "tool" (at the very end of the effector).
     """
 
     def __init__(self, urdf, pkgs):
@@ -29,7 +30,8 @@ class MobileRobotWrapper(RobotWrapper):
         basisMop = pin.SE3(eye(3), np.array([0.3, 0.0, 0.1]))
         self.model.addFrame(pin.Frame("mobile", 1, 1, basisMop, pin.FrameType.OP_FRAME))
 
-        # Placement of the tool frame wrt end effector frame (located at the center of the wrist)
+        # Placement of the tool frame wrt end effector frame (located at the center of
+        # the wrist)
         effMop = pin.SE3(eye(3), np.maarraytrix([0.0, 0.08, 0.095]))
         self.model.addFrame(pin.Frame("tool", 6, 6, effMop, pin.FrameType.OP_FRAME))
 

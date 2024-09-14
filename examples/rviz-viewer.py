@@ -1,9 +1,9 @@
 # NOTE: this example needs RViz to be installed
 # usage: start ROS master (roscore) and then run this test
 
-import pinocchio as pin
-from os.path import dirname, join, abspath
+from os.path import abspath, dirname, join
 
+import pinocchio as pin
 from pinocchio.visualize import RVizVisualizer
 
 # Load the URDF model.

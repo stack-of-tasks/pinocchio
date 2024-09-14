@@ -1,10 +1,11 @@
+import abc
+import os.path as osp
+import time
+
+import numpy as np
+
 from .. import pinocchio_pywrap_default as pin
 from ..shortcuts import createDatas
-
-import time
-import numpy as np
-import os.path as osp
-import abc
 
 try:
     import imageio
@@ -15,8 +16,11 @@ except ImportError:
 
 
 class BaseVisualizer(abc.ABC):
-    """Pinocchio visualizers are employed to easily display a model at a given configuration.
-    BaseVisualizer is not meant to be directly employed, but only to provide a uniform interface and a few common methods.
+    """
+    Pinocchio visualizers are employed to easily display a model at a given
+    configuration.
+    BaseVisualizer is not meant to be directly employed, but only to provide a uniform
+    interface and a few common methods.
     New visualizers should extend this class and override its methods as neeeded.
     """
 
@@ -34,8 +38,11 @@ class BaseVisualizer(abc.ABC):
         collision_data=None,
         visual_data=None,
     ):
-        """Construct a display from the given model, collision model, and visual model.
-        If copy_models is True, the models are copied. Otherwise, they are simply kept as a reference."""
+        """
+        Construct a display from the given model, collision model, and visual model.
+        If copy_models is True, the models are copied. Otherwise, they are simply kept
+        as a reference.
+        """
 
         if copy_models:
             self.model = model.copy()
@@ -90,8 +97,11 @@ class BaseVisualizer(abc.ABC):
 
     @abc.abstractmethod
     def display(self, q=None):
-        """Display the robot at configuration q or refresh the rendering
-        from the current placements contained in data by placing all the bodies in the viewer."""
+        """
+        Display the robot at configuration q or refresh the rendering
+        from the current placements contained in data by placing all the bodies in the
+        viewer.
+        """
 
     @abc.abstractmethod
     def displayCollisions(self, visibility):
@@ -144,7 +154,10 @@ class BaseVisualizer(abc.ABC):
         return self._video_writer is not None
 
     def play(self, q_trajectory, dt=None, callback=None, capture=False, **kwargs):
-        """Play a trajectory with given time step. Optionally capture RGB images and returns them."""
+        """
+        Play a trajectory with given time step. Optionally capture RGB images and
+        returns them.
+        """
         nsteps = len(q_trajectory)
         if not capture:
             capture = self.has_video_writer()
@@ -169,13 +182,14 @@ class BaseVisualizer(abc.ABC):
             return imgs
 
     def create_video_ctx(self, filename=None, fps=30, directory=None, **kwargs):
-        """Create a video recording context, generating the output filename if necessary.
+        """
+        Create a video recording context, generating the output filename if necessary.
 
         Code inspired from https://github.com/petrikvladimir/RoboMeshCat.
         """
         if not IMAGEIO_SUPPORT:
-            import warnings
             import contextlib
+            import warnings
 
             warnings.warn(
                 "Video context cannot be created because imageio is not available.",
@@ -189,7 +203,7 @@ class BaseVisualizer(abc.ABC):
                 directory = gettempdir()
             f_fmt = "%Y%m%d_%H%M%S"
             ext = "mp4"
-            filename = time.strftime("{}.{}".format(f_fmt, ext))
+            filename = time.strftime(f"{f_fmt}.{ext}")
             filename = osp.join(directory, filename)
         return VideoContext(self, fps, filename)
 

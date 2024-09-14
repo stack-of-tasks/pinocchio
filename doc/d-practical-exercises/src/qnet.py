@@ -1,5 +1,6 @@
 """
-Example of Q-table learning with a simple discretized 1-pendulum environment using a linear Q network.
+Example of Q-table learning with a simple discretized 1-pendulum environment using a
+linear Q network.
 """
 
 import signal
@@ -8,7 +9,6 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-
 from dpendulum import DPendulum
 
 ### --- Random seed
