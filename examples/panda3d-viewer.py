@@ -4,14 +4,12 @@
 # ruff: noqa: E402
 
 import sys
-from os.path import abspath, dirname, join
+from pathlib import Path
 
 # Add path to the example-robot-data package from git submodule.
-# If you have it properly installed, there is no need for this sys.path thing.
-path = join(
-    dirname(dirname(abspath(__file__))), "models", "example-robot-data", "python"
-)
-sys.path.append(path)
+# If you have it properly installed, there is no need for this sys.path thing.)
+path = Path(__file__).parent.parent / "models" / "example-robot-data" / "python"
+sys.path.append(str(path))
 from example_robot_data.robots_loader import (
     HectorLoader,
     HyQLoader,

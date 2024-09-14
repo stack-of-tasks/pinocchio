@@ -1,5 +1,5 @@
-import os
 import unittest
+from pathlib import Path
 
 import numpy as np
 import pinocchio as pin
@@ -9,28 +9,13 @@ from test_case import PinocchioTestCase as TestCase
 @unittest.skipUnless(pin.WITH_URDFDOM, "Needs URDFDOM")
 class TestContactInverseDynamics(TestCase):
     def setUp(self):
-        self.current_file = os.path.dirname(str(os.path.abspath(__file__)))
-        self.model_dir = os.path.abspath(
-            os.path.join(self.current_file, "../../models/")
-        )
-        self.model_path = os.path.abspath(
-            os.path.join(
-                self.model_dir,
-                "example-robot-data/robots/talos_data",
-            )
-        )
+        self.current_dir = Path(__file__).parent
+        self.model_dir = self.current_dir / "../../models"
+        self.model_path = self.model_dir / "example-robot-data/robots/talos_data"
         self.urdf_filename = "talos_reduced.urdf"
         self.srdf_filename = "talos.srdf"
-        self.urdf_model_path = os.path.join(
-            self.model_path,
-            "robots",
-            self.urdf_filename,
-        )
-        self.srdf_full_path = os.path.join(
-            self.model_path,
-            "srdf",
-            self.srdf_filename,
-        )
+        self.urdf_model_path = self.model_path / "robots" / self.urdf_filename
+        self.srdf_full_path = self.model_path / "srdf" / self.srdf_filename
 
     def load_model(self):
         self.model = pin.buildModelFromUrdf(

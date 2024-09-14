@@ -1,19 +1,20 @@
 # NOTE: this example needs RViz to be installed
 # usage: start ROS master (roscore) and then run this test
 
-from os.path import abspath, dirname, join
+
+from pathlib import Path
 
 import pinocchio as pin
 from pinocchio.visualize import RVizVisualizer
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+pinocchio_model_dir = Path(__file__).parent.parent / "models"
 
-model_path = join(pinocchio_model_dir, "example-robot-data/robots")
+model_path = pinocchio_model_dir / "example-robot-data/robots"
 mesh_dir = pinocchio_model_dir
 urdf_filename = "talos_reduced.urdf"
-urdf_model_path = join(join(model_path, "talos_data/robots"), urdf_filename)
+urdf_model_path = model_path / "talos_data/robots" / urdf_filename
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
     urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()

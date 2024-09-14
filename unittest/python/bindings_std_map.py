@@ -1,5 +1,6 @@
 import pickle
 import unittest
+from pathlib import Path
 
 import numpy as np
 import pinocchio as pin
@@ -18,9 +19,9 @@ class TestStdMap(TestCase):
             keys.append(key_name)
             map[key_name] = np.random.rand(10)
 
-        pickle.dump(map, open("save_std_map.p", "wb"))
+        pickle.dump(map, Path("save_std_map.p").open("wb"))
 
-        map_loaded = pickle.load(open("save_std_map.p", "rb"))
+        map_loaded = pickle.load(Path("save_std_map.p").open("rb"))
         for key in keys:
             self.assertApprox(map[key], map_loaded[key])
 

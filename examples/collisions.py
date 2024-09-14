@@ -1,13 +1,13 @@
-from os.path import abspath, dirname, join
+from pathlib import Path
 
 import pinocchio as pin
 
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+pinocchio_model_dir = Path(__file__).parent.parent / "models"
 
-model_path = join(pinocchio_model_dir, "example-robot-data/robots")
+model_path = pinocchio_model_dir / "example-robot-data/robots"
 mesh_dir = pinocchio_model_dir
 urdf_filename = "romeo_small.urdf"
-urdf_model_path = join(join(model_path, "romeo_description/urdf"), urdf_filename)
+urdf_model_path = model_path / "romeo_description/urdf" / urdf_filename
 
 # Load model
 model = pin.buildModelFromUrdf(urdf_model_path, pin.JointModelFreeFlyer())
@@ -23,7 +23,7 @@ print("num collision pairs - initial:", len(geom_model.collisionPairs))
 
 # Remove collision pairs listed in the SRDF file
 srdf_filename = "romeo.srdf"
-srdf_model_path = model_path + "/romeo_description/srdf/" + srdf_filename
+srdf_model_path = model_path / "romeo_description/srdf" / srdf_filename
 
 pin.removeCollisionPairs(model, geom_model, srdf_model_path)
 print(

@@ -1,23 +1,24 @@
 # Copyright 2023 Inria
 # SPDX-License-Identifier: BSD-2-Clause
 
+
 """
 In this short script, we show how to compute inverse dynamics (RNEA), i.e. the
 vector of joint torques corresponding to a given motion.
 """
 
-from os.path import abspath, dirname, join
+from pathlib import Path
 
 import numpy as np
 import pinocchio as pin
 
 # Load the model from a URDF file
 # Change to your own URDF file here, or give a path as command-line argument
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models/")
-model_path = join(pinocchio_model_dir, "example-robot-data/robots")
+pinocchio_model_dir = Path(__file__).parent.parent / "models/"
+model_path = pinocchio_model_dir / "example-robot-data/robots"
 mesh_dir = pinocchio_model_dir
 urdf_filename = "ur5_robot.urdf"
-urdf_model_path = join(join(model_path, "ur_description/urdf/"), urdf_filename)
+urdf_model_path = model_path / "ur_description/urdf/" / urdf_filename
 model, _, _ = pin.buildModelsFromUrdf(urdf_model_path, package_dirs=mesh_dir)
 
 # Build a data frame associated with the model

@@ -5,6 +5,8 @@ https://tel.archives-ouvertes.fr/file/index/docid/833019/filename/thesis.pdf
 Section 3.8.1 Computing minimum bounding capsules
 """
 
+from pathlib import Path
+
 import hppfcl
 import numpy as np
 import scipy.optimize as optimize
@@ -92,8 +94,8 @@ def parse_urdf(infile, outfile):
             import os
 
             for rospath in os.environ["ROS_PACKAGE_PATH"].split(":"):
-                abspath = os.path.join(rospath, relpath)
-                if os.path.isfile(abspath):
+                abspath = Path(rospath) / relpath
+                if abspath.is_file():
                     return abspath
             raise ValueError("Could not find " + fn)
         return fn
@@ -130,9 +132,8 @@ def parse_urdf(infile, outfile):
         lMg = get_transform(origin)
 
         meshfile = get_path(mesh.attrib["filename"])
-        import os
 
-        name = os.path.basename(meshfile)
+        name = Path(meshfile).name
         # Generate capsule
         a, b, radius = approximate_mesh(meshfile, lMg)
         length = np.linalg.norm(b - a)
@@ -165,9 +166,8 @@ if __name__ == "__main__":
     # Example for a whole URDF model
     # This path refers to Pinocchio source code but you can define your own directory
     # here.
-    from os.path import abspath, dirname, join
 
-    pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+    pinocchio_model_dir = Path(__file__).parent.parent / "models"
     urdf_filename = (
         pinocchio_model_dir
         + "models/example-robot-data/robots/ur_description/urdf/ur5_gripper.urdf"

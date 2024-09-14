@@ -160,7 +160,7 @@ namespace pinocchio
 
       bp::def(
         "buildModelFromUrdf",
-        static_cast<Model & (*)(const std::string &, const JointModel &, const std::string &,
+        static_cast<Model & (*)(const bp::object &, const JointModel &, const std::string &,
                                 Model &)>(pinocchio::python::buildModelFromUrdf),
         bp::args("urdf_filename", "root_joint", "root_joint_name", "model"),
         "Append to a given model a URDF structure given by its filename and the root joint with "

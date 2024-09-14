@@ -1,6 +1,6 @@
 import abc
-import os.path as osp
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -201,10 +201,10 @@ class BaseVisualizer(abc.ABC):
                 from tempfile import gettempdir
 
                 directory = gettempdir()
+            directory = Path(directory)
             f_fmt = "%Y%m%d_%H%M%S"
             ext = "mp4"
-            filename = time.strftime(f"{f_fmt}.{ext}")
-            filename = osp.join(directory, filename)
+            filename = directory / time.strftime(f"{f_fmt}.{ext}")
         return VideoContext(self, fps, filename)
 
 
