@@ -413,14 +413,14 @@ class RobotWrapper(object):
         """Init the viewer"""
         # Set viewer to use to MeshCat.
         if self.viz is None:
-            from .visualize import MeshcatVisualizer
+            from .visualize import Visualizer
 
             data, collision_data, visual_data = None, None, None
             if share_data:
                 data = self.data
                 collision_data = self.collision_data
                 visual_data = self.visual_data
-            self.viz = MeshcatVisualizer(
+            self.viz = Visualizer.default()(
                 self.model,
                 self.collision_model,
                 self.visual_model,
