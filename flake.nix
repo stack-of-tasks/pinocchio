@@ -3,9 +3,7 @@
 
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
-    #nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # use gepetto fork until https://github.com/NixOS/nixpkgs/pull/337942
-    nixpkgs.url = "github:gepetto/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
   outputs =
