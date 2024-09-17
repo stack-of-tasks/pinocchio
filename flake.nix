@@ -3,9 +3,7 @@
 
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
-    #nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    # use gepetto fork until https://github.com/NixOS/nixpkgs/pull/337942
-    nixpkgs.url = "github:gepetto/nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
   outputs =
@@ -22,7 +20,11 @@
           devShells.default = pkgs.mkShell { inputsFrom = [ self'.packages.default ]; };
           packages = {
             default = self'.packages.pinocchio;
-            pinocchio = pkgs.python3Packages.pinocchio.overrideAttrs (_: {
+            pinocchio = pkgs.python3Packages.pinocchio.overrideAttrs (super: {
+              # avoid SIGTRAP on macos github runners
+              cmakeFlags = super.cmakeFlags ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
+                "-DCMAKE_CTEST_ARGUMENTS=--exclude-regex;pinocchio-example-py-casadi-quadrotor-ocp"
+              ];
               src = pkgs.lib.fileset.toSource {
                 root = ./.;
                 fileset = pkgs.lib.fileset.unions [
