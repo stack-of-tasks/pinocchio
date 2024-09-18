@@ -279,9 +279,6 @@ namespace pinocchio
         data.a_gf[i] = jdata.c() + (data.v[i] ^ jdata.v());
         data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(a_r);
         data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
-        //
-        //      data.f[i] = model.inertias[i]*data.a_gf[i];// + model.inertias[i].vxiv(data.v[i]);
-        //      // -f_ext data.h[i] = model.inertias[i]*data.v[i];
 
         // model.inertias[i].__mult__(data.v_r[i], data.h[i]); // option 1
         data.B[i] = model.inertias[i].variation(Scalar(0.5) * data.v[i]);
@@ -291,10 +288,6 @@ namespace pinocchio
         model.inertias[i].__mult__(data.a_gf[i], data.f[i]);
         // data.f[i] += data.v[i].cross(data.h[i]); // option 1
         data.f[i] += Force(data.B[i] * data.v_r[i].toVector()); // option 3 (Christoffel-consistent factorization)
-
-        //      data.h[i].motionAction(data.v[i],data.f[i]);
-        //      data.f[i] = model.inertias[i].vxiv(data.v[i]);
-        //      data.f[i].setZero();
       }
 
       template<typename ForceDerived, typename M6>
