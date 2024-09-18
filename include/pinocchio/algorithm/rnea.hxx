@@ -221,152 +221,6 @@ namespace pinocchio
       template<typename, int>
       class JointCollectionTpl,
       typename ConfigVectorType,
-      typename TangentVectorType1,
-      typename TangentVectorType2,
-      typename TangentVectorType3>
-    struct PassivityRneaForwardStep
-    : public fusion::JointUnaryVisitorBase<PassivityRneaForwardStep<
-        Scalar,
-        Options,
-        JointCollectionTpl,
-        ConfigVectorType,
-        TangentVectorType1,
-        TangentVectorType2,
-        TangentVectorType3>>
-    {
-      typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
-      typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
-      typedef ForceTpl<Scalar, Options> Force;
-
-      typedef boost::fusion::vector<
-        const Model &,
-        Data &,
-        const ConfigVectorType &,
-        const TangentVectorType1 &,
-        const TangentVectorType2 &,
-        const TangentVectorType3 &>
-        ArgsType;
-
-      template<typename JointModel>
-      static void algo(
-        const JointModelBase<JointModel> & jmodel,
-        JointDataBase<typename JointModel::JointDataDerived> & jdata,
-        const Model & model,
-        Data & data,
-        const Eigen::MatrixBase<ConfigVectorType> & q,
-        const Eigen::MatrixBase<TangentVectorType1> & v,
-        const Eigen::MatrixBase<TangentVectorType2> & v_r,
-        const Eigen::MatrixBase<TangentVectorType3> & a_r)
-      {
-        typedef typename Model::JointIndex JointIndex;
-
-        const JointIndex i = jmodel.id();
-        const JointIndex parent = model.parents[i];
-
-        jmodel.calc(jdata.derived(), q.derived(), v.derived());
-        data.v[i] = jdata.v();
-
-        jmodel.calc(jdata.derived(), q.derived(), v_r.derived());
-        data.v_r[i] = jdata.v();
-
-        data.liMi[i] = model.jointPlacements[i] * jdata.M();
-
-        if (parent > 0) {
-          data.v[i] += data.liMi[i].actInv(data.v[parent]);
-          data.v_r[i] += data.liMi[i].actInv(data.v_r[parent]);
-        }
-
-        data.a_gf[i] = jdata.c() + (data.v[i] ^ jdata.v());
-        data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(a_r);
-        data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
-
-        // model.inertias[i].__mult__(data.v_r[i], data.h[i]); // option 1
-        data.B[i] = model.inertias[i].variation(Scalar(0.5) * data.v[i]);
-        model.inertias[i].__mult__(data.v[i], data.h[i]);
-        addForceCrossMatrix(Scalar(0.5) * data.h[i], data.B[i]); // option 3 (Christoffel-consistent factorization)
-        
-        model.inertias[i].__mult__(data.a_gf[i], data.f[i]);
-        // data.f[i] += data.v[i].cross(data.h[i]); // option 1
-        data.f[i] += Force(data.B[i] * data.v_r[i].toVector()); // option 3 (Christoffel-consistent factorization)
-      }
-
-      template<typename ForceDerived, typename M6>
-      static void
-      addForceCrossMatrix(const ForceDense<ForceDerived> & f, const Eigen::MatrixBase<M6> & mout)
-      {
-        M6 & mout_ = PINOCCHIO_EIGEN_CONST_CAST(M6, mout);
-        addSkew(
-          -f.linear(), mout_.template block<3, 3>(ForceDerived::LINEAR, ForceDerived::ANGULAR));
-        addSkew(
-          -f.linear(), mout_.template block<3, 3>(ForceDerived::ANGULAR, ForceDerived::LINEAR));
-        addSkew(
-          -f.angular(), mout_.template block<3, 3>(ForceDerived::ANGULAR, ForceDerived::ANGULAR));
-      }
-    };
-
-    template<
-      typename Scalar,
-      int Options,
-      template<typename, int>
-      class JointCollectionTpl,
-      typename ConfigVectorType,
-      typename TangentVectorType1,
-      typename TangentVectorType2,
-      typename TangentVectorType3>
-    const typename DataTpl<Scalar, Options, JointCollectionTpl>::TangentVectorType & passivityRNEA(
-      const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      DataTpl<Scalar, Options, JointCollectionTpl> & data,
-      const Eigen::MatrixBase<ConfigVectorType> & q,
-      const Eigen::MatrixBase<TangentVectorType1> & v,
-      const Eigen::MatrixBase<TangentVectorType2> & v_r,
-      const Eigen::MatrixBase<TangentVectorType3> & a_r)
-    {
-      assert(model.check(data) && "data is not consistent with model.");
-      PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        q.size(), model.nq, "The configuration vector is not of right size");
-      PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        v.size(), model.nv, "The velocity vector is not of right size");
-      PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        v_r.size(), model.nv, "The auxiliary velocity vector is not of right size");
-      PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        a_r.size(), model.nv, "The auxiliary acceleration vector is not of right size");
-
-      typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
-      typedef typename Model::JointIndex JointIndex;
-
-      data.v[0].setZero();
-      data.v_r[0].setZero();
-      data.a_gf[0] = -model.gravity;
-
-      typedef PassivityRneaForwardStep<
-        Scalar, Options, JointCollectionTpl, ConfigVectorType, TangentVectorType1,
-        TangentVectorType2, TangentVectorType3>
-        Pass1;
-      typename Pass1::ArgsType arg1(model, data, q.derived(), v.derived(), v_r.derived(), a_r.derived());
-      for (JointIndex i = 1; i < (JointIndex)model.njoints; ++i)
-      {
-        Pass1::run(model.joints[i], data.joints[i], arg1);
-      }
-
-      typedef RneaBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
-      typename Pass2::ArgsType arg2(model, data);
-      for (JointIndex i = (JointIndex)model.njoints - 1; i > 0; --i)
-      {
-        Pass2::run(model.joints[i], data.joints[i], arg2);
-      }
-
-      // Add rotorinertia contribution
-      data.tau.array() += model.armature.array() * a_r.array(); // Check if there is memory allocation
-
-      return data.tau;
-    }
-
-    template<
-      typename Scalar,
-      int Options,
-      template<typename, int>
-      class JointCollectionTpl,
-      typename ConfigVectorType,
       typename TangentVectorType>
     struct NLEForwardStep
     : public fusion::JointUnaryVisitorBase<
@@ -805,6 +659,164 @@ namespace pinocchio
 
       return data.C;
     }
+
+    template<
+      typename Scalar,
+      int Options,
+      template<typename, int>
+      class JointCollectionTpl,
+      typename ConfigVectorType,
+      typename TangentVectorType1,
+      typename TangentVectorType2,
+      typename TangentVectorType3>
+    struct PassivityRneaForwardStep
+    : public fusion::JointUnaryVisitorBase<PassivityRneaForwardStep<
+        Scalar,
+        Options,
+        JointCollectionTpl,
+        ConfigVectorType,
+        TangentVectorType1,
+        TangentVectorType2,
+        TangentVectorType3>>
+    {
+      typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+      typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
+      typedef ForceTpl<Scalar, Options> Force;
+
+      typedef boost::fusion::vector<
+        const Model &,
+        Data &,
+        const ConfigVectorType &,
+        const TangentVectorType1 &,
+        const TangentVectorType2 &,
+        const TangentVectorType3 &>
+        ArgsType;
+
+      typedef impl::CoriolisMatrixForwardStep<
+        Scalar, Options, JointCollectionTpl, ConfigVectorType, TangentVectorType1>
+        CoriolisPass1;
+
+      template<typename JointModel>
+      static void algo(
+        const JointModelBase<JointModel> & jmodel,
+        JointDataBase<typename JointModel::JointDataDerived> & jdata,
+        const Model & model,
+        Data & data,
+        const Eigen::MatrixBase<ConfigVectorType> & q,
+        const Eigen::MatrixBase<TangentVectorType1> & v,
+        const Eigen::MatrixBase<TangentVectorType2> & v_r,
+        const Eigen::MatrixBase<TangentVectorType3> & a_r)
+      {
+        typedef typename Model::JointIndex JointIndex;
+
+        const JointIndex i = jmodel.id();
+        const JointIndex parent = model.parents[i];
+
+        jmodel.calc(jdata.derived(), q.derived(), v.derived());
+        data.v[i] = jdata.v();
+
+        jmodel.calc(jdata.derived(), q.derived(), v_r.derived());
+        data.v_r[i] = jdata.v();
+
+        data.liMi[i] = model.jointPlacements[i] * jdata.M();
+
+        if (parent > 0) {
+          data.v[i] += data.liMi[i].actInv(data.v[parent]);
+          data.v_r[i] += data.liMi[i].actInv(data.v_r[parent]);
+        }
+
+        data.a_gf[i] = jdata.c() + (data.v[i] ^ jdata.v());
+        data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(a_r);
+        data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
+
+        // // option 1
+        // model.inertias[i].__mult__(data.v_r[i], data.h[i]); 
+        // // option 1
+
+        // // option 2
+        // data.B[i].setZero();
+        // model.inertias[i].__mult__(data.v[i], data.h[i]); 
+        // CoriolisPass1::addForceCrossMatrix(data.h[i], data.B[i]); 
+        // // option 2
+
+        // option 3 (Christoffel-consistent factorization)
+        data.B[i] = model.inertias[i].variation(Scalar(0.5) * data.v[i]);
+        model.inertias[i].__mult__(data.v[i], data.h[i]); 
+        CoriolisPass1::addForceCrossMatrix(Scalar(0.5) * data.h[i], data.B[i]); 
+        // option 3 (Christoffel-consistent factorization)
+        
+        model.inertias[i].__mult__(data.a_gf[i], data.f[i]);
+
+        // // option 1
+        // data.f[i] += data.v[i].cross(data.h[i]); 
+        // // option 1
+
+        // // option 2
+        // data.f[i] += Force(data.B[i] * data.v_r[i].toVector()); 
+        // // option 2
+
+        // option 3 (Christoffel-consistent factorization)
+        data.f[i] += Force(data.B[i] * data.v_r[i].toVector()); 
+        // option 3 (Christoffel-consistent factorization)
+      }
+    };
+
+    template<
+      typename Scalar,
+      int Options,
+      template<typename, int>
+      class JointCollectionTpl,
+      typename ConfigVectorType,
+      typename TangentVectorType1,
+      typename TangentVectorType2,
+      typename TangentVectorType3>
+    const typename DataTpl<Scalar, Options, JointCollectionTpl>::TangentVectorType & passivityRNEA(
+      const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      DataTpl<Scalar, Options, JointCollectionTpl> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & v_r,
+      const Eigen::MatrixBase<TangentVectorType3> & a_r)
+    {
+      assert(model.check(data) && "data is not consistent with model.");
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(
+        q.size(), model.nq, "The configuration vector is not of right size");
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(
+        v.size(), model.nv, "The velocity vector is not of right size");
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(
+        v_r.size(), model.nv, "The auxiliary velocity vector is not of right size");
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(
+        a_r.size(), model.nv, "The auxiliary acceleration vector is not of right size");
+
+      typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+      typedef typename Model::JointIndex JointIndex;
+
+      data.v[0].setZero();
+      data.v_r[0].setZero();
+      data.a_gf[0] = -model.gravity;
+
+      typedef PassivityRneaForwardStep<
+        Scalar, Options, JointCollectionTpl, ConfigVectorType, TangentVectorType1,
+        TangentVectorType2, TangentVectorType3>
+        Pass1;
+      typename Pass1::ArgsType arg1(model, data, q.derived(), v.derived(), v_r.derived(), a_r.derived());
+      for (JointIndex i = 1; i < (JointIndex)model.njoints; ++i)
+      {
+        Pass1::run(model.joints[i], data.joints[i], arg1);
+      }
+
+      typedef RneaBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
+      typename Pass2::ArgsType arg2(model, data);
+      for (JointIndex i = (JointIndex)model.njoints - 1; i > 0; --i)
+      {
+        Pass2::run(model.joints[i], data.joints[i], arg2);
+      }
+
+      // Add rotorinertia contribution
+      data.tau.array() += model.armature.array() * a_r.array(); // Check if there is memory allocation
+
+      return data.tau;
+    }
   } // namespace impl
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   struct GetCoriolisMatrixBackwardStep
@@ -938,26 +950,6 @@ namespace pinocchio
     template<typename, int>
     class JointCollectionTpl,
     typename ConfigVectorType,
-    typename TangentVectorType1,
-    typename TangentVectorType2,
-    typename TangentVectorType3>
-  const typename DataTpl<Scalar, Options, JointCollectionTpl>::TangentVectorType & passivityRNEA(
-    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-    DataTpl<Scalar, Options, JointCollectionTpl> & data,
-    const Eigen::MatrixBase<ConfigVectorType> & q,
-    const Eigen::MatrixBase<TangentVectorType1> & v,
-    const Eigen::MatrixBase<TangentVectorType2> & v_r,
-    const Eigen::MatrixBase<TangentVectorType3> & a_r)
-  {
-    return impl::passivityRNEA(model, data, make_const_ref(q), make_const_ref(v), make_const_ref(v_r), make_const_ref(a_r));
-  }
-
-  template<
-    typename Scalar,
-    int Options,
-    template<typename, int>
-    class JointCollectionTpl,
-    typename ConfigVectorType,
     typename TangentVectorType>
   const typename DataTpl<Scalar, Options, JointCollectionTpl>::TangentVectorType & nonLinearEffects(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -1013,6 +1005,26 @@ namespace pinocchio
     const Eigen::MatrixBase<TangentVectorType> & v)
   {
     return impl::computeCoriolisMatrix(model, data, make_const_ref(q), make_const_ref(v));
+  }
+
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType,
+    typename TangentVectorType1,
+    typename TangentVectorType2,
+    typename TangentVectorType3>
+  const typename DataTpl<Scalar, Options, JointCollectionTpl>::TangentVectorType & passivityRNEA(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q,
+    const Eigen::MatrixBase<TangentVectorType1> & v,
+    const Eigen::MatrixBase<TangentVectorType2> & v_r,
+    const Eigen::MatrixBase<TangentVectorType3> & a_r)
+  {
+    return impl::passivityRNEA(model, data, make_const_ref(q), make_const_ref(v), make_const_ref(v_r), make_const_ref(a_r));
   }
 } // namespace pinocchio
 
