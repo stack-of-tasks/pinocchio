@@ -742,9 +742,10 @@ namespace pinocchio
         if (current1_id > current2_id)
         {
           const JointModel & joint1 = model.joints[current1_id];
+          const int j1nv = joint1.nv();
           joint1_span_indexes.push_back((Eigen::DenseIndex)current1_id);
           Eigen::DenseIndex current1_col_id = joint1.idx_v();
-          for (int k = 0; k < joint1.nv(); ++k, ++current1_col_id)
+          for (int k = 0; k < j1nv; ++k, ++current1_col_id)
           {
             colwise_joint1_sparsity[current1_col_id] = true;
           }
@@ -753,9 +754,10 @@ namespace pinocchio
         else
         {
           const JointModel & joint2 = model.joints[current2_id];
+          const int j2nv = joint2.nv();
           joint2_span_indexes.push_back((Eigen::DenseIndex)current2_id);
           Eigen::DenseIndex current2_col_id = joint2.idx_v();
-          for (int k = 0; k < joint2.nv(); ++k, ++current2_col_id)
+          for (int k = 0; k < j2nv; ++k, ++current2_col_id)
           {
             colwise_joint2_sparsity[current2_col_id] = true;
           }
@@ -770,10 +772,11 @@ namespace pinocchio
         while (current_id > 0)
         {
           const JointModel & joint = model.joints[current_id];
+          const int jnv = joint.nv();
           joint1_span_indexes.push_back((Eigen::DenseIndex)current_id);
           joint2_span_indexes.push_back((Eigen::DenseIndex)current_id);
           Eigen::DenseIndex current_row_id = joint.idx_v();
-          for (int k = 0; k < joint.nv(); ++k, ++current_row_id)
+          for (int k = 0; k < jnv; ++k, ++current_row_id)
           {
             colwise_joint1_sparsity[current_row_id] = true;
             colwise_joint2_sparsity[current_row_id] = true;

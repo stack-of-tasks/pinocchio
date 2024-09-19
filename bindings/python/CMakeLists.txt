@@ -224,8 +224,14 @@ if(BUILD_PYTHON_INTERFACE)
 
   # --- INSTALL VISUALIZATION SCRIPTS
   install_python_files(
-    MODULE visualize FILES __init__.py base_visualizer.py gepetto_visualizer.py
-                           meshcat_visualizer.py panda3d_visualizer.py rviz_visualizer.py)
+    MODULE visualize
+    FILES __init__.py
+          base_visualizer.py
+          gepetto_visualizer.py
+          meshcat_visualizer.py
+          panda3d_visualizer.py
+          rviz_visualizer.py
+          visualizers.py)
 
   # --- STUBS --- #
   if(GENERATE_PYTHON_STUBS)
