@@ -1259,9 +1259,9 @@ BOOST_AUTO_TEST_CASE(test_contact_parsing)
 
   BOOST_CHECK_EQUAL(contact_models.size(), 4);
   BOOST_CHECK_EQUAL(
-    contact_models[0].joint1_placement.translation(), pinocchio::SE3::Vector3(0.35012, 0, 0));
+    contact_models[0].joint1_placement.translation(), pinocchio::SE3::Vector3(0.50120, 0, 0));
   BOOST_CHECK_EQUAL(
-    contact_models[1].joint1_placement.translation(), pinocchio::SE3::Vector3(0.50120, 0, 0));
+    contact_models[1].joint1_placement.translation(), pinocchio::SE3::Vector3(0.35012, 0, 0));
   BOOST_CHECK_EQUAL(
     contact_models[2].joint1_placement.translation(), pinocchio::SE3::Vector3(0.50120, 0, 0));
   BOOST_CHECK_EQUAL(
