@@ -73,7 +73,8 @@ try:
     viz.initViewer(open=True)
 except ImportError as err:
     print(
-        "Error while initializing the viewer. It seems you should install Python meshcat"
+        "Error while initializing the viewer. "
+        "It seems you should install Python meshcat"
     )
     print(err)
     sys.exit(0)
@@ -89,7 +90,8 @@ frame = robot.getFrameId(
 n_samples = 5
 facet_dims = 2
 
-# To have convex hull computation or just the points of the reachable workspace and then compute it with cgal
+# To have convex hull computation or just the points of the reachable workspace and then
+# compute it with cgal.
 convex = False
 
 if convex:
@@ -127,7 +129,8 @@ else:
         Retrieved from http://blog.thehumangeo.com/2014/05/12/drawing-boundaries-in-python/
 
         :param coords : Coordinates of points
-        :param alpha: List of alpha values to influence the gooeyness of the border. Smaller numbers don't fall inward as much as larger numbers.
+        :param alpha: List of alpha values to influence the gooeyness of the border.
+        Smaller numbers don't fall inward as much as larger numbers.
         Too large, and you lose everything!
         :return: Shapely.MultiPolygons which is the hull of the input set of points
         """

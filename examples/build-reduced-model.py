@@ -3,7 +3,8 @@ from os.path import abspath, dirname, join
 import numpy as np
 import pinocchio as pin
 
-# Goal: Build a reduced model from an existing URDF model by fixing the desired joints at a specified position.
+# Goal: Build a reduced model from an existing URDF model by fixing the desired joints
+# at a specified position.
 
 # Load UR robot arm
 # This path refers to Pinocchio source code but you can define your own directory here.
@@ -46,12 +47,14 @@ initialJointConfig = np.array(
 # Option 1: Only build the reduced model in case no display needed:
 model_reduced = pin.buildReducedModel(model, jointsToLockIDs, initialJointConfig)
 
-# Option 2: Build the reduced model including the geometric model for proper displaying of the robot
+# Option 2: Build the reduced model including the geometric model for proper displaying
+# of the robot.
 model_reduced, visual_model_reduced = pin.buildReducedModel(
     model, visual_model, jointsToLockIDs, initialJointConfig
 )
 
-# Option 3: Build the reduced model including multiple geometric models (for example: visuals, collision)
+# Option 3: Build the reduced model including multiple geometric models (for example:
+# visuals, collision).
 geom_models = [visual_model, collision_model]
 model_reduced, geometric_models_reduced = pin.buildReducedModel(
     model,

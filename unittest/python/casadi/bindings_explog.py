@@ -4,13 +4,12 @@ import unittest
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import casadi
 import numpy as np
 import pinocchio as pin
 import pinocchio.casadi as cpin
-from test_case import PinocchioTestCase as TestCase
-
-import casadi
 from casadi import SX
+from test_case import PinocchioTestCase as TestCase
 
 
 class TestLogExpDerivatives(TestCase):

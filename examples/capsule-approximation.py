@@ -1,6 +1,7 @@
 """
 Copyright (c) 2020 INRIA
-Inspired from Antonio El Khoury PhD: https://tel.archives-ouvertes.fr/file/index/docid/833019/filename/thesis.pdf
+Inspired from Antonio El Khoury PhD:
+https://tel.archives-ouvertes.fr/file/index/docid/833019/filename/thesis.pdf
 Section 3.8.1 Computing minimum bounding capsules
 """
 
@@ -62,11 +63,11 @@ def capsule_approximation(vertices):
     )
     res = optimize.minimize(capsule_vol, x0, constraints=constraint)
     res_constraint = constraint_cap(res.x)
-    assert (
-        res_constraint <= 1e-4
-    ), "The computed solution is invalid, a vertex is at a distance {:.5f} of the capsule.".format(
-        res_constraint
+    err = (
+        "The computed solution is invalid, "
+        "a vertex is at a distance {:.5f} of the capsule."
     )
+    assert res_constraint <= 1e-4, err.format(res_constraint)
     a, b, r = res.x[:3], res.x[3:6], res.x[6]
     return a, b, r
 
@@ -162,7 +163,8 @@ if __name__ == "__main__":
     # a, b, r = capsule_approximation(vertices)
 
     # Example for a whole URDF model
-    # This path refers to Pinocchio source code but you can define your own directory here.
+    # This path refers to Pinocchio source code but you can define your own directory
+    # here.
     from os.path import abspath, dirname, join
 
     pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")

@@ -20,9 +20,7 @@ def deprecated(instructions):
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            message = "Call to deprecated function {}. {}".format(
-                func.__name__, instructions
-            )
+            message = f"Call to deprecated function {func.__name__}. {instructions}"
 
             warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
 

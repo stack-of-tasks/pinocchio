@@ -1,7 +1,7 @@
 import os
 import unittest
-import numpy as np
 
+import numpy as np
 import pinocchio as pin
 from test_case import PinocchioTestCase as TestCase
 
@@ -46,8 +46,8 @@ class TestContactInverseDynamics(TestCase):
         frame_ids = [model.getFrameId(frame_name) for frame_name in feet_name]
 
         q = self.q0
-        v = np.zeros((model.nv))
-        a = np.zeros((model.nv))
+        v = np.zeros(model.nv)
+        a = np.zeros(model.nv)
         data = model.createData()
 
         contact_models_list = []

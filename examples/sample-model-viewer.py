@@ -1,13 +1,8 @@
-import pinocchio as pin
-from pinocchio.visualize import MeshcatVisualizer, GepettoVisualizer, RVizVisualizer
 from sys import argv
-from numpy import pi
 
-try:
-    # Python 2
-    input = raw_input  # noqa
-except NameError:
-    pass
+import pinocchio as pin
+from numpy import pi
+from pinocchio.visualize import GepettoVisualizer, MeshcatVisualizer, RVizVisualizer
 
 # GepettoVisualizer: -g
 # MeshcatVisualizer: -m

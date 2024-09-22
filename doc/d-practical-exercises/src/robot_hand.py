@@ -2,25 +2,25 @@ from math import pi
 
 import numpy as np
 import pinocchio as pin
+from display import Display
 from numpy.linalg import norm, pinv
 from pinocchio.utils import cross, eye, rotate, zero
 
-from display import Display
 
-
-class Visual(object):
+class Visual:
     """
-    Class representing one 3D mesh of the robot, to be attached to a joint. The class contains:
+    Class representing one 3D mesh of the robot, to be attached to a joint. The class
+    contains:
     * the name of the 3D objects inside Gepetto viewer.
     * the ID of the joint in the kinematic tree to which the body is attached.
     * the placement of the body with respect to the joint frame.
     This class is only used in the list Robot.visuals (see below).
 
-    The visual are supposed mostly to be capsules. In that case, the object also contains
-    radius and length of the capsule.
+    The visual are supposed mostly to be capsules. In that case, the object also
+    contains radius and length of the capsule.
     The collision checking computes collision test, distance, and witness points.
-    Using the supporting robot, the collision Jacobian returns a 1xN matrix corresponding
-    to the normal direction.
+    Using the supporting robot, the collision Jacobian returns a 1xN matrix
+    corresponding to the normal direction.
     """
 
     def __init__(self, name, jointParent, placement, radius=0.1, length=None):
@@ -131,20 +131,21 @@ class Visual(object):
         viewer.place(name, pin.SE3(self.R, self.w))
 
 
-class Robot(object):
+class Robot:
     """
     Define a class Robot with 7DOF (shoulder=3 + elbow=1 + wrist=3).
     The configuration is nq=7. The velocity is the same.
     The members of the class are:
-    * viewer: a display encapsulating a gepetto viewer client to create 3D objects and place them.
+    * viewer: a display encapsulating a gepetto viewer client to create 3D objects and
+      place them.
     * model: the kinematic tree of the robot.
     * data: the temporary variables to be used by the kinematic algorithms.
-    * visuals: the list of all the 'visual' 3D objects to render the robot, each element of the list being
-    an object Visual (see above).
+    * visuals: the list of all the 'visual' 3D objects to render the robot, each element
+      of the list being an object Visual (see above).
 
     CollisionPairs is a list of visual indexes.
-    Reference to the collision pair is used in the collision test and jacobian of the collision
-    (which are simply proxy method to methods of the visual class).
+    Reference to the collision pair is used in the collision test and jacobian of the
+    collision (which are simply proxy method to methods of the visual class).
     """
 
     def __init__(self):

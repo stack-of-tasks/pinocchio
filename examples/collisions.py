@@ -1,7 +1,6 @@
-from __future__ import print_function
-import pinocchio as pin
+from os.path import abspath, dirname, join
 
-from os.path import dirname, join, abspath
+import pinocchio as pin
 
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 

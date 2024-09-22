@@ -1,22 +1,20 @@
 import unittest
 from math import pi
-
-import numpy as np
-from numpy.linalg import inv
 from random import random
 
-from eigenpy import AngleAxis
+import numpy as np
 import pinocchio as pin
-from pinocchio.utils import npToTuple
+from eigenpy import AngleAxis
+from numpy.linalg import inv
 from pinocchio.rpy import (
-    matrixToRpy,
-    rpyToMatrix,
-    rotate,
     computeRpyJacobian,
     computeRpyJacobianInverse,
     computeRpyJacobianTimeDerivative,
+    matrixToRpy,
+    rotate,
+    rpyToMatrix,
 )
-
+from pinocchio.utils import npToTuple
 from test_case import PinocchioTestCase as TestCase
 
 

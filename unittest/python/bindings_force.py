@@ -1,7 +1,8 @@
 import unittest
-import pinocchio as pin
+
 import numpy as np
-from pinocchio.utils import zero, rand
+import pinocchio as pin
+from pinocchio.utils import rand, zero
 
 
 class TestForceBindings(unittest.TestCase):

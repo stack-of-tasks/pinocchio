@@ -7,9 +7,8 @@ import time
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.optimize import fmin_l_bfgs_b
-
 from pendulum import Pendulum
+from scipy.optimize import fmin_l_bfgs_b
 
 env = Pendulum(1)
 NSTEPS = 50
@@ -31,7 +30,7 @@ def display(U, verbose=False):
     """Display the trajectory on Gepetto viewer."""
     x = x0.copy()
     if verbose:
-        print("U = ", " ".join(map(lambda u: "%.1f" % u, np.asarray(U).flatten())))
+        print("U = ", " ".join(map(lambda u: f"{u:.1f}", np.asarray(U).flatten())))
     for i in range(len(U) / env.nu):
         env.dynamics(x, U[env.nu * i : env.nu * (i + 1)], True)
         env.display(x)
@@ -52,7 +51,7 @@ class CallBack:
         print(
             "Iteration ",
             self.iter,
-            " ".join(map(lambda u: "%.1f" % u, np.asarray(U).flatten())),
+            " ".join(map(lambda u: f"{u:.1f}", np.asarray(U).flatten())),
         )
         self.iter += 1
         self.U = U.copy()

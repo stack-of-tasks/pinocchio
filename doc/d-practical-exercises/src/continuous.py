@@ -1,6 +1,7 @@
 """
 Deep actor-critic network,
-From "Continuous control with deep reinforcement learning", by Lillicrap et al, arXiv:1509.02971
+From "Continuous control with deep reinforcement learning",
+by Lillicrap et al, arXiv:1509.02971
 """
 
 import random
@@ -12,7 +13,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 import tflearn
-
 from pendulum import Pendulum
 
 ### --- Random seed
@@ -249,9 +249,8 @@ for episode in range(1, NEPISODES):
         else 0
     )
     print(
-        "Ep#{:3d}: lasted {:d} steps, reward={:3.0f}, max qvalue={:2.3f}".format(
-            episode, step, rsum, maxq
-        )
+        f"Ep#{episode:3d}: lasted {step:d} steps, "
+        f"reward={rsum:3.0f}, max qvalue={maxq:2.3f}"
     )
     h_rwd.append(rsum)
     h_qva.append(maxq)

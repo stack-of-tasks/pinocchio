@@ -2,7 +2,6 @@ import unittest
 
 import pinocchio as pin
 from pinocchio.utils import zero
-
 from test_case import PinocchioTestCase as TestCase
 
 

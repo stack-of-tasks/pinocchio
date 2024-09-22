@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix unit tests with GCC 13.3 ([#2406](https://github.com/stack-of-tasks/pinocchio/pull/2416)
 - Fix class abtract error for Rviz viewer ([#2425](https://github.com/stack-of-tasks/pinocchio/pull/2425))
 
+### Changed
+
+- Modernize python code base with ruff ([#2418](https://github.com/stack-of-tasks/pinocchio/pull/2418))
+
 ## [3.2.0] - 2024-08-27
 
 ### Fixed

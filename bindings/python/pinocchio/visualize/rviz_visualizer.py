@@ -70,7 +70,9 @@ class RVizVisualizer(BaseVisualizer):
         loadModel=False,
         initRosNode=True,
     ):
-        """Init RVizViewer by starting a ros node (or not) and creating an RViz window."""
+        """
+        Init RVizViewer by starting a ros node (or not) and creating an RViz window.
+        """
         from python_qt_binding.QtWidgets import QApplication
         from rosgraph import is_master_online
         from rospy import WARN, init_node
@@ -187,7 +189,10 @@ class RVizVisualizer(BaseVisualizer):
             )
 
     def _plot(self, publisher, model, data, previous_ids=()):
-        """Create markers for each object of the model and publish it as MarkerArray (also delete unused previously created markers)"""
+        """
+        Create markers for each object of the model and publish it as MarkerArray
+        (also delete unused previously created markers)
+        """
         from geometry_msgs.msg import Point
         from rospy import get_rostime
         from std_msgs.msg import ColorRGBA, Header
@@ -244,10 +249,7 @@ class RVizVisualizer(BaseVisualizer):
                         create_capsule_markers(marker, data.oMg[obj_id], d, fl)
                     )
                 else:
-                    msg = "Unsupported geometry type for %s (%s)" % (
-                        obj.name,
-                        type(geom),
-                    )
+                    msg = f"Unsupported geometry type for {obj.name} ({type(geom)})"
                     warnings.warn(msg, category=UserWarning, stacklevel=2)
                     continue
             else:

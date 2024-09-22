@@ -1,8 +1,8 @@
-from pycppad import AD, Independent, ADFun
-import pinocchio.cppad as ADpin
-import pinocchio as pin
 import numpy as np
+import pinocchio as pin
+import pinocchio.cppad as ADpin
 from pinocchio.utils import isapprox
+from pycppad import AD, ADFun, Independent
 
 pinmodel = pin.buildSampleModelHumanoidRandom()
 model = ADpin.Model(pinmodel)

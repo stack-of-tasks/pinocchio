@@ -64,7 +64,7 @@ mass = data.mass[0]
 
 def squashing(model, data, q_in):
     q = q_in.copy()
-    y = np.ones((constraint_dim))
+    y = np.ones(constraint_dim)
 
     N_full = 200
 
@@ -94,7 +94,9 @@ def squashing(model, data, q_in):
         constraint_value = np.concatenate(
             [cd.c1Mc2.translation for cd in constraint_datas]
         )
-        # constraint_value = np.concatenate([pinocchio.log6(cd.c1Mc2) for cd in constraint_datas])
+        # constraint_value = np.concatenate(
+        # [pinocchio.log6(cd.c1Mc2) for cd in constraint_datas]
+        # )
         J = np.vstack(
             [
                 pinocchio.getFrameJacobian(

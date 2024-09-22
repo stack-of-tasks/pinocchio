@@ -1,12 +1,12 @@
 """
-Pose a Solo-12 robot on a surface defined through a function and displayed through an hppfcl.HeightField.
+Pose a Solo-12 robot on a surface defined through a function and displayed through an
+hppfcl.HeightField.
 """
 
 import numpy as np
 import pinocchio as pin
-
-from pinocchio.visualize import MeshcatVisualizer
 from example_robot_data import load
+from pinocchio.visualize import MeshcatVisualizer
 
 robot = load("solo12")
 

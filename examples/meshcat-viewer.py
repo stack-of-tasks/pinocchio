@@ -2,11 +2,11 @@
 # Note: this feature requires Meshcat to be installed, this can be done using
 # pip install --user meshcat
 
-import pinocchio as pin
-import numpy as np
 import sys
-from os.path import dirname, join, abspath
+from os.path import abspath, dirname, join
 
+import numpy as np
+import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
 
 # Load the URDF model.
@@ -25,7 +25,8 @@ model, collision_model, visual_model = pin.buildModelsFromUrdf(
 )
 
 # Start a new MeshCat server and client.
-# Note: the server can also be started separately using the "meshcat-server" command in a terminal:
+# Note: the server can also be started separately using the "meshcat-server" command in
+# a terminal:
 # this enables the server to remain active after the current script ends.
 #
 # Option open=True pens the visualizer.
@@ -35,7 +36,8 @@ try:
     viz.initViewer(open=True)
 except ImportError as err:
     print(
-        "Error while initializing the viewer. It seems you should install Python meshcat"
+        "Error while initializing the viewer. "
+        "It seems you should install Python meshcat"
     )
     print(err)
     sys.exit(0)
@@ -58,7 +60,7 @@ if convex is not None:
     placement = pin.SE3.Identity()
     placement.translation[0] = 2.0
     geometry = pin.GeometryObject("convex", 0, placement, convex)
-    geometry.meshColor = np.ones((4))
+    geometry.meshColor = np.ones(4)
     # Add a PhongMaterial to the convex object
     geometry.overrideMaterial = True
     geometry.meshMaterial = pin.GeometryPhongMaterial()
