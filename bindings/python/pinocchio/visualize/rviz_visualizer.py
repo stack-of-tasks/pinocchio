@@ -1,4 +1,5 @@
 import warnings
+
 import numpy as np
 
 from .. import pinocchio_pywrap_default as pin
