@@ -741,8 +741,6 @@ namespace pinocchio
       {
         for (const ptree::value_type & v : el)
         {
-          // std::cout << v.first << " " << v.second << std::endl;
-
           std::string type = v.first;
           // List of supported constraints from mjcf description
           // equality -> connect
@@ -751,7 +749,7 @@ namespace pinocchio
           // warning: joint, flex, distance, weld
           if (type != "connect")
           {
-            std::cout << "Warning - Constraint " << type << " is not supported" << std::endl;
+            // TODO(jcarpent): support extra constraint types such as joint, flex, distance, weld.
             continue;
           }
 
@@ -781,15 +779,6 @@ namespace pinocchio
           auto anchor = v.second.get_optional<std::string>("<xmlattr>.anchor");
           if (anchor)
             eq.anchor = internal::getVectorFromStream<3>(*anchor);
-
-          // // print what constraint is being added
-          // std::cout << "MjcfEquality: {" << std::endl;
-          // std::cout << "  Name: " << eq.name << std::endl;
-          // std::cout << "  Type: " << eq.type << std::endl;
-          // std::cout << "  Body1: " << eq.body1 << std::endl;
-          // std::cout << "  Body2: " << eq.body2 << std::endl;
-          // std::cout << "  Anchor: [" << eq.anchor.transpose() << "]" << std::endl;
-          // std::cout << "}" << std::endl;
 
           mapOfEqualities.insert(std::make_pair(eq.name, eq));
         }
