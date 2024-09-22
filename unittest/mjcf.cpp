@@ -452,10 +452,11 @@ BOOST_AUTO_TEST_CASE(parse_default_class)
   typedef pinocchio::SE3::Vector3 Vector3;
   typedef pinocchio::SE3::Matrix3 Matrix3;
 
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
   std::string filename = PINOCCHIO_MODEL_DIR + std::string("/../unittest/models/test_mjcf.xml");
 
   pinocchio::Model model_m;
-  pinocchio::mjcf::buildModel(filename, model_m);
+  pinocchio::mjcf::buildModel(filename, model_m, contact_models);
 
   std::string file_u = PINOCCHIO_MODEL_DIR + std::string("/../unittest/models/test_mjcf.urdf");
   pinocchio::Model model_u;
@@ -468,7 +469,7 @@ BOOST_AUTO_TEST_CASE(parse_default_class)
     "joint3");
   model_u.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], model_u.joints[i]);
 }
 #endif // PINOCCHIO_WITH_URDFDOM
@@ -581,7 +582,7 @@ BOOST_AUTO_TEST_CASE(parse_RX)
   idx = modelRX.addJoint(0, pinocchio::JointModelRX(), pinocchio::SE3::Identity(), "rx");
   modelRX.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelRX.joints[i]);
 }
 
@@ -618,7 +619,7 @@ BOOST_AUTO_TEST_CASE(parse_PX)
   idx = modelPX.addJoint(0, pinocchio::JointModelPX(), pinocchio::SE3::Identity(), "px");
   modelPX.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPX.joints[i]);
 }
 
@@ -655,7 +656,7 @@ BOOST_AUTO_TEST_CASE(parse_Sphere)
   idx = modelS.addJoint(0, pinocchio::JointModelSpherical(), pinocchio::SE3::Identity(), "s");
   modelS.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelS.joints[i]);
 }
 
@@ -692,7 +693,7 @@ BOOST_AUTO_TEST_CASE(parse_Free)
   idx = modelF.addJoint(0, pinocchio::JointModelFreeFlyer(), pinocchio::SE3::Identity(), "f");
   modelF.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelF.joints[i]);
 }
 
@@ -734,7 +735,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_RXRY)
   idx = modelRXRY.addJoint(0, joint_model_RXRY, pinocchio::SE3::Identity(), "rxry");
   modelRXRY.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelRXRY.joints[i]);
 }
 
@@ -776,7 +777,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXPY)
   idx = modelPXPY.addJoint(0, joint_model_PXPY, pinocchio::SE3::Identity(), "pxpy");
   modelPXPY.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPXPY.joints[i]);
 }
 
@@ -818,7 +819,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXRY)
   idx = modelPXRY.addJoint(0, joint_model_PXRY, pinocchio::SE3::Identity(), "pxry");
   modelPXRY.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPXRY.joints[i]);
 }
 
@@ -860,7 +861,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXSphere)
   idx = modelPXSphere.addJoint(0, joint_model_PXSphere, pinocchio::SE3::Identity(), "pxsphere");
   modelPXSphere.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPXSphere.joints[i]);
 }
 
@@ -1247,5 +1248,28 @@ BOOST_AUTO_TEST_CASE(test_geometry_parsing)
   BOOST_CHECK(e->radii == sides);
 }
 #endif // if defined(PINOCCHIO_WITH_HPP_FCL)
+
+BOOST_AUTO_TEST_CASE(test_contact_parsing)
+{
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/../unittest/models/closed_chain.xml");
+
+  pinocchio::Model model;
+  pinocchio::mjcf::buildModel(filename, model, contact_models);
+
+  BOOST_CHECK_EQUAL(contact_models.size(), 4);
+  BOOST_CHECK_EQUAL(
+    contact_models[0].joint1_placement.translation(), pinocchio::SE3::Vector3(0.50120, 0, 0));
+  BOOST_CHECK_EQUAL(
+    contact_models[1].joint1_placement.translation(), pinocchio::SE3::Vector3(0.35012, 0, 0));
+  BOOST_CHECK_EQUAL(
+    contact_models[2].joint1_placement.translation(), pinocchio::SE3::Vector3(0.50120, 0, 0));
+  BOOST_CHECK_EQUAL(
+    contact_models[3].joint1_placement.translation(), pinocchio::SE3::Vector3(0.35012, 0, 0));
+  for (const auto & cm : contact_models)
+  {
+    BOOST_CHECK(cm.joint2_placement.isApprox(cm.joint1_placement.inverse()));
+  }
+}
 
 BOOST_AUTO_TEST_SUITE_END()

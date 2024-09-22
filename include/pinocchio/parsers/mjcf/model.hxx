@@ -7,6 +7,8 @@
 
 #include "pinocchio/parsers/mjcf.hpp"
 #include "pinocchio/parsers/mjcf/mjcf-graph.hpp"
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/contact-info.hpp"
 
 namespace pinocchio
 {
@@ -37,8 +39,42 @@ namespace pinocchio
 
       graph.parseGraphFromXML(xmlStr);
 
-      // // Use the Mjcf graph to create the model
+      // Use the Mjcf graph to create the model
       graph.parseRootTree();
+
+      return model;
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::string & filename,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
+      const bool verbose)
+    {
+      return buildModelFromXML(filename, model, contact_models, verbose);
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
+      const std::string & xmlStr,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
+      const bool verbose)
+    {
+      ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor(model);
+
+      typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+
+      MjcfGraph graph(visitor, xmlStr);
+      if (verbose)
+        visitor.log = &std::cout;
+
+      graph.parseGraphFromXML(xmlStr);
+
+      // Use the Mjcf graph to create the model
+      graph.parseRootTree();
+      graph.parseContactInformation(model, contact_models);
 
       return model;
     }
@@ -71,8 +107,45 @@ namespace pinocchio
 
       graph.parseGraphFromXML(xmlStr);
 
-      // // Use the Mjcf graph to create the model
+      // Use the Mjcf graph to create the model
       graph.parseRootTree();
+
+      return model;
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::string & filename,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
+      const bool verbose)
+    {
+      return buildModelFromXML(filename, rootJoint, model, contact_models, verbose);
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
+      const std::string & xmlStr,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
+      const bool verbose)
+    {
+      ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl>
+        visitor(model, rootJoint);
+
+      typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+
+      MjcfGraph graph(visitor, xmlStr);
+      if (verbose)
+        visitor.log = &std::cout;
+
+      graph.parseGraphFromXML(xmlStr);
+
+      // Use the Mjcf graph to create the model
+      graph.parseRootTree();
+      graph.parseContactInformation(model, contact_models);
 
       return model;
     }
