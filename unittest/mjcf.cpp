@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE(parse_default_class)
     "joint3");
   model_u.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], model_u.joints[i]);
 }
 #endif // PINOCCHIO_WITH_URDFDOM
@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE(parse_RX)
   idx = modelRX.addJoint(0, pinocchio::JointModelRX(), pinocchio::SE3::Identity(), "rx");
   modelRX.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelRX.joints[i]);
 }
 
@@ -619,7 +619,7 @@ BOOST_AUTO_TEST_CASE(parse_PX)
   idx = modelPX.addJoint(0, pinocchio::JointModelPX(), pinocchio::SE3::Identity(), "px");
   modelPX.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPX.joints[i]);
 }
 
@@ -656,7 +656,7 @@ BOOST_AUTO_TEST_CASE(parse_Sphere)
   idx = modelS.addJoint(0, pinocchio::JointModelSpherical(), pinocchio::SE3::Identity(), "s");
   modelS.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelS.joints[i]);
 }
 
@@ -693,7 +693,7 @@ BOOST_AUTO_TEST_CASE(parse_Free)
   idx = modelF.addJoint(0, pinocchio::JointModelFreeFlyer(), pinocchio::SE3::Identity(), "f");
   modelF.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelF.joints[i]);
 }
 
@@ -735,7 +735,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_RXRY)
   idx = modelRXRY.addJoint(0, joint_model_RXRY, pinocchio::SE3::Identity(), "rxry");
   modelRXRY.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelRXRY.joints[i]);
 }
 
@@ -777,7 +777,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXPY)
   idx = modelPXPY.addJoint(0, joint_model_PXPY, pinocchio::SE3::Identity(), "pxpy");
   modelPXPY.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPXPY.joints[i]);
 }
 
@@ -819,7 +819,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXRY)
   idx = modelPXRY.addJoint(0, joint_model_PXRY, pinocchio::SE3::Identity(), "pxry");
   modelPXRY.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPXRY.joints[i]);
 }
 
@@ -861,7 +861,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXSphere)
   idx = modelPXSphere.addJoint(0, joint_model_PXSphere, pinocchio::SE3::Identity(), "pxsphere");
   modelPXSphere.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPXSphere.joints[i]);
 }
 
