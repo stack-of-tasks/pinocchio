@@ -21,6 +21,7 @@
 #include <limits>
 #include <iostream>
 #include <unordered_map>
+#include <map>
 
 namespace pinocchio
 {
@@ -386,7 +387,7 @@ namespace pinocchio
         typedef std::unordered_map<std::string, MjcfMesh> MeshMap_t;
         typedef std::unordered_map<std::string, MjcfTexture> TextureMap_t;
         typedef std::unordered_map<std::string, Eigen::VectorXd> ConfigMap_t;
-        typedef std::unordered_map<std::string, MjcfEquality> EqualityMap_t;
+        typedef std::map<std::string, MjcfEquality> EqualityMap_t;
 
         // Compiler Info needed to properly parse the rest of file
         MjcfCompiler compilerInfo;
