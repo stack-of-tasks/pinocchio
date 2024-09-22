@@ -528,7 +528,7 @@ namespace pinocchio
         /// @brief Parse the equality constraints and add them to the model
         /// @param model Model to add the constraints to
         /// @param contact_models Vector of contact models to add the constraints to
-        PINOCCHIO_PARSERS_DLLAPI void parseContactInformation(
+        void parseContactInformation(
           const Model & model,
           PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models);
 
