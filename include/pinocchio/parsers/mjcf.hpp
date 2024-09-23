@@ -33,23 +33,27 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
       const bool verbose = false);
 
     ///
-    /// \brief Build the model from an XML stream with a particular joint as root of the model tree
+    /// \brief Build the model from a MJCF file with a particular joint as root of the model tree
     /// inside the model given as reference argument.
     ///
-    /// \param[in] xmlStream xml stream containing MJCF model
+    /// \param[in] filename The MJCF complete file path.
     /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] rootJointName Name of the rootJoint.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
     ///
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
-      const std::string & xmlStream,
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
       const bool verbose = false);
 
     ///
@@ -89,6 +93,24 @@ namespace pinocchio
       const bool verbose = false);
 
     ///
+    /// \brief Build the model from a MJCF file with a particular joint as root of the model tree
+    /// inside the model given as reference argument.
+    ///
+    /// \param[in] filename The MJCF complete file path.
+    /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] verbose Print parsing info.
+    /// \param[out] model Reference model where to put the parsed information.
+    /// \return Return the reference on argument model for convenience.
+    ///
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::string & filename,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
+      const bool verbose = false);
+
+    ///
     /// \brief Build the model from a MJCF file with a fixed joint as root of the model tree
     ///
     /// \param[in] xmlStream The xml stream containing the MJCF Model.
@@ -114,23 +136,6 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool verbose = false);
-
-    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
-      const std::string & xmlStream,
-      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
-      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
-      const bool verbose = false);
-
-    // TODO: update description, buildModel with contact model
-    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
-      const std::string & filename,
-      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
-      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models,
       const bool verbose = false);
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
