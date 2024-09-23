@@ -28,14 +28,15 @@ namespace pinocchio
       return model;
     }
 
-    Model buildModelFromMJCF(
+    bp::tuple buildModelFromMJCF(
       const std::string & filename,
       const JointModel & root_joint,
       const std::string & root_joint_name)
     {
       Model model;
-      ::pinocchio::mjcf::buildModel(filename, root_joint, root_joint_name, model);
-      return model;
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+      ::pinocchio::mjcf::buildModel(filename, root_joint, root_joint_name, model, contact_models);
+      return bp::make_tuple(model, contact_models);
     }
 
     void exposeMJCFModel()
@@ -55,11 +56,11 @@ namespace pinocchio
 
       bp::def(
         "buildModelFromMJCF",
-        static_cast<Model (*)(const std::string &, const JointModel &, const std::string &)>(
+        static_cast<bp::tuple (*)(const std::string &, const JointModel &, const std::string &)>(
           pinocchio::python::buildModelFromMJCF),
         bp::args("mjcf_filename", "root_joint", "root_joint_name"),
         "Parse the MJCF file and return a pinocchio Model with the given root Joint and its "
-        "specified name.");
+        "specified name as well as a constraint list if some are present in the MJCF file.");
     }
   } // namespace python
 } // namespace pinocchio

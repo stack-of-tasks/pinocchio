@@ -236,14 +236,15 @@ def buildModelsFromMJCF(filename, *args, **kwargs):
         - verbose - print information of parsing (default - False)
         - meshLoader - object used to load meshes (default - hpp::fcl::MeshLoader)
         - geometry_types - Which geometry model to load. Can be pin.GeometryType.COLLISION, pin.GeometryType.VISUAL or both. (default - [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL])
+        - contacts - Boolean to know if contraint models are wanted (default - False)
     Return:
-        Tuple of the models, in this order : model, collision model, and visual model.
+        Tuple of the models, in this order : model, collision model, and visual model, or  model, constraint_list, collision model, and visual model, if contacts is True.
 
     Example:
         model, collision_model, visual_model = buildModelsFromMJCF(filename, root_joint, verbose, meshLoader, geometry_types, root_joint_name="root_joint_name")
     """
     # Handle the switch from old to new api
-    arg_keys = ["root_joint", "verbose", "meshLoader", "geometry_types"]
+    arg_keys = ["root_joint", "verbose", "meshLoader", "geometry_types", "contacts"]
     if len(args) >= 2:
         if isinstance(args[1], str):
             arg_keys = [
@@ -252,6 +253,7 @@ def buildModelsFromMJCF(filename, *args, **kwargs):
                 "verbose",
                 "meshLoader",
                 "geometry_types",
+                "contacts",
             ]
 
     for key, arg in zip(arg_keys, args):
@@ -270,6 +272,7 @@ def _buildModelsFromMJCF(
     verbose=False,
     meshLoader=None,
     geometry_types=None,
+    contacts=False,
 ):
     if geometry_types is None:
         geometry_types = [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
@@ -279,7 +282,9 @@ def _buildModelsFromMJCF(
     elif root_joint is not None and root_joint_name is None:
         model = pin.buildModelFromMJCF(filename, root_joint)
     else:
-        model = pin.buildModelFromMJCF(filename, root_joint, root_joint_name)
+        model, contact_models = pin.buildModelFromMJCF(
+            filename, root_joint, root_joint_name
+        )
 
     if verbose and not WITH_HPP_FCL and meshLoader is not None:
         print(
@@ -292,6 +297,8 @@ def _buildModelsFromMJCF(
         )
 
     lst = [model]
+    if contacts:
+        lst.append(contact_models)
 
     if not hasattr(geometry_types, "__iter__"):
         geometry_types = [geometry_types]
