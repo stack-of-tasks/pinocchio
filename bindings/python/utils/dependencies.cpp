@@ -40,6 +40,13 @@ namespace pinocchio
 #else
         false;
 #endif
+
+      bp::scope().attr("WITH_SDFORMAT") =
+#ifdef PINOCCHIO_WITH_SDFORMAT
+        true;
+#else
+        false;
+#endif
     }
 
   } // namespace python

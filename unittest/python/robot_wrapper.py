@@ -57,6 +57,7 @@ class TestRobotWrapper(unittest.TestCase):
         )
         self.assertEqual(robot.model.names[1], name_)
 
+    @unittest.skipUnless(pin.WITH_SDFORMAT, "Needs SDFORMAT")
     def test_sdf_with_root_joint(self):
         model_path = os.path.abspath(
             os.path.join(self.current_file, "../../models/simple_humanoid.sdf")
@@ -64,6 +65,7 @@ class TestRobotWrapper(unittest.TestCase):
         robot = pin.RobotWrapper.BuildFromSDF(model_path, [], pin.JointModelFreeFlyer())
         self.assertEqual(robot.model.names[1], "root_joint")
 
+    @unittest.skipUnless(pin.WITH_SDFORMAT, "Needs SDFORMAT")
     def test_sdf_with_root_joint_and_root_joint_name(self):
         model_path = os.path.abspath(
             os.path.join(self.current_file, "../../models/simple_humanoid.sdf")
