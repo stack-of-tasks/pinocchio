@@ -5,8 +5,8 @@
 from . import pinocchio_pywrap_default as pin
 from . import utils
 from .shortcuts import (
-    buildModelsFromSdf,
     buildModelsFromMJCF,
+    buildModelsFromSdf,
     buildModelsFromUrdf,
     createDatas,
 )

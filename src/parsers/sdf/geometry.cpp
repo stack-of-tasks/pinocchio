@@ -331,5 +331,5 @@ namespace pinocchio
         }
       }
     } // namespace details
-  }   // namespace sdf
+  } // namespace sdf
 } // namespace pinocchio
