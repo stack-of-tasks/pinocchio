@@ -382,7 +382,7 @@ namespace pinocchio
           }
 
           std::string childName = childNameOrig;
-          if (not make_parent and multiple_parents)
+          if (!make_parent && multiple_parents)
           {
             childName += "_" + jointName;
           }
@@ -430,7 +430,7 @@ namespace pinocchio
             const std::string parentJointParentName =
               parentJointElement->GetElement("parent")->Get<std::string>();
 
-            if (not relativeFrame.compare(parentJointParentName))
+            if (!relativeFrame.compare(parentJointParentName))
             { // If they are equal
 
               // Pose is relative to Parent joint's parent. Search in parent link instead.
@@ -439,7 +439,7 @@ namespace pinocchio
 
               // If the pMjp is not found, throw
               PINOCCHIO_THROW(
-                not parentLinkRelativeFrame.compare(parentJointName), std::logic_error,
+                !parentLinkRelativeFrame.compare(parentJointName), std::logic_error,
                 parentName + " pose is not defined w.r.t. parent joint");
 
               pMjp = parentLinkPlacement.inverse();
@@ -457,7 +457,7 @@ namespace pinocchio
           const std::string & childLinkRelativeFrame =
             childLinkPoseElem->template Get<std::string>("relative_to");
 
-          if (not curJointRelativeFrame.compare(parentName))
+          if (!curJointRelativeFrame.compare(parentName))
           { // If they are equal
             pMj = curJointPlacement;
           }
@@ -466,7 +466,7 @@ namespace pinocchio
             cMj = curJointPlacement;
           }
 
-          if (not childLinkRelativeFrame.compare(jointName))
+          if (!childLinkRelativeFrame.compare(jointName))
           { // If they are equal
             cMj = childLinkPlacement.inverse();
           }
@@ -561,7 +561,7 @@ namespace pinocchio
           }
           else if (jointElement->template Get<std::string>("type") == "revolute")
           {
-            if (not axis_found)
+            if (!axis_found)
             {
               const std::string msg("Axis information missing in joint " + jointName);
               throw std::invalid_argument(msg);
@@ -581,7 +581,7 @@ namespace pinocchio
           }
           else if (jointElement->template Get<std::string>("type") == "prismatic")
           {
-            if (not axis_found)
+            if (!axis_found)
             {
               const std::string msg("Axis information missing in joint " + jointName);
               throw std::invalid_argument(msg);
@@ -651,7 +651,7 @@ namespace pinocchio
             // The inertia values are already divided by nParents before addJointAndBody.
             // One parent creates the kinematic chain, while all other parents create constraints
 
-            if (not multiple_parents)
+            if (!multiple_parents)
             {
               assert(true && "Should not happen.");
             }
