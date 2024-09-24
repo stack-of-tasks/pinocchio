@@ -2543,6 +2543,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
   pinocchio::srdf::loadReferenceConfigurations(model, srdf_filename, false);
 
   Eigen::VectorXd q = model.referenceConfigurations["standing"];
+  pinocchio::normalize(model, q);
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd tau = VectorXd::Random(model.nv);
 
