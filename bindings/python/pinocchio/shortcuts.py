@@ -277,6 +277,7 @@ def _buildModelsFromMJCF(
     if geometry_types is None:
         geometry_types = [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
 
+    contact_models = []
     if root_joint is None:
         model = pin.buildModelFromMJCF(filename)
     elif root_joint is not None and root_joint_name is None:
