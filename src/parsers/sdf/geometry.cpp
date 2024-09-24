@@ -316,8 +316,8 @@ namespace pinocchio
              fm != std::end(model.frames); ++fm)
         {
           if (
-            (fm->type != FIXED_JOINT and fm->type != JOINT)
-            or (graph.mapOfJoints.find(fm->name) == graph.mapOfJoints.end()))
+            (fm->type != FIXED_JOINT && fm->type != JOINT)
+            || (graph.mapOfJoints.find(fm->name) == graph.mapOfJoints.end()))
           {
             continue;
           }
@@ -331,5 +331,5 @@ namespace pinocchio
         }
       }
     } // namespace details
-  } // namespace sdf
+  }   // namespace sdf
 } // namespace pinocchio
