@@ -62,7 +62,7 @@ def _buildModelsFromUrdf(
     root_joint_name=None,
     verbose=False,
     meshLoader=None,
-    geometry_types=[pin.GeometryType.COLLISION, pin.GeometryType.VISUAL],
+    geometry_types=None,
 ) -> Tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
     if geometry_types is None:
         geometry_types = [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
@@ -176,11 +176,14 @@ def _buildModelsFromSdf(
     root_joint=None,
     root_link_name="",
     root_joint_name=None,
-    parent_guidance=[],
+    parent_guidance=None,
     verbose=False,
     meshLoader=None,
     geometry_types=None,
 ):
+    if parent_guidance is None:
+        parent_guidance = []
+
     if geometry_types is None:
         geometry_types = [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
 
