@@ -948,7 +948,7 @@ BOOST_AUTO_TEST_CASE(joint_and_inertias)
   typedef pinocchio::SE3::Matrix3 Matrix3;
 
   std::istringstream xmlData(R"(
-            <mujoco model="testKeyFrame">
+            <mujoco model="testJointInertia">
                 <worldbody>
                     <body name="body1">
                         <freejoint/>
@@ -1090,6 +1090,21 @@ BOOST_AUTO_TEST_CASE(build_model_no_root_joint)
   pinocchio::mjcf::buildModel(filename, model_m);
 
   BOOST_CHECK_EQUAL(model_m.nq, 29);
+}
+
+BOOST_AUTO_TEST_CASE(build_model_with_root_joint_name)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.xml");
+  const std::string dir = PINOCCHIO_MODEL_DIR;
+
+  pinocchio::Model model;
+  pinocchio::mjcf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model);
+  BOOST_CHECK(model.names[1] == "root_joint");
+
+  pinocchio::Model model_name;
+  const std::string name_ = "freeFlyer_joint";
+  pinocchio::mjcf::buildModel(filename, pinocchio::JointModelFreeFlyer(), name_, model_name);
+  BOOST_CHECK(model_name.names[1] == name_);
 }
 
 #ifdef PINOCCHIO_WITH_URDFDOM

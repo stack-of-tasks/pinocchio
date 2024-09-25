@@ -34,6 +34,21 @@ BOOST_AUTO_TEST_CASE(build_model)
   BOOST_CHECK(model.nq == 31);
 }
 
+BOOST_AUTO_TEST_CASE(build_model_with_root_joint_name)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
+  const std::string dir = PINOCCHIO_MODEL_DIR;
+
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model);
+  BOOST_CHECK(model.names[1] == "root_joint");
+
+  pinocchio::Model model_name;
+  const std::string name_ = "freeFlyer_joint";
+  pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), name_, model_name);
+  BOOST_CHECK(model_name.names[1] == name_);
+}
+
 BOOST_AUTO_TEST_CASE(build_model_simple_humanoid)
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
@@ -291,8 +306,8 @@ BOOST_AUTO_TEST_CASE(test_getFrameId_identical_link_and_joint_name)
   pinocchio::urdf::buildModel(filename, model);
 
   BOOST_CHECK_THROW(model.getFrameId("base"), std::invalid_argument);
-  BOOST_CHECK(model.getFrameId("base", pinocchio::FrameType::BODY) == 2);
-  BOOST_CHECK(model.getFrameId("base", pinocchio::FrameType::FIXED_JOINT) == 3);
+  BOOST_CHECK(model.getFrameId("base", pinocchio::FrameType::BODY) == 1);
+  BOOST_CHECK(model.getFrameId("base", pinocchio::FrameType::FIXED_JOINT) == 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
