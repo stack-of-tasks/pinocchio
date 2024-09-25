@@ -197,7 +197,9 @@ namespace pinocchio
           .staticmethod("Interpolate")
 
           .def("__array__", &SE3::toHomogeneousMatrix)
-          .def("__array__", &__array__)
+          .def(
+            "__array__", &__array__,
+            (bp::arg("self"), bp::arg("dtype") = bp::object(), bp::arg("copy") = bp::object()))
 
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def_pickle(Pickle())
@@ -230,7 +232,7 @@ namespace pinocchio
       }
 
     private:
-      static Matrix4 __array__(const SE3 & self, bp::object)
+      static Matrix4 __array__(const SE3 & self, bp::object, bp::object)
       {
         return self.toHomogeneousMatrix();
       }

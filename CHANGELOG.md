@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Default visualizer can be changed with `PINOCCHIO_VIEWER` environment variable ([#2419](https://github.com/stack-of-tasks/pinocchio/pull/2419))
 - Add more Python and C++ examples related to inverse kinematics with 3d tasks ([#2428](https://github.com/stack-of-tasks/pinocchio/pull/2428))
 - Add parsing of equality/connect tag for closed-loop chains for MJCF format ([#2413](https://github.com/stack-of-tasks/pinocchio/pull/2413))
+- Add compatibility with NumPy 2 `__array__` API ([#2436](https://github.com/stack-of-tasks/pinocchio/pull/2436))
 
 ### Fixed
 - Fix linkage of Boost.Serialization on Windows ([#2400](https://github.com/stack-of-tasks/pinocchio/pull/2400))

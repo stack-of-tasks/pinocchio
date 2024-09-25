@@ -193,7 +193,9 @@ namespace pinocchio
           .staticmethod("FromCapsule")
 
           .def("__array__", (Matrix6(Inertia::*)() const) & Inertia::matrix)
-          .def("__array__", &__array__)
+          .def(
+            "__array__", &__array__,
+            (bp::arg("self"), bp::arg("dtype") = bp::object(), bp::arg("copy") = bp::object()))
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def_pickle(Pickle())
 #endif
@@ -273,7 +275,7 @@ namespace pinocchio
       }
 
     private:
-      static Matrix6 __array__(const Inertia & self, bp::object)
+      static Matrix6 __array__(const Inertia & self, bp::object, bp::object)
       {
         return self.matrix();
       }
