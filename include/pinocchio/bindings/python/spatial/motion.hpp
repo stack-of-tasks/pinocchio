@@ -184,7 +184,10 @@ namespace pinocchio
             "__array__", bp::make_function(
                            (typename Motion::ToVectorReturnType(Motion::*)()) & Motion::toVector,
                            bp::return_internal_reference<>()))
-          .def("__array__", &__array__, (bp::arg("self"), bp::arg("dtype")=bp::object(), bp::arg("copy")=bp::object()), bp::return_internal_reference<>())
+          .def(
+            "__array__", &__array__,
+            (bp::arg("self"), bp::arg("dtype") = bp::object(), bp::arg("copy") = bp::object()),
+            bp::return_internal_reference<>())
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def_pickle(Pickle())
 #endif
@@ -220,7 +223,8 @@ namespace pinocchio
       }
 
     private:
-      static typename Motion::ToVectorConstReturnType __array__(const Motion & self, bp::object, bp::object)
+      static typename Motion::ToVectorConstReturnType
+      __array__(const Motion & self, bp::object, bp::object)
       {
         return self.toVector();
       }
