@@ -23,12 +23,13 @@ module.exports = async ({github, context, core}) => {
     });
     const labelNames = data.labels.map(label => label.name);
 
+    const os = process.env.RUNNER_OS;
+
     const labelFlags = {
         build_all: [
             ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
             ' -DBUILD_WITH_CASADI_SUPPORT=ON',
             ' -DBUILD_WITH_AUTODIFF_SUPPORT=ON',
-            ' -DBUILD_WITH_CODEGEN_SUPPORT=ON',
             ' -DBUILD_WITH_EXTRA_SUPPORT=ON',
             ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
             ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
@@ -54,6 +55,8 @@ module.exports = async ({github, context, core}) => {
             } else {
                 cmakeFlags += labelFlags[label];
             }
+            if(os != 'Windows' && label == "build_all")
+                cmakeFlags += ' -DBUILD_WITH_CODEGEN_SUPPORT=ON';
         }
     });
 
