@@ -265,6 +265,7 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Joris Vaillant](https://github.com/jorisv) (Inria): core developer and manager of the project
 -   [Sebastian Castro](https://roboticseabass.com) (The AI Institute): MeshCat viewer feature extension
 -   [Lev Kozlov](https://github.com/lvjonok): Kinetic and potential energy regressors
+-   [Megane Millan](https://github.com/MegMll) (Inria):Features extension
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 
