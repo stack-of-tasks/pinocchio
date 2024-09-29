@@ -26,10 +26,24 @@ namespace pinocchio
       return model;
     }
 
+    Model buildSampleModelHumanoidRandom(bool usingFF, bool mimic)
+    {
+      Model model;
+      buildModels::humanoidRandom(model, usingFF, mimic);
+      return model;
+    }
+
     Model buildSampleModelManipulator()
     {
       Model model;
       buildModels::manipulator(model);
+      return model;
+    }
+
+    Model buildSampleModelManipulator(bool mimic)
+    {
+      Model model;
+      buildModels::manipulator(model, mimic);
       return model;
     }
 
@@ -81,9 +95,21 @@ namespace pinocchio
         "placements.\nOnly meant for unit tests.");
 
       bp::def(
+        "buildSampleModelHumanoidRandom",
+        static_cast<Model (*)(bool, bool)>(pinocchio::python::buildSampleModelHumanoidRandom),
+        bp::args("using_free_flyer", "mimic"),
+        "Generate a (hard-coded) model of a humanoid robot with 6-DOF limbs and random joint "
+        "placements.\nOnly meant for unit tests.");
+
+      bp::def(
         "buildSampleModelManipulator",
         static_cast<Model (*)()>(pinocchio::python::buildSampleModelManipulator),
         "Generate a (hard-coded) model of a simple manipulator.");
+
+      bp::def(
+        "buildSampleModelManipulator",
+        static_cast<Model (*)(bool)>(pinocchio::python::buildSampleModelManipulator),
+        bp::args("mimic"), "Generate a (hard-coded) model of a simple manipulator.");
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def(

@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
   typedef JointCollection::JointDataRX JointDataRX;
 
   JointModelRX jmodel;
-  jmodel.setIndexes(0, 0, 0);
+  jmodel.setIndexes(0, 0, 0, 0);
   JointDataRX jdata(jmodel.createData());
 
   JointModelRXAD jmodel_ad = jmodel.cast<AD_double>();
@@ -108,7 +108,7 @@ struct TestADOnJoints
   void operator()(const pinocchio::JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test(jmodel);
   }
@@ -118,7 +118,7 @@ struct TestADOnJoints
   {
     typedef pinocchio::JointModelHelicalTpl<Scalar, Options, axis> JointModel;
     JointModel jmodel(Scalar(0.4));
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test(jmodel);
   }
@@ -129,7 +129,7 @@ struct TestADOnJoints
     typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointModel;
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::UnitX(), Vector3::UnitY());
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test(jmodel);
   }
@@ -140,7 +140,7 @@ struct TestADOnJoints
     typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> JointModel;
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test(jmodel);
   }
@@ -151,7 +151,7 @@ struct TestADOnJoints
     typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> JointModel;
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test(jmodel);
   }
@@ -162,7 +162,7 @@ struct TestADOnJoints
     typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> JointModel;
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test(jmodel);
   }
@@ -173,7 +173,7 @@ struct TestADOnJoints
     typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> JointModel;
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test(jmodel);
   }
@@ -184,14 +184,15 @@ struct TestADOnJoints
     typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
     typedef pinocchio::JointModelTpl<Scalar, Options, JointCollection> JointModel;
     JointModel jmodel((JointModelRX()));
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test(jmodel);
   }
 
   // TODO: implement it
-  template<typename JointModel_>
-  void operator()(const pinocchio::JointModelMimic<JointModel_> & /*jmodel*/) const
+  template<typename Scalar, int Options, template<typename, int> class JointCollection>
+  void operator()(
+    const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/) const
   {
     /* do nothing */
   }
@@ -204,7 +205,7 @@ struct TestADOnJoints
     typedef pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> JointModel;
     JointModel jmodel((JointModelRX()));
     jmodel.addJoint(JointModelRY());
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test(jmodel);
   }

@@ -33,7 +33,7 @@ void test_joint_methods(
   JointData jdata = jmodel.createData();
   JointDataComposite jdata_composite = jmodel_composite.createData();
 
-  jmodel_composite.setIndexes(jmodel.id(), jmodel.idx_q(), jmodel.idx_v());
+  jmodel_composite.setIndexes(jmodel.id(), jmodel.idx_q(), jmodel.idx_v(), jmodel.idx_vExtended());
 
   typedef typename JointModel::ConfigVector_t ConfigVector_t;
   typedef typename JointModel::TangentVector_t TangentVector_t;
@@ -142,6 +142,13 @@ void test_joint_methods(
   Model::ConfigVectorType vec(Model::ConfigVectorType::Ones(m));
   const Model::ConfigVectorType vec_const(Model::ConfigVectorType::Ones(m));
 
+  BOOST_CHECK(
+    jmodel.jointConfigExtendedModelSelector(vec)
+    == jmodel_composite.jointConfigExtendedModelSelector(vec));
+  BOOST_CHECK(
+    jmodel.jointConfigExtendedModelSelector(vec_const)
+    == jmodel_composite.jointConfigExtendedModelSelector(vec_const));
+
   BOOST_CHECK(jmodel.jointConfigSelector(vec) == jmodel_composite.jointConfigSelector(vec));
   BOOST_CHECK(
     jmodel.jointConfigSelector(vec_const) == jmodel_composite.jointConfigSelector(vec_const));
@@ -150,8 +157,18 @@ void test_joint_methods(
   BOOST_CHECK(
     jmodel.jointVelocitySelector(vec_const) == jmodel_composite.jointVelocitySelector(vec_const));
 
+  BOOST_CHECK(
+    jmodel.jointVelocityExtendedModelSelector(vec)
+    == jmodel_composite.jointVelocityExtendedModelSelector(vec));
+  BOOST_CHECK(
+    jmodel.jointVelocityExtendedModelSelector(vec_const)
+    == jmodel_composite.jointVelocityExtendedModelSelector(vec_const));
+
   BOOST_CHECK(jmodel.jointCols(mat) == jmodel_composite.jointCols(mat));
   BOOST_CHECK(jmodel.jointCols(mat_const) == jmodel_composite.jointCols(mat_const));
+  BOOST_CHECK(jmodel.jointExtendedModelCols(mat) == jmodel_composite.jointExtendedModelCols(mat));
+  BOOST_CHECK(
+    jmodel.jointExtendedModelCols(mat_const) == jmodel_composite.jointExtendedModelCols(mat_const));
 }
 
 struct TestJointComposite
@@ -161,7 +178,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test_joint_methods(jmodel);
   }
@@ -179,7 +196,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
   {
     JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
 
     test_joint_methods(jmodel);
   }
@@ -187,7 +204,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModelPrismaticUnaligned> &) const
   {
     JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0);
+    jmodel.setIndexes(0, 0, 0, 0);
     test_joint_methods(jmodel);
   }
 };
@@ -220,7 +237,7 @@ BOOST_AUTO_TEST_CASE(chain)
 BOOST_AUTO_TEST_CASE(vsZYX)
 {
   JointModelSphericalZYX jmodel_spherical;
-  jmodel_spherical.setIndexes(0, 0, 0);
+  jmodel_spherical.setIndexes(0, 0, 0, 0);
 
   JointModelComposite jmodel_composite((JointModelRZ()));
   jmodel_composite.addJoint(JointModelRY());
@@ -232,7 +249,7 @@ BOOST_AUTO_TEST_CASE(vsZYX)
 BOOST_AUTO_TEST_CASE(vsTranslation)
 {
   JointModelTranslation jmodel_translation;
-  jmodel_translation.setIndexes(0, 0, 0);
+  jmodel_translation.setIndexes(0, 0, 0, 0);
 
   JointModelComposite jmodel_composite((JointModelPX()));
   jmodel_composite.addJoint(JointModelPY());
@@ -259,7 +276,7 @@ BOOST_AUTO_TEST_CASE(test_copy)
   JointModelComposite jmodel_composite_planar((JointModelPX()));
   jmodel_composite_planar.addJoint(JointModelPY());
   jmodel_composite_planar.addJoint(JointModelRZ());
-  jmodel_composite_planar.setIndexes(0, 0, 0);
+  jmodel_composite_planar.setIndexes(0, 0, 0, 0);
 
   JointDataComposite jdata_composite_planar = jmodel_composite_planar.createData();
 

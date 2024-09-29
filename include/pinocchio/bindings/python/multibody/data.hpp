@@ -152,6 +152,9 @@ namespace pinocchio
           .ADD_DATA_PROPERTY(D, "Diagonal of UDUT inertia decomposition")
           .ADD_DATA_PROPERTY(parents_fromRow, "First previous non-zero row in M (used in Cholesky)")
           .ADD_DATA_PROPERTY(
+            idx_v_extended_fromRow, "Extended model mapping of the joint rows "
+                                    "(idx_v_extended_fromRow[idx_v_extended] = idx_v)")
+          .ADD_DATA_PROPERTY(
             nvSubtree_fromRow, "Subtree of the current row index (used in Cholesky)")
           .ADD_DATA_PROPERTY(J, "Jacobian of joint placement")
           .ADD_DATA_PROPERTY(dJ, "Time variation of the Jacobian of joint placement (data.J).")

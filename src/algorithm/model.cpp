@@ -81,6 +81,15 @@ namespace pinocchio
     context::Model &,
     std::vector<GeometryModel, Eigen::aligned_allocator<GeometryModel>> &);
 
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void
+  transformJointIntoMimic<context::Scalar, context::Options, JointCollectionDefaultTpl>(
+    const context::Model &,
+    const JointIndex &,
+    const JointIndex &,
+    const context::Scalar &,
+    const context::Scalar &,
+    context::Model &);
+
   template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI JointIndex
   findCommonAncestor<context::Scalar, context::Options, JointCollectionDefaultTpl>(
     const context::Model &, JointIndex, JointIndex, size_t &, size_t &);

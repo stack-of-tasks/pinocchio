@@ -154,6 +154,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(gravity_partial_dq.cols(), model.nv);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(gravity_partial_dq.rows(), model.nv);
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
@@ -201,6 +202,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         fext.size(), (size_t)model.njoints, "The size of the external forces is not of right size");
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
@@ -493,6 +495,7 @@ namespace pinocchio
         isZero(model.gravity.angular()),
         "The gravity must be a pure force vector, no angular part");
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
@@ -573,6 +576,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(rnea_partial_da.cols(), model.nv);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(rnea_partial_da.rows(), model.nv);
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;

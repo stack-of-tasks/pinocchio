@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(test_jacobian)
   using namespace pinocchio;
 
   pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::buildModels::humanoidRandom(model, false, true);
   pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Zero(model.nq);
@@ -77,10 +77,9 @@ BOOST_AUTO_TEST_CASE(test_jacobian_time_variation)
   using namespace pinocchio;
 
   pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::buildModels::humanoidRandom(model, true, true);
   pinocchio::Data data(model);
   pinocchio::Data data_ref(model);
-
   VectorXd q = randomConfiguration(
     model, -1 * Eigen::VectorXd::Ones(model.nq), Eigen::VectorXd::Ones(model.nq));
   VectorXd v = VectorXd::Random(model.nv);
@@ -103,7 +102,6 @@ BOOST_AUTO_TEST_CASE(test_jacobian_time_variation)
   getJointJacobian(model, data, idx, WORLD, J);
   BOOST_CHECK(J.isApprox(getJointJacobian(model, data, idx, WORLD)));
   getJointJacobianTimeVariation(model, data, idx, WORLD, dJ);
-
   Motion v_idx(J * v);
   BOOST_CHECK(v_idx.isApprox(data_ref.oMi[idx].act(data_ref.v[idx])));
 
@@ -168,7 +166,6 @@ BOOST_AUTO_TEST_CASE(test_jacobian_time_variation)
 
     BOOST_CHECK(dJ.isApprox(dJ_ref, sqrt(alpha)));
   }
-
   // compare to finite differencies : LOCAL
   {
     Data data_ref(model), data_ref_plus(model);

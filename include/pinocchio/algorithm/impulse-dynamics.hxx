@@ -32,6 +32,7 @@ namespace pinocchio
     const ProximalSettingsTpl<Scalar> & settings)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(
       q.size() == model.nq, "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(

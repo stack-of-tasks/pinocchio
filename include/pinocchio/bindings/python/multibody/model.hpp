@@ -71,6 +71,7 @@ namespace pinocchio
           // Class Members
           .add_property("nq", &Model::nq, "Dimension of the configuration vector representation.")
           .add_property("nv", &Model::nv, "Dimension of the velocity vector space.")
+          .add_property("nvExtended", &Model::nvExtended, "Dimension of the jacobian matrix space.")
           .add_property("njoints", &Model::njoints, "Number of joints.")
           .add_property("nbodies", &Model::nbodies, "Number of bodies.")
           .add_property("nframes", &Model::nframes, "Number of frames.")
@@ -89,6 +90,11 @@ namespace pinocchio
             "idx_vs", &Model::idx_vs,
             "Starting index of the *i*th joint in the tangent configuration space.")
           .add_property("nvs", &Model::nvs, "Dimension of the *i*th joint tangent subspace.")
+          .add_property(
+            "idx_vExtendeds", &Model::idx_vExtendeds,
+            "Starting index of the *i*th joint in the jacobian space.")
+          .add_property(
+            "nvExtendeds", &Model::nvExtendeds, "Dimension of the *i*th joint jacobian subspace.")
           .add_property(
             "parents", &Model::parents,
             "Vector of parent joint indexes. The parent of joint *i*, denoted *li*, "

@@ -113,6 +113,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         a.size(), model.nv, "The acceleration vector is not of right size");
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
@@ -262,6 +263,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dv.cols(), model.nv);
       PINOCCHIO_CHECK_INPUT_ARGUMENT((int)jointId < model.njoints, "The joint id is invalid.");
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef typename Model::JointIndex JointIndex;
 
@@ -490,6 +492,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_da.cols(), model.nv);
       PINOCCHIO_CHECK_INPUT_ARGUMENT((int)jointId < model.njoints, "The joint id is invalid.");
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::JointIndex JointIndex;
@@ -669,6 +672,7 @@ namespace pinocchio
         rf == LOCAL || rf == LOCAL_WORLD_ALIGNED,
         "The reference frame is not valid, expected LOCAL or LOCAL_WORLD_ALIGNED");
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef typename Data::SE3 SE3;
       typedef typename Data::Motion Motion;
@@ -905,6 +909,7 @@ namespace pinocchio
         rf == LOCAL || rf == LOCAL_WORLD_ALIGNED,
         "The reference frame is not valid, expected LOCAL or LOCAL_WORLD_ALIGNED");
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       const SE3 oMpoint = data.oMi[joint_id] * placement;
       const Motion spatial_velocity = oMpoint.actInv(data.ov[joint_id]);
@@ -966,6 +971,7 @@ namespace pinocchio
     DataTpl<Scalar, Options, JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
@@ -1070,6 +1076,7 @@ namespace pinocchio
     Tensor<Scalar, 3, Options> & kinematic_hessian)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
     assert(
       joint_id < model.joints.size() && joint_id > 0
       && "joint_id is outside the valid index for a joint in model.joints");

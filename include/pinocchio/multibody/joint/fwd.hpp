@@ -152,6 +152,20 @@ namespace pinocchio
     typename Scalar,
     int Options = context::Options,
     template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointModelMimicTpl;
+  typedef JointModelMimicTpl<context::Scalar> JointModelMimic;
+
+  template<
+    typename Scalar,
+    int Options = context::Options,
+    template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  struct JointDataMimicTpl;
+  typedef JointDataMimicTpl<context::Scalar> JointDataMimic;
+
+  template<
+    typename Scalar,
+    int Options = context::Options,
+    template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
   struct JointModelTpl;
   typedef JointModelTpl<context::Scalar> JointModel;
 

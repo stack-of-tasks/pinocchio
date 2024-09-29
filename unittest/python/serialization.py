@@ -8,7 +8,7 @@ main_path = "./serialization-data"
 
 class TestSerialization(TestCase):
     def testTXT(self):
-        model = pin.buildSampleModelHumanoidRandom()
+        model = pin.buildSampleModelHumanoidRandom(True, True)
         filename = main_path + "/model.txt"
         model.saveToText(filename)
 
@@ -18,7 +18,7 @@ class TestSerialization(TestCase):
         self.assertTrue(model == model2)
 
     def testXML(self):
-        model = pin.buildSampleModelHumanoidRandom()
+        model = pin.buildSampleModelHumanoidRandom(True, True)
         filename = main_path + "/model.xml"
         tag_name = "Model"
         model.saveToXML(filename, tag_name)
@@ -29,7 +29,7 @@ class TestSerialization(TestCase):
         self.assertTrue(model == model2)
 
     def testBIN(self):
-        model = pin.buildSampleModelHumanoidRandom()
+        model = pin.buildSampleModelHumanoidRandom(True, True)
         filename = main_path + "/model.bin"
         model.saveToBinary(filename)
 

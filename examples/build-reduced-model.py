@@ -78,7 +78,7 @@ print("-" * 30)
 # reference_configuration is optional: if not provided, neutral configuration used
 # you can even mix joint names and joint ids
 mixed_jointsToLockIDs = [jointsToLockIDs[0], "wrist_2_joint", "wrist_3_joint"]
-robot = pin.RobotWrapper.BuildFromURDF(urdf_filename, mesh_dir)
+robot = pin.RobotWrapper.BuildFromURDF(urdf_filename, mesh_dir, mimic=True)
 reduced_robot = robot.buildReducedRobot(
     list_of_joints_to_lock=mixed_jointsToLockIDs,
     reference_configuration=initialJointConfig,

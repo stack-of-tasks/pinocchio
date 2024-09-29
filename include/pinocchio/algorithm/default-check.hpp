@@ -12,9 +12,10 @@
 namespace pinocchio
 {
   /// Default checker-list, used as the default argument in Model::check().
-  inline AlgorithmCheckerList<ParentChecker, CRBAChecker, ABAChecker> makeDefaultCheckerList()
+  inline AlgorithmCheckerList<ParentChecker, CRBAChecker, ABAChecker, MimicChecker>
+  makeDefaultCheckerList()
   {
-    return makeAlgoCheckerList(ParentChecker(), CRBAChecker(), ABAChecker());
+    return makeAlgoCheckerList(ParentChecker(), CRBAChecker(), ABAChecker(), MimicChecker());
   }
 
 #define DEFAULT_CHECKERS makeDefaultCheckerList()

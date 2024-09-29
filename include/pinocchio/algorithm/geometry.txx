@@ -5,7 +5,7 @@
 #ifndef __pinocchio_algorithm_geometry_txx__
 #define __pinocchio_algorithm_geometry_txx__
 
-#ifndef PINOCCHIO_SKIP_CASADI_UNSUPPORTED
+#ifndef PINOCCHIO_SKIP_ALGORTIHM_GEOMETRY
 
 namespace pinocchio
 {
@@ -27,6 +27,6 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // PINOCCHIO_SKIP_CASADI_UNSUPPORTED
+#endif // PINOCCHIO_SKIP_ALGORITHM_GEOMETRY
 
 #endif // ifndef __pinocchio_algorithm_geometry_txx__

@@ -100,6 +100,9 @@ namespace pinocchio
     /// \brief Dimension of the velocity vector space.
     int nv;
 
+    /// \brief Dimension of the jacobian space.
+    int nvExtended;
+
     /// \brief Number of joints.
     int njoints;
 
@@ -129,6 +132,12 @@ namespace pinocchio
 
     /// \brief Dimension of the *i*th joint tangent subspace.
     std::vector<int> nvs;
+
+    /// \brief Starting index of the *i*th joint in the jacobian space.
+    std::vector<int> idx_vExtendeds;
+
+    /// \brief Dimension of the *i*th joint jacobian subspace.
+    std::vector<int> nvExtendeds;
 
     /// \brief Vector of parent joint indexes. The parent of joint *i*, denoted *li*, corresponds to
     /// li==parents[i].
@@ -200,6 +209,7 @@ namespace pinocchio
     ModelTpl()
     : nq(0)
     , nv(0)
+    , nvExtended(0)
     , njoints(1)
     , nbodies(1)
     , nframes(0)
@@ -210,6 +220,8 @@ namespace pinocchio
     , nqs(1, 0)
     , idx_vs(1, 0)
     , nvs(1, 0)
+    , idx_vExtendeds(1, 0)
+    , nvExtendeds(1, 0)
     , parents(1, 0)
     , children(1)
     , names(1)

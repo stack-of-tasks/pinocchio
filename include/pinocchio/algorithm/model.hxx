@@ -129,7 +129,7 @@ namespace pinocchio
           {
             go.parentFrame = parentFrame;
           }
-          go.placement = pframe.placement * pfMAB * go.placement;
+          go.placement = (pframe.placement * pfMAB) * go.placement;
           geomModel.addGeometryObject(go);
         }
       }
@@ -154,6 +154,36 @@ namespace pinocchio
         ArgsType;
 
       template<typename JointModel>
+      static typename std::enable_if<
+        !std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value,
+        JointModel>::type
+      updateMimicIds(
+        const JointModel & jmodel, const Model & /*old_model*/, const Model & /*new_model*/)
+      {
+        return jmodel;
+      }
+
+      template<typename JointModel>
+      static typename std::enable_if<
+        std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value,
+        JointModel>::type
+      updateMimicIds(
+        const JointModelMimicTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+        const Model & old_model,
+        const Model & new_model)
+      {
+        JointModel res(jmodel);
+        const JointIndex mimicked_old_id = res.jmodel().id();
+        const std::string mimicked_name = old_model.names[mimicked_old_id];
+        const JointIndex mimicked_new_id = new_model.getJointId(mimicked_name);
+        res.setMimicIndexes(
+          mimicked_new_id, new_model.joints[mimicked_new_id].idx_q(),
+          new_model.joints[mimicked_new_id].idx_v(),
+          new_model.joints[mimicked_new_id].idx_vExtended());
+        return res;
+      }
+
+      template<typename JointModel>
       static void algo(
         const JointModelBase<JointModel> & jmodel_in,
         const Model & modelAB,
@@ -173,9 +203,16 @@ namespace pinocchio
           !model.existJointName(modelAB.names[joint_id_in]),
           "The two models have conflicting joint names.");
 
+        // For mimic joints, update the reference joint id
+        JointModel jmodel_inter = updateMimicIds<JointModel>(jmodel_in.derived(), modelAB, model);
+
         JointIndex joint_id_out = model.addJoint(
-          parent_id, jmodel_in, pMi * modelAB.jointPlacements[joint_id_in],
-          modelAB.names[joint_id_in], jmodel_in.jointVelocitySelector(modelAB.effortLimit),
+          parent_id,
+          jmodel_inter, // Use the intermediate joint (jmodel_inter) with updates id, idx, ...
+          pMi * modelAB.jointPlacements[joint_id_in], modelAB.names[joint_id_in],
+          jmodel_in.jointVelocitySelector(
+            modelAB
+              .effortLimit), // Need to select the vector base on the origin idxs, so use jmodel_in.
           jmodel_in.jointVelocitySelector(modelAB.velocityLimit),
           jmodel_in.jointConfigSelector(modelAB.lowerPositionLimit),
           jmodel_in.jointConfigSelector(modelAB.upperPositionLimit),
@@ -185,7 +222,8 @@ namespace pinocchio
 
         model.appendBodyToJoint(joint_id_out, modelAB.inertias[joint_id_in]);
 
-        const typename Model::JointModel & jmodel_out = model.joints[joint_id_out];
+        typename Model::JointModel & jmodel_out = model.joints[joint_id_out];
+
         jmodel_out.jointVelocitySelector(model.rotorInertia) =
           jmodel_in.jointVelocitySelector(modelAB.rotorInertia);
         jmodel_out.jointVelocitySelector(model.rotorGearRatio) =
@@ -751,7 +789,7 @@ namespace pinocchio
         const std::string & parent_joint_name = input_model.names[joint_id_in_input_model];
 
         JointIndex reduced_joint_id = (JointIndex)-1;
-        typedef typename Model::SE3 SE3;
+        typedef typename GeometryObject::SE3 SE3;
         SE3 relative_placement = SE3::Identity();
         if (reduced_model.existJointName(parent_joint_name))
         {
@@ -785,6 +823,120 @@ namespace pinocchio
 #endif
 
       list_of_reduced_geom_models.push_back(reduced_geom_model);
+    }
+  }
+
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  void transformJointIntoMimic(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & input_model,
+    const JointIndex & index_primary,
+    const JointIndex & index_secondary,
+    const Scalar & scaling,
+    const Scalar & offset,
+    ModelTpl<Scalar, Options, JointCollectionTpl> & output_model)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(
+      index_primary <= (size_t)input_model.njoints,
+      "index_primary is greater than the total of joints");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(
+      index_secondary <= (size_t)input_model.njoints,
+      "index_primary is greater than the total of joints");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(
+      index_primary < index_secondary, "index_primary is greater than sindex_secondary");
+
+    typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+    typedef typename Model::JointModel JointModel;
+
+    output_model = input_model;
+
+    output_model.joints[index_secondary] = JointModelMimic(
+      input_model.joints[index_secondary], output_model.joints[index_primary], scaling, offset);
+
+    int old_nq = input_model.joints[index_secondary].nq();
+    int old_nv = input_model.joints[index_secondary].nv();
+    output_model.nq = input_model.nq - old_nq;
+    output_model.nv = input_model.nv - old_nv;
+    int nq = output_model.nq;
+    int nv = output_model.nv;
+
+    // Resize limits
+    output_model.effortLimit.resize(nv);
+    output_model.velocityLimit.resize(nv);
+    output_model.lowerPositionLimit.resize(nq);
+    output_model.upperPositionLimit.resize(nq);
+    output_model.armature.resize(nv);
+    output_model.rotorInertia.resize(nv);
+    output_model.rotorGearRatio.resize(nv);
+    output_model.friction.resize(nv);
+    output_model.damping.resize(nv);
+
+    // Move indexes and limits
+    for (JointIndex joint_id = 1; joint_id < (JointIndex)index_secondary; ++joint_id)
+    {
+      const JointModel & jmodel_input = input_model.joints[joint_id];
+      const JointModel & jmodel_output = output_model.joints[joint_id];
+      jmodel_output.jointVelocitySelector(output_model.effortLimit) =
+        jmodel_input.jointVelocitySelector(input_model.effortLimit);
+      jmodel_output.jointVelocitySelector(output_model.velocityLimit) =
+        jmodel_input.jointVelocitySelector(input_model.velocityLimit);
+
+      jmodel_output.jointConfigSelector(output_model.lowerPositionLimit) =
+        jmodel_input.jointConfigSelector(input_model.lowerPositionLimit);
+      jmodel_output.jointConfigSelector(output_model.upperPositionLimit) =
+        jmodel_input.jointConfigSelector(input_model.upperPositionLimit);
+
+      jmodel_output.jointVelocitySelector(output_model.armature) =
+        jmodel_input.jointVelocitySelector(input_model.armature);
+      jmodel_output.jointVelocitySelector(output_model.rotorInertia) =
+        jmodel_input.jointVelocitySelector(input_model.rotorInertia);
+      jmodel_output.jointVelocitySelector(output_model.rotorGearRatio) =
+        jmodel_input.jointVelocitySelector(input_model.rotorGearRatio);
+      jmodel_output.jointVelocitySelector(output_model.friction) =
+        jmodel_input.jointVelocitySelector(input_model.friction);
+      jmodel_output.jointVelocitySelector(output_model.damping) =
+        jmodel_input.jointVelocitySelector(input_model.damping);
+    }
+
+    // Move indexes and limits
+    int idx_q = output_model.idx_qs[index_secondary];
+    int idx_v = output_model.idx_vs[index_secondary];
+    for (JointIndex joint_id = index_secondary; joint_id < (JointIndex)input_model.njoints;
+         ++joint_id)
+    {
+      const JointModel & jmodel_input = input_model.joints[joint_id];
+      JointModel & jmodel_output = output_model.joints[joint_id];
+      jmodel_output.setIndexes(jmodel_input.id(), idx_q, idx_v, jmodel_input.idx_vExtended());
+
+      output_model.idx_qs[joint_id] = jmodel_output.idx_q();
+      output_model.nqs[joint_id] = jmodel_output.nq();
+      output_model.idx_vs[joint_id] = jmodel_output.idx_v();
+      output_model.nvs[joint_id] = jmodel_output.nv();
+
+      idx_q += jmodel_output.nq();
+      idx_v += jmodel_output.nv();
+      if (joint_id != index_secondary)
+      {
+        jmodel_output.jointVelocitySelector(output_model.effortLimit) =
+          jmodel_input.jointVelocitySelector(input_model.effortLimit);
+        jmodel_output.jointVelocitySelector(output_model.velocityLimit) =
+          jmodel_input.jointVelocitySelector(input_model.velocityLimit);
+
+        jmodel_output.jointConfigSelector(output_model.lowerPositionLimit) =
+          jmodel_input.jointConfigSelector(input_model.lowerPositionLimit);
+        jmodel_output.jointConfigSelector(output_model.upperPositionLimit) =
+          jmodel_input.jointConfigSelector(input_model.upperPositionLimit);
+
+        jmodel_output.jointVelocitySelector(output_model.armature) =
+          jmodel_input.jointVelocitySelector(input_model.armature);
+        jmodel_output.jointVelocitySelector(output_model.rotorInertia) =
+          jmodel_input.jointVelocitySelector(input_model.rotorInertia);
+        jmodel_output.jointVelocitySelector(output_model.rotorGearRatio) =
+          jmodel_input.jointVelocitySelector(input_model.rotorGearRatio);
+        jmodel_output.jointVelocitySelector(output_model.friction) =
+          jmodel_input.jointVelocitySelector(input_model.friction);
+        jmodel_output.jointVelocitySelector(output_model.damping) =
+          jmodel_input.jointVelocitySelector(input_model.damping);
+      }
     }
   }
 

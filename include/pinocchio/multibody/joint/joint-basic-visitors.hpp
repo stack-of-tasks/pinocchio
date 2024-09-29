@@ -145,6 +145,17 @@ namespace pinocchio
   inline int nq(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
+   * @brief      Visit a JointModelTpl through JointNjVisitor to get the dimension of
+   *             the joint configuration space
+   *
+   * @param[in]  jmodel  The JointModelVariant
+   *
+   * @return     The dimension of joint jacobian space
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline int nvExtended(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
+
+  /**
    * @brief      Visit a JointModelTpl through JointConfigurationLimitVisitor
    *             to get the configurations limits
    *
@@ -193,6 +204,18 @@ namespace pinocchio
   inline int idx_v(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
+   * @brief      Visit a JointModelTpl through JointIdjVVisitor to get the index in the full model
+   * tangent space corresponding to the first joint jacobian space degree
+   *
+   * @param[in]  jmodel  The JointModelVariant
+   *
+   * @return     The index in the full model tangent space corresponding to the first
+   *             joint jacobian space degree
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline int idx_vExtended(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
+
+  /**
    * @brief      Visit a JointModelTpl through JointIdVisitor to get the index of the joint in the
    * kinematic chain
    *
@@ -213,12 +236,18 @@ namespace pinocchio
    * degree of freedom
    * @param[in]  v       The index in the full model tangent space corresponding to the first joint
    * tangent space degree
+   * @param[in]  vExtended       The index in the full model tangent space corresponding to the
+   * first joint jacobian space degree
    *
    * @return     The index of the joint in the kinematic chain
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline void setIndexes(
-    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v);
+    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+    JointIndex id,
+    int q,
+    int v,
+    int vExtended);
 
   /**
    * @brief      Visit a JointModelTpl through JointShortnameVisitor to get the shortname of the
@@ -422,6 +451,34 @@ namespace pinocchio
   bool isEqual(
     const JointDataTpl<Scalar, Options, JointCollectionTpl> & jmodel_generic,
     const JointDataBase<JointDataDerived> & jmodel);
+
+  /**
+   * @brief Apply the correct affine transform, on a joint configuration, depending on the joint
+   * type.
+   *
+   * @tparam Scalar Type of scaling and offset scalars.
+   * @tparam Options
+   * @tparam JointCollectionTpl Collection of Joint types
+   * @tparam ConfigVectorIn Type of the input joint configuration vector.
+   * @tparam ConfigVectorOut Type of the ouptut joint configuration vector.
+   * @param jmodel Joint variant to determine the correct affine transform to use.
+   * @param qIn Input configuration vector
+   * @param scaling scaling factor
+   * @param offset Offset value
+   * @param qOut Ouptut joint configuration vector
+   */
+  template<
+    typename Scalar,
+    int Options,
+    template<typename S, int O> class JointCollectionTpl,
+    typename ConfigVectorIn,
+    typename ConfigVectorOut>
+  void configVectorAffineTransform(
+    const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+    const Eigen::MatrixBase<ConfigVectorIn> & qIn,
+    const Scalar & scaling,
+    const Scalar & offset,
+    const Eigen::MatrixBase<ConfigVectorOut> & qOut);
 
 } // namespace pinocchio
 

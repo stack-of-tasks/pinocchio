@@ -81,6 +81,57 @@ BOOST_AUTO_TEST_CASE(test_kinematics_first)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_getRelativePlacement)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoid(model);
+  Data data(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  forwardKinematics(model, data, randomConfiguration(model));
+
+  const std::vector<JointIndex> test_joints{
+    0, 1, model.getJointId("rleg_elbow_joint"), model.getJointId("lleg_elbow_joint"),
+    (JointIndex)(model.njoints - 1)};
+
+  for (const JointIndex i : test_joints)
+  {
+    for (const JointIndex j : test_joints)
+    {
+      SE3 placement_world = getRelativePlacement(model, data, i, j, Convention::WORLD);
+      SE3 placement_local = getRelativePlacement(model, data, i, j, Convention::LOCAL);
+
+      // Both convention should match
+      BOOST_CHECK(placement_world.isApprox(placement_local));
+
+      // Relative placement to itself is identity
+      if (i == j)
+      {
+        BOOST_CHECK(placement_world.isIdentity());
+        BOOST_CHECK(placement_local.isIdentity());
+      }
+
+      // Relative placement to world
+      if (i == 0)
+      {
+        BOOST_CHECK(placement_world.isApprox(data.oMi[j]));
+        BOOST_CHECK(placement_local.isApprox(data.oMi[j]));
+      }
+
+      // Relative placement from world
+      if (j == 0)
+      {
+        BOOST_CHECK(placement_world.isApprox(data.oMi[i].inverse()));
+        BOOST_CHECK(placement_local.isApprox(data.oMi[i].inverse()));
+      }
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_kinematics_second)
 {
   using namespace Eigen;

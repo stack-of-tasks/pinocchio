@@ -51,6 +51,10 @@ BOOST_AUTO_TEST_CASE(test_check)
     Y.inertia().data().fill(-1.);
   }
   BOOST_CHECK(!model.check(ABAChecker())); // some inertias are negative ... check fail.
+
+  pinocchio::Model model_mimic;
+  buildModels::humanoidRandom(model_mimic, false, true);
+  BOOST_CHECK(!model_mimic.check(MimicChecker()));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

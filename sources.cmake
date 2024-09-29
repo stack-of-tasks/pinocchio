@@ -18,7 +18,11 @@ set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/centroidal.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/centroidal.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check.hpp
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-base.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-data.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-data.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-model.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-model.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/cholesky.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/cholesky.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/compute-all-terms.hpp

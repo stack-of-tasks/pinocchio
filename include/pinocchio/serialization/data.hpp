@@ -89,6 +89,7 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar, data, D);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, Dinv);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, parents_fromRow);
+      PINOCCHIO_MAKE_DATA_NVP(ar, data, idx_v_extended_fromRow);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, supports_fromRow);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, nvSubtree_fromRow);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, J);

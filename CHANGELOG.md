@@ -57,6 +57,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Allow use of `pathlib.Path | str` for paths in python bindings ([#2431](https://github.com/stack-of-tasks/pinocchio/pull/2431))
 - Add Pseudo inertia and Log-cholesky parametrization ([#2296](https://github.com/stack-of-tasks/pinocchio/pull/2296))
 - Add Pixi support ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Extend support for mimic joint: rnea, crba, forward kinematics, centroidal, jacobians and frames ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+- Add idx_j, nj members in joint models, with their respective column/row/block selectors. ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
 
 ### Fixed
 - Fix linkage of Boost.Serialization on Windows ([#2400](https://github.com/stack-of-tasks/pinocchio/pull/2400))

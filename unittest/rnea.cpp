@@ -9,9 +9,10 @@
  *
  */
 
-#include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/algorithm/model.hpp"
+#include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
@@ -44,7 +45,7 @@ BOOST_AUTO_TEST_CASE(test_rnea)
   using namespace pinocchio;
 
   pinocchio::Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -79,7 +80,7 @@ BOOST_AUTO_TEST_CASE(test_nle_vs_rnea)
   using namespace pinocchio;
 
   pinocchio::Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -136,7 +137,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_with_fext)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -179,7 +180,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_with_armature)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true);
   model.armature = VectorXd::Random(model.nv) + VectorXd::Ones(model.nv);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
@@ -209,7 +210,7 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -239,7 +240,7 @@ BOOST_AUTO_TEST_CASE(test_compute_static_torque)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -285,7 +286,7 @@ BOOST_AUTO_TEST_CASE(test_compute_coriolis)
   const double prec = Eigen::NumTraits<double>::dummy_precision();
 
   Model model;
-  buildModels::humanoidRandom(model);
+  buildModels::humanoidRandom(model, true);
 
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
@@ -342,6 +343,115 @@ BOOST_AUTO_TEST_CASE(test_compute_coriolis)
     Eigen::MatrixXd dM_ref = (data_ref_plus.M - data_ref.M) / alpha;
     BOOST_CHECK(dM.isApprox(dM_ref, sqrt(alpha)));
   }
+}
+
+void test_mimic_against_full_model(
+  const pinocchio::Model & model_full,
+  const pinocchio::JointIndex & primary_id,
+  const pinocchio::JointIndex & secondary_id)
+{
+  // constants
+  const int primary_idxq = model_full.joints[primary_id].idx_q();
+  const int primary_idxv = model_full.joints[primary_id].idx_v();
+  const int secondary_idxq = model_full.joints[secondary_id].idx_q();
+  const int secondary_idxv = model_full.joints[secondary_id].idx_v();
+  const double ratio = 2.5;
+  const double offset = 0.75;
+
+  // Build mimic model
+  pinocchio::Model model_mimic;
+  pinocchio::transformJointIntoMimic(
+    model_full, primary_id, secondary_id, ratio, offset, model_mimic);
+  pinocchio::Data data_nle_mimic(model_mimic);
+  pinocchio::Data data_rnea_mimic(model_mimic);
+  pinocchio::Data data_full(model_full);
+
+  // Prepare test data
+  Eigen::MatrixXd G = Eigen::MatrixXd::Zero(model_full.nv, model_mimic.nv);
+  G.topLeftCorner(secondary_idxv, secondary_idxv).setIdentity();
+  G.bottomRightCorner(model_mimic.nv - secondary_idxv, model_mimic.nv - secondary_idxv)
+    .setIdentity();
+  G(secondary_idxv, primary_idxv) = ratio;
+
+  Eigen::VectorXd q = pinocchio::randomConfiguration(model_mimic);
+  Eigen::VectorXd v = Eigen::VectorXd::Random(model_mimic.nv);
+  Eigen::VectorXd a = Eigen::VectorXd::Random(model_mimic.nv);
+
+  Eigen::VectorXd q_full = Eigen::VectorXd::Zero(model_full.nq);
+  Eigen::VectorXd v_full = G * v;
+  Eigen::VectorXd a_full = G * v;
+
+  for (int n = 1; n < model_full.njoints; n++)
+  {
+    const double joint_ratio = ((n == secondary_id) ? ratio : 1.0);
+    const double joint_offset = ((n == secondary_id) ? offset : 0.0);
+    model_full.joints[n].jointConfigExtendedModelSelector(q_full) =
+      joint_ratio * model_mimic.joints[n].jointConfigExtendedModelSelector(q)
+      + joint_offset * Eigen::VectorXd::Ones(model_full.joints[n].nq());
+  }
+
+  pinocchio::crba(model_full, data_full, q_full, pinocchio::Convention::WORLD);
+  data_full.M.triangularView<Eigen::StrictlyLower>() =
+    data_full.M.transpose().triangularView<Eigen::StrictlyLower>();
+  const Eigen::VectorXd nle = pinocchio::nonLinearEffects(model_full, data_full, q_full, v_full);
+
+  // // Use equation of motion to compute tau from a_reduced
+  Eigen::VectorXd tau_ref = G.transpose() * data_full.M * G * a + (G.transpose() * nle);
+
+  pinocchio::rnea(model_mimic, data_rnea_mimic, q, v, a);
+  BOOST_CHECK(tau_ref.isApprox(data_rnea_mimic.tau));
+
+  // NLE
+  pinocchio::Data data_nle(model_mimic);
+  pinocchio::Data data_ref_nle(model_mimic);
+  Eigen::VectorXd tau_ref_nle =
+    pinocchio::rnea(model_mimic, data_ref_nle, q, v, Eigen::VectorXd::Zero(model_mimic.nv));
+  Eigen::VectorXd tau_nle = pinocchio::nonLinearEffects(model_mimic, data_nle, q, v);
+  BOOST_CHECK(tau_nle.isApprox(tau_nle));
+
+  // Generalized Gravity
+  pinocchio::Data data_ref_gg(model_mimic);
+  pinocchio::Data data_gg(model_mimic);
+  Eigen::VectorXd tau_ref_gg = pinocchio::rnea(
+    model_mimic, data_ref_gg, q, Eigen::VectorXd::Zero(model_mimic.nv),
+    Eigen::VectorXd::Zero(model_mimic.nv));
+  Eigen::VectorXd tau_gg = pinocchio::computeGeneralizedGravity(model_mimic, data_gg, q);
+  BOOST_CHECK(tau_gg.isApprox(tau_ref_gg));
+
+  // Static Torque
+  typedef PINOCCHIO_ALIGNED_STD_VECTOR(pinocchio::Force) ForceVector;
+  ForceVector fext((size_t)model_mimic.njoints);
+  for (ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
+    (*it).setRandom();
+
+  pinocchio::Data data_ref_st(model_mimic);
+  pinocchio::Data data_st(model_mimic);
+  pinocchio::rnea(
+    model_mimic, data_ref_st, q, Eigen::VectorXd::Zero(model_mimic.nv),
+    Eigen::VectorXd::Zero(model_mimic.nv), fext);
+  Eigen::VectorXd tau_st = pinocchio::computeStaticTorque(model_mimic, data_gg, q, fext);
+  BOOST_CHECK(tau_st.isApprox(data_ref_st.tau));
+}
+
+BOOST_AUTO_TEST_CASE(test_rnea_mimic)
+{
+  pinocchio::Model humanoid_model;
+  pinocchio::buildModels::humanoidRandom(humanoid_model);
+
+  // Test for direct parent/child joint mimic
+  test_mimic_against_full_model(
+    humanoid_model, humanoid_model.getJointId("rleg1_joint"),
+    humanoid_model.getJointId("rleg2_joint"));
+
+  // Test for spaced parent/child joint mimic
+  test_mimic_against_full_model(
+    humanoid_model, humanoid_model.getJointId("rleg1_joint"),
+    humanoid_model.getJointId("rleg4_joint"));
+
+  // // Test for parallel joint mimic
+  test_mimic_against_full_model(
+    humanoid_model, humanoid_model.getJointId("lleg4_joint"),
+    humanoid_model.getJointId("rleg4_joint"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

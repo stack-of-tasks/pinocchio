@@ -22,7 +22,7 @@ urdf_filename = "panda.urdf"
 urdf_model_path = model_path / "panda_description/urdf" / urdf_filename
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
-    urdf_model_path, mesh_dir
+    urdf_model_path, package_dirs=mesh_dir
 )
 
 # Add point clouds
