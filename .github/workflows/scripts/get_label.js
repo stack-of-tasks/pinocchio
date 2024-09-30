@@ -37,7 +37,8 @@ module.exports = async ({github, context, core}) => {
                 ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
                 ' -DINSTALL_DOCUMENTATION=ON',
                 ' -DGENERATE_PYTHON_STUBS=ON',
-                ' -DBUILD_WITH_ACCELERATE_SUPPORT=OFF'
+                ' -DBUILD_WITH_ACCELERATE_SUPPORT=OFF',
+                ' -DBUILD_WITH_SDF_SUPPORT=ON'
             ],
             build_collision: ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
             build_casadi: ' -DBUILD_WITH_CASADI_SUPPORT=ON',
@@ -61,7 +62,8 @@ module.exports = async ({github, context, core}) => {
                 ' -DINSTALL_DOCUMENTATION=ON',
                 ' -DBUILD_WITH_CODEGEN_SUPPORT=ON',
                 ' -DGENERATE_PYTHON_STUBS=ON',
-                ' -DBUILD_WITH_ACCELERATE_SUPPORT=OFF'
+                ' -DBUILD_WITH_ACCELERATE_SUPPORT=OFF',
+                ' -DBUILD_WITH_SDF_SUPPORT=ON'
             ],
             build_collision: ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
             build_casadi: ' -DBUILD_WITH_CASADI_SUPPORT=ON',
