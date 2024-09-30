@@ -25,9 +25,10 @@ module.exports = async ({github, context, core}) => {
 
     const os = process.env.RUNNER_OS;
 
+    var labelFlags;
     if(os == "Windows")
     {
-        const labelFlags = {
+        labelFlags = {
             build_all: [
                 ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
                 ' -DBUILD_WITH_CASADI_SUPPORT=ON',
@@ -49,7 +50,7 @@ module.exports = async ({github, context, core}) => {
     }
     else
     {
-        const labelFlags = {
+        labelFlags = {
             build_all: [
                 ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
                 ' -DBUILD_WITH_CASADI_SUPPORT=ON',
@@ -83,7 +84,7 @@ module.exports = async ({github, context, core}) => {
             }
         }
     });
-
+    console.log(cmakeFlags);
     core.setOutput("cmakeFlags", cmakeFlags);
     return;
 }
