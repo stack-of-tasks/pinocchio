@@ -331,8 +331,6 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass & cl) const
       {
-        PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-        PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         cl.def(
             "__init__",
             bp::make_constructor(
@@ -348,11 +346,8 @@ namespace pinocchio
             "mass", &PseudoInertiaPythonVisitor::getMass, &PseudoInertiaPythonVisitor::setMass,
             "Mass of the Pseudo Inertia.")
           .add_property(
-            "h",
-            bp::make_function(
-              (typename PseudoInertia::Vector3 & (PseudoInertia::*)()) & PseudoInertia::h,
-              bp::return_internal_reference<>()),
-            &PseudoInertiaPythonVisitor::setH, "Vector part of the Pseudo Inertia.")
+            "h", &PseudoInertiaPythonVisitor::getH, &PseudoInertiaPythonVisitor::setH,
+            "Vector part of the Pseudo Inertia.")
           .add_property(
             "sigma", &PseudoInertiaPythonVisitor::getSigma, &PseudoInertiaPythonVisitor::setSigma,
             "Matrix part of the Pseudo Inertia.")
@@ -399,6 +394,10 @@ namespace pinocchio
         self.mass = mass;
       }
 
+      static Vector3 getH(const PseudoInertia & self)
+      {
+        return self.h;
+      }
       static void setH(PseudoInertia & self, const Vector3 & h)
       {
         self.h = h;
@@ -447,7 +446,7 @@ namespace pinocchio
       {
         static boost::python::tuple getinitargs(const PseudoInertia & pi)
         {
-          return bp::make_tuple(pi.toMatrix());
+          return bp::make_tuple(pi.mass, pi.h, pi.sigma);
         }
 
         static bool getstate_manages_dict()
@@ -474,12 +473,10 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass & cl) const
       {
-        PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-        PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         cl.def(
             "__init__",
             bp::make_constructor(
-              &LogCholeskyParametersPythonVisitor::makeFromVector, bp::default_call_policies(),
+              &LogCholeskyParametersTpl, bp::default_call_policies(),
               bp::args("log_cholesky_parameters")),
             "Initialize from a 10-dimensional vector of log Cholesky parameters.")
 
