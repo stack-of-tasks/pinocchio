@@ -1107,36 +1107,36 @@ namespace pinocchio
       using math::pow;
 
       // clang-format off
-    Vector10 dynamic_params;
+      Vector10 dynamic_params;
 
-    const Scalar alpha = parameters[0];
-    const Scalar d1 = parameters[1];
-    const Scalar d2 = parameters[2];
-    const Scalar d3 = parameters[3];
-    const Scalar s12 = parameters[4];
-    const Scalar s23 = parameters[5];
-    const Scalar s13 = parameters[6];
-    const Scalar t1 = parameters[7];
-    const Scalar t2 = parameters[8];
-    const Scalar t3 = parameters[9];
+      const Scalar alpha = parameters[0];
+      const Scalar d1 = parameters[1];
+      const Scalar d2 = parameters[2];
+      const Scalar d3 = parameters[3];
+      const Scalar s12 = parameters[4];
+      const Scalar s23 = parameters[5];
+      const Scalar s13 = parameters[6];
+      const Scalar t1 = parameters[7];
+      const Scalar t2 = parameters[8];
+      const Scalar t3 = parameters[9];
 
-    const Scalar exp_d1 = exp(d1);
-    const Scalar exp_d2 = exp(d2);
-    const Scalar exp_d3 = exp(d3);
+      const Scalar exp_d1 = exp(d1);
+      const Scalar exp_d2 = exp(d2);
+      const Scalar exp_d3 = exp(d3);
 
-    dynamic_params[0] = 1;
-    dynamic_params[1] = t1;
-    dynamic_params[2] = t2;
-    dynamic_params[3] = t3;
-    dynamic_params[4] = pow(s23, 2) + pow(t2, 2) + pow(t3, 2) + pow(exp_d2, 2) + pow(exp_d3, 2);
-    dynamic_params[5] = -s12 * exp_d2 - s13 * s23 - t1 * t2;
-    dynamic_params[6] = pow(s12, 2) + pow(s13, 2) + pow(t1, 2) + pow(t3, 2) + pow(exp_d1, 2) + pow(exp_d3, 2);
-    dynamic_params[7] = -s13 * exp_d3 - t1 * t3;
-    dynamic_params[8] = -s23 * exp_d3 - t2 * t3;
-    dynamic_params[9] = pow(s12, 2) + pow(s13, 2) + pow(s23, 2) + pow(t1, 2) + pow(t2, 2) + pow(exp_d1, 2) + pow(exp_d2, 2);
+      dynamic_params[0] = 1;
+      dynamic_params[1] = t1;
+      dynamic_params[2] = t2;
+      dynamic_params[3] = t3;
+      dynamic_params[4] = pow(s23, 2) + pow(t2, 2) + pow(t3, 2) + pow(exp_d2, 2) + pow(exp_d3, 2);
+      dynamic_params[5] = -s12 * exp_d2 - s13 * s23 - t1 * t2;
+      dynamic_params[6] = pow(s12, 2) + pow(s13, 2) + pow(t1, 2) + pow(t3, 2) + pow(exp_d1, 2) + pow(exp_d3, 2);
+      dynamic_params[7] = -s13 * exp_d3 - t1 * t3;
+      dynamic_params[8] = -s23 * exp_d3 - t2 * t3;
+      dynamic_params[9] = pow(s12, 2) + pow(s13, 2) + pow(s23, 2) + pow(t1, 2) + pow(t2, 2) + pow(exp_d1, 2) + pow(exp_d2, 2);
 
-    const Scalar exp_2_alpha = exp(2 * alpha);
-    dynamic_params *= exp_2_alpha;
+      const Scalar exp_2_alpha = exp(2 * alpha);
+      dynamic_params *= exp_2_alpha;
       // clang-format on
 
       return dynamic_params;
@@ -1193,60 +1193,60 @@ namespace pinocchio
       const Scalar exp_d3 = exp(d3);
 
       // clang-format off
-    jacobian(0, 0) = 2 * exp_2alpha;
+      jacobian(0, 0) = 2 * exp_2alpha;
 
-    jacobian(1, 0) = 2 * t1 * exp_2alpha;
-    jacobian(1, 7) = exp_2alpha;
+      jacobian(1, 0) = 2 * t1 * exp_2alpha;
+      jacobian(1, 7) = exp_2alpha;
 
-    jacobian(2, 0) = 2 * t2 * exp_2alpha;
-    jacobian(2, 8) = exp_2alpha;
+      jacobian(2, 0) = 2 * t2 * exp_2alpha;
+      jacobian(2, 8) = exp_2alpha;
 
-    jacobian(3, 0) = 2 * t3 * exp_2alpha;
-    jacobian(3, 9) = exp_2alpha;
+      jacobian(3, 0) = 2 * t3 * exp_2alpha;
+      jacobian(3, 9) = exp_2alpha;
 
-    jacobian(4, 0) = 2 * (pow(s23, 2) + pow(t2, 2) + pow(t3, 2) + exp_2d2 + exp_2d3) * exp_2alpha;
-    jacobian(4, 2) = 2 * exp_2alpha * exp_2d2;
-    jacobian(4, 3) = 2 * exp_2alpha * exp_2d3;
-    jacobian(4, 5) = 2 * s23 * exp_2alpha;
-    jacobian(4, 8) = 2 * t2 * exp_2alpha;
-    jacobian(4, 9) = 2 * t3 * exp_2alpha;
+      jacobian(4, 0) = 2 * (pow(s23, 2) + pow(t2, 2) + pow(t3, 2) + exp_2d2 + exp_2d3) * exp_2alpha;
+      jacobian(4, 2) = 2 * exp_2alpha * exp_2d2;
+      jacobian(4, 3) = 2 * exp_2alpha * exp_2d3;
+      jacobian(4, 5) = 2 * s23 * exp_2alpha;
+      jacobian(4, 8) = 2 * t2 * exp_2alpha;
+      jacobian(4, 9) = 2 * t3 * exp_2alpha;
 
-    jacobian(5, 0) = -2 * (s12 * exp_d2 + s13 * s23 + t1 * t2) * exp_2alpha;
-    jacobian(5, 2) = -s12 * exp_2alpha * exp_d2;
-    jacobian(5, 4) = -exp_2alpha * exp_d2;
-    jacobian(5, 5) = -s13 * exp_2alpha;
-    jacobian(5, 6) = -s23 * exp_2alpha;
-    jacobian(5, 7) = -t2 * exp_2alpha;
-    jacobian(5, 8) = -t1 * exp_2alpha;
+      jacobian(5, 0) = -2 * (s12 * exp_d2 + s13 * s23 + t1 * t2) * exp_2alpha;
+      jacobian(5, 2) = -s12 * exp_2alpha * exp_d2;
+      jacobian(5, 4) = -exp_2alpha * exp_d2;
+      jacobian(5, 5) = -s13 * exp_2alpha;
+      jacobian(5, 6) = -s23 * exp_2alpha;
+      jacobian(5, 7) = -t2 * exp_2alpha;
+      jacobian(5, 8) = -t1 * exp_2alpha;
 
-    jacobian(6, 0) = 2 * (pow(s12, 2) + pow(s13, 2) + pow(t1, 2) + pow(t3, 2) + exp_2d1 + exp_2d3) * exp_2alpha;
-    jacobian(6, 1) = 2 * exp_2alpha * exp_2d1;
-    jacobian(6, 3) = 2 * exp_2alpha * exp_2d3;
-    jacobian(6, 4) = 2 * s12 * exp_2alpha;
-    jacobian(6, 6) = 2 * s13 * exp_2alpha;
-    jacobian(6, 7) = 2 * t1 * exp_2alpha;
-    jacobian(6, 9) = 2 * t3 * exp_2alpha;
+      jacobian(6, 0) = 2 * (pow(s12, 2) + pow(s13, 2) + pow(t1, 2) + pow(t3, 2) + exp_2d1 + exp_2d3) * exp_2alpha;
+      jacobian(6, 1) = 2 * exp_2alpha * exp_2d1;
+      jacobian(6, 3) = 2 * exp_2alpha * exp_2d3;
+      jacobian(6, 4) = 2 * s12 * exp_2alpha;
+      jacobian(6, 6) = 2 * s13 * exp_2alpha;
+      jacobian(6, 7) = 2 * t1 * exp_2alpha;
+      jacobian(6, 9) = 2 * t3 * exp_2alpha;
 
-    jacobian(7, 0) = -2 * (s13 * exp_d3 + t1 * t3) * exp_2alpha;
-    jacobian(7, 3) = -s13 * exp_2alpha * exp_d3;
-    jacobian(7, 6) = -exp_2alpha * exp_d3;
-    jacobian(7, 7) = -t3 * exp_2alpha;
-    jacobian(7, 9) = -t1 * exp_2alpha;
+      jacobian(7, 0) = -2 * (s13 * exp_d3 + t1 * t3) * exp_2alpha;
+      jacobian(7, 3) = -s13 * exp_2alpha * exp_d3;
+      jacobian(7, 6) = -exp_2alpha * exp_d3;
+      jacobian(7, 7) = -t3 * exp_2alpha;
+      jacobian(7, 9) = -t1 * exp_2alpha;
 
-    jacobian(8, 0) = -2 * (s23 * exp_d3 + t2 * t3) * exp_2alpha;
-    jacobian(8, 3) = -s23 * exp_2alpha * exp_d3;
-    jacobian(8, 5) = -exp_2alpha * exp_d3;
-    jacobian(8, 8) = -t3 * exp_2alpha;
-    jacobian(8, 9) = -t2 * exp_2alpha;
+      jacobian(8, 0) = -2 * (s23 * exp_d3 + t2 * t3) * exp_2alpha;
+      jacobian(8, 3) = -s23 * exp_2alpha * exp_d3;
+      jacobian(8, 5) = -exp_2alpha * exp_d3;
+      jacobian(8, 8) = -t3 * exp_2alpha;
+      jacobian(8, 9) = -t2 * exp_2alpha;
 
-    jacobian(9, 0) = 2 * (pow(s12, 2) + pow(s13, 2) + pow(s23, 2) + pow(t1, 2) + pow(t2, 2) + exp_2d1 + exp_2d2) * exp_2alpha;
-    jacobian(9, 1) = 2 * exp_2alpha * exp_2d1;
-    jacobian(9, 2) = 2 * exp_2alpha * exp_2d2;
-    jacobian(9, 4) = 2 * s12 * exp_2alpha;
-    jacobian(9, 5) = 2 * s23 * exp_2alpha;
-    jacobian(9, 6) = 2 * s13 * exp_2alpha;
-    jacobian(9, 7) = 2 * t1 * exp_2alpha;
-    jacobian(9, 8) = 2 * t2 * exp_2alpha;
+      jacobian(9, 0) = 2 * (pow(s12, 2) + pow(s13, 2) + pow(s23, 2) + pow(t1, 2) + pow(t2, 2) + exp_2d1 + exp_2d2) * exp_2alpha;
+      jacobian(9, 1) = 2 * exp_2alpha * exp_2d1;
+      jacobian(9, 2) = 2 * exp_2alpha * exp_2d2;
+      jacobian(9, 4) = 2 * s12 * exp_2alpha;
+      jacobian(9, 5) = 2 * s23 * exp_2alpha;
+      jacobian(9, 6) = 2 * s13 * exp_2alpha;
+      jacobian(9, 7) = 2 * t1 * exp_2alpha;
+      jacobian(9, 8) = 2 * t2 * exp_2alpha;
       // clang-format on
 
       return jacobian;
