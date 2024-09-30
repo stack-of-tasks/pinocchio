@@ -1093,7 +1093,7 @@ namespace pinocchio
      * @brief Constructor for LogCholeskyParametersTpl.
      * @param log_cholesky A 10-dimensional vector of log Cholesky parameters.
      */
-    LogCholeskyParametersTpl(const Vector10 & log_cholesky)
+    explicit LogCholeskyParametersTpl(const Vector10 & log_cholesky)
     : parameters(log_cholesky)
     {
     }
