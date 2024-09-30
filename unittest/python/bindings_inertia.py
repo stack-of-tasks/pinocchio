@@ -113,6 +113,9 @@ class TestInertiaBindings(TestCase):
         I2 = pin.Inertia.FromDynamicParameters(v)
         self.assertApprox(I2, In)
 
+    # TODO: add test for PseudoInverseMatrix
+    # TODO: add test for LogCholeskyParameters
+
     def test_array(self):
         In = pin.Inertia.Random()
         I_array = np.array(In)
