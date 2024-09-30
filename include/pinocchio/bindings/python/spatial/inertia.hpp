@@ -351,8 +351,8 @@ namespace pinocchio
             "toMatrix", &PseudoInertia::toMatrix, bp::arg("self"),
             "Returns the pseudo inertia as a 4x4 matrix.")
           .def(
-            "toDynamicParameters", &PseudoInertia::toDynamicParameters, bp::arg("self"),
-            "Returns the dynamic parameters representation.")
+            "toDynamicParameters", &PseudoInertiaPythonVisitor::toDynamicParameters_proxy,
+            bp::arg("self"), "Returns the dynamic parameters representation.")
           .def(
             "FromDynamicParameters", &PseudoInertia::FromDynamicParameters,
             bp::args("dynamic_parameters"),
@@ -405,6 +405,11 @@ namespace pinocchio
       static void setSigma(PseudoInertia & self, const Matrix3 & sigma)
       {
         self.sigma = sigma;
+      }
+
+      static VectorXs toDynamicParameters_proxy(const PseudoInertia & self)
+      {
+        return self.toDynamicParameters();
       }
 
       static void expose()
@@ -471,8 +476,8 @@ namespace pinocchio
             &LogCholeskyParametersPythonVisitor::setParameters, "Log Cholesky parameters.")
 
           .def(
-            "toDynamicParameters", &LogCholeskyParameters::toDynamicParameters, bp::arg("self"),
-            "Returns the dynamic parameters representation.")
+            "toDynamicParameters", &LogCholeskyParametersPythonVisitor::toDynamicParameters_proxy,
+            bp::arg("self"), "Returns the dynamic parameters representation.")
           .def(
             "toPseudoInertia", &LogCholeskyParameters::toPseudoInertia, bp::arg("self"),
             "Returns the Pseudo Inertia representation.")
@@ -499,6 +504,11 @@ namespace pinocchio
       static void setParameters(LogCholeskyParameters & self, const Vector10 & parameters)
       {
         self.parameters = parameters;
+      }
+
+      static VectorXs toDynamicParameters_proxy(const LogCholeskyParameters & self)
+      {
+        return self.toDynamicParameters();
       }
 
       static void expose()
