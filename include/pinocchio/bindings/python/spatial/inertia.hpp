@@ -331,17 +331,12 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass & cl) const
       {
-        cl.def(
-            "__init__",
-            bp::make_constructor(
-              &PseudoInertiaPythonVisitor::makeFromMatrix, bp::default_call_policies(),
-              bp::args("pseudo_inertia_matrix")),
-            "Initialize from a 4x4 pseudo inertia matrix.")
-
-          .def(bp::init<>(bp::arg("self"), "Default constructor."))
+        cl.def(bp::init<const Scalar &, const Vector3 &, const Matrix3 &>(
+                 (bp::arg("self"), bp::arg("mass"), bp::arg("h"), bp::arg("sigma")),
+                 "Initialize from mass, vector part of the pseudo inertia and matrix part of the "
+                 "pseudo inertia."))
           .def(bp::init<const PseudoInertia &>(
             (bp::arg("self"), bp::arg("clone")), "Copy constructor"))
-
           .add_property(
             "mass", &PseudoInertiaPythonVisitor::getMass, &PseudoInertiaPythonVisitor::setMass,
             "Mass of the Pseudo Inertia.")
@@ -359,7 +354,7 @@ namespace pinocchio
             "toDynamicParameters", &PseudoInertia::toDynamicParameters, bp::arg("self"),
             "Returns the dynamic parameters representation.")
           .def(
-            "FromDynamicParameters", &PseudoInertia::template FromDynamicParameters<VectorXs>,
+            "FromDynamicParameters", &PseudoInertia::FromDynamicParameters,
             bp::args("dynamic_parameters"),
             "Builds a pseudo inertia matrix from a vector of dynamic parameters."
             "\nThe parameters are given as dynamic_parameters = [m, h_x, h_y, h_z, I_{xx}, "
@@ -412,11 +407,6 @@ namespace pinocchio
         self.sigma = sigma;
       }
 
-      static PseudoInertia * makeFromMatrix(const Matrix4 & pseudo_inertia_matrix)
-      {
-        return new PseudoInertia(PseudoInertia::FromMatrix(pseudo_inertia_matrix));
-      }
-
       static void expose()
       {
 #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 && EIGENPY_VERSION_AT_LEAST(2, 9, 0)
@@ -431,7 +421,6 @@ namespace pinocchio
           "Supported operations ...",
           bp::no_init)
           .def(PseudoInertiaPythonVisitor<PseudoInertia>())
-          .def(CastVisitor<PseudoInertia>())
           .def(CopyableVisitor<PseudoInertia>())
           .def(PrintableVisitor<PseudoInertia>());
       }
@@ -473,14 +462,7 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass & cl) const
       {
-        cl.def(
-            "__init__",
-            bp::make_constructor(
-              &LogCholeskyParametersTpl, bp::default_call_policies(),
-              bp::args("log_cholesky_parameters")),
-            "Initialize from a 10-dimensional vector of log Cholesky parameters.")
-
-          .def(bp::init<>(bp::arg("self"), "Default constructor."))
+        cl.def(bp::init<const Vector10 &>((bp::arg("self"), bp::arg("log_cholesky_parameters"))))
           .def(bp::init<const LogCholeskyParameters &>(
             (bp::arg("self"), bp::arg("clone")), "Copy constructor"))
 
@@ -519,11 +501,6 @@ namespace pinocchio
         self.parameters = parameters;
       }
 
-      static LogCholeskyParameters * makeFromVector(const Vector10 & log_cholesky_parameters)
-      {
-        return new LogCholeskyParameters(log_cholesky_parameters);
-      }
-
       static void expose()
       {
 #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 && EIGENPY_VERSION_AT_LEAST(2, 9, 0)
@@ -537,9 +514,9 @@ namespace pinocchio
           "Supported operations ...",
           bp::no_init)
           .def(LogCholeskyParametersPythonVisitor<LogCholeskyParameters>())
-          .def(CastVisitor<LogCholeskyParameters>())
           .def(CopyableVisitor<LogCholeskyParameters>())
           .def(PrintableVisitor<LogCholeskyParameters>());
+        // .def(CastVisitor<LogCholeskyParameters>())
       }
 
     private:

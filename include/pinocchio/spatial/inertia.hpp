@@ -939,9 +939,14 @@ namespace pinocchio
    * for physically consistent inertial parameter identification: A statistical perspective on the
    * mass distribution." IEEE Robotics and Automation Letters 3.1 (2017): 60-67.
    */
-  template<typename Scalar, int Options>
+  template<typename _Scalar, int _Options>
   struct PseudoInertiaTpl
   {
+    typedef _Scalar Scalar;
+    enum
+    {
+      Options = _Options,
+    };
     typedef Eigen::Matrix<Scalar, 4, 4, Options> Matrix4;
     typedef Eigen::Matrix<Scalar, 3, 1, Options> Vector3;
     typedef Eigen::Matrix<Scalar, 3, 3, Options> Matrix3;
@@ -991,6 +996,7 @@ namespace pinocchio
      * @param dynamic_params A 10-dimensional vector of dynamic parameters.
      * @return A PseudoInertiaTpl object.
      */
+    // FIXME: for InertiaTpl this is templated on the Vector10 type
     static PseudoInertiaTpl FromDynamicParameters(const Vector10 & dynamic_params)
     {
       Scalar mass = dynamic_params[0];
@@ -1081,9 +1087,14 @@ namespace pinocchio
    * - Rucker, Caleb, and Patrick M. Wensing. "Smooth parameterization of rigid-body inertia."
    * IEEE Robotics and Automation Letters 7.2 (2022): 2771-2778.
    */
-  template<typename Scalar, int Options>
+  template<typename _Scalar, int _Options>
   struct LogCholeskyParametersTpl
   {
+    typedef _Scalar Scalar;
+    enum
+    {
+      Options = _Options,
+    };
     typedef Eigen::Matrix<Scalar, 10, 1, Options> Vector10;
     typedef Eigen::Matrix<Scalar, 10, 10, Options> Matrix10;
     typedef PseudoInertiaTpl<Scalar, Options> PseudoInertia;
