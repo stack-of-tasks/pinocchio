@@ -80,6 +80,32 @@ namespace Eigen
   #endif
 #endif
 
+// Similar workaround but for MSVC when C++17 is enabled.
+// TODO Find _MSC_VER range.
+#if (defined(_MSVC_LANG) && _MSVC_LANG >= 201703)
+namespace boost
+{
+  namespace archive
+  {
+    class binary_iarchive;
+  }
+} // namespace boost
+namespace Eigen
+{
+  namespace internal
+  {
+    template<>
+    struct traits<boost::archive::binary_iarchive>
+    {
+      enum
+      {
+        Flags = 0
+      };
+    };
+  } // namespace internal
+} // namespace Eigen
+#endif // MSVC with C++17
+
 namespace boost
 {
   namespace serialization
