@@ -996,9 +996,11 @@ namespace pinocchio
      * @param dynamic_params A 10-dimensional vector of dynamic parameters.
      * @return A PseudoInertiaTpl object.
      */
-    // FIXME: for InertiaTpl this is templated on the Vector10 type
-    static PseudoInertiaTpl FromDynamicParameters(const Vector10 & dynamic_params)
+    template<typename Vector10Like>
+    static PseudoInertiaTpl
+    FromDynamicParameters(const Eigen::MatrixBase<Vector10Like> & dynamic_params)
     {
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector10Like, dynamic_params, 10, 1);
       Scalar mass = dynamic_params[0];
       Vector3 h = dynamic_params.template segment<3>(1);
       Matrix3 I_bar;

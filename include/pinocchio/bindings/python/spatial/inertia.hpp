@@ -354,7 +354,7 @@ namespace pinocchio
             "toDynamicParameters", &PseudoInertiaPythonVisitor::toDynamicParameters_proxy,
             bp::arg("self"), "Returns the dynamic parameters representation.")
           .def(
-            "FromDynamicParameters", &PseudoInertia::FromDynamicParameters,
+            "FromDynamicParameters", &PseudoInertia::template FromDynamicParameters<VectorXs>,
             bp::args("dynamic_parameters"),
             "Builds a pseudo inertia matrix from a vector of dynamic parameters."
             "\nThe parameters are given as dynamic_parameters = [m, h_x, h_y, h_z, I_{xx}, "
@@ -462,12 +462,14 @@ namespace pinocchio
       typedef typename LogCholeskyParameters::Scalar Scalar;
       typedef typename LogCholeskyParameters::Vector10 Vector10;
       typedef typename LogCholeskyParameters::Matrix10 Matrix10;
+      typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> VectorXs;
+      typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Options> MatrixXs;
 
     public:
       template<class PyClass>
       void visit(PyClass & cl) const
       {
-        cl.def(bp::init<const Vector10 &>((bp::arg("self"), bp::arg("log_cholesky_parameters"))))
+        cl.def(bp::init<const VectorXs &>((bp::arg("self"), bp::arg("log_cholesky_parameters"))))
           .def(bp::init<const LogCholeskyParameters &>(
             (bp::arg("self"), bp::arg("clone")), "Copy constructor"))
 
@@ -485,8 +487,8 @@ namespace pinocchio
             "toInertia", &LogCholeskyParameters::toInertia, bp::arg("self"),
             "Returns the Inertia representation.")
           .def(
-            "calculateJacobian", &LogCholeskyParameters::calculateJacobian, bp::arg("self"),
-            "Calculates the Jacobian of the log Cholesky parameters.")
+            "calculateJacobian", &LogCholeskyParametersPythonVisitor::calculateJacobian_proxy,
+            bp::arg("self"), "Calculates the Jacobian of the log Cholesky parameters.")
 
           .def("__array__", &LogCholeskyParameters::toDynamicParameters)
           .def("__array__", &__array__)
@@ -497,7 +499,7 @@ namespace pinocchio
         PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       }
 
-      static Vector10 getParameters(const LogCholeskyParameters & self)
+      static VectorXs getParameters(const LogCholeskyParameters & self)
       {
         return self.parameters;
       }
@@ -509,6 +511,11 @@ namespace pinocchio
       static VectorXs toDynamicParameters_proxy(const LogCholeskyParameters & self)
       {
         return self.toDynamicParameters();
+      }
+
+      static MatrixXs calculateJacobian_proxy(const LogCholeskyParameters & self)
+      {
+        return self.calculateJacobian();
       }
 
       static void expose()
