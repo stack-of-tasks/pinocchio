@@ -60,19 +60,23 @@ class TestRobotWrapper(unittest.TestCase):
     @unittest.skipUnless(pin.WITH_SDFORMAT, "Needs SDFORMAT")
     def test_sdf_with_root_joint(self):
         model_path = os.path.abspath(
-            os.path.join(self.current_file, "../models/simple_humanoid.sdf")
+            os.path.join(self.current_file, "../../models/simple_humanoid.sdf")
         )
-        robot = pin.RobotWrapper.BuildFromSDF(model_path, [], pin.JointModelFreeFlyer())
+        mesh_path = os.path.abspath(os.path.join(self.current_file, "../../models/"))
+        robot = pin.RobotWrapper.BuildFromSDF(
+            model_path, [mesh_path], pin.JointModelFreeFlyer(), verbose=True
+        )
         self.assertEqual(robot.model.names[1], "root_joint")
 
     @unittest.skipUnless(pin.WITH_SDFORMAT, "Needs SDFORMAT")
     def test_sdf_with_root_joint_and_root_joint_name(self):
         model_path = os.path.abspath(
-            os.path.join(self.current_file, "../models/simple_humanoid.sdf")
+            os.path.join(self.current_file, "../../models/simple_humanoid.sdf")
         )
+        mesh_path = os.path.abspath(os.path.join(self.current_file, "../../models/"))
         name_ = "freeflyer_joint"
         robot = pin.RobotWrapper.BuildFromSDF(
-            model_path, [], pin.JointModelFreeFlyer(), root_joint_name=name_
+            model_path, [mesh_path], pin.JointModelFreeFlyer(), root_joint_name=name_
         )
         self.assertEqual(robot.model.names[1], name_)
 
