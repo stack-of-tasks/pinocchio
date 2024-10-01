@@ -88,7 +88,9 @@ namespace boost
   namespace archive
   {
     class binary_iarchive;
-  }
+    class xml_iarchive;
+    class text_iarchive;
+  } // namespace archive
 } // namespace boost
 namespace Eigen
 {
@@ -96,6 +98,22 @@ namespace Eigen
   {
     template<>
     struct traits<boost::archive::binary_iarchive>
+    {
+      enum
+      {
+        Flags = 0
+      };
+    };
+    template<>
+    struct traits<boost::archive::xml_iarchive>
+    {
+      enum
+      {
+        Flags = 0
+      };
+    };
+    template<>
+    struct traits<boost::archive::text_iarchive>
     {
       enum
       {
