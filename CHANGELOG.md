@@ -18,7 +18,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix linkage of Boost.Serialization on Windows ([#2400](https://github.com/stack-of-tasks/pinocchio/pull/2400))
 - Fix mjcf parser appending of inertias at root joint ([#2403](https://github.com/stack-of-tasks/pinocchio/pull/2403))
 - Fix unit tests with GCC 13.3 ([#2406](https://github.com/stack-of-tasks/pinocchio/pull/2416)
-- Fix class abtract error for Rviz viewer ([#2425](https://github.com/stack-of-tasks/pinocchio/pull/2425))
+- Fix class abstract error for Rviz viewer ([#2425](https://github.com/stack-of-tasks/pinocchio/pull/2425))
+- Fix compilation issue with MSCV and C++17 ([#2437](https://github.com/stack-of-tasks/pinocchio/pull/2437))
+- Fix `pinocchio-test-py-robot_wrapper` when building with SDF and collision support ([#2437](https://github.com/stack-of-tasks/pinocchio/pull/2437))
 
 ### Changed
 
