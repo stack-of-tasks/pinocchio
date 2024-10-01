@@ -113,8 +113,68 @@ class TestInertiaBindings(TestCase):
         I2 = pin.Inertia.FromDynamicParameters(v)
         self.assertApprox(I2, In)
 
-    # TODO: add test for PseudoInverseMatrix
-    # TODO: add test for LogCholeskyParameters
+    def test_pseudo_inertia(self):
+        In = pin.Inertia.Random()
+
+        pseudo = In.toPseudoInertia()
+
+        # test accessing mass, h, sigma
+        self.assertApprox(pseudo.mass, In.mass)
+        self.assertApprox(pseudo.h, In.mass * In.lever)
+        pseudo.mass, pseudo.h, pseudo.sigma
+
+        # test toMatrix
+        _ = pseudo.toMatrix()
+
+        # test toDynamicParameters
+        params = pseudo.toDynamicParameters()
+
+        # test fromDynamicParameters
+        pseudo2 = pin.PseudoInertia.FromDynamicParameters(params)
+        self.assertApprox(pseudo.mass, pseudo2.mass)
+        self.assertApprox(pseudo.h, pseudo2.h)
+        self.assertApprox(pseudo.sigma, pseudo2.sigma)
+
+        # test fromMatrix
+        pseudo3 = pin.PseudoInertia.FromMatrix(pseudo.toMatrix())
+        self.assertApprox(pseudo.mass, pseudo3.mass)
+        self.assertApprox(pseudo.h, pseudo3.h)
+        self.assertApprox(pseudo.sigma, pseudo3.sigma)
+
+        # test fromInertia
+        pseudo4 = pin.PseudoInertia.FromInertia(In)
+        self.assertApprox(pseudo.mass, pseudo4.mass)
+        self.assertApprox(pseudo.h, pseudo4.h)
+        self.assertApprox(pseudo.sigma, pseudo4.sigma)
+
+        # test from PseudoInertia
+        pin.PseudoInertia(pseudo)
+
+    def test_log_cholesky(self):
+        log_cholesky = pin.LogCholeskyParameters(np.random.randn(10))
+        In = pin.Inertia.FromLogCholeskyParameters(log_cholesky)
+
+        # test accessing parameters
+        log_cholesky.parameters
+
+        # test toDynamicParameters
+        params = log_cholesky.toDynamicParameters()
+        params2 = In.toDynamicParameters()
+        self.assertApprox(params, params2)
+
+        # test toPseudoInertia
+        pseudo = log_cholesky.toPseudoInertia()
+        pseudo2 = In.toPseudoInertia()
+        self.assertApprox(pseudo.mass, pseudo2.mass)
+        self.assertApprox(pseudo.h, pseudo2.h)
+        self.assertApprox(pseudo.sigma, pseudo2.sigma)
+
+        # test toInertia
+        In2 = log_cholesky.toInertia()
+        self.assertApprox(In, In2)
+
+        # test calculateJacobian
+        log_cholesky.calculateJacobian()
 
     def test_array(self):
         In = pin.Inertia.Random()
