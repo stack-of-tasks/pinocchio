@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add more Python and C++ examples related to inverse kinematics with 3d tasks ([#2428](https://github.com/stack-of-tasks/pinocchio/pull/2428))
 - Add parsing of equality/connect tag for closed-loop chains for MJCF format ([#2413](https://github.com/stack-of-tasks/pinocchio/pull/2413))
 - Add compatibility with NumPy 2 `__array__` API ([#2436](https://github.com/stack-of-tasks/pinocchio/pull/2436))
+- Added argument to let users decide of root joint name when parsing models (urdf, mjcf, sdf) ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
 
 ### Fixed
 - Fix linkage of Boost.Serialization on Windows ([#2400](https://github.com/stack-of-tasks/pinocchio/pull/2400))
@@ -22,12 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - Modernize python code base with ruff ([#2418](https://github.com/stack-of-tasks/pinocchio/pull/2418))
-
-### Changed
--  Does not create a root_joint frame from parsed models (urdf, mjcf and sdf) when no root joint is provided ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
-
-### Added
-- Added argument to let users decide of root joint name when parsing models (urdf, mjcf, sdf) ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
+- Does not create a root_joint frame from parsed models (urdf, mjcf and sdf) when no root joint is provided ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
 
 ## [3.2.0] - 2024-08-27
 
