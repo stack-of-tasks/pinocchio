@@ -1,12 +1,14 @@
+# ruff: noqa: E501
 #
 # Copyright (c) 2018-2020 CNRS INRIA
 #
 
 ## In this file, some shortcuts are provided ##
 
-from . import pinocchio_pywrap_default as pin
-from . import WITH_HPP_FCL, WITH_HPP_FCL_BINDINGS
 from typing import Tuple
+
+from . import WITH_HPP_FCL, WITH_HPP_FCL_BINDINGS
+from . import pinocchio_pywrap_default as pin
 
 nle = pin.nonLinearEffects
 
@@ -77,8 +79,10 @@ def buildModelsFromUrdf(
 
 
 def createDatas(*models):
-    """Call createData() on each Model or GeometryModel in input and return the results in a tuple.
-    If one of the models is None, the corresponding data object in the result is also None.
+    """
+    Call createData() on each Model or GeometryModel in input and return the results in
+    a tuple. If one of the models is None, the corresponding data object in the result
+    is also None.
     """
     return tuple([None if model is None else model.createData() for model in models])
 
@@ -120,7 +124,8 @@ def buildModelsFromSdf(
         )
     if verbose and not WITH_HPP_FCL_BINDINGS and meshLoader is not None:
         print(
-            "Info: MeshLoader is ignored. The HPP-FCL Python bindings have not been installed."
+            "Info: MeshLoader is ignored. "
+            "The HPP-FCL Python bindings have not been installed."
         )
     if package_dirs is None:
         package_dirs = []
@@ -173,7 +178,8 @@ def buildModelsFromMJCF(
         )
     if verbose and not WITH_HPP_FCL_BINDINGS and meshLoader is not None:
         print(
-            "Info: MeshLoader is ignored. The HPP-FCL Python bindings have not been installed."
+            "Info: MeshLoader is ignored. "
+            "The HPP-FCL Python bindings have not been installed."
         )
 
     lst = [model]

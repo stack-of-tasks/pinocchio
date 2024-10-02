@@ -6,9 +6,8 @@ from numpy.random import rand
 from pinocchio import skew, skewSquare, unSkew
 
 try:
-    from pinocchio import casadi as cpin
-
     import casadi
+    from pinocchio import casadi as cpin
 
     WITH_CASADI = True
 except ImportError:
@@ -74,7 +73,7 @@ class TestSpatial(PinocchioTestCase):
             R = dM.rotation
             logR = pin.log3(R)
             Jrot = pin.Jlog3(R)
-            print(R, ":\nlog: {}".format(logR))
+            print(R, f":\nlog: {logR}")
             print(Jrot)
 
             self.assertApprox(dM, pin.SE3.Identity())

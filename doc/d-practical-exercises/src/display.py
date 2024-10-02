@@ -7,15 +7,16 @@ import pinocchio as pin
 # 'place' method to set the position/rotation of a 3D visual object in a scene.
 class Display:
     """
-    Class Display: Example of a class implementing a client for the Gepetto-viewer server. The main
-    method of the class is 'place', that sets the position/rotation of a 3D visual object in a scene.
+    Class Display: Example of a class implementing a client for the Gepetto-viewer
+    server. The main method of the class is 'place', that sets the position/rotation of
+    a 3D visual object in a scene.
     """
 
     def __init__(self, windowName="pinocchio"):
         """
-        This function connect with the Gepetto-viewer server and open a window with the given name.
-        If the window already exists, it is kept in the current state. Otherwise, the newly-created
-        window is set up with a scene named 'world'.
+        This function connect with the Gepetto-viewer server and open a window with the
+        given name.  If the window already exists, it is kept in the current state.
+        Otherwise, the newly-created window is set up with a scene named 'world'.
         """
 
         # Create the client and connect it with the display server.
@@ -31,7 +32,8 @@ class Display:
             windowID = self.viewer.gui.getWindowID(windowName)
             print("Warning: window '" + windowName + "' already created.")
             print(
-                "The previously created objects will not be destroyed and do not have to be created again."
+                "The previously created objects will not be destroyed "
+                "and do not have to be created again."
             )
         except:  # noqa: E722
             # Otherwise, create the empty window.
@@ -46,9 +48,9 @@ class Display:
     def place(self, objName, M, refresh=True):
         """
         This function places (ie changes both translation and rotation) of the object
-        names "objName" in place given by the SE3 object "M". By default, immediately refresh
-        the layout. If multiple objects have to be placed at the same time, do the refresh
-        only at the end of the list.
+        names "objName" in place given by the SE3 object "M". By default, immediately
+        refresh the layout. If multiple objects have to be placed at the same time, do
+        the refresh only at the end of the list.
         """
         self.viewer.gui.applyConfiguration(objName, pin.se3ToXYZQUATtuple(M))
         if refresh:

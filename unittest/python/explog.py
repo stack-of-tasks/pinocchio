@@ -1,12 +1,10 @@
-import unittest
 import math
+import unittest
 
 import numpy as np
 import pinocchio as pin
-
-from pinocchio.utils import rand, zero, eye
 from pinocchio.explog import exp, log
-
+from pinocchio.utils import eye, rand, zero
 from test_case import PinocchioTestCase as TestCase
 
 
@@ -83,8 +81,8 @@ class TestExpLog(TestCase):
         self.assertApprox(J, eye(6))
 
     def test_skew(self):
-        u = np.random.rand((3))
-        v = np.random.rand((3))
+        u = np.random.rand(3)
+        v = np.random.rand(3)
 
         u_skew = pin.skew(u)
         u_unskew = pin.unSkew(u_skew)

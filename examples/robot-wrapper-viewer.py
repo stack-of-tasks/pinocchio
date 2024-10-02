@@ -3,11 +3,12 @@
 # integrating different kinds of viewers
 #
 
+from os.path import abspath, dirname, join
+from sys import argv
+
 import pinocchio as pin
 from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.visualize import GepettoVisualizer, MeshcatVisualizer
-from sys import argv
-from os.path import dirname, join, abspath
 
 # If you want to visualize the robot in this example,
 # you can choose which visualizer to employ

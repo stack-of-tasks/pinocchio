@@ -1,0 +1,5 @@
+[tool.ruff]
+exclude = [ "cmake/*", "models/example-robot-data/*" ]
+
+[tool.ruff.lint]
+select = [ "E", "F", "I", "RUF", "UP", "W" ]

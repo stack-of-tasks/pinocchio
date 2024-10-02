@@ -1,10 +1,10 @@
 import warnings
 
+import numpy as np
+
 from .. import pinocchio_pywrap_default as pin
 from ..utils import npToTuple
 from .base_visualizer import BaseVisualizer
-
-import numpy as np
 
 try:
     import hppfcl
@@ -59,10 +59,7 @@ class Panda3dVisualizer(BaseVisualizer):
                 elif isinstance(geom, hppfcl.Sphere):
                     self.viewer.append_sphere(root, obj.name, geom.radius)
                 else:
-                    msg = "Unsupported geometry type for %s (%s)" % (
-                        obj.name,
-                        type(geom),
-                    )
+                    msg = f"Unsupported geometry type for {obj.name} ({type(geom)})"
                     warnings.warn(msg, category=UserWarning, stacklevel=2)
                     return
             else:
@@ -96,7 +93,9 @@ class Panda3dVisualizer(BaseVisualizer):
             return self.collision_group + "/" + geometry_object.name
 
     def display(self, q=None):
-        """Display the robot at configuration q in the viewer by placing all the bodies."""
+        """
+        Display the robot at configuration q in the viewer by placing all the bodies.
+        """
         if q is not None:
             pin.forwardKinematics(self.model, self.data, q)
 

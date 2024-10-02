@@ -1,6 +1,7 @@
-import pinocchio
+from os.path import abspath, dirname, join
 from sys import argv
-from os.path import dirname, join, abspath
+
+import pinocchio
 
 # This path refers to Pinocchio source code but you can define your own directory here.
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
@@ -24,7 +25,7 @@ data, collision_data, visual_data = pinocchio.createDatas(
 
 # Sample a random configuration
 q = pinocchio.randomConfiguration(model)
-print("q: %s" % q.T)
+print(f"q: {q.T}")
 
 # Perform the forward kinematics over the kinematic tree
 pinocchio.forwardKinematics(model, data, q)
@@ -36,14 +37,14 @@ pinocchio.updateGeometryPlacements(model, data, visual_model, visual_data)
 # Print out the placement of each joint of the kinematic tree
 print("\nJoint placements:")
 for name, oMi in zip(model.names, data.oMi):
-    print(("{:<24} : {: .2f} {: .2f} {: .2f}".format(name, *oMi.translation.T.flat)))
+    print("{:<24} : {: .2f} {: .2f} {: .2f}".format(name, *oMi.translation.T.flat))
 
 # Print out the placement of each collision geometry object
 print("\nCollision object placements:")
 for k, oMg in enumerate(collision_data.oMg):
-    print(("{:d} : {: .2f} {: .2f} {: .2f}".format(k, *oMg.translation.T.flat)))
+    print("{:d} : {: .2f} {: .2f} {: .2f}".format(k, *oMg.translation.T.flat))
 
 # Print out the placement of each visual geometry object
 print("\nVisual object placements:")
 for k, oMg in enumerate(visual_data.oMg):
-    print(("{:d} : {: .2f} {: .2f} {: .2f}".format(k, *oMg.translation.T.flat)))
+    print("{:d} : {: .2f} {: .2f} {: .2f}".format(k, *oMg.translation.T.flat))

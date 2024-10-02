@@ -1,5 +1,5 @@
-import pinocchio as pin
 import numpy as np
+import pinocchio as pin
 
 model = pin.buildSampleModelHumanoid()
 model.lowerPositionLimit[:7] = -np.ones(7)
@@ -17,8 +17,8 @@ v = np.zeros((model.nv, batch_size))
 a = np.zeros((model.nv, batch_size))
 tau = np.zeros((model.nv, batch_size))
 
-print("num_threads: {}".format(num_threads))
-print("batch_size: {}".format(batch_size))
+print(f"num_threads: {num_threads}")
+print(f"batch_size: {batch_size}")
 
 # Call RNEA
 res_rnea = np.empty((model.nv, batch_size))

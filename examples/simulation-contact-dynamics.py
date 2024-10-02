@@ -1,11 +1,10 @@
-import pinocchio as pin
-
 import math
-import numpy as np
 import sys
-from os.path import dirname, join, abspath
 import time
+from os.path import abspath, dirname, join
 
+import numpy as np
+import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
 
 # Load the URDF model.
@@ -24,7 +23,8 @@ model, collision_model, visual_model = pin.buildModelsFromUrdf(
 )
 
 # Start a new MeshCat server and client.
-# Note: the server can also be started separately using the "meshcat-server" command in a terminal:
+# Note: the server can also be started separately using the "meshcat-server" command in
+# a terminal:
 # this enables the server to remain active after the current script ends.
 #
 # Option open=True pens the visualizer.
@@ -34,7 +34,8 @@ try:
     viz.initViewer(open=False)
 except ImportError as err:
     print(
-        "Error while initializing the viewer. It seems you should install Python meshcat"
+        "Error while initializing the viewer. "
+        "It seems you should install Python meshcat"
     )
     print(err)
     sys.exit(0)
@@ -45,13 +46,13 @@ viz.loadViewerModel()
 # Display a robot configuration.
 pin.loadReferenceConfigurations(model, srdf_full_path)
 q0 = model.referenceConfigurations["half_sitting"]
-q_ref = pin.integrate(model, q0, 0.1 * np.random.rand((model.nv)))
+q_ref = pin.integrate(model, q0, 0.1 * np.random.rand(model.nv))
 viz.display(q0)
 
 feet_name = ["left_sole_link", "right_sole_link"]
 frame_ids = [model.getFrameId(frame_name) for frame_name in feet_name]
 
-v0 = np.zeros((model.nv))
+v0 = np.zeros(model.nv)
 v_ref = v0.copy()
 data_sim = model.createData()
 data_control = model.createData()
@@ -84,7 +85,7 @@ Kv_posture = 0.05 * math.sqrt(Kp_posture)
 
 q = q0.copy()
 v = v0.copy()
-tau = np.zeros((model.nv))
+tau = np.zeros(model.nv)
 
 T = 5
 
@@ -108,7 +109,7 @@ while t <= T:
         constraint_index += 6
 
     A = np.vstack((S, J_constraint))
-    b = pin.rnea(model, data_control, q, v, np.zeros((model.nv)))
+    b = pin.rnea(model, data_control, q, v, np.zeros(model.nv))
 
     sol = np.linalg.lstsq(A.T, b, rcond=None)[0]
     tau = np.concatenate((np.zeros((6)), sol[: model.nv - 6]))

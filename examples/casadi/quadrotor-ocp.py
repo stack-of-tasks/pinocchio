@@ -292,7 +292,8 @@ def main():
         plt.show(block=False)
     except ImportError as err:
         print(
-            "Error while initializing the viewer. It seems you should install Python meshcat"
+            "Error while initializing the viewer. "
+            "It seems you should install Python meshcat"
         )
         print(err)
         sys.exit(0)

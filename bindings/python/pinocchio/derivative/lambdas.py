@@ -4,7 +4,7 @@
 # ruff: noqa: E731
 
 import numpy as np
-from pinocchio import Motion, Force, skew
+from pinocchio import Force, Motion, skew
 from pinocchio.utils import zero
 
 
@@ -25,16 +25,13 @@ iv = lambda i, robot: list(
         robot.model.joints[i].idx_v + robot.model.joints[i].nv,
     )
 )
-ancestors = (
-    lambda j, robot, res=[]: res
+ancestors = lambda j, robot, res=[]: (
+    res
     if j == 0
     else ancestors(
         robot.model.parents[j],
         robot,
-        [
-            j,
-        ]
-        + res,
+        [j, *res],
     )
 )
 
@@ -53,12 +50,13 @@ class ancestorOf:
                 dec = self.robot.model.parents[dec]
 
 
-# descendants = lambda root,robot: filter( lambda i: root in ancestorOf(i,robot), range(root,robot.model.njoints) )
+# descendants = lambda root,robot: filter(
+# lambda i: root in ancestorOf(i,robot), range(root,robot.model.njoints) )
 descendants = lambda root, robot: robot.model.subtrees[root]
 
 
 def setRobotArgs(robot):
-    ancestors.__defaults__ = (robot,) + ancestors.__defaults__
+    ancestors.__defaults__ = (robot, *ancestors.__defaults__)
     descendants.__defaults__ = (robot,)
     # ancestorsOf.__init__.__defaults__ = (robot,)
     iv.__defaults__ = (robot,)
@@ -91,7 +89,7 @@ quad.__doc__ = """Tensor product v'*H*v, with H.shape = [ nop, nv, nv ]"""
 
 
 def np_prettyprint(sarg="{: 0.5f}", eps=5e-7):
-    mformat = (
-        lambda x, sarg=sarg, eps=eps: sarg.format(x) if abs(x) > eps else " 0.     "
+    mformat = lambda x, sarg=sarg, eps=eps: (
+        sarg.format(x) if abs(x) > eps else " 0.     "
     )
     np.set_printoptions(formatter={"float": mformat})

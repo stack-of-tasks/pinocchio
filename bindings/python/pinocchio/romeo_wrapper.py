@@ -68,7 +68,9 @@ class RomeoWrapper(RobotWrapper):
 
         for op, name in self.opCorrespondances.items():
             self.__dict__[op] = self.index(name)
-            # self.__dict__['_M'+op] = types.MethodType(lambda s, q: s.position(q,idx),self)
+            # self.__dict__["_M" + op] = types.MethodType(
+            # lambda s, q: s.position(q, idx), self
+            # )
 
     # --- SHORTCUTS ---
     def Mrh(self, q):

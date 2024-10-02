@@ -9,11 +9,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Default visualizer can be changed with `PINOCCHIO_VIEWER` environment variable ([#2419](https://github.com/stack-of-tasks/pinocchio/pull/2419))
+- Add more Python and C++ examples related to inverse kinematics with 3d tasks ([#2428](https://github.com/stack-of-tasks/pinocchio/pull/2428))
 
 ### Fixed
 - Fix linkage of Boost.Serialization on Windows ([#2400](https://github.com/stack-of-tasks/pinocchio/pull/2400))
 - Fix mjcf parser appending of inertias at root joint ([#2403](https://github.com/stack-of-tasks/pinocchio/pull/2403))
 - Fix unit tests with GCC 13.3 ([#2406](https://github.com/stack-of-tasks/pinocchio/pull/2416)
+- Fix class abtract error for Rviz viewer ([#2425](https://github.com/stack-of-tasks/pinocchio/pull/2425))
+
+### Changed
+
+- Modernize python code base with ruff ([#2418](https://github.com/stack-of-tasks/pinocchio/pull/2418))
 
 ## [3.2.0] - 2024-08-27
 

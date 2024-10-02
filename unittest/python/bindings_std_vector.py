@@ -1,10 +1,9 @@
-import unittest
-from test_case import PinocchioTestCase as TestCase
-
-import pinocchio as pin
-import numpy as np
-
 import pickle
+import unittest
+
+import numpy as np
+import pinocchio as pin
+from test_case import PinocchioTestCase as TestCase
 
 
 class TestStdMap(TestCase):
@@ -14,7 +13,7 @@ class TestStdMap(TestCase):
     def test_pickle(self):
         vec = pin.StdVec_Vector3()
         for k in range(100):
-            vec.append(np.random.rand((3)))
+            vec.append(np.random.rand(3))
 
         pickle.dump(vec, open("save_std_vec.p", "wb"))
 

@@ -1,31 +1,33 @@
-from pinocchio.utils import zero, eye
 import numpy as np
 import numpy.linalg as npl
+from pinocchio.utils import eye, zero
 
 """
 This file implements a sparse linear problem (quadric cost, linear constraints -- LCQP)
-where the decision variables are denoted by x=(x1 ... xn), n being the number of factors.
+where the decision variables are denoted by x=(x1 ... xn), n being the number of
+factors.
 The problem can be written:
   min      Sum_i=1^p  || A_i x - b_i ||^2
 x1...xn
 
 so that    forall j=1:q   C_j x = d_i
 
-Matrices A_i and C_j are block sparse, i.e. they are acting only on some (few) of the variables
-x1 .. xn.
+Matrices A_i and C_j are block sparse, i.e. they are acting only on some (few) of the
+variables x1 .. xn.
 
-The file implements the main class FactorGraph, which stores the LCQP problem and solve it.
+The file implements the main class FactorGraph, which stores the LCQP problem and solve
+it.
 It also provides a secondary class Factor, used to set up FactorGraph
 """
 
 
-class Factor(object):
+class Factor:
     """
     A factor is a part of a linear constraint corresponding either a cost ||A x - b|| or
     a constraint Cx = d.
-    In both cases, we have Ax = sum A_i x_i, where some A_i are null. One object of class
-    Factor stores one of the A_i, along with the correspond <i> index. It is simply a pair
-    (index, matrix).
+    In both cases, we have Ax = sum A_i x_i, where some A_i are null. One object of
+    class Factor stores one of the A_i, along with the correspond <i> index. It is
+    simply a pair (index, matrix).
 
     This class is used as a arguments of some of the setup functions of FactorGraph.
     """
@@ -35,10 +37,11 @@ class Factor(object):
         self.matrix = matrix
 
 
-class FactorGraph(object):
+class FactorGraph:
     """
-    The class FactorGraph stores a block-sparse linear-constrained quadratic program (LCQP)
-    of variable x=(x1...xn). The size of the problem is set up at construction of the object.
+    The class FactorGraph stores a block-sparse linear-constrained quadratic program
+    (LCQP) of variable x=(x1...xn). The size of the problem is set up at construction of
+    the object.
     Methods add_factor() and add_factor_constraint() are used to set up the problem.
     Method solve() is used to compute the solution to the problem.
     """

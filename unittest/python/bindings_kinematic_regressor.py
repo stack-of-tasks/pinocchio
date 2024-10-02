@@ -1,6 +1,7 @@
 import unittest
-from test_case import PinocchioTestCase as TestCase
+
 import pinocchio as pin
+from test_case import PinocchioTestCase as TestCase
 
 
 class TestKinematicRegressorBindings(TestCase):

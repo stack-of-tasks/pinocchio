@@ -1,6 +1,6 @@
-import pinocchio as pin
+from os.path import abspath, dirname, join
 
-from os.path import join, dirname, abspath
+import pinocchio as pin
 
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 urdf_filename = (

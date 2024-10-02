@@ -1,6 +1,5 @@
-import os
-import sys
 import contextlib
+import os
 
 
 def get_dll_paths():
@@ -50,7 +49,4 @@ class DllDirectoryManager(contextlib.AbstractContextManager):
 
 
 def build_directory_manager():
-    if sys.version_info >= (3, 8):
-        return DllDirectoryManager()
-    else:
-        return PathManager()
+    return DllDirectoryManager()

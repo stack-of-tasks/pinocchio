@@ -1,15 +1,15 @@
 """
-Load 4 times the UR5 model, plus a plate object on top of them, to feature a simple parallel robot.
+Load 4 times the UR5 model, plus a plate object on top of them, to feature a simple
+parallel robot.
 No optimization, this file is just an example of how to load the models.
 """
 
 from os.path import join
 
+import numpy as np
 from pinocchio import SE3
 from pinocchio.robot_wrapper import RobotWrapper
-from pinocchio.utils import rotate, zero, eye, se3ToXYZQUATtuple, urdf
-
-import numpy as np
+from pinocchio.utils import eye, rotate, se3ToXYZQUATtuple, urdf, zero
 
 PKG = "/opt/openrobots/share"
 URDF = join(PKG, "ur5_description/urdf/ur5_gripper.urdf")
@@ -18,7 +18,8 @@ URDF = join(PKG, "ur5_description/urdf/ur5_gripper.urdf")
 def loadRobot(M0, name):
     """
     This function load a UR5 robot n a new model, move the basis to placement <M0>
-    and add the corresponding visuals in gepetto viewer with name prefix given by string <name>.
+    and add the corresponding visuals in gepetto viewer with name prefix given by string
+    <name>.
     It returns the robot wrapper (model,data).
     """
     robot = RobotWrapper(urdf, [PKG])

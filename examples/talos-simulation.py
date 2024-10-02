@@ -1,8 +1,8 @@
 from time import sleep
 
+import example_robot_data
 import numpy as np
 import pinocchio
-import example_robot_data
 
 robot = example_robot_data.load("talos")
 model = robot.model
@@ -90,7 +90,7 @@ mass = data.mass[0]
 
 def squashing(model, data, q_in):
     q = q_in.copy()
-    y = np.ones((constraint_dim))
+    y = np.ones(constraint_dim)
 
     N_full = 200
 

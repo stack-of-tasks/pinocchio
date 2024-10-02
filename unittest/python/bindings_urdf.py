@@ -1,6 +1,7 @@
-import unittest
-import pinocchio as pin
 import os
+import unittest
+
+import pinocchio as pin
 
 
 @unittest.skipUnless(pin.WITH_URDFDOM, "Needs URDFDOM")

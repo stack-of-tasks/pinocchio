@@ -1,7 +1,7 @@
 import unittest
-import pinocchio as pin
-import numpy as np
 
+import numpy as np
+import pinocchio as pin
 from test_case import PinocchioTestCase
 
 
@@ -16,8 +16,8 @@ class TestFrameBindings(PinocchioTestCase):
 
         self.data = self.model.createData()
         self.q = pin.randomConfiguration(self.model)
-        self.v = np.random.rand((self.model.nv))
-        self.a = np.random.rand((self.model.nv))
+        self.v = np.random.rand(self.model.nv)
+        self.a = np.random.rand(self.model.nv)
 
     def tearDown(self):
         del self.model

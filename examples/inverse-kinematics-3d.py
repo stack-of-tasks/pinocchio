@@ -14,32 +14,31 @@ IT_MAX = 1000
 DT = 1e-1
 damp = 1e-12
 
-i = 0
+it = 0
 while True:
     pinocchio.forwardKinematics(model, data, q)
     iMd = data.oMi[JOINT_ID].actInv(oMdes)
-    err = pinocchio.log(iMd).vector  # in joint frame
+    err = iMd.translation
     if norm(err) < eps:
         success = True
         break
-    if i >= IT_MAX:
+    if it >= IT_MAX:
         success = False
         break
     J = pinocchio.computeJointJacobian(model, data, q, JOINT_ID)  # in joint frame
-    J = -np.dot(pinocchio.Jlog6(iMd.inverse()), J)
-    v = -J.T.dot(solve(J.dot(J.T) + damp * np.eye(6), err))
+    J = -J[:3, :]  # linear part of the Jacobian
+    v = -J.T.dot(solve(J.dot(J.T) + damp * np.eye(3), err))
     q = pinocchio.integrate(model, q, v * DT)
-    if not i % 10:
-        print("%d: error = %s" % (i, err.T))
-    i += 1
+    if not it % 10:
+        print("%d: error = %s" % (it, err.T))
+    it += 1
 
 if success:
     print("Convergence achieved!")
 else:
     print(
-        "\n"
-        "Warning: the iterative algorithm has not reached convergence "
-        "to the desired precision"
+        "\nWarning: the iterative algorithm has not reached convergence to "
+        "the desired precision"
     )
 
 print(f"\nresult: {q.flatten().tolist()}")

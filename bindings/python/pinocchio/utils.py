@@ -76,7 +76,7 @@ def mprint(M, name="ans", eps=1e-15):
         cmin = i * 6
         cmax = (i + 1) * 6
         cmax = ncol if ncol < cmax else cmax
-        print("Columns %s through %s" % (cmin, cmax - 1))
+        print(f"Columns {cmin} through {cmax - 1}")
         print()
         for r in range(M.shape[0]):
             sys.stdout.write("  ")

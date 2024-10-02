@@ -45,9 +45,7 @@ base_joint_id = 0
 geom_obj0 = pin.GeometryObject(
     "link_A1",
     base_joint_id,
-    pin.SE3(
-        pin.Quaternion.FromTwoVectors(pin.ZAxis, pin.XAxis).matrix(), np.zeros((3))
-    ),
+    pin.SE3(pin.Quaternion.FromTwoVectors(pin.ZAxis, pin.XAxis).matrix(), np.zeros(3)),
     shape_link_A,
 )
 geom_obj0.meshColor = WHITE_COLOR
@@ -114,7 +112,7 @@ mu = 1e-4
 
 q = q0.copy()
 
-y = np.ones((constraint_dim))
+y = np.ones(constraint_dim)
 data.M = np.eye(model.nv) * rho
 kkt_constraint = pin.ContactCholeskyDecomposition(model, [constraint_model])
 eps = 1e-10
@@ -152,8 +150,8 @@ viz.display(q_sol)
 
 # Perform the simulation
 q = q_sol.copy()
-v = np.zeros((model.nv))
-tau = np.zeros((model.nv))
+v = np.zeros(model.nv)
+tau = np.zeros(model.nv)
 dt = 5e-3
 
 T_sim = 100000
