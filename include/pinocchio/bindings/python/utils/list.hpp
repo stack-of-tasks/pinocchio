@@ -35,18 +35,12 @@ namespace pinocchio
           vec[i] = input_T();
         else
         {
-          const std::string modulename = bp::extract<std::string>(list[i].attr("__module__"));
-          if (modulename == std::string("pathlib"))
-            vec[i] = path(list[i]);
-          else
-          {
-            const std::string classname =
-              bp::extract<std::string>(list[i].attr("__class__").attr("__name__"));
-            std::stringstream ss;
-            ss << "The conversion from " << classname << " to " << bp::type_id<T>().name()
-               << " has failed." << std::endl;
-            throw eigenpy::Exception(ss.str());
-          }
+          const std::string classname =
+            bp::extract<std::string>(list[i].attr("__class__").attr("__name__"));
+          std::stringstream ss;
+          ss << "The conversion from " << classname << " to " << bp::type_id<T>().name()
+             << " has failed." << std::endl;
+          throw eigenpy::Exception(ss.str());
         }
       }
     }
