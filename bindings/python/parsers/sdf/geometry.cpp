@@ -226,8 +226,8 @@ namespace pinocchio
 
       bp::def(
         "buildGeomFromSdf",
-        static_cast<
-          GeometryModel & (*)(const Model &, const bp::object &, const GeometryType, GeometryModel &, const std::string &)>(
+        static_cast<GeometryModel & (*)(const Model &, const bp::object &, const GeometryType,
+                                        GeometryModel &, const std::string &)>(
           pinocchio::python::buildGeomFromSdf),
         bp::args("model", "sdf_filename", "geom_type", "geom_model", "root_link_name"),
         "Parse the SDF file given as input looking for the geometry of the given input model and\n"
@@ -245,8 +245,8 @@ namespace pinocchio
 
       bp::def(
         "buildGeomFromSdf",
-        static_cast<
-          GeometryModel & (*)(const Model &, const bp::object &, const GeometryType, GeometryModel &, const std::string &, const bp::object &)>(
+        static_cast<GeometryModel & (*)(const Model &, const bp::object &, const GeometryType,
+                                        GeometryModel &, const std::string &, const bp::object &)>(
           pinocchio::python::buildGeomFromSdf),
         bp::args(
           "model", "sdf_filename", "geom_type", "geom_model", "root_link_name", "package_dir"),
@@ -284,8 +284,9 @@ namespace pinocchio
 
       bp::def(
         "buildGeomFromSdf",
-        static_cast<
-          GeometryModel & (*)(const Model &, const bp::object &, const GeometryType, GeometryModel &, const std::string &, const bp::object &, const hpp::fcl::MeshLoaderPtr &)>(
+        static_cast<GeometryModel & (*)(const Model &, const bp::object &, const GeometryType,
+                                        GeometryModel &, const std::string &, const bp::object &,
+                                        const hpp::fcl::MeshLoaderPtr &)>(
           pinocchio::python::buildGeomFromSdf),
         bp::args(
           "model", "sdf_filename", "geom_type", "geom_model", "root_link_name", "package_dir",
@@ -324,8 +325,9 @@ namespace pinocchio
 
       bp::def(
         "buildGeomFromSdf",
-        static_cast<
-          GeometryModel & (*)(const Model &, const bp::object &, const GeometryType, GeometryModel &, const std::string &, const hpp::fcl::MeshLoaderPtr &)>(
+        static_cast<GeometryModel & (*)(const Model &, const bp::object &, const GeometryType,
+                                        GeometryModel &, const std::string &,
+                                        const hpp::fcl::MeshLoaderPtr &)>(
           pinocchio::python::buildGeomFromSdf),
         bp::args(
           "model", "sdf_filename", "geom_type", "geom_model", "root_link_name", "mesh_loader"),

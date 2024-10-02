@@ -81,7 +81,6 @@ class TestRobotWrapper(unittest.TestCase):
 
     def test_urdf_with_None_pkg_dirs(self):
         model_path = self.current_dir.parent / "models" / "3DOF_planar.urdf"
-        package_dir = self.current_dir.parent / "models"
         robot = pin.RobotWrapper.BuildFromURDF(
             model_path, None, pin.JointModelFreeFlyer()
         )
