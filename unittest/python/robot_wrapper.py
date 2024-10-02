@@ -47,6 +47,46 @@ class TestRobotWrapper(unittest.TestCase):
         )
         self.assertEqual(robot.model.names[1], name_)
 
+    def test_urdf_with_str_pkg_dirs(self):
+        model_path = self.current_dir.parent / "models" / "3DOF_planar.urdf"
+        package_dir = self.current_dir.parent / "models"
+        robot = pin.RobotWrapper.BuildFromURDF(
+            model_path, str(package_dir), pin.JointModelFreeFlyer()
+        )
+        self.assertEqual(robot.model.names[1], "root_joint")
+
+    def test_urdf_with_path_pkg_dirs(self):
+        model_path = self.current_dir.parent / "models" / "3DOF_planar.urdf"
+        package_dir = self.current_dir.parent / "models"
+        robot = pin.RobotWrapper.BuildFromURDF(
+            model_path, package_dir, pin.JointModelFreeFlyer()
+        )
+        self.assertEqual(robot.model.names[1], "root_joint")
+
+    def test_urdf_with_str_list_pkg_dirs(self):
+        model_path = self.current_dir.parent / "models" / "3DOF_planar.urdf"
+        package_dir = self.current_dir.parent / "models"
+        robot = pin.RobotWrapper.BuildFromURDF(
+            model_path, [str(package_dir)], pin.JointModelFreeFlyer()
+        )
+        self.assertEqual(robot.model.names[1], "root_joint")
+
+    def test_urdf_with_path_list_pkg_dirs(self):
+        model_path = self.current_dir.parent / "models" / "3DOF_planar.urdf"
+        package_dir = self.current_dir.parent / "models"
+        robot = pin.RobotWrapper.BuildFromURDF(
+            model_path, [package_dir], pin.JointModelFreeFlyer()
+        )
+        self.assertEqual(robot.model.names[1], "root_joint")
+
+    def test_urdf_with_None_pkg_dirs(self):
+        model_path = self.current_dir.parent / "models" / "3DOF_planar.urdf"
+        package_dir = self.current_dir.parent / "models"
+        robot = pin.RobotWrapper.BuildFromURDF(
+            model_path, None, pin.JointModelFreeFlyer()
+        )
+        self.assertEqual(robot.model.names[1], "root_joint")
+
     @unittest.skipUnless(pin.WITH_SDFORMAT, "Needs SDFORMAT")
     def test_sdf_with_root_joint(self):
         model_path = self.current_dir.parent.parent / "models" / "simple_humanoid.sdf"
