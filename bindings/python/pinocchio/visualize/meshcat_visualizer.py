@@ -1,5 +1,6 @@
 import os
 import warnings
+from pathlib import Path
 from typing import ClassVar, List
 
 import numpy as np
@@ -62,7 +63,7 @@ def hasMeshFileInfo(geometry_object):
     if geometry_object.meshPath == "":
         return False
 
-    _, file_extension = os.path.splitext(geometry_object.meshPath)
+    file_extension = Path(geometry_object.meshPath).suffix
     if file_extension.lower() in [".dae", ".obj", ".stl"]:
         return True
 
@@ -108,14 +109,16 @@ if import_meshcat_succeed:
             # Init base class
             super().__init__()
 
+            dae_path = Path(dae_path)
+
             # Attributes to be specified by the user
             self.path = None
             self.material = None
             self.intrinsic_transform = mg.tf.identity_matrix()
 
             # Raw file content
-            dae_dir = os.path.dirname(dae_path)
-            with open(dae_path) as text_file:
+            dae_dir = dae_path.parent
+            with dae_path.open() as text_file:
                 self.dae_raw = text_file.read()
 
             # Parse the image resource in Collada file
@@ -140,11 +143,11 @@ if import_meshcat_succeed:
 
                 # Encode texture in base64
                 img_path_abs = img_path
-                if not os.path.isabs(img_path):
-                    img_path_abs = os.path.normpath(os.path.join(dae_dir, img_path_abs))
-                if not os.path.isfile(img_path_abs):
+                if not img_path.is_absolute():
+                    img_path_abs = os.path.normpath(dae_dir / img_path_abs)
+                if not img_path_abs.is_file():
                     raise UserWarning(f"Texture '{img_path}' not found.")
-                with open(img_path_abs, "rb") as img_file:
+                with Path(img_path_abs).open("rb") as img_file:
                     img_data = base64.b64encode(img_file.read())
                 img_uri = f"data:image/png;base64,{img_data.decode('utf-8')}"
                 self.img_resources[img_path] = img_uri
@@ -744,7 +747,7 @@ class MeshcatVisualizer(BaseVisualizer):
             return None
 
         # Get file type from filename extension.
-        _, file_extension = os.path.splitext(geometry_object.meshPath)
+        file_extension = Path(geometry_object.meshPath).suffix
         if file_extension.lower() == ".dae":
             obj = DaeMeshGeometry(geometry_object.meshPath)
         elif file_extension.lower() == ".obj":

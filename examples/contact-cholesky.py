@@ -1,11 +1,11 @@
-from os.path import abspath, dirname, join
+from pathlib import Path
 
 import pinocchio as pin
 
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+pinocchio_model_dir = Path(__file__).parent.parent / "models"
 urdf_filename = (
     pinocchio_model_dir
-    + "/example-robot-data/robots/anymal_b_simple_description/robots/anymal.urdf"
+    / "example-robot-data/robots/anymal_b_simple_description/robots/anymal.urdf"
 )
 model = pin.buildModelFromUrdf(urdf_filename)
 data = model.createData()

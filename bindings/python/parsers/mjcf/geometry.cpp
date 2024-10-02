@@ -4,6 +4,7 @@
 
 #include "pinocchio/parsers/mjcf.hpp"
 #include "pinocchio/bindings/python/parsers/mjcf.hpp"
+#include "pinocchio/bindings/python/utils/path.hpp"
 
 #include <boost/python.hpp>
 
@@ -15,21 +16,21 @@ namespace pinocchio
     namespace bp = boost::python;
 
     GeometryModel
-    buildGeomFromMJCF(Model & model, const std::string & filename, const GeometryType & type)
+    buildGeomFromMJCF(Model & model, const bp::object & filename, const GeometryType & type)
     {
       GeometryModel geometry_model;
-      ::pinocchio::mjcf::buildGeom(model, filename, type, geometry_model);
+      ::pinocchio::mjcf::buildGeom(model, path(filename), type, geometry_model);
       return geometry_model;
     }
 
     GeometryModel buildGeomFromMJCF(
       Model & model,
-      const std::string & filename,
+      const bp::object & filename,
       const GeometryType & type,
       ::hpp::fcl::MeshLoaderPtr & meshLoader)
     {
       GeometryModel geometry_model;
-      ::pinocchio::mjcf::buildGeom(model, filename, type, geometry_model, meshLoader);
+      ::pinocchio::mjcf::buildGeom(model, path(filename), type, geometry_model, meshLoader);
       return geometry_model;
     }
 
@@ -37,7 +38,7 @@ namespace pinocchio
     {
       bp::def(
         "buildGeomFromMJCF",
-        static_cast<GeometryModel (*)(Model &, const std::string &, const GeometryType &)>(
+        static_cast<GeometryModel (*)(Model &, const bp::object &, const GeometryType &)>(
           pinocchio::python::buildGeomFromMJCF),
         bp::args("model", "mjcf_filename", "geom_type"),
         "Parse the Mjcf file given as input looking for the geometry of the given input model and\n"
@@ -52,7 +53,7 @@ namespace pinocchio
       bp::def(
         "buildGeomFromMJCF",
         static_cast<GeometryModel (*)(
-          Model &, const std::string &, const GeometryType &, ::hpp::fcl::MeshLoaderPtr &)>(
+          Model &, const bp::object &, const GeometryType &, ::hpp::fcl::MeshLoaderPtr &)>(
           pinocchio::python::buildGeomFromMJCF),
         bp::args("model", "mjcf_filename", "geom_type", "mesh_loader"),
         "Parse the Mjcf file given as input looking for the geometry of the given input model and\n"

@@ -4,15 +4,15 @@ parallel robot.
 No optimization, this file is just an example of how to load the models.
 """
 
-from os.path import join
+from pathlib import Path
 
 import numpy as np
 from pinocchio import SE3
 from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.utils import eye, rotate, se3ToXYZQUATtuple, urdf, zero
 
-PKG = "/opt/openrobots/share"
-URDF = join(PKG, "ur5_description/urdf/ur5_gripper.urdf")
+PKG = Path("/opt/openrobots/share")
+URDF = PKG / "ur5_description/urdf/ur5_gripper.urdf"
 
 
 def loadRobot(M0, name):

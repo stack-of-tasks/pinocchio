@@ -7,6 +7,7 @@
 #endif
 
 #include "pinocchio/bindings/python/parsers/urdf.hpp"
+#include "pinocchio/bindings/python/utils/path.hpp"
 
 #include <boost/python.hpp>
 
@@ -19,48 +20,48 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_URDFDOM
 
-    Model buildModelFromUrdf(const std::string & filename)
+    Model buildModelFromUrdf(const bp::object & filename)
     {
       Model model;
-      pinocchio::urdf::buildModel(filename, model);
+      pinocchio::urdf::buildModel(path(filename), model);
       return model;
     }
 
-    Model & buildModelFromUrdf(const std::string & filename, Model & model)
+    Model & buildModelFromUrdf(const bp::object & filename, Model & model)
     {
-      return pinocchio::urdf::buildModel(filename, model);
+      return pinocchio::urdf::buildModel(path(filename), model);
     }
 
-    Model buildModelFromUrdf(const std::string & filename, const JointModel & root_joint)
+    Model buildModelFromUrdf(const bp::object & filename, const JointModel & root_joint)
     {
       Model model;
-      pinocchio::urdf::buildModel(filename, root_joint, model);
+      pinocchio::urdf::buildModel(path(filename), root_joint, model);
       return model;
     }
 
     Model buildModelFromUrdf(
-      const std::string & filename,
+      const bp::object & filename,
       const JointModel & root_joint,
       const std::string & root_joint_name)
     {
       Model model;
-      pinocchio::urdf::buildModel(filename, root_joint, root_joint_name, model);
+      pinocchio::urdf::buildModel(path(filename), root_joint, root_joint_name, model);
       return model;
     }
 
     Model &
-    buildModelFromUrdf(const std::string & filename, const JointModel & root_joint, Model & model)
+    buildModelFromUrdf(const bp::object & filename, const JointModel & root_joint, Model & model)
     {
-      return pinocchio::urdf::buildModel(filename, root_joint, model);
+      return pinocchio::urdf::buildModel(path(filename), root_joint, model);
     }
 
     Model & buildModelFromUrdf(
-      const std::string & filename,
+      const bp::object & filename,
       const JointModel & root_joint,
       const std::string & root_joint_name,
       Model & model)
     {
-      return pinocchio::urdf::buildModel(filename, root_joint, root_joint_name, model);
+      return pinocchio::urdf::buildModel(path(filename), root_joint, root_joint_name, model);
     }
 
     Model buildModelFromXML(const std::string & xml_stream, const JointModel & root_joint)
@@ -119,7 +120,7 @@ namespace pinocchio
 
       bp::def(
         "buildModelFromUrdf",
-        static_cast<Model (*)(const std::string &, const JointModel &)>(
+        static_cast<Model (*)(const bp::object &, const JointModel &)>(
           pinocchio::python::buildModelFromUrdf),
         bp::args("urdf_filename", "root_joint"),
         "Parse the URDF file given in input and return a pinocchio Model starting with the "
@@ -127,7 +128,7 @@ namespace pinocchio
 
       bp::def(
         "buildModelFromUrdf",
-        static_cast<Model (*)(const std::string &, const JointModel &, const std::string &)>(
+        static_cast<Model (*)(const bp::object &, const JointModel &, const std::string &)>(
           pinocchio::python::buildModelFromUrdf),
         bp::args("urdf_filename", "root_joint", "root_joint_name"),
         "Parse the URDF file given in input and return a pinocchio Model starting with the "
@@ -135,13 +136,13 @@ namespace pinocchio
 
       bp::def(
         "buildModelFromUrdf",
-        static_cast<Model (*)(const std::string &)>(pinocchio::python::buildModelFromUrdf),
+        static_cast<Model (*)(const bp::object &)>(pinocchio::python::buildModelFromUrdf),
         bp::args("urdf_filename"),
         "Parse the URDF file given in input and return a pinocchio Model.");
 
       bp::def(
         "buildModelFromUrdf",
-        static_cast<Model & (*)(const std::string &, Model &)>(
+        static_cast<Model & (*)(const bp::object &, Model &)>(
           pinocchio::python::buildModelFromUrdf),
         bp::args("urdf_filename", "model"),
         "Append to a given model a URDF structure given by its filename.",
@@ -149,7 +150,7 @@ namespace pinocchio
 
       bp::def(
         "buildModelFromUrdf",
-        static_cast<Model & (*)(const std::string &, const JointModel &, Model &)>(
+        static_cast<Model & (*)(const bp::object &, const JointModel &, Model &)>(
           pinocchio::python::buildModelFromUrdf),
         bp::args("urdf_filename", "root_joint", "model"),
         "Append to a given model a URDF structure given by its filename and the root joint.\n"
@@ -159,7 +160,7 @@ namespace pinocchio
 
       bp::def(
         "buildModelFromUrdf",
-        static_cast<Model & (*)(const std::string &, const JointModel &, const std::string &,
+        static_cast<Model & (*)(const bp::object &, const JointModel &, const std::string &,
                                 Model &)>(pinocchio::python::buildModelFromUrdf),
         bp::args("urdf_filename", "root_joint", "root_joint_name", "model"),
         "Append to a given model a URDF structure given by its filename and the root joint with "

@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 import pinocchio as pin
 from test_case import PinocchioTestCase as TestCase
@@ -44,11 +45,11 @@ class TestData(TestCase):
         import pickle
 
         data = self.data
-        filename = "data.pickle"
-        with open(filename, "wb") as f:
+        filename = Path("data.pickle")
+        with filename.open("wb") as f:
             pickle.dump(data, f)
 
-        with open(filename, "rb") as f:
+        with filename.open("rb") as f:
             data_copy = pickle.load(f)
 
         self.assertTrue(data == data_copy)
