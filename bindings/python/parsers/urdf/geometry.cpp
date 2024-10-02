@@ -45,7 +45,7 @@ namespace pinocchio
       }
 
       std::vector<std::string> pkg_dirs;
-      if (Py_IsNone(py_pkg_dirs.ptr()))
+      if (py_pkg_dirs.ptr() == Py_None)
       {
       }
       else if (PyList_Check(py_pkg_dirs.ptr()))
