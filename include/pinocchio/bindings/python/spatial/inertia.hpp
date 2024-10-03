@@ -372,7 +372,9 @@ namespace pinocchio
           .staticmethod("FromInertia")
 
           .def("__array__", &PseudoInertia::toMatrix)
-          .def("__array__", &__array__)
+          .def(
+            "__array__", &__array__,
+            (bp::arg("self"), bp::arg("dtype") = bp::object(), bp::arg("copy") = bp::object()))
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def_pickle(Pickle())
 #endif
@@ -432,7 +434,7 @@ namespace pinocchio
       }
 
     private:
-      static Matrix4 __array__(const PseudoInertia & self, bp::object)
+      static Matrix4 __array__(const PseudoInertia & self, bp::object, bp::object)
       {
         return self.toMatrix();
       }
@@ -491,8 +493,10 @@ namespace pinocchio
             "calculateJacobian", &LogCholeskyParametersPythonVisitor::calculateJacobian_proxy,
             bp::arg("self"), "Calculates the Jacobian of the log Cholesky parameters.")
 
-          .def("__array__", &LogCholeskyParameters::toDynamicParameters)
-          .def("__array__", &__array__)
+          .def("__array__", &LogCholeskyParametersPythonVisitor::getParameters)
+          .def(
+            "__array__", &__array__,
+            (bp::arg("self"), bp::arg("dtype") = bp::object(), bp::arg("copy") = bp::object()))
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def_pickle(Pickle())
 #endif
@@ -539,9 +543,9 @@ namespace pinocchio
       }
 
     private:
-      static Vector10 __array__(const LogCholeskyParameters & self, bp::object)
+      static VectorXs __array__(const LogCholeskyParameters & self, bp::object, bp::object)
       {
-        return self.toDynamicParameters();
+        return self.parameters;
       }
 
       struct Pickle : bp::pickle_suite

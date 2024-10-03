@@ -153,6 +153,10 @@ class TestInertiaBindings(TestCase):
         # test from PseudoInertia
         pin.PseudoInertia(pseudo)
 
+        # test array
+        pseudo_array = np.array(pseudo)
+        self.assertApprox(pseudo_array, pseudo.toMatrix())
+
     def test_log_cholesky(self):
         log_cholesky = pin.LogCholeskyParameters(np.random.randn(10))
         In = pin.Inertia.FromLogCholeskyParameters(log_cholesky)
@@ -178,6 +182,10 @@ class TestInertiaBindings(TestCase):
 
         # test calculateJacobian
         log_cholesky.calculateJacobian()
+
+        # test array
+        log_cholesky_array = np.array(log_cholesky)
+        self.assertApprox(log_cholesky_array, log_cholesky.parameters)
 
     def test_array(self):
         In = pin.Inertia.Random()
