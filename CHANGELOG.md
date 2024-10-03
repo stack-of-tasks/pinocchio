@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix compilation issue with MSCV and C++17 ([#2437](https://github.com/stack-of-tasks/pinocchio/pull/2437))
 - Fix `pinocchio-test-py-robot_wrapper` when building with SDF and collision support ([#2437](https://github.com/stack-of-tasks/pinocchio/pull/2437))
 - Fix crash when calling `Inertia::FromDynamicParameters` in Python with wrong vector size ([#2296](https://github.com/stack-of-tasks/pinocchio/pull/2296))
+- Fix `examples/cassie-simulation.py` and `examples/talos-simulation.py` ([#2443](https://github.com/stack-of-tasks/pinocchio/pull/2443))
 
 ### Changed
 
