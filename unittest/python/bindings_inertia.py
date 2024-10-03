@@ -113,6 +113,94 @@ class TestInertiaBindings(TestCase):
         I2 = pin.Inertia.FromDynamicParameters(v)
         self.assertApprox(I2, In)
 
+        # Test FromDynamicParameters raise an exception if the wrong
+        # vector size is provided
+        with self.assertRaises(ValueError):
+            pin.Inertia.FromDynamicParameters(np.array([]))
+
+    def test_pseudo_inertia(self):
+        In = pin.Inertia.Random()
+
+        pseudo = In.toPseudoInertia()
+
+        # test accessing mass, h, sigma
+        self.assertApprox(pseudo.mass, In.mass)
+        self.assertApprox(pseudo.h, In.mass * In.lever)
+        self.assertEqual(pseudo.sigma.shape, (3, 3))
+
+        # test toMatrix
+        _ = pseudo.toMatrix()
+
+        # test toDynamicParameters
+        params = pseudo.toDynamicParameters()
+
+        # test fromDynamicParameters
+        pseudo2 = pin.PseudoInertia.FromDynamicParameters(params)
+        self.assertApprox(pseudo.mass, pseudo2.mass)
+        self.assertApprox(pseudo.h, pseudo2.h)
+        self.assertApprox(pseudo.sigma, pseudo2.sigma)
+
+        # Test FromDynamicParameters raise an exception if the wrong
+        # vector size is provided
+        with self.assertRaises(ValueError):
+            pin.PseudoInertia.FromDynamicParameters(np.array([]))
+
+        # test fromMatrix
+        pseudo3 = pin.PseudoInertia.FromMatrix(pseudo.toMatrix())
+        self.assertApprox(pseudo.mass, pseudo3.mass)
+        self.assertApprox(pseudo.h, pseudo3.h)
+        self.assertApprox(pseudo.sigma, pseudo3.sigma)
+
+        # test fromInertia
+        pseudo4 = pin.PseudoInertia.FromInertia(In)
+        self.assertApprox(pseudo.mass, pseudo4.mass)
+        self.assertApprox(pseudo.h, pseudo4.h)
+        self.assertApprox(pseudo.sigma, pseudo4.sigma)
+
+        # test toInertia
+        self.assertApprox(pseudo4.toInertia(), In)
+
+        # test from PseudoInertia
+        pin.PseudoInertia(pseudo)
+
+        # test array
+        pseudo_array = np.array(pseudo)
+        self.assertApprox(pseudo_array, pseudo.toMatrix())
+
+    def test_log_cholesky(self):
+        log_cholesky = pin.LogCholeskyParameters(np.random.randn(10))
+        In = pin.Inertia.FromLogCholeskyParameters(log_cholesky)
+
+        # Test constructor with wrong vector size
+        with self.assertRaises(ValueError):
+            log_cholesky = pin.LogCholeskyParameters(np.array([]))
+
+        # test accessing parameters
+        self.assertEqual(log_cholesky.parameters.shape, (10,))
+
+        # test toDynamicParameters
+        params = log_cholesky.toDynamicParameters()
+        params2 = In.toDynamicParameters()
+        self.assertApprox(params, params2)
+
+        # test toPseudoInertia
+        pseudo = log_cholesky.toPseudoInertia()
+        pseudo2 = In.toPseudoInertia()
+        self.assertApprox(pseudo.mass, pseudo2.mass)
+        self.assertApprox(pseudo.h, pseudo2.h)
+        self.assertApprox(pseudo.sigma, pseudo2.sigma)
+
+        # test toInertia
+        In2 = log_cholesky.toInertia()
+        self.assertApprox(In, In2)
+
+        # test calculateJacobian
+        log_cholesky.calculateJacobian()
+
+        # test array
+        log_cholesky_array = np.array(log_cholesky)
+        self.assertApprox(log_cholesky_array, log_cholesky.parameters)
+
     def test_array(self):
         In = pin.Inertia.Random()
         I_array = np.array(In)

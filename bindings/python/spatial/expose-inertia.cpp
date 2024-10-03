@@ -18,6 +18,8 @@ namespace pinocchio
     void exposeInertia()
     {
       InertiaPythonVisitor<context::Inertia>::expose();
+      PseudoInertiaPythonVisitor<context::PseudoInertia>::expose();
+      LogCholeskyParametersPythonVisitor<context::LogCholeskyParameters>::expose();
       StdAlignedVectorPythonVisitor<context::Inertia>::expose("StdVec_Inertia");
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
       serialize<StdAlignedVectorPythonVisitor<context::Inertia>::vector_type>();

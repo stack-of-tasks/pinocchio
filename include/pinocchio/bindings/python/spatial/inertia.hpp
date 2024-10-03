@@ -19,6 +19,8 @@
 
 #if EIGENPY_VERSION_AT_MOST(2, 8, 1)
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Inertia)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::PseudoInertiaTpl)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::LogCholeskyParametersTpl)
 #endif
 
 namespace pinocchio
@@ -49,8 +51,6 @@ namespace pinocchio
       void visit(PyClass & cl) const
       {
         static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
-        PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-        PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         cl.def(
             "__init__",
             bp::make_constructor(
@@ -158,7 +158,7 @@ namespace pinocchio
             "I_{xz}, I_{yz}, I_{zz}]^T "
             "where I = I_C + mS^T(c)S(c) and I_C has its origin at the barycenter")
           .def(
-            "FromDynamicParameters", &Inertia::template FromDynamicParameters<VectorXs>,
+            "FromDynamicParameters", &InertiaPythonVisitor::fromDynamicParameters_proxy,
             bp::args("dynamic_parameters"),
             "Builds and inertia matrix from a vector of dynamic parameters."
             "\nThe parameters are given as dynamic_parameters = [m, mc_x, mc_y, mc_z, I_{xx}, "
@@ -192,6 +192,21 @@ namespace pinocchio
             "Z axis. Assumes a uniform density.")
           .staticmethod("FromCapsule")
 
+          .def(
+            "FromPseudoInertia", &Inertia::FromPseudoInertia, bp::args("pseudo_inertia"),
+            "Returns the Inertia created from a pseudo inertia object.")
+          .staticmethod("FromPseudoInertia")
+
+          .def(
+            "toPseudoInertia", &Inertia::toPseudoInertia, bp::arg("self"),
+            "Returns the pseudo inertia representation of the inertia.")
+
+          .def(
+            "FromLogCholeskyParameters", &Inertia::FromLogCholeskyParameters,
+            bp::args("log_cholesky_parameters"),
+            "Returns the Inertia created from log Cholesky parameters.")
+          .staticmethod("FromLogCholeskyParameters")
+
           .def("__array__", (Matrix6(Inertia::*)() const) & Inertia::matrix)
           .def(
             "__array__", &__array__,
@@ -200,7 +215,6 @@ namespace pinocchio
           .def_pickle(Pickle())
 #endif
           ;
-        PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       }
 
       static Scalar getMass(const Inertia & self)
@@ -236,6 +250,18 @@ namespace pinocchio
       static VectorXs toDynamicParameters_proxy(const Inertia & self)
       {
         return self.toDynamicParameters();
+      }
+
+      static Inertia fromDynamicParameters_proxy(const VectorXs & params)
+      {
+        if (params.rows() != 10 || params.cols() != 1)
+        {
+          std::ostringstream shape;
+          shape << "(" << params.rows() << ", " << params.cols() << ")";
+          throw std::invalid_argument(
+            "Wrong size: params" + shape.str() + " but should have the following shape (10, 1)");
+        }
+        return Inertia::FromDynamicParameters(params);
       }
 
       static Inertia *
@@ -294,6 +320,289 @@ namespace pinocchio
       };
 
     }; // struct InertiaPythonVisitor
+
+    template<typename PseudoInertia>
+    struct PseudoInertiaPythonVisitor
+    : public boost::python::def_visitor<PseudoInertiaPythonVisitor<PseudoInertia>>
+    {
+      enum
+      {
+        Options = PseudoInertia::Options
+      };
+      typedef typename PseudoInertia::Scalar Scalar;
+      typedef typename PseudoInertia::Vector3 Vector3;
+      typedef typename PseudoInertia::Matrix3 Matrix3;
+      typedef typename PseudoInertia::Vector10 Vector10;
+      typedef typename PseudoInertia::Matrix4 Matrix4;
+      typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> VectorXs;
+
+    public:
+      template<class PyClass>
+      void visit(PyClass & cl) const
+      {
+        cl.def(bp::init<const Scalar &, const Vector3 &, const Matrix3 &>(
+                 (bp::arg("self"), bp::arg("mass"), bp::arg("h"), bp::arg("sigma")),
+                 "Initialize from mass, vector part of the pseudo inertia and matrix part of the "
+                 "pseudo inertia."))
+          .def(bp::init<const PseudoInertia &>(
+            (bp::arg("self"), bp::arg("clone")), "Copy constructor"))
+          .add_property(
+            "mass", &PseudoInertiaPythonVisitor::getMass, &PseudoInertiaPythonVisitor::setMass,
+            "Mass of the Pseudo Inertia.")
+          .add_property(
+            "h", &PseudoInertiaPythonVisitor::getH, &PseudoInertiaPythonVisitor::setH,
+            "Vector part of the Pseudo Inertia.")
+          .add_property(
+            "sigma", &PseudoInertiaPythonVisitor::getSigma, &PseudoInertiaPythonVisitor::setSigma,
+            "Matrix part of the Pseudo Inertia.")
+
+          .def(
+            "toMatrix", &PseudoInertia::toMatrix, bp::arg("self"),
+            "Returns the pseudo inertia as a 4x4 matrix.")
+          .def(
+            "toDynamicParameters", &PseudoInertiaPythonVisitor::toDynamicParameters_proxy,
+            bp::arg("self"), "Returns the dynamic parameters representation.")
+          .def(
+            "toInertia", &PseudoInertia::toInertia, bp::arg("self"),
+            "Returns the inertia representation.")
+          .def(
+            "FromDynamicParameters", &PseudoInertiaPythonVisitor::fromDynamicParameters_proxy,
+            bp::args("dynamic_parameters"),
+            "Builds a pseudo inertia matrix from a vector of dynamic parameters."
+            "\nThe parameters are given as dynamic_parameters = [m, h_x, h_y, h_z, I_{xx}, "
+            "I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T.")
+          .staticmethod("FromDynamicParameters")
+
+          .def(
+            "FromMatrix", &PseudoInertia::FromMatrix, bp::args("pseudo_inertia_matrix"),
+            "Returns the Pseudo Inertia from a 4x4 matrix.")
+          .staticmethod("FromMatrix")
+
+          .def(
+            "FromInertia", &PseudoInertia::FromInertia, bp::args("inertia"),
+            "Returns the Pseudo Inertia from an Inertia object.")
+          .staticmethod("FromInertia")
+
+          .def("__array__", &PseudoInertia::toMatrix)
+          .def(
+            "__array__", &__array__,
+            (bp::arg("self"), bp::arg("dtype") = bp::object(), bp::arg("copy") = bp::object()))
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+          .def_pickle(Pickle())
+#endif
+          ;
+      }
+
+      static Scalar getMass(const PseudoInertia & self)
+      {
+        return self.mass;
+      }
+      static void setMass(PseudoInertia & self, Scalar mass)
+      {
+        self.mass = mass;
+      }
+
+      static Vector3 getH(const PseudoInertia & self)
+      {
+        return self.h;
+      }
+      static void setH(PseudoInertia & self, const Vector3 & h)
+      {
+        self.h = h;
+      }
+
+      static Matrix3 getSigma(const PseudoInertia & self)
+      {
+        return self.sigma;
+      }
+      static void setSigma(PseudoInertia & self, const Matrix3 & sigma)
+      {
+        self.sigma = sigma;
+      }
+
+      static VectorXs toDynamicParameters_proxy(const PseudoInertia & self)
+      {
+        return self.toDynamicParameters();
+      }
+
+      static PseudoInertia fromDynamicParameters_proxy(const VectorXs & params)
+      {
+        if (params.rows() != 10 || params.cols() != 1)
+        {
+          std::ostringstream shape;
+          shape << "(" << params.rows() << ", " << params.cols() << ")";
+          throw std::invalid_argument(
+            "Wrong size: params" + shape.str() + " but should have the following shape (10, 1)");
+        }
+        return PseudoInertia::FromDynamicParameters(params);
+      }
+
+      static void expose()
+      {
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 && EIGENPY_VERSION_AT_LEAST(2, 9, 0)
+        typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(PseudoInertia) HolderType;
+#else
+        typedef ::boost::python::detail::not_specified HolderType;
+#endif
+        bp::class_<PseudoInertia, HolderType>(
+          "PseudoInertia",
+          "This class represents a pseudo inertia matrix and it is defined by its mass, vector "
+          "part, and 3x3 matrix part.\n\n"
+          "Supported operations ...",
+          bp::no_init)
+          .def(PseudoInertiaPythonVisitor<PseudoInertia>())
+          .def(CopyableVisitor<PseudoInertia>())
+          .def(PrintableVisitor<PseudoInertia>())
+          .def(CastVisitor<PseudoInertia>())
+          .def(ExposeConstructorByCastVisitor<PseudoInertia, ::pinocchio::PseudoInertia>());
+      }
+
+    private:
+      static Matrix4 __array__(const PseudoInertia & self, bp::object, bp::object)
+      {
+        return self.toMatrix();
+      }
+
+      struct Pickle : bp::pickle_suite
+      {
+        static boost::python::tuple getinitargs(const PseudoInertia & pi)
+        {
+          return bp::make_tuple(pi.mass, pi.h, pi.sigma);
+        }
+
+        static bool getstate_manages_dict()
+        {
+          return true;
+        }
+      };
+
+    }; // struct PseudoInertiaPythonVisitor
+
+    template<typename LogCholeskyParameters>
+    struct LogCholeskyParametersPythonVisitor
+    : public boost::python::def_visitor<LogCholeskyParametersPythonVisitor<LogCholeskyParameters>>
+    {
+      enum
+      {
+        Options = LogCholeskyParameters::Options
+      };
+      typedef typename LogCholeskyParameters::Scalar Scalar;
+      typedef typename LogCholeskyParameters::Vector10 Vector10;
+      typedef typename LogCholeskyParameters::Matrix10 Matrix10;
+      typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> VectorXs;
+      typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Options> MatrixXs;
+
+    public:
+      template<class PyClass>
+      void visit(PyClass & cl) const
+      {
+        cl.def(
+            "__init__",
+            bp::make_constructor(
+              &LogCholeskyParametersPythonVisitor::makeFromParameters, bp::default_call_policies(),
+              bp::args("log_cholesky_parameters")),
+            "Initialize from log cholesky parameters.")
+          .def(bp::init<const LogCholeskyParameters &>(
+            (bp::arg("self"), bp::arg("clone")), "Copy constructor"))
+
+          .add_property(
+            "parameters", &LogCholeskyParametersPythonVisitor::getParameters,
+            &LogCholeskyParametersPythonVisitor::setParameters, "Log Cholesky parameters.")
+
+          .def(
+            "toDynamicParameters", &LogCholeskyParametersPythonVisitor::toDynamicParameters_proxy,
+            bp::arg("self"), "Returns the dynamic parameters representation.")
+          .def(
+            "toPseudoInertia", &LogCholeskyParameters::toPseudoInertia, bp::arg("self"),
+            "Returns the Pseudo Inertia representation.")
+          .def(
+            "toInertia", &LogCholeskyParameters::toInertia, bp::arg("self"),
+            "Returns the Inertia representation.")
+          .def(
+            "calculateJacobian", &LogCholeskyParametersPythonVisitor::calculateJacobian_proxy,
+            bp::arg("self"), "Calculates the Jacobian of the log Cholesky parameters.")
+
+          .def("__array__", &LogCholeskyParametersPythonVisitor::getParameters)
+          .def(
+            "__array__", &__array__,
+            (bp::arg("self"), bp::arg("dtype") = bp::object(), bp::arg("copy") = bp::object()))
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+          .def_pickle(Pickle())
+#endif
+          ;
+      }
+
+      static LogCholeskyParameters * makeFromParameters(const VectorXs & params)
+      {
+        if (params.rows() != 10 || params.cols() != 1)
+        {
+          std::ostringstream shape;
+          shape << "(" << params.rows() << ", " << params.cols() << ")";
+          throw std::invalid_argument(
+            "Wrong size: params" + shape.str() + " but should have the following shape (10, 1)");
+        }
+        return new LogCholeskyParameters(params);
+      }
+
+      static VectorXs getParameters(const LogCholeskyParameters & self)
+      {
+        return self.parameters;
+      }
+      static void setParameters(LogCholeskyParameters & self, const Vector10 & parameters)
+      {
+        self.parameters = parameters;
+      }
+
+      static VectorXs toDynamicParameters_proxy(const LogCholeskyParameters & self)
+      {
+        return self.toDynamicParameters();
+      }
+
+      static MatrixXs calculateJacobian_proxy(const LogCholeskyParameters & self)
+      {
+        return self.calculateJacobian();
+      }
+
+      static void expose()
+      {
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 && EIGENPY_VERSION_AT_LEAST(2, 9, 0)
+        typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(LogCholeskyParameters) HolderType;
+#else
+        typedef ::boost::python::detail::not_specified HolderType;
+#endif
+        bp::class_<LogCholeskyParameters, HolderType>(
+          "LogCholeskyParameters",
+          "This class represents log Cholesky parameters.\n\n"
+          "Supported operations ...",
+          bp::no_init)
+          .def(LogCholeskyParametersPythonVisitor<LogCholeskyParameters>())
+          .def(CopyableVisitor<LogCholeskyParameters>())
+          .def(PrintableVisitor<LogCholeskyParameters>())
+          .def(CastVisitor<LogCholeskyParameters>())
+          .def(ExposeConstructorByCastVisitor<
+               LogCholeskyParameters, ::pinocchio::LogCholeskyParameters>());
+      }
+
+    private:
+      static VectorXs __array__(const LogCholeskyParameters & self, bp::object, bp::object)
+      {
+        return self.parameters;
+      }
+
+      struct Pickle : bp::pickle_suite
+      {
+        static boost::python::tuple getinitargs(const LogCholeskyParameters & lcp)
+        {
+          return bp::make_tuple(lcp.parameters);
+        }
+
+        static bool getstate_manages_dict()
+        {
+          return true;
+        }
+      };
+
+    }; // struct LogCholeskyParametersPythonVisitor
 
   } // namespace python
 } // namespace pinocchio
