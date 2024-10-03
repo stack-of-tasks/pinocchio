@@ -1,8 +1,8 @@
 from time import sleep
 
+import example_robot_data
 import numpy as np
 import pinocchio
-import example_robot_data
 from pinocchio.visualize import GepettoVisualizer
 
 robot = example_robot_data.load("cassie")
