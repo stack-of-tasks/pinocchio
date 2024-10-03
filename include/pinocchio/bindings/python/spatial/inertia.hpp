@@ -426,7 +426,9 @@ namespace pinocchio
           bp::no_init)
           .def(PseudoInertiaPythonVisitor<PseudoInertia>())
           .def(CopyableVisitor<PseudoInertia>())
-          .def(PrintableVisitor<PseudoInertia>());
+          .def(PrintableVisitor<PseudoInertia>())
+          .def(CastVisitor<PseudoInertia>())
+          .def(ExposeConstructorByCastVisitor<PseudoInertia, ::pinocchio::PseudoInertia>());
       }
 
     private:
@@ -530,8 +532,10 @@ namespace pinocchio
           bp::no_init)
           .def(LogCholeskyParametersPythonVisitor<LogCholeskyParameters>())
           .def(CopyableVisitor<LogCholeskyParameters>())
-          .def(PrintableVisitor<LogCholeskyParameters>());
-        // .def(CastVisitor<LogCholeskyParameters>())
+          .def(PrintableVisitor<LogCholeskyParameters>())
+          .def(CastVisitor<LogCholeskyParameters>())
+          .def(ExposeConstructorByCastVisitor<
+               LogCholeskyParameters, ::pinocchio::LogCholeskyParameters>());
       }
 
     private:

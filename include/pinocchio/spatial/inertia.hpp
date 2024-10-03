@@ -1067,6 +1067,15 @@ namespace pinocchio
       return FromDynamicParameters(dynamic_params);
     }
 
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    PseudoInertiaTpl<NewScalar, Options> cast() const
+    {
+      return PseudoInertiaTpl<NewScalar, Options>(
+        pinocchio::cast<NewScalar>(mass), h.template cast<NewScalar>(),
+        sigma.template cast<NewScalar>());
+    }
+
     void disp_impl(std::ostream & os) const
     {
       os << "  m = " << mass << "\n"
@@ -1263,6 +1272,13 @@ namespace pinocchio
       // clang-format on
 
       return jacobian;
+    }
+
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    LogCholeskyParametersTpl<NewScalar, Options> cast() const
+    {
+      return LogCholeskyParametersTpl<NewScalar, Options>(parameters.template cast<NewScalar>());
     }
 
     void disp_impl(std::ostream & os) const
