@@ -351,6 +351,9 @@ namespace pinocchio
             "toDynamicParameters", &PseudoInertiaPythonVisitor::toDynamicParameters_proxy,
             bp::arg("self"), "Returns the dynamic parameters representation.")
           .def(
+            "toInertia", &PseudoInertia::toInertia, bp::arg("self"),
+            "Returns the inertia representation.")
+          .def(
             "FromDynamicParameters", &PseudoInertia::template FromDynamicParameters<VectorXs>,
             bp::args("dynamic_parameters"),
             "Builds a pseudo inertia matrix from a vector of dynamic parameters."

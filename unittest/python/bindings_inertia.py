@@ -147,6 +147,9 @@ class TestInertiaBindings(TestCase):
         self.assertApprox(pseudo.h, pseudo4.h)
         self.assertApprox(pseudo.sigma, pseudo4.sigma)
 
+        # test toInertia
+        self.assertApprox(pseudo4.toInertia(), In)
+
         # test from PseudoInertia
         pin.PseudoInertia(pseudo)
 
