@@ -158,7 +158,7 @@ namespace pinocchio
             "I_{xz}, I_{yz}, I_{zz}]^T "
             "where I = I_C + mS^T(c)S(c) and I_C has its origin at the barycenter")
           .def(
-            "FromDynamicParameters", &Inertia::template FromDynamicParameters<VectorXs>,
+            "FromDynamicParameters", &InertiaPythonVisitor::fromDynamicParameters_proxy,
             bp::args("dynamic_parameters"),
             "Builds and inertia matrix from a vector of dynamic parameters."
             "\nThe parameters are given as dynamic_parameters = [m, mc_x, mc_y, mc_z, I_{xx}, "
@@ -250,6 +250,18 @@ namespace pinocchio
       static VectorXs toDynamicParameters_proxy(const Inertia & self)
       {
         return self.toDynamicParameters();
+      }
+
+      static Inertia fromDynamicParameters_proxy(const VectorXs & params)
+      {
+        if (params.rows() != 10 || params.cols() != 1)
+        {
+          std::ostringstream shape;
+          shape << "(" << params.rows() << ", " << params.cols() << ")";
+          throw std::invalid_argument(
+            "Wrong size: params" + shape.str() + " but should have the following shape (10, 1)");
+        }
+        return Inertia::FromDynamicParameters(params);
       }
 
       static Inertia *
@@ -354,7 +366,7 @@ namespace pinocchio
             "toInertia", &PseudoInertia::toInertia, bp::arg("self"),
             "Returns the inertia representation.")
           .def(
-            "FromDynamicParameters", &PseudoInertia::template FromDynamicParameters<VectorXs>,
+            "FromDynamicParameters", &PseudoInertiaPythonVisitor::fromDynamicParameters_proxy,
             bp::args("dynamic_parameters"),
             "Builds a pseudo inertia matrix from a vector of dynamic parameters."
             "\nThe parameters are given as dynamic_parameters = [m, h_x, h_y, h_z, I_{xx}, "
@@ -411,6 +423,18 @@ namespace pinocchio
       static VectorXs toDynamicParameters_proxy(const PseudoInertia & self)
       {
         return self.toDynamicParameters();
+      }
+
+      static PseudoInertia fromDynamicParameters_proxy(const VectorXs & params)
+      {
+        if (params.rows() != 10 || params.cols() != 1)
+        {
+          std::ostringstream shape;
+          shape << "(" << params.rows() << ", " << params.cols() << ")";
+          throw std::invalid_argument(
+            "Wrong size: params" + shape.str() + " but should have the following shape (10, 1)");
+        }
+        return PseudoInertia::FromDynamicParameters(params);
       }
 
       static void expose()
@@ -472,7 +496,12 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass & cl) const
       {
-        cl.def(bp::init<const VectorXs &>((bp::arg("self"), bp::arg("log_cholesky_parameters"))))
+        cl.def(
+            "__init__",
+            bp::make_constructor(
+              &LogCholeskyParametersPythonVisitor::makeFromParameters, bp::default_call_policies(),
+              bp::args("log_cholesky_parameters")),
+            "Initialize from log cholesky parameters.")
           .def(bp::init<const LogCholeskyParameters &>(
             (bp::arg("self"), bp::arg("clone")), "Copy constructor"))
 
@@ -501,6 +530,18 @@ namespace pinocchio
           .def_pickle(Pickle())
 #endif
           ;
+      }
+
+      static LogCholeskyParameters * makeFromParameters(const VectorXs & params)
+      {
+        if (params.rows() != 10 || params.cols() != 1)
+        {
+          std::ostringstream shape;
+          shape << "(" << params.rows() << ", " << params.cols() << ")";
+          throw std::invalid_argument(
+            "Wrong size: params" + shape.str() + " but should have the following shape (10, 1)");
+        }
+        return new LogCholeskyParameters(params);
       }
 
       static VectorXs getParameters(const LogCholeskyParameters & self)

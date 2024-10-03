@@ -113,6 +113,11 @@ class TestInertiaBindings(TestCase):
         I2 = pin.Inertia.FromDynamicParameters(v)
         self.assertApprox(I2, In)
 
+        # Test FromDynamicParameters raise an exception if the wrong
+        # vector size is provided
+        with self.assertRaises(ValueError):
+            pin.Inertia.FromDynamicParameters(np.array([]))
+
     def test_pseudo_inertia(self):
         In = pin.Inertia.Random()
 
@@ -134,6 +139,11 @@ class TestInertiaBindings(TestCase):
         self.assertApprox(pseudo.mass, pseudo2.mass)
         self.assertApprox(pseudo.h, pseudo2.h)
         self.assertApprox(pseudo.sigma, pseudo2.sigma)
+
+        # Test FromDynamicParameters raise an exception if the wrong
+        # vector size is provided
+        with self.assertRaises(ValueError):
+            pin.PseudoInertia.FromDynamicParameters(np.array([]))
 
         # test fromMatrix
         pseudo3 = pin.PseudoInertia.FromMatrix(pseudo.toMatrix())
@@ -160,6 +170,10 @@ class TestInertiaBindings(TestCase):
     def test_log_cholesky(self):
         log_cholesky = pin.LogCholeskyParameters(np.random.randn(10))
         In = pin.Inertia.FromLogCholeskyParameters(log_cholesky)
+
+        # Test constructor with wrong vector size
+        with self.assertRaises(ValueError):
+            log_cholesky = pin.LogCholeskyParameters(np.array([]))
 
         # test accessing parameters
         log_cholesky.parameters
