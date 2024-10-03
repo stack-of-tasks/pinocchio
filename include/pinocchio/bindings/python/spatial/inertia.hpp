@@ -51,8 +51,6 @@ namespace pinocchio
       void visit(PyClass & cl) const
       {
         static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
-        PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-        PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         cl.def(
             "__init__",
             bp::make_constructor(
@@ -217,7 +215,6 @@ namespace pinocchio
           .def_pickle(Pickle())
 #endif
           ;
-        PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       }
 
       static Scalar getMass(const Inertia & self)
@@ -377,7 +374,6 @@ namespace pinocchio
           .def_pickle(Pickle())
 #endif
           ;
-        PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       }
 
       static Scalar getMass(const PseudoInertia & self)
@@ -496,7 +492,6 @@ namespace pinocchio
           .def_pickle(Pickle())
 #endif
           ;
-        PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       }
 
       static VectorXs getParameters(const LogCholeskyParameters & self)
