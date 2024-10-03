@@ -8,7 +8,7 @@
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/joint/joints.hpp"
-
+#include "pinocchio/algorithm/contact-info.hpp"
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/foreach.hpp>
@@ -21,6 +21,7 @@
 #include <limits>
 #include <iostream>
 #include <unordered_map>
+#include <map>
 
 namespace pinocchio
 {
@@ -325,6 +326,55 @@ namespace pinocchio
         void goThroughElement(const ptree & el, const MjcfGraph & currentGraph);
       };
 
+      /*
+      typedef struct mjsEquality_ {      // equality specification
+        mjsElement* element;             // element type
+        mjString* name;                  // name
+        mjtEq type;                      // constraint type
+        double data[mjNEQDATA];          // type-dependent data
+        mjtByte active;                  // is equality initially active
+        mjString* name1;                 // name of object 1
+        mjString* name2;                 // name of object 2
+        mjtNum solref[mjNREF];           // solver reference
+        mjtNum solimp[mjNIMP];           // solver impedance
+        mjString* info;                  // message appended to errors
+      } mjsEquality;
+      */
+      struct PINOCCHIO_PARSERS_DLLAPI MjcfEquality
+      {
+        typedef boost::property_tree::ptree ptree;
+
+        // Optional name of the equality constraint
+        std::string name;
+
+        // Type of the constraint: (connect for now)
+        std::string type;
+
+        // // Optional class for setting unspecified attributes
+        // std::string class;
+
+        // active: 'true' or 'false' (default: 'true')
+        // solref and solimp
+
+        // Name of the first body participating in the constraint
+        std::string body1;
+        // Name of the second body participating in the constraint (optional, default: world)
+        std::string body2;
+
+        // Coordinates of the 3D anchor point where the two bodies are connected.
+        // Specified relative to the local coordinate frame of the first body.
+        Eigen::Vector3d anchor = Eigen::Vector3d::Zero();
+
+        // TODO: implement when weld is introduced
+        // This attribute specifies the relative pose (3D position followed by 4D quaternion
+        // orientation) of body2 relative to body1. If the quaternion part (i.e., last 4 components
+        // of the vector) are all zeros, as in the default setting, this attribute is ignored and
+        // the relative pose is the one corresponding to the model reference pose in qpos0. The
+        // unusual default is because all equality constraint types share the same default for their
+        // numeric parameters.
+        // Eigen::VectorXd relativePose = Eigen::VectorXd::Zero(7);
+      };
+
       /// @brief The graph which contains all information taken from the mjcf file
       struct PINOCCHIO_PARSERS_DLLAPI MjcfGraph
       {
@@ -337,6 +387,7 @@ namespace pinocchio
         typedef std::unordered_map<std::string, MjcfMesh> MeshMap_t;
         typedef std::unordered_map<std::string, MjcfTexture> TextureMap_t;
         typedef std::unordered_map<std::string, Eigen::VectorXd> ConfigMap_t;
+        typedef std::map<std::string, MjcfEquality> EqualityMap_t;
 
         // Compiler Info needed to properly parse the rest of file
         MjcfCompiler compilerInfo;
@@ -352,6 +403,8 @@ namespace pinocchio
         TextureMap_t mapOfTextures;
         // Map of model configurations
         ConfigMap_t mapOfConfigs;
+        // Map of equality constraints
+        EqualityMap_t mapOfEqualities;
 
         // reference configuration
         Eigen::VectorXd referenceConfig;
@@ -428,6 +481,10 @@ namespace pinocchio
         /// @param el ptree keyframe node
         void parseKeyFrame(const ptree & el);
 
+        /// @brief Parse all the info from the equality tag
+        /// @param el ptree equality node
+        void parseEquality(const ptree & el);
+
         /// @brief parse the mjcf file into a graph
         void parseGraph();
 
@@ -468,6 +525,13 @@ namespace pinocchio
         /// @param keyframe Keyframe to add
         /// @param keyName Name of the keyframe
         void addKeyFrame(const Eigen::VectorXd & keyframe, const std::string & keyName);
+
+        /// @brief Parse the equality constraints and add them to the model
+        /// @param model Model to add the constraints to
+        /// @param contact_models Vector of contact models to add the constraints to
+        void parseContactInformation(
+          const Model & model,
+          PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models);
 
         /// @brief Fill geometry model with all the info taken from the mjcf model file
         /// @param type Type of geometry to parse (COLLISION or VISUAL)

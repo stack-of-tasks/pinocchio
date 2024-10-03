@@ -1,23 +1,24 @@
-# This examples shows how to perform collision detection between the end-effector of a robot and a point cloud depicted as a Height Field
+# This examples shows how to perform collision detection between the end-effector of a
+# robot and a point cloud depicted as a Height Field
 # Note: this feature requires Meshcat to be installed, this can be done using
 # pip install --user meshcat
 
-import pinocchio as pin
+import sys
+from pathlib import Path
+
 import hppfcl as fcl
 import numpy as np
-import sys
-from os.path import dirname, join, abspath
-
+import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+pinocchio_model_dir = Path(__file__).parent.parent / "models"
 
-model_path = join(pinocchio_model_dir, "example-robot-data/robots")
+model_path = pinocchio_model_dir / "example-robot-data/robots"
 mesh_dir = pinocchio_model_dir
 urdf_filename = "panda.urdf"
-urdf_model_path = join(join(model_path, "panda_description/urdf"), urdf_filename)
+urdf_model_path = model_path / "panda_description/urdf" / urdf_filename
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
     urdf_model_path, mesh_dir
@@ -63,14 +64,14 @@ height_field_placement = point_cloud_placement * pin.SE3(
 go_point_cloud = pin.GeometryObject(
     "point_cloud", 0, point_cloud_placement, point_cloud
 )
-go_point_cloud.meshColor = np.ones((4))
+go_point_cloud.meshColor = np.ones(4)
 collision_model.addGeometryObject(go_point_cloud)
 visual_model.addGeometryObject(go_point_cloud)
 
 go_height_field = pin.GeometryObject(
     "height_field", 0, height_field_placement, height_field
 )
-go_height_field.meshColor = np.ones((4))
+go_height_field.meshColor = np.ones(4)
 height_field_collision_id = collision_model.addGeometryObject(go_height_field)
 visual_model.addGeometryObject(go_height_field)
 
@@ -86,7 +87,8 @@ collision_pair = pin.CollisionPair(height_field_collision_id, panda_hand_collisi
 collision_model.addCollisionPair(collision_pair)
 
 # Start a new MeshCat server and client.
-# Note: the server can also be started separately using the "meshcat-server" command in a terminal:
+# Note: the server can also be started separately using the "meshcat-server" command in
+# a terminal:
 # this enables the server to remain active after the current script ends.
 #
 # Option open=True pens the visualizer.
@@ -96,7 +98,8 @@ try:
     viz.initViewer(open=True)
 except ImportError as err:
     print(
-        "Error while initializing the viewer. It seems you should install Python meshcat"
+        "Error while initializing the viewer. "
+        "It seems you should install Python meshcat"
     )
     print(err)
     sys.exit(0)

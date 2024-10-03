@@ -1,7 +1,7 @@
 import unittest
+
 import pinocchio as pin
 from pinocchio.utils import np, npl, rand, zero
-
 from test_case import PinocchioTestCase as TestCase
 
 # This whole file seems to be outdated and superseded by more recent tests
@@ -37,7 +37,8 @@ class TestSE3(TestCase):
 
         # Currently, the different cases do not throw the same exception type.
         # To have a more robust test, only Exception is checked.
-        # In the comments, the most specific actual exception class at the time of writing
+        # In the comments, the most specific actual exception class at the time of
+        # writing
         p = rand(5)
         with self.assertRaises(Exception):  # RuntimeError
             m * p

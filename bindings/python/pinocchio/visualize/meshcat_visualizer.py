@@ -1,13 +1,14 @@
+import os
+import warnings
+from pathlib import Path
+from typing import ClassVar, List
+
+import numpy as np
+
 from .. import pinocchio_pywrap_default as pin
 from ..deprecation import DeprecatedWarning
 from ..utils import npToTuple
-
 from . import BaseVisualizer
-
-import os
-import warnings
-import numpy as np
-from typing import List
 
 try:
     import meshcat
@@ -17,11 +18,11 @@ except ImportError:
 else:
     import_meshcat_succeed = True
 
-# DaeMeshGeometry
-import xml.etree.ElementTree as Et
 import base64
 
-from typing import Optional, Any, Dict, Union, Set
+# DaeMeshGeometry
+import xml.etree.ElementTree as Et
+from typing import Any, Dict, Optional, Set, Union
 
 MsgType = Dict[str, Union[str, bytes, bool, float, "MsgType"]]
 
@@ -62,7 +63,7 @@ def hasMeshFileInfo(geometry_object):
     if geometry_object.meshPath == "":
         return False
 
-    _, file_extension = os.path.splitext(geometry_object.meshPath)
+    file_extension = Path(geometry_object.meshPath).suffix
     if file_extension.lower() in [".dae", ".obj", ".stl"]:
         return True
 
@@ -108,14 +109,16 @@ if import_meshcat_succeed:
             # Init base class
             super().__init__()
 
+            dae_path = Path(dae_path)
+
             # Attributes to be specified by the user
             self.path = None
             self.material = None
             self.intrinsic_transform = mg.tf.identity_matrix()
 
             # Raw file content
-            dae_dir = os.path.dirname(dae_path)
-            with open(dae_path, "r") as text_file:
+            dae_dir = dae_path.parent
+            with dae_path.open() as text_file:
                 self.dae_raw = text_file.read()
 
             # Parse the image resource in Collada file
@@ -140,11 +143,11 @@ if import_meshcat_succeed:
 
                 # Encode texture in base64
                 img_path_abs = img_path
-                if not os.path.isabs(img_path):
-                    img_path_abs = os.path.normpath(os.path.join(dae_dir, img_path_abs))
-                if not os.path.isfile(img_path_abs):
+                if not img_path.is_absolute():
+                    img_path_abs = os.path.normpath(dae_dir / img_path_abs)
+                if not img_path_abs.is_file():
                     raise UserWarning(f"Texture '{img_path}' not found.")
-                with open(img_path_abs, "rb") as img_file:
+                with Path(img_path_abs).open("rb") as img_file:
                     img_data = base64.b64encode(img_file.read())
                 img_uri = f"data:image/png;base64,{img_data.decode('utf-8')}"
                 self.img_resources[img_path] = img_uri
@@ -273,6 +276,7 @@ if (
         colors[:] = np.ones(3)
         mesh = mg.TriangularMeshGeometry(all_points, all_faces, colors)
         return mesh
+
 else:
 
     def loadOctree(octree):
@@ -414,6 +418,7 @@ if WITH_HPP_FCL_BINDINGS:
             )
 
         return mesh
+
 else:
 
     def loadMesh(mesh):
@@ -456,10 +461,7 @@ def loadPrimitive(geometry_object):
             obj = loadMesh(geom)
 
     if obj is None:
-        msg = "Unsupported geometry type for %s (%s)" % (
-            geometry_object.name,
-            type(geom),
-        )
+        msg = f"Unsupported geometry type for {geometry_object.name} ({type(geom)})"
         warnings.warn(msg, category=UserWarning, stacklevel=2)
 
     return obj
@@ -540,7 +542,7 @@ class MeshcatVisualizer(BaseVisualizer):
 
     FORCE_SCALE = 0.06
     FRAME_VEL_COLOR = 0x00FF00
-    CAMERA_PRESETS = {
+    CAMERA_PRESETS: ClassVar = {
         "preset0": [
             np.zeros(3),  # target
             [3.0, 0.0, 1.0],  # anchor point (x, z, -y) lhs coords
@@ -570,11 +572,12 @@ class MeshcatVisualizer(BaseVisualizer):
         if not import_meshcat_succeed:
             msg = (
                 "Error while importing the viewer client.\n"
-                "Check whether meshcat is properly installed (pip install --user meshcat)."
+                "Check whether meshcat is properly installed "
+                "(pip install --user meshcat)."
             )
             raise ImportError(msg)
 
-        super(MeshcatVisualizer, self).__init__(
+        super().__init__(
             model,
             collision_model,
             visual_model,
@@ -594,7 +597,8 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def initViewer(self, viewer=None, open=False, loadModel=False, zmq_url=None):
         """Start a new MeshCat server and client.
-        Note: the server can also be started separately using the "meshcat-server" command in a terminal:
+        Note: the server can also be started separately using the "meshcat-server"
+        command in a terminal:
         this enables the server to remain active after the current script ends.
         """
 
@@ -726,10 +730,7 @@ class MeshcatVisualizer(BaseVisualizer):
                 obj = loadMesh(geom)
 
         if obj is None:
-            msg = "Unsupported geometry type for %s (%s)" % (
-                geometry_object.name,
-                type(geom),
-            )
+            msg = f"Unsupported geometry type for {geometry_object.name} ({type(geom)})"
             warnings.warn(msg, category=UserWarning, stacklevel=2)
             obj = None
 
@@ -738,12 +739,15 @@ class MeshcatVisualizer(BaseVisualizer):
     def loadMeshFromFile(self, geometry_object):
         # Mesh path is empty if Pinocchio is built without HPP-FCL bindings
         if geometry_object.meshPath == "":
-            msg = "Display of geometric primitives is supported only if pinocchio is build with HPP-FCL bindings."
+            msg = (
+                "Display of geometric primitives is supported only if "
+                "pinocchio is build with HPP-FCL bindings."
+            )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
             return None
 
         # Get file type from filename extension.
-        _, file_extension = os.path.splitext(geometry_object.meshPath)
+        file_extension = Path(geometry_object.meshPath).suffix
         if file_extension.lower() == ".dae":
             obj = DaeMeshGeometry(geometry_object.meshPath)
         elif file_extension.lower() == ".obj":
@@ -751,7 +755,7 @@ class MeshcatVisualizer(BaseVisualizer):
         elif file_extension.lower() == ".stl":
             obj = mg.StlMeshGeometry.from_file(geometry_object.meshPath)
         else:
-            msg = "Unknown mesh file format: {}.".format(geometry_object.meshPath)
+            msg = f"Unknown mesh file format: {geometry_object.meshPath}."
             warnings.warn(msg, category=UserWarning, stacklevel=2)
             obj = None
 
@@ -798,9 +802,9 @@ class MeshcatVisualizer(BaseVisualizer):
                 warnings.warn(msg, category=UserWarning, stacklevel=2)
                 return
         except Exception as e:
-            msg = "Error while loading geometry object: %s\nError message:\n%s" % (
-                geometry_object.name,
-                e,
+            msg = (
+                "Error while loading geometry object: "
+                f"{geometry_object.name}\nError message:\n{e}"
             )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
             return
@@ -809,7 +813,8 @@ class MeshcatVisualizer(BaseVisualizer):
             meshcat_node.set_object(obj)
         elif isinstance(obj, (mg.Geometry, mg.ReferenceSceneElement)):
             material = mg.MeshPhongMaterial()
-            # Set material color from URDF, converting for triplet of doubles to a single int.
+            # Set material color from URDF, converting for triplet of doubles to a
+            # single int.
 
             def to_material_color(rgba) -> int:
                 """Convert rgba color as list into rgba color as int"""
@@ -933,7 +938,9 @@ class MeshcatVisualizer(BaseVisualizer):
         self.viewer[viewer_name].delete()
 
     def display(self, q=None):
-        """Display the robot at configuration q in the viewer by placing all the bodies."""
+        """
+        Display the robot at configuration q in the viewer by placing all the bodies
+        """
         if q is not None:
             pin.forwardKinematics(self.model, self.data, q)
 
@@ -959,7 +966,8 @@ class MeshcatVisualizer(BaseVisualizer):
             visual_name = self.getViewerNodeName(visual, geometry_type)
             # Get mesh pose.
             M = geom_data.oMg[geom_model.getGeometryId(visual.name)]
-            # Manage scaling: force scaling even if this should be normally handled by MeshCat (but there is a bug here)
+            # Manage scaling: force scaling even if this should be normally handled by
+            # MeshCat (but there is a bug here)
             geom = visual.geometry
             if WITH_HPP_FCL_BINDINGS and isinstance(
                 geom, (hppfcl.Plane, hppfcl.Halfspace)
@@ -1039,7 +1047,7 @@ class MeshcatVisualizer(BaseVisualizer):
 
         for fid, frame in enumerate(self.model.frames):
             if frame_ids is None or fid in frame_ids:
-                frame_viz_name = "%s/%s" % (self.viewerFramesGroupName, frame.name)
+                frame_viz_name = f"{self.viewerFramesGroupName}/{frame.name}"
                 self.viewer[frame_viz_name].set_object(
                     mg.LineSegments(
                         mg.PointsGeometry(
@@ -1061,7 +1069,7 @@ class MeshcatVisualizer(BaseVisualizer):
         pin.updateFramePlacements(self.model, self.data)
         for fid in self.frame_ids:
             frame_name = self.model.frames[fid].name
-            frame_viz_name = "%s/%s" % (self.viewerFramesGroupName, frame_name)
+            frame_viz_name = f"{self.viewerFramesGroupName}/{frame_name}"
             self.viewer[frame_viz_name].set_transform(self.data.oMf[fid].homogeneous)
 
     def drawFrameVelocities(self, frame_id: int, v_scale=0.2, color=FRAME_VEL_COLOR):
@@ -1069,7 +1077,7 @@ class MeshcatVisualizer(BaseVisualizer):
         vFr = pin.getFrameVelocity(
             self.model, self.data, frame_id, pin.LOCAL_WORLD_ALIGNED
         )
-        line_group_name = "ee_vel/{}".format(frame_id)
+        line_group_name = f"ee_vel/{frame_id}"
         self._draw_vectors_from_frame(
             [v_scale * vFr.linear], [frame_id], [line_group_name], [color]
         )

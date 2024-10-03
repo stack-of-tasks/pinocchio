@@ -1,9 +1,6 @@
-from __future__ import print_function
-
 import numpy as np
-from numpy.linalg import norm, solve
-
 import pinocchio
+from numpy.linalg import norm, solve
 
 model = pinocchio.buildSampleModelManipulator()
 data = model.createData()
@@ -40,8 +37,10 @@ if success:
     print("Convergence achieved!")
 else:
     print(
-        "\nWarning: the iterative algorithm has not reached convergence to the desired precision"
+        "\n"
+        "Warning: the iterative algorithm has not reached convergence "
+        "to the desired precision"
     )
 
-print("\nresult: %s" % q.flatten().tolist())
-print("\nfinal error: %s" % err.T)
+print(f"\nresult: {q.flatten().tolist()}")
+print(f"\nfinal error: {err.T}")

@@ -1,20 +1,20 @@
 # NOTE: this example needs gepetto-gui to be installed
 # usage: launch gepetto-gui and then run this test
 
-import pinocchio as pin
 import sys
-from os.path import dirname, join, abspath
+from pathlib import Path
 
+import pinocchio as pin
 from pinocchio.visualize import GepettoVisualizer
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+pinocchio_model_dir = Path(__file__).parent.parent / "models"
 
-model_path = join(pinocchio_model_dir, "example-robot-data/robots")
+model_path = pinocchio_model_dir / "example-robot-data/robots"
 mesh_dir = pinocchio_model_dir
 urdf_filename = "talos_reduced.urdf"
-urdf_model_path = join(join(model_path, "talos_data/robots"), urdf_filename)
+urdf_model_path = model_path / "talos_data/robots" / urdf_filename
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
     urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()
@@ -26,7 +26,8 @@ try:
     viz.initViewer()
 except ImportError as err:
     print(
-        "Error while initializing the viewer. It seems you should install gepetto-viewer"
+        "Error while initializing the viewer. "
+        "It seems you should install gepetto-viewer"
     )
     print(err)
     sys.exit(0)
@@ -35,7 +36,8 @@ try:
     viz.loadViewerModel("pinocchio")
 except AttributeError as err:
     print(
-        "Error while loading the viewer model. It seems you should start gepetto-viewer"
+        "Error while loading the viewer model. "
+        "It seems you should start gepetto-viewer"
     )
     print(err)
     sys.exit(0)

@@ -4,11 +4,10 @@
 
 import numpy as np
 import pinocchio as pin
+from dcrba import DCRBA, DRNEA, Coriolis
 from numpy.linalg import norm
 from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.utils import rand
-
-from dcrba import DCRBA, DRNEA, Coriolis
 
 np.random.seed(0)
 

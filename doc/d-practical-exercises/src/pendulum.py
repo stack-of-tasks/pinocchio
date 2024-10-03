@@ -15,15 +15,15 @@ import time
 
 import numpy as np
 import pinocchio as pin
+from display import Display
 from numpy.linalg import inv
 from pinocchio.utils import rand
-
-from display import Display
 
 
 class Visual:
     """
-    Class representing one 3D mesh of the robot, to be attached to a joint. The class contains:
+    Class representing one 3D mesh of the robot, to be attached to a joint. The class
+    contains:
     * the name of the 3D objects inside Gepetto viewer.
     * the ID of the joint in the kinematic tree to which the body is attached.
     * the placement of the body with respect to the joint frame.
@@ -45,11 +45,12 @@ class Pendulum:
     Define a class Robot with 7DOF (shoulder=3 + elbow=1 + wrist=3).
     The configuration is nq=7. The velocity is the same.
     The members of the class are:
-    * viewer: a display encapsulating a gepetto viewer client to create 3D objects and place them.
+    * viewer: a display encapsulating a gepetto viewer client to create 3D objects and
+      place them.
     * model: the kinematic tree of the robot.
     * data: the temporary variables to be used by the kinematic algorithms.
-    * visuals: the list of all the 'visual' 3D objects to render the robot, each element of the list being
-    an object Visual (see above).
+    * visuals: the list of all the 'visual' 3D objects to render the robot, each element
+      of the list being an object Visual (see above).
 
     See tp1.py for an example of use.
     """

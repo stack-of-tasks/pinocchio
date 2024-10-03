@@ -199,7 +199,7 @@ def com_des(k):
 
 def squashing(model, data, q_in, Nin=N, epsin=eps, verbose=True):
     q = q_in.copy()
-    y = np.ones((constraint_dim))
+    y = np.ones(constraint_dim)
 
     _N_full = 200
 

@@ -2,19 +2,14 @@
 # Copyright (c) 2016 CNRS
 #
 
-from __future__ import print_function
-
-import numpy as np
-import pinocchio as pin
-from numpy.linalg import norm
-from pinocchio.robot_wrapper import RobotWrapper
-from pinocchio.utils import rand
 
 import lambdas
+import numpy as np
+import pinocchio as pin
 from lambdas import (
     FCross,
-    Mcross,
     MCross,
+    Mcross,
     adj,
     adjdual,
     ancestors,
@@ -23,6 +18,9 @@ from lambdas import (
     quad,
     td,
 )
+from numpy.linalg import norm
+from pinocchio.robot_wrapper import RobotWrapper
+from pinocchio.utils import rand
 
 
 def hessian(robot, q, crossterms=False):
@@ -111,9 +109,12 @@ class DCRBA:
                         T_jSd = np.array(H[:, d, j0:j1])  # this is 0 is d<=j
 
                         """
-                        assert( norm(T_iSd)<1e-6 or not joint_diff<i )  # d<i => TiSd=0
-                        assert( norm(T_jSd)<1e-6 or not joint_diff<j )  # d<j => TjSd=0
-                        assert( norm(T_jSd)<1e-6 or not norm(T_iSd)<1e-6 )  # TiSd=0 => TjSd=0
+                        # d<i => TiSd=0
+                        assert( norm(T_iSd)<1e-6 or not joint_diff<i )
+                        # d<j => TjSd=0
+                        assert( norm(T_jSd)<1e-6 or not joint_diff<j )
+                        # TiSd=0 => TjSd=0
+                        assert( norm(T_jSd)<1e-6 or not norm(T_iSd)<1e-6 )
                         assert( norm(T_iSd)>1e-6 )
                         """
 
@@ -123,7 +124,8 @@ class DCRBA:
                         if j < joint_diff:
                             dM[i0:i1, j0:j1, d] += Si.T * Yd * T_jSd
 
-                        # Make dM triangular by copying strict-upper triangle to lower one.
+                        # Make dM triangular by copying strict-upper triangle to lower
+                        # one.
                         if i != j:
                             dM[j0:j1, i0:i1, d] = dM[i0:i1, j0:j1, d].T
                         else:
@@ -203,7 +205,8 @@ class VRNEA:
                         H[:, k0:k1, j0:j1], YJ[:, i0:i1], [0, 0]
                     )
 
-            # Fill the border elements of levels below k Q[kk,k,:] and Q[kk,:,k] with kk<k
+            # Fill the border elements of levels below k
+            # Q[kk,k,:] and Q[kk,:,k] with kk<k
             for kk in ancestors(k)[:-1]:
                 kk0, kk1 = iv(kk)[0], iv(kk)[-1] + 1
                 _Skk = J[:, kk0:kk1]
@@ -377,7 +380,7 @@ class DRNEA:
                 Tkf = Yci * (-MCross(Sk, a[lk]) + MCross(MCross(Sk, v[lk]), v[lk]))
 
                 # Tk Si' fs = Tk Si' Ycrb[i] ai + Si' Ys (vs-vi) x (Sk x vlk)
-                #           =      ""           + Si' Ys vs x (Sk x vlk) - Si' Ys vi x (Sk x vlk)
+                #           =      ""           + Si' Ys vs x (Sk x vlk) - Si' Ys vi x (Sk x vlk)  # noqa E501
                 Tkf += Yvx[i] * MCross(Sk, v[lk])
 
                 R[i0:i1, k0:k1] = Si.T * Tkf

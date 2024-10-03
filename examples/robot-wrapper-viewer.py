@@ -3,11 +3,12 @@
 # integrating different kinds of viewers
 #
 
+from pathlib import Path
+from sys import argv
+
 import pinocchio as pin
 from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.visualize import GepettoVisualizer, MeshcatVisualizer
-from sys import argv
-from os.path import dirname, join, abspath
 
 # If you want to visualize the robot in this example,
 # you can choose which visualizer to employ
@@ -26,12 +27,12 @@ if len(argv) > 1:
 
 # Load the URDF model with RobotWrapper
 # Conversion with str seems to be necessary when executing this file with ipython
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+pinocchio_model_dir = Path(__file__).parent.parent / "models"
 
-model_path = join(pinocchio_model_dir, "example-robot-data/robots")
+model_path = pinocchio_model_dir / "example-robot-data/robots"
 mesh_dir = pinocchio_model_dir
 urdf_filename = "talos_reduced.urdf"
-urdf_model_path = join(join(model_path, "talos_data/robots"), urdf_filename)
+urdf_model_path = model_path / "talos_data/robots" / urdf_filename
 
 robot = RobotWrapper.BuildFromURDF(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 

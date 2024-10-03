@@ -66,6 +66,26 @@ BOOST_AUTO_TEST_CASE(build_model_without_rootLink)
   BOOST_CHECK(model.nq == 69);
 }
 
+BOOST_AUTO_TEST_CASE(build_model_with_root_joint_name)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.sdf");
+  const std::string dir = PINOCCHIO_MODEL_DIR;
+  const std::string rootLinkName = "WAIST_LINK0";
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
+  pinocchio::Model model;
+  pinocchio::sdf::buildModel(
+    filename, pinocchio::JointModelFreeFlyer(), model, contact_models, rootLinkName);
+  BOOST_CHECK(model.names[1] == "root_joint");
+
+  pinocchio::Model model_name;
+  const std::string name_ = "freeFlyer_joint";
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models_name;
+  pinocchio::sdf::buildModel(
+    filename, pinocchio::JointModelFreeFlyer(), name_, model_name, contact_models_name,
+    rootLinkName);
+  BOOST_CHECK(model_name.names[1] == name_);
+}
+
 BOOST_AUTO_TEST_CASE(compare_model_with_urdf)
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.sdf");

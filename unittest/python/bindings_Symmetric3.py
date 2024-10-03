@@ -1,8 +1,8 @@
 import unittest
-import pinocchio as pin
-import numpy as np
-from pinocchio.utils import eye, zero
 
+import numpy as np
+import pinocchio as pin
+from pinocchio.utils import eye, zero
 from test_case import PinocchioTestCase as TestCase
 
 

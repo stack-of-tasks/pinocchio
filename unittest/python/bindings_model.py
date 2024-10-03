@@ -1,7 +1,8 @@
 import unittest
+from pathlib import Path
+
 import pinocchio as pin
 from pinocchio.utils import np, zero
-
 from test_case import PinocchioTestCase as TestCase
 
 
@@ -106,11 +107,11 @@ class TestModel(TestCase):
         import pickle
 
         model = self.model
-        filename = "model.pickle"
-        with open(filename, "wb") as f:
+        filename = Path("model.pickle")
+        with filename.open("wb") as f:
             pickle.dump(model, f)
 
-        with open(filename, "rb") as f:
+        with filename.open("rb") as f:
             model_copy = pickle.load(f)
 
         self.assertTrue(model == model_copy)

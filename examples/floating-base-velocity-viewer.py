@@ -1,9 +1,9 @@
-import pinocchio as pin
-import numpy as np
-import hppfcl
-
-from pinocchio.visualize import MeshcatVisualizer
 from time import sleep
+
+import hppfcl
+import numpy as np
+import pinocchio as pin
+from pinocchio.visualize import MeshcatVisualizer
 
 
 def create_pin_cube_model(j0="freeflyer"):

@@ -1,5 +1,5 @@
-import pinocchio as pin
 import numpy as np
+import pinocchio as pin
 
 # Create model and data
 
@@ -24,7 +24,8 @@ pin.computeForwardKinematicsDerivatives(model, data, q, v, a)
 joint_name = "rleg6_joint"
 joint_id = model.getJointId(joint_name)
 
-# Derivatives of the spatial velocity with respect to the joint configuration and velocity vectors
+# Derivatives of the spatial velocity with respect to the joint configuration and
+# velocity vectors.
 
 (dv_dq, dv_dv) = pin.getJointVelocityDerivatives(
     model, data, joint_id, pin.ReferenceFrame.WORLD
@@ -34,7 +35,8 @@ joint_id = model.getJointId(joint_name)
     model, data, joint_id, pin.ReferenceFrame.LOCAL
 )
 
-# Derivatives of the spatial acceleration of the joint with respect to the joint configuration, velocity and acceleration vectors
+# Derivatives of the spatial acceleration of the joint with respect to the joint
+# configuration, velocity and acceleration vectors.
 
 (dv_dq, da_dq, da_dv, da_da) = pin.getJointAccelerationDerivatives(
     model, data, joint_id, pin.ReferenceFrame.WORLD

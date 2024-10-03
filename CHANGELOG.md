@@ -9,11 +9,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Default visualizer can be changed with `PINOCCHIO_VIEWER` environment variable ([#2419](https://github.com/stack-of-tasks/pinocchio/pull/2419))
+- Add more Python and C++ examples related to inverse kinematics with 3d tasks ([#2428](https://github.com/stack-of-tasks/pinocchio/pull/2428))
+- Add parsing of equality/connect tag for closed-loop chains for MJCF format ([#2413](https://github.com/stack-of-tasks/pinocchio/pull/2413))
+- Add compatibility with NumPy 2 `__array__` API ([#2436](https://github.com/stack-of-tasks/pinocchio/pull/2436))
+- Added argument to let users decide of root joint name when parsing models (urdf, mjcf, sdf) ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
+- Allow use of `pathlib.Path | str` for paths in python bindings ([#2431](https://github.com/stack-of-tasks/pinocchio/pull/2431))
 
 ### Fixed
 - Fix linkage of Boost.Serialization on Windows ([#2400](https://github.com/stack-of-tasks/pinocchio/pull/2400))
 - Fix mjcf parser appending of inertias at root joint ([#2403](https://github.com/stack-of-tasks/pinocchio/pull/2403))
 - Fix unit tests with GCC 13.3 ([#2406](https://github.com/stack-of-tasks/pinocchio/pull/2416)
+- Fix class abstract error for Rviz viewer ([#2425](https://github.com/stack-of-tasks/pinocchio/pull/2425))
+- Fix compilation issue with MSCV and C++17 ([#2437](https://github.com/stack-of-tasks/pinocchio/pull/2437))
+- Fix `pinocchio-test-py-robot_wrapper` when building with SDF and collision support ([#2437](https://github.com/stack-of-tasks/pinocchio/pull/2437))
+
+### Changed
+
+- Modernize python code base with ruff ([#2418](https://github.com/stack-of-tasks/pinocchio/pull/2418))
+- Does not create a root_joint frame from parsed models (urdf, mjcf and sdf) when no root joint is provided ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
 
 ## [3.2.0] - 2024-08-27
 

@@ -141,9 +141,16 @@ namespace pinocchio
         typedef typename Model::Frame Frame;
 
         Model & model;
+        std::string root_joint_name;
 
         UrdfVisitor(Model & model)
         : model(model)
+        {
+        }
+
+        UrdfVisitor(Model & model, const std::string & rjn)
+        : model(model)
+        , root_joint_name(rjn)
         {
         }
 
@@ -154,10 +161,10 @@ namespace pinocchio
 
         virtual void addRootJoint(const Inertia & Y, const std::string & body_name)
         {
-          addFixedJointAndBody(0, SE3::Identity(), "root_joint", Y, body_name);
-          //            appendBodyToJoint(0,Y,SE3::Identity(),body_name); TODO: change for the
-          //            correct behavior, see https://github.com/stack-of-tasks/pinocchio/pull/1102
-          //            for discussions on the topic
+          const Frame & parent_frame = model.frames[0];
+
+          model.addFrame(
+            Frame(body_name, parent_frame.parentJoint, 0, parent_frame.placement, BODY, Y));
         }
 
         void addJointAndBody(
@@ -446,8 +453,11 @@ namespace pinocchio
 
         JointModel root_joint;
 
-        UrdfVisitorWithRootJoint(Model & model, const JointModelBase<JointModel> & root_joint)
-        : Base(model)
+        UrdfVisitorWithRootJoint(
+          Model & model,
+          const JointModelBase<JointModel> & root_joint,
+          const std::string & rjn = "root_joint")
+        : Base(model, rjn)
         , root_joint(root_joint.derived())
         {
         }
@@ -457,11 +467,11 @@ namespace pinocchio
           const Frame & frame = model.frames[0];
 
           PINOCCHIO_THROW(
-            !model.existJointName("root_joint"), std::invalid_argument,
+            !model.existJointName(this->root_joint_name), std::invalid_argument,
             "root_joint already exists as a joint in the kinematic tree.");
 
           JointIndex idx = model.addJoint(
-            frame.parentJoint, root_joint, SE3::Identity(), "root_joint"
+            frame.parentJoint, root_joint, SE3::Identity(), this->root_joint_name
             // TODO ,max_effort,max_velocity,min_config,max_config
           );
 
@@ -485,16 +495,31 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
-      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & root_joint,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose)
     {
+      if (rootJointName.empty())
+        throw std::invalid_argument(
+          "rootJoint was given without a name. Please fill the argument root_joint_name");
+
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
-        model, root_joint);
+        model, rootJoint, rootJointName);
       if (verbose)
         visitor.log = &std::cout;
       details::parseRootTree(filename, visitor);
       return model;
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::string & filename,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      return buildModel(filename, rootJoint, "root_joint", model, verbose);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -514,15 +539,30 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
       const std::string & xmlStream,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose)
     {
+      if (rootJointName.empty())
+        throw std::invalid_argument(
+          "rootJoint was given without a name. Please fill the argument rootJointName");
+
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
-        model, rootJoint);
+        model, rootJoint, rootJointName);
       if (verbose)
         visitor.log = &std::cout;
       details::parseRootTreeFromXML(xmlStream, visitor);
       return model;
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
+      const std::string & xmlStream,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      return buildModelFromXML(xmlStream, rootJoint, "root_joint", model, verbose);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -542,16 +582,31 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::shared_ptr<::urdf::ModelInterface> urdfTree,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const bool verbose)
     {
+      if (rootJointName.empty())
+        throw std::invalid_argument(
+          "rootJoint was given without a name. Please fill the argument rootJointName");
+
       PINOCCHIO_CHECK_INPUT_ARGUMENT(urdfTree != NULL);
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor(
-        model, rootJoint);
+        model, rootJoint, rootJointName);
       if (verbose)
         visitor.log = &std::cout;
       details::parseRootTree(urdfTree.get(), visitor);
       return model;
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
+      const std::shared_ptr<::urdf::ModelInterface> urdfTree,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      return buildModel(urdfTree, rootJoint, "root_joint", model, verbose);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>

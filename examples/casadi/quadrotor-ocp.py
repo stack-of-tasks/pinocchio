@@ -1,5 +1,5 @@
 import sys
-from os.path import abspath, dirname, join
+from pathlib import Path
 
 import casadi
 import numpy as np
@@ -8,13 +8,8 @@ import pinocchio.casadi as cpin
 
 # This use the example-robot-data submodule, but if you have it already properly
 # installed in your PYTHONPATH, there is no need for this sys.path thing
-path = join(
-    dirname(dirname(dirname(abspath(__file__)))),
-    "models",
-    "example-robot-data",
-    "python",
-)
-sys.path.append(path)
+path = Path(__file__).parent.parent.parent / "models" / "example-robot-data" / "python"
+sys.path.append(str(path))
 import example_robot_data  # noqa: E402
 
 # Problem parameters
@@ -292,7 +287,8 @@ def main():
         plt.show(block=False)
     except ImportError as err:
         print(
-            "Error while initializing the viewer. It seems you should install Python meshcat"
+            "Error while initializing the viewer. "
+            "It seems you should install Python meshcat"
         )
         print(err)
         sys.exit(0)

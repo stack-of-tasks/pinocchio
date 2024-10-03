@@ -1,7 +1,8 @@
 import unittest
-import pinocchio as pin
-import numpy as np
+from pathlib import Path
 
+import numpy as np
+import pinocchio as pin
 from test_case import PinocchioTestCase
 
 
@@ -73,11 +74,11 @@ class TestFrameBindings(PinocchioTestCase):
         import pickle
 
         frame = pin.Frame("name", 1, 2, pin.SE3.Random(), pin.OP_FRAME)
-        filename = "frame.pickle"
-        with open(filename, "wb") as f:
+        filename = Path("frame.pickle")
+        with filename.open("wb") as f:
             pickle.dump(frame, f)
 
-        with open(filename, "rb") as f:
+        with filename.open("rb") as f:
             frame_copy = pickle.load(f)
 
         self.assertEqual(frame, frame_copy)
@@ -148,7 +149,7 @@ class TestFrameBindings(PinocchioTestCase):
         data = model.createData()
 
         q = pin.neutral(model)
-        v = np.random.rand((model.nv))
+        v = np.random.rand(model.nv)
         frame_id = self.frame_idx
 
         J1 = pin.computeFrameJacobian(model, data, q, frame_id)

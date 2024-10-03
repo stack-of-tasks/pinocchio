@@ -5,16 +5,14 @@
 
 
 import sys
-from os.path import abspath, dirname, join
+from pathlib import Path
 
 import numpy as np
 
 # Add path to the example-robot-data package from git submodule.
 # If you have a proper install version, there is no need for this sys.path thing
-path = join(
-    dirname(dirname(abspath(__file__))), "models", "example-robot-data", "python"
-)
-sys.path.append(path)
+path = Path(__file__).parent.parent / "models" / "example-robot-data" / "python"
+sys.path.append(str(path))
 from example_robot_data.robots_loader import TalosLoader
 from panda3d_viewer import ViewerClosedError
 from pinocchio.visualize.panda3d_visualizer import Panda3dVisualizer

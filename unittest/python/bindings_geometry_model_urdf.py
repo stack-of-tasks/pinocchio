@@ -1,6 +1,8 @@
-import unittest
-import pinocchio as pin
 import os
+import unittest
+from pathlib import Path
+
+import pinocchio as pin
 
 
 def checkGeom(geom1, geom2):
@@ -10,21 +12,15 @@ def checkGeom(geom1, geom2):
 @unittest.skipUnless(pin.WITH_URDFDOM, "Needs URDFDOM")
 class TestGeometryObjectUrdfBindings(unittest.TestCase):
     def setUp(self):
-        self.current_file = os.path.dirname(str(os.path.abspath(__file__)))
-        self.mesh_path = os.path.abspath(
-            os.path.join(self.current_file, "../../models")
-        )
-        self.model_dir = os.path.abspath(
-            os.path.join(self.current_file, "../../models/example-robot-data/robots")
-        )
-        self.model_path = os.path.abspath(
-            os.path.join(self.model_dir, "romeo_description/urdf/romeo.urdf")
-        )
+        self.current_dir = Path(__file__).parent
+        self.mesh_path = self.current_dir / "../../models"
+        self.model_dir = self.current_dir / "../../models/example-robot-data/robots"
+        self.model_path = self.model_dir / "romeo_description/urdf/romeo.urdf"
 
     def test_load(self):
         hint_list = [self.mesh_path, "wrong/hint"]
-        expected_mesh_path = os.path.join(
-            self.model_dir, "romeo_description/meshes/V1/collision/LHipPitch.dae"
+        expected_mesh_path = (
+            self.model_dir / "romeo_description/meshes/V1/collision/LHipPitch.dae"
         )
 
         model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
@@ -65,8 +61,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
         )
         self.assertTrue(checkGeom(collision_model_ref, collision_model_self))
 
-        hint_vec = pin.StdVec_StdString()
-        hint_vec.append(self.mesh_path)
+        hint_vec = [self.mesh_path]
 
         collision_model_self = pin.GeometryModel()
         pin.buildGeomFromUrdf(
@@ -80,11 +75,11 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
     def test_multi_load(self):
         hint_list = [self.mesh_path, "wrong/hint"]
-        expected_collision_path = os.path.join(
-            self.model_dir, "romeo_description/meshes/V1/collision/LHipPitch.dae"
+        expected_collision_path = (
+            self.model_dir / "romeo_description/meshes/V1/collision/LHipPitch.dae"
         )
-        expected_visual_path = os.path.join(
-            self.model_dir, "romeo_description/meshes/V1/visual/LHipPitch.dae"
+        expected_visual_path = (
+            self.model_dir / "romeo_description/meshes/V1/visual/LHipPitch.dae"
         )
 
         model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())

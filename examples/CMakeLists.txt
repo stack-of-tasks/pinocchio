@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2022 CNRS INRIA
+# Copyright (c) 2015-2024 CNRS INRIA
 #
 
 # Compute flags outside the macro to avoid recomputing it for each tests
@@ -46,6 +46,7 @@ function(ADD_PINOCCHIO_CPP_EXAMPLE EXAMPLE)
 endfunction()
 
 add_pinocchio_cpp_example(inverse-kinematics)
+add_pinocchio_cpp_example(inverse-kinematics-3d)
 add_pinocchio_cpp_example(overview-simple)
 add_pinocchio_cpp_example(overview-lie)
 add_pinocchio_cpp_example(overview-SE3)
@@ -70,8 +71,9 @@ if(BUILD_WITH_COLLISION_SUPPORT)
 endif()
 
 if(BUILD_PYTHON_INTERFACE)
-  set(${PROJECT_NAME}_PYTHON_EXAMPLES inverse-kinematics overview-simple kinematics-derivatives
-                                      forward-dynamics-derivatives inverse-dynamics-derivatives)
+  set(${PROJECT_NAME}_PYTHON_EXAMPLES
+      inverse-kinematics inverse-kinematics-3d overview-simple kinematics-derivatives
+      forward-dynamics-derivatives inverse-dynamics-derivatives)
 
   if(BUILD_WITH_URDF_SUPPORT)
     list(

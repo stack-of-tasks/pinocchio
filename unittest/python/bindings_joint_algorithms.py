@@ -1,8 +1,8 @@
 import unittest
-from test_case import PinocchioTestCase as TestCase
 
-import pinocchio as pin
 import numpy as np
+import pinocchio as pin
+from test_case import PinocchioTestCase as TestCase
 
 
 class TestJointsAlgo(TestCase):
@@ -16,23 +16,23 @@ class TestJointsAlgo(TestCase):
     def test_basic(self):
         model = self.model
 
-        q_ones = np.ones((model.nq))
+        q_ones = np.ones(model.nq)
         self.assertFalse(pin.isNormalized(model, q_ones))
         self.assertFalse(pin.isNormalized(model, q_ones, 1e-8))
         self.assertTrue(pin.isNormalized(model, q_ones, 1e2))
 
-        q_rand = np.random.rand((model.nq))
+        q_rand = np.random.rand(model.nq)
         q_rand = pin.normalize(model, q_rand)
         self.assertTrue(pin.isNormalized(model, q_rand))
         self.assertTrue(pin.isNormalized(model, q_rand, 1e-8))
 
         self.assertTrue(abs(np.linalg.norm(q_rand[3:7]) - 1.0) <= 1e-8)
 
-        q_next = pin.integrate(model, self.q, np.zeros((model.nv)))
+        q_next = pin.integrate(model, self.q, np.zeros(model.nv))
         self.assertApprox(q_next, self.q)
 
         v_diff = pin.difference(model, self.q, q_next)
-        self.assertApprox(v_diff, np.zeros((model.nv)))
+        self.assertApprox(v_diff, np.zeros(model.nv))
 
         q_next = pin.integrate(model, self.q, self.v)
         q_int = pin.interpolate(model, self.q, q_next, 0.5)
@@ -49,9 +49,7 @@ class TestJointsAlgo(TestCase):
         self.assertApprox(q_neutral, q_neutral)
 
         q_rand1 = pin.randomConfiguration(model)
-        q_rand2 = pin.randomConfiguration(
-            model, -np.ones((model.nq)), np.ones((model.nq))
-        )
+        q_rand2 = pin.randomConfiguration(model, -np.ones(model.nq), np.ones(model.nq))
 
         self.assertTrue(pin.isSameConfiguration(model, self.q, self.q, 1e-8))
 

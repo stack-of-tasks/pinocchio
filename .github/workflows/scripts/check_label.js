@@ -17,35 +17,25 @@ module.exports = async ({github, context, core}) => {
     });
     const labelNames = data.labels.map(label => label.name);
 
-    const labelFlags = {
-        build_all: [
-            ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
-            ' -DBUILD_WITH_CASADI_SUPPORT=ON',
-            ' -DBUILD_WITH_AUTODIFF_SUPPORT=ON',
-            ' -DBUILD_WITH_CODEGEN_SUPPORT=ON',
-            ' -DBUILD_WITH_EXTRA_SUPPORT=ON',
-            ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
-            ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
-            ' -DINSTALL_DOCUMENTATION=ON',
-            ' -DGENERATE_PYTHON_STUBS=ON',
-            ' -DBUILD_WITH_ACCELERATE_SUPPORT=ON'
-        ],
-        build_collision: ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
-        build_casadi: ' -DBUILD_WITH_CASADI_SUPPORT=ON',
-        build_autodiff: ' -DBUILD_WITH_AUTODIFF_SUPPORT=ON',
-        build_codegen: ' -DBUILD_WITH_CODEGEN_SUPPORT=ON',
-        build_extra: ' -DBUILD_WITH_EXTRA_SUPPORT=ON',
-        build_openmp: ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
-        build_mpfr: ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
-        build_sdf: ' -DBUILD_WITH_SDF_SUPPORT=ON',
-        build_accelerate: ' -DBUILD_WITH_ACCELERATE_SUPPORT=ON'
-    };
+    const labelFlags= [
+        'build_all',
+        'build_collision',
+        'build_casadi',
+        'build_autodiff',
+        'build_codegen',
+        'build_extra',
+        'build_openmp',
+        'build_mpfr',
+        'build_sdf',
+        'build_accelerate'
+      ];
+
     var hasLabel = false;
     labelNames.forEach(label => {
-        if (labelFlags[label]) {
+        if (labelFlags.includes(label)) {
           hasLabel = true;
         }
-    });
+      });
 
     try
     {

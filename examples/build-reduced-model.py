@@ -1,17 +1,18 @@
-from os.path import abspath, dirname, join
+from pathlib import Path
 
 import numpy as np
 import pinocchio as pin
 
-# Goal: Build a reduced model from an existing URDF model by fixing the desired joints at a specified position.
+# Goal: Build a reduced model from an existing URDF model by fixing the desired joints
+# at a specified position.
 
 # Load UR robot arm
 # This path refers to Pinocchio source code but you can define your own directory here.
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
-model_path = pinocchio_model_dir + "/example-robot-data/robots"
+pinocchio_model_dir = Path(__file__).parent.parent / "models"
+model_path = pinocchio_model_dir / "example-robot-data/robots"
 mesh_dir = pinocchio_model_dir
 # You should change here to set up your own URDF file
-urdf_filename = model_path + "/ur_description/urdf/ur5_robot.urdf"
+urdf_filename = model_path / "ur_description/urdf/ur5_robot.urdf"
 model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_filename, mesh_dir)
 
 # Check dimensions of the original model
@@ -46,12 +47,14 @@ initialJointConfig = np.array(
 # Option 1: Only build the reduced model in case no display needed:
 model_reduced = pin.buildReducedModel(model, jointsToLockIDs, initialJointConfig)
 
-# Option 2: Build the reduced model including the geometric model for proper displaying of the robot
+# Option 2: Build the reduced model including the geometric model for proper displaying
+# of the robot.
 model_reduced, visual_model_reduced = pin.buildReducedModel(
     model, visual_model, jointsToLockIDs, initialJointConfig
 )
 
-# Option 3: Build the reduced model including multiple geometric models (for example: visuals, collision)
+# Option 3: Build the reduced model including multiple geometric models (for example:
+# visuals, collision).
 geom_models = [visual_model, collision_model]
 model_reduced, geometric_models_reduced = pin.buildReducedModel(
     model,

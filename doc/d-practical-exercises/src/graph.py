@@ -1,4 +1,4 @@
-class Graph(object):
+class Graph:
     def __init__(self):
         self.children = {}  # dictionnary giving the list of childrens for each node.
         self.q = []  # configuration associated to each node.
@@ -50,5 +50,7 @@ class Graph(object):
             pass
 
     def connexIndexes(self, connex):
-        """Return the list of all node indexes belonging to connex component <connex>."""
+        """
+        Return the list of all node indexes belonging to connex component <connex>.
+        """
         return [i for i, c in enumerate(self.connex) if c == connex]
