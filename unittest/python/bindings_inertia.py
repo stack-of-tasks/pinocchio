@@ -126,7 +126,7 @@ class TestInertiaBindings(TestCase):
         # test accessing mass, h, sigma
         self.assertApprox(pseudo.mass, In.mass)
         self.assertApprox(pseudo.h, In.mass * In.lever)
-        pseudo.mass, pseudo.h, pseudo.sigma
+        self.assertEqual(pseudo.sigma.shape, (3, 3))
 
         # test toMatrix
         _ = pseudo.toMatrix()
@@ -176,7 +176,7 @@ class TestInertiaBindings(TestCase):
             log_cholesky = pin.LogCholeskyParameters(np.array([]))
 
         # test accessing parameters
-        log_cholesky.parameters
+        self.assertEqual(log_cholesky.parameters.shape, (10,))
 
         # test toDynamicParameters
         params = log_cholesky.toDynamicParameters()
