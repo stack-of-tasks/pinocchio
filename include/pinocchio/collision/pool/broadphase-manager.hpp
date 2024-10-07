@@ -17,8 +17,7 @@ namespace pinocchio
     typename _BroadPhaseManagerDerived,
     typename _Scalar,
     int _Options,
-    template<typename, int>
-    class JointCollectionTpl>
+    template<typename, int> class JointCollectionTpl>
   class BroadPhaseManagerPoolBase : public GeometryPoolTpl<_Scalar, _Options, JointCollectionTpl>
   {
   public:

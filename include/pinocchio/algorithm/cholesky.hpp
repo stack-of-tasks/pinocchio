@@ -59,8 +59,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Mat>
     Mat & solve(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -82,8 +81,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Mat>
     typename PINOCCHIO_EIGEN_PLAIN_TYPE(Mat) Mv(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -106,8 +104,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Mat,
       typename MatRes>
     MatRes & Mv(
@@ -131,8 +128,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Mat>
     Mat & UDUtv(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -154,8 +150,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Mat>
     Mat & Uv(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -178,8 +173,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Mat>
     Mat & Utv(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -204,8 +198,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Mat>
     Mat & Uiv(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -231,8 +224,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Mat>
     Mat & Utiv(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -256,8 +248,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Mat>
     Mat & solve(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -279,8 +270,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Mat>
     Mat & computeMinv(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,

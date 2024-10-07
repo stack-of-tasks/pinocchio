@@ -73,8 +73,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType>
   const typename DataTpl<Scalar, Options, JointCollectionTpl>::Vector3 & centerOfMass(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -106,8 +105,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType>
   const typename DataTpl<Scalar, Options, JointCollectionTpl>::Vector3 & centerOfMass(
@@ -143,8 +141,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType1,
     typename TangentVectorType2>
@@ -225,8 +222,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType>
   const typename DataTpl<Scalar, Options, JointCollectionTpl>::Matrix3x & jacobianCenterOfMass(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -280,8 +276,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename Matrix3xLike>
   void jacobianSubtreeCenterOfMass(
@@ -308,8 +303,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix3xLike>
   void jacobianSubtreeCenterOfMass(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -335,8 +329,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix3xLike>
   void getJacobianSubtreeCenterOfMass(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,

@@ -13,8 +13,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename ConfigVectorType>
   struct JointCompositeCalcZeroOrderStep
   : fusion::JointUnaryVisitorBase<
@@ -81,8 +80,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType>
   struct JointCompositeCalcFirstOrderStep
@@ -172,8 +170,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename TangentVectorType>
   struct JointCompositeCalcFirstOrderStep<
     Scalar,

@@ -90,8 +90,7 @@ namespace pinocchio
       template<
         typename LieGroup1,
         typename LieGroup2,
-        template<typename, int>
-        class LieGroupCollectionTpl>
+        template<typename, int> class LieGroupCollectionTpl>
       bool operator()(
         const CartesianProductOperation<LieGroup1, LieGroup2> & lhs,
         const CartesianProductOperationVariantTpl<Scalar, Options, LieGroupCollectionTpl> & rhs)
@@ -103,8 +102,7 @@ namespace pinocchio
       template<
         typename LieGroup1,
         typename LieGroup2,
-        template<typename, int>
-        class LieGroupCollectionTpl>
+        template<typename, int> class LieGroupCollectionTpl>
       bool operator()(
         const CartesianProductOperationVariantTpl<Scalar, Options, LieGroupCollectionTpl> & lhs,
         const CartesianProductOperation<LieGroup1, LieGroup2> & rhs) const

@@ -17,8 +17,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix3xOut1,
     typename Matrix3xOut2>
   struct JointImpulseVelocityDerivativesBackwardStep3D
@@ -124,8 +123,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix6xOut1,
     typename Matrix6xOut2>
   struct JointImpulseVelocityDerivativesBackwardStep6D
@@ -235,8 +233,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     class ConstraintModelAllocator,
     class ConstraintDataAllocator,
     typename MatrixType1,

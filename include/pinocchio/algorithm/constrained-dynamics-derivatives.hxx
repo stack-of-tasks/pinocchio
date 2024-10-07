@@ -20,8 +20,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     bool ContactMode>
   struct ComputeConstraintDynamicsDerivativesForwardStep
   : public fusion::JointUnaryVisitorBase<ComputeConstraintDynamicsDerivativesForwardStep<
@@ -115,8 +114,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     bool ContactMode>
   struct ComputeContactDynamicDerivativesBackwardStep
   : public fusion::JointUnaryVisitorBase<ComputeContactDynamicDerivativesBackwardStep<
@@ -230,8 +228,7 @@ namespace pinocchio
 
       template<
         int Options,
-        template<typename, int>
-        class JointCollectionTpl,
+        template<typename, int> class JointCollectionTpl,
         class ConstraintModelAllocator,
         class ConstraintDataAllocator>
       static void run(
@@ -347,8 +344,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     class ConstraintModelAllocator,
     class ConstraintDataAllocator,
     typename MatrixType1,
