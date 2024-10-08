@@ -428,4 +428,39 @@ BOOST_AUTO_TEST_CASE(test_potential_energy_regressor)
   BOOST_CHECK_CLOSE(potential_energy_regressor, target_energy, 1e-12);
 }
 
+BOOST_AUTO_TEST_CASE(test_momentum_regressor)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  buildModels::humanoidRandom(model);
+
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill(1.);
+
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
+
+  const VectorXd q = randomConfiguration(model);
+  const VectorXd v = Eigen::VectorXd::Random(model.nv);
+  const VectorXd dv = Eigen::VectorXd::Random(model.nv);
+
+  computeAllTerms(model, data_ref, q, v);
+
+  // fill in the mass inertia matrix
+  data_ref.M.triangularView<Eigen::StrictlyLower>() =
+    data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  const VectorXd target_momentum = data_ref.M * v;
+
+  computeMomentumRegressor(model, data, q, v);
+  std::cout << "executed momentum regressor" << std::endl;
+  Eigen::VectorXd params(10 * (model.njoints - 1));
+  for (JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
+    params.segment<10>(Eigen::DenseIndex((i - 1) * 10)) = model.inertias[i].toDynamicParameters();
+
+  const VectorXd momentum_regressor = data.momentumRegressor * params;
+  BOOST_CHECK(momentum_regressor.isApprox(target_momentum));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

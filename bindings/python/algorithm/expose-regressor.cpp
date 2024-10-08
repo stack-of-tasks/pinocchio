@@ -27,6 +27,17 @@ namespace pinocchio
       return frameBodyRegressor(model, data, frameId);
     }
 
+    boost::python::tuple computeMomentumRegressor_proxy(
+      const context::Model & model,
+      context::Data & data,
+      const context::VectorXs & q,
+      const context::VectorXs & v)
+    {
+      computeMomentumRegressor(model, data, q, v);
+
+      return boost::python::make_tuple(data.momentumRegressor, data.dpartial_lagrangian_q);
+    }
+
     void exposeRegressor()
     {
       typedef context::Scalar Scalar;
@@ -122,6 +133,18 @@ namespace pinocchio
         "\tmodel: model of the kinematic tree\n"
         "\tdata: data related to the model\n"
         "\tq: the joint configuration vector (size model.nq)\n",
+        bp::return_value_policy<bp::return_by_value>());
+
+      bp::def(
+        "computeMomentumRegressor", &computeMomentumRegressor_proxy,
+        bp::args("model", "data", "q", "v"),
+        "Compute the momentum regressor and the partial derivative of the Lagrangian with respect "
+        "to the configuration, store the result in context::Data and return it.\n\n"
+        "Parameters:\n"
+        "\tmodel: model of the kinematic tree\n"
+        "\tdata: data related to the model\n"
+        "\tq: the joint configuration vector (size model.nq)\n"
+        "\tv: the joint velocity vector (size model.nv)\n",
         bp::return_value_policy<bp::return_by_value>());
     }
 
