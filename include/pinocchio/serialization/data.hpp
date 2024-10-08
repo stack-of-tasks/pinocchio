@@ -38,6 +38,7 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar, data, a_gf);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, oa_gf);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, v);
+      PINOCCHIO_MAKE_DATA_NVP(ar, data, v_r);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, ov);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, f);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, of);
