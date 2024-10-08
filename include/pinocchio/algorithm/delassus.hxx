@@ -48,7 +48,7 @@ namespace pinocchio
       else
         data.oMi[i] = data.liMi[i];
 
-      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+      jmodel.jointJacCols(data.J) = data.oMi[i].act(jdata.S());
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       data.oYaba[i] = data.oYcrb[i].matrix();
     }
@@ -81,13 +81,13 @@ namespace pinocchio
       typename Inertia::Matrix6 & Ia = data.oYaba[i];
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
-      ColBlock Jcols = jmodel.jointCols(data.J);
+      ColBlock Jcols = jmodel.jointJacCols(data.J);
 
       jdata.U().noalias() = Ia * Jcols;
       jdata.StU().noalias() = Jcols.transpose() * jdata.U();
 
       // Account for the rotor inertia contribution
-      jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
+      jdata.StU().diagonal() += jmodel.jointVelocityFromNvSelector(model.armature);
 
       internal::PerformStYSInversion<Scalar>::run(jdata.StU(), jdata.Dinv());
 
@@ -437,13 +437,13 @@ namespace pinocchio
       typename Inertia::Matrix6 & Ia = data.oYaba[i];
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
-      ColBlock Jcols = jmodel.jointCols(data.J);
+      ColBlock Jcols = jmodel.jointJacCols(data.J);
 
       jdata.U().noalias() = Ia * Jcols;
       jdata.StU().noalias() = Jcols.transpose() * jdata.U();
 
       // Account for the rotor inertia contribution
-      jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
+      jdata.StU().diagonal() += jmodel.jointVelocityFromNvSelector(model.armature);
 
       internal::PerformStYSInversion<Scalar>::run(jdata.StU(), jdata.Dinv());
 
@@ -588,7 +588,7 @@ namespace pinocchio
           {
             // When propagating 6D constraints
             scratch_pad_vector.noalias() =
-              data.extended_motion_propagator[i] * model.joints[i].jointCols(data.J);
+              data.extended_motion_propagator[i] * model.joints[i].jointJacCols(data.J);
             scratch_pad_vector2.noalias() = scratch_pad_vector * data.joints[i].Dinv().coeff(0, 0);
             data.spatial_inv_inertia[ad_i].noalias() +=
               scratch_pad_vector2 * scratch_pad_vector.transpose();
@@ -598,7 +598,7 @@ namespace pinocchio
             // Propagating 3D constraints
             scratch_pad_vector.template topRows<3>().noalias() =
               data.extended_motion_propagator[i].template topRows<3>()
-              * model.joints[i].jointCols(data.J);
+              * model.joints[i].jointJacCols(data.J);
             scratch_pad_vector2.template topRows<3>().noalias() =
               scratch_pad_vector.template topRows<3>() * data.joints[i].Dinv().coeff(0, 0);
             data.spatial_inv_inertia[ad_i].template topLeftCorner<3, 3>().noalias() +=
@@ -609,7 +609,7 @@ namespace pinocchio
         else if (nv == 6)
         {
           scratch_pad1.noalias() =
-            data.extended_motion_propagator[i] * model.joints[i].jointCols(data.J);
+            data.extended_motion_propagator[i] * model.joints[i].jointJacCols(data.J);
           scratch_pad2.noalias() = scratch_pad1 * data.joints[i].Dinv();
           data.spatial_inv_inertia[ad_i].noalias() += scratch_pad2 * scratch_pad1.transpose();
         }
@@ -617,7 +617,7 @@ namespace pinocchio
         {
           // Joints with more than 1 DoF
           scratch_pad1.leftCols(nv).noalias() =
-            data.extended_motion_propagator[i] * model.joints[i].jointCols(data.J);
+            data.extended_motion_propagator[i] * model.joints[i].jointJacCols(data.J);
           scratch_pad2.leftCols(nv).noalias() = scratch_pad1.leftCols(nv) * data.joints[i].Dinv();
           data.spatial_inv_inertia[ad_i].noalias() +=
             scratch_pad2.leftCols(nv) * scratch_pad1.leftCols(nv).transpose();

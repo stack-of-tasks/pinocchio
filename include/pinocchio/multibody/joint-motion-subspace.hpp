@@ -10,7 +10,7 @@
 namespace pinocchio
 {
 
-  template<int _Dim, typename _Scalar, int _Options = context::Options>
+  template<int _Dim, typename _Scalar, int _Options = context::Options, int _MaxDim = -1>
   struct JointMotionSubspaceTpl;
 
   typedef JointMotionSubspaceTpl<1, context::Scalar, context::Options> JointMotionSubspace1d;

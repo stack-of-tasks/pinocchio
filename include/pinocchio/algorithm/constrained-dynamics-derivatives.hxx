@@ -50,14 +50,14 @@ namespace pinocchio
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
           ColsBlock;
-      ColsBlock J_cols = jmodel.jointCols(data.J);
-      ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
+      ColsBlock J_cols = jmodel.jointJacCols(data.J);
+      ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
 
       if (ContactMode)
       {
         const Motion & ov = data.ov[i];
-        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
-        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
+        ColsBlock dJ_cols = jmodel.jointJacCols(data.dJ);
+        ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
 
         motionSet::motionAction(ov, J_cols, dJ_cols);
         // TODO: make more efficient
@@ -79,10 +79,10 @@ namespace pinocchio
         RNEAForwardStepType::addForceCrossMatrix(data.oh[i], data.doYcrb[i]);
         Motion & oa = data.oa[i];
         Motion & oa_gf = data.oa_gf[i];
-        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+        ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
         const typename Data::TangentVectorType & a = data.ddq;
         data.a[i] =
-          jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
+          jdata.S() * jmodel.jointVelocityFromDofSelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
         if (parent > 0)
           data.a[i] += data.liMi[i].actInv(data.a[parent]);
         oa = data.oMi[i].act(data.a[i]);
@@ -102,7 +102,7 @@ namespace pinocchio
         Motion & odvparent = data.oa[parent];
         const typename Data::TangentVectorType & dimpulse = data.ddq;
         // Temporary calculation of J(dq_after)
-        odv = J_cols * jmodel.jointVelocitySelector(dimpulse);
+        odv = J_cols * jmodel.jointVelocityFromDofSelector(dimpulse);
         if (parent > 0)
           odv += odvparent;
         motionSet::motionAction(odvparent, J_cols, dAdq_cols);
@@ -142,11 +142,11 @@ namespace pinocchio
 
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
-      ColsBlock J_cols = jmodel.jointCols(data.J);
-      ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-      ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-      ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
-      ColsBlock dFda_cols = jmodel.jointCols(data.dFda);
+      ColsBlock J_cols = jmodel.jointJacCols(data.J);
+      ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+      ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
+      ColsBlock dFdq_cols = jmodel.jointVelCols(data.dFdq);
+      ColsBlock dFda_cols = jmodel.jointVelCols(data.dFda);
 
       typename Data::RowMatrixXs & dtau_dq = data.dtau_dq;
 
@@ -185,8 +185,8 @@ namespace pinocchio
 
       if (ContactMode)
       {
-        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
-        ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
+        ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
+        ColsBlock dFdv_cols = jmodel.jointVelCols(data.dFdv);
 
         typename Data::RowMatrixXs & dtau_dv = data.dtau_dv;
         dFdv_cols.noalias() = data.doYcrb[i] * J_cols;

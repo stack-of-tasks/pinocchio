@@ -48,7 +48,7 @@ namespace pinocchio
 
       Matrix3xOut & dvcom_dq = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut, vcom_partial_dq);
       typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix3x>::Type
-        dvcom_dqi = jmodel.jointCols(dvcom_dq);
+        dvcom_dqi = jmodel.jointVelCols(dvcom_dq);
 
       Motion vpc = (parent > 0) ? (data.v[i] - (Motion)jdata.v()) : Motion::Zero();
       vpc.linear() -= data.vcom[i]; // vpc = v_{parent+c} = [ v_parent+vc; w_parent ]

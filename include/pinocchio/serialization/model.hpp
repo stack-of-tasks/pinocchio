@@ -37,6 +37,9 @@ namespace boost
       ar & make_nvp("nv", model.nv);
       ar & make_nvp("nvs", model.nvs);
       ar & make_nvp("idx_vs", model.idx_vs);
+      ar & make_nvp("nj", model.nj);
+      ar & make_nvp("njs", model.njs);
+      ar & make_nvp("idx_js", model.idx_js);
       ar & make_nvp("njoints", model.njoints);
       ar & make_nvp("nbodies", model.nbodies);
       ar & make_nvp("nframes", model.nframes);

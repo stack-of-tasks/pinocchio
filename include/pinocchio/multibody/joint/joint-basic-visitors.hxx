@@ -193,6 +193,31 @@ namespace pinocchio
         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type, I), update_I));
   }
 
+  template<typename InputType, typename ReturnType>
+  struct JointConfigFromDofSelectorVisitor
+  : fusion::
+      JointUnaryVisitorBase<JointConfigFromDofSelectorVisitor<InputType, ReturnType>, ReturnType>
+  {
+    typedef boost::fusion::vector<InputType> ArgsType;
+
+    template<typename JointModel>
+    static ReturnType algo(const JointModelBase<JointModel> & jmodel, InputType a)
+    {
+      // Converting a VectorBlock of anysize (static or dynamic) to another vector block of anysize
+      // (static or dynamic) since there is no copy constructor.
+      auto vectorBlock = jmodel.jointConfigFromDofSelector(a);
+
+      // VectorBlock does not implemet such getter, hack the Eigen::Block base class to retreive
+      // such values.
+      const Index start = vectorBlock.startRow()
+                          + vectorBlock.startCol(); // The other dimension is always 0 (for vectors)
+      const Index size =
+        vectorBlock.rows() * vectorBlock.cols(); // The other dimension is always 1 (for vectors)
+
+      return ReturnType(vectorBlock.nestedExpression(), start, size);
+    }
+  };
+
   /**
    * @brief      JointNvVisitor visitor
    */
@@ -239,6 +264,30 @@ namespace pinocchio
   inline int nq(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
   {
     return JointNqVisitor::run(jmodel);
+  }
+
+  /**
+   * @brief      JointNjVisitor visitor
+   */
+  struct JointNjVisitor : boost::static_visitor<int>
+  {
+    template<typename JointModelDerived>
+    int operator()(const JointModelBase<JointModelDerived> & jmodel) const
+    {
+      return jmodel.nj();
+    }
+
+    template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+    static int run(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
+    {
+      return boost::apply_visitor(JointNjVisitor(), jmodel);
+    }
+  };
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline int nj(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
+  {
+    return JointNjVisitor::run(jmodel);
   }
 
   /**
@@ -342,6 +391,30 @@ namespace pinocchio
   }
 
   /**
+   * @brief      JointIdxjVisitor visitor
+   */
+  struct JointIdxJVisitor : boost::static_visitor<int>
+  {
+    template<typename JointModelDerived>
+    int operator()(const JointModelBase<JointModelDerived> & jmodel) const
+    {
+      return jmodel.idx_j();
+    }
+
+    template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+    static int run(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
+    {
+      return boost::apply_visitor(JointIdxJVisitor(), jmodel);
+    }
+  };
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline int idx_j(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel)
+  {
+    return JointIdxJVisitor::run(jmodel);
+  }
+
+  /**
    * @brief      JointIdVisitor visitor
    */
   struct JointIdVisitor : boost::static_visitor<JointIndex>
@@ -373,33 +446,39 @@ namespace pinocchio
     JointIndex id;
     int q;
     int v;
+    int j;
 
-    JointSetIndexesVisitor(JointIndex id, int q, int v)
+    JointSetIndexesVisitor(JointIndex id, int q, int v, int j)
     : id(id)
     , q(q)
     , v(v)
+    , j(j)
     {
     }
 
     template<typename JointModelDerived>
     void operator()(JointModelBase<JointModelDerived> & jmodel) const
     {
-      jmodel.setIndexes(id, q, v);
+      jmodel.setIndexes(id, q, v, j);
     }
 
     template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-    static void
-    run(JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v)
+    static void run(
+      JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+      JointIndex id,
+      int q,
+      int v,
+      int j)
     {
-      return boost::apply_visitor(JointSetIndexesVisitor(id, q, v), jmodel);
+      return boost::apply_visitor(JointSetIndexesVisitor(id, q, v, j), jmodel);
     }
   };
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline void setIndexes(
-    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v)
+    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v, int j)
   {
-    return JointSetIndexesVisitor::run(jmodel, id, q, v);
+    return JointSetIndexesVisitor::run(jmodel, id, q, v, j);
   }
 
   /**
@@ -862,6 +941,88 @@ namespace pinocchio
       Scalar, Options, JointCollectionTpl, JointDataDerived>
       Algo;
     return Algo::run(jdata_generic, typename Algo::ArgsType(boost::ref(jdata.derived())));
+  }
+
+  // Meta-function to check is_mimicable_t trait
+  template<typename JointModel>
+  struct is_mimicable
+  {
+    static constexpr bool value = traits<typename JointModel::JointDerived>::is_mimicable_t::value;
+  };
+
+  template<typename JointModel>
+  struct CheckMimicVisitor : public boost::static_visitor<JointModel>
+  {
+    template<typename T>
+    typename boost::enable_if_c<is_mimicable<T>::value, JointModel>::type
+    operator()(const T & value) const
+    {
+      return value;
+    }
+
+    template<typename T>
+    typename boost::disable_if_c<is_mimicable<T>::value, JointModel>::type
+    operator()(const T & value) const
+    {
+      assert(false && "Type not supported in new variant");
+      return value;
+    }
+  };
+
+  template<typename JointModel>
+  JointModel checkMimic(const JointModel & value)
+  {
+    return boost::apply_visitor(CheckMimicVisitor<JointModel>(), value);
+  }
+
+  template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
+  struct ConfigVectorAffineTransformVisitor : public boost::static_visitor<void>
+  {
+  public:
+    const Eigen::MatrixBase<ConfigVectorIn> & qIn;
+    const Scalar & scaling;
+    const Scalar & offset;
+    const Eigen::MatrixBase<ConfigVectorOut> & qOut;
+
+    ConfigVectorAffineTransformVisitor(
+      const Eigen::MatrixBase<ConfigVectorIn> & qIn,
+      const Scalar & scaling,
+      const Scalar & offset,
+      const Eigen::MatrixBase<ConfigVectorOut> & qOut)
+    : qIn(qIn)
+    , scaling(scaling)
+    , offset(offset)
+    , qOut(qOut)
+    {
+    }
+
+    template<typename JointModel>
+    void operator()(const JointModel & /*jmodel*/) const
+    {
+      typedef typename ConfigVectorAffineTransform<typename JointModel::JointDerived>::Type
+        AffineTransform;
+      AffineTransform::run(qIn, scaling, offset, qOut);
+    }
+  };
+
+  template<
+    typename Scalar,
+    int Options,
+    template<typename S, int O>
+    class JointCollectionTpl,
+    typename ConfigVectorIn,
+    typename ConfigVectorOut>
+  void configVectorAffineTransform(
+    const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
+    const Eigen::MatrixBase<ConfigVectorIn> & qIn,
+    const Scalar & scaling,
+    const Scalar & offset,
+    const Eigen::MatrixBase<ConfigVectorOut> & qOut)
+  {
+    boost::apply_visitor(
+      ConfigVectorAffineTransformVisitor<ConfigVectorIn, Scalar, ConfigVectorOut>(
+        qIn, scaling, offset, qOut),
+      jmodel);
   }
 
   /// @endcond

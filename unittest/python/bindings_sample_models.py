@@ -16,7 +16,7 @@ class TestSampleModels(TestCase):
         self.assertTrue(huamnoid_1 != huamnoid_2)
         self.assertTrue(huamnoid_1 != huamnoid_3)
 
-        manipulator_1 = pin.buildSampleModelManipulator()
+        manipulator_1 = pin.buildSampleModelManipulator(True)
 
         if pin.WITH_HPP_FCL:
             _geometry_manipulator_1 = pin.buildSampleGeometryModelManipulator(

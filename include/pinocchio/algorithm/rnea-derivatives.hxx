@@ -37,6 +37,11 @@ namespace pinocchio
         Data & data,
         const Eigen::MatrixBase<ConfigVectorType> & q)
       {
+        assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
+
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Motion Motion;
 
@@ -59,8 +64,8 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
         J_cols = data.oMi[i].act(jdata.S());
         motionSet::motionAction(minus_gravity, J_cols, dAdq_cols);
       }
@@ -93,6 +98,11 @@ namespace pinocchio
         typename Data::VectorXs & g,
         const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
       {
+        assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
+
         typedef typename Model::JointIndex JointIndex;
         typedef Eigen::Matrix<
           Scalar, JointModel::NV, 6, Options, JointModel::NV == Eigen::Dynamic ? 6 : JointModel::NV,
@@ -108,10 +118,10 @@ namespace pinocchio
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
 
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-        ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
-        ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
+        ColsBlock dFdq_cols = jmodel.jointVelCols(data.dFdq);
+        ColsBlock Ag_cols = jmodel.jointVelCols(data.Ag);
 
         motionSet::inertiaAction(data.oYcrb[i], dAdq_cols, dFdq_cols);
 
@@ -128,7 +138,8 @@ namespace pinocchio
           gravity_partial_dq_.middleRows(jmodel.idx_v(), jmodel.nv()).col(j).noalias() =
             Ag_cols.transpose() * data.dAdq.col(j);
 
-        jmodel.jointVelocitySelector(g).noalias() = J_cols.transpose() * data.of[i].toVector();
+        jmodel.jointVelocityFromDofSelector(g).noalias() =
+          J_cols.transpose() * data.of[i].toVector();
         if (parent > 0)
         {
           data.oYcrb[parent] += data.oYcrb[i];
@@ -267,6 +278,11 @@ namespace pinocchio
         const Eigen::MatrixBase<TangentVectorType1> & v,
         const Eigen::MatrixBase<TangentVectorType2> & a)
       {
+        assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
+
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Motion Motion;
 
@@ -291,7 +307,7 @@ namespace pinocchio
           data.oMi[i] = data.liMi[i];
 
         data.a[i] =
-          jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
+          jdata.S() * jmodel.jointVelocityFromDofSelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
         if (parent > 0)
         {
           data.a[i] += data.liMi[i].actInv(data.a[parent]);
@@ -308,11 +324,11 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
-        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-        ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock dJ_cols = jmodel.jointJacCols(data.dJ);
+        ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+        ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
+        ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
 
         J_cols = data.oMi[i].act(jdata.S());
         motionSet::motionAction(ov, J_cols, dJ_cols);
@@ -381,6 +397,11 @@ namespace pinocchio
         const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
         const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
       {
+        assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
+
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Matrix6x Matrix6x;
 
@@ -390,21 +411,21 @@ namespace pinocchio
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColsBlock;
 
         Matrix6x & dYtJ = data.Fcrb[0];
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-        ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
-        ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
-        ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
-        ColsBlock dFda_cols = jmodel.jointCols(data.dFda); // Also equals to Ag_cols
-        ColsBlock dYtJ_cols = jmodel.jointCols(dYtJ);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+        ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
+        ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
+        ColsBlock dFdq_cols = jmodel.jointVelCols(data.dFdq);
+        ColsBlock dFdv_cols = jmodel.jointVelCols(data.dFdv);
+        ColsBlock dFda_cols = jmodel.jointVelCols(data.dFda); // Also equals to Ag_cols
+        ColsBlock dYtJ_cols = jmodel.jointVelCols(dYtJ);
 
         MatrixType1 & rnea_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType1, rnea_partial_dq);
         MatrixType2 & rnea_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType2, rnea_partial_dv);
         MatrixType3 & rnea_partial_da_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3, rnea_partial_da);
 
         // tau
-        jmodel.jointVelocitySelector(data.tau).noalias() =
+        jmodel.jointVelocityFromDofSelector(data.tau).noalias() =
           J_cols.transpose() * data.of[i].toVector();
 
         const Eigen::DenseIndex nv_subtree = data.nvSubtree[i];

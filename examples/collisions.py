@@ -10,7 +10,7 @@ urdf_filename = "romeo_small.urdf"
 urdf_model_path = model_path / "romeo_description/urdf" / urdf_filename
 
 # Load model
-model = pin.buildModelFromUrdf(urdf_model_path, pin.JointModelFreeFlyer())
+model = pin.buildModelFromUrdf(urdf_model_path, pin.JointModelFreeFlyer(), False)
 
 # Load collision geometries
 geom_model = pin.buildGeomFromUrdf(

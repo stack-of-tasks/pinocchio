@@ -136,11 +136,12 @@ namespace pinocchio
         const JointIndex & i = jmodel.id();
         const JointIndex & parent = model.parents[i];
 
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
         J_cols = data.oMi[i].act(jdata.S());
 
-        ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
-        motionSet::inertiaAction(data.oYcrb[i], J_cols, Ag_cols);
+        ColsBlock Ag_cols = jmodel.jointVelCols(data.Ag);
+        motionSet::inertiaAction<ADDTO>(data.oYcrb[i], J_cols, Ag_cols);
+
         data.oYcrb[parent] += data.oYcrb[i];
       }
 
@@ -173,6 +174,7 @@ namespace pinocchio
         data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
 
       typedef CcrbaBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
+      data.Ag.setZero();
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
         Pass2::run(model.joints[i], data.joints[i], typename Pass2::ArgsType(model, data));
@@ -220,6 +222,7 @@ namespace pinocchio
         data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
 
       typedef CcrbaBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
+      data.Ag.setZero();
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
         Pass2::run(model.joints[i], data.joints[i], typename Pass2::ArgsType(model, data));
@@ -264,10 +267,10 @@ namespace pinocchio
         const Inertia & Y = data.oYcrb[i];
         const typename Inertia::Matrix6 & doYcrb = data.doYcrb[i];
 
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
         J_cols = data.oMi[i].act(jdata.S());
 
-        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+        ColsBlock dJ_cols = jmodel.jointJacCols(data.dJ);
         motionSet::motionAction(data.ov[i], J_cols, dJ_cols);
 
         data.oYcrb[parent] += Y;
@@ -275,11 +278,11 @@ namespace pinocchio
           data.doYcrb[parent] += doYcrb;
 
         // Calc Ag
-        ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
+        ColsBlock Ag_cols = jmodel.jointVelCols(data.Ag);
         motionSet::inertiaAction(Y, J_cols, Ag_cols);
 
         // Calc dAg = Ivx + vxI
-        ColsBlock dAg_cols = jmodel.jointCols(data.dAg);
+        ColsBlock dAg_cols = jmodel.jointVelCols(data.dAg);
         dAg_cols.noalias() = doYcrb * J_cols;
         motionSet::inertiaAction<ADDTO>(Y, dJ_cols, dAg_cols);
       }

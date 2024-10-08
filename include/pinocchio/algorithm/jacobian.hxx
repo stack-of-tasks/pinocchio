@@ -57,7 +57,7 @@ namespace pinocchio
           data.oMi[i] = data.liMi[i];
 
         Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J);
-        jmodel.jointCols(J_) = data.oMi[i].act(jdata.S());
+        jmodel.jointJacCols(J_) = data.oMi[i].act(jdata.S());
       }
     };
 
@@ -113,7 +113,7 @@ namespace pinocchio
         typedef typename Model::JointIndex JointIndex;
 
         const JointIndex & i = jmodel.id();
-        jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+        jmodel.jointJacCols(data.J) = data.oMi[i].act(jdata.S());
       }
     };
   } // namespace impl
@@ -184,50 +184,69 @@ namespace pinocchio
       assert(model.check(data) && "data is not consistent with model.");
 
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.rows(), 6);
-      PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.cols(), model.nj);
 
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.rows(), 6);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.cols(), model.nv);
 
       Matrix6xLikeOut & Jout_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLikeOut, Jout);
+      Jout_.setZero();
 
+      typedef typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointIndex JointIndex;
       typedef typename Matrix6xLikeIn::ConstColXpr ConstColXprIn;
       typedef const MotionRef<ConstColXprIn> MotionIn;
 
       typedef typename Matrix6xLikeOut::ColXpr ColXprOut;
       typedef MotionRef<ColXprOut> MotionOut;
 
-      const int colRef = nv(model.joints[joint_id]) + idx_v(model.joints[joint_id]) - 1;
       switch (rf)
       {
       case WORLD: {
-        for (Eigen::DenseIndex j = colRef; j >= 0; j = data.parents_fromRow[(size_t)j])
+        for (JointIndex j = joint_id; j > 0; j = model.parents[(size_t)j])
         {
-          MotionIn v_in(Jin.col(j));
-          MotionOut v_out(Jout_.col(j));
+          for (int i = nj(model.joints[j]) - 1; i >= 0; i--)
+          {
+            const Eigen::DenseIndex col_in = idx_j(model.joints[j]) + i;
+            const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
 
-          v_out = v_in;
+            MotionIn v_in(Jin.col(col_in));
+            MotionOut v_out(Jout_.col(col_out));
+
+            v_out += v_in;
+          }
         }
         break;
       }
       case LOCAL_WORLD_ALIGNED: {
-        for (Eigen::DenseIndex j = colRef; j >= 0; j = data.parents_fromRow[(size_t)j])
+        for (JointIndex j = joint_id; j > 0; j = model.parents[(size_t)j])
         {
-          MotionIn v_in(Jin.col(j));
-          MotionOut v_out(Jout_.col(j));
+          for (int i = nj(model.joints[j]) - 1; i >= 0; i--)
+          {
+            const Eigen::DenseIndex col_in = idx_j(model.joints[j]) + i;
+            const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
 
-          v_out = v_in;
-          v_out.linear() -= placement.translation().cross(v_in.angular());
+            MotionIn v_in(Jin.col(col_in));
+            MotionOut v_out(Jout_.col(col_out));
+
+            v_out += v_in;
+            v_out.linear() -= placement.translation().cross(v_in.angular());
+          }
         }
         break;
       }
       case LOCAL: {
-        for (Eigen::DenseIndex j = colRef; j >= 0; j = data.parents_fromRow[(size_t)j])
+        for (JointIndex j = joint_id; j > 0; j = model.parents[(size_t)j])
         {
-          MotionIn v_in(Jin.col(j));
-          MotionOut v_out(Jout_.col(j));
+          for (int i = nj(model.joints[j]) - 1; i >= 0; i--)
+          {
+            const Eigen::DenseIndex col_in = idx_j(model.joints[j]) + i;
+            const Eigen::DenseIndex col_out = idx_v(model.joints[j]) + i;
 
-          v_out = placement.actInv(v_in);
+            MotionIn v_in(Jin.col(col_in));
+            MotionOut v_out(Jout_.col(col_out));
+
+            v_out += placement.actInv(v_in);
+          }
         }
         break;
       }
@@ -320,7 +339,7 @@ namespace pinocchio
         data.iMf[parent] = data.liMi[i] * data.iMf[i];
 
         Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J);
-        jmodel.jointCols(J_) = data.iMf[i].actInv(jdata.S());
+        jmodel.jointVelCols(J_) += data.iMf[i].actInv(jdata.S());
       }
     };
 
@@ -345,15 +364,17 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
 
       data.iMf[jointId].setIdentity();
+
+      Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J);
+      J_.setZero();
+
       typedef JointJacobianForwardStep<
         Scalar, Options, JointCollectionTpl, ConfigVectorType, Matrix6xLike>
         Pass;
       for (JointIndex i = jointId; i > 0; i = model.parents[i])
       {
         Pass::run(
-          model.joints[i], data.joints[i],
-          typename Pass::ArgsType(
-            model, data, q.derived(), PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J)));
+          model.joints[i], data.joints[i], typename Pass::ArgsType(model, data, q.derived(), J_));
       }
     }
 
@@ -412,7 +433,7 @@ namespace pinocchio
           oMi = data.liMi[i];
         }
 
-        jmodel.jointCols(data.J) = oMi.act(jdata.S());
+        jmodel.jointJacCols(data.J) = oMi.act(jdata.S());
 
         // Spatial velocity of joint i expressed in the global frame o
         data.ov[i] = oMi.act(vJ);
@@ -420,8 +441,8 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock dJcols = jmodel.jointCols(data.dJ);
-        ColsBlock Jcols = jmodel.jointCols(data.J);
+        ColsBlock dJcols = jmodel.jointJacCols(data.dJ);
+        ColsBlock Jcols = jmodel.jointJacCols(data.J);
 
         motionSet::motionAction(data.ov[i], Jcols, dJcols);
       }

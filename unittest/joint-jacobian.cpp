@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(test_jacobian)
   using namespace pinocchio;
 
   pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::buildModels::humanoidRandom(model, true, true);
   pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Zero(model.nq);
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(test_jacobian_time_variation)
   using namespace pinocchio;
 
   pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::buildModels::humanoidRandom(model, true, true);
   pinocchio::Data data(model);
   pinocchio::Data data_ref(model);
 
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(test_timings)
   using namespace pinocchio;
 
   pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::buildModels::humanoidRandom(model, true, true);
   pinocchio::Data data(model);
 
   long flag = BOOST_BINARY(1111);

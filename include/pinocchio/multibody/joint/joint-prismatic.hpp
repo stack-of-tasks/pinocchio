@@ -570,7 +570,8 @@ namespace pinocchio
     enum
     {
       NQ = 1,
-      NV = 1
+      NV = 1,
+      NJ = 1
     };
     typedef _Scalar Scalar;
     enum
@@ -591,6 +592,8 @@ namespace pinocchio
 
     typedef Eigen::Matrix<Scalar, NQ, 1, Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar, NV, 1, Options> TangentVector_t;
+
+    typedef boost::mpl::true_ is_mimicable_t;
 
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
@@ -671,6 +674,7 @@ namespace pinocchio
 
     typedef JointModelBase<JointModelPrismaticTpl> Base;
     using Base::id;
+    using Base::idx_j;
     using Base::idx_q;
     using Base::idx_v;
     using Base::setIndexes;
@@ -766,7 +770,7 @@ namespace pinocchio
     {
       typedef JointModelPrismaticTpl<NewScalar, Options, axis> ReturnType;
       ReturnType res;
-      res.setIndexes(id(), idx_q(), idx_v());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_j());
       return res;
     }
 
@@ -784,6 +788,11 @@ namespace pinocchio
   typedef JointDataPrismaticTpl<context::Scalar, context::Options, 2> JointDataPZ;
   typedef JointModelPrismaticTpl<context::Scalar, context::Options, 2> JointModelPZ;
 
+  template<typename Scalar, int Options, int axis>
+  struct ConfigVectorAffineTransform<JointPrismaticTpl<Scalar, Options, axis>>
+  {
+    typedef LinearAffineTransform Type;
+  };
 } // namespace pinocchio
 
 #include <boost/type_traits.hpp>

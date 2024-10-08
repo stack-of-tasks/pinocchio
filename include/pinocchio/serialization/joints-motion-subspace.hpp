@@ -101,19 +101,19 @@ namespace boost
       ar & make_nvp("angularSubspace", S.angularSubspace());
     }
 
-    template<class Archive, int Dim, typename Scalar, int Options>
+    template<class Archive, int Dim, typename Scalar, int Options, int MaxDim>
     void serialize(
       Archive & ar,
-      pinocchio::JointMotionSubspaceTpl<Dim, Scalar, Options> & S,
+      pinocchio::JointMotionSubspaceTpl<Dim, Scalar, Options, MaxDim> & S,
       const unsigned int /*version*/)
     {
       ar & make_nvp("matrix", S.matrix());
     }
 
-    template<class Archive, class Constraint>
+    template<class Archive, typename Scalar, int Options, int MaxDim>
     void serialize(
       Archive & ar,
-      pinocchio::ScaledJointMotionSubspace<Constraint> & S,
+      pinocchio::ScaledJointMotionSubspaceTpl<Scalar, Options, MaxDim> & S,
       const unsigned int /*version*/)
     {
       ar & make_nvp("scaling", S.scaling());

@@ -28,10 +28,6 @@ namespace pinocchio
     typedef JointModelRevoluteTpl<Scalar, Options, 1> JointModelRY;
     typedef JointModelRevoluteTpl<Scalar, Options, 2> JointModelRZ;
 
-    typedef JointModelMimic<JointModelRX> JointModelMimicRX;
-    typedef JointModelMimic<JointModelRY> JointModelMimicRY;
-    typedef JointModelMimic<JointModelRZ> JointModelMimicRZ;
-
     // Joint Revolute Unaligned
     typedef JointModelRevoluteUnalignedTpl<Scalar, Options> JointModelRevoluteUnaligned;
 
@@ -71,6 +67,10 @@ namespace pinocchio
     typedef JointModelCompositeTpl<Scalar, Options, ::pinocchio::JointCollectionDefaultTpl>
       JointModelComposite;
 
+    // Joint Mimic
+    typedef JointModelMimicTpl<Scalar, Options, ::pinocchio::JointCollectionDefaultTpl>
+      JointModelMimic;
+
     // Joint Helical
     typedef JointModelHelicalTpl<Scalar, Options, 0> JointModelHx;
     typedef JointModelHelicalTpl<Scalar, Options, 1> JointModelHy;
@@ -87,9 +87,6 @@ namespace pinocchio
       JointModelRX,
       JointModelRY,
       JointModelRZ,
-      JointModelMimicRX,
-      JointModelMimicRY,
-      JointModelMimicRZ,
       JointModelFreeFlyer,
       JointModelPlanar,
       JointModelRevoluteUnaligned,
@@ -109,17 +106,14 @@ namespace pinocchio
       JointModelHz,
       JointModelHelicalUnaligned,
       JointModelUniversal,
-      boost::recursive_wrapper<JointModelComposite>>
+      boost::recursive_wrapper<JointModelComposite>,
+      boost::recursive_wrapper<JointModelMimic>>
       JointModelVariant;
 
     // Joint Revolute
     typedef JointDataRevoluteTpl<Scalar, Options, 0> JointDataRX;
     typedef JointDataRevoluteTpl<Scalar, Options, 1> JointDataRY;
     typedef JointDataRevoluteTpl<Scalar, Options, 2> JointDataRZ;
-
-    typedef JointDataMimic<JointDataRX> JointDataMimicRX;
-    typedef JointDataMimic<JointDataRY> JointDataMimicRY;
-    typedef JointDataMimic<JointDataRZ> JointDataMimicRZ;
 
     // Joint Revolute Unaligned
     typedef JointDataRevoluteUnalignedTpl<Scalar, Options> JointDataRevoluteUnaligned;
@@ -160,6 +154,10 @@ namespace pinocchio
     typedef JointDataCompositeTpl<Scalar, Options, ::pinocchio::JointCollectionDefaultTpl>
       JointDataComposite;
 
+    // Joint Mimic
+    typedef JointDataMimicTpl<Scalar, Options, ::pinocchio::JointCollectionDefaultTpl>
+      JointDataMimic;
+
     // Joint Helical
     typedef JointDataHelicalTpl<Scalar, Options, 0> JointDataHx;
     typedef JointDataHelicalTpl<Scalar, Options, 1> JointDataHy;
@@ -176,9 +174,6 @@ namespace pinocchio
       JointDataRX,
       JointDataRY,
       JointDataRZ,
-      JointDataMimicRX,
-      JointDataMimicRY,
-      JointDataMimicRZ,
       JointDataFreeFlyer,
       JointDataPlanar,
       JointDataRevoluteUnaligned,
@@ -198,7 +193,8 @@ namespace pinocchio
       JointDataHz,
       JointDataHelicalUnaligned,
       JointDataUniversal,
-      boost::recursive_wrapper<JointDataComposite>>
+      boost::recursive_wrapper<JointDataComposite>,
+      boost::recursive_wrapper<JointDataMimic>>
       JointDataVariant;
   };
 

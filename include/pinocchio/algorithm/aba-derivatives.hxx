@@ -74,7 +74,7 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
         J_cols = data.oMi[i].act(jdata.S());
       }
     };
@@ -119,14 +119,14 @@ namespace pinocchio
         Force & fi = data.of[i];
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
-        const ColBlock J_cols = jmodel.jointCols(data.J);
+        const ColBlock J_cols = jmodel.jointJacCols(data.J);
 
-        jmodel.jointVelocitySelector(data.u).noalias() -= J_cols.transpose() * fi.toVector();
+        jmodel.jointVelocityFromNvSelector(data.u).noalias() -= J_cols.transpose() * fi.toVector();
 
         jdata.U().noalias() = Ia * J_cols;
         jdata.StU().noalias() = J_cols.transpose() * jdata.U();
 
-        jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
+        jdata.StU().diagonal() += jmodel.jointVelocityFromNvSelector(model.armature);
 
         ::pinocchio::internal::PerformStYSInversion<Scalar>::run(jdata.StU(), jdata.Dinv());
         jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
@@ -137,7 +137,7 @@ namespace pinocchio
         const int nv_children = data.nvSubtree[i] - jmodel.nv();
         if (nv_children > 0)
         {
-          ColsBlock SDinv_cols = jmodel.jointCols(data.SDinv);
+          ColsBlock SDinv_cols = jmodel.jointVelCols(data.SDinv);
           SDinv_cols.noalias() = J_cols * jdata.Dinv();
 
           Minv_.block(jmodel.idx_v(), jmodel.idx_v() + jmodel.nv(), jmodel.nv(), nv_children)
@@ -162,8 +162,8 @@ namespace pinocchio
         {
           Ia.noalias() -= jdata.UDinv() * jdata.U().transpose();
 
-          fi.toVector().noalias() +=
-            Ia * data.oa_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+          fi.toVector().noalias() += Ia * data.oa_gf[i].toVector()
+                                     + jdata.UDinv() * jmodel.jointVelocityFromNvSelector(data.u);
           data.oYaba[parent] += Ia;
           data.of[parent] += fi;
         }
@@ -204,14 +204,14 @@ namespace pinocchio
         typename Data::Motion & oa_gf = data.oa_gf[i];
 
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColsBlock;
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
 
         oa_gf += data.oa_gf[parent];
-        jmodel.jointVelocitySelector(data.ddq).noalias() =
-          jdata.Dinv() * jmodel.jointVelocitySelector(data.u)
+        jmodel.jointVelocityFromNvSelector(data.ddq).noalias() =
+          jdata.Dinv() * jmodel.jointVelocityFromNvSelector(data.u)
           - jdata.UDinv().transpose() * oa_gf.toVector();
 
-        oa_gf.toVector().noalias() += J_cols * jmodel.jointVelocitySelector(data.ddq);
+        oa_gf.toVector().noalias() += J_cols * jmodel.jointVelocityFromNvSelector(data.ddq);
         oa = oa_gf + model.gravity;
         of = data.oYcrb[i] * oa_gf + ov.cross(data.oh[i]);
 
@@ -233,10 +233,10 @@ namespace pinocchio
           data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()) +=
             data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
 
-        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
-        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-        ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+        ColsBlock dJ_cols = jmodel.jointJacCols(data.dJ);
+        ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+        ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
+        ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
 
         motionSet::motionAction(ov, J_cols, dJ_cols);
         motionSet::motionAction(data.oa_gf[parent], J_cols, dAdq_cols);
@@ -303,13 +303,13 @@ namespace pinocchio
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
 
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-        ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
-        ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
-        ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
-        ColsBlock dFda_cols = jmodel.jointCols(data.dFda);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+        ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
+        ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
+        ColsBlock dFdq_cols = jmodel.jointVelCols(data.dFdq);
+        ColsBlock dFdv_cols = jmodel.jointVelCols(data.dFdv);
+        ColsBlock dFda_cols = jmodel.jointVelCols(data.dFda);
 
         // dtau/dv
         motionSet::inertiaAction(data.oYcrb[i], dAdv_cols, dFdv_cols);
@@ -578,7 +578,7 @@ namespace pinocchio
 
           typedef
             typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
-          const ColBlock J_cols = jmodel.jointCols(data.J);
+          const ColBlock J_cols = jmodel.jointJacCols(data.J);
 
           MatrixType & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType, Minv);
 
@@ -586,7 +586,7 @@ namespace pinocchio
           const int nv_children = data.nvSubtree[i] - jmodel.nv();
           if (nv_children > 0)
           {
-            ColsBlock SDinv_cols = jmodel.jointCols(data.SDinv);
+            ColsBlock SDinv_cols = jmodel.jointVelCols(data.SDinv);
             SDinv_cols.noalias() = J_cols * jdata.Dinv();
 
             Minv_.block(jmodel.idx_v(), jmodel.idx_v() + jmodel.nv(), jmodel.nv(), nv_children)
@@ -649,7 +649,7 @@ namespace pinocchio
 
           typedef
             typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColsBlock;
-          const ColsBlock J_cols = jmodel.jointCols(data.J);
+          const ColsBlock J_cols = jmodel.jointJacCols(data.J);
 
           // Already done in optimized::aba
           //        oa = oa_gf + model.gravity;
@@ -674,10 +674,10 @@ namespace pinocchio
             data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()) +=
               data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
 
-          ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
-          ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-          ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-          ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+          ColsBlock dJ_cols = jmodel.jointJacCols(data.dJ);
+          ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+          ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
+          ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
 
           motionSet::motionAction(ov, J_cols, dJ_cols);
           motionSet::motionAction(data.oa_gf[parent], J_cols, dAdq_cols);

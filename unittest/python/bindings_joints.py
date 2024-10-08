@@ -7,7 +7,7 @@ from test_case import PinocchioTestCase as TestCase
 
 class TestJointsAlgo(TestCase):
     def setUp(self):
-        self.model = pin.buildSampleModelHumanoidRandom()
+        self.model = pin.buildSampleModelHumanoidRandom(True)
 
         qmax = np.full((self.model.nq, 1), np.pi)
         self.q = pin.randomConfiguration(self.model, -qmax, qmax)

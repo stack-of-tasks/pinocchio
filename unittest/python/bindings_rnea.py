@@ -7,7 +7,7 @@ from test_case import PinocchioTestCase as TestCase
 
 class TestRNEA(TestCase):
     def setUp(self):
-        self.model = pin.buildSampleModelHumanoidRandom()
+        self.model = pin.buildSampleModelHumanoidRandom(True)
         self.data = self.model.createData()
 
         qmax = np.full((self.model.nq, 1), np.pi)

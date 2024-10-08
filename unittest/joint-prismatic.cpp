@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics)
   JointDataPX joint_data;
   JointModelPX joint_model;
 
-  joint_model.setIndexes(0, 0, 0);
+  joint_model.setIndexes(0, 0, 0, 0);
 
   Eigen::VectorXd q(Eigen::VectorXd::Zero(1));
   Eigen::VectorXd q_dot(Eigen::VectorXd::Zero(1));

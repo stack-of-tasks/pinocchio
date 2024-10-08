@@ -7,7 +7,7 @@ from test_case import PinocchioTestCase as TestCase
 
 class TestData(TestCase):
     def setUp(self):
-        self.model = pin.buildSampleModelHumanoidRandom()
+        self.model = pin.buildSampleModelHumanoidRandom(True, True)
         self.data = self.model.createData()
 
     def test_copy(self):

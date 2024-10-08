@@ -66,7 +66,7 @@ namespace pinocchio
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
           ColsBlock;
-      ColsBlock Jcols = jmodel.jointCols(data.J);
+      ColsBlock Jcols = jmodel.jointJacCols(data.J);
 
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix3xOut1>::Type ColsBlockOut1;
@@ -78,13 +78,13 @@ namespace pinocchio
       // dvec/dv
       const int nv = jmodel.nv();
       Eigen::Matrix<Scalar, 6, JointModel::NV, Options> v_spatial_partial_dv_cols(6, nv);
-      ColsBlockOut2 v_partial_dv_cols = jmodel.jointCols(v_partial_dv_);
+      ColsBlockOut2 v_partial_dv_cols = jmodel.jointVelCols(v_partial_dv_);
 
       motionSet::se3ActionInverse(oMlast, Jcols, v_spatial_partial_dv_cols);
       v_partial_dv_cols = v_spatial_partial_dv_cols.template middleRows<3>(Motion::LINEAR);
 
       // dvec/dq
-      ColsBlockOut1 v_partial_dq_cols = jmodel.jointCols(v_partial_dq_);
+      ColsBlockOut1 v_partial_dq_cols = jmodel.jointVelCols(v_partial_dq_);
 
 #define FOR_NV() for (Eigen::DenseIndex j = 0; j < nv; ++j)
 #define GET_LINEAR(vec6) vec6.template segment<3>(Motion::LINEAR)
@@ -175,7 +175,7 @@ namespace pinocchio
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
           ColsBlock;
-      ColsBlock Jcols = jmodel.jointCols(data.J);
+      ColsBlock Jcols = jmodel.jointJacCols(data.J);
 
       typedef
         typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut1>::Type ColsBlockOut1;
@@ -185,7 +185,7 @@ namespace pinocchio
       Matrix6xOut2 & v_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2, v_partial_dv);
 
       // dvec/dv
-      ColsBlockOut2 v_partial_dv_cols = jmodel.jointCols(v_partial_dv_);
+      ColsBlockOut2 v_partial_dv_cols = jmodel.jointVelCols(v_partial_dv_);
 
       switch (rf)
       {
@@ -200,7 +200,7 @@ namespace pinocchio
       }
 
       // dvec/dq
-      ColsBlockOut1 v_partial_dq_cols = jmodel.jointCols(v_partial_dq_);
+      ColsBlockOut1 v_partial_dq_cols = jmodel.jointVelCols(v_partial_dq_);
       const Scalar factor = Scalar(1) + r_coeff;
       switch (rf)
       {

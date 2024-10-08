@@ -28,7 +28,8 @@ namespace pinocchio
     {
       Options = _Options,
       NQ = Eigen::Dynamic,
-      NV = Eigen::Dynamic
+      NV = Eigen::Dynamic,
+      NJ = Eigen::Dynamic
     };
 
     typedef JointCollectionTpl<Scalar, Options> JointCollection;
@@ -46,6 +47,8 @@ namespace pinocchio
 
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> TangentVector_t;
+
+    typedef boost::mpl::false_ is_mimicable_t;
 
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
@@ -193,8 +196,10 @@ namespace pinocchio
     typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModelVariant) JointModelVector;
 
     using Base::id;
+    using Base::idx_j;
     using Base::idx_q;
     using Base::idx_v;
+    using Base::nj;
     using Base::nq;
     using Base::nv;
     using Base::setIndexes;
@@ -205,6 +210,7 @@ namespace pinocchio
     , jointPlacements()
     , m_nq(0)
     , m_nv(0)
+    , m_nj(0)
     , njoints(0)
     {
     }
@@ -215,14 +221,17 @@ namespace pinocchio
     , jointPlacements()
     , m_nq(0)
     , m_nv(0)
+    , m_nj(0)
     , njoints(0)
     {
       joints.reserve(size);
       jointPlacements.reserve(size);
       m_idx_q.reserve(size);
       m_idx_v.reserve(size);
+      m_idx_j.reserve(size);
       m_nqs.reserve(size);
       m_nvs.reserve(size);
+      m_njs.reserve(size);
     }
 
     ///
@@ -238,10 +247,13 @@ namespace pinocchio
     , jointPlacements(1, placement)
     , m_nq(jmodel.nq())
     , m_nv(jmodel.nv())
+    , m_nj(jmodel.nj())
     , m_idx_q(1, 0)
     , m_nqs(1, jmodel.nq())
     , m_idx_v(1, 0)
     , m_nvs(1, jmodel.nv())
+    , m_idx_j(1, 0)
+    , m_njs(1, jmodel.nj())
     , njoints(1)
     {
     }
@@ -257,10 +269,13 @@ namespace pinocchio
     , jointPlacements(other.jointPlacements)
     , m_nq(other.m_nq)
     , m_nv(other.m_nv)
+    , m_nj(other.m_nj)
     , m_idx_q(other.m_idx_q)
     , m_nqs(other.m_nqs)
     , m_idx_v(other.m_idx_v)
     , m_nvs(other.m_nvs)
+    , m_idx_j(other.m_idx_j)
+    , m_njs(other.m_njs)
     , njoints(other.njoints)
     {
     }
@@ -282,6 +297,7 @@ namespace pinocchio
 
       m_nq += jmodel.nq();
       m_nv += jmodel.nv();
+      m_nj += jmodel.nj();
 
       updateJointIndexes();
       njoints++;
@@ -367,13 +383,17 @@ namespace pinocchio
     {
       return m_nq;
     }
+    int nj_impl() const
+    {
+      return m_nj;
+    }
 
     /**
      * @brief      Update the indexes of subjoints in the stack
      */
-    void setIndexes_impl(JointIndex id, int q, int v)
+    void setIndexes_impl(JointIndex id, int q, int v, int j)
     {
-      Base::setIndexes_impl(id, q, v);
+      Base::setIndexes_impl(id, q, v, j);
       updateJointIndexes();
     }
 
@@ -391,10 +411,13 @@ namespace pinocchio
       Base::operator=(other);
       m_nq = other.m_nq;
       m_nv = other.m_nv;
+      m_nj = other.m_nj;
       m_idx_q = other.m_idx_q;
       m_idx_v = other.m_idx_v;
+      m_idx_j = other.m_idx_j;
       m_nqs = other.m_nqs;
       m_nvs = other.m_nvs;
+      m_njs = other.m_njs;
       joints = other.joints;
       jointPlacements = other.jointPlacements;
       njoints = other.njoints;
@@ -407,10 +430,13 @@ namespace pinocchio
     {
       return Base::isEqual(other) && internal::comparison_eq(nq(), other.nq())
              && internal::comparison_eq(nv(), other.nv())
+             && internal::comparison_eq(nj(), other.nj())
              && internal::comparison_eq(m_idx_q, other.m_idx_q)
              && internal::comparison_eq(m_idx_v, other.m_idx_v)
+             && internal::comparison_eq(m_idx_j, other.m_idx_j)
              && internal::comparison_eq(m_nqs, other.m_nqs)
              && internal::comparison_eq(m_nvs, other.m_nvs)
+             && internal::comparison_eq(m_njs, other.m_njs)
              && internal::comparison_eq(joints, other.joints)
              && internal::comparison_eq(jointPlacements, other.jointPlacements)
              && internal::comparison_eq(njoints, other.njoints);
@@ -422,13 +448,16 @@ namespace pinocchio
     {
       typedef JointModelCompositeTpl<NewScalar, Options, JointCollectionTpl> ReturnType;
       ReturnType res((size_t)njoints);
-      res.setIndexes(id(), idx_q(), idx_v());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_j());
       res.m_nq = m_nq;
       res.m_nv = m_nv;
+      res.m_nj = m_nj;
       res.m_idx_q = m_idx_q;
       res.m_idx_v = m_idx_v;
+      res.m_idx_j = m_idx_j;
       res.m_nqs = m_nqs;
       res.m_nvs = m_nvs;
+      res.m_njs = m_njs;
       res.njoints = njoints;
 
       res.joints.resize(joints.size());
@@ -450,78 +479,156 @@ namespace pinocchio
 
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
-    jointConfigSelector(const Eigen::MatrixBase<D> & a) const
+    jointConfigFromDofSelector(const Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_q, nq());
     }
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type
-    jointConfigSelector(Eigen::MatrixBase<D> & a) const
+    jointConfigFromDofSelector(Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_q, nq());
+    }
+
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
+    jointConfigFromNqSelector(const Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_q, nq());
+    }
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::Type
+    jointConfigFromNqSelector(Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_q, nq());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointVelocitySelector(const Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector(const Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointVelocitySelector(Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector(Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_v, nv());
+    }
+
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
+    jointVelocityFromNvSelector(const Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_v, nv());
+    }
+    template<typename D>
+    typename SizeDepType<NV>::template SegmentReturn<D>::Type
+    jointVelocityFromNvSelector(Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType
-    jointCols(const Eigen::MatrixBase<D> & A) const
+    jointVelCols(const Eigen::MatrixBase<D> & A) const
     {
       return A.middleCols(Base::i_v, nv());
     }
     template<typename D>
-    typename SizeDepType<NV>::template ColsReturn<D>::Type jointCols(Eigen::MatrixBase<D> & A) const
+    typename SizeDepType<NV>::template ColsReturn<D>::ConstType
+    jointJacCols(const Eigen::MatrixBase<D> & A) const
+    {
+      return A.middleCols(Base::i_j, nj());
+    }
+    template<typename D>
+    typename SizeDepType<NV>::template ColsReturn<D>::Type
+    jointVelCols(Eigen::MatrixBase<D> & A) const
     {
       return A.middleCols(Base::i_v, nv());
+    }
+    template<typename D>
+    typename SizeDepType<NV>::template ColsReturn<D>::Type
+    jointJacCols(Eigen::MatrixBase<D> & A) const
+    {
+      return A.middleCols(Base::i_j, nj());
     }
 
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
-    jointConfigSelector_impl(const Eigen::MatrixBase<D> & a) const
+    jointConfigFromNqSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_q, nq());
     }
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
-    jointConfigSelector_impl(Eigen::MatrixBase<D> & a) const
+    jointConfigFromNqSelector_impl(Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_q, nq());
+    }
+
+    template<typename D>
+    typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
+    jointConfigFromDofSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_q, nq());
     }
     template<typename D>
+    typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
+    jointConfigFromDofSelector_impl(Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_q, nq());
+    }
+
+    template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
-    jointVelocitySelector_impl(const Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
-    jointVelocitySelector_impl(Eigen::MatrixBase<D> & a) const
+    jointVelocityFromDofSelector_impl(Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_v, nv());
+    }
+
+    template<typename D>
+    typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
+    jointVelocityFromNvSelector_impl(const Eigen::MatrixBase<D> & a) const
+    {
+      return a.segment(Base::i_v, nv());
+    }
+    template<typename D>
+    typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
+    jointVelocityFromNvSelector_impl(Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
 
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template ColsReturn<D>::ConstType
-    jointCols_impl(const Eigen::MatrixBase<D> & A) const
+    jointVelCols_impl(const Eigen::MatrixBase<D> & A) const
+    {
+      return A.middleCols(Base::i_v, nv());
+    }
+    template<typename D>
+    typename SizeDepType<Eigen::Dynamic>::template ColsReturn<D>::ConstType
+    jointJacCols_impl(const Eigen::MatrixBase<D> & A) const
+    {
+      return A.middleCols(Base::i_j, nj());
+    }
+    template<typename D>
+    typename SizeDepType<Eigen::Dynamic>::template ColsReturn<D>::Type
+    jointVelCols_impl(Eigen::MatrixBase<D> & A) const
     {
       return A.middleCols(Base::i_v, nv());
     }
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template ColsReturn<D>::Type
-    jointCols_impl(Eigen::MatrixBase<D> & A) const
+    jointJacCols_impl(Eigen::MatrixBase<D> & A) const
     {
-      return A.middleCols(Base::i_v, nv());
+      return A.middleCols(Base::i_j, nj());
     }
 
   protected:
@@ -536,11 +643,14 @@ namespace pinocchio
     {
       int idx_q = this->idx_q();
       int idx_v = this->idx_v();
+      int idx_j = this->idx_j();
 
       m_idx_q.resize(joints.size());
       m_idx_v.resize(joints.size());
+      m_idx_j.resize(joints.size());
       m_nqs.resize(joints.size());
       m_nvs.resize(joints.size());
+      m_njs.resize(joints.size());
 
       for (size_t i = 0; i < joints.size(); ++i)
       {
@@ -548,16 +658,19 @@ namespace pinocchio
 
         m_idx_q[i] = idx_q;
         m_idx_v[i] = idx_v;
-        ::pinocchio::setIndexes(joint, i, idx_q, idx_v);
+        m_idx_j[i] = idx_j;
+        ::pinocchio::setIndexes(joint, i, idx_q, idx_v, idx_j);
         m_nqs[i] = ::pinocchio::nq(joint);
         m_nvs[i] = ::pinocchio::nv(joint);
+        m_njs[i] = ::pinocchio::nj(joint);
         idx_q += m_nqs[i];
         idx_v += m_nvs[i];
+        idx_j += m_njs[i];
       }
     }
 
     /// \brief Dimensions of the config and tangent space of the composite joint.
-    int m_nq, m_nv;
+    int m_nq, m_nv, m_nj;
 
     /// Keep information of both the dimension and the position of the joints in the composition.
 
@@ -569,6 +682,10 @@ namespace pinocchio
     std::vector<int> m_idx_v;
     /// \brief Dimension of the segment in the tangent vector
     std::vector<int> m_nvs;
+    /// \brief Index in the jacobian matrix
+    std::vector<int> m_idx_j;
+    /// \brief Dimension of the segment in the jacobian matrix
+    std::vector<int> m_njs;
 
   public:
     /// \brief Number of joints contained in the JointModelComposite

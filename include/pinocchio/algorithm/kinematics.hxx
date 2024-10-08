@@ -5,6 +5,7 @@
 #ifndef __pinocchio_kinematics_hxx__
 #define __pinocchio_kinematics_hxx__
 
+#include "model.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
@@ -233,7 +234,7 @@ namespace pinocchio
           data.oMi[i] = data.liMi[i];
 
         data.a[i] =
-          jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
+          jdata.S() * jmodel.jointVelocityFromDofSelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
         data.a[i] += data.liMi[i].actInv(data.a[parent]);
       }
     };
@@ -276,6 +277,57 @@ namespace pinocchio
       }
     }
   } // namespace impl
+
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  SE3Tpl<Scalar, Options> getRelativePlacement(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    const DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const JointIndex jointIdRef,
+    const JointIndex jointIdTarget,
+    const Convention convention)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    assert(jointIdRef >= 0 && jointIdRef < (JointIndex)model.njoints && "invalid joint id");
+    assert(jointIdTarget >= 0 && jointIdTarget < (JointIndex)model.njoints && "invalid joint id");
+    switch (convention)
+    {
+    case Convention::LOCAL: {
+      SE3Tpl<Scalar, Options> result;
+      const JointIndex child_id = std::max(jointIdRef, jointIdTarget);
+      const JointIndex parent_id = std::min(jointIdRef, jointIdTarget);
+      result.setIdentity();
+
+      // Traverse the kinematic chain from "tip" to "root"
+      size_t common_ancestor_parent, common_ancestor_child;
+      findCommonAncestor(model, parent_id, child_id, common_ancestor_parent, common_ancestor_child);
+
+      // Traverse the kinematic chain backward to the common ancestor
+      for (size_t i = model.supports[child_id].size() - 1; i > common_ancestor_child; i--)
+      {
+        const JointIndex j = model.supports[child_id][(size_t)i];
+        result = data.liMi[j].act(result);
+      }
+      // Then forward to the "parent"
+      for (size_t i = common_ancestor_parent + 1; i <= model.supports[parent_id].size() - 1; i++)
+      {
+        const JointIndex j = model.supports[parent_id][i];
+        result = data.liMi[j].actInv(result);
+      }
+
+      // Inverse the result if necessary
+      if (child_id == jointIdRef && jointIdRef != jointIdTarget)
+      {
+        result = result.inverse();
+      }
+      return result;
+    }
+    case Convention::WORLD:
+      return data.oMi[jointIdRef].actInv(data.oMi[jointIdTarget]);
+    default:
+      throw std::invalid_argument("Bad convention.");
+    }
+  }
+
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   MotionTpl<Scalar, Options> getVelocity(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,

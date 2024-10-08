@@ -79,9 +79,9 @@ namespace pinocchio
   , parents_fromRow((std::size_t)model.nv, -1)
   , supports_fromRow((std::size_t)model.nv)
   , nvSubtree_fromRow((std::size_t)model.nv, -1)
-  , J(Matrix6x::Zero(6, model.nv))
-  , dJ(Matrix6x::Zero(6, model.nv))
-  , ddJ(Matrix6x::Zero(6, model.nv))
+  , J(Matrix6x::Zero(6, model.nj))
+  , dJ(Matrix6x::Zero(6, model.nj))
+  , ddJ(Matrix6x::Zero(6, model.nj))
   , psid(Matrix6x::Zero(6, model.nv))
   , psidd(Matrix6x::Zero(6, model.nv))
   , dVdq(Matrix6x::Zero(6, model.nv))
@@ -200,11 +200,21 @@ namespace pinocchio
       if (lastChild[(Index)i] == -1)
         lastChild[(Index)i] = i;
       const Index & parent = model.parents[(Index)i];
-      lastChild[parent] = std::max<int>(lastChild[(Index)i], lastChild[parent]);
 
-      nvSubtree[(Index)i] = model.joints[(Index)lastChild[(Index)i]].idx_v()
-                            + model.joints[(Index)lastChild[(Index)i]].nv()
-                            - model.joints[(Index)i].idx_v();
+      lastChild[parent] = std::max<int>(lastChild[(Index)i], lastChild[parent]);
+      int nv_;
+
+      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(
+            &model.joints[(Index)lastChild[(Index)i]]))
+        nv_ = boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(
+                model.joints[(Index)lastChild[(Index)i]])
+                .jmodel()
+                .nv();
+      else
+        nv_ = nv(model.joints[(Index)lastChild[(Index)i]]);
+
+      nvSubtree[(Index)i] =
+        model.joints[(Index)lastChild[(Index)i]].idx_v() + nv_ - model.joints[(Index)i].idx_v();
     }
   }
 
@@ -216,6 +226,8 @@ namespace pinocchio
 
     for (Index joint = 1; joint < (Index)(model.njoints); joint++)
     {
+      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[joint]))
+        continue; // Mimic joints should not override mimicked joint fromRow values
       const Index & parent = model.parents[joint];
       const int nvj = model.joints[joint].nv();
       const int idx_vj = model.joints[joint].idx_v();

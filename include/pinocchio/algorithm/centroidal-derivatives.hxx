@@ -58,6 +58,11 @@ namespace pinocchio
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Motion Motion;
 
+        assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
+
         const JointIndex & i = jmodel.id();
         const JointIndex & parent = model.parents[i];
         Motion & ov = data.ov[i];
@@ -78,7 +83,7 @@ namespace pinocchio
           data.oMi[i] = data.liMi[i];
 
         data.a[i] =
-          jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
+          jdata.S() * jmodel.jointVelocityFromNvSelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
         if (parent > 0)
         {
           data.a[i] += data.liMi[i].actInv(data.a[parent]);
@@ -94,11 +99,11 @@ namespace pinocchio
         typedef
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
-        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-        ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock dJ_cols = jmodel.jointJacCols(data.dJ);
+        ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+        ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
+        ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
 
         J_cols = data.oMi[i].act(jdata.S());
         motionSet::motionAction(ov, J_cols, dJ_cols);
@@ -149,6 +154,7 @@ namespace pinocchio
       template<typename JointModel>
       static void algo(const JointModelBase<JointModel> & jmodel, const Model & model, Data & data)
       {
+
         typedef typename Model::JointIndex JointIndex;
 
         const JointIndex & i = jmodel.id();
@@ -158,17 +164,17 @@ namespace pinocchio
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
 
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-        ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
-        ColsBlock dHdq_cols = jmodel.jointCols(data.dHdq);
-        ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
-        ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
-        ColsBlock dFda_cols = jmodel.jointCols(data.dFda);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+        ColsBlock dAdq_cols = jmodel.jointVelCols(data.dAdq);
+        ColsBlock dAdv_cols = jmodel.jointVelCols(data.dAdv);
+        ColsBlock dHdq_cols = jmodel.jointVelCols(data.dHdq);
+        ColsBlock dFdq_cols = jmodel.jointVelCols(data.dFdq);
+        ColsBlock dFdv_cols = jmodel.jointVelCols(data.dFdv);
+        ColsBlock dFda_cols = jmodel.jointVelCols(data.dFda);
 
         // tau
-        jmodel.jointVelocitySelector(data.tau).noalias() =
+        jmodel.jointVelocityFromNvSelector(data.tau).noalias() =
           J_cols.transpose() * data.of[i].toVector();
 
         // dtau/da similar to data.M
@@ -369,16 +375,21 @@ namespace pinocchio
           typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type
             ColsBlock;
 
+        assert(
+          (std::is_same<JointModel, JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>::value
+           == false)
+          && "Algorithm not supported for mimic joints");
+
         const JointIndex & i = jmodel.id();
         const JointIndex & parent = model.parents[i];
 
         typename Data::Motion & vtmp = data.v[0];
         typename Data::Matrix6x & Ftmp = data.Fcrb[0];
 
-        ColsBlock J_cols = jmodel.jointCols(data.J);
-        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-        ColsBlock dHdq_cols = jmodel.jointCols(data.dHdq);
-        ColsBlock Ftmp_cols = jmodel.jointCols(Ftmp);
+        ColsBlock J_cols = jmodel.jointJacCols(data.J);
+        ColsBlock dVdq_cols = jmodel.jointVelCols(data.dVdq);
+        ColsBlock dHdq_cols = jmodel.jointVelCols(data.dHdq);
+        ColsBlock Ftmp_cols = jmodel.jointVelCols(Ftmp);
 
         const Vector3 mg = data.oYcrb[i].mass() * model.gravity.linear();
         for (Eigen::DenseIndex k = 0; k < jmodel.nv(); ++k)

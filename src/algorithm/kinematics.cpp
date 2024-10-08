@@ -45,6 +45,16 @@ namespace pinocchio
       const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &,
       const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &);
   } // namespace impl
+
+  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI
+    SE3Tpl<context::Scalar, context::Options>
+    getRelativePlacement<context::Scalar, context::Options, JointCollectionDefaultTpl>(
+      const context::Model &,
+      const context::Data &,
+      const JointIndex,
+      const JointIndex,
+      const Convention);
+
   template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI
     MotionTpl<context::Scalar, context::Options>
     getVelocity<context::Scalar, context::Options, JointCollectionDefaultTpl>(

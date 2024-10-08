@@ -10,6 +10,7 @@
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 #include "pinocchio/multibody/joint/joint-generic.hpp"
+#include "pinocchio/multibody/joint/joint-mimic.hpp"
 
 #include <eigenpy/eigen-to-python.hpp>
 
@@ -357,9 +358,64 @@ namespace pinocchio
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
 #endif
-
         ;
     }
+
+    // Specialization for JointModelMimic
+    struct JointModelMimicConstructorVisitor
+    : public boost::static_visitor<context::JointModelMimic *>
+    {
+      const context::Scalar & m_scaling;
+      const context::Scalar & m_offset;
+
+      JointModelMimicConstructorVisitor(
+        const context::Scalar & scaling, const context::Scalar & offset)
+      : m_scaling(scaling)
+      , m_offset(offset)
+      {
+      }
+
+      template<typename JointModelDerived>
+      context::JointModelMimic * operator()(const JointModelDerived & jmodel) const
+      {
+
+        return new context::JointModelMimic(jmodel, m_scaling, m_offset);
+      }
+
+    }; // struct JointModelMimicConstructorVisitor
+
+    static context::JointModelMimic * init_proxy(
+      const context::JointModel & jmodel,
+      const context::Scalar & scaling,
+      const context::Scalar & offset)
+    {
+      return boost::apply_visitor(JointModelMimicConstructorVisitor(scaling, offset), jmodel);
+    }
+
+    static context::Scalar get_scaling(context::JointModelMimic & jmodel)
+    {
+      return jmodel.scaling();
+    }
+
+    static context::Scalar get_offset(context::JointModelMimic & jmodel)
+    {
+      return jmodel.offset();
+    }
+
+    template<>
+    bp::class_<context::JointModelMimic> &
+    expose_joint_model<context::JointModelMimic>(bp::class_<context::JointModelMimic> & cl)
+    {
+      return cl
+        .def(
+          "__init__",
+          bp::make_constructor(
+            init_proxy, bp::default_call_policies(), bp::args("joint_model", "scaling", "offset")),
+          "Init JointModelMimic from an existing joint with scaling and offset.")
+        .add_property("scaling", &get_scaling)
+        .add_property("offset", &get_offset);
+    }
+
   } // namespace python
 } // namespace pinocchio
 

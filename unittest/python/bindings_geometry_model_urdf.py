@@ -23,7 +23,9 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
             self.model_dir / "romeo_description/meshes/V1/collision/LHipPitch.dae"
         )
 
-        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
+        model = pin.buildModelFromUrdf(
+            self.model_path, pin.JointModelFreeFlyer(), mimic=True
+        )
         collision_model = pin.buildGeomFromUrdf(
             model, self.model_path, pin.GeometryType.COLLISION, hint_list
         )
@@ -36,7 +38,9 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
     def test_self_load(self):
         hint_list = [self.mesh_path]
 
-        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
+        model = pin.buildModelFromUrdf(
+            self.model_path, pin.JointModelFreeFlyer(), mimic=True
+        )
         collision_model_ref = pin.buildGeomFromUrdf(
             model, self.model_path, pin.GeometryType.COLLISION, hint_list
         )
@@ -82,7 +86,9 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
             self.model_dir / "romeo_description/meshes/V1/visual/LHipPitch.dae"
         )
 
-        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
+        model = pin.buildModelFromUrdf(
+            self.model_path, pin.JointModelFreeFlyer(), mimic=True
+        )
 
         collision_model = pin.buildGeomFromUrdf(
             model, self.model_path, pin.GeometryType.COLLISION, hint_list
@@ -101,7 +107,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
         )
 
         model_2, collision_model_2, visual_model_2 = pin.buildModelsFromUrdf(
-            self.model_path, hint_list, pin.JointModelFreeFlyer()
+            self.model_path, hint_list, pin.JointModelFreeFlyer(), mimic=True
         )
 
         self.assertEqual(model, model_2)
@@ -121,6 +127,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
             hint_list,
             pin.JointModelFreeFlyer(),
             geometry_types=pin.GeometryType.COLLISION,
+            mimic=True,
         )
 
         self.assertEqual(model, model_c)
@@ -135,6 +142,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
             hint_list,
             pin.JointModelFreeFlyer(),
             geometry_types=pin.GeometryType.VISUAL,
+            mimic=True,
         )
 
         self.assertEqual(model, model_v)

@@ -8,7 +8,7 @@ from test_case import PinocchioTestCase as TestCase
 
 class TestModel(TestCase):
     def setUp(self):
-        self.model = pin.buildSampleModelHumanoidRandom()
+        self.model = pin.buildSampleModelHumanoidRandom(True)
 
     def test_empty_model_sizes(self):
         model = pin.Model()
