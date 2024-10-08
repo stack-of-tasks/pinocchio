@@ -121,7 +121,7 @@ namespace pinocchio
             "Set the linear and angular components of *this to random values.")
 
           .def(
-            "dot", (Scalar(Force::*)(const MotionDense<context::Motion> &) const) & Force::dot,
+            "dot", (Scalar(Force::*)(const MotionDense<context::Motion> &) const)&Force::dot,
             bp::args("self", "m"), "Dot product between *this and a Motion m.")
 
           .def(bp::self + bp::self)

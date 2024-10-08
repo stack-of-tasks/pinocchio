@@ -18,8 +18,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType,
     typename ReturnType>
@@ -52,8 +51,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn1,
     typename ConfigVectorIn2,
     typename ReturnType>
@@ -87,8 +85,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn1,
     typename ConfigVectorIn2,
     typename ReturnType>
@@ -121,8 +118,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn1,
     typename ConfigVectorIn2,
     typename ReturnType>
@@ -155,8 +151,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn1,
     typename ConfigVectorIn2,
     typename ReturnType>
@@ -190,8 +185,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ReturnType>
   void neutral(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -215,8 +209,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType,
     typename JacobianMatrixType>
@@ -254,8 +247,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType,
     typename JacobianMatrixType1,
@@ -298,8 +290,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType,
     typename JacobianMatrixType>
@@ -334,8 +325,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVector1,
     typename ConfigVector2,
     typename JacobianMatrix>
@@ -371,8 +361,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn1,
     typename ConfigVectorIn2>
   Scalar squaredDistanceSum(
@@ -403,8 +392,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn1,
     typename ConfigVectorIn2>
   Scalar distance(
@@ -422,8 +410,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType>
   void normalize(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -448,8 +435,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn>
   bool isNormalized(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -481,8 +467,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn1,
     typename ConfigVectorIn2>
   bool isSameConfiguration(
@@ -518,8 +503,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVector,
     typename JacobianMatrix>
   void integrateCoeffWiseJacobian(
@@ -547,8 +531,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType>
   typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorType) integrate(
@@ -568,8 +551,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn1,
     typename ConfigVectorIn2>
   typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1) interpolate(
@@ -590,8 +572,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn1,
     typename ConfigVectorIn2>
   typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1) difference(
@@ -611,8 +592,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn1,
     typename ConfigVectorIn2>
   typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1) squaredDistance(
@@ -632,8 +612,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorIn1,
     typename ConfigVectorIn2>
   typename PINOCCHIO_EIGEN_PLAIN_TYPE_NO_PARENS(
@@ -656,8 +635,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl>
+    template<typename, int> class JointCollectionTpl>
   typename PINOCCHIO_EIGEN_PLAIN_TYPE_NO_PARENS(
     (typename ModelTpl<Scalar, Options, JointCollectionTpl>::ConfigVectorType))
     randomConfiguration(const ModelTpl<Scalar, Options, JointCollectionTpl> & model)
@@ -673,8 +651,7 @@ namespace pinocchio
     typename LieGroup_t,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl>
+    template<typename, int> class JointCollectionTpl>
   Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options>
   neutral(const ModelTpl<Scalar, Options, JointCollectionTpl> & model)
   {

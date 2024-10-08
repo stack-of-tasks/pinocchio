@@ -38,8 +38,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename ConfigVectorType>
   inline void calc_zero_order(
     const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
@@ -63,8 +62,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType>
   inline void calc_first_order(
@@ -88,8 +86,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename TangentVectorType>
   inline void calc_first_order(
     const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel,
@@ -115,8 +112,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename VectorLike,
     typename Matrix6Type>
   inline void calc_aba(
@@ -246,8 +242,7 @@ namespace pinocchio
     typename NewScalar,
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl>
+    template<typename S, int O> class JointCollectionTpl>
   typename CastType<NewScalar, JointModelTpl<Scalar, Options, JointCollectionTpl>>::type
   cast_joint(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
@@ -262,8 +257,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename JointModelDerived>
   bool isEqual(
     const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel_generic,
@@ -282,8 +276,7 @@ namespace pinocchio
     typename NewScalar,
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename JointModelDerived>
   bool hasSameIndexes(
     const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel_generic,
@@ -424,8 +417,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename JointDataDerived>
   bool isEqual(
     const JointDataTpl<Scalar, Options, JointCollectionTpl> & jmodel_generic,

@@ -57,8 +57,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType>
   inline void framesForwardKinematics(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -265,8 +264,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix6xLike>
   void getFrameJacobian(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -345,8 +343,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix6xLike>
   inline void getFrameJacobian(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -435,8 +432,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename Matrix6xLike>
   inline void computeFrameJacobian(
@@ -474,8 +470,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename Matrix6xLike>
   inline void computeFrameJacobian(
@@ -510,8 +505,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix6xLike>
   void getFrameJacobianTimeVariation(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,

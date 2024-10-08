@@ -77,8 +77,8 @@ namespace pinocchio
             "Rotational part of the Spatial Inertia, i.e. a symmetric matrix "
             "representing the rotational inertia around the center of mass.")
 
-          .def("matrix", (Matrix6(Inertia::*)() const) & Inertia::matrix, bp::arg("self"))
-          .def("inverse", (Matrix6(Inertia::*)() const) & Inertia::inverse, bp::arg("self"))
+          .def("matrix", (Matrix6(Inertia::*)() const)&Inertia::matrix, bp::arg("self"))
+          .def("inverse", (Matrix6(Inertia::*)() const)&Inertia::inverse, bp::arg("self"))
           .def(
             "se3Action", &Inertia::template se3Action<Scalar, Options>, bp::args("self", "M"),
             "Returns the result of the action of M on *this.")
@@ -102,7 +102,7 @@ namespace pinocchio
           .def(bp::self -= bp::self)
           .def(bp::self * bp::other<Motion>())
 
-          .add_property("np", (Matrix6(Inertia::*)() const) & Inertia::matrix)
+          .add_property("np", (Matrix6(Inertia::*)() const)&Inertia::matrix)
           .def(
             "vxiv", &Inertia::template vxiv<Motion>, bp::args("self", "v"),
             "Returns the result of v x Iv.")
@@ -111,18 +111,16 @@ namespace pinocchio
             "Returns the result of v.T * Iv.")
           .def(
             "vxi",
-            (Matrix6(Inertia::*)(const MotionDense<Motion> &) const)
-              & Inertia::template vxi<Motion>,
+            (Matrix6(Inertia::*)(const MotionDense<Motion> &) const)&Inertia::template vxi<Motion>,
             bp::args("self", "v"), "Returns the result of v x* I, a 6x6 matrix.")
           .def(
             "ivx",
-            (Matrix6(Inertia::*)(const MotionDense<Motion> &) const)
-              & Inertia::template ivx<Motion>,
+            (Matrix6(Inertia::*)(const MotionDense<Motion> &) const)&Inertia::template ivx<Motion>,
             bp::args("self", "v"), "Returns the result of I vx, a 6x6 matrix.")
           .def(
             "variation",
-            (Matrix6(Inertia::*)(const MotionDense<Motion> &) const)
-              & Inertia::template variation<Motion>,
+            (Matrix6(Inertia::*)(const MotionDense<Motion> &)
+               const)&Inertia::template variation<Motion>,
             bp::args("self", "v"), "Returns the time derivative of the inertia.")
 
 #ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
@@ -207,7 +205,7 @@ namespace pinocchio
             "Returns the Inertia created from log Cholesky parameters.")
           .staticmethod("FromLogCholeskyParameters")
 
-          .def("__array__", (Matrix6(Inertia::*)() const) & Inertia::matrix)
+          .def("__array__", (Matrix6(Inertia::*)() const)&Inertia::matrix)
           .def(
             "__array__", &__array__,
             (bp::arg("self"), bp::arg("dtype") = bp::object(), bp::arg("copy") = bp::object()))

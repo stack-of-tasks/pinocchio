@@ -167,8 +167,7 @@ namespace pinocchio
     typename NewScalar,
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl>
+    template<typename S, int O> class JointCollectionTpl>
   struct CastType<NewScalar, JointModelCompositeTpl<Scalar, Options, JointCollectionTpl>>
   {
     typedef JointModelCompositeTpl<NewScalar, Options, JointCollectionTpl> type;

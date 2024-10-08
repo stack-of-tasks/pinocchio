@@ -16,8 +16,7 @@ namespace pinocchio
   template<
     typename _Scalar,
     int _Options,
-    template<typename S, int O>
-    class ConstraintCollectionTpl>
+    template<typename S, int O> class ConstraintCollectionTpl>
   struct traits<ConstraintModelTpl<_Scalar, _Options, ConstraintCollectionTpl>>
   {
     typedef _Scalar Scalar;
@@ -31,8 +30,7 @@ namespace pinocchio
   template<
     typename _Scalar,
     int _Options,
-    template<typename S, int O>
-    class ConstraintCollectionTpl>
+    template<typename S, int O> class ConstraintCollectionTpl>
   struct ConstraintModelTpl
   : ConstraintModelBase<ConstraintModelTpl<_Scalar, _Options, ConstraintCollectionTpl>>
   , ConstraintCollectionTpl<_Scalar, _Options>::ConstraintModelVariant

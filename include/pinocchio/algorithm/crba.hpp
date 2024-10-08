@@ -42,8 +42,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType>
   const typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs & crba(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,

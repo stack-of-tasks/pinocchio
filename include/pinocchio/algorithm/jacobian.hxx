@@ -17,8 +17,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType,
       typename Matrix6xLike>
     struct JointJacobiansForwardStep
@@ -65,8 +64,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType>
     const typename DataTpl<Scalar, Options, JointCollectionTpl>::Matrix6x & computeJointJacobians(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -171,8 +169,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix6xLikeIn,
       typename Matrix6xLikeOut>
     void translateJointJacobian(
@@ -243,8 +240,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix6xLikeIn,
       typename Matrix6xLikeOut>
     void translateJointJacobian(
@@ -269,8 +265,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix6xLike>
     void getJointJacobian(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -289,8 +284,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType,
       typename Matrix6xLike>
     struct JointJacobianForwardStep
@@ -333,8 +327,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType,
       typename Matrix6xLike>
     void computeJointJacobian(
@@ -367,8 +360,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType,
       typename TangentVectorType>
     struct JointJacobiansTimeVariationForwardStep
@@ -438,8 +430,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType,
       typename TangentVectorType>
     const typename DataTpl<Scalar, Options, JointCollectionTpl>::Matrix6x &
@@ -473,8 +464,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix6xLike>
     void getJointJacobianTimeVariation(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -491,8 +481,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType>
   const typename DataTpl<Scalar, Options, JointCollectionTpl>::Matrix6x & computeJointJacobians(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -505,8 +494,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix6Like>
   void getJointJacobian(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -521,8 +509,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename Matrix6Like>
   void computeJointJacobian(
@@ -538,8 +525,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType>
   const typename DataTpl<Scalar, Options, JointCollectionTpl>::Matrix6x &
@@ -557,8 +543,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix6Like>
   void getJointJacobianTimeVariation(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,

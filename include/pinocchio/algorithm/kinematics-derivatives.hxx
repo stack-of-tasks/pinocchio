@@ -17,8 +17,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType,
       typename TangentVectorType1,
       typename TangentVectorType2>
@@ -97,8 +96,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType,
       typename TangentVectorType1,
       typename TangentVectorType2>
@@ -137,8 +135,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix6xOut1,
       typename Matrix6xOut2>
     struct JointVelocityDerivativesBackwardStep
@@ -245,8 +242,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix6xOut1,
       typename Matrix6xOut2>
     void getJointVelocityDerivatives(
@@ -285,8 +281,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix6xOut1,
       typename Matrix6xOut2,
       typename Matrix6xOut3,
@@ -466,8 +461,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix6xOut1,
       typename Matrix6xOut2,
       typename Matrix6xOut3,
@@ -518,8 +512,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix6xOut1,
       typename Matrix6xOut2,
       typename Matrix6xOut3,
@@ -548,8 +541,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix3xOut1,
       typename Matrix3xOut2>
     struct PointVelocityDerivativesBackwardStep
@@ -651,8 +643,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix3xOut1,
       typename Matrix3xOut2>
     void getPointVelocityDerivatives(
@@ -701,8 +692,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix3xOut1,
       typename Matrix3xOut2,
       typename Matrix3xOut3,
@@ -878,8 +868,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix3xOut1,
       typename Matrix3xOut2,
       typename Matrix3xOut3,
@@ -940,8 +929,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename Matrix3xOut1,
       typename Matrix3xOut2,
       typename Matrix3xOut3,
@@ -1286,8 +1274,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType1,
     typename TangentVectorType2>
@@ -1305,8 +1292,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix6xOut1,
     typename Matrix6xOut2>
   void getJointVelocityDerivatives(
@@ -1324,8 +1310,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix6xOut1,
     typename Matrix6xOut2,
     typename Matrix6xOut3,
@@ -1348,8 +1333,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix6xOut1,
     typename Matrix6xOut2,
     typename Matrix6xOut3,
@@ -1374,8 +1358,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix3xOut1,
     typename Matrix3xOut2>
   void getPointVelocityDerivatives(
@@ -1395,8 +1378,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix3xOut1,
     typename Matrix3xOut2,
     typename Matrix3xOut3,
@@ -1420,8 +1402,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix3xOut1,
     typename Matrix3xOut2,
     typename Matrix3xOut3,

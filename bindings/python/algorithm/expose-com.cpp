@@ -101,21 +101,23 @@ namespace pinocchio
 
       bp::def(
         "computeTotalMass",
-        (Scalar(*)(const context::Model &))
-          & computeTotalMass<Scalar, Options, JointCollectionDefaultTpl>,
+        (Scalar(*)(
+          const context::Model &))&computeTotalMass<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model"), "Compute the total mass of the model and return it.");
 
       bp::def(
         "computeTotalMass",
-        (Scalar(*)(const context::Model &, context::Data &))
-          & computeTotalMass<Scalar, Options, JointCollectionDefaultTpl>,
+        (Scalar(*)(
+          const context::Model &,
+          context::Data &))&computeTotalMass<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model", "data"),
         "Compute the total mass of the model, put it in data.mass[0] and return it.");
 
       bp::def(
         "computeSubtreeMasses",
-        (void (*)(const context::Model &, context::Data &))
-          & computeSubtreeMasses<Scalar, Options, JointCollectionDefaultTpl>,
+        (void (*)(
+          const context::Model &,
+          context::Data &))&computeSubtreeMasses<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model", "data"),
         "Compute the mass of each kinematic subtree and store it in the vector data.mass.");
 

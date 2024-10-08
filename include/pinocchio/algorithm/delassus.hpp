@@ -14,8 +14,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     class Allocator>
   PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
   inline void initPvDelassus(
@@ -44,8 +43,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     class ModelAllocator,
     class DataAllocator,
@@ -86,8 +84,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     class ModelAllocator,
     class DataAllocator,

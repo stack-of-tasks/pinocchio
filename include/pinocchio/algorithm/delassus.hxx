@@ -17,8 +17,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType>
   struct ComputeOSIMForwardStep
   : public fusion::JointUnaryVisitorBase<
@@ -111,8 +110,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     class ModelAllocator,
     class DataAllocator,
@@ -285,8 +283,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     class Allocator>
   inline void initPvDelassus(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -464,8 +461,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     class ModelAllocator,
     class DataAllocator,
@@ -790,8 +786,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     class ModelAllocator,
     class DataAllocator,

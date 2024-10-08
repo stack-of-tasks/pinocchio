@@ -20,8 +20,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType>
     static std::size_t computeDistances_proxy(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -70,7 +69,7 @@ namespace pinocchio
 
       bp::def(
         "computeCollisions",
-        (bool (*)(const GeometryModel &, GeometryData &, const bool)) & computeCollisions,
+        (bool (*)(const GeometryModel &, GeometryData &, const bool))&computeCollisions,
         (bp::arg("geometry_model"), bp::arg("geometry_data"),
          bp::arg("stop_at_first_collision") = false),
         "Determine if all collision pairs are effectively in collision or not.");
@@ -92,7 +91,7 @@ namespace pinocchio
 
       bp::def(
         "computeDistances",
-        (std::size_t(*)(const GeometryModel &, GeometryData &)) & computeDistances,
+        (std::size_t (*)(const GeometryModel &, GeometryData &))&computeDistances,
         bp::args("geometry_model", "geometry_data"),
         "Compute the distance between each collision pair for a given GeometryModel and "
         "associated GeometryData.");

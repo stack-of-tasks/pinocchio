@@ -496,8 +496,7 @@ namespace pinocchio
     template<
       typename InputMatrix,
       typename OutputMatrix,
-      template<typename, int>
-      class JointCollectionTpl>
+      template<typename, int> class JointCollectionTpl>
     void jacobian_matrix_product(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const DataTpl<Scalar, Options, JointCollectionTpl> & data,

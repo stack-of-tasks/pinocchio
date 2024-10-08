@@ -18,8 +18,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType,
       typename TangentVectorType>
     struct CATForwardStep
@@ -145,8 +144,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType,
       typename TangentVectorType>
     void computeAllTerms(
@@ -229,8 +227,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType,
     typename TangentVectorType>
   void computeAllTerms(
