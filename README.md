@@ -129,7 +129,7 @@ You can also consider the interactive Jupyter notebook [set of tutorials](https:
     </tr><tr><td> CI on OSX via Conda </td>
   <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml"><img alt="mac" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml/badge.svg?branch=devel" /></a></td>
     </tr><tr><td> CI on Windows via Conda </td>
-  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml"><img alt="windows" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml/badge.svg?branch=devel" /></a></td>
+  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda.yml"><img alt="windows" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda.yml/badge.svg?branch=devel" /></a></td>
   </tr><tr><td> CI on Linux via Robotpkg </td>
     <td><img src="https://gitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/pipeline.svg" alt="Pipeline Status"></td>
    </tr>
