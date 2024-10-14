@@ -1,6 +1,8 @@
 name: CI - OSX/Linux via Conda
 
 on:
+  schedule:
+    - cron: '0 0 * * 0'
   push:
     paths-ignore:
       - doc/**
@@ -51,6 +53,21 @@ jobs:
             BUILD_ADVANCED_TESTING: OFF
 
     steps:
+      # extract branch name or checkout devel branch for scheduled events
+      - name: Get branch name or checkout devel
+        run: |
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            echo "BRANCH_NAME=devel" >> $GITHUB_ENV
+          else
+            echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+          fetch-depth: 0
+          submodules: recursive
+
       - uses: actions/checkout@v4
         with:
           submodules: recursive

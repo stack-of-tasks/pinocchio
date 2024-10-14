@@ -1,5 +1,7 @@
 name: CI - Windows via Conda
 on:
+  schedule:
+    - cron: '0 0 * * 0'
   push:
     paths-ignore:
       - doc/**
@@ -41,8 +43,20 @@ jobs:
         compiler: [cl, clang-cl]
 
     steps:
+      # Extract branch name or set 'devel' branch for scheduled events
+      - name: Get branch name or checkout devel
+        shell: pwsh  # Use PowerShell on Windows
+        run: |
+          if ($env:GITHUB_EVENT_NAME -eq "schedule") {
+            echo "BRANCH_NAME=devel" >> $env:GITHUB_ENV
+          } else {
+            $branchName = $env:GITHUB_REF -replace '^refs/heads/', ''
+            echo "BRANCH_NAME=$branchName" >> $env:GITHUB_ENV
+          }
+
       - uses: actions/checkout@v4
         with:
+          ref: ${{ env.BRANCH_NAME }}
           submodules: recursive
 
       - uses: actions/cache@v4
