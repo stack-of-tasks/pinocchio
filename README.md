@@ -57,7 +57,7 @@ or via pip (currently only available on Linux):
   - [Acknowledgments](#acknowledgments)
 
 ## Introducing Pinocchio 3
-**Pinocchio3** is released for development under the branch [pinocchio3-preview](https://github.com/stack-of-tasks/pinocchio/tree/pinocchio3-preview) on the main github repository.
+**Pinocchio3** is now released in the master branch of this github repository.
 With **Pinocchio3**, multiple new features are introduced in **Pinocchio**, such as:
   - Sparse Solution of Constrained Dynamics (Published in Robotics: Science and Systems 2021)
   - Constrained Dynamics Derivatives (In pre-publishing stages)
