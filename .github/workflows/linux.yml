@@ -1,8 +1,6 @@
 name: CI - Linux via APT
 
 on:
-  schedule:
-    - cron: '0 0 * * 0'
   push:
     paths-ignore:
       - doc/**
