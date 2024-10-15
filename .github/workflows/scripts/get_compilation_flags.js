@@ -65,7 +65,7 @@ module.exports = async ({github, context, core}) => {
 
     // Get the GitHub event name that triggered the workflow
     const eventName = process.env.GITHUB_EVENT_NAME;
-    if (eventName === "schedule") 
+    if (eventName == "schedule")
     {
         cmakeFlags += labelFlags['build_all'].join(' ');
         console.log(cmakeFlags);
