@@ -2,7 +2,7 @@ name: CI - OSX/Linux via Conda
 
 on:
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: '15 * * * *'
   push:
     paths-ignore:
       - doc/**
@@ -66,10 +66,6 @@ jobs:
         with:
           ref: ${{ env.BRANCH_NAME }}
           fetch-depth: 0
-          submodules: recursive
-
-      - uses: actions/checkout@v4
-        with:
           submodules: recursive
 
       - uses: actions/cache@v4

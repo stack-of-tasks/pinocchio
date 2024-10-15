@@ -9,9 +9,11 @@ module.exports = async ({github, context, core}) => {
 
     const prNumber = context.issue.number || getPullRequestNumber(context.ref);
 
-    let cmakeFlags = '';// get os process is run on
+    let cmakeFlags = '';
+    // get os process is run on
     const os = process.env.RUNNER_OS;
     var labelFlags;
+    console.log("os ", os);
     if(os == "Windows")
     {
         labelFlags = {
@@ -65,6 +67,7 @@ module.exports = async ({github, context, core}) => {
 
     // Get the GitHub event name that triggered the workflow
     const eventName = process.env.GITHUB_EVENT_NAME;
+    console.log("event ", eventName);
     if (eventName == "schedule")
     {
         cmakeFlags += labelFlags['build_all'].join(' ');
