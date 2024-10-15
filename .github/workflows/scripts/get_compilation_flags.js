@@ -66,27 +66,27 @@ module.exports = async ({github, context, core}) => {
 
     // Get the GitHub event name that triggered the workflow
     const {LABELS} = process.env;
-    if (LABELS)
+    var labelNames;
+    if(LABELS)
     {
-        cmakeFlags += LABELS;
-        console.log(cmakeFlags);
-        core.setOutput("cmakeFlags", cmakeFlags);
-        return;
+        labelNames=LABELS;
     }
-
-    if(isNaN(prNumber))
+    else
     {
-        core.setOutput("cmakeFlags", cmakeFlags);
-        return;
+        if(isNaN(prNumber))
+        {
+            core.setOutput("cmakeFlags", cmakeFlags);
+            return;
+        }
+    
+        const { data } = await github.rest.pulls.get({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: prNumber,
+        });
+        labelNames = data.labels.map(label => label.name);
     }
-
-    const { data } = await github.rest.pulls.get({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        pull_number: prNumber,
-    });
-    const labelNames = data.labels.map(label => label.name);
-
+    
     labelNames.forEach(label => {
         if (labelFlags[label]) {
             if (Array.isArray(labelFlags[label])) {
