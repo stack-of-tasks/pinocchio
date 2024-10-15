@@ -9,22 +9,8 @@ module.exports = async ({github, context, core}) => {
 
     const prNumber = context.issue.number || getPullRequestNumber(context.ref);
 
-    let cmakeFlags = '';
-    if(isNaN(prNumber))
-    {
-        core.setOutput("cmakeFlags", cmakeFlags);
-        return;
-    }
-
-    const { data } = await github.rest.pulls.get({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        pull_number: prNumber,
-    });
-    const labelNames = data.labels.map(label => label.name);
-
+    let cmakeFlags = '';// get os process is run on
     const os = process.env.RUNNER_OS;
-
     var labelFlags;
     if(os == "Windows")
     {
@@ -76,6 +62,29 @@ module.exports = async ({github, context, core}) => {
             build_accelerate: ' -DBUILD_WITH_ACCELERATE_SUPPORT=ON'
         };
     }
+
+    // Get the GitHub event name that triggered the workflow
+    const eventName = process.env.GITHUB_EVENT_NAME;
+    if (eventName === "schedule") 
+    {
+        cmakeFlags += labelFlags['build_all'].join(' ');
+        console.log(cmakeFlags);
+        core.setOutput("cmakeFlags", cmakeFlags);
+        return;
+    }
+
+    if(isNaN(prNumber))
+    {
+        core.setOutput("cmakeFlags", cmakeFlags);
+        return;
+    }
+
+    const { data } = await github.rest.pulls.get({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        pull_number: prNumber,
+    });
+    const labelNames = data.labels.map(label => label.name);
 
     labelNames.forEach(label => {
         if (labelFlags[label]) {
