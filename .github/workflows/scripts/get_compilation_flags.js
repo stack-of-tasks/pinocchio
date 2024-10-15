@@ -69,7 +69,7 @@ module.exports = async ({github, context, core}) => {
     var labelNames;
     if(LABELS)
     {
-        labelNames=LABELS;
+        labelNames=[LABELS];
     }
     else
     {
