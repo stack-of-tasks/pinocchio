@@ -2,7 +2,7 @@ name: CI - OSX/Linux via Conda
 
 on:
   schedule:
-    - cron: '15 * * * *'
+    - cron: '0 0 * * 0'
   push:
     paths-ignore:
       - doc/**
