@@ -78,7 +78,7 @@ module.exports = async ({github, context, core}) => {
             core.setOutput("cmakeFlags", cmakeFlags);
             return;
         }
-    
+
         const { data } = await github.rest.pulls.get({
             owner: context.repo.owner,
             repo: context.repo.repo,
@@ -86,7 +86,7 @@ module.exports = async ({github, context, core}) => {
         });
         labelNames = data.labels.map(label => label.name);
     }
-    
+
     labelNames.forEach(label => {
         if (labelFlags[label]) {
             if (Array.isArray(labelFlags[label])) {

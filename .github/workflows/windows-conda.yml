@@ -78,7 +78,7 @@ jobs:
       - name: Get Compilation Flags
         id: get_labels
         uses: actions/github-script@v7
-        env: 
+        env:
           LABELS: ${{ env.LABELS }}
         with:
           script: |
