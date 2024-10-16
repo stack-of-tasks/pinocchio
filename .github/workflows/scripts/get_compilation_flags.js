@@ -10,21 +10,8 @@ module.exports = async ({github, context, core}) => {
     const prNumber = context.issue.number || getPullRequestNumber(context.ref);
 
     let cmakeFlags = '';
-    if(isNaN(prNumber))
-    {
-        core.setOutput("cmakeFlags", cmakeFlags);
-        return;
-    }
-
-    const { data } = await github.rest.pulls.get({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        pull_number: prNumber,
-    });
-    const labelNames = data.labels.map(label => label.name);
-
+    // get os process is run on
     const os = process.env.RUNNER_OS;
-
     var labelFlags;
     if(os == "Windows")
     {
@@ -75,6 +62,29 @@ module.exports = async ({github, context, core}) => {
             build_sdf: ' -DBUILD_WITH_SDF_SUPPORT=ON',
             build_accelerate: ' -DBUILD_WITH_ACCELERATE_SUPPORT=ON'
         };
+    }
+
+    // Get the GitHub event name that triggered the workflow
+    const {LABELS} = process.env;
+    var labelNames;
+    if(LABELS)
+    {
+        labelNames=[LABELS];
+    }
+    else
+    {
+        if(isNaN(prNumber))
+        {
+            core.setOutput("cmakeFlags", cmakeFlags);
+            return;
+        }
+
+        const { data } = await github.rest.pulls.get({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: prNumber,
+        });
+        labelNames = data.labels.map(label => label.name);
     }
 
     labelNames.forEach(label => {
