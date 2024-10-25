@@ -172,7 +172,8 @@ if(BUILD_PYTHON_INTERFACE)
     target_compile_definitions(
       ${PYWRAP}_cppad PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
                               CPPAD_DEBUG_AND_RELEASE)
-    target_include_directories(${PYWRAP}_cppad SYSTEM PUBLIC ${cppad_INCLUDE_DIR})
+    target_include_directories(${PYWRAP}_cppad SYSTEM
+                               PUBLIC $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>)
     target_link_libraries(${PYWRAP}_cppad PUBLIC ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppad")
 
@@ -186,7 +187,8 @@ if(BUILD_PYTHON_INTERFACE)
     target_compile_definitions(
       ${PYWRAP}_cppadcg PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
                                 CPPAD_DEBUG_AND_RELEASE)
-    target_include_directories(${PYWRAP}_cppadcg SYSTEM PUBLIC ${cppadcg_INCLUDE_DIR})
+    target_include_directories(${PYWRAP}_cppadcg SYSTEM
+                               PUBLIC $<BUILD_INTERFACE:${cppadcg_INCLUDE_DIR}>)
     target_link_libraries(${PYWRAP}_cppadcg PUBLIC ${cppadcg_LIBRARY} ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppadcg")
 

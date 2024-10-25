@@ -10,6 +10,7 @@
 #include "pinocchio/math/fwd.hpp"
 
 #include <cmath>
+#include <boost/mpl/int.hpp>
 #include <cppad/cg/support/cppadcg_eigen.hpp>
 
 #include "pinocchio/autodiff/cppad.hpp"
