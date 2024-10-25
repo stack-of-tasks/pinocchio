@@ -44,8 +44,16 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   endif()
   add_dependencies(${PROJECT_NAME}-python ${PYTHON_LIB_NAME})
 
-  # Remove lib prefix for the target and use the right define for DLLAPI definition
-  set_target_properties(${PYTHON_LIB_NAME} PROPERTIES PREFIX "" DEFINE_SYMBOL "${PYWRAP}_EXPORTS")
+  # Remove lib prefix for the target and use the right define for DLLAPI definition.
+  #
+  # Set inlined function visibility to hidden by default. This avoid bug on OSX where two symbol
+  # from two different binding (`pinocchio::python::exposeSpecificTypeFeatures`) can be wrongly
+  # loaded (see https://github.com/stack-of-tasks/pinocchio/issues/2462).
+  set_target_properties(
+    ${PYTHON_LIB_NAME}
+    PROPERTIES PREFIX ""
+               DEFINE_SYMBOL "${PYWRAP}_EXPORTS"
+               VISIBILITY_INLINES_HIDDEN ON)
 
   # Do not report:
   #
