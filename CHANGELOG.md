@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added argument to let users decide of root joint name when parsing models (urdf, mjcf, sdf) ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
 - Allow use of `pathlib.Path | str` for paths in python bindings ([#2431](https://github.com/stack-of-tasks/pinocchio/pull/2431))
 - Add Pseudo inertia and Log-cholesky parametrization ([#2296](https://github.com/stack-of-tasks/pinocchio/pull/2296))
+- Add Pixi support ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
 
 ### Fixed
 - Fix linkage of Boost.Serialization on Windows ([#2400](https://github.com/stack-of-tasks/pinocchio/pull/2400))
