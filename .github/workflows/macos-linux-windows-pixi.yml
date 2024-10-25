@@ -1,4 +1,4 @@
-name: CI - OSX/Linux via Conda
+name: CI - MacOS/Linux/Windows via Pixi
 
 on:
   schedule:
@@ -28,8 +28,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pinocchio-conda:
-    name: ${{ matrix.os }} - Python ${{ matrix.python-version }} ${{ matrix.build_type }} with Conda
+  pinocchio-pixi:
+    name: ${{ matrix.os }} - Env ${{ matrix.environment }} ${{ matrix.build_type }} ${{ matrix.compiler }}
     runs-on: ${{ matrix.os }}
     env:
       CCACHE_BASEDIR: ${GITHUB_WORKSPACE}
@@ -41,20 +41,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, macos-13]
+        environment: [all, all-py39]
         build_type: [Release, Debug]
-        python-version: ['3.8', '3.12']
 
         include:
+          # Disable BUILD_ADVANCED_TESTING as the test can take many time to run
           - os: ubuntu-latest
             BUILD_ADVANCED_TESTING: OFF
-          # Disable BUILD_ADVANCED_TESTING as the test can take many time to run
           - os: macos-latest
             BUILD_ADVANCED_TESTING: OFF
+          - os: macos-13
+            BUILD_ADVANCED_TESTING: OFF
+          - os: windows-latest
+            environment: all
+            build_type: Release
+            BUILD_ADVANCED_TESTING: OFF
+          - os: windows-latest
+            environment: all-clang-cl
+            build_type: Release
+            BUILD_ADVANCED_TESTING: OFF
+
 
     steps:
       # extract branch name or checkout devel branch for scheduled events
       - name: Get branch name or checkout devel
+        shell: bash -el {0}
         run: |
           if [ "${{ github.event_name }}" == "schedule" ]; then
             echo "BRANCH_NAME=devel" >> $GITHUB_ENV
@@ -71,18 +83,16 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .ccache
-          save-always: true
           key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.python-version }}-${{ github.sha }}
           restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.python-version }}-
 
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          activate-environment: pinocchio-linux
-          auto-update-conda: true
-          environment-file: .github/workflows/conda/environment_macos_linux.yml
-          python-version: ${{ matrix.python-version }}
-          auto-activate-base: false
+          pixi-version: v0.33.0
+          cache: true
+          environments: ${{ matrix.environment }}
 
+      # Avoid filling all disk space with debug symbols
       - name: Setup CMAKE_TOOLCHAIN_FILE
         if: (contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')) && contains(matrix.build_type, 'Debug')
         run: |
@@ -99,38 +109,31 @@ jobs:
             await script({github, context, core})
           result-encoding: string
 
-      - name: Build Pinocchio
+      - name: Build Pinocchio [MacOS/Linux/Windows]
         shell: bash -el {0}
+        env:
+          CMAKE_BUILD_PARALLEL_LEVEL: 2
+          PINOCCHIO_BUILD_TYPE: ${{ matrix.build_type }}
         run: |
-          conda list
-          echo $CONDA_PREFIX
-
-          mkdir build
-          cd build
-
-          cmake .. \
-            -G "Ninja" \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          # Launch configure but overwrite default options
+          pixi run -e ${{ matrix.environment }} configure \
             -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }} \
             ${{ steps.get_labels.outputs.cmakeFlags }}
-          cmake --build . -j2
-          ctest --output-on-failure
-          cmake --install .
+          pixi run -e ${{ matrix.environment }} cmake --build build --target all
+          pixi run -e ${{ matrix.environment }} ctest --test-dir build --output-on-failure
+          pixi run -e ${{ matrix.environment }} cmake --install build
 
       - name: Uninstall Pinocchio
         shell: bash -el {0}
         run: |
-          cd build
-          cmake --build . --target uninstall
+          cmake --build build --target uninstall
 
   check:
     if: always()
-    name: check-macos-linux-conda
+    name: check-macos-linux-windows-pixi
 
     needs:
-      - pinocchio-conda
+      - pinocchio-pixi
 
     runs-on: Ubuntu-latest
 
