@@ -11,6 +11,7 @@ on:
       - COPYING.LESSER
       - colcon.pkg
       - .pre-commit-config.yaml
+      - CHANGELOG.md
   pull_request:
     paths-ignore:
       - doc/**
@@ -21,6 +22,7 @@ on:
       - COPYING.LESSER
       - colcon.pkg
       - .pre-commit-config.yaml
+      - CHANGELOG.md
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
