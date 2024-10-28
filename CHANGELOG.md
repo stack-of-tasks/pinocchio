@@ -30,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix `pinocchio-test-cpp-mjcf` unittest with Boost 1.86 ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
 - Fix `pinocchio-test-cpp-constraint-variants` uninitialized values ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
 - Fix mixing library symbols between Pinocchio scalar bindings ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Fix bug for get{Joint,Frame}JacobianTimeVariation ([#2466](https://github.com/stack-of-tasks/pinocchio/pull/2466))
 
 ### Changed
 
