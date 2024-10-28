@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2024 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_jacobian_hxx__
@@ -56,7 +56,7 @@ namespace pinocchio
         else
           data.oMi[i] = data.liMi[i];
 
-        Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J);
+        Matrix6xLike & J_ = J.const_cast_derived();
         jmodel.jointCols(J_) = data.oMi[i].act(jdata.S());
       }
     };
@@ -88,7 +88,7 @@ namespace pinocchio
       {
         Pass::run(
           model.joints[i], data.joints[i],
-          ArgsType(model, data, q.derived(), PINOCCHIO_EIGEN_CONST_CAST(Matrix6x, data.J)));
+          ArgsType(model, data, q.derived(), data.J.const_cast_derived()));
       }
 
       return data.J;
@@ -148,7 +148,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.cols(), Jout.cols());
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.rows(), 6);
 
-      Matrix6xLikeOut & Jout_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLikeOut, Jout);
+      Matrix6xLikeOut & Jout_ = Jout.const_cast_derived();
 
       typedef typename Matrix6xLikeIn::ConstColXpr ConstColXprIn;
       typedef const MotionRef<ConstColXprIn> MotionIn;
@@ -189,7 +189,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.rows(), 6);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.cols(), model.nv);
 
-      Matrix6xLikeOut & Jout_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLikeOut, Jout);
+      Matrix6xLikeOut & Jout_ = Jout.const_cast_derived();
 
       typedef typename Matrix6xLikeIn::ConstColXpr ConstColXprIn;
       typedef const MotionRef<ConstColXprIn> MotionIn;
@@ -277,8 +277,7 @@ namespace pinocchio
       assert(model.check(data) && "data is not consistent with model.");
 
       ::pinocchio::details::translateJointJacobian(
-        model, data, joint_id, reference_frame, data.J,
-        PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J));
+        model, data, joint_id, reference_frame, data.J, J.const_cast_derived());
     }
 
     template<
@@ -319,7 +318,7 @@ namespace pinocchio
         data.liMi[i] = model.jointPlacements[i] * jdata.M();
         data.iMf[parent] = data.liMi[i] * data.iMf[i];
 
-        Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J);
+        Matrix6xLike & J_ = J.const_cast_derived();
         jmodel.jointCols(J_) = data.iMf[i].actInv(jdata.S());
       }
     };
@@ -352,8 +351,7 @@ namespace pinocchio
       {
         Pass::run(
           model.joints[i], data.joints[i],
-          typename Pass::ArgsType(
-            model, data, q.derived(), PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J)));
+          typename Pass::ArgsType(model, data, q.derived(), J.const_cast_derived()));
       }
     }
 
