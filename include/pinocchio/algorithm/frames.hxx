@@ -270,9 +270,11 @@ namespace pinocchio
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
     const FrameIndex frame_id,
     const ReferenceFrame rf,
-    const Eigen::MatrixBase<Matrix6xLike> & dJ)
+    const Eigen::MatrixBase<Matrix6xLike> & dJ_)
   {
     assert(model.check(data) && "data is not consistent with model.");
+
+    Matrix6xLike & dJ = dJ_.const_cast_derived();
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
       dJ.cols(), model.nv,
       "The numbers of columns in the Jacobian matrix does not math the "
@@ -281,6 +283,9 @@ namespace pinocchio
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
     typedef typename Model::Frame Frame;
+    typedef typename Data::SE3 SE3;
+    typedef typename SE3::Vector3 Vector3;
+    typedef typename Data::Motion Motion;
 
     const Frame & frame = model.frames[frame_id];
     const JointIndex & joint_id = frame.parentJoint;
@@ -290,6 +295,53 @@ namespace pinocchio
 
     details::translateJointJacobian(
       model, data, joint_id, rf, oMframe, data.dJ, dJ.const_cast_derived());
+
+    // Add contribution for LOCAL and LOCAL_WORLD_ALIGNED
+    switch (rf)
+    {
+    case LOCAL: {
+      const Motion & v_joint = data.v[joint_id];
+      const Motion v_frame = frame.placement.actInv(v_joint);
+
+      const int colRef = nv(model.joints[joint_id]) + idx_v(model.joints[joint_id]) - 1;
+      for (Eigen::DenseIndex j = colRef; j >= 0; j = data.parents_fromRow[(size_t)j])
+      {
+        typedef typename Data::Matrix6x::ColXpr ColXprIn;
+        typedef const MotionRef<ColXprIn> MotionIn;
+
+        typedef typename Matrix6xLike::ColXpr ColXprOut;
+        typedef MotionRef<ColXprOut> MotionOut;
+        MotionIn v_in(data.J.col(j));
+        MotionOut v_out(dJ.col(j));
+
+        v_out -= v_frame.cross(oMframe.actInv(v_in));
+      }
+      break;
+    }
+    case LOCAL_WORLD_ALIGNED: {
+      const Motion & ov_joint = data.ov[joint_id];
+      const int colRef = nv(model.joints[joint_id]) + idx_v(model.joints[joint_id]) - 1;
+      for (Eigen::DenseIndex j = colRef; j >= 0; j = data.parents_fromRow[(size_t)j])
+      {
+        typedef typename Data::Matrix6x::ColXpr ColXprIn;
+        typedef const MotionRef<ColXprIn> MotionIn;
+
+        typedef typename Matrix6xLike::ColXpr ColXprOut;
+        typedef MotionRef<ColXprOut> MotionOut;
+        MotionIn v_in(data.J.col(j));
+        MotionOut v_out(dJ.col(j));
+
+        v_out.linear() -=
+          Vector3(ov_joint.linear() + ov_joint.angular().cross(oMframe.translation()))
+            .cross(v_in.angular());
+      }
+      break;
+    }
+
+    case WORLD:
+    default:
+      break;
+    }
   }
 
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
