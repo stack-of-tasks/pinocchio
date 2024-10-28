@@ -483,7 +483,7 @@ BOOST_AUTO_TEST_CASE(parse_dirs_no_strippath)
                                     <asset>
                                         <texture name="testTexture" file="texture.png" type="2d"/>
                                         <material name="matTest" texture="testTexture"/>
-                                        <mesh file="C://auto/mesh.obj"/>
+                                        <mesh file="C:/auto/mesh.obj"/>
                                     </asset>
                                   </mujoco>)");
 #else
@@ -517,7 +517,7 @@ BOOST_AUTO_TEST_CASE(parse_dirs_no_strippath)
   // Test Meshes
   pinocchio::mjcf::details::MjcfMesh mesh = graph.mapOfMeshes.at("mesh");
 #ifdef _WIN32
-  BOOST_CHECK_EQUAL(boost::filesystem::path(mesh.filePath).generic_string(), "C://auto/mesh.obj");
+  BOOST_CHECK_EQUAL(boost::filesystem::path(mesh.filePath).generic_string(), "C:/auto/mesh.obj");
 #else
   BOOST_CHECK_EQUAL(boost::filesystem::path(mesh.filePath).generic_string(), "/auto/mesh.obj");
 #endif

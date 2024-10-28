@@ -190,6 +190,23 @@ Please note that we always advise including the `pinocchio/fwd.hpp` header as th
 |             |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | **Humble**   | [![](https://build.ros2.org/job/Hbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary/badge/icon)](https://build.ros2.org/job/Hbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary) |
 |             |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | **Rolling**  | [![](https://build.ros2.org/job/Rbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary/badge/icon)](https://build.ros2.org/job/Rbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary) |
 
+## Build/install from source with Pixi
+
+To build **Pinocchio** from source the easiest way is to use [Pixi](https://pixi.sh/latest/#installation).
+
+[Pixi](https://pixi.sh/latest/) is a cross-platform package management tool for developers that
+will install all required dependencies in `.pixi` directory.
+It's used by our CI agent so you have the guarantee to get the right dependencies.
+
+Run the following command to install dependencies, configure, build and test the project:
+
+```bash
+pixi run test
+```
+
+The project will be built in the `build` directory.
+You can run `pixi shell` and build the project with `cmake` and `ninja` manually.
+
 ## Visualization
 
 **Pinocchio** provides support for many open-source and free visualizers:

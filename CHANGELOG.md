@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added argument to let users decide of root joint name when parsing models (urdf, mjcf, sdf) ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
 - Allow use of `pathlib.Path | str` for paths in python bindings ([#2431](https://github.com/stack-of-tasks/pinocchio/pull/2431))
 - Add Pseudo inertia and Log-cholesky parametrization ([#2296](https://github.com/stack-of-tasks/pinocchio/pull/2296))
+- Add Pixi support ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
 
 ### Fixed
 - Fix linkage of Boost.Serialization on Windows ([#2400](https://github.com/stack-of-tasks/pinocchio/pull/2400))
@@ -25,6 +26,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix `pinocchio-test-py-robot_wrapper` when building with SDF and collision support ([#2437](https://github.com/stack-of-tasks/pinocchio/pull/2437))
 - Fix crash when calling `Inertia::FromDynamicParameters` in Python with wrong vector size ([#2296](https://github.com/stack-of-tasks/pinocchio/pull/2296))
 - Fix `examples/cassie-simulation.py` and `examples/talos-simulation.py` ([#2443](https://github.com/stack-of-tasks/pinocchio/pull/2443))
+- Fix build with CppAd 2024 ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Fix `pinocchio-test-cpp-mjcf` unittest with Boost 1.86 ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Fix `pinocchio-test-cpp-constraint-variants` uninitialized values ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Fix mixing library symbols between Pinocchio scalar bindings ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
 
 ### Changed
 

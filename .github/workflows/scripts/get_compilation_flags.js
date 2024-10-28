@@ -1,102 +1,117 @@
-// Inspired by https://github.com/emmenko/action-verify-pr-labels/tree/master
-module.exports = async ({github, context, core}) => {
-    const getPullRequestNumber = (ref) => {
-        core.debug(`Parsing ref: ${ref}`);
-        // This assumes that the ref is in the form of `refs/pull/:prNumber/merge`
-        const prNumber = ref.replace(/refs\/pull\/(\d+)\/merge/, '$1');
-        return parseInt(prNumber, 10);
-    };
+// Create the default CMakeOptions
+function CMakeOptions() {
+  this.BUILD_WITH_COLLISION_SUPPORT = "OFF";
+  this.BUILD_WITH_CASADI_SUPPORT = "OFF";
+  this.BUILD_WITH_AUTODIFF_SUPPORT = "OFF";
+  this.BUILD_WITH_EXTRA_SUPPORT = "OFF";
+  this.BUILD_WITH_CODEGEN_SUPPORT = "OFF";
+  this.BUILD_WITH_OPENMP_SUPPORT = "OFF";
+  this.BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT = "OFF";
+  this.INSTALL_DOCUMENTATION = "ON";
+  this.GENERATE_PYTHON_STUBS = "ON";
+  this.BUILD_WITH_ACCELERATE_SUPPORT = "OFF";
+  this.BUILD_WITH_SDF_SUPPORT = "OFF";
+}
 
+// Return an object with an association between labels and
+// options that should be set to ON
+function makeLabelToOptions() {
+  const os = process.env.RUNNER_OS;
+  if(os == "Windows") {
+    return {
+      build_all: [
+        'BUILD_WITH_COLLISION_SUPPORT',
+        'BUILD_WITH_CASADI_SUPPORT',
+        'BUILD_WITH_AUTODIFF_SUPPORT',
+        'BUILD_WITH_EXTRA_SUPPORT',
+        'BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT',
+        'BUILD_WITH_SDF_SUPPORT'
+      ],
+      build_collision: ['BUILD_WITH_COLLISION_SUPPORT'],
+      build_casadi: ['BUILD_WITH_CASADI_SUPPORT'],
+      build_autodiff: ['BUILD_WITH_AUTODIFF_SUPPORT'],
+      build_extra: ['BUILD_WITH_EXTRA_SUPPORT'],
+      build_codegen: [],
+      build_openmp: [],
+      build_mpfr: ['BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT'],
+      build_sdf: ['BUILD_WITH_SDF_SUPPORT'],
+      build_accelerate: ['BUILD_WITH_ACCELERATE_SUPPORT']
+    };
+  } else {
+    return {
+      build_all: [
+        'BUILD_WITH_COLLISION_SUPPORT',
+        'BUILD_WITH_CASADI_SUPPORT',
+        'BUILD_WITH_AUTODIFF_SUPPORT',
+        'BUILD_WITH_EXTRA_SUPPORT',
+        'BUILD_WITH_CODEGEN_SUPPORT',
+        'BUILD_WITH_OPENMP_SUPPORT',
+        'BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT',
+        'BUILD_WITH_SDF_SUPPORT'
+      ],
+      build_collision: ['BUILD_WITH_COLLISION_SUPPORT'],
+      build_casadi: ['BUILD_WITH_CASADI_SUPPORT'],
+      build_autodiff: ['BUILD_WITH_AUTODIFF_SUPPORT'],
+      build_extra: ['BUILD_WITH_EXTRA_SUPPORT'],
+      build_codegen: ['BUILD_WITH_CODEGEN_SUPPORT'],
+      build_openmp: ['BUILD_WITH_OPENMP_SUPPORT'],
+      build_mpfr: ['BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT'],
+      build_sdf: ['BUILD_WITH_SDF_SUPPORT'],
+      build_accelerate: ['BUILD_WITH_ACCELERATE_SUPPORT']
+    };
+  }
+}
+
+function getPullRequestNumber(ref) {
+  // This assumes that the ref is in the form of `refs/pull/:prNumber/merge`
+  const prNumber = ref.replace(/refs\/pull\/(\d+)\/merge/, '$1');
+  return parseInt(prNumber, 10);
+}
+
+// Get activated labels
+async function getLabelNames(github, context) {
+  const {LABELS} = process.env;
+
+  if(LABELS) {
+    return [LABELS];
+  } else {
     const prNumber = context.issue.number || getPullRequestNumber(context.ref);
 
-    let cmakeFlags = '';
-    // get os process is run on
-    const os = process.env.RUNNER_OS;
-    var labelFlags;
-    if(os == "Windows")
-    {
-        labelFlags = {
-            build_all: [
-                ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
-                ' -DBUILD_WITH_CASADI_SUPPORT=ON',
-                ' -DBUILD_WITH_AUTODIFF_SUPPORT=ON',
-                ' -DBUILD_WITH_EXTRA_SUPPORT=ON',
-                ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
-                ' -DINSTALL_DOCUMENTATION=ON',
-                ' -DGENERATE_PYTHON_STUBS=ON',
-                ' -DBUILD_WITH_ACCELERATE_SUPPORT=OFF',
-                ' -DBUILD_WITH_SDF_SUPPORT=ON'
-            ],
-            build_collision: ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
-            build_casadi: ' -DBUILD_WITH_CASADI_SUPPORT=ON',
-            build_autodiff: ' -DBUILD_WITH_AUTODIFF_SUPPORT=ON',
-            build_extra: ' -DBUILD_WITH_EXTRA_SUPPORT=ON',
-            build_mpfr: ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
-            build_sdf: ' -DBUILD_WITH_SDF_SUPPORT=ON',
-            build_accelerate: ' -DBUILD_WITH_ACCELERATE_SUPPORT=ON'
-        };
-    }
-    else
-    {
-        labelFlags = {
-            build_all: [
-                ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
-                ' -DBUILD_WITH_CASADI_SUPPORT=ON',
-                ' -DBUILD_WITH_AUTODIFF_SUPPORT=ON',
-                ' -DBUILD_WITH_EXTRA_SUPPORT=ON',
-                ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
-                ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
-                ' -DINSTALL_DOCUMENTATION=ON',
-                ' -DBUILD_WITH_CODEGEN_SUPPORT=ON',
-                ' -DGENERATE_PYTHON_STUBS=ON',
-                ' -DBUILD_WITH_ACCELERATE_SUPPORT=OFF',
-                ' -DBUILD_WITH_SDF_SUPPORT=ON'
-            ],
-            build_collision: ' -DBUILD_WITH_COLLISION_SUPPORT=ON',
-            build_casadi: ' -DBUILD_WITH_CASADI_SUPPORT=ON',
-            build_autodiff: ' -DBUILD_WITH_AUTODIFF_SUPPORT=ON',
-            build_codegen: ' -DBUILD_WITH_CODEGEN_SUPPORT=ON',
-            build_extra: ' -DBUILD_WITH_EXTRA_SUPPORT=ON',
-            build_openmp: ' -DBUILD_WITH_OPENMP_SUPPORT=ON',
-            build_mpfr: ' -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=ON',
-            build_sdf: ' -DBUILD_WITH_SDF_SUPPORT=ON',
-            build_accelerate: ' -DBUILD_WITH_ACCELERATE_SUPPORT=ON'
-        };
+    if(isNaN(prNumber)) {
+      return [];
     }
 
-    // Get the GitHub event name that triggered the workflow
-    const {LABELS} = process.env;
-    var labelNames;
-    if(LABELS)
-    {
-        labelNames=[LABELS];
-    }
-    else
-    {
-        if(isNaN(prNumber))
-        {
-            core.setOutput("cmakeFlags", cmakeFlags);
-            return;
-        }
-
-        const { data } = await github.rest.pulls.get({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            pull_number: prNumber,
-        });
-        labelNames = data.labels.map(label => label.name);
-    }
-
-    labelNames.forEach(label => {
-        if (labelFlags[label]) {
-            if (Array.isArray(labelFlags[label])) {
-                cmakeFlags += labelFlags[label].join(' ');
-            } else {
-                cmakeFlags += labelFlags[label];
-            }
-        }
+    const { data } = await github.rest.pulls.get({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        pull_number: prNumber,
     });
-    console.log(cmakeFlags);
-    core.setOutput("cmakeFlags", cmakeFlags);
-    return;
+    return data.labels.map(label => label.name);
+  }
+}
+
+// Inspired by https://github.com/emmenko/action-verify-pr-labels/tree/master
+module.exports = async ({github, context, core}) => {
+  const labelToOptions = makeLabelToOptions();
+  const labelNames = await getLabelNames(github, context);
+  let options = new CMakeOptions();
+
+  // Turn CMake options ON
+  for (let label of labelNames) {
+    if (labelToOptions[label]) {
+      for (let x of labelToOptions[label]) {
+        options[x] = "ON";
+      }
+    }
+  }
+
+  // Transform options object into command line output
+  let cmakeFlags = '';
+  for (let [k, v] of Object.entries(options)) {
+    cmakeFlags += `-D${k}=${v} `;
+  }
+
+  console.log(cmakeFlags);
+  core.setOutput("cmakeFlags", cmakeFlags);
+  return;
 }

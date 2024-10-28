@@ -44,8 +44,16 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   endif()
   add_dependencies(${PROJECT_NAME}-python ${PYTHON_LIB_NAME})
 
-  # Remove lib prefix for the target and use the right define for DLLAPI definition
-  set_target_properties(${PYTHON_LIB_NAME} PROPERTIES PREFIX "" DEFINE_SYMBOL "${PYWRAP}_EXPORTS")
+  # Remove lib prefix for the target and use the right define for DLLAPI definition.
+  #
+  # Set inlined function visibility to hidden by default. This avoid bug on OSX where two symbol
+  # from two different binding (`pinocchio::python::exposeSpecificTypeFeatures`) can be wrongly
+  # loaded (see https://github.com/stack-of-tasks/pinocchio/issues/2462).
+  set_target_properties(
+    ${PYTHON_LIB_NAME}
+    PROPERTIES PREFIX ""
+               DEFINE_SYMBOL "${PYWRAP}_EXPORTS"
+               VISIBILITY_INLINES_HIDDEN ON)
 
   # Do not report:
   #
@@ -164,7 +172,8 @@ if(BUILD_PYTHON_INTERFACE)
     target_compile_definitions(
       ${PYWRAP}_cppad PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
                               CPPAD_DEBUG_AND_RELEASE)
-    target_include_directories(${PYWRAP}_cppad SYSTEM PUBLIC ${cppad_INCLUDE_DIR})
+    target_include_directories(${PYWRAP}_cppad SYSTEM
+                               PUBLIC $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>)
     target_link_libraries(${PYWRAP}_cppad PUBLIC ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppad")
 
@@ -178,7 +187,8 @@ if(BUILD_PYTHON_INTERFACE)
     target_compile_definitions(
       ${PYWRAP}_cppadcg PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
                                 CPPAD_DEBUG_AND_RELEASE)
-    target_include_directories(${PYWRAP}_cppadcg SYSTEM PUBLIC ${cppadcg_INCLUDE_DIR})
+    target_include_directories(${PYWRAP}_cppadcg SYSTEM
+                               PUBLIC $<BUILD_INTERFACE:${cppadcg_INCLUDE_DIR}>)
     target_link_libraries(${PYWRAP}_cppadcg PUBLIC ${cppadcg_LIBRARY} ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppadcg")
 
