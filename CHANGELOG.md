@@ -26,6 +26,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix `pinocchio-test-py-robot_wrapper` when building with SDF and collision support ([#2437](https://github.com/stack-of-tasks/pinocchio/pull/2437))
 - Fix crash when calling `Inertia::FromDynamicParameters` in Python with wrong vector size ([#2296](https://github.com/stack-of-tasks/pinocchio/pull/2296))
 - Fix `examples/cassie-simulation.py` and `examples/talos-simulation.py` ([#2443](https://github.com/stack-of-tasks/pinocchio/pull/2443))
+- Fix build with CppAd 2024 ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Fix `pinocchio-test-cpp-mjcf` unittest with Boost 1.86 ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Fix `pinocchio-test-cpp-constraint-variants` uninitialized values ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Fix mixing library symbols between Pinocchio scalar bindings ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
 
 ### Changed
 
