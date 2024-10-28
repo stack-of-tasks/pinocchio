@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2024 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_frames_hxx__
@@ -171,8 +171,7 @@ namespace pinocchio
 
     const typename Data::SE3 oMframe = data.oMi[joint_id] * placement;
     details::translateJointJacobian(
-      model, data, joint_id, reference_frame, oMframe, data.J,
-      PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J));
+      model, data, joint_id, reference_frame, oMframe, data.J, J.const_cast_derived());
   }
 
   template<
@@ -220,8 +219,7 @@ namespace pinocchio
         JointIndex parent = joint_support[k];
         Pass::run(
           model.joints[parent], data.joints[parent],
-          typename Pass::ArgsType(
-            model, data, q.derived(), PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J)));
+          typename Pass::ArgsType(model, data, q.derived(), J.const_cast_derived()));
       }
 
       if (reference_frame == LOCAL_WORLD_ALIGNED)
@@ -229,7 +227,7 @@ namespace pinocchio
         typename Data::SE3 & oMframe = data.oMf[frameId];
         oMframe = data.oMi[joint_id] * frame.placement;
 
-        Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J);
+        Matrix6xLike & J_ = J.const_cast_derived();
 
         const int colRef = nv(model.joints[joint_id]) + idx_v(model.joints[joint_id]) - 1;
         for (Eigen::DenseIndex j = colRef; j >= 0; j = data.parents_fromRow[(size_t)j])
@@ -252,8 +250,7 @@ namespace pinocchio
       {
         Pass::run(
           model.joints[i], data.joints[i],
-          typename Pass::ArgsType(
-            model, data, q.derived(), PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J)));
+          typename Pass::ArgsType(model, data, q.derived(), J.const_cast_derived()));
       }
       break;
     }
@@ -292,7 +289,7 @@ namespace pinocchio
     oMframe = data.oMi[joint_id] * frame.placement;
 
     details::translateJointJacobian(
-      model, data, joint_id, rf, oMframe, data.dJ, PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, dJ));
+      model, data, joint_id, rf, oMframe, data.dJ, dJ.const_cast_derived());
   }
 
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
