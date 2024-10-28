@@ -469,10 +469,66 @@ namespace pinocchio
       const DataTpl<Scalar, Options, JointCollectionTpl> & data,
       const JointIndex jointId,
       const ReferenceFrame rf,
-      const Eigen::MatrixBase<Matrix6xLike> & dJ)
+      const Eigen::MatrixBase<Matrix6xLike> & dJ_)
     {
-      ::pinocchio::details::translateJointJacobian(
-        model, data, jointId, rf, data.dJ, PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, dJ));
+      typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
+      typedef typename Data::SE3 SE3;
+      typedef typename SE3::Vector3 Vector3;
+      typedef typename Data::Motion Motion;
+
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(
+        jointId < JointIndex(model.njoints)
+        && "jointId is larger than the number of joints contained in the model");
+
+      Matrix6xLike & dJ = dJ_.const_cast_derived();
+      ::pinocchio::details::translateJointJacobian(model, data, jointId, rf, data.dJ, dJ);
+
+      // Add contribution for LOCAL and LOCAL_WORLD_ALIGNED
+      switch (rf)
+      {
+      case LOCAL: {
+        const SE3 & oMjoint = data.oMi[jointId];
+        const Motion & v_joint = data.v[jointId];
+        const int colRef = nv(model.joints[jointId]) + idx_v(model.joints[jointId]) - 1;
+        for (Eigen::DenseIndex j = colRef; j >= 0; j = data.parents_fromRow[(size_t)j])
+        {
+          typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
+          typedef const MotionRef<ConstColXprIn> MotionIn;
+
+          typedef typename Matrix6xLike::ColXpr ColXprOut;
+          typedef MotionRef<ColXprOut> MotionOut;
+          MotionIn v_in(data.J.col(j));
+          MotionOut v_out(dJ.col(j));
+
+          v_out -= v_joint.cross(oMjoint.actInv(v_in));
+        }
+        break;
+      }
+      case LOCAL_WORLD_ALIGNED: {
+        const Motion & ov_joint = data.ov[jointId];
+        const SE3 & oMjoint = data.oMi[jointId];
+        const int colRef = nv(model.joints[jointId]) + idx_v(model.joints[jointId]) - 1;
+        for (Eigen::DenseIndex j = colRef; j >= 0; j = data.parents_fromRow[(size_t)j])
+        {
+          typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
+          typedef const MotionRef<ConstColXprIn> MotionIn;
+
+          typedef typename Matrix6xLike::ColXpr ColXprOut;
+          typedef MotionRef<ColXprOut> MotionOut;
+          MotionIn v_in(data.J.col(j));
+          MotionOut v_out(dJ.col(j));
+
+          v_out.linear() -=
+            Vector3(ov_joint.linear() + ov_joint.angular().cross(oMjoint.translation()))
+              .cross(v_in.angular());
+        }
+        break;
+      }
+
+      case WORLD:
+      default:
+        break;
+      }
     }
   } // namespace impl
 
