@@ -19,6 +19,19 @@ make_directory("${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
 set(${PYWRAP}_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES})
 set(${PYWRAP}_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS})
 
+# --- Config file
+generate_configuration_header_v2(
+  INCLUDE_DIR
+  ${PROJECT_BINARY_DIR}/include
+  HEADER_DIR
+  pinocchio/bindings/python
+  FILENAME
+  config.hpp
+  LIBRARY_NAME
+  "PINOCCHIO_PYWRAP"
+  EXPORT_SYMBOL
+  "PINOCCHIO_PYWRAP_EXPORTS")
+
 function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   set(scalar_name "${scalar_name}")
   set(PYTHON_LIB_NAME "${PYWRAP}_${scalar_name}")
@@ -68,10 +81,10 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   target_compile_options(${PYTHON_LIB_NAME} PRIVATE ${PRIVATE_OPTIONS})
 
   set(PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE "pinocchio/bindings/python/context/${scalar_name}.hpp")
-  target_compile_options(
+  target_compile_definitions(
     ${PYTHON_LIB_NAME}
-    PRIVATE -DPINOCCHIO_PYTHON_CONTEXT_FILE="${PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE}"
-            -DPINOCCHIO_PYTHON_MODULE_NAME=${PYTHON_LIB_NAME})
+    PRIVATE PINOCCHIO_PYTHON_CONTEXT_FILE="${PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE}"
+            PINOCCHIO_PYTHON_MODULE_NAME=${PYTHON_LIB_NAME})
 
   set_target_properties(${PYTHON_LIB_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
   if(BUILD_WITH_COMMIT_VERSION)
