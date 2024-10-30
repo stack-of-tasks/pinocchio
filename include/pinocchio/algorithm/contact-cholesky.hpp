@@ -53,7 +53,7 @@ namespace pinocchio
   ///
   template<typename _Scalar, int _Options>
   struct PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
-    ContactCholeskyDecompositionTpl
+    PINOCCHIO_DLLAPI ContactCholeskyDecompositionTpl
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
