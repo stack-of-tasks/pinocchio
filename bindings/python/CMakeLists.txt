@@ -53,6 +53,7 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
     ${PYTHON_LIB_NAME}
     PROPERTIES PREFIX ""
                DEFINE_SYMBOL "${PYWRAP}_EXPORTS"
+               CXX_VISIBILITY_PRESET hidden
                VISIBILITY_INLINES_HIDDEN ON)
 
   # Do not report:
