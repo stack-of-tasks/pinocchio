@@ -175,7 +175,8 @@ casadi = { features = ["casadi", "py312"], solve-group = "py312" }
 autodiff = { features = ["autodiff", "py312"], solve-group = "py312" }
 extra = { features = ["extra", "py312"], solve-group = "py312" }
 openmp = { features = ["openmp", "py312"], solve-group = "py312" }
-codegen = { features = ["codegen", "py312"], solve-group = "py312" }
+# codegen need autodiff
+codegen = { features = ["autodiff", "codegen", "py312"], solve-group = "py312" }
 mpfr = { features = ["mpfr", "py312"], solve-group = "py312" }
 sdf = { features = ["sdf", "py312"], solve-group = "py312" }
 py39 = { features = ["py39"], solve-group = "py39" }
