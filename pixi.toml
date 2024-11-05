@@ -62,6 +62,36 @@ test = { cmd = "ctest --test-dir build --output-on-failure", depends_on = [
   "build",
 ] }
 
+# Increment the version number with PINOCCHIO_VERSION variable
+[feature.new-version.dependencies]
+tomlkit = ">=0.13.2"
+
+[feature.new-version.tasks]
+configure_new_version = { cmd = [
+  "CXXFLAGS=$PINOCCHIO_CXX_FLAGS",
+  "cmake",
+  "-G",
+  "Ninja",
+  "-B",
+  "build_new_version",
+  "-S",
+  ".",
+  "-DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX",
+  "-DCMAKE_BUILD_TYPE=$PINOCCHIO_BUILD_TYPE",
+  "-DGENERATE_PYTHON_STUBS=ON",
+  "-DBUILD_WITH_COLLISION_SUPPORT=ON",
+  "-DBUILD_WITH_ACCELERATE_SUPPORT=OFF",
+  "-DBUILD_WITH_CASADI_SUPPORT=OFF",
+  "-DBUILD_WITH_AUTODIFF_SUPPORT=OFF",
+  "-DBUILD_WITH_EXTRA_SUPPORT=OFF",
+  "-DBUILD_WITH_OPENMP_SUPPORT=OFF",
+  "-DBUILD_WITH_CODEGEN_SUPPORT=OFF",
+  "-DBUILD_WITH_SDF_SUPPORT=OFF",
+  "-DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=OFF",
+] }
+release_new_version = { cmd = "VERSION=$PINOCCHIO_VERSION cmake --build build_new_version --target release", depends-on = [
+  "configure_new_version",
+] }
 
 [feature.lint]
 dependencies = { pre-commit = ">=3.6.2" }
@@ -182,5 +212,11 @@ all-clang-cl = { features = [
   "mpfr",
   "sdf",
   "clang-cl",
+  "py312",
+], solve-group = "py312" }
+# Release a new software version
+new-version = { features = [
+  "new-version",
+  "collision",
   "py312",
 ], solve-group = "py312" }
