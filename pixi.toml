@@ -26,10 +26,10 @@ meshcat-python = ">=0.3"
 matplotlib = ">=3.9.2"
 
 [activation]
-scripts = ["build_scripts/pixi/activation.sh"]
+scripts = ["development/scripts/pixi/activation.sh"]
 
 [target.win-64.activation]
-scripts = ["build_scripts/pixi/activation.bat"]
+scripts = ["development/scripts/pixi/activation.bat"]
 
 [tasks]
 # We must avoid to set CMAKE_CXX_FLAGS because of WIN32
@@ -155,14 +155,14 @@ python = "3.9.*"
 # to avoid cxx-compiler to overwrite them.
 [feature.clang-cl]
 platforms = ["win-64"]
-activation = { scripts = ["build_scripts/pixi/activation_clang_cl.bat"] }
+activation = { scripts = ["development/scripts/pixi/activation_clang_cl.bat"] }
 
 # Use clang on GNU/Linux.
 # We must use scripts instead of env to setup CC and CXX
 # to avoid cxx-compiler to overwrite them.
 [feature.clang]
 platforms = ["linux-64"]
-activation = { scripts = ["build_scripts/pixi/activation_clang.sh"] }
+activation = { scripts = ["development/scripts/pixi/activation_clang.sh"] }
 dependencies = { clangxx = "*" }
 
 [environments]
