@@ -2,6 +2,15 @@ name: "CI - Nix"
 
 on:
   push:
+    paths-ignore:
+      - doc/**
+      - .gitlab-ci.yml
+      - .gitignore
+      - '*.md'
+      - CITATION.*
+      - COPYING.LESSER
+      - .pre-commit-config.yaml
+      - CHANGELOG.md
 
 jobs:
   nix:

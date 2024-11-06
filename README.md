@@ -156,7 +156,13 @@ The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) on
 
 **Pinocchio** can be easily installed on various Linux (Ubuntu, Fedora, etc.) and Unix distributions (Mac OS X, BSD, etc.). Please refer to the [installation procedure](http://stack-of-tasks.github.io/pinocchio/download.html).
 
-If you only need the Python bindings of Pinocchio, you may prefer to install it through [Conda](https://docs.conda.io/en/latest/). Please follow the procedure described [here](https://github.com/conda-forge/pinocchio-feedstock#installing-pinocchio).
+### Conda
+
+You simply need this simple line:
+
+```bash
+conda install pinocchio -c conda-forge
+```
 
 ### ROS
 
@@ -189,23 +195,6 @@ Please note that we always advise including the `pinocchio/fwd.hpp` header as th
 | **Noetic**  | [![](https://build.ros.org/job/Nbin_uF64__pinocchio__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros.org/job/Nbin_uF64__pinocchio__ubuntu_focal_amd64__binary)   | &nbsp;&nbsp;&nbsp;&nbsp; | **Galactic** | [![](https://build.ros2.org/job/Gbin_uF64__pinocchio__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros2.org/job/Gbin_uF64__pinocchio__ubuntu_focal_amd64__binary) |
 |             |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | **Humble**   | [![](https://build.ros2.org/job/Hbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary/badge/icon)](https://build.ros2.org/job/Hbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary) |
 |             |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | **Rolling**  | [![](https://build.ros2.org/job/Rbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary/badge/icon)](https://build.ros2.org/job/Rbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary) |
-
-## Build/install from source with Pixi
-
-To build **Pinocchio** from source the easiest way is to use [Pixi](https://pixi.sh/latest/#installation).
-
-[Pixi](https://pixi.sh/latest/) is a cross-platform package management tool for developers that
-will install all required dependencies in `.pixi` directory.
-It's used by our CI agent so you have the guarantee to get the right dependencies.
-
-Run the following command to install dependencies, configure, build and test the project:
-
-```bash
-pixi run test
-```
-
-The project will be built in the `build` directory.
-You can run `pixi shell` and build the project with `cmake` and `ninja` manually.
 
 ## Visualization
 
