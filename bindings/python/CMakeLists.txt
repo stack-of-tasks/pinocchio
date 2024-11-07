@@ -197,6 +197,14 @@ if(BUILD_PYTHON_INTERFACE)
 
   if(BUILD_WITH_CODEGEN_SUPPORT)
     pinocchio_python_bindings_specific_type(cppadcg cppadcg)
+
+    # On osx, use default visiblitiy because of an issue with thread_local storage defined in
+    # cppad/cg/cg.hpp header (see
+    # https://github.com/stack-of-tasks/pinocchio/pull/2469#issuecomment-2461845127)
+    if(APPLE)
+      set_target_properties(${PYWRAP}_cppadcg PROPERTIES CXX_VISIBILITY_PRESET default)
+    endif()
+
     # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
     target_compile_definitions(
       ${PYWRAP}_cppadcg PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
