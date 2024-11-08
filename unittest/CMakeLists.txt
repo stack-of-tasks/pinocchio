@@ -227,7 +227,7 @@ if(BUILD_WITH_EXTRA_SUPPORT)
     COLLISION_OPTIONAL)
 endif()
 
-if(BUILD_WITH_LIBPYTHON)
+if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
   add_pinocchio_unit_test(python_parser PYTHON_PARSER)
   get_cpp_test_name(python_parser ${CMAKE_CURRENT_SOURCE_DIR} python_parser_target)
 

@@ -163,6 +163,9 @@ endif()
 if(BUILD_WITH_AUTODIFF_SUPPORT)
   set(BUILD_WITH_CPPAD_SUPPORT TRUE)
 endif()
+if(BUILD_WITH_LIBPYTHON)
+  set(BUILD_WITH_PYTHON_PARSER_SUPPORT TRUE)
+endif()
 
 if(BUILD_WITH_EXTRA_SUPPORT)
   list(APPEND CFLAGS_OPTIONS "-DPINOCCHIO_WITH_EXTRA_SUPPORT")
@@ -300,7 +303,7 @@ if(BUILD_PYTHON_INTERFACE)
 
   message(STATUS "Python compiler: ${_python_implementation_value}")
   if(_python_implementation_value MATCHES "PyPy")
-    set(BUILD_WITH_LIBPYTHON OFF)
+    set(BUILD_WITH_PYTHON_PARSER_SUPPORT OFF)
     message(
       STATUS
         "PyPy detected, therefore libpython is not available and BUILD_WITH_LIBPYTHON set to OFF.")

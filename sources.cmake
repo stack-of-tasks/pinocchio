@@ -366,10 +366,10 @@ set(${PROJECT_NAME}_SDF_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sdf/model.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sdf/geometry.hxx)
 
-set(${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS
+set(${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/python.hpp)
 
-set(${PROJECT_NAME}_LIBPYTHON_SOURCES
+set(${PROJECT_NAME}_PYTHON_PARSER_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/python/model.cpp)
 
 set(${PROJECT_NAME}_EXTRA_SOURCES ${PROJECT_SOURCE_DIR}/src/extra/reachable-workspace.cpp)

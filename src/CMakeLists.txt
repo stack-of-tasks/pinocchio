@@ -325,17 +325,18 @@ if(BUILD_WITH_CASADI_SUPPORT)
   target_link_libraries(${PROJECT_NAME}_casadi ${CASADI_SCOPE} casadi)
 endif()
 
-if(BUILD_WITH_LIBPYTHON)
-  set(LIBPYTHON_LIB_NAME "${PROJECT_NAME}_python_parser")
+if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
+  set(PYTHON_PARSER_LIB_NAME "${PROJECT_NAME}_python_parser")
 
   pinocchio_target(
-    ${LIBPYTHON_LIB_NAME}
+    ${PYTHON_PARSER_LIB_NAME}
     SCALAR default
-    SOURCES ${${PROJECT_NAME}_LIBPYTHON_SOURCES} ${${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS})
-  pinocchio_config(python_parser ${LIBPYTHON_LIB_NAME})
+    SOURCES ${${PROJECT_NAME}_PYTHON_PARSER_SOURCES}
+            ${${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS})
+  pinocchio_config(python_parser ${PYTHON_PARSER_LIB_NAME})
 
-  target_link_libraries(${LIBPYTHON_LIB_NAME} PUBLIC ${PROJECT_NAME}_default Python3::Python)
-  target_link_boost_python(${LIBPYTHON_LIB_NAME} PUBLIC)
+  target_link_libraries(${PYTHON_PARSER_LIB_NAME} PUBLIC ${PROJECT_NAME}_default Python3::Python)
+  target_link_boost_python(${PYTHON_PARSER_LIB_NAME} PUBLIC)
   if(WIN32)
     target_link_libraries(${PYTHON_LIB_NAME} PUBLIC ${PYTHON_LIBRARY})
   endif()
