@@ -264,10 +264,6 @@ set(BOOST_REQUIRED_COMPONENTS filesystem serialization system)
 set_boost_default_options()
 export_boost_default_options()
 add_project_dependency(Boost REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
-# Search explicitly for boost_python when building python_parser
-if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
-  search_for_boost_python(REQUIRED)
-endif()
 
 if(Boost_VERSION_STRING VERSION_LESS 1.81)
   if(BUILD_WITH_URDF_SUPPORT AND "${urdfdom_VERSION}" VERSION_GREATER "0.4.2")
