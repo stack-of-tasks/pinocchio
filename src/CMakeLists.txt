@@ -325,6 +325,22 @@ if(BUILD_WITH_CASADI_SUPPORT)
   target_link_libraries(${PROJECT_NAME}_casadi ${CASADI_SCOPE} casadi)
 endif()
 
+if(BUILD_WITH_LIBPYTHON)
+  set(LIBPYTHON_LIB_NAME "${PROJECT_NAME}_python_parser")
+
+  pinocchio_target(
+    ${LIBPYTHON_LIB_NAME}
+    SCALAR default
+    SOURCES ${${PROJECT_NAME}_LIBPYTHON_SOURCES} ${${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS})
+  pinocchio_config(python_parser ${LIBPYTHON_LIB_NAME})
+
+  target_link_libraries(${LIBPYTHON_LIB_NAME} PUBLIC ${PROJECT_NAME}_default Python3::Python)
+  target_link_boost_python(${LIBPYTHON_LIB_NAME} PUBLIC)
+  if(WIN32)
+    target_link_libraries(${PYTHON_LIB_NAME} PUBLIC ${PYTHON_LIBRARY})
+  endif()
+endif()
+
 # Define main target (default, parsers, extra).
 add_library(${PROJECT_NAME} INTERFACE)
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
