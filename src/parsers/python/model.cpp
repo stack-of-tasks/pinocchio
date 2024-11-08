@@ -2,10 +2,12 @@
 // Copyright (c) 2016-2023 CNRS INRIA
 //
 
-#include "pinocchio/bindings/python/parsers/python.hpp"
+#include "pinocchio/parsers/python.hpp"
 
 #include <boost/version.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+
+#include <boost/python.hpp>
 
 // Boost 1.58
 #if BOOST_VERSION / 100 % 1000 == 58

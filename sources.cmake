@@ -370,7 +370,7 @@ set(${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/python.hpp)
 
 set(${PROJECT_NAME}_PYTHON_PARSER_SOURCES
-    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/python/model.cpp)
+    ${PROJECT_SOURCE_DIR}/src/parsers/python/model.cpp)
 
 set(${PROJECT_NAME}_EXTRA_SOURCES ${PROJECT_SOURCE_DIR}/src/extra/reachable-workspace.cpp)
 
