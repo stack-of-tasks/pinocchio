@@ -337,9 +337,6 @@ if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
 
   target_link_libraries(${PYTHON_PARSER_LIB_NAME} PUBLIC ${PROJECT_NAME}_default Python3::Python)
   target_link_boost_python(${PYTHON_PARSER_LIB_NAME} PUBLIC)
-  if(WIN32)
-    target_link_libraries(${PYTHON_LIB_NAME} PUBLIC ${PYTHON_LIBRARY})
-  endif()
 endif()
 
 # Define main target (default, parsers, extra).
