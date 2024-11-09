@@ -19,19 +19,6 @@ make_directory("${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
 set(${PYWRAP}_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES})
 set(${PYWRAP}_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS})
 
-# --- Config file
-generate_configuration_header_v2(
-  INCLUDE_DIR
-  ${PROJECT_BINARY_DIR}/include
-  HEADER_DIR
-  pinocchio/bindings/python
-  FILENAME
-  config.hpp
-  LIBRARY_NAME
-  "PINOCCHIO_PYWRAP"
-  EXPORT_SYMBOL
-  "PINOCCHIO_PYWRAP_EXPORTS")
-
 function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   set(scalar_name "${scalar_name}")
   set(PYTHON_LIB_NAME "${PYWRAP}_${scalar_name}")
