@@ -19,8 +19,7 @@ namespace pinocchio
       template<
         typename Scalar,
         int Options,
-        template<typename, int>
-        class JointCollectionTpl,
+        template<typename, int> class JointCollectionTpl,
         typename ArgsType>
       static void
       run(const JointModelCompositeTpl<Scalar, Options, JointCollectionTpl> & jmodel, ArgsType args)

@@ -174,8 +174,7 @@ namespace pinocchio
   template<
     typename S1,
     int O1,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     class ConstraintModelAllocator,
     class ConstraintDataAllocator,
     typename VectorLike>

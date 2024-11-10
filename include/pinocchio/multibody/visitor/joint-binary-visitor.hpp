@@ -43,8 +43,7 @@ namespace pinocchio
       template<
         typename Scalar,
         int Options,
-        template<typename, int>
-        class JointCollectionTpl,
+        template<typename, int> class JointCollectionTpl,
         typename ArgsTmp>
       static ReturnType run(
         const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel1,
@@ -95,8 +94,7 @@ namespace pinocchio
       template<
         typename Scalar,
         int Options,
-        template<typename, int>
-        class JointCollectionTpl,
+        template<typename, int> class JointCollectionTpl,
         typename ArgsTmp>
       static ReturnType run(
         const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel1,

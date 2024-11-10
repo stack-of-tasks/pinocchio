@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2024 CNRS INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -569,14 +569,14 @@ BOOST_AUTO_TEST_CASE(test_frame_jacobian_time_variation)
   const Motion & v_ref_local = frame.placement.actInv(data_ref.v[parent_idx]);
   const Motion & v_ref = data_ref.oMf[idx].act(v_ref_local);
 
-  const SE3 & wMf = SE3(data_ref.oMf[idx].rotation(), SE3::Vector3::Zero());
-  const Motion & v_ref_local_world_aligned = wMf.act(v_ref_local);
+  const SE3 wMf = SE3(data_ref.oMf[idx].rotation(), SE3::Vector3::Zero());
+  const Motion v_ref_local_world_aligned = wMf.act(v_ref_local);
   BOOST_CHECK(v_idx.isApprox(v_ref));
 
   Motion a_idx(J * a + dJ * v);
-  const Motion & a_ref_local = frame.placement.actInv(data_ref.a[parent_idx]);
-  const Motion & a_ref = data_ref.oMf[idx].act(a_ref_local);
-  const Motion & a_ref_local_world_aligned = wMf.act(a_ref_local);
+  const Motion a_ref_local = frame.placement.actInv(data_ref.a[parent_idx]);
+  const Motion a_ref = data_ref.oMf[idx].act(a_ref_local);
+  const Motion a_ref_local_world_aligned = wMf.act(a_ref_local);
   BOOST_CHECK(a_idx.isApprox(a_ref));
 
   J.fill(0.);
@@ -594,12 +594,15 @@ BOOST_AUTO_TEST_CASE(test_frame_jacobian_time_variation)
   // Regarding to the LOCAL_WORLD_ALIGNED frame
   getFrameJacobian(model, data, idx, LOCAL_WORLD_ALIGNED, J);
   getFrameJacobianTimeVariation(model, data, idx, LOCAL_WORLD_ALIGNED, dJ);
+  Data::Motion world_v_frame = data.ov[parent_idx];
+  world_v_frame.linear().setZero();
 
   v_idx = (Motion::Vector6)(J * v);
   BOOST_CHECK(v_idx.isApprox(v_ref_local_world_aligned));
 
   a_idx = (Motion::Vector6)(J * a + dJ * v);
-  BOOST_CHECK(a_idx.isApprox(a_ref_local_world_aligned));
+  BOOST_CHECK(
+    a_idx.isApprox(world_v_frame.cross(wMf.act(v_ref_local)) + a_ref_local_world_aligned));
 
   // compare to finite differencies
   {
@@ -617,7 +620,6 @@ BOOST_AUTO_TEST_CASE(test_frame_jacobian_time_variation)
     J_ref_local_world_aligned.fill(0.);
     computeJointJacobians(model, data_ref, q);
     updateFramePlacements(model, data_ref);
-    const SE3 & oMf_q = data_ref.oMf[idx];
     getFrameJacobian(model, data_ref, idx, WORLD, J_ref_world);
     getFrameJacobian(model, data_ref, idx, LOCAL, J_ref_local);
     getFrameJacobian(model, data_ref, idx, LOCAL_WORLD_ALIGNED, J_ref_local_world_aligned);
@@ -630,20 +632,10 @@ BOOST_AUTO_TEST_CASE(test_frame_jacobian_time_variation)
     J_ref_plus_local_world_aligned.fill(0.);
     computeJointJacobians(model, data_ref_plus, q_plus);
     updateFramePlacements(model, data_ref_plus);
-    const SE3 & oMf_q_plus = data_ref_plus.oMf[idx];
     getFrameJacobian(model, data_ref_plus, idx, WORLD, J_ref_plus_world);
     getFrameJacobian(model, data_ref_plus, idx, LOCAL, J_ref_plus_local);
     getFrameJacobian(
       model, data_ref_plus, idx, LOCAL_WORLD_ALIGNED, J_ref_plus_local_world_aligned);
-
-    // Move J_ref_plus_local to reference frame
-    J_ref_plus_local = (oMf_q.inverse() * oMf_q_plus).toActionMatrix() * (J_ref_plus_local);
-
-    // Move J_ref_plus_local_world_aligned to reference frame
-    SE3 oMf_translation = SE3::Identity();
-    oMf_translation.translation() = oMf_q_plus.translation() - oMf_q.translation();
-    J_ref_plus_local_world_aligned =
-      oMf_translation.toActionMatrix() * (J_ref_plus_local_world_aligned);
 
     Data::Matrix6x dJ_ref_world(6, model.nv), dJ_ref_local(6, model.nv),
       dJ_ref_local_world_aligned(6, model.nv);

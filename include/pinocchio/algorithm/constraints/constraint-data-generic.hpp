@@ -16,8 +16,7 @@ namespace pinocchio
   template<
     typename _Scalar,
     int _Options,
-    template<typename S, int O>
-    class ConstraintCollectionTpl>
+    template<typename S, int O> class ConstraintCollectionTpl>
   struct traits<ConstraintDataTpl<_Scalar, _Options, ConstraintCollectionTpl>>
   {
     typedef _Scalar Scalar;
@@ -31,8 +30,7 @@ namespace pinocchio
   template<
     typename _Scalar,
     int _Options,
-    template<typename S, int O>
-    class ConstraintCollectionTpl>
+    template<typename S, int O> class ConstraintCollectionTpl>
   struct ConstraintDataTpl
   : ConstraintDataBase<ConstraintDataTpl<_Scalar, _Options, ConstraintCollectionTpl>>
   , ConstraintCollectionTpl<_Scalar, _Options>::ConstraintDataVariant
@@ -102,8 +100,7 @@ namespace pinocchio
     typename ConstraintDataDerived,
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class ConstraintCollectionTpl>
+    template<typename S, int O> class ConstraintCollectionTpl>
   bool operator==(
     const ConstraintDataBase<ConstraintDataDerived> & data1,
     const ConstraintDataTpl<Scalar, Options, ConstraintCollectionTpl> & data2)

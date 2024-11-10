@@ -19,8 +19,7 @@ namespace pinocchio
     typename BroadPhaseManagerDerived,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorPool,
     typename CollisionVectorResult>
   void computeCollisionsInParallel(
@@ -101,8 +100,7 @@ namespace pinocchio
     typename BroadPhaseManagerDerived,
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl>
+    template<typename, int> class JointCollectionTpl>
   void computeCollisionsInParallel(
     const size_t num_threads,
     BroadPhaseManagerPoolBase<BroadPhaseManagerDerived, Scalar, Options, JointCollectionTpl> & pool,

@@ -43,15 +43,19 @@ or via pip (currently only available on Linux):
 
 ## Table of contents
 
+  - [Table of contents](#table-of-contents)
+  - [Introducing Pinocchio 3](#introducing-pinocchio-3)
   - [Pinocchio main features](#pinocchio-main-features)
   - [Documentation](#documentation)
   - [Examples](#examples)
   - [Tutorials](#tutorials)
+  - [Pinocchio continuous integrations](#pinocchio-continuous-integrations)
   - [Performances](#performances)
   - [Ongoing developments](#ongoing-developments)
+  - [Installation](#installation)
+    - [ROS](#ros)
   - [Visualization](#visualization)
   - [Citing Pinocchio](#citing-pinocchio)
-  - [Citing specific algorithmic contributions](#citing-specific-algorithmic-contributions)
   - [Questions and Issues](#questions-and-issues)
   - [Credits](#credits)
   - [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
@@ -125,7 +129,7 @@ You can also consider the interactive Jupyter notebook [set of tutorials](https:
     </tr><tr><td> CI on OSX via Conda </td>
   <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml"><img alt="mac" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml/badge.svg?branch=devel" /></a></td>
     </tr><tr><td> CI on Windows via Conda </td>
-  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml"><img alt="windows" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml/badge.svg?branch=devel" /></a></td>
+  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda.yml"><img alt="windows" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda.yml/badge.svg?branch=devel" /></a></td>
   </tr><tr><td> CI on Linux via Robotpkg </td>
     <td><img src="https://gitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/pipeline.svg" alt="Pipeline Status"></td>
    </tr>
@@ -152,7 +156,13 @@ The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) on
 
 **Pinocchio** can be easily installed on various Linux (Ubuntu, Fedora, etc.) and Unix distributions (Mac OS X, BSD, etc.). Please refer to the [installation procedure](http://stack-of-tasks.github.io/pinocchio/download.html).
 
-If you only need the Python bindings of Pinocchio, you may prefer to install it through [Conda](https://docs.conda.io/en/latest/). Please follow the procedure described [here](https://github.com/conda-forge/pinocchio-feedstock#installing-pinocchio).
+### Conda
+
+You simply need this simple line:
+
+```bash
+conda install pinocchio -c conda-forge
+```
 
 ### ROS
 
@@ -265,7 +275,8 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Joris Vaillant](https://github.com/jorisv) (Inria): core developer and manager of the project
 -   [Sebastian Castro](https://roboticseabass.com) (The AI Institute): MeshCat viewer feature extension
 -   [Lev Kozlov](https://github.com/lvjonok): Kinetic and potential energy regressors
--   [Megane Millan](https://github.com/MegMll) (Inria): Features extension and core developper
+-   [Megane Millan](https://github.com/MegMll) (Inria): Features extension and core developer
+-   [Simeon Nedelchev](https://github.com/simeon-ned): Pseudo inertia and Log-cholesky parametrization
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 

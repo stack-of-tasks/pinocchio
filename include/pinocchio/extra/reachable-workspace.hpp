@@ -58,8 +58,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType>
   void reachableWorkspace(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -85,8 +84,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType>
   void reachableWorkspaceHull(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -114,8 +112,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType>
   void reachableWorkspaceWithCollisions(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -145,8 +142,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorType>
   void reachableWorkspaceWithCollisionsHull(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -179,8 +175,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType,
       class FilterFunction>
     void computeVertex(

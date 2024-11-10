@@ -22,8 +22,8 @@ namespace pinocchio
         "computeJointKinematicRegressor",
         (context::Data::Matrix6x(*)(
           const context::Model &, const context::Data &, const JointIndex, const ReferenceFrame,
-          const context::SE3 &))
-          & computeJointKinematicRegressor<Scalar, Options, JointCollectionDefaultTpl>,
+          const context::
+            SE3 &))&computeJointKinematicRegressor<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model", "data", "joint_id", "reference_frame", "placement"),
         "Computes the kinematic regressor that links the joint placements variations of the whole "
         "kinematic tree to the placement variation of the frame rigidly attached to the joint and "
@@ -39,8 +39,8 @@ namespace pinocchio
       bp::def(
         "computeJointKinematicRegressor",
         (context::Data::Matrix6x(*)(
-          const context::Model &, const context::Data &, const JointIndex, const ReferenceFrame))
-          & computeJointKinematicRegressor<Scalar, Options, JointCollectionDefaultTpl>,
+          const context::Model &, const context::Data &, const JointIndex,
+          const ReferenceFrame))&computeJointKinematicRegressor<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model", "data", "joint_id", "reference_frame"),
         "Computes the kinematic regressor that links the joint placement variations of the "
         "whole kinematic tree to the placement variation of the joint given as input.\n\n"
@@ -54,8 +54,8 @@ namespace pinocchio
       bp::def(
         "computeFrameKinematicRegressor",
         (context::Data::Matrix6x(*)(
-          const context::Model &, context::Data &, const FrameIndex, const ReferenceFrame))
-          & computeFrameKinematicRegressor<Scalar, Options, JointCollectionDefaultTpl>,
+          const context::Model &, context::Data &, const FrameIndex,
+          const ReferenceFrame))&computeFrameKinematicRegressor<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model", "data", "frame_id", "reference_frame"),
         "Computes the kinematic regressor that links the joint placement variations of the "
         "whole kinematic tree to the placement variation of the frame given as input.\n\n"

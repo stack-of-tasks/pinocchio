@@ -32,8 +32,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename ConfigVectorPool,
     typename TangentVectorPool1,
     typename TangentVectorPool2,

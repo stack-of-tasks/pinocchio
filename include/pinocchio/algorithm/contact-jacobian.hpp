@@ -23,8 +23,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename Matrix6Like>
   PINOCCHIO_UNSUPPORTED_MESSAGE("The API will change towards more flexibility")
   void getConstraintJacobian(
@@ -47,8 +46,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename DynamicMatrixLike,
     class ConstraintModelAllocator,
     class ConstraintDataAllocator>

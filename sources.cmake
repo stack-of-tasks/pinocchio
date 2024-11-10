@@ -366,8 +366,10 @@ set(${PROJECT_NAME}_SDF_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sdf/model.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sdf/geometry.hxx)
 
-set(${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS
+set(${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/python.hpp)
+
+set(${PROJECT_NAME}_PYTHON_PARSER_SOURCES ${PROJECT_SOURCE_DIR}/src/parsers/python/model.cpp)
 
 set(${PROJECT_NAME}_EXTRA_SOURCES ${PROJECT_SOURCE_DIR}/src/extra/reachable-workspace.cpp)
 
@@ -593,12 +595,6 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/model.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/geometry.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/extra/expose-extras.cpp)
-
-set(${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_SOURCES
-    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/python/model.cpp)
-
-set(${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_PUBLIC_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/python.hpp)
 
 set(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-broadphase.cpp

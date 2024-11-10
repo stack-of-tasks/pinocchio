@@ -43,15 +43,15 @@ namespace pinocchio
 
           .def(
             "computeLargestEigenValue",
-            (Scalar(DelassusOperator::*)(const bool, const int, const Scalar) const)
-              & DelassusOperator::computeLargestEigenValue,
+            (Scalar(DelassusOperator::*)(const bool, const int, const Scalar)
+               const)&DelassusOperator::computeLargestEigenValue,
             (bp::arg("self"), bp::arg("reset") = true, bp::arg("max_it") = 10,
              bp::arg("prec") = Scalar(1e-8)),
             "Compute the largest eigenvalue associated to the underlying Delassus matrix.")
           .def(
             "computeLowestEigenValue",
-            (Scalar(DelassusOperator::*)(const bool, const bool, const int, const Scalar) const)
-              & DelassusOperator::computeLowestEigenValue,
+            (Scalar(DelassusOperator::*)(const bool, const bool, const int, const Scalar)
+               const)&DelassusOperator::computeLowestEigenValue,
             (bp::arg("self"), bp::arg("reset") = true, bp::arg("compute_largest") = true,
              bp::arg("max_it") = 10, bp::arg("prec") = Scalar(1e-8)),
             "Compute the lowest eigenvalue associated to the underlying Delassus matrix.")

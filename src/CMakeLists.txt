@@ -302,7 +302,8 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
   # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
   # This can happen when Pinocchio is build in Debug mode using another library using cppad.
   target_compile_definitions(${PROJECT_NAME}_cppadcg PUBLIC CPPAD_DEBUG_AND_RELEASE)
-  target_include_directories(${PROJECT_NAME}_cppadcg SYSTEM ${CPPADCG_SCOPE} ${cppadcg_INCLUDE_DIR})
+  target_include_directories(${PROJECT_NAME}_cppadcg SYSTEM ${CPPADCG_SCOPE}
+                             $<BUILD_INTERFACE:${cppadcg_INCLUDE_DIR}>)
   target_link_libraries(${PROJECT_NAME}_cppadcg ${CPPADCG_SCOPE} ${cppadcg_LIBRARY}
                         ${cppad_LIBRARY})
 endif()
@@ -313,7 +314,8 @@ if(BUILD_WITH_AUTODIFF_SUPPORT)
   # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
   # This can happen when Pinocchio is build in Debug mode using another library using cppad.
   target_compile_definitions(${PROJECT_NAME}_cppad PUBLIC CPPAD_DEBUG_AND_RELEASE)
-  target_include_directories(${PROJECT_NAME}_cppad SYSTEM ${CPPAD_SCOPE} ${cppad_INCLUDE_DIR})
+  target_include_directories(${PROJECT_NAME}_cppad SYSTEM ${CPPAD_SCOPE}
+                             $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>)
   target_link_libraries(${PROJECT_NAME}_cppad ${CPPAD_SCOPE} ${cppad_LIBRARY})
 endif()
 
@@ -321,6 +323,20 @@ endif()
 if(BUILD_WITH_CASADI_SUPPORT)
   pinocchio_specific_type(casadi CASADI_SCOPE)
   target_link_libraries(${PROJECT_NAME}_casadi ${CASADI_SCOPE} casadi)
+endif()
+
+if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
+  set(PYTHON_PARSER_LIB_NAME "${PROJECT_NAME}_python_parser")
+
+  pinocchio_target(
+    ${PYTHON_PARSER_LIB_NAME}
+    SCALAR default
+    SOURCES ${${PROJECT_NAME}_PYTHON_PARSER_SOURCES}
+            ${${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS})
+  pinocchio_config(python_parser ${PYTHON_PARSER_LIB_NAME})
+
+  target_link_libraries(${PYTHON_PARSER_LIB_NAME} PUBLIC ${PROJECT_NAME}_default Python3::Python)
+  target_link_boost_python(${PYTHON_PARSER_LIB_NAME} PUBLIC)
 endif()
 
 # Define main target (default, parsers, extra).
