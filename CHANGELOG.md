@@ -9,6 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Add `pinocchio_python_parser` target ([#2475](https://github.com/stack-of-tasks/pinocchio/pull/2475))
 
+### Changed
+- On GNU/Linux and macOS, hide all symbols by default ([#2469](https://github.com/stack-of-tasks/pinocchio/pull/2469))
+
 ## [3.3.0] - 2024-11-06
 
 ### Added

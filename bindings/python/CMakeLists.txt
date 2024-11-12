@@ -53,6 +53,7 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
     ${PYTHON_LIB_NAME}
     PROPERTIES PREFIX ""
                DEFINE_SYMBOL "${PYWRAP}_EXPORTS"
+               CXX_VISIBILITY_PRESET hidden
                VISIBILITY_INLINES_HIDDEN ON)
 
   # Do not report:
@@ -67,10 +68,10 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   target_compile_options(${PYTHON_LIB_NAME} PRIVATE ${PRIVATE_OPTIONS})
 
   set(PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE "pinocchio/bindings/python/context/${scalar_name}.hpp")
-  target_compile_options(
+  target_compile_definitions(
     ${PYTHON_LIB_NAME}
-    PRIVATE -DPINOCCHIO_PYTHON_CONTEXT_FILE="${PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE}"
-            -DPINOCCHIO_PYTHON_MODULE_NAME=${PYTHON_LIB_NAME})
+    PRIVATE PINOCCHIO_PYTHON_CONTEXT_FILE="${PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE}"
+            PINOCCHIO_PYTHON_MODULE_NAME=${PYTHON_LIB_NAME})
 
   set_target_properties(${PYTHON_LIB_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
   if(BUILD_WITH_COMMIT_VERSION)
@@ -183,6 +184,14 @@ if(BUILD_PYTHON_INTERFACE)
 
   if(BUILD_WITH_CODEGEN_SUPPORT)
     pinocchio_python_bindings_specific_type(cppadcg cppadcg)
+
+    # On osx, use default visiblitiy because of an issue with thread_local storage defined in
+    # cppad/cg/cg.hpp header (see
+    # https://github.com/stack-of-tasks/pinocchio/pull/2469#issuecomment-2461845127)
+    if(APPLE)
+      set_target_properties(${PYWRAP}_cppadcg PROPERTIES CXX_VISIBILITY_PRESET default)
+    endif()
+
     # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
     target_compile_definitions(
       ${PYWRAP}_cppadcg PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
