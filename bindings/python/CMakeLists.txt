@@ -161,6 +161,8 @@ if(BUILD_PYTHON_INTERFACE)
   set(PINOCCHIO_PYTHON_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})
 
   pinocchio_python_bindings_specific_type(default)
+  target_precompile_headers(${PYWRAP}_default PUBLIC
+                            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp)
   set(PYTHON_LIB_NAME "${PYWRAP}_default")
   set(STUBGEN_DEPENDENCIES "${PYWRAP}_default")
 
