@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Add `pinocchio_python_parser` target ([#2475](https://github.com/stack-of-tasks/pinocchio/pull/2475))
 
+### Fixed
+- Fix mjcf parsing of armature and of the default tag in models ([#2477](https://github.com/stack-of-tasks/pinocchio/pull/2477))
+- Fix undefined behavior when using the site attribute in mjcf ([#2477](https://github.com/stack-of-tasks/pinocchio/pull/2477))
+
 ### Changed
 - On GNU/Linux and macOS, hide all symbols by default ([#2469](https://github.com/stack-of-tasks/pinocchio/pull/2469))
 

@@ -127,7 +127,7 @@ namespace pinocchio
         ret.minConfig = Vector::Constant(Nq, -1.01);
         ret.friction = Vector::Constant(Nv, 0.);
         ret.damping = Vector::Constant(Nv, 0.);
-        ret.armature = armature;
+        ret.armature = Vector::Constant(Nv, armature[0]);
         ret.frictionLoss = frictionLoss;
         ret.springStiffness = springStiffness;
         ret.springReference = springReference;
@@ -160,6 +160,10 @@ namespace pinocchio
         ret.springReference.tail(1) = range.springReference;
         ret.springStiffness.conservativeResize(springStiffness.size() + 1);
         ret.springStiffness.tail(1) = range.springStiffness;
+
+        ret.armature.conservativeResize(armature.size() + Nv);
+        ret.armature.tail(Nv) = range.armature;
+
         return ret;
       }
 
@@ -208,7 +212,7 @@ namespace pinocchio
 
         value = el.get_optional<double>("<xmlattr>.armature");
         if (value)
-          range.armature = *value;
+          range.armature[0] = *value;
 
         // friction loss
         value = el.get_optional<double>("<xmlattr>.frictionloss");
@@ -251,7 +255,13 @@ namespace pinocchio
         // Placement
         jointPlacement = currentGraph.convertPosition(el);
 
-        // ChildClass < Class < Real Joint
+        // default < ChildClass < Class < Real Joint
+        if (currentGraph.mapOfClasses.find("mujoco_default") != currentGraph.mapOfClasses.end())
+        {
+          const MjcfClass & classD = currentGraph.mapOfClasses.at("mujoco_default");
+          if (auto joint_p = classD.classElement.get_child_optional("joint"))
+            goThroughElement(*joint_p, use_limit, currentGraph.compilerInfo);
+        }
         //  childClass
         if (currentBody.childClass != "")
         {
@@ -545,7 +555,13 @@ namespace pinocchio
         else
           throw std::invalid_argument("Material was given without a name");
 
-        // Class < Attributes
+        // default < Class < Attributes
+        if (mapOfClasses.find("mujoco_default") != mapOfClasses.end())
+        {
+          const MjcfClass & classD = mapOfClasses.at("mujoco_default");
+          if (auto mat_p = classD.classElement.get_child_optional("material"))
+            mat.goThroughElement(*mat_p);
+        }
         auto cl_s = el.get_optional<std::string>("<xmlattr>.class");
         if (cl_s)
         {
@@ -600,9 +616,10 @@ namespace pinocchio
         }
       }
 
-      void MjcfGraph::parseDefault(ptree & el, const ptree & parent)
+      void MjcfGraph::parseDefault(ptree & el, const ptree & parent, const std::string & parentTag)
       {
         boost::optional<std::string> nameClass;
+        // Classes
         for (ptree::value_type & v : el)
         {
           if (v.first == "<xmlattr>")
@@ -619,8 +636,15 @@ namespace pinocchio
             else
               throw std::invalid_argument("Class does not have a name. Cannot parse model.");
           }
-          if (v.first == "default")
-            parseDefault(v.second, el);
+          else if (v.first == "default")
+            parseDefault(v.second, el, v.first);
+          else if (parentTag == "mujoco" && v.first != "<xmlattr>")
+          {
+            MjcfClass classDefault;
+            classDefault.className = "mujoco_default";
+            classDefault.classElement = el;
+            mapOfClasses.insert(std::make_pair("mujoco_default", classDefault));
+          }
         }
       }
 
@@ -808,7 +832,7 @@ namespace pinocchio
             parseCompiler(el.get_child("compiler"));
 
           if (v.first == "default")
-            parseDefault(el.get_child("default"), el);
+            parseDefault(el.get_child("default"), el, "mujoco");
 
           if (v.first == "asset")
             parseAsset(el.get_child("asset"));
@@ -898,7 +922,9 @@ namespace pinocchio
 
         // Add armature info
         JointIndex j_id = urdfVisitor.getJointId(joint.jointName);
-        urdfVisitor.model.armature[static_cast<Eigen::Index>(j_id) - 1] = range.armature;
+        urdfVisitor.model.armature.segment(
+          urdfVisitor.model.joints[j_id].idx_v(), urdfVisitor.model.joints[j_id].nv()) =
+          range.armature;
       }
 
       void MjcfGraph::fillModel(const std::string & nameOfBody)
@@ -912,7 +938,7 @@ namespace pinocchio
         if (!currentBody.bodyParent.empty())
           parentFrameId = urdfVisitor.getBodyId(currentBody.bodyParent);
 
-        const Frame & frame = urdfVisitor.model.frames[parentFrameId];
+        Frame frame = urdfVisitor.model.frames[parentFrameId];
         // get body pose in body parent
         const SE3 bodyPose = currentBody.bodyPlacement;
         Inertia inert = currentBody.bodyInertia;
@@ -1007,7 +1033,9 @@ namespace pinocchio
           FrameIndex jointFrameId = urdfVisitor.model.addJointFrame(joint_id, (int)parentFrameId);
           urdfVisitor.appendBodyToJoint(jointFrameId, inert, bodyInJoint, nameOfBody);
 
-          urdfVisitor.model.armature[static_cast<Eigen::Index>(joint_id) - 1] = rangeCompo.armature;
+          urdfVisitor.model.armature.segment(
+            urdfVisitor.model.joints[joint_id].idx_v(), urdfVisitor.model.joints[joint_id].nv()) =
+            rangeCompo.armature;
         }
 
         FrameIndex previousFrameId = urdfVisitor.model.frames.size();
