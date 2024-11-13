@@ -938,7 +938,7 @@ namespace pinocchio
         if (!currentBody.bodyParent.empty())
           parentFrameId = urdfVisitor.getBodyId(currentBody.bodyParent);
 
-        const Frame & frame = urdfVisitor.model.frames[parentFrameId];
+        Frame frame = urdfVisitor.model.frames[parentFrameId];
         // get body pose in body parent
         const SE3 bodyPose = currentBody.bodyPlacement;
         Inertia inert = currentBody.bodyInertia;
