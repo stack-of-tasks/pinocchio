@@ -137,7 +137,6 @@ namespace pinocchio
       template<int Nq, int Nv>
       RangeJoint RangeJoint::concatenate(const RangeJoint & range) const
       {
-        typedef UrdfVisitor::Vector Vector;
         assert(range.maxEffort.size() == Nv);
         assert(range.minConfig.size() == Nq);
 
