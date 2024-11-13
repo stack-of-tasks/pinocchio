@@ -163,7 +163,7 @@ namespace pinocchio
         ret.springStiffness.tail(1) = range.springStiffness;
 
         ret.armature.conservativeResize(armature.size() + Nv);
-        ret.armature.tail(Nv) = Vector::Constant(Nv, range.armature[0]);
+        ret.armature.tail(Nv) = range.armature;
 
         return ret;
       }

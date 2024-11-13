@@ -149,7 +149,6 @@ namespace pinocchio
           maxConfig = Eigen::VectorXd::Constant(1, infty);
           springStiffness = Eigen::VectorXd::Constant(1, v);
           springReference = Eigen::VectorXd::Constant(1, v);
-          ;
           friction = Eigen::VectorXd::Constant(1, 0.);
           damping = Eigen::VectorXd::Constant(1, 0.);
           armature = Eigen::VectorXd::Constant(1, 0.);
