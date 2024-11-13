@@ -1012,7 +1012,7 @@ namespace pinocchio
           FrameIndex jointFrameId = urdfVisitor.model.addJointFrame(joint_id, (int)parentFrameId);
           urdfVisitor.appendBodyToJoint(jointFrameId, inert, bodyInJoint, nameOfBody);
 
-          urdfVisitor.model.armature.segment(urdfVisitor.model.joints[joint_id].idx_q(), urdfVisitor.model.joints[joint_id].nq()) = rangeCompo.armature;
+          urdfVisitor.model.armature.segment(urdfVisitor.model.joints[joint_id].idx_v(), urdfVisitor.model.joints[joint_id].nv()) = rangeCompo.armature;
         }
 
         FrameIndex previousFrameId = urdfVisitor.model.frames.size();
