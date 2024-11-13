@@ -974,6 +974,44 @@ BOOST_AUTO_TEST_CASE(joint_and_inertias)
   BOOST_CHECK(model_m.inertias[1].isApprox(real_inertia));
 }
 
+BOOST_AUTO_TEST_CASE(armature)
+{
+  typedef pinocchio::SE3::Vector3 Vector3;
+  typedef pinocchio::SE3::Matrix3 Matrix3;
+
+  std::istringstream xmlData(R"(
+            <mujoco model="model_RX">
+                <worldbody>
+                    <body name="link0">
+                        <body name="link1" pos="0 0 0">
+                            <joint name="joint1" type="hinge" axis="1 0 0" armature="1.3"/>
+                            <joint name="joint2" type="hinge" axis="0 1 0" armature="2.4"/>
+                            <joint name="joint3" type="hinge" axis="0 0 1" armature="0.4"/>
+                            <body pos=".2 0 0" name="body2">
+                              <joint type="ball" armature=".1"/>
+                        </body>
+                        </body>
+                    </body>
+                </worldbody>
+            </mujoco>)");
+
+  auto namefile = createTempFile(xmlData);
+
+  typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+  pinocchio::Model model_m;
+  MjcfGraph::UrdfVisitor visitor(model_m);
+
+  MjcfGraph graph(visitor, "fakeMjcf");
+  graph.parseGraphFromXML(namefile.name());
+  graph.parseRootTree();
+
+  Eigen::VectorXd armature_real(model_m.nv);
+  armature_real << 1.3, 2.4, 0.4, 0.1, 0.1, 0.1;
+  
+  for (size_t i = 0; i < size_t(model_m.nv); i++)
+    BOOST_CHECK_EQUAL(model_m.armature[i], armature_real[i]);
+}
+
 // Test reference positions and how it's included in keyframe
 BOOST_AUTO_TEST_CASE(reference_positions)
 {
