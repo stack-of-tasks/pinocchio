@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE(merge_default)
   MjcfGraph::UrdfVisitor visitor(model);
 
   MjcfGraph graph(visitor, "fakeMjcf");
-  graph.parseDefault(ptr.get_child("default"), ptr);
+  graph.parseDefault(ptr.get_child("default"), ptr, "default");
 
   std::unordered_map<std::string, pt::ptree> TrueMap;
 
@@ -978,9 +978,12 @@ BOOST_AUTO_TEST_CASE(armature)
 {
   typedef pinocchio::SE3::Vector3 Vector3;
   typedef pinocchio::SE3::Matrix3 Matrix3;
-
+  std::cout << " Armature ------------ " << std::endl;
   std::istringstream xmlData(R"(
             <mujoco model="model_RX">
+                <default>
+                  <joint armature="1" damping="1" limited="true"/>
+                </default>
                 <worldbody>
                     <body name="link0">
                         <body name="link1" pos="0 0 0">
@@ -988,7 +991,7 @@ BOOST_AUTO_TEST_CASE(armature)
                             <joint name="joint2" type="hinge" axis="0 1 0" armature="2.4"/>
                             <joint name="joint3" type="hinge" axis="0 0 1" armature="0.4"/>
                             <body pos=".2 0 0" name="body2">
-                              <joint type="ball" armature=".1"/>
+                              <joint type="ball"/>
                         </body>
                         </body>
                     </body>
@@ -1006,8 +1009,8 @@ BOOST_AUTO_TEST_CASE(armature)
   graph.parseRootTree();
 
   Eigen::VectorXd armature_real(model_m.nv);
-  armature_real << 1.3, 2.4, 0.4, 0.1, 0.1, 0.1;
-  
+  armature_real << 1.3, 2.4, 0.4, 1, 1, 1;
+
   for (size_t i = 0; i < size_t(model_m.nv); i++)
     BOOST_CHECK_EQUAL(model_m.armature[i], armature_real[i]);
 }

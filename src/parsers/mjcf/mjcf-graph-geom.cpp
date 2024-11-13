@@ -410,7 +410,13 @@ namespace pinocchio
           geomName =
             currentBody.bodyName + "Geom_" + std::to_string(currentBody.geomChildren.size());
 
-        // ChildClass < Class < Real Joint
+        // default < ChildClass < Class < Real Joint
+        if (currentGraph.mapOfClasses.find("mujoco_default") != currentGraph.mapOfClasses.end())
+        {
+          const MjcfClass & classD = currentGraph.mapOfClasses.at("mujoco_default");
+          if (auto geom_p = classD.classElement.get_child_optional("geom"))
+            goThroughElement(*geom_p, currentGraph);
+        }
         //  childClass
         if (currentBody.childClass != "")
         {
@@ -474,7 +480,13 @@ namespace pinocchio
           siteName =
             currentBody.bodyName + "Site_" + std::to_string(currentBody.siteChildren.size());
 
-        // ChildClass < Class < Real Joint
+        // default < ChildClass < Class < Real Joint
+        if (currentGraph.mapOfClasses.find("mujoco_default") != currentGraph.mapOfClasses.end())
+        {
+          const MjcfClass & classD = currentGraph.mapOfClasses.at("mujoco_default");
+          if (auto site_p = classD.classElement.get_child_optional("site"))
+            goThroughElement(*site_p, currentGraph);
+        }
         //  childClass
         if (currentBody.childClass != "")
         {
