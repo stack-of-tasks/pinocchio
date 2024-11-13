@@ -135,7 +135,7 @@ namespace pinocchio
         Eigen::VectorXd damping;
 
         // Armature inertia created by this joint
-        double armature = 0.;
+        Eigen::VectorXd armature;
         // Dry friction.
         double frictionLoss = 0.;
 
@@ -152,6 +152,7 @@ namespace pinocchio
           ;
           friction = Eigen::VectorXd::Constant(1, 0.);
           damping = Eigen::VectorXd::Constant(1, 0.);
+          armature = Eigen::VectorXd::Constant(1, 0.);
         }
 
         /// @brief Set dimension to the limits to match the joint nq and nv.

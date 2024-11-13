@@ -127,7 +127,7 @@ namespace pinocchio
         ret.minConfig = Vector::Constant(Nq, -1.01);
         ret.friction = Vector::Constant(Nv, 0.);
         ret.damping = Vector::Constant(Nv, 0.);
-        ret.armature = armature;
+        ret.armature = Vector::Constant(Nv, armature[0]);
         ret.frictionLoss = frictionLoss;
         ret.springStiffness = springStiffness;
         ret.springReference = springReference;
@@ -137,6 +137,7 @@ namespace pinocchio
       template<int Nq, int Nv>
       RangeJoint RangeJoint::concatenate(const RangeJoint & range) const
       {
+        typedef UrdfVisitor::Vector Vector;
         assert(range.maxEffort.size() == Nv);
         assert(range.minConfig.size() == Nq);
 
@@ -160,6 +161,10 @@ namespace pinocchio
         ret.springReference.tail(1) = range.springReference;
         ret.springStiffness.conservativeResize(springStiffness.size() + 1);
         ret.springStiffness.tail(1) = range.springStiffness;
+
+        ret.armature.conservativeResize(armature.size() + Nv);
+        ret.armature.tail(Nv) = Vector::Constant(Nv, range.armature[0]);
+
         return ret;
       }
 
@@ -208,7 +213,7 @@ namespace pinocchio
 
         value = el.get_optional<double>("<xmlattr>.armature");
         if (value)
-          range.armature = *value;
+          range.armature[0] = *value;
 
         // friction loss
         value = el.get_optional<double>("<xmlattr>.frictionloss");
@@ -898,7 +903,7 @@ namespace pinocchio
 
         // Add armature info
         JointIndex j_id = urdfVisitor.getJointId(joint.jointName);
-        urdfVisitor.model.armature[static_cast<Eigen::Index>(j_id) - 1] = range.armature;
+        urdfVisitor.model.armature.segment(urdfVisitor.model.joints[j_id].idx_v(), urdfVisitor.model.joints[j_id].nv()) = range.armature;
       }
 
       void MjcfGraph::fillModel(const std::string & nameOfBody)
@@ -1007,7 +1012,7 @@ namespace pinocchio
           FrameIndex jointFrameId = urdfVisitor.model.addJointFrame(joint_id, (int)parentFrameId);
           urdfVisitor.appendBodyToJoint(jointFrameId, inert, bodyInJoint, nameOfBody);
 
-          urdfVisitor.model.armature[static_cast<Eigen::Index>(joint_id) - 1] = rangeCompo.armature;
+          urdfVisitor.model.armature.segment(urdfVisitor.model.joints[joint_id].idx_q(), urdfVisitor.model.joints[joint_id].nq()) = rangeCompo.armature;
         }
 
         FrameIndex previousFrameId = urdfVisitor.model.frames.size();
