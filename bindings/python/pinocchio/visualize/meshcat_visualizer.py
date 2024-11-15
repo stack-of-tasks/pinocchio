@@ -143,9 +143,9 @@ if import_meshcat_succeed:
 
                 # Encode texture in base64
                 img_path_abs = img_path
-                if not img_path.is_absolute():
+                if not Path(img_path).is_absolute():
                     img_path_abs = os.path.normpath(dae_dir / img_path_abs)
-                if not img_path_abs.is_file():
+                if not Path(img_path_abs).is_file():
                     raise UserWarning(f"Texture '{img_path}' not found.")
                 with Path(img_path_abs).open("rb") as img_file:
                     img_data = base64.b64encode(img_file.read())
