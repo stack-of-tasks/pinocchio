@@ -411,6 +411,22 @@ namespace pinocchio
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
     const Eigen::MatrixBase<ConfigVectorType> & q,
     const Eigen::MatrixBase<TangentVectorType> & v);
+
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType,
+    typename TangentVectorType>
+  std::pair<
+    typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs,
+    typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs>
+  computeIndirectRegressors(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q,
+    const Eigen::MatrixBase<TangentVectorType> & v);
 } // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
