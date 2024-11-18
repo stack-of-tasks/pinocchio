@@ -373,19 +373,20 @@ namespace pinocchio
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
     const Eigen::MatrixBase<ConfigVectorType> & q);
 
+  /// \brief Computes the indirect regressors Y_Hqd and Y_CTqd
+  /// of momentum and transposed coriolis matrix times velocity.
   ///
-  /// \brief Computes the momentum regressor and component of time derivative
-  /// of momentum regressor of the system based on the current robot state.
+  /// These regressors are such that:
+  /// \f$ p = Y_Hqd(q, v) \pi$ and \f$ C^T v = Y_CTqd(q, v) \pi \f$
+  /// where \f$ \pi \f$ represents the vector of dynamic parameters of each link.
   ///
-  /// The result stored in `data.momentumRegressor` corresponds to a matrix \f$ Y_p \f$ such that
-  /// \f$ P = Y_p(q, v) \pi = M v \f$ where \f$ \pi \f$ represents the vector of dynamic parameters
-  /// of each link.
-  ///
-  /// The result stored in `data.dpartial_lagrangian_q` corresponds to a matrix
-  /// \f$ Y_h \f$ such that \f$ \frac{\partial L}{\partial q} = Y_h(q, v) \f$.
+  /// This algorithm can be applied in the context of system identification based on the
+  /// generalized momentum \f$ p \f$.
+  /// \f$ \dot{p} = \tau + C^T v - g \f$
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
   ///
   /// \param[in] model The model structure representing the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -396,22 +397,6 @@ namespace pinocchio
   ///         - The momentum regressor matrix.
   ///         - A matrix containing a component of the time derivative of the momentum regressor.
   ///
-  template<
-    typename Scalar,
-    int Options,
-    template<typename, int>
-    class JointCollectionTpl,
-    typename ConfigVectorType,
-    typename TangentVectorType>
-  std::pair<
-    typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs,
-    typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs>
-  computeMomentumRegressor(
-    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-    DataTpl<Scalar, Options, JointCollectionTpl> & data,
-    const Eigen::MatrixBase<ConfigVectorType> & q,
-    const Eigen::MatrixBase<TangentVectorType> & v);
-
   template<
     typename Scalar,
     int Options,

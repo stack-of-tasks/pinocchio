@@ -130,16 +130,4 @@ namespace pinocchio
       const Eigen::MatrixBase<context::VectorXs> &,
       const Eigen::MatrixBase<context::VectorXs> &);
 
-  template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI
-    std::pair<context::Data::MatrixXs, context::Data::MatrixXs>
-    computeMomentumRegressor<
-      context::Scalar,
-      context::Options,
-      JointCollectionDefaultTpl,
-      context::VectorXs,
-      context::VectorXs>(
-      const context::Model &,
-      context::Data &,
-      const Eigen::MatrixBase<context::VectorXs> &,
-      const Eigen::MatrixBase<context::VectorXs> &);
 } // namespace pinocchio
