@@ -9,7 +9,6 @@
 #include "pinocchio/parsers/urdf.hpp"
 
 #include <sstream>
-#include <iomanip>
 
 namespace pinocchio
 {
