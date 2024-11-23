@@ -13,8 +13,6 @@
 #include "pinocchio/math/matrix.hpp"
 #include "pinocchio/math/rotation.hpp"
 
-#include <iostream>
-
 namespace pinocchio
 {
 
