@@ -276,7 +276,8 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Sebastian Castro](https://roboticseabass.com) (The AI Institute): MeshCat viewer feature extension
 -   [Lev Kozlov](https://github.com/lvjonok): Kinetic and potential energy regressors
 -   [Megane Millan](https://github.com/MegMll) (Inria): Features extension and core developer
--   [Simeon Nedelchev](https://github.com/simeon-ned): Pseudo inertia and Log-cholesky parametrization
+-   [Simeon Nedelchev](https://github.com/simeon-ned): Pseudo inertia and Log-Cholesky parametrization
+-   [Ajay Sathya](https://www.ajaysathya.com/) (Inria): core developer 
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 
