@@ -626,6 +626,9 @@ namespace pinocchio
       }
     }
 
+    data.HRegressor = Hregressor;
+    data.YCTvRegressor = CTregressor;
+
     return std::make_pair(Hregressor, CTregressor);
   }
 
