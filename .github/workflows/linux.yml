@@ -47,7 +47,9 @@ jobs:
     steps:
       - name: Setup Container
         run: |
-          apt update && DEBIAN_FRONTEND="noninteractive" apt install -y sudo lsb-release gnupg2 cmake git python3
+          apt-get -qq update
+          DEBIAN_FRONTEND="noninteractive" apt-get -qq install -y lsb-release gnupg2 cmake git python3
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -81,10 +83,11 @@ jobs:
         run: |
           sh -c "echo \"deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub $(lsb_release -cs) robotpkg\" >> /etc/apt/sources.list "
           apt-key adv --fetch-keys http://robotpkg.openrobots.org/packages/debian/robotpkg.key
+
       - name: Set and install dependencies
         run: |
-          rm -rf /usr/local/share/boost/1.69.0
           export PYTHON3_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+str(sys.version_info.minor))")
+          # Force eigenpy 3.10.0 to be compatible with hpp-fcl
           export APT_DEPENDENCIES="doxygen \
                                    ccache \
                                    curl \
@@ -101,17 +104,19 @@ jobs:
                                    libboost-python-dev \
                                    python3-numpy \
                                    python3-matplotlib \
-                                   robotpkg-py${PYTHON3_VERSION}-eigenpy \
+                                   robotpkg-py${PYTHON3_VERSION}-eigenpy=3.10.0 \
                                    robotpkg-py${PYTHON3_VERSION}-hpp-fcl \
                                    robotpkg-py${PYTHON3_VERSION}-casadi"
           echo $APT_DEPENDENCIES
 
           apt-get update -qq
           DEBIAN_FRONTEND="noninteractive" apt-get install -qq ${APT_DEPENDENCIES}
+
       - name: Free disk space
         run: |
           apt clean
           df -h
+
       - name: Run cmake
         run: |
           # Add cloned repo to safe.directory, since it was not cloned by the container
@@ -138,7 +143,7 @@ jobs:
           make -j2 build_tests
           export CTEST_OUTPUT_ON_FAILURE=1
           make test
-          sudo make install
+          make install
 
       - name: Test packaging
         run: |
@@ -193,11 +198,10 @@ jobs:
           make -j2
           ./run_fk
 
-
       - name: Uninstall project
         run: |
           cd build
-          sudo make uninstall
+          make uninstall
 
   check:
     if: always()
