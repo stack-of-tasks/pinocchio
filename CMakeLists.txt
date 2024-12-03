@@ -61,12 +61,27 @@ endif()
 set(DOXYGEN_USE_MATHJAX YES)
 set(DOXYGEN_USE_TEMPLATE_CSS YES)
 
+# ----------------------------------------------------
+# --- Policy -----------------------------------------
+# CMake Policy setup
+# ----------------------------------------------------
+# Policy can be removed when cmake_minimum_required is updated.
+
+# We also set CMAKE_POLICY_DEFAULT_CMPXXXX because CMake modules can reset policy and redefine some
+# macros like `find_dependency` that will not use our policy.
+
 # Use BoostConfig module distributed by boost library instead of using FindBoost module distributed
-# by CMake
+# by CMake (to remove in 3.30). This policy is not working when using clang-cl.
 if(NOT WIN32 OR NOT ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
   if(POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0167 NEW)
   endif()
+endif()
+# install() DESTINATION paths are normalized (to remove in 3.31).
+if(POLICY CMP0177)
+  cmake_policy(SET CMP0177 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0177 NEW)
 endif()
 include("${JRL_CMAKE_MODULES}/base.cmake")
 
