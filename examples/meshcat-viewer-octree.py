@@ -3,6 +3,7 @@
 # pip install --user meshcat
 
 import sys
+import time
 
 import hppfcl as fcl
 import numpy as np
@@ -47,4 +48,4 @@ except ImportError as err:
     sys.exit(0)
 
 viz.loadViewerModel()
-viz.clearDefaultLights()
+time.sleep(1.0)
