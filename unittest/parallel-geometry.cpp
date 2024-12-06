@@ -244,9 +244,40 @@ BOOST_AUTO_TEST_CASE(test_talos)
     const CollisionPair & cp = geometry_model.collisionPairs[k];
     BOOST_CHECK(geometry_data_ref.oMg[cp.first] == geometry_data.oMg[cp.first]);
     BOOST_CHECK(geometry_data_ref.oMg[cp.second] == geometry_data.oMg[cp.second]);
-    BOOST_CHECK(
-      geometry_data_ref.collisionResults[k].getContacts()
-      == geometry_data.collisionResults[k].getContacts());
+    BOOST_REQUIRE_EQUAL(
+      geometry_data_ref.collisionResults[k].getContacts().size(),
+      geometry_data.collisionResults[k].getContacts().size());
+    // This code is a workaround for https://github.com/coal-library/coal/issues/636
+    for (size_t l = 0; l < geometry_data.collisionResults[k].getContacts().size(); ++l)
+    {
+      const auto & contact = geometry_data.collisionResults[k].getContacts()[l];
+      const auto & contact_ref = geometry_data_ref.collisionResults[k].getContacts()[l];
+
+      // If contact is not filled with NaN do the standard comparison
+      if (contact.normal == contact.normal)
+      {
+        BOOST_CHECK(contact == contact_ref);
+      }
+      else
+      {
+        // Compare standard values
+        BOOST_CHECK_EQUAL(contact.o1, contact_ref.o1);
+        BOOST_CHECK_EQUAL(contact.o2, contact_ref.o2);
+        BOOST_CHECK_EQUAL(contact.b1, contact_ref.b1);
+        BOOST_CHECK_EQUAL(contact.b2, contact_ref.b2);
+        BOOST_CHECK_EQUAL(contact.penetration_depth, contact_ref.penetration_depth);
+
+        // Check all is set to NaN
+        BOOST_CHECK(contact.normal != contact.normal);
+        BOOST_CHECK(contact.pos != contact.pos);
+        BOOST_CHECK(contact.nearest_points[0] != contact.nearest_points[0]);
+        BOOST_CHECK(contact.nearest_points[1] != contact.nearest_points[1]);
+        BOOST_CHECK(contact_ref.normal != contact_ref.normal);
+        BOOST_CHECK(contact_ref.pos != contact_ref.pos);
+        BOOST_CHECK(contact_ref.nearest_points[0] != contact_ref.nearest_points[0]);
+        BOOST_CHECK(contact_ref.nearest_points[1] != contact_ref.nearest_points[1]);
+      }
+    }
   }
 }
 
