@@ -48,5 +48,6 @@ jobs:
           labels: |
             pixi
             no changelog
+            build_all
           delete-branch: true
           add-paths: pixi.lock
