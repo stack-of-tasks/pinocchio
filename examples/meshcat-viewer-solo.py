@@ -88,4 +88,4 @@ colorrgb = np.array(colorrgb) / 255.0
 vizGround(vizer, ground, 0.02, color=colorrgb)
 
 vizer.display(q_ref)
-time.sleep(1.)
+time.sleep(1.0)
