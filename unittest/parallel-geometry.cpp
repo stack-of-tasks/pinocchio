@@ -260,6 +260,8 @@ BOOST_AUTO_TEST_CASE(test_talos)
       }
       else
       {
+        // Only run this part in coal, this issue doesn't happen in hpp-fcl
+#if HPP_FCL_VERSION_AT_LEAST(3, 0, 0)
         // Compare standard values
         BOOST_CHECK_EQUAL(contact.o1, contact_ref.o1);
         BOOST_CHECK_EQUAL(contact.o2, contact_ref.o2);
@@ -276,6 +278,7 @@ BOOST_AUTO_TEST_CASE(test_talos)
         BOOST_CHECK(contact_ref.pos != contact_ref.pos);
         BOOST_CHECK(contact_ref.nearest_points[0] != contact_ref.nearest_points[0]);
         BOOST_CHECK(contact_ref.nearest_points[1] != contact_ref.nearest_points[1]);
+#endif // hpp-fcl >= 3.0.0
       }
     }
   }
