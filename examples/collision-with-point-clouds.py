@@ -4,6 +4,7 @@
 # pip install --user meshcat
 
 import sys
+import time
 from pathlib import Path
 
 import hppfcl as fcl
@@ -123,3 +124,4 @@ while not is_collision:
 
 print("Found a configuration in collision:", q)
 viz.display(q)
+time.sleep(1.0)

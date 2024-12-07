@@ -1,5 +1,6 @@
 import math
 import sys
+import time
 from pathlib import Path
 
 import hppfcl as fcl
@@ -91,3 +92,4 @@ model.lowerPositionLimit.fill(-math.pi / 2)
 model.upperPositionLimit.fill(+math.pi / 2)
 q = pin.randomConfiguration(model)
 viz.display(q)
+time.sleep(1.0)
