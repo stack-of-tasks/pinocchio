@@ -192,9 +192,8 @@ class OptimalControlProblem:
         except:  # noqa: E722
             self.sol = self.opti.debug
 
-        if self.sol.stats()["return_status"] == "Solve_Succeeded":
-            self._retract_trajectory()
-            self._compute_gaps()
+        self._retract_trajectory()
+        self._compute_gaps()
 
     def _retract_trajectory(self):
         self.xs = []
