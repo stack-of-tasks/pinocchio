@@ -1,4 +1,3 @@
-import os
 import warnings
 from pathlib import Path
 from typing import ClassVar, List
@@ -128,29 +127,32 @@ if import_meshcat_succeed:
             )
             if img_lib_element:
                 img_resource_paths = [
-                    e.text for e in img_lib_element.iter() if e.tag.count("init_from")
+                    Path(e.text)
+                    for e in img_lib_element.iter()
+                    if e.tag.count("init_from")
                 ]
 
             # Convert textures to data URL for Three.js ColladaLoader to load them
             self.img_resources = {}
             for img_path in img_resource_paths:
+                img_key = str(img_path)
                 # Return empty string if already in cache
                 if cache is not None:
                     if img_path in cache:
-                        self.img_resources[img_path] = ""
+                        self.img_resources[img_key] = ""
                         continue
                     cache.add(img_path)
 
                 # Encode texture in base64
-                img_path_abs = img_path
-                if not Path(img_path).is_absolute():
-                    img_path_abs = os.path.normpath(dae_dir / img_path_abs)
-                if not Path(img_path_abs).is_file():
+                img_path_abs: Path = img_path
+                if not img_path.is_absolute():
+                    img_path_abs = (dae_dir / img_path_abs).resolve()
+                if not img_path_abs.is_file():
                     raise UserWarning(f"Texture '{img_path}' not found.")
-                with Path(img_path_abs).open("rb") as img_file:
+                with img_path_abs.open("rb") as img_file:
                     img_data = base64.b64encode(img_file.read())
                 img_uri = f"data:image/png;base64,{img_data.decode('utf-8')}"
-                self.img_resources[img_path] = img_uri
+                self.img_resources[img_key] = img_uri
 
         def lower(self) -> Dict[str, Any]:
             """Pack data into a dictionary of the format that must be passed to
