@@ -121,7 +121,7 @@ if import_meshcat_succeed:
                 self.dae_raw = text_file.read()
 
             # Parse the image resource in Collada file
-            img_resource_paths = []
+            img_resource_paths: List[Path] = []
             img_lib_element = Et.parse(dae_path).find(
                 "{http://www.collada.org/2005/11/COLLADASchema}library_images"
             )
@@ -133,7 +133,7 @@ if import_meshcat_succeed:
                 ]
 
             # Convert textures to data URL for Three.js ColladaLoader to load them
-            self.img_resources = {}
+            self.img_resources: Dict[str, str] = {}
             for img_path in img_resource_paths:
                 img_key = str(img_path)
                 # Return empty string if already in cache
