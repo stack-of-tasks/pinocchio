@@ -72,7 +72,7 @@ def hasMeshFileInfo(geometry_object):
 def applyScalingOnHomegeneousTransform(homogeneous_transform, scale):
     scale = np.asarray(scale).flatten()
     S = np.diag(np.concatenate((scale, [1.0])))
-    return homogeneous_transform.dot(S)
+    return homogeneous_transform @ S
 
 
 if import_meshcat_succeed:
