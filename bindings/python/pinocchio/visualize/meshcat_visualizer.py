@@ -73,7 +73,7 @@ def applyScalingOnHomegeneousTransform(
     homogeneous_transform: np.ndarray, scale: np.ndarray
 ) -> np.ndarray:
     assert homogeneous_transform.shape == (4, 4)
-    assert scale.shape == (3,)
+    assert scale.size == 3
     scale = np.array(scale).flatten()
     S = np.diag(np.concatenate((scale, [1.0])))
     return homogeneous_transform @ S
