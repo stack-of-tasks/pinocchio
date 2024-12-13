@@ -513,23 +513,47 @@ def createCapsule(length, radius, radial_resolution=30, cap_resolution=10):
     for j in range(nbv[0]):
         j_next = (j + 1) % nbv[0]
         indexes[index + 0] = np.array(
-            [j_next * stride + nbv[1], j_next * stride, j * stride]
+            [
+                j_next * stride + nbv[1],
+                j_next * stride,
+                j * stride,
+            ]
         )
         indexes[index + 1] = np.array(
-            [j * stride + nbv[1], j_next * stride + nbv[1], j * stride]
+            [
+                j * stride + nbv[1],
+                j_next * stride + nbv[1],
+                j * stride,
+            ]
         )
         indexes[index + 2] = np.array(
-            [j * stride + nbv[1] - 1, j_next * stride + nbv[1] - 1, last - 1]
+            [
+                j * stride + nbv[1] - 1,
+                j_next * stride + nbv[1] - 1,
+                last - 1,
+            ]
         )
         indexes[index + 3] = np.array(
-            [j_next * stride + 2 * nbv[1] - 1, j * stride + 2 * nbv[1] - 1, last]
+            [
+                j_next * stride + 2 * nbv[1] - 1,
+                j * stride + 2 * nbv[1] - 1,
+                last,
+            ]
         )
         for i in range(nbv[1] - 1):
             indexes[index + 4 + i * 4 + 0] = np.array(
-                [j_next * stride + i, j_next * stride + i + 1, j * stride + i]
+                [
+                    j_next * stride + i,
+                    j_next * stride + i + 1,
+                    j * stride + i,
+                ]
             )
             indexes[index + 4 + i * 4 + 1] = np.array(
-                [j_next * stride + i + 1, j * stride + i + 1, j * stride + i]
+                [
+                    j_next * stride + i + 1,
+                    j * stride + i + 1,
+                    j * stride + i,
+                ]
             )
             indexes[index + 4 + i * 4 + 2] = np.array(
                 [
