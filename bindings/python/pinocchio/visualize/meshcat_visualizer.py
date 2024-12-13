@@ -69,6 +69,16 @@ def hasMeshFileInfo(geometry_object):
     return False
 
 
+def applyScalingOnHomegeneousTransform(
+    homogeneous_transform: np.ndarray, scale: np.ndarray
+) -> np.ndarray:
+    assert homogeneous_transform.shape == (4, 4)
+    assert scale.size == 3
+    scale = np.array(scale).flatten()
+    S = np.diag(np.concatenate((scale, [1.0])))
+    return homogeneous_transform @ S
+
+
 if import_meshcat_succeed:
     # Code adapted from Jiminy
     class Cone(mg.Geometry):
@@ -503,23 +513,47 @@ def createCapsule(length, radius, radial_resolution=30, cap_resolution=10):
     for j in range(nbv[0]):
         j_next = (j + 1) % nbv[0]
         indexes[index + 0] = np.array(
-            [j_next * stride + nbv[1], j_next * stride, j * stride]
+            [
+                j_next * stride + nbv[1],
+                j_next * stride,
+                j * stride,
+            ]
         )
         indexes[index + 1] = np.array(
-            [j * stride + nbv[1], j_next * stride + nbv[1], j * stride]
+            [
+                j * stride + nbv[1],
+                j_next * stride + nbv[1],
+                j * stride,
+            ]
         )
         indexes[index + 2] = np.array(
-            [j * stride + nbv[1] - 1, j_next * stride + nbv[1] - 1, last - 1]
+            [
+                j * stride + nbv[1] - 1,
+                j_next * stride + nbv[1] - 1,
+                last - 1,
+            ]
         )
         indexes[index + 3] = np.array(
-            [j_next * stride + 2 * nbv[1] - 1, j * stride + 2 * nbv[1] - 1, last]
+            [
+                j_next * stride + 2 * nbv[1] - 1,
+                j * stride + 2 * nbv[1] - 1,
+                last,
+            ]
         )
         for i in range(nbv[1] - 1):
             indexes[index + 4 + i * 4 + 0] = np.array(
-                [j_next * stride + i, j_next * stride + i + 1, j * stride + i]
+                [
+                    j_next * stride + i,
+                    j_next * stride + i + 1,
+                    j * stride + i,
+                ]
             )
             indexes[index + 4 + i * 4 + 1] = np.array(
-                [j_next * stride + i + 1, j * stride + i + 1, j * stride + i]
+                [
+                    j_next * stride + i + 1,
+                    j * stride + i + 1,
+                    j * stride + i,
+                ]
             )
             indexes[index + 4 + i * 4 + 2] = np.array(
                 [
@@ -768,7 +802,6 @@ class MeshcatVisualizer(BaseVisualizer):
         node_name = self.getViewerNodeName(geometry_object, geometry_type)
         meshcat_node = self.viewer[node_name]
 
-        is_mesh = False
         try:
             obj = None
             if WITH_HPP_FCL_BINDINGS:
@@ -782,7 +815,6 @@ class MeshcatVisualizer(BaseVisualizer):
                     obj = loadOctree(geometry_object.geometry)
                 elif hasMeshFileInfo(geometry_object):
                     obj = self.loadMeshFromFile(geometry_object)
-                    is_mesh = True
                 elif isinstance(
                     geometry_object.geometry,
                     (
@@ -794,7 +826,6 @@ class MeshcatVisualizer(BaseVisualizer):
                     obj = loadMesh(geometry_object.geometry)
             if obj is None and hasMeshFileInfo(geometry_object):
                 obj = self.loadMeshFromFile(geometry_object)
-                is_mesh = True
             if obj is None:
                 msg = (
                     "The geometry object named "
@@ -847,18 +878,11 @@ class MeshcatVisualizer(BaseVisualizer):
 
             if isinstance(obj, DaeMeshGeometry):
                 obj.path = meshcat_node.path
-                scale = list(np.asarray(geometry_object.meshScale).flatten())
-                obj.set_scale(scale)
                 if geometry_object.overrideMaterial:
                     obj.material = material
                 meshcat_node.window.send(obj)
             else:
                 meshcat_node.set_object(obj, material)
-
-        # Apply the scaling
-        if is_mesh and not isinstance(obj, DaeMeshGeometry):
-            scale = list(np.asarray(geometry_object.meshScale).flatten())
-            meshcat_node.set_property("scale", scale)
 
     def loadViewerModel(
         self,
@@ -981,12 +1005,14 @@ class MeshcatVisualizer(BaseVisualizer):
                 T = M.homogeneous
 
             # Update viewer configuration.
+            T = applyScalingOnHomegeneousTransform(T, visual.meshScale)
             self.viewer[visual_name].set_transform(T)
 
         for visual in self.static_objects:
             visual_name = self.getViewerNodeName(visual, pin.GeometryType.VISUAL)
             M: pin.SE3 = visual.placement
             T = M.homogeneous
+            T = applyScalingOnHomegeneousTransform(T, visual.meshScale)
             self.viewer[visual_name].set_transform(T)
 
     def addGeometryObject(self, obj: pin.GeometryObject, color=None):

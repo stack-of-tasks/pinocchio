@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix the type of image paths when loading textures in the meshcat visualizer ([#2478](https://github.com/stack-of-tasks/pinocchio/pull/2478))
 - Fix meshcat examples ([#2503])[https://github.com/stack-of-tasks/pinocchio/pull/2503]
 - Fix `pinocchio-test-cpp-parallel-geometry` when built with Coal ([#2502](https://github.com/stack-of-tasks/pinocchio/pull/2502))
+- Fix scaling support for meshcat ([#2511](https://github.com/stack-of-tasks/pinocchio/pull/2511))
 
 ### Changed
 - On GNU/Linux and macOS, hide all symbols by default ([#2469](https://github.com/stack-of-tasks/pinocchio/pull/2469))
