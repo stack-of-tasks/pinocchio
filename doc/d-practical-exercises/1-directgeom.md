@@ -235,7 +235,7 @@ later call to your scripts, you can set the argument to `False`. A side
 effector of `=True` is that it will move the viewpoint inside the GUI to
 a reference zero position.
 
-### More details about loading the model (optionnal)
+### More details about loading the model (optional)
 
 You can access the visual object composing the robot model by
 `robot.visual_model.geometryObject`.

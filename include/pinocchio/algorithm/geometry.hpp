@@ -65,7 +65,7 @@ namespace pinocchio
   /// \li add the collision pairs of geom_model2 into geom_model1 (indexes are updated)
   /// \li add all the collision pairs between geometry objects of geom_model1 and geom_model2.
   /// It is possible to ommit both data (an additional function signature is available which makes
-  /// them optionnal), then inner/outer objects are not updated.
+  /// them optional), then inner/outer objects are not updated.
   ///
   /// \param[out] geom_model1   geometry model where the data is added
   /// \param[in]  geom_model2   geometry model from which new geometries are taken

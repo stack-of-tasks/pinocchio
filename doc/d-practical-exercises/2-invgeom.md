@@ -183,7 +183,7 @@ end effector at position `pdes`.
 Finally, implements a callback function that display in
 Gepetto-Viewer every candidate configuration tried by the solver.
 
-## 2.2) Approaching the redundancy (optionnal)
+## 2.2) Approaching the redundancy (optional)
 
 The manipulator arm has 6 DOF, while the cost function only constraints
 3 of them (the position of the end effector). A continuum of solutions
@@ -238,7 +238,7 @@ desired placement.
 Optionally, try other metrics, like the log metric of \f$R^3 \times SO(3)\f$, or
 the Froebenius norm of the homogeneous matrix.
 
-## 2.4) Working with a mobile robot (optionnal)
+## 2.4) Working with a mobile robot (optional)
 
 Until now, the tutorial only worked with a simple manipulator robot,
 i.e. whose configuration space is a real vector space. Consider now the
