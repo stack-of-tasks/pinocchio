@@ -190,6 +190,9 @@ pinocchio_specific_type(default DEFAULT_SCOPE)
 # PINOCCHIO_WITH_HPP_FCL in pinocchio_default.
 if(BUILD_WITH_HPP_FCL_SUPPORT)
   target_compile_definitions(pinocchio_default PUBLIC PINOCCHIO_WITH_HPP_FCL)
+  target_include_directories(
+    pinocchio_default PUBLIC $<TARGET_PROPERTY:hpp-fcl::hpp-fcl,INTERFACE_INCLUDE_DIRECTORIES>)
+
 endif()
 
 # Define the extra target This target hold extra algorithms.
