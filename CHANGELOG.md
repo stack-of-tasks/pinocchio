@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - On GNU/Linux and macOS, hide all symbols by default ([#2469](https://github.com/stack-of-tasks/pinocchio/pull/2469))
+- Build `pinocchio_default` with collision features ([#2517](https://github.com/stack-of-tasks/pinocchio/pull/2517))
 
 ## [3.3.0] - 2024-11-06
 
