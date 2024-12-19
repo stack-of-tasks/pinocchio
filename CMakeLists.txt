@@ -331,9 +331,7 @@ else()
 endif()
 
 if(BUILD_WITH_HPP_FCL_SUPPORT)
-  list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_HPP_FCL")
-  list(APPEND LIBRARIES_DEPENDENCIES ${PROJECT_NAME}_collision)
-  add_project_dependency(hpp-fcl 2.1.2 REQUIRED PKG_CONFIG_REQUIRES "hpp-fcl >= 2.1.2")
+  add_project_dependency(hpp-fcl 2.1.2 REQUIRED "hpp-fcl >= 2.1.2")
 endif()
 
 if(BUILD_WITH_ACCELERATE_SUPPORT)
