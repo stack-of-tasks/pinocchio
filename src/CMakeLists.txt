@@ -185,6 +185,16 @@ add_header_group(${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS)
 # This target will also have hpp-fcl and workspace module in it.
 pinocchio_specific_type(default DEFAULT_SCOPE)
 
+# Some core library algorithms have different behavior if PINOCCHIO_WITH_HPP_FCL is defined. Since
+# some are template instantiated, or some user can link only on pinocchio_default, we muste define
+# PINOCCHIO_WITH_HPP_FCL in pinocchio_default.
+if(BUILD_WITH_HPP_FCL_SUPPORT)
+  target_compile_definitions(pinocchio_default PUBLIC PINOCCHIO_WITH_HPP_FCL)
+  target_include_directories(
+    pinocchio_default PUBLIC $<TARGET_PROPERTY:hpp-fcl::hpp-fcl,INTERFACE_INCLUDE_DIRECTORIES>)
+
+endif()
+
 # Define the extra target This target hold extra algorithms.
 if(BUILD_WITH_EXTRA_SUPPORT)
   set(EXTRA_LIB_NAME "${PROJECT_NAME}_extra")

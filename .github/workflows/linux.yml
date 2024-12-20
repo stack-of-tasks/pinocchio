@@ -87,7 +87,6 @@ jobs:
       - name: Set and install dependencies
         run: |
           export PYTHON3_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+str(sys.version_info.minor))")
-          # Force eigenpy 3.10.0 to be compatible with hpp-fcl
           export APT_DEPENDENCIES="doxygen \
                                    ccache \
                                    curl \
@@ -104,8 +103,8 @@ jobs:
                                    libboost-python-dev \
                                    python3-numpy \
                                    python3-matplotlib \
-                                   robotpkg-py${PYTHON3_VERSION}-eigenpy=3.10.0 \
-                                   robotpkg-py${PYTHON3_VERSION}-hpp-fcl \
+                                   robotpkg-py${PYTHON3_VERSION}-eigenpy \
+                                   robotpkg-py${PYTHON3_VERSION}-coal \
                                    robotpkg-py${PYTHON3_VERSION}-casadi"
           echo $APT_DEPENDENCIES
 
@@ -126,6 +125,7 @@ jobs:
           export PYTHON3_DOT_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
           export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python$PYTHON3_DOT_VERSION/site-packages
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
+          export CMAKE_PREFIX_PATH=/opt/openrobots/lib
 
           mkdir build
           cd build
@@ -150,6 +150,7 @@ jobs:
           export PATH=$PATH:/opt/openrobots/bin
           export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/openrobots/lib/pkgconfig
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
+          export CMAKE_PREFIX_PATH=/opt/openrobots/lib
           cd ./unittest/packaging/cmake
           mkdir build
           cd build
