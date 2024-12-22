@@ -52,7 +52,7 @@ namespace pinocchio
         // Value for angle conversion (Mujoco default - degrees)
         double angle_converter = boost::math::constants::pi<double>() / 180.0;
         // Euler Axis to use to convert angles representation to quaternion
-        Eigen::Matrix3d mapEulerAngles;
+        Eigen::Matrix3d mapEulerAngles = Eigen::Matrix3d::Identity();
 
         // Value to crop the mass (if mass < boundMass, mass = boundMass)
         double boundMass = 0;
