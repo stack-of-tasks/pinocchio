@@ -1328,4 +1328,33 @@ BOOST_AUTO_TEST_CASE(test_contact_parsing)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_default_eulerseq)
+{
+  std::istringstream xmlData(R"(<mujoco model="arm">
+                                  <compiler angle="radian" />
+                                  <worldbody>
+                                    <body name="base">
+                                      <body name="body" pos="0 0 0.01" euler="1.57 0 0">
+                                      </body>
+                                    </body>
+                                  </worldbody>
+                                </mujoco>)");
+
+  auto namefile = createTempFile(xmlData);
+
+  typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+  pinocchio::Model model_m;
+  MjcfGraph::UrdfVisitor visitor(model_m);
+
+  MjcfGraph graph(visitor, "fakeMjcf");
+  graph.parseGraphFromXML(namefile.name());
+  graph.parseRootTree();
+
+  pinocchio::SE3 placement(
+    Eigen::AngleAxisd(1.57, Eigen::Vector3d::UnitX()).toRotationMatrix(),
+    Eigen::Vector3d(0.0, 0.0, 0.01));
+
+  BOOST_CHECK(graph.mapOfBodies["body"].bodyPlacement.isApprox(placement));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
