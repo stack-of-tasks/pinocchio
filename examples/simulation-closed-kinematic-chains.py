@@ -1,3 +1,4 @@
+import sys
 import time
 
 import hppfcl as fcl
@@ -76,14 +77,9 @@ model.appendBodyToJoint(joint3_id, inertia_link_B, placement_center_link_B)
 geom_obj3 = pin.GeometryObject("link_B2", joint3_id, placement_shape_B, shape_link_B)
 geom_obj3.meshColor = RED_COLOR
 collision_model.addGeometryObject(geom_obj3)
-
 visual_model = collision_model
-viz = MeshcatVisualizer(model, collision_model, visual_model)
-viz.initViewer(open=True)
-viz.loadViewerModel()
 
 q0 = pin.neutral(model)
-viz.display(q0)
 
 data = model.createData()
 pin.forwardKinematics(model, data, q0)
@@ -146,7 +142,6 @@ for k in range(N):
     y -= alpha * (-dy + y)
 
 q_sol = (q[:] + np.pi) % np.pi - np.pi
-viz.display(q_sol)
 
 # Perform the simulation
 q = q_sol.copy()
@@ -161,6 +156,15 @@ constraint_model.corrector.Kp[:] = 10
 constraint_model.corrector.Kd[:] = 2.0 * np.sqrt(constraint_model.corrector.Kp)
 pin.initConstraintDynamics(model, data, [constraint_model])
 prox_settings = pin.ProximalSettings(1e-8, mu_sim, 10)
+
+try:
+    viz = MeshcatVisualizer(model, collision_model, visual_model)
+    viz.initViewer(open=True)
+except ImportError as error:
+    print(error)
+    sys.exit(0)
+viz.loadViewerModel()
+viz.display(q_sol)
 
 while t <= T_sim:
     a = pin.constraintDynamics(
