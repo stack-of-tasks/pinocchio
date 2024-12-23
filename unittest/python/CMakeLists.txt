@@ -56,6 +56,10 @@ if(urdfdom_FOUND)
                                    bindings_geometry_model_urdf bindings_contact_inverse_dynamics)
 endif(urdfdom_FOUND)
 
+if(TARGET build_tests)
+  add_dependencies(build_tests ${PROJECT_NAME}-python)
+endif()
+
 foreach(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
   set(TEST_NAME "${PROJECT_NAME}-test-py-${TEST}")
   add_python_unit_test(${TEST_NAME} "unittest/python/${TEST}.py" "bindings/python")
