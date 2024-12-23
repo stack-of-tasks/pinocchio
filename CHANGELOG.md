@@ -41,6 +41,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Rewrite `JointModelMimic` and rename it `JointModelMimicTpl`, since `JointModelMimic` wasn't working, we don't consider it a breaking change ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
 - Stop using context::Scalar for GeometryObject([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
 
+### Fixed
+- Add missing Python examples ([#2528](https://github.com/stack-of-tasks/pinocchio/pull/2528))
+
 ## [3.4.0] - 2025-02-12
 
 ### Added
