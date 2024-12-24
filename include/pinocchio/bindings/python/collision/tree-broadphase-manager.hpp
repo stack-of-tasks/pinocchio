@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 INRIA
+// Copyright (c) 2022-2024 INRIA
 //
 
 #ifndef __pinocchio_python_collision_tree_broadphase_manager_hpp__
