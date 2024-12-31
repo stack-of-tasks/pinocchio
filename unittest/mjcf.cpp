@@ -8,6 +8,7 @@
 #include "pinocchio/multibody/model.hpp"
 
 #include "pinocchio/parsers/mjcf.hpp"
+#include "pinocchio/parsers/mjcf/mjcf-graph.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -923,7 +924,8 @@ BOOST_AUTO_TEST_CASE(adding_keyframes)
                     <key name="test"
                     qpos="0 0 0.596
                         0.988015 0 0.154359 0
-                        0.988015 0 0.154359 0"/>
+                        0.988015 0 0.154359 0
+                        "/>
                 </keyframe>
                 </mujoco>)");
 
@@ -1396,6 +1398,34 @@ BOOST_AUTO_TEST_CASE(parse_mesh_with_vertices)
   {
     BOOST_CHECK(mesh.vertices.row(i) == vertices.row(i));
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_get_unknown_size_vector_from_stream)
+{
+  const auto v = pinocchio::mjcf::details::internal::getUnknownSizeVectorFromStream("");
+  BOOST_CHECK(v.size() == 0);
+
+  const auto v1 = pinocchio::mjcf::details::internal::getUnknownSizeVectorFromStream("1 2 3");
+  BOOST_CHECK(v1.size() == 3);
+  Eigen::VectorXd expected(3);
+  expected << 1, 2, 3;
+  BOOST_CHECK(v1 == expected);
+
+  const auto v2 = pinocchio::mjcf::details::internal::getUnknownSizeVectorFromStream(R"(1 2 3
+                                                                                        4 5 6)");
+  BOOST_CHECK(v2.size() == 6);
+  Eigen::VectorXd expected2(6);
+  expected2 << 1, 2, 3, 4, 5, 6;
+  BOOST_CHECK(v2 == expected2);
+
+  const auto v3 = pinocchio::mjcf::details::internal::getUnknownSizeVectorFromStream(R"(1 2 3
+                                                                                        4 5 6
+                                                                                        7 8 9
+                                                                                        )");
+  BOOST_CHECK(v3.size() == 9);
+  Eigen::VectorXd expected3(9);
+  expected3 << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+  BOOST_CHECK(v3 == expected3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

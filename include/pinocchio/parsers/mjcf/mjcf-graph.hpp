@@ -549,7 +549,7 @@ namespace pinocchio
         inline std::istringstream getConfiguredStringStream(const std::string & str)
         {
           std::istringstream posStream(str);
-          posStream.exceptions(std::ios::failbit);
+          posStream.exceptions(std::ios::badbit);
           return posStream;
         }
 
@@ -569,9 +569,8 @@ namespace pinocchio
           std::istringstream stream = getConfiguredStringStream(str);
           std::vector<double> vector;
           double elem;
-          while (!stream.eof())
+          while (stream >> elem)
           {
-            stream >> elem;
             vector.push_back(elem);
           }
 
