@@ -617,14 +617,12 @@ namespace pinocchio
         }
 
         // Convert to 3D vertex matrix
-        const size_t numVertices = meshVertices.size() / 3;
-        hpp::fcl::MatrixX3s vertices(numVertices, 3);
-
-        for (size_t i = 0; i < meshVertices.size(); i += 3)
+        const auto numVertices = meshVertices.size() / 3;
+        Eigen::MatrixX3d vertices(numVertices, 3);
+        for (auto i = 0; i < numVertices; ++i)
         {
-          vertices.row(i / 3) = meshVertices.segment<3>(i).transpose();
+          vertices.row(i) = meshVertices.segment<3>(3 * i).transpose();
         }
-
         mesh.vertices = vertices;
         mapOfMeshes.insert(std::make_pair(*name, mesh));
       }

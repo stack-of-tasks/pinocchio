@@ -1388,7 +1388,7 @@ BOOST_AUTO_TEST_CASE(parse_mesh_with_vertices)
   // Test Meshes
   pinocchio::mjcf::details::MjcfMesh mesh = graph.mapOfMeshes.at("chasis");
   BOOST_CHECK_EQUAL(mesh.scale, Eigen::Vector3d(0.01, 0.006, 0.0015));
-  hpp::fcl::MatrixX3s vertices(3, 9);
+  Eigen::MatrixX3d vertices(9, 3);
   vertices << 9, 2, 0, -10, 10, 10, 9, -2, 0, 10, 3, -10, 10, -3, -10, -8, 10, -10, -10, -10, 10,
     -8, -10, -10, -5, 0, 20;
   BOOST_CHECK_EQUAL(mesh.vertices.rows(), 9);

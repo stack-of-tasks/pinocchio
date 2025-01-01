@@ -210,7 +210,7 @@ namespace pinocchio
         // Path to the mesh file
         std::string filePath;
         // Vertices of the mesh
-        hpp::fcl::MatrixX3s vertices;
+        Eigen::MatrixX3d vertices;
       };
 
       /// @brief All informations related to a texture are stored here
