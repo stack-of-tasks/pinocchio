@@ -582,20 +582,51 @@ namespace pinocchio
 
         MjcfMesh mesh;
         auto file = el.get_optional<std::string>("<xmlattr>.file");
-        if (!file)
-          throw std::invalid_argument("Only meshes with files are supported");
-
-        fs::path filePath(*file);
-        std::string name = getName(el, filePath);
-
-        mesh.filePath =
-          updatePath(compilerInfo.strippath, compilerInfo.meshdir, modelPath, filePath).string();
-
         auto scale = el.get_optional<std::string>("<xmlattr>.scale");
         if (scale)
           mesh.scale = internal::getVectorFromStream<3>(*scale);
+        if (file)
+        {
+          fs::path filePath(*file);
+          std::string name = getName(el, filePath);
 
-        mapOfMeshes.insert(std::make_pair(name, mesh));
+          mesh.filePath =
+            updatePath(compilerInfo.strippath, compilerInfo.meshdir, modelPath, filePath).string();
+          mapOfMeshes.insert(std::make_pair(name, mesh));
+          return;
+        }
+
+        // Handle vertex-based mesh
+        auto vertex = el.get_optional<std::string>("<xmlattr>.vertex");
+        if (!vertex)
+        {
+          throw std::invalid_argument("Only meshes with files/vertices are supported");
+        }
+
+        auto name = el.get_optional<std::string>("<xmlattr>.name");
+        if (!name)
+        {
+          throw std::invalid_argument("Mesh with vertices without a name is not supported");
+        }
+
+        // Parse and validate vertices
+        Eigen::VectorXd meshVertices = internal::getUnknownSizeVectorFromStream(*vertex);
+        if (meshVertices.size() % 3 != 0)
+        {
+          throw std::invalid_argument("Number of vertices is not a multiple of 3");
+        }
+
+        // Convert to 3D vertex matrix
+        const size_t numVertices = meshVertices.size() / 3;
+        hpp::fcl::MatrixX3s vertices(numVertices, 3);
+
+        for (size_t i = 0; i < meshVertices.size(); i += 3)
+        {
+          vertices.row(i / 3) = meshVertices.segment<3>(i).transpose();
+        }
+
+        mesh.vertices = vertices;
+        mapOfMeshes.insert(std::make_pair(*name, mesh));
       }
 
       void MjcfGraph::parseAsset(const ptree & el)

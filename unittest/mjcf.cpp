@@ -1357,4 +1357,45 @@ BOOST_AUTO_TEST_CASE(test_default_eulerseq)
   BOOST_CHECK(graph.mapOfBodies["body"].bodyPlacement.isApprox(placement));
 }
 
+/// @brief Test parsing a mesh with vertices
+/// @param
+BOOST_AUTO_TEST_CASE(parse_mesh_with_vertices)
+{
+  std::istringstream xmlDataNoStrip(R"(<mujoco model="parseVertices">
+                                    <asset>
+                                      <mesh name="chasis" scale=".01 .006 .0015"
+                                        vertex=" 9   2   0
+                                                -10  10  10
+                                                 9  -2   0
+                                                 10  3  -10
+                                                 10 -3  -10
+                                                -8   10 -10
+                                                -10 -10  10
+                                                -8  -10 -10
+                                                -5   0   20"/>
+                                    </asset>
+                                  </mujoco>)");
+
+  auto namefile = createTempFile(xmlDataNoStrip);
+
+  typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+  pinocchio::Model model_m;
+  MjcfGraph::UrdfVisitor visitor(model_m);
+
+  MjcfGraph graph(visitor, "/fakeMjcf/fake.xml");
+  graph.parseGraphFromXML(namefile.name());
+
+  // Test Meshes
+  pinocchio::mjcf::details::MjcfMesh mesh = graph.mapOfMeshes.at("chasis");
+  BOOST_CHECK_EQUAL(mesh.scale, Eigen::Vector3d(0.01, 0.006, 0.0015));
+  hpp::fcl::MatrixX3s vertices(3, 9);
+  vertices << 9, 2, 0, -10, 10, 10, 9, -2, 0, 10, 3, -10, 10, -3, -10, -8, 10, -10, -10, -10, 10,
+    -8, -10, -10, -5, 0, 20;
+  BOOST_CHECK_EQUAL(mesh.vertices.rows(), 9);
+  for (auto i = 0; i < mesh.vertices.rows(); ++i)
+  {
+    BOOST_CHECK(mesh.vertices.row(i) == vertices.row(i));
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
