@@ -20,11 +20,7 @@
           devShells.default = pkgs.mkShell { inputsFrom = [ self'.packages.default ]; };
           packages = {
             default = self'.packages.pinocchio;
-            pinocchio = pkgs.python3Packages.pinocchio.overrideAttrs (super: {
-              # avoid SIGTRAP on macos github runners
-              cmakeFlags = super.cmakeFlags ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
-                "-DCMAKE_CTEST_ARGUMENTS=--exclude-regex;pinocchio-example-py-casadi-quadrotor-ocp"
-              ];
+            pinocchio = pkgs.python3Packages.pinocchio.overrideAttrs {
               src = pkgs.lib.fileset.toSource {
                 root = ./.;
                 fileset = pkgs.lib.fileset.unions [
@@ -42,7 +38,7 @@
                   ./utils
                 ];
               };
-            });
+            };
           };
         };
     };
