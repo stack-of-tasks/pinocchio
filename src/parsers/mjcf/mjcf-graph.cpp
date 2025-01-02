@@ -600,20 +600,23 @@ namespace pinocchio
         auto vertex = el.get_optional<std::string>("<xmlattr>.vertex");
         if (!vertex)
         {
-          throw std::invalid_argument("Only meshes with files/vertices are supported");
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument, "Only meshes with files/vertices are supported.")
         }
 
         auto name = el.get_optional<std::string>("<xmlattr>.name");
         if (!name)
         {
-          throw std::invalid_argument("Mesh with vertices without a name is not supported");
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument, "Mesh with vertices without a name is not supported");
         }
 
         // Parse and validate vertices
         Eigen::VectorXd meshVertices = internal::getUnknownSizeVectorFromStream(*vertex);
         if (meshVertices.size() % 3 != 0)
         {
-          throw std::invalid_argument("Number of vertices is not a multiple of 3");
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument, "Number of vertices is not a multiple of 3");
         }
 
         // Convert to 3D vertex matrix
