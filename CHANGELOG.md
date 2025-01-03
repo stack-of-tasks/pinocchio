@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Fix mjcf Euler angle parsing: use xyz as a default value for eulerseq compiler option ([#2526](https://github.com/stack-of-tasks/pinocchio/pull/2526))
+- Fix aba explicit template instantiation ([#2541](https://github.com/stack-of-tasks/pinocchio/pull/2541))
 
 ## [3.3.1] - 2024-12-13
 
