@@ -209,6 +209,8 @@ namespace pinocchio
         Eigen::Vector3d scale = Eigen::Vector3d::Constant(1);
         // Path to the mesh file
         std::string filePath;
+        // Vertices of the mesh
+        Eigen::MatrixX3d vertices;
       };
 
       /// @brief All informations related to a texture are stored here
