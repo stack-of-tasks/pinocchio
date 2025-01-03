@@ -75,6 +75,19 @@ namespace pinocchio
         if (geom.geomType == "mesh")
         {
           MjcfMesh currentMesh = currentGraph.mapOfMeshes.at(geom.meshName);
+          if (currentMesh.vertices.size() > 0)
+          {
+            auto vertices = currentMesh.vertices;
+            // Scale vertices
+            for (std::size_t i = 0; i < vertices.rows(); ++i)
+              vertices.row(i) = vertices.row(i).cwiseProduct(currentMesh.scale.transpose());
+            auto model = std::make_shared<hpp::fcl::BVHModel<fcl::OBBRSS>>();
+            model->beginModel();
+            model->addVertices(vertices);
+            model->endModel();
+            model->buildConvexHull(true, "Qt");
+            return model->convex;
+          }
           meshPath = currentMesh.filePath;
           meshScale = currentMesh.scale;
           hpp::fcl::BVHModelPtr_t bvh = meshLoader->load(meshPath, meshScale);
