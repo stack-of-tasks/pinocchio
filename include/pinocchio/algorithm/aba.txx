@@ -7,7 +7,7 @@
 
 namespace pinocchio
 {
-  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI const context::VectorXs & aba<
+  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI const context::VectorXs & aba<
     context::Scalar,
     context::Options,
     JointCollectionDefaultTpl,
@@ -21,7 +21,7 @@ namespace pinocchio
     const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &,
     const Convention);
 
-  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI const context::VectorXs & aba<
+  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI const context::VectorXs & aba<
     context::Scalar,
     context::Options,
     JointCollectionDefaultTpl,
