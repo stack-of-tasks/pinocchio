@@ -1070,12 +1070,13 @@ namespace pinocchio
             rangeCompo.armature;
         }
 
-        FrameIndex previousFrameId = urdfVisitor.model.frames.size();
+        FrameIndex bodyId = urdfVisitor.model.getFrameId(nameOfBody, BODY);
+        frame = urdfVisitor.model.frames[bodyId];
         for (const auto & site : currentBody.siteChildren)
         {
           SE3 placement = bodyInJoint * site.sitePlacement;
-          previousFrameId = urdfVisitor.model.addFrame(
-            Frame(site.siteName, frame.parentJoint, previousFrameId, placement, OP_FRAME));
+          FrameIndex previousFrameId = urdfVisitor.model.addFrame(
+            Frame(site.siteName, frame.parentJoint, bodyId, placement, OP_FRAME));
         }
       }
 
