@@ -115,7 +115,7 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
                # On Windows, shared library are treat as binary
                RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
 
-  if(UNIX AND NOT APPLE)
+  if(UNIX)
     get_relative_rpath(${${PYWRAP}_INSTALL_DIR} ${PYWRAP}_INSTALL_RPATH)
     set_target_properties(${PYTHON_LIB_NAME} PROPERTIES INSTALL_RPATH "${${PYWRAP}_INSTALL_RPATH}")
   endif()
