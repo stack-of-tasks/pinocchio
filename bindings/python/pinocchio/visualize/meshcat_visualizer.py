@@ -1,3 +1,6 @@
+# TODO: Remove when 20.04 is not supported
+from __future__ import annotations
+
 import warnings
 from pathlib import Path
 from typing import ClassVar
