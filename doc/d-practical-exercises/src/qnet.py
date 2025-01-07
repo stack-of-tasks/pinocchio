@@ -11,25 +11,25 @@ import numpy as np
 import tensorflow as tf
 from dpendulum import DPendulum
 
-### --- Random seed
+# --- Random seed
 RANDOM_SEED = int((time.time() % 10) * 1000)
-print("Seed = %d" % RANDOM_SEED)
+print(f"Seed = {RANDOM_SEED}")
 np.random.seed(RANDOM_SEED)
 tf.set_random_seed(RANDOM_SEED)
 
-### --- Hyper paramaters
+# --- Hyper paramaters
 NEPISODES = 500  # Number of training episodes
 NSTEPS = 50  # Max episode length
 LEARNING_RATE = 0.1  # Step length in optimizer
 DECAY_RATE = 0.99  # Discount factor
 
-### --- Environment
+# --- Environment
 env = DPendulum()
 NX = env.nx
 NU = env.nu
 
 
-### --- Q-value networks
+# --- Q-value networks
 class QValueNetwork:
     def __init__(self):
         x = tf.placeholder(shape=[1, NX], dtype=tf.float32)
@@ -44,11 +44,12 @@ class QValueNetwork:
         self.x = x  # Network input
         self.qvalue = qvalue  # Q-value as a function of x
         self.u = u  # Policy  as a function of x
-        self.qref = qref  # Reference Q-value at next step (to be set to l+Q o f)
+        # Reference Q-value at next step (to be set to l+Q o f)
+        self.qref = qref
         self.optim = optim  # Optimizer
 
 
-### --- Tensor flow initialization
+# --- Tensor flow initialization
 tf.reset_default_graph()
 qvalue = QValueNetwork()
 sess = tf.InteractiveSession()
@@ -85,16 +86,17 @@ signal.signal(
     signal.SIGTSTP, lambda x, y: rendertrial()
 )  # Roll-out when CTRL-Z is pressed
 
-### --- History of search
+# --- History of search
 h_rwd = []  # Learning history (for plot).
 
-### --- Training
+# --- Training
 for episode in range(1, NEPISODES):
     x = env.reset()
     rsum = 0.0
 
     for step in range(NSTEPS - 1):
-        u = sess.run(qvalue.u, feed_dict={qvalue.x: onehot(x)})[0]  # Greedy policy ...
+        # Greedy policy ...
+        u = sess.run(qvalue.u, feed_dict={qvalue.x: onehot(x)})[0]
         u = disturb(u, episode)  # ... with noise
         x2, reward = env.step(u)
 
@@ -113,9 +115,9 @@ for episode in range(1, NEPISODES):
 
     h_rwd.append(rsum)
     if not episode % 20:
-        print("Episode #%d done with %d sucess" % (episode, sum(h_rwd[-20:])))
+        print(f"Episode #{episode} done with {sum(h_rwd[-20:])} sucess")
 
-print("Total rate of success: %.3f" % (sum(h_rwd) / NEPISODES))
+print(f"Total rate of success: {sum(h_rwd) / NEPISODES:.3f}")
 rendertrial()
 plt.plot(np.cumsum(h_rwd) / range(1, NEPISODES))
 plt.show()

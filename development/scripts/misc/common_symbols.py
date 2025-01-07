@@ -5,10 +5,9 @@ import argparse
 import itertools
 import pathlib
 import subprocess
-import typing
 
 
-def generate_symbols(shared_library: pathlib.Path) -> typing.Set[str]:
+def generate_symbols(shared_library: pathlib.Path) -> set[str]:
     # Show symbol
     # -D: Dynamic
     # -C: Demangled

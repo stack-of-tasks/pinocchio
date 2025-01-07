@@ -5,8 +5,6 @@
 
 ## In this file, some shortcuts are provided ##
 
-from typing import Tuple
-
 from . import WITH_HPP_FCL, WITH_HPP_FCL_BINDINGS
 from . import pinocchio_pywrap_default as pin
 
@@ -15,7 +13,7 @@ nle = pin.nonLinearEffects
 
 def buildModelsFromUrdf(
     filename, *args, **kwargs
-) -> Tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
+) -> tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
     """Parse the URDF file given in input and return a Pinocchio Model followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
     Arguments:
         - filename - name of the urdf file to load
@@ -63,7 +61,7 @@ def _buildModelsFromUrdf(
     verbose=False,
     meshLoader=None,
     geometry_types=None,
-) -> Tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
+) -> tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
     if geometry_types is None:
         geometry_types = [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
 
@@ -119,7 +117,7 @@ def createDatas(*models):
 
 def buildModelsFromSdf(
     filename, *args, **kwargs
-) -> Tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
+) -> tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
     """Parse the Sdf file given in input and return a Pinocchio Model and a list of Constraint Models, followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
     Arguments:
         - filename - name of the urdf file to load

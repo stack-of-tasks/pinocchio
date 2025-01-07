@@ -36,7 +36,7 @@ def display(U, verbose=False):
         env.display(x)
         time.sleep(5e-2)
         if verbose:
-            print("X%d" % i, x.T)
+            print(f"X{i}")
 
 
 class CallBack:
@@ -66,8 +66,9 @@ class CallBack:
 callback = CallBack()
 signal.signal(signal.SIGTSTP, lambda x, y: callback.setWithDisplay())
 
-### --- OCP resolution
-U0 = np.zeros(NSTEPS * env.nu) - env.umax  # Initial guess for the control trajectory.
+# --- OCP resolution
+# Initial guess for the control trajectory.
+U0 = np.zeros(NSTEPS * env.nu) - env.umax
 bounds = (
     [
         [-env.umax, env.umax],
