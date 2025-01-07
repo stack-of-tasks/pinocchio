@@ -114,7 +114,7 @@ if import_meshcat_succeed:
             }
 
     class DaeMeshGeometry(mg.ReferenceSceneElement):
-        def __init__(self, dae_path: str, cache: Optional[set[str]] = None) -> None:
+        def __init__(self, dae_path: str, cache: set[str] | None = None) -> None:
             """Load Collada files with texture images.
             Inspired from
             https://gist.github.com/danzimmerman/a392f8eadcf1166eb5bd80e3922dbdc5
