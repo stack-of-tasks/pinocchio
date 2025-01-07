@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix aba explicit template instantiation ([#2541](https://github.com/stack-of-tasks/pinocchio/pull/2541))
 - Add parsing meshes with vertices for MJCF format ([#2537](https://github.com/stack-of-tasks/pinocchio/pull/2537))
 - CMake: fix RPATH on macos ([#2546](https://github.com/stack-of-tasks/pinocchio/pull/2546))
+- Fix aba explicit template instantiation ([#2541](https://github.com/stack-of-tasks/pinocchio/pull/2541))
+- Fix mjcf parsing of keyframe qpos with newlines ([#2535](https://github.com/stack-of-tasks/pinocchio/pull/2535))
 
 ## [3.3.1] - 2024-12-13
 
