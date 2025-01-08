@@ -26,7 +26,7 @@ import base64
 import xml.etree.ElementTree as Et
 from typing import Any
 
-#TODO: Remove quote when 20.04 is not supported
+# TODO: Remove quote when 20.04 is not supported
 MsgType = "dict[str, Union[str, bytes, bool, float, 'MsgType']]"
 
 try:
