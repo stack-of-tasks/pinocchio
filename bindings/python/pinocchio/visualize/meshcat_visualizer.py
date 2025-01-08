@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import ClassVar, TypeAlias
+from typing import ClassVar
 
 import numpy as np
 
@@ -24,10 +24,10 @@ import base64
 
 # DaeMeshGeometry
 import xml.etree.ElementTree as Et
-from typing import Any, Union
+from typing import Any
 
 #TODO: Remove quote when 20.04 is not supported
-MsgType: TypeAlias = "dict[str, Union[str, bytes, bool, float, 'MsgType']]"
+MsgType = "dict[str, Union[str, bytes, bool, float, 'MsgType']]"
 
 try:
     import hppfcl
