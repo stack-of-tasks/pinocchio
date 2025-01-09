@@ -17,6 +17,14 @@
 
 namespace pinocchio
 {
+  // Forward declarations
+  // TODO: This should go into spatial/fwd.hpp but because of a strange include path
+  // in context/cppadcg.hpp we can include se3.hpp without including spatial/fwd.hpp first.
+  template<typename _Scalar, int _Options>
+  struct SE3TplExpr;
+  template<typename _Scalar, int _Options>
+  struct SE3TplConstExpr;
+
   template<typename _Scalar, int _Options>
   struct traits<SE3Tpl<_Scalar, _Options>>
   {

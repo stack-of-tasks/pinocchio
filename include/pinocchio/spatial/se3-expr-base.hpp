@@ -7,6 +7,18 @@
 
 namespace pinocchio
 {
+  // Forward declaration
+  // TODO: This should go into spatial/fwd.hpp but because of a strange include path
+  // in context/cppadcg.hpp we can include se3.hpp without including spatial/fwd.hpp first.
+  template<typename Derived>
+  struct SE3ExprBase;
+  template<typename Derived>
+  struct SE3ExprNoalias;
+  template<typename RotProduct, typename TransProduct>
+  struct SE3ExprProduct;
+  template<typename RotProduct, typename TransProduct>
+  SE3ExprProduct<RotProduct, TransProduct>
+  make_se3_expr_product(RotProduct rot_prod, TransProduct trans_prod);
 
 // Forward traits typedef
 #define PINOCCHIO_SE3_EXPR_TYPEDEF_TPL(Derived)                                                    \
