@@ -6,6 +6,7 @@
 # --- BENCHMARK --------------------------------------
 # ----------------------------------------------------
 add_custom_target(bench)
+
 add_project_private_dependency(benchmark REQUIRED)
 
 macro(ADD_PINOCCHIO_BENCH bench_name)
@@ -14,11 +15,7 @@ macro(ADD_PINOCCHIO_BENCH bench_name)
   set(multiValueArgs PACKAGES)
   cmake_parse_arguments(unit_test "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  if(BUILD_BENCHMARK)
-    add_executable(${bench_name} ${bench_name}.cpp)
-  else()
-    add_executable(${bench_name} EXCLUDE_FROM_ALL ${bench_name}.cpp)
-  endif()
+  add_executable(${bench_name} ${bench_name}.cpp)
 
   target_compile_definitions(${bench_name} PRIVATE PINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
   if(NOT unit_test_HEADER_ONLY)
