@@ -44,6 +44,7 @@ namespace pinocchio
 } // namespace pinocchio
 
 #include "pinocchio/spatial/se3-base.hpp"
+#include "pinocchio/spatial/se3-expr-base.hpp"
 #include "pinocchio/spatial/se3-tpl.hpp"
 
 #endif // ifndef __pinocchio_spatial_se3_hpp__

@@ -451,6 +451,102 @@ namespace pinocchio
 
   } // namespace internal
 
+  template<typename _Scalar, int _Options>
+  struct traits<SE3TplExpr<_Scalar, _Options>>
+  {
+    enum
+    {
+      Options = 0
+    };
+    typedef _Scalar Scalar;
+    typedef Eigen::Matrix<Scalar, 3, 1, Options> Vector3;
+    typedef Eigen::Matrix<Scalar, 3, 3, Options> Matrix3;
+    typedef Matrix3 AngularType;
+    typedef Matrix3 & AngularRef;
+    typedef const Matrix3 & ConstAngularRef;
+    typedef Vector3 LinearType;
+    typedef Vector3 & LinearRef;
+    typedef const Vector3 & ConstLinearRef;
+    typedef SE3Tpl<Scalar, Options> PlainType;
+  };
+
+  template<typename _Scalar, int _Options>
+  struct SE3TplExpr : SE3ExprBase<SE3TplExpr<_Scalar, _Options>>
+  {
+    PINOCCHIO_SE3_EXPR_TYPEDEF_TPL(SE3TplExpr);
+
+    SE3TplExpr(PlainType & se3)
+    : se3(se3)
+    {
+    }
+
+    ConstAngularRef rotation_impl() const
+    {
+      return se3.rotation();
+    }
+    ConstLinearRef translation_impl() const
+    {
+      return se3.translation();
+    }
+    AngularRef rotation_impl()
+    {
+      return se3.rotation();
+    }
+    LinearRef translation_impl()
+    {
+      return se3.translation();
+    }
+
+    template<typename OtherDerived>
+    SE3TplExpr & operator=(const SE3ExprBase<OtherDerived> & other)
+    {
+      return SE3ExprBase<SE3TplExpr>::operator=(other);
+    }
+
+    PlainType & se3;
+  };
+
+  template<typename _Scalar, int _Options>
+  struct traits<SE3TplConstExpr<_Scalar, _Options>>
+  {
+    enum
+    {
+      Options = 0
+    };
+    typedef _Scalar Scalar;
+    typedef Eigen::Matrix<Scalar, 3, 1, Options> Vector3;
+    typedef Eigen::Matrix<Scalar, 3, 3, Options> Matrix3;
+    typedef Matrix3 AngularType;
+    typedef Matrix3 & AngularRef;
+    typedef const Matrix3 & ConstAngularRef;
+    typedef Vector3 LinearType;
+    typedef Vector3 & LinearRef;
+    typedef const Vector3 & ConstLinearRef;
+    typedef SE3Tpl<Scalar, Options> PlainType;
+  };
+
+  template<typename _Scalar, int _Options>
+  struct SE3TplConstExpr : SE3ExprBase<SE3TplConstExpr<_Scalar, _Options>>
+  {
+    PINOCCHIO_SE3_EXPR_TYPEDEF_TPL(SE3TplConstExpr);
+
+    SE3TplConstExpr(const PlainType & se3)
+    : se3(se3)
+    {
+    }
+
+    ConstAngularRef rotation_impl() const
+    {
+      return se3.rotation();
+    }
+    ConstLinearRef translation_impl() const
+    {
+      return se3.translation();
+    }
+
+    const PlainType & se3;
+  };
+
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_spatial_se3_tpl_hpp__
