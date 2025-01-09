@@ -42,6 +42,8 @@ namespace pinocchio
     typedef Matrix6 ActionMatrixType;
     typedef Matrix4 HomogeneousMatrixType;
     typedef SE3Tpl<Scalar, Options> PlainType;
+    typedef SE3TplExpr<Scalar, Options> ExprType;
+    typedef SE3TplConstExpr<Scalar, Options> ConstExprType;
   }; // traits SE3Tpl
 
   template<typename _Scalar, int _Options>
@@ -402,6 +404,16 @@ namespace pinocchio
       PlainType res(*this);
       res.normalize();
       return res;
+    }
+
+    ExprType expr_impl()
+    {
+      return ExprType(*this);
+    }
+
+    ConstExprType const_expr_impl() const
+    {
+      return ConstExprType(*this);
     }
 
     ///
