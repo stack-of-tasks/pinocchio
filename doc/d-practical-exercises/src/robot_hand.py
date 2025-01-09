@@ -367,13 +367,13 @@ class Robot:
         # Prepare some patches to represent collision points. Yet unvisible.
         for i in range(10):
             self.viewer.viewer.gui.addCylinder(
-                "world/wa%i" % i, 0.01, 0.003, [1.0, 0, 0, 1]
+                f"world/wa{i}", 0.01, 0.003, [1.0, 0, 0, 1]
             )
             self.viewer.viewer.gui.addCylinder(
-                "world/wb%i" % i, 0.01, 0.003, [1.0, 0, 0, 1]
+                f"world/wb{i}", 0.01, 0.003, [1.0, 0, 0, 1]
             )
-            self.viewer.viewer.gui.setVisibility("world/wa%i" % i, "OFF")
-            self.viewer.viewer.gui.setVisibility("world/wb%i" % i, "OFF")
+            self.viewer.viewer.gui.setVisibility(f"world/wa{i}", "OFF")
+            self.viewer.viewer.gui.setVisibility(f"world/wb{i}", "OFF")
 
     def checkCollision(self, pairIndex):
         ia, ib = self.collisionPairs[pairIndex]
@@ -392,10 +392,10 @@ class Robot:
         ia, ib = self.collisionPairs[pairIndex]
         va = self.visuals[ia]
         vb = self.visuals[ib]
-        va.displayCollision(self.viewer, "world/wa%i" % meshIndex)
-        vb.displayCollision(self.viewer, "world/wb%i" % meshIndex)
-        self.viewer.viewer.gui.setVisibility("world/wa%i" % meshIndex, "ON")
-        self.viewer.viewer.gui.setVisibility("world/wb%i" % meshIndex, "ON")
+        va.displayCollision(self.viewer, f"world/wa{meshIndex}")
+        vb.displayCollision(self.viewer, f"world/wb{meshIndex}")
+        self.viewer.viewer.gui.setVisibility(f"world/wa{meshIndex}", "ON")
+        self.viewer.viewer.gui.setVisibility(f"world/wb{meshIndex}", "ON")
 
     def display(self, q):
         pin.forwardKinematics(self.model, self.data, q)

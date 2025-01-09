@@ -44,7 +44,7 @@ for i, xyzrpy in enumerate(oMobs):
     obs.meshColor = np.array(
         [1.0, 0.2, 0.2, 1.0]
     )  # Don't forget me, otherwise I am transparent ...
-    obs.name = "obs%d" % i  # Set object name
+    obs.name = f"obs{i}"  # Set object name
     obs.parentJoint = 0  # Set object parent = 0 = universe
     obs.placement = XYZRPYtoSE3(xyzrpy)  # Set object placement wrt parent
     collision_model.addGeometryObject(obs)  # Add object to collision model

@@ -15,16 +15,16 @@ import tensorflow as tf
 import tflearn
 from pendulum import Pendulum
 
-### --- Random seed
+# --- Random seed
 RANDOM_SEED = int((time.time() % 10) * 1000)
-print("Seed = %d" % RANDOM_SEED)
+print(f"Seed = {RANDOM_SEED}")
 np.random.seed(RANDOM_SEED)
 tf.set_random_seed(RANDOM_SEED)
 random.seed(RANDOM_SEED)
 n_init = tflearn.initializations.truncated_normal(seed=RANDOM_SEED)
 u_init = tflearn.initializations.uniform(minval=-0.003, maxval=0.003, seed=RANDOM_SEED)
 
-### --- Hyper paramaters
+# --- Hyper paramaters
 NEPISODES = 100  # Max training steps
 NSTEPS = 100  # Max episode length
 QVALUE_LEARNING_RATE = 0.001  # Base learning rate for the Q-value Network
@@ -35,13 +35,13 @@ REPLAY_SIZE = 10000  # Size of replay buffer
 BATCH_SIZE = 64  # Number of points to be fed in stochastic gradient
 NH1 = NH2 = 250  # Hidden layer size
 
-### --- Environment
+# --- Environment
 env = Pendulum(1)  # Continuous pendulum
 env.withSinCos = True  # State is dim-3: (cosq,sinq,qdot) ...
 NX = env.nobs  # ... training converges with q,qdot with 2x more neurones.
 NU = env.nu  # Control is dim-1: joint torque
 
-### --- Q-value and policy networks
+# --- Q-value and policy networks
 
 
 class QValueNetwork:
@@ -63,7 +63,8 @@ class QValueNetwork:
         self.x = x  # Network state   <x> input in Q(x,u)
         self.u = u  # Network control <u> input in Q(x,u)
         self.qvalue = qvalue  # Network output  <Q>
-        self.variables = tf.trainable_variables()[nvars:]  # Variables to be trained
+        # Variables to be trained
+        self.variables = tf.trainable_variables()[nvars:]
         self.hidens = [netx1, netx2, netu1, netu2]  # Hidden layers for debug
 
     def setupOptim(self):
@@ -75,7 +76,8 @@ class QValueNetwork:
         self.qref = qref  # Reference Q-values
         self.optim = optim  # Optimizer
         self.gradient = (
-            gradient  # Gradient of Q wrt the control  dQ/du (for policy training)
+            # Gradient of Q wrt the control  dQ/du (for policy training)
+            gradient
         )
         return self
 
@@ -101,7 +103,8 @@ class PolicyNetwork:
 
         self.x = x  # Network input <x> in Pi(x)
         self.policy = policy  # Network output <Pi>
-        self.variables = tf.trainable_variables()[nvars:]  # Variables to be trained
+        # Variables to be trained
+        self.variables = tf.trainable_variables()[nvars:]
 
     def setupOptim(self):
         qgradient = tf.placeholder(tf.float32, [None, NU])
@@ -110,7 +113,8 @@ class PolicyNetwork:
             zip(grad, self.variables)
         )
 
-        self.qgradient = qgradient  # Q-value gradient wrt control (input value)
+        # Q-value gradient wrt control (input value)
+        self.qgradient = qgradient
         self.optim = optim  # Optimizer
         return self
 
@@ -122,7 +126,7 @@ class PolicyNetwork:
         return self
 
 
-### --- Replay memory
+# --- Replay memory
 class ReplayItem:
     def __init__(self, x, u, r, d, x2):
         self.x = x
@@ -134,7 +138,7 @@ class ReplayItem:
 
 replayDeque = deque()
 
-### --- Tensor flow initialization
+# --- Tensor flow initialization
 
 policy = PolicyNetwork().setupOptim()
 policyTarget = PolicyNetwork().setupTargetAssign(policy)
@@ -167,24 +171,26 @@ signal.signal(
     signal.SIGTSTP, lambda x, y: rendertrial()
 )  # Roll-out when CTRL-Z is pressed
 
-### History of search
+# History of search
 h_rwd = []
 h_qva = []
 h_ste = []
 
-### --- Training
+# --- Training
 for episode in range(1, NEPISODES):
     x = env.reset().T
     rsum = 0.0
 
     for step in range(NSTEPS):
-        u = sess.run(policy.policy, feed_dict={policy.x: x})  # Greedy policy ...
+        # Greedy policy ...
+        u = sess.run(policy.policy, feed_dict={policy.x: x})
         u += 1.0 / (1.0 + episode + step)  # ... with noise
         x2, r = env.step(u)
         x2 = x2.T
         done = False  # pendulum scenario is endless.
 
-        replayDeque.append(ReplayItem(x, u, r, done, x2))  # Feed replay memory ...
+        # Feed replay memory ...
+        replayDeque.append(ReplayItem(x, u, r, done, x2))
         if len(replayDeque) > REPLAY_SIZE:
             replayDeque.popleft()  # ... with FIFO forgetting.
 
@@ -260,7 +266,7 @@ for episode in range(1, NEPISODES):
 
 # \\\END_FOR episode in range(NEPISODES)
 
-print("Average reward during trials: %.3f" % (sum(h_rwd) / NEPISODES))
+print(f"Average reward during trials: {sum(h_rwd) / NEPISODES:.3f}")
 rendertrial()
 plt.plot(np.cumsum(h_rwd) / range(1, NEPISODES))
 plt.show()
