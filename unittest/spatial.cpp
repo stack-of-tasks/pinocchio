@@ -116,6 +116,25 @@ BOOST_AUTO_TEST_CASE(test_SE3)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_SE3_expr)
+{
+  using namespace pinocchio;
+
+  SE3 amb = SE3::Random();
+  SE3 bmc = SE3::Random();
+
+  SE3 amc_expected;
+  SE3 amc_expr;
+  SE3 amc_expr_noalias;
+
+  amc_expected = amb * bmc;
+  amc_expr.expr() = amb.const_expr() * bmc.const_expr();
+  amc_expr_noalias.expr().noalias() = amb.const_expr() * bmc.const_expr();
+
+  BOOST_CHECK(amc_expected.toActionMatrix().isApprox(amc_expr.toActionMatrix()));
+  BOOST_CHECK(amc_expected.toActionMatrix().isApprox(amc_expr_noalias.toActionMatrix()));
+}
+
 BOOST_AUTO_TEST_CASE(test_Motion)
 {
   using namespace pinocchio;
