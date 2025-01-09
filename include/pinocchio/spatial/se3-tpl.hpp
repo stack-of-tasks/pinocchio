@@ -17,6 +17,14 @@
 
 namespace pinocchio
 {
+  // Forward declarations
+  // TODO: This should go into spatial/fwd.hpp but because of a strange include path
+  // in context/cppadcg.hpp we can include se3.hpp without including spatial/fwd.hpp first.
+  template<typename _Scalar, int _Options>
+  struct SE3TplExpr;
+  template<typename _Scalar, int _Options>
+  struct SE3TplConstExpr;
+
   template<typename _Scalar, int _Options>
   struct traits<SE3Tpl<_Scalar, _Options>>
   {
@@ -42,6 +50,8 @@ namespace pinocchio
     typedef Matrix6 ActionMatrixType;
     typedef Matrix4 HomogeneousMatrixType;
     typedef SE3Tpl<Scalar, Options> PlainType;
+    typedef SE3TplExpr<Scalar, Options> ExprType;
+    typedef SE3TplConstExpr<Scalar, Options> ConstExprType;
   }; // traits SE3Tpl
 
   template<typename _Scalar, int _Options>
@@ -404,6 +414,16 @@ namespace pinocchio
       return res;
     }
 
+    ExprType expr_impl()
+    {
+      return ExprType(*this);
+    }
+
+    ConstExprType const_expr_impl() const
+    {
+      return ConstExprType(*this);
+    }
+
     ///
     /// \brief Linear interpolation on the SE3 manifold.
     ///
@@ -450,6 +470,102 @@ namespace pinocchio
     };
 
   } // namespace internal
+
+  template<typename _Scalar, int _Options>
+  struct traits<SE3TplExpr<_Scalar, _Options>>
+  {
+    enum
+    {
+      Options = 0
+    };
+    typedef _Scalar Scalar;
+    typedef Eigen::Matrix<Scalar, 3, 1, Options> Vector3;
+    typedef Eigen::Matrix<Scalar, 3, 3, Options> Matrix3;
+    typedef Matrix3 AngularType;
+    typedef Matrix3 & AngularRef;
+    typedef const Matrix3 & ConstAngularRef;
+    typedef Vector3 LinearType;
+    typedef Vector3 & LinearRef;
+    typedef const Vector3 & ConstLinearRef;
+    typedef SE3Tpl<Scalar, Options> PlainType;
+  };
+
+  template<typename _Scalar, int _Options>
+  struct SE3TplExpr : SE3ExprBase<SE3TplExpr<_Scalar, _Options>>
+  {
+    PINOCCHIO_SE3_EXPR_TYPEDEF_TPL(SE3TplExpr);
+
+    SE3TplExpr(PlainType & se3)
+    : se3(se3)
+    {
+    }
+
+    ConstAngularRef rotation_impl() const
+    {
+      return se3.rotation();
+    }
+    ConstLinearRef translation_impl() const
+    {
+      return se3.translation();
+    }
+    AngularRef rotation_impl()
+    {
+      return se3.rotation();
+    }
+    LinearRef translation_impl()
+    {
+      return se3.translation();
+    }
+
+    template<typename OtherDerived>
+    SE3TplExpr & operator=(const SE3ExprBase<OtherDerived> & other)
+    {
+      return SE3ExprBase<SE3TplExpr>::operator=(other);
+    }
+
+    PlainType & se3;
+  };
+
+  template<typename _Scalar, int _Options>
+  struct traits<SE3TplConstExpr<_Scalar, _Options>>
+  {
+    enum
+    {
+      Options = 0
+    };
+    typedef _Scalar Scalar;
+    typedef Eigen::Matrix<Scalar, 3, 1, Options> Vector3;
+    typedef Eigen::Matrix<Scalar, 3, 3, Options> Matrix3;
+    typedef Matrix3 AngularType;
+    typedef Matrix3 & AngularRef;
+    typedef const Matrix3 & ConstAngularRef;
+    typedef Vector3 LinearType;
+    typedef Vector3 & LinearRef;
+    typedef const Vector3 & ConstLinearRef;
+    typedef SE3Tpl<Scalar, Options> PlainType;
+  };
+
+  template<typename _Scalar, int _Options>
+  struct SE3TplConstExpr : SE3ExprBase<SE3TplConstExpr<_Scalar, _Options>>
+  {
+    PINOCCHIO_SE3_EXPR_TYPEDEF_TPL(SE3TplConstExpr);
+
+    SE3TplConstExpr(const PlainType & se3)
+    : se3(se3)
+    {
+    }
+
+    ConstAngularRef rotation_impl() const
+    {
+      return se3.rotation();
+    }
+    ConstLinearRef translation_impl() const
+    {
+      return se3.translation();
+    }
+
+    const PlainType & se3;
+  };
 
 } // namespace pinocchio
 

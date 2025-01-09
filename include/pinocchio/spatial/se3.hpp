@@ -19,6 +19,8 @@
   typedef TYPENAME traits<Derived>::ActionMatrixType ActionMatrixType;                             \
   typedef TYPENAME traits<Derived>::HomogeneousMatrixType HomogeneousMatrixType;                   \
   typedef TYPENAME traits<Derived>::PlainType PlainType;                                           \
+  typedef TYPENAME traits<Derived>::ExprType ExprType;                                             \
+  typedef TYPENAME traits<Derived>::ConstExprType ConstExprType;                                   \
   enum                                                                                             \
   {                                                                                                \
     Options = traits<Derived>::Options,                                                            \
@@ -44,6 +46,7 @@ namespace pinocchio
 } // namespace pinocchio
 
 #include "pinocchio/spatial/se3-base.hpp"
+#include "pinocchio/spatial/se3-expr-base.hpp"
 #include "pinocchio/spatial/se3-tpl.hpp"
 
 #endif // ifndef __pinocchio_spatial_se3_hpp__

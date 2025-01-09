@@ -270,6 +270,7 @@ set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/spatial/motion-tpl.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/spatial/motion-zero.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/spatial/se3-base.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/spatial/se3-expr-base.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/spatial/se3.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/spatial/se3-tpl.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/spatial/skew.hpp

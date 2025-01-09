@@ -216,6 +216,8 @@ namespace pinocchio
     typedef const LinearType & ConstLinearRef;
     typedef typename traits<PlainType>::ActionMatrixType ActionMatrixType;
     typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
+    typedef typename traits<PlainType>::ExprType ExprType;
+    typedef typename traits<PlainType>::ConstExprType ConstExprType;
   }; // traits TransformTranslationTpl
 
   template<typename Scalar, int Options>

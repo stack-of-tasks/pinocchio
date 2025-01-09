@@ -214,6 +214,16 @@ namespace pinocchio
       derived().normalized();
     }
 
+    ExprType expr()
+    {
+      return derived().expr_impl();
+    }
+
+    ConstExprType const_expr() const
+    {
+      return derived().const_expr_impl();
+    }
+
   }; // struct SE3Base
 
 } // namespace pinocchio

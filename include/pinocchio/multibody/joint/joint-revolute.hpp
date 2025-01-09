@@ -85,6 +85,8 @@ namespace pinocchio
     typedef const typename Vector3::ConstantReturnType ConstLinearRef;
     typedef typename traits<PlainType>::ActionMatrixType ActionMatrixType;
     typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
+    typedef typename traits<PlainType>::ExprType ExprType;
+    typedef typename traits<PlainType>::ConstExprType ConstExprType;
   }; // traits TransformRevoluteTpl
 
   template<typename Scalar, int Options, int axis>

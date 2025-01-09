@@ -7,72 +7,65 @@
 # ----------------------------------------------------
 add_custom_target(bench)
 
-macro(ADD_BENCH bench_name)
-  if(BUILD_BENCHMARK)
-    add_executable(${bench_name} ${bench_name}.cpp)
-  else(BUILD_BENCHMARK)
-    add_executable(${bench_name} EXCLUDE_FROM_ALL ${bench_name}.cpp)
-  endif(BUILD_BENCHMARK)
-  set(ExtraMacroArgs ${ARGN})
-  list(LENGTH ExtraMacroArgs NumExtraMacroArgs)
-  if(NumExtraMacroArgs GREATER 0)
-    set(link_to_main_lib ${ARGV1})
-    if(link_to_main_lib)
-      set_target_properties(${bench_name} PROPERTIES COMPILE_DEFINITIONS
-                                                     PINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
-      target_link_libraries(${bench_name} PUBLIC ${PROJECT_NAME})
-    endif(link_to_main_lib)
+add_project_private_dependency(benchmark REQUIRED)
+
+macro(ADD_PINOCCHIO_BENCH bench_name)
+  set(options HEADER_ONLY GOOGLE_BENCHMARK)
+  set(oneValueArgs)
+  set(multiValueArgs PACKAGES)
+  cmake_parse_arguments(unit_test "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  add_executable(${bench_name} ${bench_name}.cpp)
+
+  target_compile_definitions(${bench_name} PRIVATE PINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
+  if(NOT unit_test_HEADER_ONLY)
+    target_link_libraries(${bench_name} PRIVATE pinocchio_default)
+  else()
+    target_link_libraries(${bench_name} PRIVATE pinocchio_headers)
+  endif()
+
+  if(unit_test_GOOGLE_BENCHMARK)
+    target_link_libraries(${bench_name} PRIVATE benchmark::benchmark)
   endif()
 
   add_dependencies(bench ${bench_name})
-endmacro(ADD_BENCH)
-
-macro(ADD_TEST_CFLAGS target flag)
-  set_property(
-    TARGET ${target}
-    APPEND_STRING
-    PROPERTY COMPILE_FLAGS " ${flag}")
-endmacro(ADD_TEST_CFLAGS)
-
-if(CPPAD_FOUND)
-  include_directories(${cppad_INCLUDE_DIR})
-endif(CPPAD_FOUND)
-
-if(cppadcg_FOUND)
-  include_directories(${cppadcg_INCLUDE_DIR})
-endif(cppadcg_FOUND)
+endmacro()
 
 # timings
 #
-add_bench(timings TRUE)
-if(cppadcg_FOUND)
-  add_bench(timings-cg TRUE)
-  target_link_libraries(timings-cg PUBLIC ${CMAKE_DL_LIBS} ${cppad_LIBRARY})
-endif(cppadcg_FOUND)
+add_pinocchio_bench(timings)
+target_link_libraries(timings PRIVATE pinocchio_parsers)
+if(BUILD_WITH_CODEGEN_SUPPORT)
+  add_pinocchio_bench(timings-cg)
+  target_link_libraries(timings-cg PRIVATE pinocchio_parsers pinocchio_cppadcg ${CMAKE_DL_LIBS})
+endif()
 
 if(BUILD_WITH_OPENMP_SUPPORT)
-  add_bench(timings-parallel TRUE)
-endif(BUILD_WITH_OPENMP_SUPPORT)
+  add_pinocchio_bench(timings-parallel)
+  target_link_libraries(timings-parallel PRIVATE pinocchio_parsers pinocchio_parallel
+                                                 pinocchio_collision)
+endif()
 
-# timings
+# timings cholesky
 #
-add_bench(timings-cholesky TRUE)
+add_pinocchio_bench(timings-cholesky)
+target_link_libraries(timings-cholesky PRIVATE pinocchio_parsers)
 
 # timings derivatives
-
-add_bench(timings-derivatives TRUE)
-if(CPPAD_FOUND)
+#
+add_pinocchio_bench(timings-derivatives)
+target_link_libraries(timings-derivatives PRIVATE pinocchio_parsers)
+if(BUILD_WITH_AUTODIFF_SUPPORT)
   # timings-cppad-jit
-  add_bench(timings-cppad-jit TRUE)
-  target_link_libraries(timings-derivatives PUBLIC ${cppad_LIBRARY})
-  target_link_libraries(timings-cppad-jit PUBLIC ${cppad_LIBRARY} ${CMAKE_DL_LIBS})
+  add_pinocchio_bench(timings-cppad-jit)
+  target_link_libraries(timings-derivatives PRIVATE pinocchio_cppad)
+  target_link_libraries(timings-cppad-jit PRIVATE pinocchio_cppad ${CMAKE_DL_LIBS})
   target_compile_definitions(timings-cppad-jit
-                             PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\")
+                             PRIVATE PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\")
 endif()
 
 # timings-eigen
-#
-add_bench(timings-eigen)
+add_pinocchio_bench(timings-eigen)
 modernize_target_link_libraries(
   timings-eigen
   SCOPE PUBLIC
@@ -81,16 +74,23 @@ modernize_target_link_libraries(
 
 # timings-geometry
 #
-if(URDFDOM_FOUND AND hpp-fcl_FOUND)
-  add_bench(timings-geometry TRUE)
-endif(URDFDOM_FOUND AND hpp-fcl_FOUND)
+if(BUILD_WITH_URDF_SUPPORT AND BUILD_WITH_COLLISION_SUPPORT)
+  add_pinocchio_bench(timings-geometry)
+  target_link_libraries(timings-geometry PRIVATE pinocchio_parsers pinocchio_collision)
+endif()
 
 # timings-jacobian
 #
-add_bench(timings-jacobian TRUE)
+add_pinocchio_bench(timings-jacobian)
+target_link_libraries(timings-jacobian PRIVATE pinocchio_parsers)
 
 # timings-contact-dynamics
 #
-add_bench(timings-delassus-operations TRUE)
-add_bench(timings-contact-dynamics TRUE)
-add_bench(timings-constrained-dynamics-derivatives TRUE)
+add_pinocchio_bench(timings-delassus-operations)
+target_link_libraries(timings-delassus-operations PRIVATE pinocchio_parsers)
+add_pinocchio_bench(timings-contact-dynamics)
+target_link_libraries(timings-contact-dynamics PRIVATE pinocchio_parsers)
+add_pinocchio_bench(timings-constrained-dynamics-derivatives)
+target_link_libraries(timings-constrained-dynamics-derivatives PRIVATE pinocchio_parsers)
+
+add_pinocchio_bench(timings-spatial HEADER_ONLY GOOGLE_BENCHMARK)

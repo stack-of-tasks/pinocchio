@@ -39,6 +39,21 @@ namespace pinocchio
   struct SE3Tpl;
 
   template<typename Derived>
+  struct SE3ExprBase;
+  template<typename Derived>
+  struct SE3ExprNoalias;
+  template<typename RotProduct, typename TransProduct>
+  struct SE3ExprProduct;
+  template<typename RotProduct, typename TransProduct>
+  SE3ExprProduct<RotProduct, TransProduct>
+  make_se3_expr_product(RotProduct rot_prod, TransProduct trans_prod);
+
+  template<typename _Scalar, int _Options>
+  struct SE3TplExpr;
+  template<typename _Scalar, int _Options>
+  struct SE3TplConstExpr;
+
+  template<typename Derived>
   class MotionBase;
   template<typename Derived>
   class MotionDense;

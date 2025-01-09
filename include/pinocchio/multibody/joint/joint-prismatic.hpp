@@ -220,6 +220,8 @@ namespace pinocchio
     typedef const Vector3 ConstLinearRef;
     typedef typename traits<PlainType>::ActionMatrixType ActionMatrixType;
     typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
+    typedef typename traits<PlainType>::ExprType ExprType;
+    typedef typename traits<PlainType>::ConstExprType ConstExprType;
   }; // traits TransformPrismaticTpl
 
   template<typename Scalar, int Options, int axis>
