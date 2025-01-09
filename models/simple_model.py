@@ -21,7 +21,7 @@ def placement(x=0, y=0, z=0, rx=0, ry=0, rz=0):
 
 
 def color(body_number=1):
-    return [int(i) for i in "%03d" % int(bin(body_number % 8)[2:])] + [1]
+    return [int(i) for i in f"{int(bin(body_number % 8)[2:]):03d}"] + [1]
 
 
 class ModelWrapper:

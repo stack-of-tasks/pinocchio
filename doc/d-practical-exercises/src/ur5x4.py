@@ -36,9 +36,7 @@ robots = []
 # Load 4 Ur5 robots, placed at 0.3m from origin in the 4 directions x,y,-x,-y.
 Mt = SE3(eye(3), np.array([0.3, 0, 0]))  # First robot is simply translated
 for i in range(4):
-    robots.append(
-        loadRobot(SE3(rotate("z", np.pi / 2 * i), zero(3)) * Mt, "robot%d" % i)
-    )
+    robots.append(loadRobot(SE3(rotate("z", np.pi / 2 * i), zero(3)) * Mt, f"robot{i}"))
 
 # Set up the robots configuration with end effector pointed upward.
 q0 = np.array([np.pi / 4, -np.pi / 4, -np.pi / 2, np.pi / 4, np.pi / 2, 0])

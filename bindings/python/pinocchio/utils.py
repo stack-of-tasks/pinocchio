@@ -96,17 +96,17 @@ def fromListToVectorOfString(items):
 
 
 __all__ = [
-    "np",
-    "npl",
     "eye",
-    "zero",
-    "rand",
+    "fromListToVectorOfString",
     "isapprox",
+    "matrixToRpy",
     "mprint",
+    "np",
     "npToTTuple",
     "npToTuple",
+    "npl",
+    "rand",
     "rotate",
     "rpyToMatrix",
-    "matrixToRpy",
-    "fromListToVectorOfString",
+    "zero",
 ]

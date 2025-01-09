@@ -1,6 +1,9 @@
+# TODO: Remove when 20.04 is not supported
+from __future__ import annotations
+
 import warnings
 from pathlib import Path
-from typing import ClassVar, List
+from typing import ClassVar
 
 import numpy as np
 
@@ -21,9 +24,10 @@ import base64
 
 # DaeMeshGeometry
 import xml.etree.ElementTree as Et
-from typing import Any, Dict, Optional, Set, Union
+from typing import Any
 
-MsgType = Dict[str, Union[str, bytes, bool, float, "MsgType"]]
+# TODO: Remove quote when 20.04 is not supported
+MsgType = "dict[str, Union[str, bytes, bool, float, 'MsgType']]"
 
 try:
     import hppfcl
@@ -110,7 +114,7 @@ if import_meshcat_succeed:
             }
 
     class DaeMeshGeometry(mg.ReferenceSceneElement):
-        def __init__(self, dae_path: str, cache: Optional[Set[str]] = None) -> None:
+        def __init__(self, dae_path: str, cache: set[str] | None = None) -> None:
             """Load Collada files with texture images.
             Inspired from
             https://gist.github.com/danzimmerman/a392f8eadcf1166eb5bd80e3922dbdc5
@@ -131,7 +135,7 @@ if import_meshcat_succeed:
                 self.dae_raw = text_file.read()
 
             # Parse the image resource in Collada file
-            img_resource_paths: List[Path] = []
+            img_resource_paths: list[Path] = []
             img_lib_element = Et.parse(dae_path).find(
                 "{http://www.collada.org/2005/11/COLLADASchema}library_images"
             )
@@ -143,7 +147,7 @@ if import_meshcat_succeed:
                 ]
 
             # Convert textures to data URL for Three.js ColladaLoader to load them
-            self.img_resources: Dict[str, str] = {}
+            self.img_resources: dict[str, str] = {}
             for img_path in img_resource_paths:
                 img_key = str(img_path)
                 # Return empty string if already in cache
@@ -164,7 +168,7 @@ if import_meshcat_succeed:
                 img_uri = f"data:image/png;base64,{img_data.decode('utf-8')}"
                 self.img_resources[img_key] = img_uri
 
-        def lower(self) -> Dict[str, Any]:
+        def lower(self) -> dict[str, Any]:
             """Pack data into a dictionary of the format that must be passed to
             `Visualizer.window.send`.
             """
@@ -1112,10 +1116,10 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def _draw_vectors_from_frame(
         self,
-        vecs: List[np.ndarray],
-        frame_ids: List[int],
-        vec_names: List[str],
-        colors: List[int],
+        vecs: list[np.ndarray],
+        frame_ids: list[int],
+        vec_names: list[str],
+        colors: list[int],
     ):
         """Draw vectors extending from given frames."""
         import meshcat.geometry as mg
