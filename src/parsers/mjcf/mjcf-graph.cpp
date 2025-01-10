@@ -1077,7 +1077,7 @@ namespace pinocchio
         for (const auto & site : currentBody.siteChildren)
         {
           SE3 placement = bodyInJoint * site.sitePlacement;
-          FrameIndex previousFrameId = urdfVisitor.model.addFrame(
+          urdfVisitor.model.addFrame(
             Frame(site.siteName, frame.parentJoint, bodyId, placement, OP_FRAME));
         }
       }
