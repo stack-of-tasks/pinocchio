@@ -1191,7 +1191,6 @@ namespace pinocchio
       void MjcfGraph::parseRootTree()
       {
         urdfVisitor.setName(modelName);
-        
         // get name and inertia of first root link
         std::string rootLinkName = bodiesList.at(0);
         MjcfBody rootBody = mapOfBodies.find(rootLinkName)->second;
