@@ -59,13 +59,15 @@ namespace pinocchio
         else
         {
           if (filePath.extension().empty())
-            PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Cannot find extension for one of the mesh/texture");
+            PINOCCHIO_THROW_PRETTY(
+              std::invalid_argument, "Cannot find extension for one of the mesh/texture");
 
           auto st = filePath.stem();
           if (!st.empty())
             return st.string();
           else
-            PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Cannot find a name for one of the mesh.texture");
+            PINOCCHIO_THROW_PRETTY(
+              std::invalid_argument, "Cannot find a name for one of the mesh.texture");
         }
       }
 
@@ -172,7 +174,8 @@ namespace pinocchio
       {
 
         if (!use_limits && el.get_optional<std::string>("<xmlattr>.range"))
-          PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Range limit is specified but it was not specify to use it.");
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument, "Range limit is specified but it was not specify to use it.");
 
         // Type
         auto type_s = el.get_optional<std::string>("<xmlattr>.type");
@@ -227,7 +230,8 @@ namespace pinocchio
           else if (jointType == "hinge")
             posRef = currentCompiler.convertAngle(*value);
           else
-            PINOCCHIO_THROW_PRETTY(std::invalid_argument,
+            PINOCCHIO_THROW_PRETTY(
+              std::invalid_argument,
               "Reference position can only be used with hinge or slide joints.");
         }
       }
@@ -358,7 +362,8 @@ namespace pinocchio
         double mass = std::max(el.get<double>("<xmlattr>.mass"), compilerInfo.boundMass);
         ;
         if (mass < 0)
-          PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Mass of body is not supposed to be negative");
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument, "Mass of body is not supposed to be negative");
 
         Inertia::Vector3 com;
         auto com_s = el.get_optional<std::string>("<xmlattr>.pos");
@@ -410,7 +415,8 @@ namespace pinocchio
         auto chcl_s = childClass;
         // if inertiafromgeom is false and inertia does not exist - throw
         if (!compilerInfo.inertiafromgeom && !el.get_child_optional("inertial"))
-          PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Cannot get inertia from geom and no inertia was found");
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument, "Cannot get inertia from geom and no inertia was found");
 
         bool usegeominertia = false;
         if (compilerInfo.inertiafromgeom)
@@ -666,7 +672,8 @@ namespace pinocchio
               mapOfClasses.insert(std::make_pair(*nameClass, classDefault));
             }
             else
-              PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Class does not have a name. Cannot parse model.");
+              PINOCCHIO_THROW_PRETTY(
+                std::invalid_argument, "Class does not have a name. Cannot parse model.");
           }
           else if (v.first == "default")
             parseDefault(v.second, el, v.first);
@@ -736,8 +743,8 @@ namespace pinocchio
           std::string eulerseq = *eulerS;
           if (eulerseq.find_first_not_of("xyzXYZ") != std::string::npos || eulerseq.size() != 3)
           {
-            PINOCCHIO_THROW_PRETTY(std::invalid_argument,
-              "Model tried to use euler angles but euler sequence is wrong");
+            PINOCCHIO_THROW_PRETTY(
+              std::invalid_argument, "Model tried to use euler angles but euler sequence is wrong");
           }
           else
           {
@@ -848,7 +855,8 @@ namespace pinocchio
         if (pt.get_child_optional("mujoco"))
           el = pt.get_child("mujoco");
         else
-          PINOCCHIO_THROW_PRETTY(std::invalid_argument, "This is not a standard mujoco model. Cannot parse it.");
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument, "This is not a standard mujoco model. Cannot parse it.");
 
         for (const ptree::value_type & v : el)
         {
@@ -859,7 +867,8 @@ namespace pinocchio
             if (n_s)
               modelName = *n_s;
             else
-              PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Model is missing a name. Cannot parse it");
+              PINOCCHIO_THROW_PRETTY(
+                std::invalid_argument, "Model is missing a name. Cannot parse it");
           }
 
           if (v.first == "compiler")
@@ -1019,7 +1028,8 @@ namespace pinocchio
           for (const auto & joint : currentBody.jointChildren)
           {
             if (joint.jointType == "free")
-              PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Joint Composite trying to be created with a freeFlyer");
+              PINOCCHIO_THROW_PRETTY(
+                std::invalid_argument, "Joint Composite trying to be created with a freeFlyer");
 
             SE3 jointInParent = bodyPose * joint.jointPlacement;
             bodyInJoint = joint.jointPlacement.inverse();
@@ -1054,7 +1064,8 @@ namespace pinocchio
               rangeCompo = rangeCompo.concatenate<1, 1>(joint.range);
             }
             else
-              PINOCCHIO_THROW_PRETTY(std::invalid_argument, "Unknown joint type trying to be parsed.");
+              PINOCCHIO_THROW_PRETTY(
+                std::invalid_argument, "Unknown joint type trying to be parsed.");
 
             prevJointPlacement = jointInParent;
           }

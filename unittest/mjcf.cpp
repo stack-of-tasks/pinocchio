@@ -1120,7 +1120,9 @@ BOOST_AUTO_TEST_CASE(adding_site)
   pinocchio::SE3 real_placement(rotation_matrix, Vector3(0.03, 0, -0.05));
 
   BOOST_CHECK(model_m.frames[model_m.getFrameId("testSite")].placement.isApprox(real_placement));
-  BOOST_CHECK(model_m.frames[model_m.getFrameId("testSite")].parentJoint == model_m.frames[model_m.getFrameId("body3")].parentJoint);
+  BOOST_CHECK(
+    model_m.frames[model_m.getFrameId("testSite")].parentJoint
+    == model_m.frames[model_m.getFrameId("body3")].parentJoint);
 }
 
 /// @brief test that a fixed model is well parsed
