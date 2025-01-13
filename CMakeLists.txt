@@ -118,6 +118,7 @@ option(BUILD_UTILS "Build the utils" OFF)
 option(BUILD_PYTHON_INTERFACE "Build the Python bindings" ON)
 option(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF)
 option(BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
+option(BUILDING_ROS2_PACKAGE "Allow the package to be found using the AMENT system present in ros 2" ON) # ON for backward compatibility
 
 if(DEFINED BUILD_UNIT_TESTS)
   message(
@@ -521,17 +522,5 @@ pkg_config_append_cflags("${CFLAGS_OPTIONS}")
 
 # Install catkin package.xml
 install(FILES package.xml DESTINATION share/${PROJECT_NAME})
-# Allows Colcon to find non-Ament packages when using workspace underlays
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME}
-        DESTINATION share/ament_index/resource_index/packages)
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv
-     "prepend-non-duplicate;AMENT_PREFIX_PATH;")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv
-        DESTINATION share/${PROJECT_NAME}/hook)
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv
-     "prepend-non-duplicate;PYTHONPATH;${PYTHON_SITELIB}")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv
-        DESTINATION share/${PROJECT_NAME}/hook)
 
 setup_project_finalize()
