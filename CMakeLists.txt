@@ -118,7 +118,7 @@ option(BUILD_UTILS "Build the utils" OFF)
 option(BUILD_PYTHON_INTERFACE "Build the Python bindings" ON)
 option(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF)
 option(BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
-option(BUILDING_ROS2_PACKAGE "Allow the package to be found using the AMENT system present in ros 2" ON) # ON for backward compatibility
+option(BUILDING_ROS2_PACKAGE "Allow the package to be found using the AMENT system present in ROS 2" ON) # ON for backward compatibility
 
 if(DEFINED BUILD_UNIT_TESTS)
   message(
