@@ -59,7 +59,6 @@ else()
 endif()
 
 set(DOXYGEN_USE_MATHJAX YES)
-set(DOXYGEN_USE_TEMPLATE_CSS YES)
 
 # ----------------------------------------------------
 # --- Policy -----------------------------------------
