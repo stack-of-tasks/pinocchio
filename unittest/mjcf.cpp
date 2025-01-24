@@ -1432,6 +1432,21 @@ BOOST_AUTO_TEST_CASE(test_get_unknown_size_vector_from_stream)
   BOOST_CHECK(v3 == expected3);
 }
 
+BOOST_AUTO_TEST_CASE(no_root_tree)
+{
+  std::istringstream xmlData("<mujoco></mujoco>");
+
+  auto namefile = createTempFile(xmlData);
+
+  typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+  pinocchio::Model model_m;
+  MjcfGraph::UrdfVisitor visitor(model_m);
+
+  MjcfGraph graph(visitor, "fakeMjcf");
+  graph.parseGraphFromXML(namefile.name());
+  BOOST_CHECK_THROW(graph.parseRootTree(), std::runtime_error);
+}
+
 BOOST_AUTO_TEST_CASE(process_include_basic)
 {
   namespace pt = boost::property_tree;
