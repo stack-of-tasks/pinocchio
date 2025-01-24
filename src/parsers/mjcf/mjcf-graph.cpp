@@ -6,6 +6,91 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 
+namespace
+{
+  void updateMeshPaths(boost::property_tree::ptree & tree, const boost::filesystem::path & basePath)
+  {
+    for (auto & [key, child] : tree)
+    {
+      // Check if the tag is <mesh> and has a 'file' attribute
+      if (key == "mesh")
+      {
+
+        // Check if the 'file' attribute exists
+        if (auto fileAttr = child.get_optional<std::string>("<xmlattr>.file"))
+        {
+          // Update the 'file' attribute
+          child.put("<xmlattr>.file", (basePath / *fileAttr).string());
+        }
+      }
+      else if (!child.empty())
+      {
+        // Recursively process child nodes
+        updateMeshPaths(child, basePath);
+      }
+    }
+  }
+
+  // Merge the content of an included XML tree into the main XML tree
+  void mergeXmlTrees(
+    boost::property_tree::ptree & mainTree,
+    const boost::property_tree::ptree & includedTree,
+    const std::string & tagName)
+  {
+    if (auto includedChild = includedTree.get_child_optional(tagName))
+    {
+      for (const auto & [key, child] : *includedChild)
+      {
+        mainTree.add_child(key, child);
+      }
+    }
+  }
+
+  // Recursively process <include> tags in the XML tree
+  void processIncludes(boost::property_tree::ptree & tree, const boost::filesystem::path & basePath)
+  {
+    auto it = tree.begin();
+    while (it != tree.end())
+    {
+      if (it->first == "include")
+      {
+        // Check if the 'file' attribute exists
+        if (auto fileAttr = it->second.get_optional<std::string>("<xmlattr>.file"))
+        {
+          std::string filePath = *fileAttr;
+          boost::filesystem::path fullPath = basePath / filePath;
+
+          // Read the included XML file
+          boost::property_tree::ptree includedTree;
+          boost::property_tree::read_xml(fullPath.string(), includedTree);
+
+          // Update mesh paths in the included tree
+          updateMeshPaths(includedTree, fullPath.parent_path());
+
+          // Merge the included content into the main tree
+          mergeXmlTrees(tree, includedTree, "mujoco");
+
+          // Remove the <include> tag after merging
+          it = tree.erase(it);
+        }
+        else
+        {
+          PINOCCHIO_THROW_PRETTY(std::runtime_error, "Missing 'file' attribute in <include> tag");
+        }
+      }
+      else
+      {
+        // Recursively process child nodes
+        if (!it->second.empty())
+        {
+          processIncludes(it->second, basePath);
+        }
+        ++it;
+      }
+    }
+  }
+} // namespace
+
 namespace pinocchio
 {
   namespace mjcf
@@ -899,6 +984,13 @@ namespace pinocchio
       void MjcfGraph::parseGraphFromXML(const std::string & xmlStr)
       {
         boost::property_tree::read_xml(xmlStr, pt);
+        // Recursively process includes in the entire XML tree
+        if (pt.get_child_optional("mujoco"))
+        {
+          auto basePath = boost::filesystem::path(xmlStr).parent_path();
+          auto & mujocoTree = pt.get_child("mujoco");
+          processIncludes(mujocoTree, basePath);
+        }
         parseGraph();
       }
 
