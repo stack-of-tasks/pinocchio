@@ -234,11 +234,11 @@ And the following one for the link to the GitHub codebase:
 **Pinocchio** provides state-of-the-art algorithms for handling constraints, differentiating forward and inverse dynamics, etc.
 If you use these algorithms, please consider citing them in your research articles.
 
-- Le Lidec, Q., Montaut, L. & Carpentier, J. (2024, July). [From Compliant to Rigid Contact Simulation: a Unified and Efficient Approach](https://hal.science/hal-04588906). In RSS 2024-Robotics: Science and Systems.
+- Carpentier, J., Le Lidec, Q. & Montaut, L. (2024, July). [From Compliant to Rigid Contact Simulation: a Unified and Efficient Approach](https://hal.science/hal-04588906). In RSS 2024-Robotics: Science and Systems (RSS 2024).
+- Le Lidec, Q., Jallet, W., Montaut, L., Laptev, I., Schmid, C., & Carpentier, J. (2024). [Contact models in robotics: a comparative analysis](https://hal.science/hal-04067291/). IEEE Transactions on Robotics.
 - Montaut, L., Le Lidec, Q., Petrik, V., Sivic, J., & Carpentier, J. (2024). [GJK++: Leveraging Acceleration Methods for Faster Collision Detection](https://hal.science/hal-04070039/). IEEE Transactions on Robotics.
-- Sathya, A., & Carpentier, J. (2024). [Constrained Articulated Body Dynamics Algorithms](https://hal.science/hal-04443056/). Under review.
+- Sathya, A., & Carpentier, J. (2024). [Constrained Articulated Body Dynamics Algorithms](https://hal.science/hal-04443056/). IEEE Transactions on Robotics.
 - Montaut, L., Le Lidec, Q., Bambade, A., Petrik, V., Sivic, J., & Carpentier, J. (2023, May). [Differentiable collision detection: a randomized smoothing approach](https://hal.science/hal-03780482/). In 2023 IEEE International Conference on Robotics and Automation (ICRA).
-- Le Lidec, Q., Jallet, W., Montaut, L., Laptev, I., Schmid, C., & Carpentier, J. (2023). [Contact models in robotics: a comparative analysis](https://hal.science/hal-04067291/). Under review.
 - Montaut, L., Le Lidec, Q., Petrik, V., Sivic, J., & Carpentier, J. (2022, June). [Collision Detection Accelerated: An Optimization Perspective](https://hal.science/hal-03662157/). In Robotics: Science and Systems (RSS 2O22).
 - Carpentier, J., Budhiraja, R., & Mansard, N. (2021, July). [Proximal and sparse resolution of constrained dynamic equations](https://hal.science/hal-03271811/). In Robotics: Science and Systems (RSS 2021).
 - Carpentier, J., & Mansard, N. (2018, June). [Analytical derivatives of rigid body dynamics algorithms](https://hal.science/hal-01790971/). In Robotics: Science and systems (RSS 2018).
