@@ -596,13 +596,13 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/geometry.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/extra/expose-extras.cpp)
 
-set(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_SOURCES
+set(${PROJECT_NAME}_BINDINGS_PYTHON_COAL_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-broadphase.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-broadphase-callbacks.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-collision.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-fcl.cpp)
 
-set(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PUBLIC_HEADERS
+set(${PROJECT_NAME}_BINDINGS_PYTHON_COAL_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/fcl/transform.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/broadphase-manager.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/collision.hpp)
@@ -616,13 +616,13 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_PARALLEL_SOURCES
 set(${PROJECT_NAME}_BINDINGS_PYTHON_PARALLEL_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/pool/model.hpp)
 
-set(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PARALLEL_SOURCES
+set(${PROJECT_NAME}_BINDINGS_PYTHON_COAL_PARALLEL_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/parallel/expose-parallel.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/parallel/geometry.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/parallel/broadphase.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/pool/expose-pool.cpp)
 
-set(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PARALLEL_PUBLIC_HEADERS
+set(${PROJECT_NAME}_BINDINGS_PYTHON_COAL_PARALLEL_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/pool/geometry.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/pool/broadphase-manager.hpp)
 

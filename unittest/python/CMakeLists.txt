@@ -46,7 +46,7 @@ set(${PROJECT_NAME}_PYTHON_TESTS
     bindings_std_vector
     bindings_std_map)
 
-if(BUILD_WITH_HPP_FCL_SUPPORT)
+if(BUILD_WITH_COAL_SUPPORT)
   set(${PROJECT_NAME}_PYTHON_TESTS ${${PROJECT_NAME}_PYTHON_TESTS} bindings_geometry_object)
   set(${PROJECT_NAME}_PYTHON_TESTS ${${PROJECT_NAME}_PYTHON_TESTS} bindings_fcl_transform)
 endif()

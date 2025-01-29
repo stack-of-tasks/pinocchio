@@ -81,9 +81,9 @@ modernize_target_link_libraries(
 
 # timings-geometry
 #
-if(URDFDOM_FOUND AND hpp-fcl_FOUND)
+if(URDFDOM_FOUND AND coal_FOUND)
   add_bench(timings-geometry TRUE)
-endif(URDFDOM_FOUND AND hpp-fcl_FOUND)
+endif(URDFDOM_FOUND AND coal_FOUND)
 
 # timings-jacobian
 #

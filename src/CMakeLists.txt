@@ -182,16 +182,16 @@ add_header_group(${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS)
 
 # Define the default target (double).
 #
-# This target will also have hpp-fcl and workspace module in it.
+# This target will also have coal and workspace module in it.
 pinocchio_specific_type(default DEFAULT_SCOPE)
 
-# Some core library algorithms have different behavior if PINOCCHIO_WITH_HPP_FCL is defined. Since
+# Some core library algorithms have different behavior if PINOCCHIO_WITH_COAL is defined. Since
 # some are template instantiated, or some user can link only on pinocchio_default, we muste define
-# PINOCCHIO_WITH_HPP_FCL in pinocchio_default.
-if(BUILD_WITH_HPP_FCL_SUPPORT)
-  target_compile_definitions(pinocchio_default PUBLIC PINOCCHIO_WITH_HPP_FCL)
+# PINOCCHIO_WITH_COAL in pinocchio_default.
+if(BUILD_WITH_COAL_SUPPORT)
+    target_compile_definitions(pinocchio_default PUBLIC PINOCCHIO_WITH_COAL)
   target_include_directories(
-    pinocchio_default PUBLIC $<TARGET_PROPERTY:hpp-fcl::hpp-fcl,INTERFACE_INCLUDE_DIRECTORIES>)
+    pinocchio_default PUBLIC $<TARGET_PROPERTY:coal::coal,INTERFACE_INCLUDE_DIRECTORIES>)
 
 endif()
 
@@ -225,7 +225,7 @@ if(BUILD_WITH_OPENMP_SUPPORT)
 endif()
 
 # Define the collision target.
-if(BUILD_WITH_HPP_FCL_SUPPORT)
+if(BUILD_WITH_COAL_SUPPORT)
   set(COLLISION_LIB_NAME "${PROJECT_NAME}_collision")
 
   pinocchio_target(
@@ -234,8 +234,8 @@ if(BUILD_WITH_HPP_FCL_SUPPORT)
     SOURCES ${${PROJECT_NAME}_COLLISION_SOURCES} ${${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS})
   pinocchio_config(collision ${COLLISION_LIB_NAME})
 
-  target_compile_definitions(${COLLISION_LIB_NAME} PUBLIC PINOCCHIO_WITH_HPP_FCL)
-  target_link_libraries(${COLLISION_LIB_NAME} PUBLIC ${PROJECT_NAME}_default hpp-fcl::hpp-fcl)
+  target_compile_definitions(${COLLISION_LIB_NAME} PUBLIC PINOCCHIO_WITH_COAL)
+  target_link_libraries(${COLLISION_LIB_NAME} PUBLIC ${PROJECT_NAME}_default coal::coal)
 
   # Define the collision parallel target
   if(BUILD_WITH_OPENMP_SUPPORT)
@@ -265,7 +265,7 @@ if(BUILD_WITH_PARSERS_SUPPORT)
   pinocchio_config(parsers ${PARSERS_LIB_NAME})
 
   target_link_libraries(${PARSERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_default)
-  if(BUILD_WITH_HPP_FCL_SUPPORT)
+  if(BUILD_WITH_COAL_SUPPORT)
     target_link_libraries(${PARSERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_collision)
   endif()
 
@@ -363,7 +363,7 @@ endif()
 if(BUILD_WITH_OPENMP_SUPPORT)
   target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_parallel)
 endif()
-if(BUILD_WITH_HPP_FCL_SUPPORT)
+if(BUILD_WITH_COAL_SUPPORT)
   target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_collision)
   if(BUILD_WITH_OPENMP_SUPPORT)
     target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_collision_parallel)

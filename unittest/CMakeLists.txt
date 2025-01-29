@@ -201,7 +201,7 @@ if(BUILD_WITH_URDF_SUPPORT)
     COLLISION_OPTIONAL)
 
   add_pinocchio_unit_test(value PARSERS)
-  if(BUILD_WITH_HPP_FCL_SUPPORT)
+  if(BUILD_WITH_COAL_SUPPORT)
     add_pinocchio_unit_test(geometry-object COLLISION)
     add_pinocchio_unit_test(
       geometry-model
