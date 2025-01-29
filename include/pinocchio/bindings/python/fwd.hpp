@@ -9,13 +9,8 @@
 #include "pinocchio/bindings/python/context.hpp"
 #include <eigenpy/eigenpy.hpp>
 
-#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
-  #include <memory>
-  #define PINOCCHIO_SHARED_PTR_HOLDER_TYPE(T) ::std::shared_ptr<T>
-#else
-  #include <boost/shared_ptr.hpp>
-  #define PINOCCHIO_SHARED_PTR_HOLDER_TYPE(T) ::boost::shared_ptr<T>
-#endif
+#include <memory>
+#define PINOCCHIO_SHARED_PTR_HOLDER_TYPE(T) ::std::shared_ptr<T>
 
 namespace pinocchio
 {
