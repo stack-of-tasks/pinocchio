@@ -31,8 +31,8 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   bp::import("warnings");
 
 #if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)                                                \
-  && defined(PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS)
-  bp::import("hppfcl");
+  && defined(PINOCCHIO_PYTHON_INTERFACE_WITH_COAL_PYTHON_BINDINGS)
+  bp::import("coal");
 #endif
 
   exposeEigenTypes();

@@ -19,7 +19,7 @@ namespace pinocchio
     void exposeFCL()
     {
       namespace bp = boost::python;
-      bp::import("hppfcl");
+      bp::import("coal");
 
       using namespace ::coal;
 
