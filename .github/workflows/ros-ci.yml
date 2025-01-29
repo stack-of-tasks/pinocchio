@@ -38,9 +38,8 @@ jobs:
     strategy:
       matrix:
         env:
-          - {ROS_DISTRO: noetic, BUILDER: catkin_tools}
           - {ROS_DISTRO: rolling}
-          - {ROS_DISTRO: iron}
+          - {ROS_DISTRO: jazzy}
           - {ROS_DISTRO: humble}
     env:
       CCACHE_DIR: /github/home/.ccache             # Enable ccache
