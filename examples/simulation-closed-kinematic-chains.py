@@ -1,6 +1,6 @@
 import time
 
-import coal as fcl
+import coal
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
@@ -13,11 +13,11 @@ radius = 0.05
 
 mass_link_A = 10.0
 length_link_A = 1.0
-shape_link_A = fcl.Capsule(radius, length_link_A)
+shape_link_A = coal.Capsule(radius, length_link_A)
 
 mass_link_B = 5.0
 length_link_B = 0.6
-shape_link_B = fcl.Capsule(radius, length_link_B)
+shape_link_B = coal.Capsule(radius, length_link_B)
 
 inertia_link_A = pin.Inertia.FromBox(mass_link_A, length_link_A, width, height)
 placement_center_link_A = pin.SE3.Identity()

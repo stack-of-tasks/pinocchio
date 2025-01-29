@@ -3,7 +3,7 @@ import sys
 import time
 from pathlib import Path
 
-import coal as fcl
+import coal
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer as Visualizer
@@ -41,13 +41,13 @@ body_placement.translation[2] = 0.1
 model2.appendBodyToJoint(joint_id, body_inertia, body_placement)
 
 geom1_name = "ball"
-shape1 = fcl.Sphere(body_radius)
+shape1 = coal.Sphere(body_radius)
 geom1_obj = pin.GeometryObject(geom1_name, joint_id, body_placement, shape1)
 geom1_obj.meshColor = np.ones(4)
 geom_model.addGeometryObject(geom1_obj)
 
 geom2_name = "bar"
-shape2 = fcl.Cylinder(body_radius / 4.0, body_placement.translation[2])
+shape2 = coal.Cylinder(body_radius / 4.0, body_placement.translation[2])
 shape2_placement = body_placement.copy()
 shape2_placement.translation[2] /= 2.0
 

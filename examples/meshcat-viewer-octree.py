@@ -5,24 +5,22 @@
 import sys
 import time
 
-import coal as fcl
+import coal
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
 
-if tuple(map(int, fcl.__version__.split("."))) >= (3, 0, 0):
-    with_octomap = fcl.WITH_OCTOMAP
+if tuple(map(int, coal.__version__.split("."))) >= (3, 0, 0):
+    with_octomap = coal.WITH_OCTOMAP
 else:
     with_octomap = False
 if not with_octomap:
-    print(
-        "This example is skiped as HPP-FCL has not been compiled with octomap support."
-    )
+    print("This example is skiped as coal has not been compiled with octomap support.")
 
 model = pin.Model()
 collision_model = pin.GeometryModel()
 
-octree = fcl.makeOctree(np.random.rand(1000, 3), 0.01)
+octree = coal.makeOctree(np.random.rand(1000, 3), 0.01)
 octree_object = pin.GeometryObject("octree", 0, pin.SE3.Identity(), octree)
 octree_object.meshColor[0] = 1.0
 collision_model.addGeometryObject(octree_object)

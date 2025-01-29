@@ -2,7 +2,7 @@ import math
 import sys
 import time
 
-import coal as fcl
+import coal
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import GepettoVisualizer
@@ -16,7 +16,7 @@ joint_placement = pin.SE3.Identity()
 body_mass = 1.0
 body_radius = 0.1
 
-shape0 = fcl.Sphere(body_radius)
+shape0 = coal.Sphere(body_radius)
 geom0_obj = pin.GeometryObject("base", 0, pin.SE3.Identity(), shape0)
 geom0_obj.meshColor = np.array([1.0, 0.1, 0.1, 1.0])
 geom_model.addGeometryObject(geom0_obj)
@@ -33,13 +33,13 @@ for k in range(N):
     model.appendBodyToJoint(joint_id, body_inertia, body_placement)
 
     geom1_name = "ball_" + str(k + 1)
-    shape1 = fcl.Sphere(body_radius)
+    shape1 = coal.Sphere(body_radius)
     geom1_obj = pin.GeometryObject(geom1_name, joint_id, body_placement, shape1)
     geom1_obj.meshColor = np.ones(4)
     geom_model.addGeometryObject(geom1_obj)
 
     geom2_name = "bar_" + str(k + 1)
-    shape2 = fcl.Cylinder(body_radius / 4.0, body_placement.translation[2])
+    shape2 = coal.Cylinder(body_radius / 4.0, body_placement.translation[2])
     shape2_placement = body_placement.copy()
     shape2_placement.translation[2] /= 2.0
 

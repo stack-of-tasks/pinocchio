@@ -24,7 +24,7 @@ def buildModelsFromUrdf(
         - root_joint - Joint at the base of the model (default - None)
         - root_joint_name - Name for the root_joint (default - "root_joint")
         - verbose - print information of parsing (default - False)
-        - meshLoader - object used to load meshes (default - hpp::fcl::MeshLoader)
+        - meshLoader - object used to load meshes (default - coal::MeshLoader)
         - geometry_types - Which geometry model to load. Can be pin.GeometryType.COLLISION, pin.GeometryType.VISUAL or both. (default - [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL])
     Return:
         Tuple of the models, in this order : model, collision model, and visual model.
@@ -76,12 +76,10 @@ def _buildModelsFromUrdf(
         model = pin.buildModelFromUrdf(filename, root_joint, root_joint_name)
 
     if verbose and not WITH_COAL and meshLoader is not None:
-        print(
-            "Info: MeshLoader is ignored. Pinocchio has not been compiled with HPP-FCL."
-        )
+        print("Info: MeshLoader is ignored. Pinocchio has not been compiled with coal.")
     if verbose and not WITH_COAL_BINDINGS and meshLoader is not None:
         print(
-            "Info: MeshLoader is ignored. The HPP-FCL Python bindings have not been installed."
+            "Info: MeshLoader is ignored. The coal Python bindings have not been installed."
         )
     if package_dirs is None:
         package_dirs = []
@@ -130,7 +128,7 @@ def buildModelsFromSdf(
         - root_joint_name - Name for the root_joint (default - "root_joint")
         - parent_guidance - Joint names which should be preferred for cases where two joints can qualify as parent. The other joint appears in the constraint_model. If empty, joint appearance order in .sdf is taken as default.
         - verbose - print information of parsing (default - False)
-        - meshLoader - object used to load meshes (default - hpp::fcl::MeshLoader)
+        - meshLoader - object used to load meshes (default - coal::MeshLoader)
         - geometry_types - Which geometry model to load. Can be pin.GeometryType.COLLISION, pin.GeometryType.VISUAL, both or None. (default - None])
     Return:
         Tuple of the models, in this order : model, collision model, and visual model.
@@ -201,12 +199,10 @@ def _buildModelsFromSdf(
             filename, root_joint, root_link_name, root_joint_name, parent_guidance
         )
     if verbose and not WITH_COAL and meshLoader is not None:
-        print(
-            "Info: MeshLoader is ignored. Pinocchio has not been compiled with HPP-FCL."
-        )
+        print("Info: MeshLoader is ignored. Pinocchio has not been compiled with coal.")
     if verbose and not WITH_COAL_BINDINGS and meshLoader is not None:
         print(
-            "Info: MeshLoader is ignored. The HPP-FCL Python bindings have not been installed."
+            "Info: MeshLoader is ignored. The coal Python bindings have not been installed."
         )
     if package_dirs is None:
         package_dirs = []
@@ -238,7 +234,7 @@ def buildModelsFromMJCF(filename, *args, **kwargs):
         - root_joint - Joint at the base of the model (default - None)
         - root_joint_name - Name for the root_joint (default - "root_joint")
         - verbose - print information of parsing (default - False)
-        - meshLoader - object used to load meshes (default - hpp::fcl::MeshLoader)
+        - meshLoader - object used to load meshes (default - coal::MeshLoader)
         - geometry_types - Which geometry model to load. Can be pin.GeometryType.COLLISION, pin.GeometryType.VISUAL or both. (default - [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL])
         - contacts - Boolean to know if contraint models are wanted (default - False)
     Return:
@@ -292,13 +288,11 @@ def _buildModelsFromMJCF(
         )
 
     if verbose and not WITH_COAL and meshLoader is not None:
-        print(
-            "Info: MeshLoader is ignored. Pinocchio has not been compiled with HPP-FCL."
-        )
+        print("Info: MeshLoader is ignored. Pinocchio has not been compiled with coal.")
     if verbose and not WITH_COAL_BINDINGS and meshLoader is not None:
         print(
             "Info: MeshLoader is ignored. "
-            "The HPP-FCL Python bindings have not been installed."
+            "The coal Python bindings have not been installed."
         )
 
     lst = [model]

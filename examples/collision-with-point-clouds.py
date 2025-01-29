@@ -7,7 +7,7 @@ import sys
 import time
 from pathlib import Path
 
-import coal as fcl
+import coal
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
@@ -53,11 +53,11 @@ point_bins = y_bins * nx + x_bins
 heights = np.zeros((ny, nx))
 np.maximum.at(heights.ravel(), point_bins, Z)
 
-point_cloud = fcl.BVHModelOBBRSS()
+point_cloud = coal.BVHModelOBBRSS()
 point_cloud.beginModel(0, num_points)
 point_cloud.addVertices(points.T)
 
-height_field = fcl.HeightFieldOBBRSS(x_dim, y_dim, heights, min(Z))
+height_field = coal.HeightFieldOBBRSS(x_dim, y_dim, heights, min(Z))
 height_field_placement = point_cloud_placement * pin.SE3(
     np.eye(3), 0.5 * np.array([x_grid[0] + x_grid[-1], y_grid[0] + y_grid[-1], 0.0])
 )
