@@ -98,7 +98,7 @@ dependencies = { pre-commit = ">=3.6.2" }
 tasks = { lint = { cmd = "pre-commit run --all" } }
 
 [feature.collision]
-dependencies = { hpp-fcl = ">=2.4" }
+dependencies = { coal = ">=3.0" }
 activation = { env = { PINOCCHIO_COLLISION_SUPPORT = "ON" } }
 
 [feature.sdf]
