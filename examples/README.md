@@ -49,9 +49,9 @@ For the following examples, you should have [gepetto-gui](https://github.com/Gep
 
 ## Collision checking
 
-**Pinocchio** encapsulates  [FCL](https://github.com/humanoid-path-planner/hpp-fcl) in it. You can then do collision checking or distance computations with only few lines of code.
+**Pinocchio** encapsulates  [FCL](https://github.com/coal-library/coal) in it. You can then do collision checking or distance computations with only few lines of code.
 
-- Check collisions using [FCL](https://github.com/humanoid-path-planner/hpp-fcl): `python -i collisions.py` and in C++ `g++ collision.cpp -o collision $(pkg-config --cflags --libs pinocchio) && ./collision`
+- Check collisions using [FCL](https://github.com/coal-library/coal): `python -i collisions.py` and in C++ `g++ collision.cpp -o collision $(pkg-config --cflags --libs pinocchio) && ./collision`
 
 ## Multiprecision arithmetic
 
