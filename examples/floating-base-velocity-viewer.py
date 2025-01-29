@@ -1,6 +1,6 @@
 from time import sleep
 
-import hppfcl
+import coal
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
@@ -27,7 +27,7 @@ def create_pin_cube_model(j0="freeflyer"):
 def create_pin_geometry_cube_model(model):
     jointCube = model.getFrameId("joint0")
     geom_model = pin.GeometryModel()
-    cube_shape = hppfcl.Box(0.8, 0.4, 0.2)  # x, y, z
+    cube_shape = coal.Box(0.8, 0.4, 0.2)  # x, y, z
     cube = pin.GeometryObject(
         "cube_shape", 0, jointCube, cube_shape, pin.SE3.Identity()
     )

@@ -5,7 +5,7 @@
 import sys
 import time
 
-import hppfcl as fcl
+import coal as fcl
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer

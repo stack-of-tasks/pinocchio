@@ -4,9 +4,9 @@ import numpy as np
 import pinocchio as pin
 
 try:
-    import hppfcl
+    import coal
 except ImportError:
-    print("This example requires hppfcl")
+    print("This example requires coal")
     sys.exit(0)
 from pinocchio.visualize import MeshcatVisualizer
 
@@ -14,11 +14,11 @@ model = pin.Model()
 
 geom_model = pin.GeometryModel()
 geometries = [
-    hppfcl.Capsule(0.1, 0.8),
-    hppfcl.Sphere(0.5),
-    hppfcl.Box(1, 1, 1),
-    hppfcl.Cylinder(0.1, 1.0),
-    hppfcl.Cone(0.5, 1.0),
+    coal.Capsule(0.1, 0.8),
+    coal.Sphere(0.5),
+    coal.Box(1, 1, 1),
+    coal.Cylinder(0.1, 1.0),
+    coal.Cone(0.5, 1.0),
 ]
 for i, geom in enumerate(geometries):
     placement = pin.SE3(np.eye(3), np.array([i, 0, 0]))

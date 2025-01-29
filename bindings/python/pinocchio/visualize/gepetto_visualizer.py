@@ -8,7 +8,7 @@ from ..utils import npToTuple
 from . import BaseVisualizer
 
 try:
-    import hppfcl
+    import coal
 
     WITH_HPP_FCL_BINDINGS = True
 except:  # noqa: E722
@@ -80,24 +80,24 @@ class GepettoVisualizer(BaseVisualizer):
         meshColor = geometry_object.meshColor
 
         geom = geometry_object.geometry
-        if isinstance(geom, hppfcl.Capsule):
+        if isinstance(geom, coal.Capsule):
             return gui.addCapsule(
                 meshName, geom.radius, 2.0 * geom.halfLength, npToTuple(meshColor)
             )
-        elif isinstance(geom, hppfcl.Cylinder):
+        elif isinstance(geom, coal.Cylinder):
             return gui.addCylinder(
                 meshName, geom.radius, 2.0 * geom.halfLength, npToTuple(meshColor)
             )
-        elif isinstance(geom, hppfcl.Box):
+        elif isinstance(geom, coal.Box):
             w, h, d = npToTuple(2.0 * geom.halfSide)
             return gui.addBox(meshName, w, h, d, npToTuple(meshColor))
-        elif isinstance(geom, hppfcl.Sphere):
+        elif isinstance(geom, coal.Sphere):
             return gui.addSphere(meshName, geom.radius, npToTuple(meshColor))
-        elif isinstance(geom, hppfcl.Cone):
+        elif isinstance(geom, coal.Cone):
             return gui.addCone(
                 meshName, geom.radius, 2.0 * geom.halfLength, npToTuple(meshColor)
             )
-        elif isinstance(geom, hppfcl.Plane) or isinstance(geom, hppfcl.Halfspace):
+        elif isinstance(geom, coal.Plane) or isinstance(geom, coal.Halfspace):
             res = gui.createGroup(meshName)
             if not res:
                 return False
@@ -111,7 +111,7 @@ class GepettoVisualizer(BaseVisualizer):
             trans = alpha * normal
             plane_offset = pin.SE3(rot, trans)
             gui.applyConfiguration(planeName, pin.SE3ToXYZQUATtuple(plane_offset))
-        elif isinstance(geom, hppfcl.Convex):
+        elif isinstance(geom, coal.Convex):
             pts = [
                 npToTuple(geom.points(geom.polygons(f)[i]))
                 for f in range(geom.num_polygons)
@@ -122,7 +122,7 @@ class GepettoVisualizer(BaseVisualizer):
             gui.setLightingMode(meshName, "ON")
             gui.setBoolProperty(meshName, "BackfaceDrawing", True)
             return True
-        elif isinstance(geom, hppfcl.ConvexBase):
+        elif isinstance(geom, coal.ConvexBase):
             pts = [npToTuple(geom.points(i)) for i in range(geom.num_points)]
             gui.addCurve(meshName, pts, npToTuple(meshColor))
             gui.setCurveMode(meshName, "POINTS")
@@ -146,7 +146,7 @@ class GepettoVisualizer(BaseVisualizer):
 
         try:
             if WITH_HPP_FCL_BINDINGS and isinstance(
-                geometry_object.geometry, hppfcl.ShapeBase
+                geometry_object.geometry, coal.ShapeBase
             ):
                 success = self.loadPrimitive(meshName, geometry_object)
             else:

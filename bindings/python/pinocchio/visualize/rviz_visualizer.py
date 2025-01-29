@@ -7,7 +7,7 @@ from ..utils import npToTuple
 from . import BaseVisualizer
 
 try:
-    import hppfcl
+    import coal
 
     WITH_HPP_FCL_BINDINGS = True
 except ImportError:
@@ -227,24 +227,24 @@ class RVizVisualizer(BaseVisualizer):
 
             # Create geometry
             geom = obj.geometry
-            if WITH_HPP_FCL_BINDINGS and isinstance(geom, hppfcl.ShapeBase):
+            if WITH_HPP_FCL_BINDINGS and isinstance(geom, coal.ShapeBase):
                 # append a primitive geometry
-                if isinstance(geom, hppfcl.Cylinder):
+                if isinstance(geom, coal.Cylinder):
                     d, fl = 2 * geom.radius, 2 * geom.halfLength
                     marker.type = Marker.CYLINDER
                     marker.scale = Point(d, d, fl)
                     marker_array.markers.append(marker)
-                elif isinstance(geom, hppfcl.Box):
+                elif isinstance(geom, coal.Box):
                     size = npToTuple(2.0 * geom.halfSide)
                     marker.type = Marker.CUBE
                     marker.scale = Point(*size)
                     marker_array.markers.append(marker)
-                elif isinstance(geom, hppfcl.Sphere):
+                elif isinstance(geom, coal.Sphere):
                     d = 2 * geom.radius
                     marker.type = Marker.SPHERE
                     marker.scale = Point(d, d, d)
                     marker_array.markers.append(marker)
-                elif isinstance(geom, hppfcl.Capsule):
+                elif isinstance(geom, coal.Capsule):
                     d, fl = 2 * geom.radius, 2 * geom.halfLength
                     marker_array.markers.extend(
                         create_capsule_markers(marker, data.oMg[obj_id], d, fl)

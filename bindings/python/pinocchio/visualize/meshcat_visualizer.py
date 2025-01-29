@@ -30,7 +30,7 @@ from typing import Any
 MsgType = "dict[str, Union[str, bytes, bool, float, 'MsgType']]"
 
 try:
-    import hppfcl
+    import coal
 
     WITH_HPP_FCL_BINDINGS = True
 except ImportError:
@@ -227,11 +227,11 @@ if import_meshcat_succeed:
 
 if (
     WITH_HPP_FCL_BINDINGS
-    and tuple(map(int, hppfcl.__version__.split("."))) >= (3, 0, 0)
-    and hppfcl.WITH_OCTOMAP
+    and tuple(map(int, coal.__version__.split("."))) >= (3, 0, 0)
+    and coal.WITH_OCTOMAP
 ):
 
-    def loadOctree(octree: hppfcl.OcTree):
+    def loadOctree(octree: coal.OcTree):
         boxes = octree.toBoxes()
 
         if len(boxes) == 0:
@@ -296,13 +296,13 @@ if (
 else:
 
     def loadOctree(octree):
-        raise NotImplementedError("loadOctree need hppfcl with octomap support")
+        raise NotImplementedError("loadOctree need coal with octomap support")
 
 
 if WITH_HPP_FCL_BINDINGS:
 
     def loadMesh(mesh):
-        if isinstance(mesh, (hppfcl.HeightFieldOBBRSS, hppfcl.HeightFieldAABB)):
+        if isinstance(mesh, (coal.HeightFieldOBBRSS, coal.HeightFieldAABB)):
             heights = mesh.getHeights()
             x_grid = mesh.getXGrid()
             y_grid = mesh.getYGrid()
@@ -400,15 +400,15 @@ if WITH_HPP_FCL_BINDINGS:
             faces[face_id] = np.array([p0, p2, p3])
             face_id += 1
 
-        elif isinstance(mesh, (hppfcl.Convex, hppfcl.BVHModelBase)):
-            if isinstance(mesh, hppfcl.BVHModelBase):
+        elif isinstance(mesh, (coal.Convex, coal.BVHModelBase)):
+            if isinstance(mesh, coal.BVHModelBase):
                 num_vertices = mesh.num_vertices
                 num_tris = mesh.num_tris
 
                 call_triangles = mesh.tri_indices
                 call_vertices = mesh.vertices
 
-            elif isinstance(mesh, hppfcl.Convex):
+            elif isinstance(mesh, coal.Convex):
                 num_vertices = mesh.num_points
                 num_tris = mesh.num_polygons
 
@@ -438,7 +438,7 @@ if WITH_HPP_FCL_BINDINGS:
 else:
 
     def loadMesh(mesh):
-        raise NotImplementedError("loadMesh need hppfcl")
+        raise NotImplementedError("loadMesh need coal")
 
 
 def loadPrimitive(geometry_object):
@@ -459,21 +459,21 @@ def loadPrimitive(geometry_object):
 
     geom = geometry_object.geometry
     obj = None
-    if WITH_HPP_FCL_BINDINGS and isinstance(geom, hppfcl.ShapeBase):
-        if isinstance(geom, hppfcl.Capsule):
+    if WITH_HPP_FCL_BINDINGS and isinstance(geom, coal.ShapeBase):
+        if isinstance(geom, coal.Capsule):
             if hasattr(mg, "TriangularMeshGeometry"):
                 obj = createCapsule(2.0 * geom.halfLength, geom.radius)
             else:
                 obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
-        elif isinstance(geom, hppfcl.Cylinder):
+        elif isinstance(geom, coal.Cylinder):
             obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
-        elif isinstance(geom, hppfcl.Cone):
+        elif isinstance(geom, coal.Cone):
             obj = RotatedCylinder(2.0 * geom.halfLength, 0, geom.radius, 0)
-        elif isinstance(geom, hppfcl.Box):
+        elif isinstance(geom, coal.Box):
             obj = mg.Box(npToTuple(2.0 * geom.halfSide))
-        elif isinstance(geom, hppfcl.Sphere):
+        elif isinstance(geom, coal.Sphere):
             obj = mg.Sphere(geom.radius)
-        elif isinstance(geom, hppfcl.ConvexBase):
+        elif isinstance(geom, coal.ConvexBase):
             obj = loadMesh(geom)
 
     if obj is None:
@@ -727,21 +727,21 @@ class MeshcatVisualizer(BaseVisualizer):
 
         geom = geometry_object.geometry
         obj = None
-        if WITH_HPP_FCL_BINDINGS and isinstance(geom, hppfcl.ShapeBase):
-            if isinstance(geom, hppfcl.Capsule):
+        if WITH_HPP_FCL_BINDINGS and isinstance(geom, coal.ShapeBase):
+            if isinstance(geom, coal.Capsule):
                 if hasattr(mg, "TriangularMeshGeometry"):
                     obj = createCapsule(2.0 * geom.halfLength, geom.radius)
                 else:
                     obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
-            elif isinstance(geom, hppfcl.Cylinder):
+            elif isinstance(geom, coal.Cylinder):
                 obj = RotatedCylinder(2.0 * geom.halfLength, geom.radius)
-            elif isinstance(geom, hppfcl.Cone):
+            elif isinstance(geom, coal.Cone):
                 obj = RotatedCylinder(2.0 * geom.halfLength, 0, geom.radius, 0)
-            elif isinstance(geom, hppfcl.Box):
+            elif isinstance(geom, coal.Box):
                 obj = mg.Box(npToTuple(2.0 * geom.halfSide))
-            elif isinstance(geom, hppfcl.Sphere):
+            elif isinstance(geom, coal.Sphere):
                 obj = mg.Sphere(geom.radius)
-            elif isinstance(geom, hppfcl.Plane):
+            elif isinstance(geom, coal.Plane):
                 To = np.eye(4)
                 To[:3, 3] = geom.d * geom.n
                 TranslatedPlane = type(
@@ -752,9 +752,9 @@ class MeshcatVisualizer(BaseVisualizer):
                 sx = geometry_object.meshScale[0] * 10
                 sy = geometry_object.meshScale[1] * 10
                 obj = TranslatedPlane(sx, sy)
-            elif isinstance(geom, hppfcl.Ellipsoid):
+            elif isinstance(geom, coal.Ellipsoid):
                 obj = mg.Ellipsoid(geom.radii)
-            elif isinstance(geom, (hppfcl.Plane, hppfcl.Halfspace)):
+            elif isinstance(geom, (coal.Plane, coal.Halfspace)):
                 plane_transform: pin.SE3 = pin.SE3.Identity()
                 # plane_transform.translation[:] = geom.d # Does not work
                 plane_transform.rotation = pin.Quaternion.FromTwoVectors(
@@ -766,7 +766,7 @@ class MeshcatVisualizer(BaseVisualizer):
                     {"intrinsic_transform": lambda self: plane_transform.homogeneous},
                 )
                 obj = TransformedPlane(1000, 1000)
-            elif isinstance(geom, hppfcl.ConvexBase):
+            elif isinstance(geom, coal.ConvexBase):
                 obj = loadMesh(geom)
 
         if obj is None:
@@ -809,12 +809,12 @@ class MeshcatVisualizer(BaseVisualizer):
         try:
             obj = None
             if WITH_HPP_FCL_BINDINGS:
-                if isinstance(geometry_object.geometry, hppfcl.ShapeBase):
+                if isinstance(geometry_object.geometry, coal.ShapeBase):
                     obj = self.loadPrimitive(geometry_object)
                 elif (
-                    tuple(map(int, hppfcl.__version__.split("."))) >= (3, 0, 0)
-                    and hppfcl.WITH_OCTOMAP
-                    and isinstance(geometry_object.geometry, hppfcl.OcTree)
+                    tuple(map(int, coal.__version__.split("."))) >= (3, 0, 0)
+                    and coal.WITH_OCTOMAP
+                    and isinstance(geometry_object.geometry, coal.OcTree)
                 ):
                     obj = loadOctree(geometry_object.geometry)
                 elif hasMeshFileInfo(geometry_object):
@@ -822,9 +822,9 @@ class MeshcatVisualizer(BaseVisualizer):
                 elif isinstance(
                     geometry_object.geometry,
                     (
-                        hppfcl.BVHModelBase,
-                        hppfcl.HeightFieldOBBRSS,
-                        hppfcl.HeightFieldAABB,
+                        coal.BVHModelBase,
+                        coal.HeightFieldOBBRSS,
+                        coal.HeightFieldAABB,
                     ),
                 ):
                     obj = loadMesh(geometry_object.geometry)
@@ -1000,7 +1000,7 @@ class MeshcatVisualizer(BaseVisualizer):
             # MeshCat (but there is a bug here)
             geom = visual.geometry
             if WITH_HPP_FCL_BINDINGS and isinstance(
-                geom, (hppfcl.Plane, hppfcl.Halfspace)
+                geom, (coal.Plane, coal.Halfspace)
             ):
                 T = M.copy()
                 T.translation += M.rotation @ (geom.d * geom.n)

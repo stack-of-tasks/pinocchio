@@ -7,7 +7,7 @@ from ..utils import npToTuple
 from .base_visualizer import BaseVisualizer
 
 try:
-    import hppfcl
+    import coal
 
     WITH_HPP_FCL_BINDINGS = True
 except ImportError:
@@ -45,18 +45,18 @@ class Panda3dVisualizer(BaseVisualizer):
 
         def append(root, obj):
             geom = obj.geometry
-            if WITH_HPP_FCL_BINDINGS and isinstance(geom, hppfcl.ShapeBase):
+            if WITH_HPP_FCL_BINDINGS and isinstance(geom, coal.ShapeBase):
                 # append a primitive geometry
-                if isinstance(geom, hppfcl.Capsule):
+                if isinstance(geom, coal.Capsule):
                     r, fl = geom.radius, 2 * geom.halfLength
                     self.viewer.append_capsule(root, obj.name, r, fl)
-                elif isinstance(geom, hppfcl.Cylinder):
+                elif isinstance(geom, coal.Cylinder):
                     r, fl = geom.radius, 2 * geom.halfLength
                     self.viewer.append_cylinder(root, obj.name, r, fl)
-                elif isinstance(geom, hppfcl.Box):
+                elif isinstance(geom, coal.Box):
                     size = npToTuple(2.0 * geom.halfSide)
                     self.viewer.append_box(root, obj.name, size)
-                elif isinstance(geom, hppfcl.Sphere):
+                elif isinstance(geom, coal.Sphere):
                     self.viewer.append_sphere(root, obj.name, geom.radius)
                 else:
                     msg = f"Unsupported geometry type for {obj.name} ({type(geom)})"

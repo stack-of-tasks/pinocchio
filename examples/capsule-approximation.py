@@ -7,7 +7,7 @@ Section 3.8.1 Computing minimum bounding capsules
 
 from pathlib import Path
 
-import hppfcl
+import coal
 import numpy as np
 import scipy.optimize as optimize
 
@@ -75,7 +75,7 @@ def capsule_approximation(vertices):
 
 
 def approximate_mesh(filename, lMg):
-    mesh_loader = hppfcl.MeshLoader()
+    mesh_loader = coal.MeshLoader()
     mesh = mesh_loader.load(filename, np.ones(3))
     vertices = np.array([lMg * mesh.vertices(i) for i in range(mesh.num_vertices)])
     assert vertices.shape == (mesh.num_vertices, 3)
@@ -158,7 +158,7 @@ def parse_urdf(infile, outfile):
 if __name__ == "__main__":
     # Example for a single capsule
     # filename = "mesh.obj"
-    # mesh_loader = hppfcl.MeshLoader()
+    # mesh_loader = coal.MeshLoader()
     # mesh = mesh_loader.load(filename, np.ones(3))
     # vertices = mesh.vertices()
     # a, b, r = capsule_approximation(vertices)

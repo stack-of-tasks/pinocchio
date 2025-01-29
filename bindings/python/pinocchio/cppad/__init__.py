@@ -15,8 +15,8 @@ sys.modules["pinocchio.cppad.cholesky"] = cholesky
 
 if WITH_HPP_FCL:
     try:
-        import hppfcl
-        from hppfcl import (
+        import coal
+        from coal import (
             CachedMeshLoader,
             CollisionGeometry,
             CollisionResult,

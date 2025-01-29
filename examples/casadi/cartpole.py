@@ -1,7 +1,7 @@
 import sys
 
 import casadi
-import hppfcl as fcl
+import coal as fcl
 import numpy as np
 import pinocchio as pin
 import pinocchio.casadi as cpin
