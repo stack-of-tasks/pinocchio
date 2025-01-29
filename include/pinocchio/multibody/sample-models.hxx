@@ -119,7 +119,7 @@ namespace pinocchio
         model.effortLimit.template segment<6>(idx_v).fill(taumax);
       }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
       /* Add a 6DOF manipulator shoulder-elbow-wrist geometries to an existing model.
        * <model> is the the kinematic chain, constant.
        * <geom> is the geometry model where the new geoms are added.
@@ -204,7 +204,7 @@ namespace pinocchio
       details::addManipulator(model);
     }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     void manipulatorGeometries(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model, GeometryModel & geom)
@@ -368,7 +368,7 @@ namespace pinocchio
         "larm_");
     }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     void humanoidGeometries(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model, GeometryModel & geom)

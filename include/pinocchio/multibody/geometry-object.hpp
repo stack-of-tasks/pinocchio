@@ -303,7 +303,7 @@ namespace pinocchio
     {
       GeometryObject res(*this);
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
       if (geometry)
         res.geometry = CollisionGeometryPtr(geometry->clone());
 #endif
@@ -332,7 +332,7 @@ namespace pinocchio
     friend std::ostream & operator<<(std::ostream & os, const GeometryObject & geomObject);
   };
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
 
   struct CollisionObject : ::coal::CollisionObject
   {

@@ -1246,7 +1246,7 @@ BOOST_AUTO_TEST_CASE(compare_to_urdf)
 }
 #endif // PINOCCHIO_WITH_URDFDOM
 
-#if defined(PINOCCHIO_WITH_HPP_FCL)
+#if defined(PINOCCHIO_WITH_COAL)
 BOOST_AUTO_TEST_CASE(test_geometry_parsing)
 {
   typedef pinocchio::Model Model;
@@ -1308,7 +1308,7 @@ BOOST_AUTO_TEST_CASE(test_geometry_parsing)
   BOOST_REQUIRE(e);
   BOOST_CHECK(e->radii == sides);
 }
-#endif // if defined(PINOCCHIO_WITH_HPP_FCL)
+#endif // if defined(PINOCCHIO_WITH_COAL)
 
 BOOST_AUTO_TEST_CASE(test_contact_parsing)
 {

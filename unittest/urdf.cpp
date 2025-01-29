@@ -9,9 +9,9 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   #include <coal/collision_object.h>
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
 #include <boost/test/unit_test.hpp>
 
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(build_model_simple_humanoid)
   pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, dir);
   BOOST_CHECK_EQUAL(geomModel.ngeoms, 2);
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   // Check that cylinder is converted into capsule.
   #ifdef PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
   BOOST_CHECK_EQUAL(geomModel.geometryObjects[0].geometry->getNodeType(), coal::GEOM_CYLINDER);
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(build_model_simple_humanoid)
   #else // PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
   BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].geometry->getObjectType(), coal::OT_BVH);
   #endif
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
   pinocchio::Model model_ff;
   pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model_ff);
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(check_specific_models)
   pinocchio::urdf::buildModel(filename, model);
 }
 
-#if defined(PINOCCHIO_WITH_HPP_FCL)
+#if defined(PINOCCHIO_WITH_COAL)
 BOOST_AUTO_TEST_CASE(test_geometry_parsing)
 {
   typedef pinocchio::Model Model;
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE(test_geometry_parsing)
     pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, packageDirs);
   BOOST_CHECK(geomModelOther == geomModel);
 }
-#endif // if defined(PINOCCHIO_WITH_HPP_FCL)
+#endif // if defined(PINOCCHIO_WITH_COAL)
 
 BOOST_AUTO_TEST_CASE(test_getFrameId_identical_link_and_joint_name)
 {

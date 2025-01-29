@@ -20,7 +20,7 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     void manipulator(ModelTpl<Scalar, Options, JointCollectionTpl> & model);
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     /** \brief Create the geometries on top of the kinematic model created by manipulator function.
      *
      * \param model, const, kinematic chain typically produced by the function manipulator(model).
@@ -47,7 +47,7 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     void humanoid(ModelTpl<Scalar, Options, JointCollectionTpl> & model, bool usingFF = true);
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     /** \brief Create the geometries on top of the kinematic model created by humanoid function.
      *
      * \param model, const, kinematic chain typically produced by the function humanoid(model).

@@ -13,12 +13,12 @@
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
 
   #include <coal/mesh_loader/loader.h>
   #include <coal/mesh_loader/assimp.h>
 
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
 namespace pinocchio
 {
@@ -122,7 +122,7 @@ namespace pinocchio
         scale_ << mesh->scale.x, mesh->scale.y, mesh->scale.z;
       }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
       /**
        * @brief      Get a fcl::CollisionObject from a URDF geometry, searching
        *             for it in specified package directories
@@ -242,7 +242,7 @@ namespace pinocchio
 
         return geometry;
       }
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
       /**
        * @brief Get the first geometry attached to a link
@@ -368,10 +368,10 @@ namespace pinocchio
         GeometryModel & geomModel,
         const std::vector<std::string> & package_dirs)
       {
-#ifndef PINOCCHIO_WITH_HPP_FCL
+#ifndef PINOCCHIO_WITH_COAL
         PINOCCHIO_UNUSED_VARIABLE(tree);
         PINOCCHIO_UNUSED_VARIABLE(meshLoader);
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
         typedef std::vector<PINOCCHIO_URDF_SHARED_PTR(GeometryType)> VectorSharedT;
         typedef GeometryModel::SE3 SE3;
@@ -395,7 +395,7 @@ namespace pinocchio
                i != geometries_array.end(); ++i)
           {
             meshPath.clear();
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
 
   #ifdef PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
             const std::string & geom_name = (*i)->group_name;
@@ -415,7 +415,7 @@ namespace pinocchio
             }
 
             const std::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
             Eigen::Vector4d meshColor;
             std::string meshTexturePath;
@@ -508,10 +508,10 @@ namespace pinocchio
         std::vector<std::string> ros_pkg_paths = rosPaths();
         hint_directories.insert(hint_directories.end(), ros_pkg_paths.begin(), ros_pkg_paths.end());
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
         if (!meshLoader)
           meshLoader = fcl::MeshLoaderPtr(new fcl::MeshLoader);
-#endif // ifdef PINOCCHIO_WITH_HPP_FCL
+#endif // ifdef PINOCCHIO_WITH_COAL
 
         recursiveParseTreeForGeom(
           tree, meshLoader, tree.urdf_->getRoot(), visitor, geomModel, hint_directories, type);

@@ -56,17 +56,17 @@ namespace pinocchio
     void exposeAlgorithms();
     void exposeExtras();
 
-#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS
+#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_COAL_PYTHON_BINDINGS
     void exposeFCL();
     void exposeCollision();
-#endif // PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS
+#endif // PINOCCHIO_PYTHON_INTERFACE_WITH_COAL_PYTHON_BINDINGS
 
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
     void exposePool();
     void exposeParallelAlgorithms();
 #endif
 
-#if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS)                               \
+#if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_COAL_PYTHON_BINDINGS)                               \
   && defined(PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP)
     void exposeParallelCollision();
     void exposePoolCollision();

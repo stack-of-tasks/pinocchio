@@ -5,9 +5,9 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   #include "pinocchio/collision/collision.hpp"
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/multibody/geometry.hpp"
@@ -41,9 +41,9 @@ int main()
   pinocchio::urdf::buildModel(romeo_filename, pinocchio::JointModelFreeFlyer(), model);
   pinocchio::GeometryModel geom_model;
   pinocchio::urdf::buildGeom(model, romeo_filename, COLLISION, geom_model, package_dirs);
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   geom_model.addAllCollisionPairs();
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
   Data data(model);
   GeometryData geom_data(geom_model);
@@ -75,7 +75,7 @@ int main()
   std::cout << "Update Collision Geometry < false > = \t" << update_col_time << " "
             << PinocchioTicToc::unitName(PinocchioTicToc::US) << std::endl;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   timer.tic();
   SMOOTH(NBT)
   {
@@ -112,7 +112,7 @@ int main()
             << PinocchioTicToc::unitName(PinocchioTicToc::US) << " "
             << geom_model.collisionPairs.size() << " col pairs" << std::endl;
 
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
   return 0;
 }

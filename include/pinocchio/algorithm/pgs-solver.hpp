@@ -52,9 +52,9 @@ namespace pinocchio
   protected:
     /// \brief Previous temporary value of the optimum.
     VectorXs x, x_previous;
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     using Base::timer;
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
   }; // struct PGSContactSolverTpl
 } // namespace pinocchio

@@ -57,7 +57,7 @@ namespace pinocchio
     internal::buildConvexHull(res);
   }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   template<
     typename Scalar,
     int Options,
@@ -107,7 +107,7 @@ namespace pinocchio
       model, geom_model, q0, time_horizon, frame_id, res.vertex, params);
     internal::buildConvexHull(res);
   }
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
   namespace internal
   {

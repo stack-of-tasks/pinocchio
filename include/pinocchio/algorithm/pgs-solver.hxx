@@ -41,9 +41,9 @@ namespace pinocchio
     int it = 0;
     PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     timer.start();
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
     Scalar complementarity, proximal_metric, dual_feasibility;
     bool abs_prec_reached = false, rel_prec_reached = false;
@@ -124,9 +124,9 @@ namespace pinocchio
       x_previous_norm_inf = x_norm_inf;
     }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     timer.stop();
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
     PINOCCHIO_EIGEN_MALLOC_ALLOWED();
 

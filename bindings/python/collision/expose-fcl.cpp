@@ -6,11 +6,11 @@
 #include "pinocchio/bindings/python/collision/fcl/transform.hpp"
 #include "pinocchio/bindings/python/serialization/serialization.hpp"
 
-#define HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
+#define COAL_SKIP_EIGEN_BOOST_SERIALIZATION
 #include <coal/serialization/BVH_model.h>
 #include <coal/serialization/hfield.h>
 #include <coal/serialization/geometric_shapes.h>
-#undef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
+#undef COAL_SKIP_EIGEN_BOOST_SERIALIZATION
 
 namespace pinocchio
 {

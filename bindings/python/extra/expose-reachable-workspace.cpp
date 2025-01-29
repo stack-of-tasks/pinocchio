@@ -50,7 +50,7 @@ namespace pinocchio
       return vertex;
     }
 
-  #ifdef PINOCCHIO_WITH_HPP_FCL
+  #ifdef PINOCCHIO_WITH_COAL
     bp::tuple reachableWorkspaceWithCollisionsHull_(
       const context::Model & model,
       const GeometryModel & geom_model,
@@ -89,7 +89,7 @@ namespace pinocchio
         model, geom_model, q0, time_horizon, frame_id, vertex, param);
       return vertex;
     }
-  #endif // PINOCCHIO_WITH_HPP_FCL
+  #endif // PINOCCHIO_WITH_COAL
 #endif   // PINOCCHIO_PYTHON_SKIP_REACHABLE_WORKSPACE
 
     void exposeReachableWorkspace()
@@ -125,7 +125,7 @@ namespace pinocchio
         "\tframe_id: frame for which the polytope should be computed\n\n"
         "Returns:\n \t(vertex, faces)");
 
-  #ifdef PINOCCHIO_WITH_HPP_FCL
+  #ifdef PINOCCHIO_WITH_COAL
       bp::def(
         "reachableWorkspaceWithCollisions", &reachableWorkspaceWithCollisions_,
         bp::args(
@@ -153,7 +153,7 @@ namespace pinocchio
         "\ttime_horizon: time horizon for which the polytope will be computed\n"
         "\tframe_id: frame for which the polytope should be computed\n\n"
         "Returns:\n \t(vertex, faces)");
-  #endif // PINOCCHIO_WITH_HPP_FCL
+  #endif // PINOCCHIO_WITH_COAL
 #endif   // PINOCCHIO_PYTHON_SKIP_REACHABLE_WORKSPACE
     }
 

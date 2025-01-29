@@ -13,7 +13,7 @@
 
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
   #include "pinocchio/multibody/pool/fwd.hpp"
-  #ifdef PINOCCHIO_WITH_HPP_FCL
+  #ifdef PINOCCHIO_WITH_COAL
     #include "pinocchio/collision/pool/fwd.hpp"
   #endif
 #endif
@@ -164,7 +164,7 @@ namespace pinocchio
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
       typedef ModelPoolTpl<Scalar> ModelPool;
 
-  #ifdef PINOCCHIO_WITH_HPP_FCL
+  #ifdef PINOCCHIO_WITH_COAL
       typedef GeometryPoolTpl<Scalar> GeometryPool;
   #endif
 

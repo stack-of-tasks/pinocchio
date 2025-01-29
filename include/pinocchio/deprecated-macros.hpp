@@ -5,9 +5,9 @@
 #ifndef __pinocchio_deprecated_macros_hpp__
 #define __pinocchio_deprecated_macros_hpp__
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   #ifdef PINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_1 // for backward compatibility
-    #define WITH_HPP_FCL
+    #define WITH_COAL
   #endif
 #endif
 

@@ -7,9 +7,9 @@
 
 #include <memory>
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   #include <coal/config.hh>
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
 #ifdef COAL_VERSION
 namespace coal

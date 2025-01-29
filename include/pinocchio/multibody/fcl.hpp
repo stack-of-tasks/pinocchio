@@ -10,7 +10,7 @@
 #include "pinocchio/multibody/model-item.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
 
   #if (WIN32)
     // It appears that std::snprintf is missing for Windows.
@@ -55,7 +55,7 @@ namespace std
 namespace pinocchio
 {
 
-#ifndef PINOCCHIO_WITH_HPP_FCL
+#ifndef PINOCCHIO_WITH_COAL
 
   namespace fcl
   {
@@ -94,7 +94,7 @@ namespace pinocchio
            && lhs.getAABB().min_ == rhs.getAABB().min_ && lhs.getAABB().max_ == rhs.getAABB().max_;
   }
 
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
 } // namespace pinocchio
 

@@ -417,7 +417,7 @@ namespace pinocchio
       }
     }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     // Add collision pairs of geomModelA and geomModelB
     geomModel.collisionPairs.reserve(
       geomModelA.collisionPairs.size() + geomModelB.collisionPairs.size()
@@ -772,7 +772,7 @@ namespace pinocchio
         reduced_geom_model.addGeometryObject(reduced_geom);
       }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
       // Add all the collision pairs - the index of the geometry objects should have not changed
 
       typedef GeometryModel::CollisionPairVector CollisionPairVector;

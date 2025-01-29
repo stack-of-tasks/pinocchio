@@ -60,9 +60,9 @@ namespace pinocchio
             "Returns the value of the relative residual value corresponding to the difference "
             "between two successive iterates (infinity norms).")
 
-  #ifdef PINOCCHIO_WITH_HPP_FCL
+  #ifdef PINOCCHIO_WITH_COAL
           .def("getCPUTimes", &Solver::getCPUTimes, bp::arg("self"))
-  #endif // PINOCCHIO_WITH_HPP_FCL
+  #endif // PINOCCHIO_WITH_COAL
           ;
 #endif
       }

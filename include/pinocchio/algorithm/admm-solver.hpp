@@ -365,9 +365,9 @@ namespace pinocchio
     /// \brief Stats of the solver
     SolverStats stats;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     using Base::timer;
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
   }; // struct ADMMContactSolverTpl
 } // namespace pinocchio
 

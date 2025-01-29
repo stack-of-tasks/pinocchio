@@ -127,10 +127,10 @@ namespace pinocchio
           .def(bp::self == bp::self)
           .def(bp::self != bp::self)
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
           .def("CreateCapsule", &GeometryObjectPythonVisitor::maker_capsule)
           .staticmethod("CreateCapsule")
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
           ;
 
         // Check registration
@@ -143,14 +143,14 @@ namespace pinocchio
         }
       }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
       static GeometryObject maker_capsule(const double radius, const double length)
       {
         return GeometryObject(
           "", JointIndex(0), FrameIndex(0), SE3::Identity(),
           std::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule(radius, length)));
       }
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
       static void expose()
       {
@@ -171,7 +171,7 @@ namespace pinocchio
             ;
         }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
         if (!register_symbolic_link_to_registered_type<CollisionObject>())
         {
           bp::class_<CollisionObject, bp::bases<::coal::CollisionObject>>(

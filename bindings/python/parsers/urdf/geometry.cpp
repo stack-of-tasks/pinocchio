@@ -32,7 +32,7 @@ namespace pinocchio
       MeshLoaderPtr mesh_loader = MeshLoaderPtr();
       if (!py_mesh_loader.is_none())
       {
-  #ifdef PINOCCHIO_WITH_HPP_FCL
+  #ifdef PINOCCHIO_WITH_COAL
         PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
         PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
         mesh_loader = bp::extract<::coal::MeshLoaderPtr>(py_mesh_loader);
@@ -141,12 +141,12 @@ namespace pinocchio
       return buildGeomFromUrdfStream(model, stream, type, geom_model, package_dirs, mesh_loader);
     }
 
-  #ifdef PINOCCHIO_WITH_HPP_FCL
+  #ifdef PINOCCHIO_WITH_COAL
     #define MESH_LOADER_DOC                                                                        \
       "\tmesh_loader: an coal mesh loader (to load only once the related geometries).\n"
-  #else // #ifdef PINOCCHIO_WITH_HPP_FCL
+  #else // #ifdef PINOCCHIO_WITH_COAL
     #define MESH_LOADER_DOC "\tmesh_loader: unused because the Pinocchio is built without coal\n"
-  #endif // #ifdef PINOCCHIO_WITH_HPP_FCL
+  #endif // #ifdef PINOCCHIO_WITH_COAL
     template<std::size_t owner_arg = 1>
     struct return_value_policy : bp::return_internal_reference<owner_arg>
     {

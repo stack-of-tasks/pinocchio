@@ -9,18 +9,18 @@
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
-  #define HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
+#ifdef PINOCCHIO_WITH_COAL
+  #define COAL_SKIP_EIGEN_BOOST_SERIALIZATION
   #include <coal/serialization/collision_data.h>
-  #undef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
+  #undef COAL_SKIP_EIGEN_BOOST_SERIALIZATION
   #include <coal/serialization/geometric_shapes.h>
   #include <coal/serialization/hfield.h>
-  #if HPP_FCL_VERSION_AT_LEAST(3, 0, 0)
+  #if COAL_VERSION_AT_LEAST(3, 0, 0)
     #include <coal/serialization/octree.h>
   #endif
   #include <coal/serialization/convex.h>
   #include <coal/serialization/BVH_model.h>
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/serialization/aligned-vector.hpp"
@@ -101,8 +101,8 @@ namespace boost
 
       ar & make_nvp("activeCollisionPairs", geom_data.activeCollisionPairs);
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
-      // TODO(jcarpent): check whether the archive has been registered with HPP_FCL module ON or
+#ifdef PINOCCHIO_WITH_COAL
+      // TODO(jcarpent): check whether the archive has been registered with COAL module ON or
       // OFF.
       ar & make_nvp("distanceRequests", geom_data.distanceRequests);
       ar & make_nvp("distanceResults", geom_data.distanceResults);
@@ -112,7 +112,7 @@ namespace boost
       ar & make_nvp("radius", geom_data.radius);
 
       ar & make_nvp("collisionPairIndex", geom_data.collisionPairIndex);
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
       ar & make_nvp("innerObjects", geom_data.innerObjects);
       ar & make_nvp("outerObjects", geom_data.outerObjects);

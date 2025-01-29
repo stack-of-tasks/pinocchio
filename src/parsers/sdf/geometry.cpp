@@ -9,10 +9,10 @@
 #include <iomanip>
 #include <boost/shared_ptr.hpp>
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   #include <coal/mesh_loader/loader.h>
   #include <coal/mesh_loader/assimp.h>
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
 namespace pinocchio
 {
@@ -95,7 +95,7 @@ namespace pinocchio
         return Eigen::Vector3d(ign_scale.X(), ign_scale.Y(), ign_scale.Z());
       }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
       /**
        * @brief      Get a fcl::CollisionObject from an urdf geometry, searching
        *             for it in specified package directories
@@ -217,7 +217,7 @@ namespace pinocchio
           {
             meshPath.clear();
             const ::sdf::ElementPtr sdf_geometry = (*i)->GetElement("geometry");
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
             const GeometryObject::CollisionGeometryPtr geometry = retrieveCollisionGeometry(
               meshLoader, sdf_geometry, package_dirs, meshPath, meshScale);
 #else
@@ -232,7 +232,7 @@ namespace pinocchio
             }
 
             const auto geometry = std::make_shared<fcl::CollisionGeometry>();
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
             const ignition::math::Pose3d & pose =
               (*i)->template Get<ignition::math::Pose3d>("pose");
@@ -302,10 +302,10 @@ namespace pinocchio
         std::vector<std::string> ros_pkg_paths = rosPaths();
         hint_directories.insert(hint_directories.end(), ros_pkg_paths.begin(), ros_pkg_paths.end());
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
         if (!meshLoader)
           meshLoader = fcl::MeshLoaderPtr(new fcl::MeshLoader);
-#endif // ifdef PINOCCHIO_WITH_HPP_FCL
+#endif // ifdef PINOCCHIO_WITH_COAL
 
         const ::sdf::ElementPtr rootElement = graph.mapOfLinks.find(rootLinkName)->second;
 

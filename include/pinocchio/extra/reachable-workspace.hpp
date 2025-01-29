@@ -11,9 +11,9 @@
 #include "pinocchio/algorithm/geometry.hpp"
 #include "pinocchio/extra/config.hpp"
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   #include "pinocchio/collision/collision.hpp"
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
 #include <Eigen/Core>
 
@@ -94,7 +94,7 @@ namespace pinocchio
     ReachableSetResults & res,
     const ReachableSetParams & params = ReachableSetParams());
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   /// \brief Computes the reachable workspace with respect to a geometry model on a fixed time
   /// horizon. For more information, please see
   /// https://gitlab.inria.fr/auctus-team/people/antunskuric/pycapacity
@@ -152,7 +152,7 @@ namespace pinocchio
     const int frame_id,
     ReachableSetResults & res,
     const ReachableSetParams & params = ReachableSetParams());
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
   namespace internal
   {

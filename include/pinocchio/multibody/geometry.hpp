@@ -247,7 +247,7 @@ namespace pinocchio
     typedef Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic, Options> MatrixXb;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Options> MatrixXs;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     typedef ::pinocchio::ComputeCollision ComputeCollision;
     typedef ::pinocchio::ComputeDistance ComputeDistance;
 #endif
@@ -266,7 +266,7 @@ namespace pinocchio
     ///
     std::vector<bool> activeCollisionPairs;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
 
     ///
     /// \brief Defines what information should be computed by distance computation.
@@ -308,7 +308,7 @@ namespace pinocchio
     ///  \brief Functor associated to the computation of distances.
     PINOCCHIO_ALIGNED_STD_VECTOR(ComputeDistance) distance_functors;
 
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
     /// \brief Map over vector GeomModel::geometryObjects, indexed by joints.
     ///
@@ -425,7 +425,7 @@ namespace pinocchio
     ///
     void deactivateAllCollisionPairs();
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     ///
     /// \brief Set the security margin of all the collision request in a row, according to the
     /// values stored in the associative map.
@@ -442,7 +442,7 @@ namespace pinocchio
       const bool upper = true,
       const bool sync_distance_upper_bound = false);
 
-#endif // ifdef PINOCCHIO_WITH_HPP_FCL
+#endif // ifdef PINOCCHIO_WITH_COAL
 
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
 
@@ -452,7 +452,7 @@ namespace pinocchio
     bool operator==(const GeometryData & other) const
     {
       return oMg == other.oMg && activeCollisionPairs == other.activeCollisionPairs
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
              && distanceRequests == other.distanceRequests
              && distanceResults == other.distanceResults
              && collisionRequests == other.collisionRequests

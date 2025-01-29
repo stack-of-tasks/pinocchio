@@ -8,9 +8,9 @@
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   #include <coal/timings.h>
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
 namespace pinocchio
 {
@@ -20,10 +20,10 @@ namespace pinocchio
   {
     typedef _Scalar Scalar;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     typedef coal::CPUTimes CPUTimes;
     typedef coal::Timer Timer;
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
     explicit ContactSolverBaseTpl(const int problem_size)
     : problem_size(problem_size)
@@ -33,9 +33,9 @@ namespace pinocchio
     , relative_precision(Scalar(1e-6))
     , absolute_residual(Scalar(-1))
     , relative_residual(Scalar(-1))
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     , timer(false)
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
     {
     }
 
@@ -102,12 +102,12 @@ namespace pinocchio
       return relative_residual;
     }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     CPUTimes getCPUTimes() const
     {
       return timer.elapsed();
     }
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
   protected:
     /// \brief Size of the problem
@@ -125,9 +125,9 @@ namespace pinocchio
     /// \brief Relative convergence residual value
     Scalar relative_residual;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
     Timer timer;
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
   }; // struct ContactSolverBaseTpl
 

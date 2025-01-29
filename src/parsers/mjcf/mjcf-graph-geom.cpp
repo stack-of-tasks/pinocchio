@@ -3,12 +3,12 @@
 //
 
 #include "pinocchio/parsers/mjcf/mjcf-graph.hpp"
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
 
   #include <coal/mesh_loader/loader.h>
   #include <coal/mesh_loader/assimp.h>
 
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
 namespace pinocchio
 {
@@ -64,7 +64,7 @@ namespace pinocchio
        * @param[in]  geom  A mjcf geometry object
        * @return     A shared pointer on the geometry converted as a fcl::CollisionGeometry
        */
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
       static std::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(
         ::coal::MeshLoaderPtr & meshLoader,
         const MjcfGeom & geom,
@@ -527,10 +527,10 @@ namespace pinocchio
         GeometryModel & geomModel,
         ::coal::MeshLoaderPtr & meshLoader)
       {
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
         if (!meshLoader)
           meshLoader = std::make_shared<fcl::MeshLoader>(fcl::MeshLoader());
-#endif // ifdef PINOCCHIO_WITH_HPP_FCL
+#endif // ifdef PINOCCHIO_WITH_COAL
 
         for (const auto & entry : bodiesList)
         {

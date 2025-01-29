@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(test_talos)
       else
       {
         // Only run this part in coal, this issue doesn't happen in coal
-#if HPP_FCL_VERSION_AT_LEAST(3, 0, 0)
+#if COAL_VERSION_AT_LEAST(3, 0, 0)
         // Compare standard values
         BOOST_CHECK_EQUAL(contact.o1, contact_ref.o1);
         BOOST_CHECK_EQUAL(contact.o2, contact_ref.o2);

@@ -16,10 +16,10 @@
 // is already defined.
 // If we don't link against coal or coal >= 3.0.0 then we must define
 // the workaround.
-#if defined PINOCCHIO_WITH_HPP_FCL
+#if defined PINOCCHIO_WITH_COAL
   #include <coal/config.hh>
-  #if !HPP_FCL_VERSION_AT_LEAST(3, 0, 0) // coal < 3.0.0
-    #define HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
+  #if !COAL_VERSION_AT_LEAST(3, 0, 0) // coal < 3.0.0
+    #define COAL_SKIP_EIGEN_BOOST_SERIALIZATION
     #include <coal/serialization/eigen.h>
   #else // coal >= 3.0.0
     // Workaround a bug in GCC >= 7 and C++17.
@@ -50,7 +50,7 @@ namespace Eigen
       #endif
     #endif
   #endif
-#else // !PINOCCHIO_WITH_HPP_FCL
+#else // !PINOCCHIO_WITH_COAL
   // Workaround a bug in GCC >= 7 and C++17.
   // ref. https://gitlab.com/libeigen/eigen/-/issues/1676
   #ifdef __GNUC__

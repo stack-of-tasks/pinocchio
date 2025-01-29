@@ -12,7 +12,7 @@ namespace boost
   namespace serialization
   {
 
-#ifndef PINOCCHIO_WITH_HPP_FCL
+#ifndef PINOCCHIO_WITH_COAL
 
     template<class Archive>
     void serialize(
@@ -22,7 +22,7 @@ namespace boost
     {
     }
 
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_COAL
 
   } // namespace serialization
 } // namespace boost

@@ -7,7 +7,7 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   #include "pinocchio/collision/tree-broadphase-manager.hpp"
   #include "pinocchio/collision/parallel/geometry.hpp"
   #include "pinocchio/collision/pool/fwd.hpp"
@@ -62,7 +62,7 @@ int main(int /*argc*/, const char ** /*argv*/)
   std::cout << "nv = " << model.nv << std::endl;
   std::cout << "name = " << model.name << std::endl;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   const std::string package_path = PINOCCHIO_MODEL_DIR;
   coal::MeshLoaderPtr mesh_loader = std::make_shared<coal::CachedMeshLoader>();
   const std::string srdf_filename =
@@ -169,7 +169,7 @@ int main(int /*argc*/, const char ** /*argv*/)
     std::cout << ss.str();
   }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   std::cout << "--" << std::endl;
   const int NBT_COLLISION = math::max(NBT, 1);
   timer.tic();

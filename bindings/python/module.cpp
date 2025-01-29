@@ -119,11 +119,11 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   exposeExtras();
   exposeSerialization();
 
-#if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS)                               \
+#if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_COAL_PYTHON_BINDINGS)                               \
   && defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
   exposeFCL();
   exposeCollision();
-#endif // defined(PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS) &&
+#endif // defined(PINOCCHIO_PYTHON_INTERFACE_WITH_COAL_PYTHON_BINDINGS) &&
        // defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
 
 #if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP)                                                \
@@ -132,7 +132,7 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   exposeParallelAlgorithms();
 #endif
 
-#if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS)                               \
+#if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_COAL_PYTHON_BINDINGS)                               \
   && defined(PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP)                                               \
   && defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
   exposePoolCollision();
