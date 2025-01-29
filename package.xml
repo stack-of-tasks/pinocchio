@@ -26,7 +26,7 @@
   <depend>eigen</depend>
   <depend>boost</depend>
   <depend>eigenpy</depend>
-  <depend>hpp-fcl</depend>
+  <depend>coal</depend>
 
   <!-- Compiling Pinocchio with clang reduces build time, required memory, and results in faster runtime. Note: This only specifies the build dependency, it does not auto-select the compiler - this needs to be specified manually -->
   <buildtool_depend>clang</buildtool_depend>
