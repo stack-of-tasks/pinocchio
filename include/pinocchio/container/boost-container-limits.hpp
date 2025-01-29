@@ -7,8 +7,6 @@
 
 #include "pinocchio/macros.hpp"
 
-// #ifndef PINOCCHIO_WITH_CXX11_SUPPORT
-
 #define PINOCCHIO_BOOST_MPL_LIMIT_CONTAINER_SIZE_DEFAULT 30
 
 #ifndef PINOCCHIO_BOOST_MPL_LIMIT_CONTAINER_SIZE
@@ -36,7 +34,5 @@
   #endif
 
 #endif
-
-// #endif // ifndef PINOCCHIO_WITH_CXX11_SUPPORT
 
 #endif // ifndef __pinocchio_container_boost_container_limits_hpp__

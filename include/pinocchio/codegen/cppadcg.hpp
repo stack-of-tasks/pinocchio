@@ -15,10 +15,6 @@
 
 #include "pinocchio/autodiff/cppad.hpp"
 
-#ifndef PINOCCHIO_WITH_CXX11_SUPPORT
-  #error CppADCodeGen requires C++11 or more
-#endif
-
 namespace boost
 {
   namespace math

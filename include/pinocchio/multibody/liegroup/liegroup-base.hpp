@@ -11,14 +11,7 @@
 
 namespace pinocchio
 {
-#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
   constexpr int SELF = 0;
-#else
-  enum
-  {
-    SELF = 0
-  };
-#endif
 
 #define PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived, TYPENAME)                            \
   typedef LieGroupBase<Derived> Base;                                                              \
