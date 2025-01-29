@@ -6,7 +6,7 @@
 #define __pinocchio_python_collision_fcl_transform_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
-#include <hpp/fcl/math/transform.h>
+#include <coal/math/transform.h>
 
 namespace boost
 {
@@ -16,9 +16,9 @@ namespace boost
     {
 
       template<typename Scalar, int Options>
-      struct implicit<::hpp::fcl::Transform3f, ::pinocchio::SE3Tpl<Scalar, Options>>
+      struct implicit<::coal::Transform3f, ::pinocchio::SE3Tpl<Scalar, Options>>
       {
-        typedef ::hpp::fcl::Transform3f Source;
+        typedef ::coal::Transform3f Source;
         typedef ::pinocchio::SE3Tpl<Scalar, Options> Target;
 
         static void * convertible(PyObject * obj)
@@ -50,10 +50,10 @@ namespace boost
       };
 
       template<typename Scalar, int Options>
-      struct implicit<::pinocchio::SE3Tpl<Scalar, Options>, ::hpp::fcl::Transform3f>
+      struct implicit<::pinocchio::SE3Tpl<Scalar, Options>, ::coal::Transform3f>
       {
         typedef ::pinocchio::SE3Tpl<Scalar, Options> Source;
-        typedef ::hpp::fcl::Transform3f Target;
+        typedef ::coal::Transform3f Target;
 
         static void * convertible(PyObject * obj)
         {

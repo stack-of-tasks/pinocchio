@@ -538,11 +538,11 @@ namespace pinocchio
         /// @brief Fill geometry model with all the info taken from the mjcf model file
         /// @param type Type of geometry to parse (COLLISION or VISUAL)
         /// @param geomModel geometry model to fill
-        /// @param meshLoader mesh loader from hpp::fcl
+        /// @param meshLoader mesh loader from coal
         void parseGeomTree(
           const GeometryType & type,
           GeometryModel & geomModel,
-          ::hpp::fcl::MeshLoaderPtr & meshLoader);
+          ::coal::MeshLoaderPtr & meshLoader);
       };
       namespace internal
       {

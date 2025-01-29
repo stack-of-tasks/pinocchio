@@ -5,7 +5,7 @@
 #ifndef __pinocchio_collision_broadphase_manager_hpp__
 #define __pinocchio_collision_broadphase_manager_hpp__
 
-#include <hpp/fcl/broadphase/broadphase_collision_manager.h>
+#include <coal/broadphase/broadphase_collision_manager.h>
 
 #include "pinocchio/collision/broadphase-manager-base.hpp"
 #include "pinocchio/multibody/geometry-object-filter.hpp"

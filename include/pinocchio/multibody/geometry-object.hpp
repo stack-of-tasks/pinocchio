@@ -334,9 +334,9 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
 
-  struct CollisionObject : ::hpp::fcl::CollisionObject
+  struct CollisionObject : ::coal::CollisionObject
   {
-    typedef ::hpp::fcl::CollisionObject Base;
+    typedef ::coal::CollisionObject Base;
     typedef SE3Tpl<double> SE3;
 
     CollisionObject()
@@ -346,7 +346,7 @@ namespace pinocchio
     }
 
     explicit CollisionObject(
-      const std::shared_ptr<::hpp::fcl::CollisionGeometry> & collision_geometry,
+      const std::shared_ptr<::coal::CollisionGeometry> & collision_geometry,
       const size_t geometryObjectIndex = (std::numeric_limits<size_t>::max)(),
       bool compute_local_aabb = true)
     : Base(collision_geometry, compute_local_aabb)
@@ -355,7 +355,7 @@ namespace pinocchio
     }
 
     CollisionObject(
-      const std::shared_ptr<::hpp::fcl::CollisionGeometry> & collision_geometry,
+      const std::shared_ptr<::coal::CollisionGeometry> & collision_geometry,
       const SE3 & transform,
       const size_t geometryObjectIndex = (std::numeric_limits<size_t>::max)(),
       bool compute_local_aabb = true)
@@ -378,9 +378,9 @@ namespace pinocchio
     size_t geometryObjectIndex;
   };
 
-  struct ComputeCollision : ::hpp::fcl::ComputeCollision
+  struct ComputeCollision : ::coal::ComputeCollision
   {
-    typedef ::hpp::fcl::ComputeCollision Base;
+    typedef ::coal::ComputeCollision Base;
 
     ComputeCollision(const GeometryObject & go1, const GeometryObject & go2)
     : Base(go1.geometry.get(), go2.geometry.get())
@@ -397,7 +397,7 @@ namespace pinocchio
       const fcl::CollisionRequest & request,
       fcl::CollisionResult & result) const
     {
-      typedef ::hpp::fcl::CollisionGeometry const * Pointer;
+      typedef ::coal::CollisionGeometry const * Pointer;
       const_cast<Pointer &>(Base::o1) = go1_ptr->geometry.get();
       const_cast<Pointer &>(Base::o2) = go2_ptr->geometry.get();
       return Base::run(tf1, tf2, request, result);
@@ -429,9 +429,9 @@ namespace pinocchio
     const GeometryObject * go2_ptr;
   };
 
-  struct ComputeDistance : ::hpp::fcl::ComputeDistance
+  struct ComputeDistance : ::coal::ComputeDistance
   {
-    typedef ::hpp::fcl::ComputeDistance Base;
+    typedef ::coal::ComputeDistance Base;
 
     ComputeDistance(const GeometryObject & go1, const GeometryObject & go2)
     : Base(go1.geometry.get(), go2.geometry.get())
@@ -442,13 +442,13 @@ namespace pinocchio
 
     virtual ~ComputeDistance() {};
 
-    virtual hpp::fcl::FCL_REAL run(
+    virtual coal::FCL_REAL run(
       const fcl::Transform3f & tf1,
       const fcl::Transform3f & tf2,
       const fcl::DistanceRequest & request,
       fcl::DistanceResult & result) const
     {
-      typedef ::hpp::fcl::CollisionGeometry const * Pointer;
+      typedef ::coal::CollisionGeometry const * Pointer;
       const_cast<Pointer &>(Base::o1) = go1_ptr->geometry.get();
       const_cast<Pointer &>(Base::o2) = go2_ptr->geometry.get();
       return Base::run(tf1, tf2, request, result);

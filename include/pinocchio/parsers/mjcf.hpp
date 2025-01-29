@@ -184,13 +184,13 @@ namespace pinocchio
      * @param[in]  filename      The mjcf complete (absolute) file path
      * @param[in]   type         The type of objects that must be loaded (must be VISUAL or
      * COLLISION)
-     * @param[in]   mesh_loader   object used to load meshes: hpp::fcl::MeshLoader [default] or
-     * hpp::fcl::CachedMeshLoader.
+     * @param[in]   mesh_loader   object used to load meshes: coal::MeshLoader [default] or
+     * coal::CachedMeshLoader.
      * @param[out]  geom_model    Reference where to put the parsed information.
      *
      * @return      Returns the reference on geom model for convenience.
      *
-     * \warning     If hpp-fcl has not been found during compilation, COLLISION objects can not be
+     * \warning     If coal has not been found during compilation, COLLISION objects can not be
      * loaded
      *
      */
@@ -200,7 +200,7 @@ namespace pinocchio
       const std::string & filename,
       const GeometryType type,
       GeometryModel & geom_model,
-      ::hpp::fcl::MeshLoaderPtr mesh_loader = ::hpp::fcl::MeshLoaderPtr());
+      ::coal::MeshLoaderPtr mesh_loader = ::coal::MeshLoaderPtr());
 
   } // namespace mjcf
 } // namespace pinocchio

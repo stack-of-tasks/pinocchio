@@ -7,13 +7,13 @@
 #include "pinocchio/collision/tree-broadphase-manager.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
-#include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
-#include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h>
-#include <hpp/fcl/broadphase/broadphase_SSaP.h>
-#include <hpp/fcl/broadphase/broadphase_SaP.h>
-#include <hpp/fcl/broadphase/broadphase_bruteforce.h>
-#include <hpp/fcl/broadphase/broadphase_interval_tree.h>
-#include <hpp/fcl/broadphase/broadphase_spatialhash.h>
+#include <coal/broadphase/broadphase_dynamic_AABB_tree.h>
+#include <coal/broadphase/broadphase_dynamic_AABB_tree_array.h>
+#include <coal/broadphase/broadphase_SSaP.h>
+#include <coal/broadphase/broadphase_SaP.h>
+#include <coal/broadphase/broadphase_bruteforce.h>
+#include <coal/broadphase/broadphase_interval_tree.h>
+#include <coal/broadphase/broadphase_spatialhash.h>
 
 #include <eigenpy/eigen-from-python.hpp>
 
@@ -93,8 +93,8 @@ namespace pinocchio
 
     void exposeParallelBroadPhase()
     {
-      exposeCase<BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager>>();
-      exposeCase<TreeBroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager>>();
+      exposeCase<BroadPhaseManagerTpl<coal::DynamicAABBTreeCollisionManager>>();
+      exposeCase<TreeBroadPhaseManagerTpl<coal::DynamicAABBTreeCollisionManager>>();
     }
 
   } // namespace python

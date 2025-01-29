@@ -13,14 +13,14 @@
   #include "pinocchio/collision/pool/fwd.hpp"
   #include "pinocchio/collision/parallel/broadphase.hpp"
 
-  #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
-  #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h>
-  #include <hpp/fcl/broadphase/broadphase_SSaP.h>
-  #include <hpp/fcl/broadphase/broadphase_SaP.h>
-  #include <hpp/fcl/broadphase/broadphase_bruteforce.h>
-  #include <hpp/fcl/broadphase/broadphase_interval_tree.h>
-  #include <hpp/fcl/broadphase/broadphase_spatialhash.h>
-  #include <hpp/fcl/mesh_loader/loader.h>
+  #include <coal/broadphase/broadphase_dynamic_AABB_tree.h>
+  #include <coal/broadphase/broadphase_dynamic_AABB_tree_array.h>
+  #include <coal/broadphase/broadphase_SSaP.h>
+  #include <coal/broadphase/broadphase_SaP.h>
+  #include <coal/broadphase/broadphase_bruteforce.h>
+  #include <coal/broadphase/broadphase_interval_tree.h>
+  #include <coal/broadphase/broadphase_spatialhash.h>
+  #include <coal/mesh_loader/loader.h>
 #endif
 
 #include "pinocchio/parsers/urdf.hpp"
@@ -64,7 +64,7 @@ int main(int /*argc*/, const char ** /*argv*/)
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
   const std::string package_path = PINOCCHIO_MODEL_DIR;
-  hpp::fcl::MeshLoaderPtr mesh_loader = std::make_shared<hpp::fcl::CachedMeshLoader>();
+  coal::MeshLoaderPtr mesh_loader = std::make_shared<coal::CachedMeshLoader>();
   const std::string srdf_filename =
     PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
   std::vector<std::string> package_paths(1, package_path);
@@ -229,7 +229,7 @@ int main(int /*argc*/, const char ** /*argv*/)
 
   std::cout << "--" << std::endl;
   {
-    BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(
+    BroadPhaseManagerPool<coal::DynamicAABBTreeCollisionManager, double> pool(
       model, geometry_model, NUM_THREADS);
     VectorXb collision_res(BATCH_SIZE);
     collision_res.fill(false);
@@ -262,7 +262,7 @@ int main(int /*argc*/, const char ** /*argv*/)
 
   std::cout << "--" << std::endl;
   {
-    TreeBroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(
+    TreeBroadPhaseManagerPool<coal::DynamicAABBTreeCollisionManager, double> pool(
       model, geometry_model, NUM_THREADS);
     VectorXb collision_res(BATCH_SIZE);
     collision_res.fill(false);

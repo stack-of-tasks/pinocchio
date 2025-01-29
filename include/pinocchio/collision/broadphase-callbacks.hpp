@@ -5,7 +5,7 @@
 #ifndef __pinocchio_collision_broadphase_callback_hpp__
 #define __pinocchio_collision_broadphase_callback_hpp__
 
-#include <hpp/fcl/broadphase/broadphase_callbacks.h>
+#include <coal/broadphase/broadphase_callbacks.h>
 
 #include "pinocchio/multibody/fcl.hpp"
 #include "pinocchio/multibody/geometry.hpp"
@@ -16,7 +16,7 @@ namespace pinocchio
 {
 
   /// @brief Interface for Pinocchio collision callback functors
-  struct CollisionCallBackBase : hpp::fcl::CollisionCallBackBase
+  struct CollisionCallBackBase : coal::CollisionCallBackBase
   {
     CollisionCallBackBase(const GeometryModel & geometry_model, GeometryData & geometry_data)
     : geometry_model_ptr(&geometry_model)
@@ -87,7 +87,7 @@ namespace pinocchio
       //    visited.setZero();
     }
 
-    bool collide(hpp::fcl::CollisionObject * o1, hpp::fcl::CollisionObject * o2)
+    bool collide(coal::CollisionObject * o1, coal::CollisionObject * o2)
     {
 
       assert(!stop() && "must never happened");

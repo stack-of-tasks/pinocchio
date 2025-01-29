@@ -10,7 +10,7 @@
 #include "pinocchio/parsers/urdf.hpp"
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  #include <hpp/fcl/collision_object.h>
+  #include <coal/collision_object.h>
 #endif // PINOCCHIO_WITH_HPP_FCL
 
 #include <boost/test/unit_test.hpp>
@@ -67,15 +67,15 @@ BOOST_AUTO_TEST_CASE(build_model_simple_humanoid)
 #ifdef PINOCCHIO_WITH_HPP_FCL
   // Check that cylinder is converted into capsule.
   #ifdef PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
-  BOOST_CHECK_EQUAL(geomModel.geometryObjects[0].geometry->getNodeType(), hpp::fcl::GEOM_CYLINDER);
+  BOOST_CHECK_EQUAL(geomModel.geometryObjects[0].geometry->getNodeType(), coal::GEOM_CYLINDER);
   #else // PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
-  BOOST_CHECK_EQUAL(geomModel.geometryObjects[0].geometry->getNodeType(), hpp::fcl::GEOM_CAPSULE);
+  BOOST_CHECK_EQUAL(geomModel.geometryObjects[0].geometry->getNodeType(), coal::GEOM_CAPSULE);
   #endif
 
   #ifndef PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
-  BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].geometry->getNodeType(), hpp::fcl::GEOM_CONVEX);
+  BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].geometry->getNodeType(), coal::GEOM_CONVEX);
   #else // PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
-  BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].geometry->getObjectType(), hpp::fcl::OT_BVH);
+  BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].geometry->getObjectType(), coal::OT_BVH);
   #endif
 #endif // PINOCCHIO_WITH_HPP_FCL
 

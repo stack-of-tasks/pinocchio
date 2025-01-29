@@ -14,7 +14,7 @@
 #include <boost/utility/binary.hpp>
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  #include <hpp/fcl/collision_object.h>
+  #include <coal/collision_object.h>
 #endif // PINOCCHIO_WITH_HPP_FCL
 
 /// @brief Create a spherical joint with a stick of length l attached to it

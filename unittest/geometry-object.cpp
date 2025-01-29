@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_clone)
 {
-  hpp::fcl::Sphere * sphere_ptr = new hpp::fcl::Sphere(0.5);
+  coal::Sphere * sphere_ptr = new coal::Sphere(0.5);
   GeometryObject::CollisionGeometryPtr sphere_shared_ptr(sphere_ptr);
   GeometryObject geom_obj("sphere", 0, 0, SE3::Random(), sphere_shared_ptr);
 

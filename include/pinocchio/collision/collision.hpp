@@ -11,7 +11,7 @@
 
 #include "pinocchio/collision/config.hpp"
 
-#include <hpp/fcl/collision_data.h>
+#include <coal/collision_data.h>
 
 namespace pinocchio
 {

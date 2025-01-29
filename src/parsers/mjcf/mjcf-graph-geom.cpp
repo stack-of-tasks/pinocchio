@@ -5,8 +5,8 @@
 #include "pinocchio/parsers/mjcf/mjcf-graph.hpp"
 #ifdef PINOCCHIO_WITH_HPP_FCL
 
-  #include <hpp/fcl/mesh_loader/loader.h>
-  #include <hpp/fcl/mesh_loader/assimp.h>
+  #include <coal/mesh_loader/loader.h>
+  #include <coal/mesh_loader/assimp.h>
 
 #endif // PINOCCHIO_WITH_HPP_FCL
 
@@ -66,7 +66,7 @@ namespace pinocchio
        */
 #ifdef PINOCCHIO_WITH_HPP_FCL
       static std::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(
-        ::hpp::fcl::MeshLoaderPtr & meshLoader,
+        ::coal::MeshLoaderPtr & meshLoader,
         const MjcfGeom & geom,
         const MjcfGraph & currentGraph,
         std::string & meshPath,
@@ -81,7 +81,7 @@ namespace pinocchio
             // Scale vertices
             for (std::size_t i = 0; i < vertices.rows(); ++i)
               vertices.row(i) = vertices.row(i).cwiseProduct(currentMesh.scale.transpose());
-            auto model = std::make_shared<hpp::fcl::BVHModel<fcl::OBBRSS>>();
+            auto model = std::make_shared<coal::BVHModel<fcl::OBBRSS>>();
             model->beginModel();
             model->addVertices(vertices);
             model->endModel();
@@ -90,7 +90,7 @@ namespace pinocchio
           }
           meshPath = currentMesh.filePath;
           meshScale = currentMesh.scale;
-          hpp::fcl::BVHModelPtr_t bvh = meshLoader->load(meshPath, meshScale);
+          coal::BVHModelPtr_t bvh = meshLoader->load(meshPath, meshScale);
           return bvh;
         }
         else if (geom.geomType == "cylinder")
@@ -139,7 +139,7 @@ namespace pinocchio
       }
 #else
       static std::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(
-        ::hpp::fcl::MeshLoaderPtr &,
+        ::coal::MeshLoaderPtr &,
         const MjcfGeom &,
         const MjcfGraph &,
         std::string &,
@@ -153,12 +153,12 @@ namespace pinocchio
       /// @param currentBody Body from which geometries will be collected
       /// @param type Type of geometry to parse (COLLISION or VISUAL)
       /// @param geomModel geometry model to fill
-      /// @param meshLoader mesh loader from hpp::fcl
+      /// @param meshLoader mesh loader from coal
       static void addLinksToGeomModel(
         const MjcfBody & currentBody,
         const MjcfGraph & currentGraph,
         GeometryModel & geomModel,
-        ::hpp::fcl::MeshLoaderPtr & meshLoader,
+        ::coal::MeshLoaderPtr & meshLoader,
         const GeometryType & type)
       {
         const std::string & bodyName = currentBody.bodyName;
@@ -525,7 +525,7 @@ namespace pinocchio
       void MjcfGraph::parseGeomTree(
         const GeometryType & type,
         GeometryModel & geomModel,
-        ::hpp::fcl::MeshLoaderPtr & meshLoader)
+        ::coal::MeshLoaderPtr & meshLoader)
       {
 #ifdef PINOCCHIO_WITH_HPP_FCL
         if (!meshLoader)

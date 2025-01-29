@@ -15,8 +15,8 @@
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
 
-  #include <hpp/fcl/mesh_loader/loader.h>
-  #include <hpp/fcl/mesh_loader/assimp.h>
+  #include <coal/mesh_loader/loader.h>
+  #include <coal/mesh_loader/assimp.h>
 
 #endif // PINOCCHIO_WITH_HPP_FCL
 
@@ -167,7 +167,7 @@ namespace pinocchio
           retrieveMeshScale(urdf_mesh, meshScale);
 
           // Create FCL mesh by parsing Collada file.
-          hpp::fcl::BVHModelPtr_t bvh = meshLoader->load(meshPath, scale);
+          coal::BVHModelPtr_t bvh = meshLoader->load(meshPath, scale);
           bool convex = tree.isMeshConvex(linkName, geomName);
           if (convex)
           {
@@ -362,7 +362,7 @@ namespace pinocchio
       template<typename GeometryType>
       static void addLinkGeometryToGeomModel(
         const UrdfTree & tree,
-        ::hpp::fcl::MeshLoaderPtr & meshLoader,
+        ::coal::MeshLoaderPtr & meshLoader,
         ::urdf::LinkConstSharedPtr link,
         UrdfGeomVisitorBase & visitor,
         GeometryModel & geomModel,
@@ -455,7 +455,7 @@ namespace pinocchio
        */
       void recursiveParseTreeForGeom(
         const UrdfTree & tree,
-        ::hpp::fcl::MeshLoaderPtr & meshLoader,
+        ::coal::MeshLoaderPtr & meshLoader,
         ::urdf::LinkConstSharedPtr link,
         UrdfGeomVisitorBase & visitor,
         GeometryModel & geomModel,
@@ -490,7 +490,7 @@ namespace pinocchio
         const GeometryType type,
         GeometryModel & geomModel,
         const std::vector<std::string> & package_dirs,
-        ::hpp::fcl::MeshLoaderPtr meshLoader)
+        ::coal::MeshLoaderPtr meshLoader)
       {
         std::string xmlStr;
         {

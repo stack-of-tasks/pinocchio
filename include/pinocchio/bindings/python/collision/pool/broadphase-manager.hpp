@@ -113,7 +113,7 @@ namespace pinocchio
       static void expose()
       {
         std::string manager_name = boost::typeindex::type_id<Manager>().pretty_name();
-        boost::algorithm::replace_all(manager_name, "hpp::fcl::", "");
+        boost::algorithm::replace_all(manager_name, "coal::", "");
         const std::string broadphase_prefix = helper::base_class_name<BroadPhaseManager>::get();
         const std::string class_name = broadphase_prefix + "Pool" + "_" + manager_name;
 

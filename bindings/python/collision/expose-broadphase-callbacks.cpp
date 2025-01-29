@@ -38,7 +38,7 @@ namespace pinocchio
       static void expose()
       {
         bp::class_<
-          CollisionCallBackBaseWrapper, bp::bases<hpp::fcl::CollisionCallBackBase>,
+          CollisionCallBackBaseWrapper, bp::bases<coal::CollisionCallBackBase>,
           boost::noncopyable>("CollisionCallBackBase", bp::no_init)
           .def(
             "getGeometryModel", &CollisionCallBackDefault::getGeometryModel, bp::arg("self"),

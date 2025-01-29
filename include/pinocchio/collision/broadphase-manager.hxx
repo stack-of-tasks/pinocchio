@@ -70,7 +70,7 @@ namespace pinocchio
       if (!check_collision)
         continue;
 
-      const ::hpp::fcl::CollisionRequest & cr = geom_data.collisionRequests[pair_id];
+      const ::coal::CollisionRequest & cr = geom_data.collisionRequests[pair_id];
       const double inflation = (cr.break_distance + cr.security_margin) * 0.5;
 
       if (geom1_is_selected)
@@ -98,10 +98,10 @@ namespace pinocchio
       const size_t geometry_object_id = selected_geometry_objects[k];
 
       const GeometryObject & geom_obj = geom_model.geometryObjects[geometry_object_id];
-      hpp::fcl::CollisionGeometryPtr_t new_geometry = geom_obj.geometry;
+      coal::CollisionGeometryPtr_t new_geometry = geom_obj.geometry;
 
       CollisionObject & collision_obj = collision_objects[k];
-      hpp::fcl::CollisionGeometryPtr_t geometry = collision_obj.collisionGeometry();
+      coal::CollisionGeometryPtr_t geometry = collision_obj.collisionGeometry();
 
       collision_obj.setTransform(toFclTransform3f(geom_data.oMg[geometry_object_id]));
 
@@ -139,7 +139,7 @@ namespace pinocchio
   template<typename Manager>
   bool BroadPhaseManagerTpl<Manager>::check() const
   {
-    std::vector<hpp::fcl::CollisionObject *> collision_objects_ptr = manager.getObjects();
+    std::vector<coal::CollisionObject *> collision_objects_ptr = manager.getObjects();
     if (collision_objects_ptr.size() > collision_objects.size())
       return false;
 
@@ -155,8 +155,8 @@ namespace pinocchio
     {
       const size_t geometry_id = selected_geometry_objects[k];
 
-      const hpp::fcl::CollisionObject & collision_obj = collision_objects[k];
-      hpp::fcl::CollisionGeometryConstPtr_t geometry = collision_obj.collisionGeometry();
+      const coal::CollisionObject & collision_obj = collision_objects[k];
+      coal::CollisionGeometryConstPtr_t geometry = collision_obj.collisionGeometry();
 
       if (collision_object_is_active[k]) // The collision object is active
       {
@@ -167,11 +167,11 @@ namespace pinocchio
 
         if (
           geometry.get()->aabb_local.volume()
-          == -(std::numeric_limits<hpp::fcl::FCL_REAL>::infinity)())
+          == -(std::numeric_limits<coal::FCL_REAL>::infinity)())
           return false;
 
         const GeometryObject & geom_obj = geom_model.geometryObjects[geometry_id];
-        hpp::fcl::CollisionGeometryConstPtr_t geometry_of_geom_obj = geom_obj.geometry;
+        coal::CollisionGeometryConstPtr_t geometry_of_geom_obj = geom_obj.geometry;
 
         if (geometry.get() != geometry_of_geom_obj.get())
           return false;

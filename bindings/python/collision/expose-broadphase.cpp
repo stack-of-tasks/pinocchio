@@ -9,13 +9,13 @@
 
 #include "pinocchio/collision/broadphase.hpp"
 
-#include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
-#include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h>
-#include <hpp/fcl/broadphase/broadphase_SSaP.h>
-#include <hpp/fcl/broadphase/broadphase_SaP.h>
-#include <hpp/fcl/broadphase/broadphase_bruteforce.h>
-#include <hpp/fcl/broadphase/broadphase_interval_tree.h>
-#include <hpp/fcl/broadphase/broadphase_spatialhash.h>
+#include <coal/broadphase/broadphase_dynamic_AABB_tree.h>
+#include <coal/broadphase/broadphase_dynamic_AABB_tree_array.h>
+#include <coal/broadphase/broadphase_SSaP.h>
+#include <coal/broadphase/broadphase_SaP.h>
+#include <coal/broadphase/broadphase_bruteforce.h>
+#include <coal/broadphase/broadphase_interval_tree.h>
+#include <coal/broadphase/broadphase_spatialhash.h>
 
 namespace pinocchio
 {
@@ -82,18 +82,18 @@ namespace pinocchio
       using namespace Eigen;
       exposeBroadphaseCallbacks();
 
-      typedef ::hpp::fcl::CollisionObject * CollisionObjectPointer;
+      typedef ::coal::CollisionObject * CollisionObjectPointer;
       StdVectorPythonVisitor<std::vector<CollisionObjectPointer>>::expose(
         "StdVec_FCL_CollisionObjectPointer");
       StdVectorPythonVisitor<std::vector<CollisionObject>>::expose("StdVec_CollisionObject");
 
-      exposeBroadphaseAlgo<hpp::fcl::DynamicAABBTreeCollisionManager>();
-      exposeBroadphaseAlgo<hpp::fcl::DynamicAABBTreeArrayCollisionManager>();
-      exposeBroadphaseAlgo<hpp::fcl::SSaPCollisionManager>();
-      exposeBroadphaseAlgo<hpp::fcl::SaPCollisionManager>();
-      exposeBroadphaseAlgo<hpp::fcl::NaiveCollisionManager>();
-      exposeBroadphaseAlgo<hpp::fcl::IntervalTreeCollisionManager>();
-      //      exposeBroadphaseAlgo<hpp::fcl::SpatialHashingCollisionManager<> >();
+      exposeBroadphaseAlgo<coal::DynamicAABBTreeCollisionManager>();
+      exposeBroadphaseAlgo<coal::DynamicAABBTreeArrayCollisionManager>();
+      exposeBroadphaseAlgo<coal::SSaPCollisionManager>();
+      exposeBroadphaseAlgo<coal::SaPCollisionManager>();
+      exposeBroadphaseAlgo<coal::NaiveCollisionManager>();
+      exposeBroadphaseAlgo<coal::IntervalTreeCollisionManager>();
+      //      exposeBroadphaseAlgo<coal::SpatialHashingCollisionManager<> >();
     }
   } // namespace python
 } // namespace pinocchio

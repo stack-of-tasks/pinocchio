@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(test_collisions)
     const GeometryObject & obj1 = geom_model.geometryObjects[cp.first];
     const GeometryObject & obj2 = geom_model.geometryObjects[cp.second];
 
-    hpp::fcl::CollisionResult other_res;
+    coal::CollisionResult other_res;
     computeCollision(geom_model, geom_data, cp_index);
 
     fcl::Transform3f oM1(toFclTransform3f(geom_data.oMg[cp.first])),
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(test_collisions)
       obj1.geometry.get(), oM1, obj2.geometry.get(), oM2, geom_data.collisionRequests[cp_index],
       other_res);
 
-    const hpp::fcl::CollisionResult & res = geom_data.collisionResults[cp_index];
+    const coal::CollisionResult & res = geom_data.collisionResults[cp_index];
 
     BOOST_CHECK(res.isCollision() == other_res.isCollision());
     BOOST_CHECK(!res.isCollision());

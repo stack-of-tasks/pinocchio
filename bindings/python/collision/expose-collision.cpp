@@ -36,7 +36,7 @@ namespace pinocchio
     {
       using namespace Eigen;
 
-      bp::register_ptr_to_python<std::shared_ptr<hpp::fcl::CollisionGeometry const>>();
+      bp::register_ptr_to_python<std::shared_ptr<coal::CollisionGeometry const>>();
 
       bp::class_<ComputeCollision>(
         "ComputeCollision", "Collision function between two geometry objects.\n\n", bp::no_init)

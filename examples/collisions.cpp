@@ -59,7 +59,7 @@ int main(int /*argc*/, char ** /*argv*/)
   for (size_t k = 0; k < geom_model.collisionPairs.size(); ++k)
   {
     const CollisionPair & cp = geom_model.collisionPairs[k];
-    const hpp::fcl::CollisionResult & cr = geom_data.collisionResults[k];
+    const coal::CollisionResult & cr = geom_data.collisionResults[k];
 
     std::cout << "collision pair: " << cp.first << " , " << cp.second << " - collision: ";
     std::cout << (cr.isCollision() ? "yes" : "no") << std::endl;

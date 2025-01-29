@@ -38,7 +38,7 @@ namespace pinocchio
        */
       PINOCCHIO_PARSERS_DLLAPI void addLinkGeometryToGeomModel(
         const SdfGraph & graph,
-        ::hpp::fcl::MeshLoaderPtr & meshLoader,
+        ::coal::MeshLoaderPtr & meshLoader,
         const ::sdf::ElementPtr link,
         GeometryModel & geomModel,
         const std::vector<std::string> & package_dirs,
@@ -51,7 +51,7 @@ namespace pinocchio
         const std::string & rootLinkName,
         const GeometryType type,
         const std::vector<std::string> & package_dirs,
-        ::hpp::fcl::MeshLoaderPtr meshLoader);
+        ::coal::MeshLoaderPtr meshLoader);
     } // namespace details
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -62,7 +62,7 @@ namespace pinocchio
       GeometryModel & geomModel,
       const std::string & rootLinkName,
       const std::vector<std::string> & package_dirs,
-      ::hpp::fcl::MeshLoaderPtr meshLoader)
+      ::coal::MeshLoaderPtr meshLoader)
     {
       Model & model =
         const_cast<Model &>(const_model); // TODO: buildGeom should not need to parse model again.

@@ -12,16 +12,16 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/array.hpp>
 
-// If hpp-fcl < 3.0.0 The GCC Eigen/Boost.Serialization workaround
+// If coal < 3.0.0 The GCC Eigen/Boost.Serialization workaround
 // is already defined.
-// If we don't link against hpp-fcl or hpp-fcl >= 3.0.0 then we must define
+// If we don't link against coal or coal >= 3.0.0 then we must define
 // the workaround.
 #if defined PINOCCHIO_WITH_HPP_FCL
-  #include <hpp/fcl/config.hh>
-  #if !HPP_FCL_VERSION_AT_LEAST(3, 0, 0) // hpp-fcl < 3.0.0
+  #include <coal/config.hh>
+  #if !HPP_FCL_VERSION_AT_LEAST(3, 0, 0) // coal < 3.0.0
     #define HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
-    #include <hpp/fcl/serialization/eigen.h>
-  #else // hpp-fcl >= 3.0.0
+    #include <coal/serialization/eigen.h>
+  #else // coal >= 3.0.0
     // Workaround a bug in GCC >= 7 and C++17.
     // ref. https://gitlab.com/libeigen/eigen/-/issues/1676
     #ifdef __GNUC__

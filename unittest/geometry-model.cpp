@@ -201,14 +201,14 @@ BOOST_AUTO_TEST_CASE(test_clone)
   geom_model.addAllCollisionPairs();
 
   geom_model.geometryObjects[0].geometry =
-    GeometryObject::CollisionGeometryPtr(new ::hpp::fcl::Sphere(0.5));
+    GeometryObject::CollisionGeometryPtr(new ::coal::Sphere(0.5));
   GeometryModel geom_model_clone = geom_model.clone();
   GeometryModel geom_model_copy = geom_model;
 
   BOOST_CHECK(geom_model_clone == geom_model);
   BOOST_CHECK(geom_model_copy == geom_model);
 
-  static_cast<::hpp::fcl::Sphere *>(geom_model.geometryObjects[0].geometry.get())->radius = 1.;
+  static_cast<::coal::Sphere *>(geom_model.geometryObjects[0].geometry.get())->radius = 1.;
   BOOST_CHECK(geom_model_clone != geom_model);
   BOOST_CHECK(geom_model_copy == geom_model);
 }

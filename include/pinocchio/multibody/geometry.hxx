@@ -83,10 +83,10 @@ namespace pinocchio
   : oMg(geom_model.ngeoms)
   , activeCollisionPairs(geom_model.collisionPairs.size(), true)
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  , distanceRequests(geom_model.collisionPairs.size(), hpp::fcl::DistanceRequest(true))
+  , distanceRequests(geom_model.collisionPairs.size(), coal::DistanceRequest(true))
   , distanceResults(geom_model.collisionPairs.size())
   , collisionRequests(
-      geom_model.collisionPairs.size(), hpp::fcl::CollisionRequest(::hpp::fcl::NO_REQUEST, 1))
+      geom_model.collisionPairs.size(), coal::CollisionRequest(::coal::NO_REQUEST, 1))
   , collisionResults(geom_model.collisionPairs.size())
   , radius()
   , collisionPairIndex(0)
@@ -95,12 +95,12 @@ namespace pinocchio
   , outerObjects()
   {
 #ifdef PINOCCHIO_WITH_HPP_FCL
-    BOOST_FOREACH (hpp::fcl::CollisionRequest & creq, collisionRequests)
+    BOOST_FOREACH (coal::CollisionRequest & creq, collisionRequests)
     {
       creq.enable_cached_gjk_guess = true;
     }
   #if HPP_FCL_VERSION_AT_LEAST(1, 4, 5)
-    BOOST_FOREACH (hpp::fcl::DistanceRequest & dreq, distanceRequests)
+    BOOST_FOREACH (coal::DistanceRequest & dreq, distanceRequests)
     {
       dreq.enable_cached_gjk_guess = true;
     }

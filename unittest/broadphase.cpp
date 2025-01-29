@@ -13,7 +13,7 @@
 #include "pinocchio/collision/broadphase-manager.hpp"
 #include "pinocchio/collision/broadphase.hpp"
 
-#include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
+#include <coal/broadphase/broadphase_dynamic_AABB_tree.h>
 
 #include <vector>
 #include <boost/test/unit_test.hpp>
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(test_broadphase_with_empty_models)
   GeometryModel geom_model;
   GeometryData geom_data(geom_model);
 
-  BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(
+  BroadPhaseManagerTpl<coal::DynamicAABBTreeCollisionManager> broadphase_manager(
     &model, &geom_model, &geom_data);
 
   BOOST_CHECK(broadphase_manager.check());
@@ -40,9 +40,9 @@ BOOST_AUTO_TEST_CASE(test_broadphase)
   Data data(model);
   GeometryModel geom_model;
 
-  hpp::fcl::CollisionGeometryPtr_t sphere_ptr(new hpp::fcl::Sphere(0.5));
+  coal::CollisionGeometryPtr_t sphere_ptr(new coal::Sphere(0.5));
   sphere_ptr->computeLocalAABB();
-  hpp::fcl::CollisionGeometryPtr_t box_ptr(new hpp::fcl::Box(0.5, 0.5, 0.5));
+  coal::CollisionGeometryPtr_t box_ptr(new coal::Box(0.5, 0.5, 0.5));
   box_ptr->computeLocalAABB();
 
   GeometryObject obj1("obj1", 0, SE3::Identity(), sphere_ptr);
@@ -56,12 +56,12 @@ BOOST_AUTO_TEST_CASE(test_broadphase)
   GeometryData geom_data(geom_model);
   updateGeometryPlacements(model, data, geom_model, geom_data);
 
-  BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(
+  BroadPhaseManagerTpl<coal::DynamicAABBTreeCollisionManager> broadphase_manager(
     &model, &geom_model, &geom_data);
   BOOST_CHECK(broadphase_manager.check());
   BOOST_CHECK(sphere_ptr.get() == go.geometry.get());
 
-  hpp::fcl::CollisionGeometryPtr_t sphere_new_ptr(new hpp::fcl::Sphere(5.));
+  coal::CollisionGeometryPtr_t sphere_new_ptr(new coal::Sphere(5.));
   sphere_new_ptr->computeLocalAABB();
   go.geometry = sphere_new_ptr;
   BOOST_CHECK(!broadphase_manager.check());
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(test_advanced_filters)
 
   GeometryData geom_data(geom_model);
 
-  typedef BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
+  typedef BroadPhaseManagerTpl<coal::DynamicAABBTreeCollisionManager> BroadPhaseManager;
   for (size_t joint_id = 0; joint_id < (size_t)model.njoints; ++joint_id)
   {
     const GeometryObjectFilterSelectByJoint filter(joint_id);
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(test_collisions)
   BOOST_CHECK(computeCollisions(geom_model, geom_data) == false);
   BOOST_CHECK(computeCollisions(geom_model, geom_data, false) == false);
 
-  BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(
+  BroadPhaseManagerTpl<coal::DynamicAABBTreeCollisionManager> broadphase_manager(
     &model, &geom_model, &geom_data_broadphase);
   std::cout << "map:\n" << geom_model.collisionPairMapping << std::endl;
   BOOST_CHECK(computeCollisions(broadphase_manager) == false);

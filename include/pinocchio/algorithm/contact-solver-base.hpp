@@ -9,7 +9,7 @@
 #include "pinocchio/math/comparison-operators.hpp"
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  #include <hpp/fcl/timings.h>
+  #include <coal/timings.h>
 #endif // PINOCCHIO_WITH_HPP_FCL
 
 namespace pinocchio
@@ -21,8 +21,8 @@ namespace pinocchio
     typedef _Scalar Scalar;
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-    typedef hpp::fcl::CPUTimes CPUTimes;
-    typedef hpp::fcl::Timer Timer;
+    typedef coal::CPUTimes CPUTimes;
+    typedef coal::Timer Timer;
 #endif // PINOCCHIO_WITH_HPP_FCL
 
     explicit ContactSolverBaseTpl(const int problem_size)

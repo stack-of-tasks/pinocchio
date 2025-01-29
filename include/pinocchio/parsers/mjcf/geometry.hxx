@@ -18,7 +18,7 @@ namespace pinocchio
       const std::string & filename,
       const GeometryType type,
       GeometryModel & geomModel,
-      ::hpp::fcl::MeshLoaderPtr meshLoader)
+      ::coal::MeshLoaderPtr meshLoader)
     {
       ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor(model);
 

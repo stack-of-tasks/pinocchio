@@ -7,9 +7,9 @@
 #include "pinocchio/bindings/python/serialization/serialization.hpp"
 
 #define HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
-#include <hpp/fcl/serialization/BVH_model.h>
-#include <hpp/fcl/serialization/hfield.h>
-#include <hpp/fcl/serialization/geometric_shapes.h>
+#include <coal/serialization/BVH_model.h>
+#include <coal/serialization/hfield.h>
+#include <coal/serialization/geometric_shapes.h>
 #undef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
 
 namespace pinocchio
@@ -21,9 +21,9 @@ namespace pinocchio
       namespace bp = boost::python;
       bp::import("hppfcl");
 
-      using namespace ::hpp::fcl;
+      using namespace ::coal;
 
-      // Register implicit conversion SE3 <=> ::hpp::fcl::Transform3f
+      // Register implicit conversion SE3 <=> ::coal::Transform3f
       bp::implicitly_convertible<SE3, Transform3f>();
       bp::implicitly_convertible<Transform3f, SE3>();
 

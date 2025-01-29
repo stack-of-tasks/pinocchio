@@ -776,20 +776,16 @@ BOOST_AUTO_TEST_CASE(test_geometry_object)
     generic_test(geometry_object, TEST_SERIALIZATION_FOLDER "/GeometryObject", "GeometryObject");
   }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_COAL
   {
-    hpp::fcl::Box box(1., 2., 3.);
+    coal::Box box(1., 2., 3.);
     generic_test(box, TEST_SERIALIZATION_FOLDER "/Box", "Box");
   }
 
-  #if HPP_FCL_VERSION_AT_LEAST(3, 0, 0)
-  {
-    typedef GeometryObject::CollisionGeometryPtr CollisionGeometryPtr;
-    CollisionGeometryPtr box_ptr = CollisionGeometryPtr(new hpp::fcl::Box(1., 2., 3.));
-    GeometryObject geometry_object("box", 1, 2, SE3::Random(), box_ptr);
-    generic_test(geometry_object, TEST_SERIALIZATION_FOLDER "/GeometryObject", "GeometryObject");
-  }
-  #endif // hpp-fcl >= 3.0.0
+  typedef GeometryObject::CollisionGeometryPtr CollisionGeometryPtr;
+  CollisionGeometryPtr box_ptr = CollisionGeometryPtr(new coal::Box(1., 2., 3.));
+  GeometryObject geometry_object("box", 1, 2, SE3::Random(), box_ptr);
+  generic_test(geometry_object, TEST_SERIALIZATION_FOLDER "/GeometryObject", "GeometryObject");
 #endif
 }
 
@@ -810,46 +806,43 @@ BOOST_AUTO_TEST_CASE(test_geometry_model_and_data_serialization)
     generic_test(geom_data, TEST_SERIALIZATION_FOLDER "/GeometryData", "GeometryData");
   }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
-  #if HPP_FCL_VERSION_AT_LEAST(3, 0, 0)
+#ifdef PINOCCHIO_WITH_COAL
+  pinocchio::GeometryModel geom_model;
+  pinocchio::buildModels::humanoidGeometries(model, geom_model);
+  // Append new objects
   {
-    pinocchio::GeometryModel geom_model;
-    pinocchio::buildModels::humanoidGeometries(model, geom_model);
-    // Append new objects
-    {
-      using namespace hpp::fcl;
-      BVHModel<OBBRSS> * bvh_ptr = new BVHModel<OBBRSS>();
-      //      bvh_ptr->beginModel();
-      //      bvh_ptr->addSubModel(p1, t1);
-      //      bvh_ptr->endModel();
+    using namespace coal;
+    BVHModel<OBBRSS> * bvh_ptr = new BVHModel<OBBRSS>();
+    //      bvh_ptr->beginModel();
+    //      bvh_ptr->addSubModel(p1, t1);
+    //      bvh_ptr->endModel();
 
-      GeometryObject obj_bvh(
-        "bvh", 0, 0, SE3::Identity(), GeometryObject::CollisionGeometryPtr(bvh_ptr));
-      geom_model.addGeometryObject(obj_bvh);
+    GeometryObject obj_bvh(
+      "bvh", 0, 0, SE3::Identity(), GeometryObject::CollisionGeometryPtr(bvh_ptr));
+    geom_model.addGeometryObject(obj_bvh);
 
-      const double min_altitude = -1.;
-      const double x_dim = 1., y_dim = 2.;
-      const Eigen::DenseIndex nx = 100, ny = 200;
-      const Eigen::MatrixXd heights = Eigen::MatrixXd::Random(ny, nx);
+    const double min_altitude = -1.;
+    const double x_dim = 1., y_dim = 2.;
+    const Eigen::DenseIndex nx = 100, ny = 200;
+    const Eigen::MatrixXd heights = Eigen::MatrixXd::Random(ny, nx);
 
-      HeightField<OBBRSS> * hfield_ptr =
-        new HeightField<OBBRSS>(x_dim, y_dim, heights, min_altitude);
+    HeightField<OBBRSS> * hfield_ptr =
+      new HeightField<OBBRSS>(x_dim, y_dim, heights, min_altitude);
 
-      GeometryObject obj_hfield(
-        "hfield", 0, 0, SE3::Identity(), GeometryObject::CollisionGeometryPtr(hfield_ptr));
-      geom_model.addGeometryObject(obj_hfield);
-    }
-    generic_test(geom_model, TEST_SERIALIZATION_FOLDER "/GeometryModel", "GeometryModel");
-
-    pinocchio::GeometryData geom_data(geom_model);
-    const Eigen::VectorXd q = pinocchio::neutral(model);
-    pinocchio::forwardKinematics(model, data, q);
-    pinocchio::updateGeometryPlacements(model, data, geom_model, geom_data, q);
-
-    generic_test(geom_data, TEST_SERIALIZATION_FOLDER "/GeometryData", "GeometryData");
+    GeometryObject obj_hfield(
+      "hfield", 0, 0, SE3::Identity(), GeometryObject::CollisionGeometryPtr(hfield_ptr));
+    geom_model.addGeometryObject(obj_hfield);
   }
-  #endif // hpp-fcl >= 3.0.0
-#endif   // PINOCCHIO_WITH_HPP_FCL
+  generic_test(geom_model, TEST_SERIALIZATION_FOLDER "/GeometryModel", "GeometryModel");
+
+  pinocchio::GeometryData geom_data(geom_model);
+  const Eigen::VectorXd q = pinocchio::neutral(model);
+  pinocchio::forwardKinematics(model, data, q);
+  pinocchio::updateGeometryPlacements(model, data, geom_model, geom_data, q);
+
+  generic_test(geom_data, TEST_SERIALIZATION_FOLDER "/GeometryData", "GeometryData");
+}
+#endif   // PINOCCHIO_WITH_COAL
 }
 
 BOOST_AUTO_TEST_SUITE_END()

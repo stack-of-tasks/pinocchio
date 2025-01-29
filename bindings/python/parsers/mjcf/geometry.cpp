@@ -27,7 +27,7 @@ namespace pinocchio
       Model & model,
       const bp::object & filename,
       const GeometryType & type,
-      ::hpp::fcl::MeshLoaderPtr & meshLoader)
+      ::coal::MeshLoaderPtr & meshLoader)
     {
       GeometryModel geometry_model;
       ::pinocchio::mjcf::buildGeom(model, path(filename), type, geometry_model, meshLoader);
@@ -53,7 +53,7 @@ namespace pinocchio
       bp::def(
         "buildGeomFromMJCF",
         static_cast<GeometryModel (*)(
-          Model &, const bp::object &, const GeometryType &, ::hpp::fcl::MeshLoaderPtr &)>(
+          Model &, const bp::object &, const GeometryType &, ::coal::MeshLoaderPtr &)>(
           pinocchio::python::buildGeomFromMJCF),
         bp::args("model", "mjcf_filename", "geom_type", "mesh_loader"),
         "Parse the Mjcf file given as input looking for the geometry of the given input model and\n"
@@ -64,7 +64,7 @@ namespace pinocchio
         "\tfilename: path to the mjcf file containing the model of the robot\n"
         "\tgeom_type: type of geometry to extract from the mjcf file (either the VISUAL for "
         "display or the COLLISION for collision detection).\n"
-        "\tmesh_loader: an hpp-fcl mesh loader (to load only once the related geometries).\n");
+        "\tmesh_loader: an coal mesh loader (to load only once the related geometries).\n");
     }
   } // namespace python
 } // namespace pinocchio

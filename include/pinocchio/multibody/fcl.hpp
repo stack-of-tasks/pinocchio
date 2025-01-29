@@ -36,10 +36,10 @@ namespace std
     #endif
   #endif
 
-  #include <hpp/fcl/collision_object.h>
-  #include <hpp/fcl/collision.h>
-  #include <hpp/fcl/distance.h>
-  #include <hpp/fcl/shape/geometric_shapes.h>
+  #include <coal/collision_object.h>
+  #include <coal/collision.h>
+  #include <coal/distance.h>
+  #include <coal/shape/geometric_shapes.h>
   #include "pinocchio/collision/fcl-pinocchio-conversions.hpp"
 #endif
 
@@ -86,7 +86,7 @@ namespace pinocchio
 
 #else
 
-  namespace fcl = hpp::fcl;
+  namespace fcl = coal;
 
   inline bool operator==(const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
   {

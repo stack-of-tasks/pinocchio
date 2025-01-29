@@ -50,7 +50,7 @@ namespace pinocchio
         std::invalid_argument, "Problem when trying to check the collision of collision pair #"
                                  << pair_id << " (" << pair.first << "," << pair.second << ")"
                                  << std::endl
-                                 << "hpp-fcl original error:\n"
+                                 << "coal original error:\n"
                                  << e.what() << std::endl);
     }
     catch (std::logic_error & e)
@@ -59,7 +59,7 @@ namespace pinocchio
         std::logic_error, "Problem when trying to check the collision of collision pair #"
                             << pair_id << " (" << pair.first << "," << pair.second << ")"
                             << std::endl
-                            << "hpp-fcl original error:\n"
+                            << "coal original error:\n"
                             << e.what() << std::endl);
     }
 
@@ -151,7 +151,7 @@ namespace pinocchio
 
       // Force computation of the Local AABB
       // TODO: change for a more elegant solution
-      const_cast<hpp::fcl::CollisionGeometry &>(*geometry).computeLocalAABB();
+      const_cast<coal::CollisionGeometry &>(*geometry).computeLocalAABB();
 
       const GeometryModel::SE3 & jMb = geom_object.placement; // placement in joint.
       const Model::JointIndex i = geom_object.parentJoint;

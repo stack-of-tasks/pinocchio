@@ -10,8 +10,8 @@
 #include <boost/shared_ptr.hpp>
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  #include <hpp/fcl/mesh_loader/loader.h>
-  #include <hpp/fcl/mesh_loader/assimp.h>
+  #include <coal/mesh_loader/loader.h>
+  #include <coal/mesh_loader/assimp.h>
 #endif // PINOCCHIO_WITH_HPP_FCL
 
 namespace pinocchio
@@ -109,7 +109,7 @@ namespace pinocchio
        * @return     A shared pointer on the geometry converted as a fcl::CollisionGeometry
        */
       std::shared_ptr<fcl::CollisionGeometry> static retrieveCollisionGeometry(
-        ::hpp::fcl::MeshLoaderPtr & meshLoader,
+        ::coal::MeshLoaderPtr & meshLoader,
         const ::sdf::ElementPtr sdf_geometry,
         const std::vector<std::string> & package_dirs,
         std::string & meshPath,
@@ -134,7 +134,7 @@ namespace pinocchio
           Eigen::Vector3d scale(retrieveMeshScale(sdf_mesh));
 
           // Create FCL mesh by parsing Collada file.
-          hpp::fcl::BVHModelPtr_t bvh = meshLoader->load(meshPath, scale);
+          coal::BVHModelPtr_t bvh = meshLoader->load(meshPath, scale);
           geometry = bvh;
         }
 
@@ -188,7 +188,7 @@ namespace pinocchio
       template<GeometryType type>
       static void addLinkGeometryToGeomModel(
         const SdfGraph & graph,
-        ::hpp::fcl::MeshLoaderPtr & meshLoader,
+        ::coal::MeshLoaderPtr & meshLoader,
         ::sdf::ElementPtr link,
         GeometryModel & geomModel,
         const std::vector<std::string> & package_dirs)
@@ -268,7 +268,7 @@ namespace pinocchio
 
       void addLinkGeometryToGeomModel(
         const SdfGraph & graph,
-        ::hpp::fcl::MeshLoaderPtr & meshLoader,
+        ::coal::MeshLoaderPtr & meshLoader,
         const ::sdf::ElementPtr link,
         GeometryModel & geomModel,
         const std::vector<std::string> & package_dirs,
@@ -296,7 +296,7 @@ namespace pinocchio
         const std::string & rootLinkName,
         const GeometryType type,
         const std::vector<std::string> & package_dirs,
-        ::hpp::fcl::MeshLoaderPtr meshLoader)
+        ::coal::MeshLoaderPtr meshLoader)
       {
         std::vector<std::string> hint_directories(package_dirs);
         std::vector<std::string> ros_pkg_paths = rosPaths();

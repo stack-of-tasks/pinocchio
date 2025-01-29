@@ -19,7 +19,7 @@ namespace pinocchio
     typedef BroadPhaseManagerBase<TreeBroadPhaseManagerTpl<_Manager>> Base;
     typedef BroadPhaseManagerTpl<Manager> BroadPhaseManager;
 
-    typedef std::vector<hpp::fcl::CollisionObject *> CollisionObjectPointerVector;
+    typedef std::vector<coal::CollisionObject *> CollisionObjectPointerVector;
     typedef std::vector<BroadPhaseManager> BroadPhaseManagerVector;
 
     typedef typename BroadPhaseManager::Model Model;

@@ -69,7 +69,7 @@ namespace pinocchio
       std::stringstream ss;
       ss << "Problem when trying to compute the distance of collision pair #" << pair_id << " ("
          << pair.first << "," << pair.second << ")" << std::endl;
-      ss << "hpp-fcl original error:\n" << e.what() << std::endl;
+      ss << "coal original error:\n" << e.what() << std::endl;
       throw std::invalid_argument(ss.str());
     }
 

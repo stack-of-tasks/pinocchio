@@ -1284,27 +1284,27 @@ BOOST_AUTO_TEST_CASE(test_geometry_parsing)
 
   BOOST_CHECK(geomModel_m.ngeoms == 5);
 
-  auto * cyl = dynamic_cast<hpp::fcl::Cylinder *>(geomModel_m.geometryObjects.at(0).geometry.get());
+  auto * cyl = dynamic_cast<coal::Cylinder *>(geomModel_m.geometryObjects.at(0).geometry.get());
   BOOST_REQUIRE(cyl);
   BOOST_CHECK(cyl->halfLength == 0.25);
   BOOST_CHECK(cyl->radius == 0.01);
 
-  auto * cap = dynamic_cast<hpp::fcl::Capsule *>(geomModel_m.geometryObjects.at(2).geometry.get());
+  auto * cap = dynamic_cast<coal::Capsule *>(geomModel_m.geometryObjects.at(2).geometry.get());
   BOOST_REQUIRE(cap);
   BOOST_CHECK(cap->halfLength == 0.25);
   BOOST_CHECK(cap->radius == 0.01);
 
-  auto * s = dynamic_cast<hpp::fcl::Sphere *>(geomModel_m.geometryObjects.at(3).geometry.get());
+  auto * s = dynamic_cast<coal::Sphere *>(geomModel_m.geometryObjects.at(3).geometry.get());
   BOOST_REQUIRE(s);
   BOOST_CHECK(s->radius == 0.01);
 
-  auto * b = dynamic_cast<hpp::fcl::Box *>(geomModel_m.geometryObjects.at(1).geometry.get());
+  auto * b = dynamic_cast<coal::Box *>(geomModel_m.geometryObjects.at(1).geometry.get());
   BOOST_REQUIRE(b);
   Eigen::Vector3d sides;
   sides << 0.01, 0.01, 0.25;
   BOOST_CHECK(b->halfSide == sides);
 
-  auto * e = dynamic_cast<hpp::fcl::Ellipsoid *>(geomModel_m.geometryObjects.at(4).geometry.get());
+  auto * e = dynamic_cast<coal::Ellipsoid *>(geomModel_m.geometryObjects.at(4).geometry.get());
   BOOST_REQUIRE(e);
   BOOST_CHECK(e->radii == sides);
 }
