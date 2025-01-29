@@ -25,7 +25,7 @@
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/serialization/aligned-vector.hpp"
 #include "pinocchio/serialization/spatial.hpp"
-#include "pinocchio/serialization/fcl.hpp"
+#include "pinocchio/serialization/coal.hpp"
 
 namespace boost
 {

@@ -1,4 +1,4 @@
-#include "pinocchio/multibody/fcl.hpp"
+#include "pinocchio/multibody/coal.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
 #include "pinocchio/algorithm/joint-configuration.hpp"

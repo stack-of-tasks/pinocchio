@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2023 CNRS INRIA
 //
 
-#ifndef __pinocchio_multibody_fcl_hpp__
-#define __pinocchio_multibody_fcl_hpp__
+#ifndef __pinocchio_multibody_coal_hpp__
+#define __pinocchio_multibody_coal_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
@@ -40,7 +40,7 @@ namespace std
   #include <coal/collision.h>
   #include <coal/distance.h>
   #include <coal/shape/geometric_shapes.h>
-  #include "pinocchio/collision/fcl-pinocchio-conversions.hpp"
+  #include "pinocchio/collision/coal-pinocchio-conversions.hpp"
 #endif
 
 #include <map>
@@ -57,7 +57,7 @@ namespace pinocchio
 
 #ifndef PINOCCHIO_WITH_COAL
 
-  namespace fcl
+  namespace coal
   {
 
     struct FakeCollisionGeometry
@@ -82,13 +82,11 @@ namespace pinocchio
 
     typedef FakeCollisionGeometry CollisionGeometry;
 
-  } // namespace fcl
+  } // namespace coal
 
 #else
 
-  namespace fcl = coal;
-
-  inline bool operator==(const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
+  inline bool operator==(const coal::CollisionObject & lhs, const coal::CollisionObject & rhs)
   {
     return lhs.collisionGeometry() == rhs.collisionGeometry()
            && lhs.getAABB().min_ == rhs.getAABB().min_ && lhs.getAABB().max_ == rhs.getAABB().max_;
@@ -98,4 +96,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_multibody_fcl_hpp__
+#endif // ifndef __pinocchio_multibody_coal

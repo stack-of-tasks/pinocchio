@@ -75,11 +75,11 @@ namespace pinocchio
   /// \param[out] GeomData the corresponding geometry data, where computations are done.
   /// \param[in] pair_id The index of the collision pair in geom model.
   ///
-  /// \return A reference on fcl struct containing the distance result, referring an element
+  /// \return A reference on coal struct containing the distance result, referring an element
   /// of vector geom_data::distanceResults.
   /// \note The complete distance result is also available in geom_data.distanceResults[pair_id]
   ///
-  fcl::DistanceResult & computeDistance(
+  coal::DistanceResult & computeDistance(
     const GeometryModel & geom_model, GeometryData & geom_data, const PairIndex pair_id);
 
   ///

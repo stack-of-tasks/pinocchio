@@ -9,7 +9,7 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/model-item.hpp"
-#include "pinocchio/multibody/fcl.hpp"
+#include "pinocchio/multibody/coal.hpp"
 #include "pinocchio/serialization/serializable.hpp"
 
 /// Be carefull to include this header after fwd.hpp.
@@ -99,14 +99,14 @@ namespace pinocchio
 
     typedef SE3Tpl<Scalar, Options> SE3;
 
-    typedef std::shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
+    typedef std::shared_ptr<coal::CollisionGeometry> CollisionGeometryPtr;
 
     using Base::name;
     using Base::parentFrame;
     using Base::parentJoint;
     using Base::placement;
 
-    /// \brief The FCL CollisionGeometry (might be a Mesh, a Geometry Primitive, etc.)
+    /// \brief The Coal CollisionGeometry (might be a Mesh, a Geometry Primitive, etc.)
     CollisionGeometryPtr geometry;
 
     /// \brief Absolute path to the mesh file (if the geometry pointee is also a Mesh)
@@ -140,7 +140,7 @@ namespace pinocchio
     /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
     /// \param[in] parent_frame  Index of the parent frame.
     /// \param[in] placement Placement of the geometry with respect to the joint frame.
-    /// \param[in] collision_geometry The FCL collision geometry object.
+    /// \param[in] collision_geometry The Coal collision geometry object.
     /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a
     /// viewer for instance) [if applicable]. \param[in] meshScale Scale of the mesh [if
     /// applicable]. \param[in] overrideMaterial If true, this option allows to overrite the
@@ -180,7 +180,7 @@ namespace pinocchio
     /// \param[in] name  Name of the geometry object.
     /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
     /// \param[in] placement Placement of the geometry with respect to the joint frame.
-    /// \param[in] collision_geometry The FCL collision geometry object.
+    /// \param[in] collision_geometry The Coal collision geometry object.
     /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a
     /// viewer for instance) [if applicable]. \param[in] meshScale Scale of the mesh [if
     /// applicable]. \param[in] overrideMaterial If true, this option allows to overrite the
@@ -217,7 +217,7 @@ namespace pinocchio
     /// \param[in] name  Name of the geometry object.
     /// \param[in] parent_frame  Index of the parent frame.
     /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
-    /// \param[in] collision_geometry The FCL collision geometry object.
+    /// \param[in] collision_geometry The Coal collision geometry object.
     /// \param[in] placement Placement of the geometry with respect to the joint frame.
     /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a
     /// viewer for instance) [if applicable]. \param[in] meshScale Scale of the mesh [if
@@ -259,7 +259,7 @@ namespace pinocchio
     ///
     /// \param[in] name  Name of the geometry object.
     /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
-    /// \param[in] collision_geometry The FCL collision geometry object.
+    /// \param[in] collision_geometry The Coal collision geometry object.
     /// \param[in] placement Placement of the geometry with respect to the joint frame.
     /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a
     /// viewer for instance) [if applicable]. \param[in] meshScale Scale of the mesh [if
@@ -297,7 +297,7 @@ namespace pinocchio
     GeometryObject & operator=(const GeometryObject & other) = default;
 
     ///
-    /// \brief Perform a deep copy of this. It will create a copy of the underlying FCL geometry.
+    /// \brief Perform a deep copy of this. It will create a copy of the underlying Coal geometry.
     ///
     GeometryObject clone() const
     {
@@ -359,7 +359,7 @@ namespace pinocchio
       const SE3 & transform,
       const size_t geometryObjectIndex = (std::numeric_limits<size_t>::max)(),
       bool compute_local_aabb = true)
-    : Base(collision_geometry, toFclTransform3f(transform), compute_local_aabb)
+    : Base(collision_geometry, toCoalTransform3f(transform), compute_local_aabb)
     , geometryObjectIndex(geometryObjectIndex)
     {
     }
@@ -392,10 +392,10 @@ namespace pinocchio
     virtual ~ComputeCollision() {};
 
     virtual std::size_t run(
-      const fcl::Transform3f & tf1,
-      const fcl::Transform3f & tf2,
-      const fcl::CollisionRequest & request,
-      fcl::CollisionResult & result) const
+      const coal::Transform3f & tf1,
+      const coal::Transform3f & tf2,
+      const coal::CollisionRequest & request,
+      coal::CollisionResult & result) const
     {
       typedef ::coal::CollisionGeometry const * Pointer;
       const_cast<Pointer &>(Base::o1) = go1_ptr->geometry.get();
@@ -442,11 +442,11 @@ namespace pinocchio
 
     virtual ~ComputeDistance() {};
 
-    virtual coal::FCL_REAL run(
-      const fcl::Transform3f & tf1,
-      const fcl::Transform3f & tf2,
-      const fcl::DistanceRequest & request,
-      fcl::DistanceResult & result) const
+    virtual coal::COAL_REAL run(
+      const coal::Transform3f & tf1,
+      const coal::Transform3f & tf2,
+      const coal::DistanceRequest & request,
+      coal::DistanceResult & result) const
     {
       typedef ::coal::CollisionGeometry const * Pointer;
       const_cast<Pointer &>(Base::o1) = go1_ptr->geometry.get();

@@ -51,7 +51,7 @@ namespace pinocchio
       bp::def(
         "computeCollision",
         static_cast<bool (*)(
-          const GeometryModel &, GeometryData &, const PairIndex, fcl::CollisionRequest &)>(
+          const GeometryModel &, GeometryData &, const PairIndex, coal::CollisionRequest &)>(
           computeCollision),
         bp::args("geometry_model", "geometry_data", "pair_index", "collision_request"),
         "Check if the collision objects of a collision pair for a given Geometry Model and "

@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2024 CNRS INRIA
 //
 
-#ifndef __pinocchio_collision_fcl_convertion_hpp__
-#define __pinocchio_collision_fcl_convertion_hpp__
+#ifndef __pinocchio_collision_coal_convertion_hpp__
+#define __pinocchio_collision_coal_convertion_hpp__
 
 #include <coal/math/transform.h>
 #include "pinocchio/spatial/se3.hpp"
@@ -11,7 +11,7 @@
 namespace pinocchio
 {
   template<typename Scalar>
-  inline coal::Transform3f toFclTransform3f(const SE3Tpl<Scalar> & m)
+  inline coal::Transform3f toCoalTransform3f(const SE3Tpl<Scalar> & m)
   {
     SE3Tpl<double, 0> m_ = m.template cast<double>();
     return coal::Transform3f(m_.rotation(), m_.translation());
@@ -25,4 +25,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_collision_fcl_convertion_hpp__
+#endif // ifndef __pinocchio_collision_coal_convertion_hpp__

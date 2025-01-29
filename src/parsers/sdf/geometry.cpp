@@ -97,7 +97,7 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_COAL
       /**
-       * @brief      Get a fcl::CollisionObject from an urdf geometry, searching
+       * @brief      Get a coal::CollisionObject from an urdf geometry, searching
        *             for it in specified package directories
        *
        * @param[in]  urdf_geometry  A shared pointer on the input urdf Geometry
@@ -106,16 +106,16 @@ namespace pinocchio
        * @param[out] meshPath      The Absolute path of the mesh currently read
        * @param[out] meshScale     Scale of transformation currently applied to the mesh
        *
-       * @return     A shared pointer on the geometry converted as a fcl::CollisionGeometry
+       * @return     A shared pointer on the geometry converted as a coal::CollisionGeometry
        */
-      std::shared_ptr<fcl::CollisionGeometry> static retrieveCollisionGeometry(
+      std::shared_ptr<coal::CollisionGeometry> static retrieveCollisionGeometry(
         ::coal::MeshLoaderPtr & meshLoader,
         const ::sdf::ElementPtr sdf_geometry,
         const std::vector<std::string> & package_dirs,
         std::string & meshPath,
         Eigen::Vector3d & meshScale)
       {
-        std::shared_ptr<fcl::CollisionGeometry> geometry;
+        std::shared_ptr<coal::CollisionGeometry> geometry;
 
         // Handle the case where collision geometry is a mesh
         if (sdf_geometry->HasElement("mesh"))
@@ -133,13 +133,13 @@ namespace pinocchio
 
           Eigen::Vector3d scale(retrieveMeshScale(sdf_mesh));
 
-          // Create FCL mesh by parsing Collada file.
+          // Create coal mesh by parsing Collada file.
           coal::BVHModelPtr_t bvh = meshLoader->load(meshPath, scale);
           geometry = bvh;
         }
 
         // Handle the case where collision geometry is a cylinder
-        // Use FCL capsules for cylinders
+        // Use coal capsules for cylinders
         else if (sdf_geometry->HasElement("cylinder"))
         {
           meshScale << 1, 1, 1;
@@ -148,9 +148,9 @@ namespace pinocchio
           double radius = collisionGeometry->Get<double>("radius");
           double length = collisionGeometry->Get<double>("length");
 
-          // Create fcl capsule geometry.
+          // Create coal capsule geometry.
           meshPath = "CYLINDER";
-          geometry = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Cylinder(radius, length));
+          geometry = std::shared_ptr<coal::CollisionGeometry>(new coal::Cylinder(radius, length));
         }
         // Handle the case where collision geometry is a box.
         else if (sdf_geometry->HasElement("box"))
@@ -162,7 +162,7 @@ namespace pinocchio
           double x = collisionGeometry->Get<double>("x");
           double y = collisionGeometry->Get<double>("y");
           double z = collisionGeometry->Get<double>("z");
-          geometry = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Box(x, y, z));
+          geometry = std::shared_ptr<coal::CollisionGeometry>(new coal::Box(x, y, z));
         }
         // Handle the case where collision geometry is a sphere.
         else if (sdf_geometry->HasElement("sphere"))
@@ -172,7 +172,7 @@ namespace pinocchio
           const ::sdf::ElementPtr collisionGeometry = sdf_geometry->GetElement("sphere");
 
           double radius = collisionGeometry->Get<double>("radius");
-          geometry = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Sphere(radius));
+          geometry = std::shared_ptr<coal::CollisionGeometry>(new coal::Sphere(radius));
         }
         else
           throw std::invalid_argument("Unknown geometry type :");
@@ -231,7 +231,7 @@ namespace pinocchio
               meshScale = retrieveMeshScale(sdf_mesh);
             }
 
-            const auto geometry = std::make_shared<fcl::CollisionGeometry>();
+            const auto geometry = std::make_shared<coal::CollisionGeometry>();
 #endif // PINOCCHIO_WITH_COAL
 
             const ignition::math::Pose3d & pose =
@@ -304,7 +304,7 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_COAL
         if (!meshLoader)
-          meshLoader = fcl::MeshLoaderPtr(new fcl::MeshLoader);
+          meshLoader = coal::MeshLoaderPtr(new coal::MeshLoader);
 #endif // ifdef PINOCCHIO_WITH_COAL
 
         const ::sdf::ElementPtr rootElement = graph.mapOfLinks.find(rootLinkName)->second;

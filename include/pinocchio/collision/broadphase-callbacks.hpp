@@ -7,7 +7,7 @@
 
 #include <coal/broadphase/broadphase_callbacks.h>
 
-#include "pinocchio/multibody/fcl.hpp"
+#include "pinocchio/multibody/coal.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
 #include "pinocchio/collision/collision.hpp"
@@ -121,10 +121,10 @@ namespace pinocchio
 
       count++;
 
-      fcl::CollisionRequest collision_request(
+      coal::CollisionRequest collision_request(
         geometry_data_ptr->collisionRequests[size_t(pair_index)]);
-      collision_request.gjk_variant = fcl::GJKVariant::NesterovAcceleration;
-      //    collision_request.gjk_initial_guess = fcl::GJKInitialGuess::BoundingVolumeGuess;
+      collision_request.gjk_variant = coal::GJKVariant::NesterovAcceleration;
+      //    collision_request.gjk_initial_guess = coal::GJKInitialGuess::BoundingVolumeGuess;
 
       if (
         co1.collisionGeometry().get()
@@ -137,7 +137,7 @@ namespace pinocchio
       //    if(!(co1.collisionGeometry()->aabb_local.volume() < 0 ||
       //    co2.collisionGeometry()->aabb_local.volume() <0)) { // TODO(jcarpent): check potential
       //    bug
-      //      collision_request.gjk_initial_guess = fcl::GJKInitialGuess::BoundingVolumeGuess;
+      //      collision_request.gjk_initial_guess = coal::GJKInitialGuess::BoundingVolumeGuess;
       //    }
 
       bool res;
@@ -151,7 +151,7 @@ namespace pinocchio
         PINOCCHIO_THROW_PRETTY(
           std::logic_error, "Geometries with index go1: "
                               << go1_index << " or go2: " << go2_index
-                              << " have produced an internal error within HPP-FCL.\n what:\n"
+                              << " have produced an internal error within coal.\n what:\n"
                               << e.what());
       }
 

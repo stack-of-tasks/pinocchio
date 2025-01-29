@@ -3,7 +3,7 @@
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
-#include "pinocchio/bindings/python/collision/fcl/transform.hpp"
+#include "pinocchio/bindings/python/collision/coal/transform.hpp"
 #include "pinocchio/bindings/python/serialization/serialization.hpp"
 
 #define COAL_SKIP_EIGEN_BOOST_SERIALIZATION
@@ -16,7 +16,7 @@ namespace pinocchio
 {
   namespace python
   {
-    void exposeFCL()
+    void exposeCoal()
     {
       namespace bp = boost::python;
       bp::import("coal");

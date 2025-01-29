@@ -7,7 +7,7 @@
 
 #include <coal/broadphase/broadphase_collision_manager.h>
 
-#include "pinocchio/multibody/fcl.hpp"
+#include "pinocchio/multibody/coal.hpp"
 
 #include "pinocchio/algorithm/geometry.hpp"
 

@@ -94,8 +94,8 @@ struct robotCreationFixture
 static void
 addObstacle(pinocchio::GeometryModel & geom_model, const double distance, const double dimension)
 {
-  std::shared_ptr<pinocchio::fcl::CollisionGeometry> geometry =
-    std::make_shared<pinocchio::fcl::Box>(dimension, dimension, dimension);
+  std::shared_ptr<pinocchio::coal::CollisionGeometry> geometry =
+    std::make_shared<pinocchio::coal::Box>(dimension, dimension, dimension);
   std::string geometry_object_name = "obstacle";
   pinocchio::SE3 geomPlacement(1);
   geomPlacement.translation() = pinocchio::SE3::LinearType(distance, 0, 0);

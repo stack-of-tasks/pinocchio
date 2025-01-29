@@ -256,8 +256,8 @@ namespace pinocchio
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
     ///
-    /// oMg is used for pinocchio (kinematics) computation but is translated to fcl type
-    /// for fcl (collision) computation. The copy is done in collisionObjects[i]->setTransform(.)
+    /// oMg is used for pinocchio (kinematics) computation but is translated to coal type
+    /// for coal (collision) computation. The copy is done in collisionObjects[i]->setTransform(.)
     ///
     PINOCCHIO_ALIGNED_STD_VECTOR(SE3) oMg;
 
@@ -271,22 +271,22 @@ namespace pinocchio
     ///
     /// \brief Defines what information should be computed by distance computation.
     /// There is one request per pair of geometries.
-    std::vector<fcl::DistanceRequest> distanceRequests;
+    std::vector<coal::DistanceRequest> distanceRequests;
 
     ///
     /// \brief Vector gathering the result of the distance computation for all the collision pairs.
     ///
-    std::vector<fcl::DistanceResult> distanceResults;
+    std::vector<coal::DistanceResult> distanceResults;
 
     ///
     /// \brief Defines what information should be computed by collision test.
     /// There is one request per pair of geometries.
-    std::vector<fcl::CollisionRequest> collisionRequests;
+    std::vector<coal::CollisionRequest> collisionRequests;
 
     ///
     /// \brief Vector gathering the result of the collision computation for all the collision pairs.
     ///
-    std::vector<fcl::CollisionResult> collisionResults;
+    std::vector<coal::CollisionResult> collisionResults;
 
     ///
     /// \brief Radius of the bodies, i.e. distance of the further point of the geometry model

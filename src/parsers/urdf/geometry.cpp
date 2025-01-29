@@ -124,7 +124,7 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_COAL
       /**
-       * @brief      Get a fcl::CollisionObject from a URDF geometry, searching
+       * @brief      Get a coal::CollisionObject from a URDF geometry, searching
        *             for it in specified package directories
        *
        * @param[in]  urdf_geometry  A shared pointer on the input urdf Geometry
@@ -133,11 +133,11 @@ namespace pinocchio
        * @param[out] meshPath      The Absolute path of the mesh currently read
        * @param[out] meshScale     Scale of transformation currently applied to the mesh
        *
-       * @return     A shared pointer on the geometry converted as a fcl::CollisionGeometry
+       * @return     A shared pointer on the geometry converted as a coal::CollisionGeometry
        */
-      std::shared_ptr<fcl::CollisionGeometry> inline retrieveCollisionGeometry(
+      std::shared_ptr<coal::CollisionGeometry> inline retrieveCollisionGeometry(
         const UrdfTree & tree,
-        fcl::MeshLoaderPtr & meshLoader,
+        coal::MeshLoaderPtr & meshLoader,
         const std::string & linkName,
         const std::string & geomName,
         const ::urdf::GeometrySharedPtr urdf_geometry,
@@ -145,7 +145,7 @@ namespace pinocchio
         std::string & meshPath,
         Eigen::Vector3d & meshScale)
       {
-        std::shared_ptr<fcl::CollisionGeometry> geometry;
+        std::shared_ptr<coal::CollisionGeometry> geometry;
 
         // Handle the case where collision geometry is a mesh
         if (urdf_geometry->type == ::urdf::Geometry::MESH)
@@ -162,28 +162,28 @@ namespace pinocchio
             throw std::invalid_argument(ss.str());
           }
 
-          fcl::Vec3f scale = fcl::Vec3f(urdf_mesh->scale.x, urdf_mesh->scale.y, urdf_mesh->scale.z);
+          coal::Vec3f scale = coal::Vec3f(urdf_mesh->scale.x, urdf_mesh->scale.y, urdf_mesh->scale.z);
 
           retrieveMeshScale(urdf_mesh, meshScale);
 
-          // Create FCL mesh by parsing Collada file.
+          // Create coal mesh by parsing Collada file.
           coal::BVHModelPtr_t bvh = meshLoader->load(meshPath, scale);
           bool convex = tree.isMeshConvex(linkName, geomName);
           if (convex)
           {
             bvh->buildConvexRepresentation(false);
-            geometry = std::shared_ptr<fcl::CollisionGeometry>(
+            geometry = std::shared_ptr<coal::CollisionGeometry>(
               bvh->convex.get(), [bvh](...) mutable { bvh->convex.reset(); });
           }
           else
           {
-            geometry = std::shared_ptr<fcl::CollisionGeometry>(
+            geometry = std::shared_ptr<coal::CollisionGeometry>(
               bvh.get(), [bvh](...) mutable { bvh.reset(); });
           }
         }
 
         // Handle the case where collision geometry is a cylinder
-        // Use FCL capsules for cylinders
+        // Use coal capsules for cylinders
         else if (urdf_geometry->type == ::urdf::Geometry::CYLINDER)
         {
           const bool is_capsule = tree.isCapsule(linkName, geomName);
@@ -194,16 +194,16 @@ namespace pinocchio
           double radius = collisionGeometry->radius;
           double length = collisionGeometry->length;
 
-          // Create fcl capsule geometry.
+          // Create coal capsule geometry.
           if (is_capsule)
           {
             meshPath = "CAPSULE";
-            geometry = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule(radius, length));
+            geometry = std::shared_ptr<coal::CollisionGeometry>(new coal::Capsule(radius, length));
           }
           else
           {
             meshPath = "CYLINDER";
-            geometry = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Cylinder(radius, length));
+            geometry = std::shared_ptr<coal::CollisionGeometry>(new coal::Cylinder(radius, length));
           }
         }
         // Handle the case where collision geometry is a box.
@@ -218,7 +218,7 @@ namespace pinocchio
           double y = collisionGeometry->dim.y;
           double z = collisionGeometry->dim.z;
 
-          geometry = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Box(x, y, z));
+          geometry = std::shared_ptr<coal::CollisionGeometry>(new coal::Box(x, y, z));
         }
         // Handle the case where collision geometry is a sphere.
         else if (urdf_geometry->type == ::urdf::Geometry::SPHERE)
@@ -230,7 +230,7 @@ namespace pinocchio
 
           double radius = collisionGeometry->radius;
 
-          geometry = std::shared_ptr<fcl::CollisionGeometry>(new fcl::Sphere(radius));
+          geometry = std::shared_ptr<coal::CollisionGeometry>(new coal::Sphere(radius));
         }
         else
           throw std::invalid_argument("Unknown geometry type :");
@@ -350,7 +350,7 @@ namespace pinocchio
        *             either for collisions or visuals
        *
        * @param[in]  tree           The URDF kinematic tree
-       * @param[in]  meshLoader     The FCL mesh loader to avoid duplications of already loaded
+       * @param[in]  meshLoader     The coal mesh loader to avoid duplications of already loaded
        * geometries
        * @param[in]  link            The current URDF link
        * @param      model           The model to which is the GeometryModel associated
@@ -414,7 +414,7 @@ namespace pinocchio
               retrieveMeshScale(urdf_mesh, meshScale);
             }
 
-            const std::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
+            const std::shared_ptr<coal::CollisionGeometry> geometry(new coal::CollisionGeometry());
 #endif // PINOCCHIO_WITH_COAL
 
             Eigen::Vector4d meshColor;
@@ -442,7 +442,7 @@ namespace pinocchio
        * URDF tree
        *
        * @param[in]  tree           The URDF kinematic tree
-       * @param[in]  meshLoader     The FCL mesh loader to avoid duplications of already loaded
+       * @param[in]  meshLoader     The coal mesh loader to avoid duplications of already loaded
        * geometries
        * @param[in]  link           The current URDF link
        * @param      model          The model to which is the GeometryModel associated
@@ -510,7 +510,7 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_COAL
         if (!meshLoader)
-          meshLoader = fcl::MeshLoaderPtr(new fcl::MeshLoader);
+          meshLoader = coal::MeshLoaderPtr(new coal::MeshLoader);
 #endif // ifdef PINOCCHIO_WITH_COAL
 
         recursiveParseTreeForGeom(

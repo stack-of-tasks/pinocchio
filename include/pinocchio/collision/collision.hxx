@@ -19,7 +19,7 @@ namespace pinocchio
     const GeometryModel & geom_model,
     GeometryData & geom_data,
     const PairIndex pair_id,
-    fcl::CollisionRequest & collision_request)
+    coal::CollisionRequest & collision_request)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(
       geom_model.collisionPairs.size() == geom_data.collisionResults.size());
@@ -33,11 +33,11 @@ namespace pinocchio
     collision_request.distance_upper_bound =
       collision_request.security_margin + 1e-6; // TODO: change the margin
 
-    fcl::CollisionResult & collision_result = geom_data.collisionResults[pair_id];
+    coal::CollisionResult & collision_result = geom_data.collisionResults[pair_id];
     collision_result.clear();
 
-    fcl::Transform3f oM1(toFclTransform3f(geom_data.oMg[pair.first])),
-      oM2(toFclTransform3f(geom_data.oMg[pair.second]));
+    coal::Transform3f oM1(toCoalTransform3f(geom_data.oMg[pair.first])),
+      oM2(toCoalTransform3f(geom_data.oMg[pair.second]));
 
     try
     {
@@ -70,7 +70,7 @@ namespace pinocchio
     const GeometryModel & geom_model, GeometryData & geom_data, const PairIndex pair_id)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(pair_id < geom_model.collisionPairs.size());
-    fcl::CollisionRequest & collision_request = geom_data.collisionRequests[pair_id];
+    coal::CollisionRequest & collision_request = geom_data.collisionRequests[pair_id];
 
     return computeCollision(geom_model, geom_data, pair_id, collision_request);
   }
@@ -131,9 +131,9 @@ namespace pinocchio
   /* --- RADIUS -------------------------------------------------------------------- */
 
   /// Given p1..3 being either "min" or "max", return one of the corners of the
-  /// AABB cub of the FCL object.
-#define PINOCCHIO_GEOM_AABB(FCL, p1, p2, p3)                                                       \
-  SE3::Vector3(FCL->aabb_local.p1##_[0], FCL->aabb_local.p2##_[1], FCL->aabb_local.p3##_[2])
+  /// AABB cub of the Coal object.
+#define PINOCCHIO_GEOM_AABB(COAL, p1, p2, p3)                                                       \
+  SE3::Vector3(COAL->aabb_local.p1##_[0], COAL->aabb_local.p2##_[1], COAL->aabb_local.p3##_[2])
 
   /// For all bodies of the model, compute the point of the geometry model
   /// that is the further from the center of the joint. This quantity is used

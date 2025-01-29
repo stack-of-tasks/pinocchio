@@ -58,14 +58,14 @@ namespace pinocchio
       }
 
       /**
-       * @brief      Get a fcl::CollisionObject from an mjcf geometry, searching
+       * @brief      Get a coal::CollisionObject from an mjcf geometry, searching
        *             for it in specified package directories
        *
        * @param[in]  geom  A mjcf geometry object
-       * @return     A shared pointer on the geometry converted as a fcl::CollisionGeometry
+       * @return     A shared pointer on the geometry converted as a coal::CollisionGeometry
        */
 #ifdef PINOCCHIO_WITH_COAL
-      static std::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(
+      static std::shared_ptr<coal::CollisionGeometry> retrieveCollisionGeometry(
         ::coal::MeshLoaderPtr & meshLoader,
         const MjcfGeom & geom,
         const MjcfGraph & currentGraph,
@@ -81,7 +81,7 @@ namespace pinocchio
             // Scale vertices
             for (std::size_t i = 0; i < vertices.rows(); ++i)
               vertices.row(i) = vertices.row(i).cwiseProduct(currentMesh.scale.transpose());
-            auto model = std::make_shared<coal::BVHModel<fcl::OBBRSS>>();
+            auto model = std::make_shared<coal::BVHModel<coal::OBBRSS>>();
             model->beginModel();
             model->addVertices(vertices);
             model->endModel();
@@ -99,7 +99,7 @@ namespace pinocchio
           meshScale << 1, 1, 1;
           double radius = geom.size(0);
           double height = geom.size(1) * 2;
-          return std::make_shared<fcl::Cylinder>(radius, height);
+          return std::make_shared<coal::Cylinder>(radius, height);
         }
         else if (geom.geomType == "box")
         {
@@ -108,14 +108,14 @@ namespace pinocchio
           double x = geom.size(0);
           double y = geom.size(1);
           double z = geom.size(2);
-          return std::make_shared<fcl::Box>(x, y, z);
+          return std::make_shared<coal::Box>(x, y, z);
         }
         else if (geom.geomType == "sphere")
         {
           meshPath = "SPHERE";
           meshScale << 1, 1, 1;
           double radius = geom.size(0);
-          return std::make_shared<fcl::Sphere>(radius);
+          return std::make_shared<coal::Sphere>(radius);
         }
         else if (geom.geomType == "ellipsoid")
         {
@@ -124,7 +124,7 @@ namespace pinocchio
           double rx = geom.size(0);
           double ry = geom.size(1);
           double rz = geom.size(2);
-          return std::make_shared<fcl::Ellipsoid>(rx, ry, rz);
+          return std::make_shared<coal::Ellipsoid>(rx, ry, rz);
         }
         else if (geom.geomType == "capsule")
         {
@@ -132,20 +132,20 @@ namespace pinocchio
           meshScale << 1, 1, 1;
           double radius = geom.size(0);
           double height = geom.size(1) * 2;
-          return std::make_shared<fcl::Capsule>(radius, height);
+          return std::make_shared<coal::Capsule>(radius, height);
         }
         else
           throw std::invalid_argument("Unknown geometry type :"); // Missing plane, hfield and sdf
       }
 #else
-      static std::shared_ptr<fcl::CollisionGeometry> retrieveCollisionGeometry(
+      static std::shared_ptr<coal::CollisionGeometry> retrieveCollisionGeometry(
         ::coal::MeshLoaderPtr &,
         const MjcfGeom &,
         const MjcfGraph &,
         std::string &,
         Eigen::Vector3d &)
       {
-        return std::make_shared<fcl::CollisionGeometry>();
+        return std::make_shared<coal::CollisionGeometry>();
       }
 #endif
 
@@ -529,7 +529,7 @@ namespace pinocchio
       {
 #ifdef PINOCCHIO_WITH_COAL
         if (!meshLoader)
-          meshLoader = std::make_shared<fcl::MeshLoader>(fcl::MeshLoader());
+          meshLoader = std::make_shared<coal::MeshLoader>(coal::MeshLoader());
 #endif // ifdef PINOCCHIO_WITH_COAL
 
         for (const auto & entry : bodiesList)

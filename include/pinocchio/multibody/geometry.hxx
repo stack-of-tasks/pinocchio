@@ -294,7 +294,7 @@ namespace pinocchio
          << std::endl;
     }
 #else
-    os << "WARNING** Without fcl library, no collision checking or distance computations are "
+    os << "WARNING** Without coal library, no collision checking or distance computations are "
           "possible. Only geometry placements can be computed."
        << std::endl;
 #endif

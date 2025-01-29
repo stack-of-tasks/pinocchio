@@ -18,14 +18,11 @@ namespace coal
   typedef std::shared_ptr<MeshLoader> MeshLoaderPtr;
 } // namespace coal
 #else
-namespace hpp
-{
-  namespace fcl
+  namespace coal
   {
     class MeshLoader;
     typedef std::shared_ptr<MeshLoader> MeshLoaderPtr;
-  } // namespace fcl
-} // namespace hpp
+  } // namespace coal
 #endif // COAL_VERSION
 
 #endif // __pinocchio_parsers_meshloader_fwd_hpp__

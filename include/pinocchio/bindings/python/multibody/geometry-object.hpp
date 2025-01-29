@@ -96,7 +96,7 @@ namespace pinocchio
             bp::make_setter(&GeometryObject::meshColor), "Color rgba of the mesh.")
           .def_readwrite(
             "geometry", &GeometryObject::geometry,
-            "The FCL CollisionGeometry associated to the given GeometryObject.")
+            "The Coal CollisionGeometry associated to the given GeometryObject.")
           .def_readwrite(
             "name", &GeometryObject::name, "Name associated to the given GeometryObject.")
           .def_readwrite("parentJoint", &GeometryObject::parentJoint, "Index of the parent joint.")
@@ -117,7 +117,7 @@ namespace pinocchio
             "Geometry and any other geometry.")
           .def(
             "clone", &GeometryObject::clone, bp::arg("self"),
-            "Perform a deep copy of this. It will create a copy of the underlying FCL geometry.")
+            "Perform a deep copy of this. It will create a copy of the underlying Coal geometry.")
           .add_property(
             "meshMaterial",
             bp::make_getter(&GeometryObject::meshMaterial, Converter::return_internal_reference()),
@@ -148,7 +148,7 @@ namespace pinocchio
       {
         return GeometryObject(
           "", JointIndex(0), FrameIndex(0), SE3::Identity(),
-          std::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule(radius, length)));
+          std::shared_ptr<coal::CollisionGeometry>(new coal::Capsule(radius, length)));
       }
 #endif // PINOCCHIO_WITH_COAL
 
@@ -175,7 +175,7 @@ namespace pinocchio
         if (!register_symbolic_link_to_registered_type<CollisionObject>())
         {
           bp::class_<CollisionObject, bp::bases<::coal::CollisionObject>>(
-            "CollisionObject", "A Pinocchio collision object derived from FCL CollisionObject.",
+            "CollisionObject", "A Pinocchio collision object derived from Coal CollisionObject.",
             bp::no_init)
             .def(bp::init<
                  const std::shared_ptr<::coal::CollisionGeometry> &,

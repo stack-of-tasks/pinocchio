@@ -629,7 +629,7 @@ BOOST_AUTO_TEST_CASE(test_Inertia)
   BOOST_CHECK_SMALL(I1.lever().norm(), 1e-12);
   BOOST_CHECK(I1.inertia().matrix().isApprox(
     Symmetric3(3.79705882, 0., 3.79705882, 0., 0., 1.81176471).matrix(),
-    1e-5)); // Computed with hppfcl::Capsule
+    1e-5)); // Computed with coal::Capsule
 
   // Copy operator
   Inertia aI_copy(aI);

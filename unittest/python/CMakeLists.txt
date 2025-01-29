@@ -48,7 +48,7 @@ set(${PROJECT_NAME}_PYTHON_TESTS
 
 if(BUILD_WITH_COAL_SUPPORT)
   set(${PROJECT_NAME}_PYTHON_TESTS ${${PROJECT_NAME}_PYTHON_TESTS} bindings_geometry_object)
-  set(${PROJECT_NAME}_PYTHON_TESTS ${${PROJECT_NAME}_PYTHON_TESTS} bindings_fcl_transform)
+  set(${PROJECT_NAME}_PYTHON_TESTS ${${PROJECT_NAME}_PYTHON_TESTS} bindings_coal_transform)
 endif()
 
 if(urdfdom_FOUND)
