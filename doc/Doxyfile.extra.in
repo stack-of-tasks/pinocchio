@@ -1,4 +1,4 @@
-# If the INLINE_INHERITED_MEMB tag is set to YES, doxygen will show all
+PPIf the INLINE_INHERITED_MEMB tag is set to YES, doxygen will show all
 # inherited members of a class in the documentation of that class as if those
 # members were ordinary class members. Constructors, destructors and assignment
 # operators of the base classes will not be shown.
@@ -604,7 +604,7 @@ EXPAND_ONLY_PREDEF     = YES
 
 PREDEFINED             += EIGEN_MAKE_ALIGNED_OPERATOR_NEW \
                           EIGEN_STRONG_INLINE=inline \
-                          PINOCCHIO_WITH_HPP_FCL \
+                          PINOCCHIO_WITH_COAL \
                           PINOCCHIO_WITH_URDFDOM \
                           PINOCCHIO_WITH_CPPAD_SUPPORT \
                           PINOCCHIO_WITH_CPPADCG_SUPPORT \
