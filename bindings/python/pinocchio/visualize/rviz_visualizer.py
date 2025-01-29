@@ -9,9 +9,9 @@ from . import BaseVisualizer
 try:
     import coal
 
-    WITH_HPP_FCL_BINDINGS = True
+    WITH_COAL_BINDINGS = True
 except ImportError:
-    WITH_HPP_FCL_BINDINGS = False
+    WITH_COAL_BINDINGS = False
 
 
 def create_capsule_markers(marker_ref, oMg, d, fl):
@@ -227,7 +227,7 @@ class RVizVisualizer(BaseVisualizer):
 
             # Create geometry
             geom = obj.geometry
-            if WITH_HPP_FCL_BINDINGS and isinstance(geom, coal.ShapeBase):
+            if WITH_COAL_BINDINGS and isinstance(geom, coal.ShapeBase):
                 # append a primitive geometry
                 if isinstance(geom, coal.Cylinder):
                     d, fl = 2 * geom.radius, 2 * geom.halfLength

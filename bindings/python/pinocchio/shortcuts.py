@@ -8,7 +8,7 @@
 # TODO: Remove when 20.04 is not supported
 from __future__ import annotations
 
-from . import WITH_HPP_FCL, WITH_HPP_FCL_BINDINGS
+from . import WITH_COAL, WITH_COAL_BINDINGS
 from . import pinocchio_pywrap_default as pin
 
 nle = pin.nonLinearEffects
@@ -75,11 +75,11 @@ def _buildModelsFromUrdf(
     else:
         model = pin.buildModelFromUrdf(filename, root_joint, root_joint_name)
 
-    if verbose and not WITH_HPP_FCL and meshLoader is not None:
+    if verbose and not WITH_COAL and meshLoader is not None:
         print(
             "Info: MeshLoader is ignored. Pinocchio has not been compiled with HPP-FCL."
         )
-    if verbose and not WITH_HPP_FCL_BINDINGS and meshLoader is not None:
+    if verbose and not WITH_COAL_BINDINGS and meshLoader is not None:
         print(
             "Info: MeshLoader is ignored. The HPP-FCL Python bindings have not been installed."
         )
@@ -92,7 +92,7 @@ def _buildModelsFromUrdf(
         geometry_types = [geometry_types]
 
     for geometry_type in geometry_types:
-        if meshLoader is None or (not WITH_HPP_FCL and not WITH_HPP_FCL_BINDINGS):
+        if meshLoader is None or (not WITH_COAL and not WITH_COAL_BINDINGS):
             geom_model = pin.buildGeomFromUrdf(
                 model, filename, geometry_type, package_dirs=package_dirs
             )
@@ -200,11 +200,11 @@ def _buildModelsFromSdf(
         model, constraint_models = pin.buildModelFromSdf(
             filename, root_joint, root_link_name, root_joint_name, parent_guidance
         )
-    if verbose and not WITH_HPP_FCL and meshLoader is not None:
+    if verbose and not WITH_COAL and meshLoader is not None:
         print(
             "Info: MeshLoader is ignored. Pinocchio has not been compiled with HPP-FCL."
         )
-    if verbose and not WITH_HPP_FCL_BINDINGS and meshLoader is not None:
+    if verbose and not WITH_COAL_BINDINGS and meshLoader is not None:
         print(
             "Info: MeshLoader is ignored. The HPP-FCL Python bindings have not been installed."
         )
@@ -217,7 +217,7 @@ def _buildModelsFromSdf(
         geometry_types = [geometry_types]
 
     for geometry_type in geometry_types:
-        if meshLoader is None or (not WITH_HPP_FCL and not WITH_HPP_FCL_BINDINGS):
+        if meshLoader is None or (not WITH_COAL and not WITH_COAL_BINDINGS):
             geom_model = pin.buildGeomFromSdf(
                 model, filename, geometry_type, root_link_name, package_dirs
             )
@@ -291,11 +291,11 @@ def _buildModelsFromMJCF(
             filename, root_joint, root_joint_name
         )
 
-    if verbose and not WITH_HPP_FCL and meshLoader is not None:
+    if verbose and not WITH_COAL and meshLoader is not None:
         print(
             "Info: MeshLoader is ignored. Pinocchio has not been compiled with HPP-FCL."
         )
-    if verbose and not WITH_HPP_FCL_BINDINGS and meshLoader is not None:
+    if verbose and not WITH_COAL_BINDINGS and meshLoader is not None:
         print(
             "Info: MeshLoader is ignored. "
             "The HPP-FCL Python bindings have not been installed."
@@ -309,7 +309,7 @@ def _buildModelsFromMJCF(
         geometry_types = [geometry_types]
 
     for geometry_type in geometry_types:
-        if meshLoader is None or (not WITH_HPP_FCL and not WITH_HPP_FCL_BINDINGS):
+        if meshLoader is None or (not WITH_COAL and not WITH_COAL_BINDINGS):
             geom_model = pin.buildGeomFromMJCF(model, filename, geometry_type)
         else:
             geom_model = pin.buildGeomFromMJCF(

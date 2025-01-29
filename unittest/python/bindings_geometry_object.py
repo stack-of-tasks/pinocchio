@@ -4,7 +4,7 @@ import numpy as np
 import pinocchio as pin
 
 
-@unittest.skipUnless(pin.WITH_HPP_FCL, "Needs HPP-FCL")
+@unittest.skipUnless(pin.WITH_COAL, "Needs HPP-FCL")
 class TestGeometryObjectBindings(unittest.TestCase):
     def setUp(self):
         self.model = pin.buildSampleModelHumanoid()

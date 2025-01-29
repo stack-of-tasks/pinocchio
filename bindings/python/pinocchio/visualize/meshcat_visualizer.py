@@ -32,9 +32,9 @@ MsgType = "dict[str, Union[str, bytes, bool, float, 'MsgType']]"
 try:
     import coal
 
-    WITH_HPP_FCL_BINDINGS = True
+    WITH_COAL_BINDINGS = True
 except ImportError:
-    WITH_HPP_FCL_BINDINGS = False
+    WITH_COAL_BINDINGS = False
 
 DEFAULT_COLOR_PROFILES = {
     "gray": ([0.98, 0.98, 0.98], [0.8, 0.8, 0.8]),
@@ -226,7 +226,7 @@ if import_meshcat_succeed:
 
 
 if (
-    WITH_HPP_FCL_BINDINGS
+    WITH_COAL_BINDINGS
     and tuple(map(int, coal.__version__.split("."))) >= (3, 0, 0)
     and coal.WITH_OCTOMAP
 ):
@@ -299,7 +299,7 @@ else:
         raise NotImplementedError("loadOctree need coal with octomap support")
 
 
-if WITH_HPP_FCL_BINDINGS:
+if WITH_COAL_BINDINGS:
 
     def loadMesh(mesh):
         if isinstance(mesh, (coal.HeightFieldOBBRSS, coal.HeightFieldAABB)):
@@ -459,7 +459,7 @@ def loadPrimitive(geometry_object):
 
     geom = geometry_object.geometry
     obj = None
-    if WITH_HPP_FCL_BINDINGS and isinstance(geom, coal.ShapeBase):
+    if WITH_COAL_BINDINGS and isinstance(geom, coal.ShapeBase):
         if isinstance(geom, coal.Capsule):
             if hasattr(mg, "TriangularMeshGeometry"):
                 obj = createCapsule(2.0 * geom.halfLength, geom.radius)
@@ -727,7 +727,7 @@ class MeshcatVisualizer(BaseVisualizer):
 
         geom = geometry_object.geometry
         obj = None
-        if WITH_HPP_FCL_BINDINGS and isinstance(geom, coal.ShapeBase):
+        if WITH_COAL_BINDINGS and isinstance(geom, coal.ShapeBase):
             if isinstance(geom, coal.Capsule):
                 if hasattr(mg, "TriangularMeshGeometry"):
                     obj = createCapsule(2.0 * geom.halfLength, geom.radius)
@@ -808,7 +808,7 @@ class MeshcatVisualizer(BaseVisualizer):
 
         try:
             obj = None
-            if WITH_HPP_FCL_BINDINGS:
+            if WITH_COAL_BINDINGS:
                 if isinstance(geometry_object.geometry, coal.ShapeBase):
                     obj = self.loadPrimitive(geometry_object)
                 elif (
@@ -999,7 +999,7 @@ class MeshcatVisualizer(BaseVisualizer):
             # Manage scaling: force scaling even if this should be normally handled by
             # MeshCat (but there is a bug here)
             geom = visual.geometry
-            if WITH_HPP_FCL_BINDINGS and isinstance(
+            if WITH_COAL_BINDINGS and isinstance(
                 geom, (coal.Plane, coal.Halfspace)
             ):
                 T = M.copy()

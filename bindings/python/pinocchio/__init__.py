@@ -47,7 +47,7 @@ for module_info in submodules:
 sys.modules["pinocchio.rpy"] = rpy
 sys.modules["pinocchio.cholesky"] = cholesky
 
-if WITH_HPP_FCL:
+if WITH_COAL:
     try:
         import coal
         from coal import (
@@ -62,11 +62,11 @@ if WITH_HPP_FCL:
             StdVec_DistanceResult,
         )
 
-        WITH_HPP_FCL_BINDINGS = True
+        WITH_COAL_BINDINGS = True
     except ImportError:
-        WITH_HPP_FCL_BINDINGS = False
+        WITH_COAL_BINDINGS = False
 else:
-    WITH_HPP_FCL_BINDINGS = False
+    WITH_COAL_BINDINGS = False
 
 from .deprecated import *
 from .robot_wrapper import RobotWrapper

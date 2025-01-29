@@ -9,9 +9,9 @@ from .base_visualizer import BaseVisualizer
 try:
     import coal
 
-    WITH_HPP_FCL_BINDINGS = True
+    WITH_COAL_BINDINGS = True
 except ImportError:
-    WITH_HPP_FCL_BINDINGS = False
+    WITH_COAL_BINDINGS = False
 
 
 class Panda3dVisualizer(BaseVisualizer):
@@ -45,7 +45,7 @@ class Panda3dVisualizer(BaseVisualizer):
 
         def append(root, obj):
             geom = obj.geometry
-            if WITH_HPP_FCL_BINDINGS and isinstance(geom, coal.ShapeBase):
+            if WITH_COAL_BINDINGS and isinstance(geom, coal.ShapeBase):
                 # append a primitive geometry
                 if isinstance(geom, coal.Capsule):
                     r, fl = geom.radius, 2 * geom.halfLength

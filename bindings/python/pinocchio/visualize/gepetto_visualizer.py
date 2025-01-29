@@ -10,9 +10,9 @@ from . import BaseVisualizer
 try:
     import coal
 
-    WITH_HPP_FCL_BINDINGS = True
+    WITH_COAL_BINDINGS = True
 except:  # noqa: E722
-    WITH_HPP_FCL_BINDINGS = False
+    WITH_COAL_BINDINGS = False
 
 
 class GepettoVisualizer(BaseVisualizer):
@@ -145,7 +145,7 @@ class GepettoVisualizer(BaseVisualizer):
         meshColor = geometry_object.meshColor
 
         try:
-            if WITH_HPP_FCL_BINDINGS and isinstance(
+            if WITH_COAL_BINDINGS and isinstance(
                 geometry_object.geometry, coal.ShapeBase
             ):
                 success = self.loadPrimitive(meshName, geometry_object)

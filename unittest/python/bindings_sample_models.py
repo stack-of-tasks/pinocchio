@@ -18,7 +18,7 @@ class TestSampleModels(TestCase):
 
         manipulator_1 = pin.buildSampleModelManipulator()
 
-        if pin.WITH_HPP_FCL:
+        if pin.WITH_COAL:
             _geometry_manipulator_1 = pin.buildSampleGeometryModelManipulator(
                 manipulator_1
             )
@@ -30,7 +30,7 @@ class TestSampleModels(TestCase):
         self.assertTrue(humanoid_4 == humanoid_5)
         self.assertTrue(humanoid_4 != humanoid_6)
 
-        if pin.WITH_HPP_FCL:
+        if pin.WITH_COAL:
             _geometry_humanoid_2 = pin.buildSampleGeometryModelHumanoid(humanoid_4)
 
 

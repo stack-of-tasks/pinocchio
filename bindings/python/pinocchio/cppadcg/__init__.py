@@ -13,7 +13,7 @@ from ..pinocchio_pywrap_cppadcg import __raw_version__, __version__
 sys.modules["pinocchio.cppadcg.rpy"] = rpy
 sys.modules["pinocchio.cppadcg.cholesky"] = cholesky
 
-if WITH_HPP_FCL:
+if WITH_COAL:
     try:
         import coal
         from coal import (
@@ -28,8 +28,8 @@ if WITH_HPP_FCL:
             StdVec_DistanceResult,
         )
 
-        WITH_HPP_FCL_BINDINGS = True
+        WITH_COAL_BINDINGS = True
     except ImportError:
-        WITH_HPP_FCL_BINDINGS = False
+        WITH_COAL_BINDINGS = False
 else:
-    WITH_HPP_FCL_BINDINGS = False
+    WITH_COAL_BINDINGS = False

@@ -18,5 +18,5 @@ class TestFCLTransformConversion(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    if pin.WITH_HPP_FCL_BINDINGS:
+    if pin.WITH_COAL_BINDINGS:
         unittest.main()
