@@ -176,7 +176,7 @@ Here, you can install Pinocchio using:
 sudo apt install ros-$ROS_DISTRO-pinocchio
 ```
 
-This installs Pinocchio with HPP-FCL support and with Python bindings.
+This installs Pinocchio with coal support and with Python bindings.
 You can then use Pinocchio in your ROS packages by:
 
 * Depending on Pinocchio in your `package.xml` config (`<depend>pinocchio</depend>`)
@@ -254,10 +254,10 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Justin Carpentier](https://jcarpent.github.io) (Inria): main developer and manager of the project
 -   [Nicolas Mansard](http://projects.laas.fr/gepetto/index.php/Members/NicolasMansard) (LAAS-CNRS): initial project instructor
 -   [Guilhem Saurel](http://projects.laas.fr/gepetto/index.php/Members/GuilhemSaurel) (LAAS-CNRS): continuous integration and deployment
--   [Joseph Mirabel](http://jmirabel.github.io/) (Eureka Robotics): Lie groups and hpp-fcl implementation
+-   [Joseph Mirabel](http://jmirabel.github.io/) (Eureka Robotics): Lie groups and coal implementation
 -   [Antonio El Khoury](https://www.linkedin.com/in/antonioelkhoury) (Wandercraft): bug fixes
 -   [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): features extension, bug fixes, and Python bindings
--   [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and hpp-fcl support
+-   [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and coal support
 -   [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Oxford): ROS integration and support
 -   [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
 -   [Loïc Estève](https://github.com/lesteve) (Inria): Conda integration and support
