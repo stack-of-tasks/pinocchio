@@ -971,6 +971,12 @@ namespace pinocchio
   typedef JointDataHelicalTpl<context::Scalar, context::Options, 2> JointDataHZ;
   typedef JointModelHelicalTpl<context::Scalar, context::Options, 2> JointModelHZ;
 
+  template<typename Scalar, int Options, int axis>
+  struct ConfigVectorAffineTransform<JointHelicalTpl<Scalar, Options, axis>>
+  {
+    typedef LinearAffineTransform Type;
+  };
+
 } // namespace pinocchio
 
 #include <boost/type_traits.hpp>

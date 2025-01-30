@@ -6,6 +6,7 @@
 #include "pinocchio/algorithm/contact-jacobian.hpp"
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
 
 namespace bp = boost::python;
 
@@ -49,11 +50,13 @@ namespace pinocchio
       bp::def(
         "getConstraintJacobian", getConstraintJacobian_proxy,
         bp::args("model", "data", "contact_model", "contact_data"),
-        "Computes the kinematic Jacobian associatied to a given constraint model.");
+        "Computes the kinematic Jacobian associatied to a given constraint model.",
+        mimic_not_supported_function<>(0));
       bp::def(
         "getConstraintsJacobian", getConstraintsJacobian_proxy,
         bp::args("model", "data", "contact_models", "contact_datas"),
-        "Computes the kinematic Jacobian associatied to a given set of constraint models.");
+        "Computes the kinematic Jacobian associatied to a given set of constraint models.",
+        mimic_not_supported_function<>(0));
     }
   } // namespace python
 } // namespace pinocchio

@@ -19,7 +19,7 @@ class TestContactInverseDynamics(TestCase):
 
     def load_model(self):
         self.model = pin.buildModelFromUrdf(
-            self.urdf_model_path, pin.JointModelFreeFlyer(), False
+            self.urdf_model_path, pin.JointModelFreeFlyer()
         )
         pin.loadReferenceConfigurations(self.model, self.srdf_full_path)
         self.q0 = self.model.referenceConfigurations["half_sitting"]

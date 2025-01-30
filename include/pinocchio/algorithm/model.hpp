@@ -209,8 +209,8 @@ namespace pinocchio
    * was previously.
    *
    *  \param[in] model the input model to take joints from.
-   *  \param[in] index_primary index of the joint to mimic
-   *  \param[in] index_secondary index of the joint that will mimic
+   *  \param[in] index_mimicked index of the joint to mimic
+   *  \param[in] index_mimicking index of the joint that will mimic
    *  \param[in] scaling Scaling of joint velocity and configuration
    *  \param[in] offset Offset of joint configuration
    *  \param[out] output_model Model with the joint mimic
@@ -219,10 +219,31 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   void transformJointIntoMimic(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & input_model,
-    const JointIndex & index_primary,
-    const JointIndex & index_secondary,
+    const JointIndex & index_mimicked,
+    const JointIndex & index_mimicking,
     const Scalar & scaling,
     const Scalar & offset,
+    ModelTpl<Scalar, Options, JointCollectionTpl> & output_model);
+
+  /**
+   *
+   *  \brief Transform joints of a model into mimic joints
+   *
+   *  \param[in] model the input model to take joints from.
+   *  \param[in] index_mimicked indexes of the joint to mimic
+   *  \param[in] index_mimicking indexes of the joint that will mimic
+   *  \param[in] scaling Scalings of joint velocity and configuration
+   *  \param[in] offset Offsets of joint configuration
+   *  \param[out] output_model Model with the joint mimic
+   *
+   */
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  void buildMimicModel(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & input_model,
+    const std::vector<JointIndex> & index_mimicked,
+    const std::vector<JointIndex> & index_mimicking,
+    const std::vector<Scalar> & scaling,
+    const std::vector<Scalar> & offset,
     ModelTpl<Scalar, Options, JointCollectionTpl> & output_model);
 
   /**

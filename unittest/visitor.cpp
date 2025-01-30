@@ -265,7 +265,7 @@ struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
     jmodel_ref.setIndexes(0, 0, 0, 0);
 
     JointModel jmodel(jmodel_ref, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     return jmodel;
   }

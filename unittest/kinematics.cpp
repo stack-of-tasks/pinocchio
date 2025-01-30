@@ -14,6 +14,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include "utils/model-generator.hpp"
+
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_kinematics_constant_vector_input)
@@ -332,6 +334,40 @@ BOOST_AUTO_TEST_CASE(test_kinematic_getters)
   BOOST_CHECK(ac_world.isApprox(getClassicalAcceleration(model, data, jointId, WORLD)));
   BOOST_CHECK(
     ac_align.isApprox(getClassicalAcceleration(model, data, jointId, LOCAL_WORLD_ALIGNED)));
+}
+
+BOOST_AUTO_TEST_CASE(test_kinematics_mimic)
+{
+  for (int i = 0; i < pinocchio::MimicTestCases::N_CASES; i++)
+  {
+    const pinocchio::MimicTestCases mimic_test_case(i);
+    const pinocchio::Model & model_mimic = mimic_test_case.model_mimic;
+    const pinocchio::Model & model_full = mimic_test_case.model_full;
+    const Eigen::MatrixXd & G = mimic_test_case.G;
+
+    Eigen::VectorXd q = pinocchio::randomConfiguration(model_mimic);
+    Eigen::VectorXd v = Eigen::VectorXd::Random(model_mimic.nv);
+    Eigen::VectorXd a = Eigen::VectorXd::Random(model_mimic.nv);
+
+    Eigen::VectorXd q_full(model_full.nq);
+    Eigen::VectorXd v_full = G * v;
+    Eigen::VectorXd a_full = G * v;
+
+    mimic_test_case.toFull(q, q_full);
+
+    pinocchio::Data dataFKFull(model_full);
+    pinocchio::forwardKinematics(model_full, dataFKFull, q_full, v_full, a_full);
+
+    pinocchio::Data dataFKRed(model_mimic);
+    pinocchio::forwardKinematics(model_mimic, dataFKRed, q, v, a);
+
+    for (int i = 0; i < model_full.njoints; i++)
+    {
+      BOOST_CHECK(dataFKRed.oMi[i].isApprox(dataFKFull.oMi[i]));
+      BOOST_CHECK(dataFKRed.liMi[i].isApprox(dataFKFull.liMi[i]));
+      BOOST_CHECK(model_full.inertias[i].isApprox(model_mimic.inertias[i]));
+    }
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

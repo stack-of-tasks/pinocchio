@@ -6,6 +6,7 @@
 
 #include "pinocchio/bindings/python/utils/eigen.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
 
 #include "pinocchio/algorithm/delassus.hpp"
 
@@ -60,13 +61,15 @@ namespace pinocchio
         "computeDelassusMatrix", computeDelassusMatrix_proxy,
         (bp::arg("model"), bp::arg("data"), bp::arg("q"), bp::arg("contact_models"),
          bp::arg("contact_datas"), bp::arg("mu") = 0),
-        "Computes the Delassus matrix associated to a set of given constraints.");
+        "Computes the Delassus matrix associated to a set of given constraints.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeDampedDelassusMatrixInverse", computeDampedDelassusMatrixInverse_proxy,
         (bp::arg("model"), bp::arg("data"), bp::arg("q"), bp::arg("contact_models"),
          bp::arg("contact_datas"), bp::arg("mu") = 0),
-        "Computes the inverse of the Delassus matrix associated to a set of given constraints.");
+        "Computes the inverse of the Delassus matrix associated to a set of given constraints.",
+        mimic_not_supported_function<>(0));
     }
   } // namespace python
 } // namespace pinocchio

@@ -132,7 +132,6 @@ void generic_test(const T & object, const std::string & filename, const std::str
 
     delete &object_loaded;
   }
-
   // Load and save as XML
   const std::string xml_filename = filename + ".xml";
   saveToXML(object, xml_filename, tag_name);
@@ -140,7 +139,6 @@ void generic_test(const T & object, const std::string & filename, const std::str
   {
     T & object_loaded = *empty_contructor<T>();
     loadFromXML(object_loaded, xml_filename, tag_name);
-
     // Check
     BOOST_CHECK(run_call_equality_op(object_loaded, object));
 
@@ -272,7 +270,7 @@ struct init
   static JointModel_ run()
   {
     JointModel_ jmodel;
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -287,7 +285,7 @@ struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -302,7 +300,7 @@ struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -317,7 +315,7 @@ struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -332,7 +330,7 @@ struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -346,7 +344,7 @@ struct init<pinocchio::JointModelHelicalTpl<Scalar, Options, axis>>
   {
     JointModel jmodel(static_cast<Scalar>(0.0));
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -361,7 +359,7 @@ struct init<pinocchio::JointModelTpl<Scalar, Options, JointCollection>>
     typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
     JointModel jmodel((JointModelRX()));
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -375,7 +373,7 @@ struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
   {
     JointModel jmodel(pinocchio::XAxis::vector(), pinocchio::YAxis::vector());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -392,7 +390,7 @@ struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
     JointModel jmodel((JointModelRX()));
     jmodel.addJoint(JointModelRY());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -408,7 +406,7 @@ struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
     JointModelRX jmodel_ref = init<JointModelRX>::run();
 
     JointModel jmodel(jmodel_ref, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     return jmodel;
   }
@@ -476,35 +474,7 @@ struct TestJointTransform
   template<typename Scalar, int Options, template<typename, int> class JointCollection>
   void operator()(const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> &)
   {
-    // typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModelMimic;
-    // typedef typename JointModelMimic::JointDerived JointDerived;
-    // typedef typename pinocchio::traits<JointDerived>::Transformation_t Transform;
-    // typedef typename pinocchio::traits<JointDerived>::Constraint_t Constraint;
-    // typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointDataMimic;
-    // typedef pinocchio::JointDataBase<JointDataMimic> JointDataBase;
-    // JointModelMimic jmodel_mimic = init<JointModelMimic>::run();
-    // typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModel;
-    // JointModel jmodel = init<JointModel>::run();
-
-    // JointDataMimic jdata_mimic = jmodel_mimic.createData();
-    // JointDataBase & jdata_mimic_base = static_cast<JointDataBase &>(jdata_mimic);
-
-    // typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
-    // LieGroupType lg;
-
-    // Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(),-1.));
-    // Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
-
-    // Eigen::VectorXd q_random = lg.randomConfiguration(lb,ub);
-
-    // jmodel_mimic.calc(jdata_mimic,q_random);
-    // // Copy Transform (and don't take ref) as non const ref of mimic buffers trigger assert
-    // Transform m = const_cast<const JointDataBase &>(jdata_mimic_base).M();
-    // test(m);
-
-    // // Copy Constraint (and don't take ref) as non const ref of mimic buffers trigger assert
-    // Constraint S = const_cast<const JointDataBase &>(jdata_mimic_base).S();
-    // test(S);
+    // Do nothing
   }
 
   template<typename Transform>
@@ -562,37 +532,7 @@ struct TestJointMotion
   template<typename Scalar, int Options, template<typename, int> class JointCollection>
   void operator()(const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> &)
   {
-    // typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModelMimic;
-    // typedef typename JointModelMimic::JointDerived JointDerived;
-    // typedef typename pinocchio::traits<JointDerived>::Motion_t Motion;
-    // typedef typename pinocchio::traits<JointDerived>::Bias_t Bias;
-    // typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointDataMimic;
-    // typedef pinocchio::JointDataBase<JointDataMimic> JointDataBase;
-    // JointModelMimic jmodel_mimic = init<JointModelMimic>::run();
-    // typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModel;
-    // JointModel jmodel = init<JointModel>::run();
-
-    // JointDataMimic jdata_mimic = jmodel_mimic.createData();
-    // JointDataBase & jdata_mimic_base = static_cast<JointDataBase &>(jdata_mimic);
-
-    // typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
-    // LieGroupType lg;
-
-    // Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(),-1.));
-    // Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
-
-    // Eigen::VectorXd q_random = lg.randomConfiguration(lb,ub);
-    // Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
-
-    // jmodel_mimic.calc(jdata_mimic,q_random,v_random);
-
-    // // Copy Motion (and don't take ref) as non const ref of mimic buffers trigger assert
-    // Motion m = const_cast<const JointDataBase &>(jdata_mimic_base).v();
-    // test(m);
-
-    // // Copy Bias (and don't take ref) as non const ref of mimic buffers trigger assert
-    // Bias b = const_cast<const JointDataBase &>(jdata_mimic_base).c();
-    // test(b);
+    // Do nothing
   }
 
   template<typename Motion>
@@ -665,29 +605,18 @@ struct TestJointData
   template<typename Scalar, int Options, template<typename, int> class JointCollection>
   void operator()(const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> &)
   {
-    // typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModelMimic;
-    // typedef typename JointModelMimic::JointDerived JointDerived;
-    // typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointDataMimic;
-    // JointModelMimic jmodel_mimic = init<JointModelMimic>::run();
+    typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModel;
+    typedef typename JointModel::JointDerived JointDerived;
+    typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointData;
 
-    // typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModel;
-    // JointModel jmodel = init<JointModel>::run();
+    JointModel jmodel = init<JointModel>::run();
+    JointData jdata = jmodel.createData();
 
-    // JointDataMimic jdata_mimic = jmodel_mimic.createData();
+    Eigen::VectorXd q_random = Eigen::VectorXd::Random(jmodel.jmodel().nq());
+    Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.jmodel().nv());
+    jmodel.calc(jdata, q_random, v_random);
 
-    // typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
-    // LieGroupType lg;
-
-    // Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(),-1.));
-    // Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
-
-    // Eigen::VectorXd q_random = lg.randomConfiguration(lb,ub);
-    // Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
-
-    // jmodel_mimic.calc(jdata_mimic,q_random,v_random);
-    // pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Matrix6::Identity());
-    // jmodel_mimic.calc_aba(jdata_mimic, Eigen::VectorXd::Zero(jmodel.nv()), I, false);
-    // test(jdata_mimic);
+    test(jdata);
   }
 
   template<typename JointData>
@@ -708,7 +637,7 @@ BOOST_AUTO_TEST_CASE(test_model_serialization)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model, true, true);
+  buildModels::humanoidRandom(model);
 
   generic_test(model, TEST_SERIALIZATION_FOLDER "/Model", "Model");
 }
@@ -718,7 +647,7 @@ BOOST_AUTO_TEST_CASE(test_throw_extension)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model, true, true);
+  buildModels::humanoidRandom(model);
 
   const std::string & fake_filename = "this_is_a_fake_filename";
 
@@ -753,7 +682,7 @@ BOOST_AUTO_TEST_CASE(test_data_serialization)
   using namespace pinocchio;
 
   Model model;
-  buildModels::humanoidRandom(model, true, true);
+  buildModels::humanoidRandom(model);
 
   Data data(model);
 

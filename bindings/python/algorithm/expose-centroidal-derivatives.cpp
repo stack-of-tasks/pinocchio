@@ -4,6 +4,7 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/centroidal-derivatives.hpp"
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
 
 #include <boost/python/tuple.hpp>
 
@@ -54,14 +55,16 @@ namespace pinocchio
         "computeCentroidalDynamicsDerivatives", computeCentroidalDynamicsDerivatives_proxy,
         bp::args("model", "data", "q", "v", "a"),
         "Computes the analytical derivatives of the centroidal dynamics\n"
-        "with respect to the joint configuration vector, velocity and acceleration.");
+        "with respect to the joint configuration vector, velocity and acceleration.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "getCentroidalDynamicsDerivatives", getCentroidalDynamicsDerivatives_proxy,
         bp::args("model", "data"),
         "Retrive the analytical derivatives of the centroidal dynamics\n"
         "from the RNEA derivatives.\n"
-        "pinocchio.computeRNEADerivatives should have been called first.");
+        "pinocchio.computeRNEADerivatives should have been called first.",
+        mimic_not_supported_function<>(0));
     }
 
   } // namespace python

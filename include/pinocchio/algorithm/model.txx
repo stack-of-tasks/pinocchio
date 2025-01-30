@@ -90,6 +90,15 @@ namespace pinocchio
     const context::Scalar &,
     context::Model &);
 
+  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI void
+  buildMimicModel<context::Scalar, context::Options, JointCollectionDefaultTpl>(
+    const context::Model &,
+    const std::vector<JointIndex> &,
+    const std::vector<JointIndex> &,
+    const std::vector<context::Scalar> &,
+    const std::vector<context::Scalar> &,
+    context::Model &);
+
   extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI JointIndex
   findCommonAncestor<context::Scalar, context::Options, JointCollectionDefaultTpl>(
     const context::Model &, JointIndex, JointIndex, size_t &, size_t &);

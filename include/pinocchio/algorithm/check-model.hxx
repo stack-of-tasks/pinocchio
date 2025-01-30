@@ -60,12 +60,8 @@ namespace pinocchio
   inline bool
   MimicChecker::checkModel_impl(const ModelTpl<Scalar, Options, JointCollectionTpl> & model) const
   {
-    typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
-
-    for (JointIndex j = 1; j < (JointIndex)model.njoints; ++j)
-      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[j]))
-        return false;
+    if (!model.mimicking_joints.empty())
+      return false;
 
     return true;
   }

@@ -150,21 +150,14 @@ namespace pinocchio
     {
       return classname();
     }
+
+    void disp(std::ostream & os) const
+    {
+      os << "JointDataComposite containing following models:\n";
+      for (typename JointDataVector::const_iterator it = joints.begin(); it != joints.end(); ++it)
+        os << "  " << it->shortname() << std::endl;
+    }
   };
-
-  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  inline std::ostream & operator<<(
-    std::ostream & os, const JointDataCompositeTpl<Scalar, Options, JointCollectionTpl> & jdata)
-  {
-    typedef typename JointDataCompositeTpl<Scalar, Options, JointCollectionTpl>::JointDataVector
-      JointDataVector;
-
-    os << "JointDataComposite containing following models:\n";
-    for (typename JointDataVector::const_iterator it = jdata.joints.begin();
-         it != jdata.joints.end(); ++it)
-      os << "  " << shortname(*it) << std::endl;
-    return os;
-  }
 
   template<
     typename NewScalar,
@@ -479,13 +472,13 @@ namespace pinocchio
 
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
-    jointConfigExtendedModelSelector(const Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector(const Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_q, nq());
     }
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type
-    jointConfigExtendedModelSelector(Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector(Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_q, nq());
     }
@@ -505,13 +498,13 @@ namespace pinocchio
 
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointVelocityExtendedModelSelector(const Eigen::MatrixBase<D> & a) const
+    JointMappedVelocitySelector(const Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointVelocityExtendedModelSelector(Eigen::MatrixBase<D> & a) const
+    JointMappedVelocitySelector(Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
@@ -568,26 +561,26 @@ namespace pinocchio
 
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
-    jointConfigExtendedModelSelector_impl(const Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_q, nq());
     }
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
-    jointConfigExtendedModelSelector_impl(Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector_impl(Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_q, nq());
     }
 
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::ConstType
-    jointVelocityExtendedModelSelector_impl(const Eigen::MatrixBase<D> & a) const
+    JointMappedVelocitySelector_impl(const Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
     template<typename D>
     typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<D>::Type
-    jointVelocityExtendedModelSelector_impl(Eigen::MatrixBase<D> & a) const
+    JointMappedVelocitySelector_impl(Eigen::MatrixBase<D> & a) const
     {
       return a.segment(Base::i_v, nv());
     }
@@ -628,6 +621,16 @@ namespace pinocchio
     jointExtendedModelCols_impl(Eigen::MatrixBase<D> & A) const
     {
       return A.middleCols(Base::i_vExtended, nvExtended());
+    }
+
+    void disp(std::ostream & os) const
+    {
+      typedef typename JointModelCompositeTpl<Scalar, Options, JointCollectionTpl>::JointModelVector
+        JointModelVector;
+
+      os << "JointModelComposite containing following models:\n";
+      for (typename JointModelVector::const_iterator it = joints.begin(); it != joints.end(); ++it)
+        os << "  " << it->shortname() << std::endl;
     }
 
   protected:
@@ -690,21 +693,6 @@ namespace pinocchio
     /// \brief Number of joints contained in the JointModelComposite
     int njoints;
   };
-
-  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  inline std::ostream & operator<<(
-    std::ostream & os, const JointModelCompositeTpl<Scalar, Options, JointCollectionTpl> & jmodel)
-  {
-    typedef typename JointModelCompositeTpl<Scalar, Options, JointCollectionTpl>::JointModelVector
-      JointModelVector;
-
-    os << "JointModelComposite containing following models:\n";
-    for (typename JointModelVector::const_iterator it = jmodel.joints.begin();
-         it != jmodel.joints.end(); ++it)
-      os << "  " << shortname(*it) << std::endl;
-
-    return os;
-  }
 
 } // namespace pinocchio
 

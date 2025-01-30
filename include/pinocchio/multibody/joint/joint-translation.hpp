@@ -601,7 +601,7 @@ namespace pinocchio
     template<typename ConfigVector>
     void calc(JointDataDerived & data, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      data.joint_q = this->jointConfigExtendedModelSelector(qs);
+      data.joint_q = this->jointConfigSelector(qs);
       data.M.translation() = data.joint_q;
     }
 
@@ -610,7 +610,7 @@ namespace pinocchio
     calc(JointDataDerived & data, const Blank, const typename Eigen::MatrixBase<TangentVector> & vs)
       const
     {
-      data.joint_v = this->jointVelocityExtendedModelSelector(vs);
+      data.joint_v = this->jointVelocitySelector(vs);
       data.v.linear() = data.joint_v;
     }
 
@@ -622,7 +622,7 @@ namespace pinocchio
     {
       calc(data, qs.derived());
 
-      data.joint_v = this->jointVelocityExtendedModelSelector(vs);
+      data.joint_v = this->jointVelocitySelector(vs);
       data.v.linear() = data.joint_v;
     }
 

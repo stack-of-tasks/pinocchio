@@ -248,7 +248,7 @@ struct TestJoint
   void operator()(const T) const
   {
     T jmodel;
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     typename T::JointDataDerived jdata = jmodel.createData();
 
     run_tests(jmodel, jdata);
@@ -257,7 +257,7 @@ struct TestJoint
   void operator()(const pinocchio::JointModelRevoluteUnaligned &) const
   {
     pinocchio::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     pinocchio::JointModelRevoluteUnaligned::JointDataDerived jdata = jmodel.createData();
 
     run_tests(jmodel, jdata);
@@ -266,7 +266,7 @@ struct TestJoint
   void operator()(const pinocchio::JointModelPrismaticUnaligned &) const
   {
     pinocchio::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     pinocchio::JointModelPrismaticUnaligned::JointDataDerived jdata = jmodel.createData();
 
     run_tests(jmodel, jdata);

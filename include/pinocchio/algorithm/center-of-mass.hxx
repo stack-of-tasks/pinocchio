@@ -412,6 +412,7 @@ namespace pinocchio
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
 
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
       PINOCCHIO_CHECK_INPUT_ARGUMENT((int)rootSubtreeId < model.njoints, "Invalid joint id.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         res.rows(), 3, "the resulting matrix does not have the right size.");
@@ -503,6 +504,7 @@ namespace pinocchio
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
       PINOCCHIO_CHECK_INPUT_ARGUMENT(((int)rootSubtreeId < model.njoints), "Invalid joint id.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         res.rows(), 3, "the resulting matrix does not have the right size.");

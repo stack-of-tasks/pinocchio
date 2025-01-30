@@ -114,21 +114,6 @@ struct buildModel
   }
 };
 
-// template<class JointModel>
-// struct buildModel<JointModelMimic<JointModel>>
-// {
-//   typedef JointModelMimic<JointModel> JointModel_;
-
-//   static Model run(const JointModel_ & jmodel)
-//   {
-//     Model model;
-//     model.addJoint(0, jmodel.jmodel(), SE3::Identity(), "joint");
-//     model.addJoint(0, jmodel, SE3::Identity(), "joint_mimic");
-
-//     return model;
-//   }
-// };
-
 template<typename JointModel>
 void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
 {
@@ -288,7 +273,7 @@ struct init
   static JointModel_ run()
   {
     JointModel_ jmodel;
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -303,7 +288,7 @@ struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -318,7 +303,7 @@ struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -333,7 +318,7 @@ struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -348,7 +333,7 @@ struct init<pinocchio::JointModelTpl<Scalar, Options, JointCollection>>
     typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
     JointModel jmodel((JointModelRX()));
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -362,7 +347,7 @@ struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
   {
     JointModel jmodel(XAxis::vector(), YAxis::vector());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -382,7 +367,7 @@ struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
     jmodel.addJoint(JointModelRY(), SE3::Random());
     jmodel.addJoint(JointModelRZ(), SE3::Random());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
 
     return jmodel;
   }
@@ -397,9 +382,8 @@ struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
   {
     typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
     JointModelRX jmodel_ref = init<JointModelRX>::run();
-
     JointModel jmodel(jmodel_ref, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     return jmodel;
   }
@@ -414,7 +398,7 @@ struct init<pinocchio::JointModelHelicalTpl<Scalar, Options, axis>>
   {
     JointModel jmodel(static_cast<Scalar>(0.5));
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -429,7 +413,7 @@ struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options>>
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
 };
@@ -441,8 +425,6 @@ struct TestJointConstraint
   void operator()(const JointModelBase<JointModel> &) const
   {
     JointModel jmodel = init<JointModel>::run();
-    jmodel.setIndexes(0, 0, 0, 0);
-
     test_constraint_operations(jmodel);
   }
 };

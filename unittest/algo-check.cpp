@@ -54,7 +54,9 @@ BOOST_AUTO_TEST_CASE(test_check)
 
   pinocchio::Model model_mimic;
   buildModels::humanoidRandom(model_mimic, false, true);
+  pinocchio::Data data_mimic(model_mimic);
   BOOST_CHECK(!model_mimic.check(MimicChecker()));
+  BOOST_CHECK(model_mimic.check(data_mimic));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

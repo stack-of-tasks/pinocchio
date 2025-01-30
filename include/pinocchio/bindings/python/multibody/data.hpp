@@ -150,12 +150,27 @@ namespace pinocchio
           .ADD_DATA_PROPERTY(nvSubtree, "Dimension of the subtree motion space (for CRBA)")
           .ADD_DATA_PROPERTY(U, "Joint Inertia square root (upper triangle)")
           .ADD_DATA_PROPERTY(D, "Diagonal of UDUT inertia decomposition")
+          .ADD_DATA_PROPERTY(
+            supports_fromRow,
+            "Each element of this vector corresponds to the ordered list of indexes "
+            "belonging to the supporting tree of the given index at the row level. "
+            "It may be helpful to retrieve the sparsity pattern through it.")
           .ADD_DATA_PROPERTY(parents_fromRow, "First previous non-zero row in M (used in Cholesky)")
           .ADD_DATA_PROPERTY(
-            idx_v_extended_fromRow, "Extended model mapping of the joint rows "
-                                    "(idx_v_extended_fromRow[idx_v_extended] = idx_v)")
+            mimic_parents_fromRow,
+            "First previous non-zero row belonging to a mimic joint in M (used in Jacobian).")
+          .ADD_DATA_PROPERTY(
+            non_mimic_parents_fromRow,
+            "First previous non-zero row belonging to a non mimic joint in M (used in Jacobian).")
+          .ADD_DATA_PROPERTY(
+            idx_vExtended_to_idx_v_fromRow,
+            "Extended model mapping of the joint rows "
+            "(idx_vExtended_to_idx_v_fromRow[idx_vExtended] = idx_v)")
           .ADD_DATA_PROPERTY(
             nvSubtree_fromRow, "Subtree of the current row index (used in Cholesky)")
+          .ADD_DATA_PROPERTY(
+            mimic_subtree_joint, "When mimic joints are in the tree, this will store the index of "
+                                 "the first non mimic child of each mimic joint. (useful in crba)")
           .ADD_DATA_PROPERTY(J, "Jacobian of joint placement")
           .ADD_DATA_PROPERTY(dJ, "Time variation of the Jacobian of joint placement (data.J).")
           .ADD_DATA_PROPERTY(iMf, "Body placement wrt to algorithm end effector.")
@@ -289,6 +304,7 @@ namespace pinocchio
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) StdVec_Matrix6x;
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) StdVec_Matrix6;
 
+        StdVectorPythonVisitor<std::vector<std::vector<int>>>::expose("StdVec_StdVec_Int");
         StdAlignedVectorPythonVisitor<Vector3, false>::expose(
           "StdVec_Vector3",
           eigenpy::details::overload_base_get_item_for_std_vector<StdVec_Vector3>());

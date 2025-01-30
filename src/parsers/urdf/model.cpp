@@ -147,13 +147,14 @@ namespace pinocchio
               friction = Vector::Constant(0, 0.);
               damping = Vector::Constant(0, 0.);
 
-              model.addMimicInfo(
-                joint->name, joint->mimic->joint_name, axis, joint->mimic->multiplier,
-                joint->mimic->offset, UrdfVisitorBase::REVOLUTE);
+              MimicInfo_ mimic_info(
+                joint->mimic->joint_name, joint->mimic->multiplier, joint->mimic->offset, axis,
+                UrdfVisitorBase::REVOLUTE);
 
               model.addJointAndBody(
                 UrdfVisitorBase::MIMIC, axis, parentFrameId, jointPlacement, joint->name, Y,
-                link->name, max_effort, max_velocity, min_config, max_config, friction, damping);
+                link->name, max_effort, max_velocity, min_config, max_config, friction, damping,
+                mimic_info);
             }
             else
               model.addJointAndBody(
@@ -219,13 +220,14 @@ namespace pinocchio
               friction = Vector::Constant(0, 0.);
               damping = Vector::Constant(0, 0.);
 
-              model.addMimicInfo(
-                joint->name, joint->mimic->joint_name, axis, joint->mimic->multiplier,
-                joint->mimic->offset, UrdfVisitorBase::PRISMATIC);
+              MimicInfo_ mimic_info(
+                joint->mimic->joint_name, joint->mimic->multiplier, joint->mimic->offset, axis,
+                UrdfVisitorBase::PRISMATIC);
 
               model.addJointAndBody(
                 UrdfVisitorBase::MIMIC, axis, parentFrameId, jointPlacement, joint->name, Y,
-                link->name, max_effort, max_velocity, min_config, max_config, friction, damping);
+                link->name, max_effort, max_velocity, min_config, max_config, friction, damping,
+                mimic_info);
             }
             else
               model.addJointAndBody(
@@ -310,11 +312,6 @@ namespace pinocchio
         BOOST_FOREACH (::urdf::LinkConstSharedPtr child, root_link->child_links)
         {
           parseTree(child, model, mimic);
-        }
-        if (mimic)
-        {
-          for (const auto & entry : model.mimicInfo_map)
-            model.convertMimicJoint(entry.first, entry.second);
         }
       }
 

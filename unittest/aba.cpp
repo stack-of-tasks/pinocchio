@@ -74,7 +74,7 @@ struct TestJointMethods
   void operator()(const pinocchio::JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
 
     test_joint_methods(jmodel);
   }
@@ -84,7 +84,7 @@ struct TestJointMethods
     pinocchio::JointModelComposite jmodel_composite;
     jmodel_composite.addJoint(pinocchio::JointModelRX());
     jmodel_composite.addJoint(pinocchio::JointModelRY());
-    jmodel_composite.setIndexes(0, 0, 0, 0);
+    jmodel_composite.setIndexes(0, 0, 0);
 
     // TODO: correct LieGroup
     // test_joint_methods(jmodel_composite);
@@ -93,7 +93,7 @@ struct TestJointMethods
   void operator()(const pinocchio::JointModelBase<pinocchio::JointModelRevoluteUnaligned> &) const
   {
     pinocchio::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
 
     test_joint_methods(jmodel);
   }
@@ -101,7 +101,7 @@ struct TestJointMethods
   void operator()(const pinocchio::JointModelBase<pinocchio::JointModelPrismaticUnaligned> &) const
   {
     pinocchio::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
 
     test_joint_methods(jmodel);
   }

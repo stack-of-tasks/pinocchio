@@ -202,6 +202,11 @@ namespace pinocchio
       return i_id;
     }
 
+    void setIndexes(JointIndex id, int q, int v)
+    {
+      derived().setIndexes_impl(id, q, v, v);
+    }
+
     void setIndexes(JointIndex id, int q, int v, int vExtended)
     {
       derived().setIndexes_impl(id, q, v, vExtended);
@@ -227,9 +232,9 @@ namespace pinocchio
          << "  nvExtended: " << nvExtended() << endl;
     }
 
-    friend std::ostream & operator<<(std::ostream & os, const JointModelBase<Derived> & joint)
+    friend std::ostream & operator<<(std::ostream & os, const JointModelBase<Derived> & jmodel)
     {
-      joint.disp(os);
+      jmodel.derived().disp(os);
       return os;
     }
 
@@ -284,14 +289,14 @@ namespace pinocchio
     // Const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
-    jointConfigExtendedModelSelector(const Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector(const Eigen::MatrixBase<D> & a) const
     {
-      return derived().jointConfigExtendedModelSelector_impl(a);
+      return derived().JointMappedConfigSelector_impl(a);
     }
 
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
-    jointConfigExtendedModelSelector_impl(const Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
       return SizeDepType<NQ>::segment(a.derived(), idx_q(), nq());
     }
@@ -299,14 +304,14 @@ namespace pinocchio
     // Non-const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type
-    jointConfigExtendedModelSelector(Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector(Eigen::MatrixBase<D> & a) const
     {
-      return derived().jointConfigExtendedModelSelector_impl(a);
+      return derived().JointMappedConfigSelector_impl(a);
     }
 
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type
-    jointConfigExtendedModelSelector_impl(Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector_impl(Eigen::MatrixBase<D> & a) const
     {
       return SizeDepType<NQ>::segment(a, idx_q(), nq());
     }
@@ -345,14 +350,14 @@ namespace pinocchio
     // Const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointVelocityExtendedModelSelector(const Eigen::MatrixBase<D> & a) const
+    JointMappedVelocitySelector(const Eigen::MatrixBase<D> & a) const
     {
-      return derived().jointVelocityExtendedModelSelector_impl(a.derived());
+      return derived().JointMappedVelocitySelector_impl(a.derived());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointVelocityExtendedModelSelector_impl(const Eigen::MatrixBase<D> & a) const
+    JointMappedVelocitySelector_impl(const Eigen::MatrixBase<D> & a) const
     {
       return SizeDepType<NV>::segment(a.derived(), idx_v(), nvExtended());
     }
@@ -360,14 +365,14 @@ namespace pinocchio
     // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointVelocityExtendedModelSelector(Eigen::MatrixBase<D> & a) const
+    JointMappedVelocitySelector(Eigen::MatrixBase<D> & a) const
     {
-      return derived().jointVelocityExtendedModelSelector_impl(a.derived());
+      return derived().JointMappedVelocitySelector_impl(a.derived());
     }
 
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointVelocityExtendedModelSelector_impl(Eigen::MatrixBase<D> & a) const
+    JointMappedVelocitySelector_impl(Eigen::MatrixBase<D> & a) const
     {
       return SizeDepType<NV>::segment(a.derived(), idx_v(), nvExtended());
     }

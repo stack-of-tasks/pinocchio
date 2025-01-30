@@ -12,10 +12,9 @@
 #include "pinocchio/utils/timer.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-#include <iostream>
-
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+#include "utils/model-generator.hpp"
 
 template<typename Derived>
 inline bool isFinite(const Eigen::MatrixBase<Derived> & x)
@@ -23,45 +22,46 @@ inline bool isFinite(const Eigen::MatrixBase<Derived> & x)
   return ((x - x).array() == (x - x).array()).all();
 }
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
-
-BOOST_AUTO_TEST_CASE(test_jacobian)
+void test_jacobian_impl(const pinocchio::Model & model, pinocchio::JointIndex joint_id)
 {
   using namespace Eigen;
   using namespace pinocchio;
 
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model, false, true);
   pinocchio::Data data(model);
 
-  VectorXd q = VectorXd::Zero(model.nq);
+  VectorXd q = pinocchio::neutral(model);
   computeJointJacobians(model, data, q);
 
-  Model::Index idx =
-    model.existJointName("rarm2") ? model.getJointId("rarm2") : (Model::Index)(model.njoints - 1);
   Data::Matrix6x Jrh(6, model.nv);
   Jrh.fill(0);
-  getJointJacobian(model, data, idx, WORLD, Jrh);
+  getJointJacobian(model, data, joint_id, WORLD, Jrh);
 
   /* Test J*q == v */
   VectorXd qdot = VectorXd::Random(model.nv);
   VectorXd qddot = VectorXd::Zero(model.nv);
   rnea(model, data, q, qdot, qddot);
-  Motion v = data.oMi[idx].act(data.v[idx]);
+  Motion v = data.oMi[joint_id].act(data.v[joint_id]);
   BOOST_CHECK(v.toVector().isApprox(Jrh * qdot, 1e-12));
 
   /* Test local jacobian: rhJrh == rhXo oJrh */
   Data::Matrix6x rhJrh(6, model.nv);
   rhJrh.fill(0);
-  getJointJacobian(model, data, idx, LOCAL, rhJrh);
+  getJointJacobian(model, data, joint_id, LOCAL, rhJrh);
   Data::Matrix6x XJrh(6, model.nv);
-  motionSet::se3Action(data.oMi[idx].inverse(), Jrh, XJrh);
+  motionSet::se3Action(data.oMi[joint_id].inverse(), Jrh, XJrh);
   BOOST_CHECK(XJrh.isApprox(rhJrh, 1e-12));
 
   XJrh.setZero();
   Data data_jointJacobian(model);
-  computeJointJacobian(model, data_jointJacobian, q, idx, XJrh);
+  computeJointJacobian(model, data_jointJacobian, q, joint_id, XJrh);
   BOOST_CHECK(XJrh.isApprox(rhJrh, 1e-12));
+
+  /* Test local world-aligned jacobian */
+  forwardKinematics(model, data, q, qdot);
+  Data::Matrix6x WJrh = Data::Matrix6x::Zero(6, model.nv);
+  getJointJacobian(model, data, joint_id, LOCAL_WORLD_ALIGNED, WJrh);
+  Motion w_v = getVelocity(model, data, joint_id, LOCAL_WORLD_ALIGNED);
+  BOOST_CHECK(w_v.toVector().isApprox(WJrh * qdot));
 
   /* Test computeJointJacobians with pre-computation of the forward kinematics */
   Data data_fk(model);
@@ -69,6 +69,32 @@ BOOST_AUTO_TEST_CASE(test_jacobian)
   computeJointJacobians(model, data_fk);
 
   BOOST_CHECK(data_fk.J.isApprox(data.J));
+}
+
+BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+
+BOOST_AUTO_TEST_CASE(test_jacobian)
+{
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model, false);
+
+  for (int j = 1; j < model.njoints; j++)
+  {
+    test_jacobian_impl(model, static_cast<pinocchio::JointIndex>(j));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_jacobian_mimic)
+{
+  for (int i = 0; i < pinocchio::MimicTestCases::N_CASES; i++)
+  {
+    const pinocchio::MimicTestCases mimic_test_case(i);
+    const pinocchio::Model & model_mimic = mimic_test_case.model_mimic;
+    for (int j = 1; j < model_mimic.njoints; j++)
+    {
+      test_jacobian_impl(model_mimic, static_cast<pinocchio::JointIndex>(j));
+    }
+  }
 }
 
 BOOST_AUTO_TEST_CASE(test_jacobian_time_variation)
@@ -250,7 +276,7 @@ BOOST_AUTO_TEST_CASE(test_timings)
   bool verbose = flag & (flag - 1); // True is two or more binaries of the flag are 1.
   if (verbose)
     std::cout << "--" << std::endl;
-  Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
+  Eigen::VectorXd q = pinocchio::neutral(model);
 
   if (flag >> 0 & 1)
   {

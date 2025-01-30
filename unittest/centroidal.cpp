@@ -18,6 +18,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include "utils/model-generator.hpp"
+
 template<typename JointModel>
 static void addJointAndBody(
   pinocchio::Model & model,
@@ -90,102 +92,59 @@ BOOST_AUTO_TEST_CASE(test_ccrba)
   BOOST_CHECK(data.Ag.isApprox(Ag_ref, 1e-12));
 }
 
-void test_mimic_against_full_model(
-  const pinocchio::Model & model_full,
-  const pinocchio::JointIndex & primary_id,
-  const pinocchio::JointIndex & secondary_id)
-{
-  // constants
-  const int primary_idxq = model_full.joints[primary_id].idx_q();
-  const int primary_idxv = model_full.joints[primary_id].idx_v();
-  const int secondary_idxq = model_full.joints[secondary_id].idx_q();
-  const int secondary_idxv = model_full.joints[secondary_id].idx_v();
-  const double ratio = 2.5;
-  const double offset = 0.75;
-
-  // Build mimic model
-  pinocchio::Model model_mimic;
-  pinocchio::transformJointIntoMimic(
-    model_full, primary_id, secondary_id, ratio, offset, model_mimic);
-  pinocchio::Data data_mimic(model_mimic);
-  pinocchio::Data data_ref_mimic(model_mimic);
-  pinocchio::Data data_full(model_full);
-
-  // Prepare test data
-  Eigen::MatrixXd G = Eigen::MatrixXd::Zero(model_full.nv, model_mimic.nv);
-  G.topLeftCorner(secondary_idxv, secondary_idxv).setIdentity();
-  G.bottomRightCorner(model_mimic.nv - secondary_idxv, model_mimic.nv - secondary_idxv)
-    .setIdentity();
-  G(secondary_idxv, primary_idxv) = ratio;
-
-  Eigen::VectorXd q = pinocchio::randomConfiguration(model_mimic);
-  Eigen::VectorXd v = Eigen::VectorXd::Ones(model_mimic.nv);
-
-  Eigen::VectorXd q_full = Eigen::VectorXd::Zero(model_full.nq);
-  Eigen::VectorXd v_full = G * v;
-
-  for (int n = 1; n < model_full.njoints; n++)
-  {
-    const double joint_ratio = ((n == secondary_id) ? ratio : 1.0);
-    const double joint_offset = ((n == secondary_id) ? offset : 0.0);
-    model_full.joints[n].jointConfigExtendedModelSelector(q_full) =
-      joint_ratio * model_mimic.joints[n].jointConfigExtendedModelSelector(q)
-      + joint_offset * Eigen::VectorXd::Ones(model_full.joints[n].nq());
-  }
-
-  model_mimic.lowerPositionLimit.head<3>().fill(-1.);
-  model_mimic.upperPositionLimit.head<3>().fill(1.);
-
-  pinocchio::crba(model_mimic, data_ref_mimic, q, pinocchio::Convention::LOCAL);
-  data_ref_mimic.M.triangularView<Eigen::StrictlyLower>() =
-    data_ref_mimic.M.transpose().triangularView<Eigen::StrictlyLower>();
-
-  data_ref_mimic.Ycrb[0] = data_ref_mimic.liMi[1].act(data_ref_mimic.Ycrb[1]);
-  pinocchio::Data data_ref_other(model_mimic);
-  pinocchio::crba(model_mimic, data_ref_other, q, pinocchio::Convention::WORLD);
-  data_ref_other.M.triangularView<Eigen::StrictlyLower>() =
-    data_ref_other.M.transpose().triangularView<Eigen::StrictlyLower>();
-
-  pinocchio::SE3 cMo(pinocchio::SE3::Matrix3::Identity(), -data_ref_mimic.Ycrb[0].lever());
-  BOOST_CHECK(data_ref_mimic.Ycrb[0].isApprox(data_ref_other.oYcrb[0]));
-
-  ccrba(model_mimic, data_mimic, q, v);
-  ccrba(model_full, data_full, q_full, v_full);
-  BOOST_CHECK(data_mimic.com[0].isApprox(data_full.com[0], 1e-12));
-  BOOST_CHECK(data_mimic.oYcrb[0].matrix().isApprox(data_full.oYcrb[0].matrix(), 1e-12));
-
-  BOOST_CHECK(data_mimic.com[0].isApprox(-cMo.translation(), 1e-12));
-  BOOST_CHECK(data_mimic.oYcrb[0].matrix().isApprox(data_ref_mimic.Ycrb[0].matrix(), 1e-12));
-
-  pinocchio::Inertia Ig_ref(cMo.act(data_mimic.oYcrb[0]));
-  BOOST_CHECK(data_mimic.Ig.matrix().isApprox(Ig_ref.matrix(), 1e-12));
-
-  pinocchio::SE3 oM1(data_ref_other.liMi[1]);
-  pinocchio::SE3 cM1(cMo * oM1);
-  pinocchio::Data::Matrix6x Ag_ref(
-    cM1.inverse().toActionMatrix().transpose() * data_ref_other.M.topRows<6>());
-  BOOST_CHECK(data_mimic.Ag.isApprox(Ag_ref, 1e-12));
-}
-
 BOOST_AUTO_TEST_CASE(test_ccrba_mimic)
 {
-  pinocchio::Model humanoid_model;
-  pinocchio::buildModels::humanoidRandom(humanoid_model);
+  for (int i = 0; i < pinocchio::MimicTestCases::N_CASES; i++)
+  {
+    const pinocchio::MimicTestCases mimic_test_case(i);
+    const pinocchio::Model & model_mimic = mimic_test_case.model_mimic;
+    const pinocchio::Model & model_full = mimic_test_case.model_full;
+    const Eigen::MatrixXd & G = mimic_test_case.G;
 
-  // Test for direct parent/child joint mimic
-  test_mimic_against_full_model(
-    humanoid_model, humanoid_model.getJointId("rleg3_joint"),
-    humanoid_model.getJointId("rleg4_joint"));
+    pinocchio::Data data_mimic(model_mimic);
+    pinocchio::Data data_ref_mimic(model_mimic);
+    pinocchio::Data data_full(model_full);
 
-  // Test for spaced parent/child joint mimic
-  test_mimic_against_full_model(
-    humanoid_model, humanoid_model.getJointId("rleg1_joint"),
-    humanoid_model.getJointId("rleg4_joint"));
+    Eigen::VectorXd q = pinocchio::randomConfiguration(model_mimic);
+    Eigen::VectorXd v = Eigen::VectorXd::Random(model_mimic.nv);
+    Eigen::VectorXd a = Eigen::VectorXd::Random(model_mimic.nv);
 
-  // // Test for parallel joint mimic
-  // test_mimic_against_full_model(
-  //   humanoid_model, humanoid_model.getJointId("lleg4_joint"),
-  //   humanoid_model.getJointId("rleg4_joint"));
+    Eigen::VectorXd q_full(model_full.nq);
+    Eigen::VectorXd v_full = G * v;
+    Eigen::VectorXd a_full = G * a;
+
+    mimic_test_case.toFull(q, q_full);
+
+    pinocchio::crba(model_mimic, data_ref_mimic, q, pinocchio::Convention::LOCAL);
+    data_ref_mimic.M.triangularView<Eigen::StrictlyLower>() =
+      data_ref_mimic.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+    data_ref_mimic.Ycrb[0] = data_ref_mimic.liMi[1].act(data_ref_mimic.Ycrb[1]);
+    pinocchio::Data data_ref_other(model_mimic);
+    pinocchio::crba(model_mimic, data_ref_other, q, pinocchio::Convention::WORLD);
+    data_ref_other.M.triangularView<Eigen::StrictlyLower>() =
+      data_ref_other.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+    pinocchio::SE3 cMo(pinocchio::SE3::Matrix3::Identity(), -data_ref_mimic.Ycrb[0].lever());
+    BOOST_CHECK(data_ref_mimic.Ycrb[0].isApprox(data_ref_other.oYcrb[0]));
+
+    ccrba(model_mimic, data_mimic, q, v);
+    ccrba(model_full, data_full, q_full, v_full);
+    BOOST_CHECK(data_mimic.com[0].isApprox(data_full.com[0], 1e-12));
+    BOOST_CHECK(data_mimic.oYcrb[0].matrix().isApprox(data_full.oYcrb[0].matrix(), 1e-12));
+
+    BOOST_CHECK(data_mimic.com[0].isApprox(-cMo.translation(), 1e-12));
+    BOOST_CHECK(data_mimic.oYcrb[0].matrix().isApprox(data_ref_mimic.Ycrb[0].matrix(), 1e-12));
+
+    pinocchio::Inertia Ig_ref(cMo.act(data_mimic.oYcrb[0]));
+    BOOST_CHECK(data_mimic.Ig.matrix().isApprox(Ig_ref.matrix(), 1e-12));
+
+    pinocchio::SE3 oM1(data_ref_other.liMi[1]);
+    pinocchio::SE3 cM1(cMo * oM1);
+    pinocchio::Data::Matrix6x Ag_ref(
+      cM1.inverse().toActionMatrix().transpose() * data_ref_other.M.topRows<6>());
+    BOOST_CHECK(data_mimic.Ag.isApprox(Ag_ref, 1e-12));
+  }
 }
 
 BOOST_AUTO_TEST_CASE(test_centroidal_mapping)

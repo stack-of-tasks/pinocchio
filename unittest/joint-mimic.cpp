@@ -93,7 +93,7 @@ struct TestJointConstraint
   void operator()(const JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_constraint_mimic(jmodel);
   }
@@ -101,7 +101,7 @@ struct TestJointConstraint
   void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
   {
     JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_constraint_mimic(jmodel);
   }
@@ -109,7 +109,7 @@ struct TestJointConstraint
   void operator()(const JointModelBase<JointModelPrismaticUnaligned> &) const
   {
     JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_constraint_mimic(jmodel);
   }
@@ -120,9 +120,7 @@ BOOST_AUTO_TEST_CASE(test_constraint)
   using namespace pinocchio;
   typedef boost::variant<
     JointModelRX, JointModelRY, JointModelRZ, JointModelRevoluteUnaligned, JointModelPX,
-    JointModelPY, JointModelPZ, JointModelPrismaticUnaligned
-    //, JointModelRUBX, JointModelRUBY, JointModelRUBZ
-    >
+    JointModelPY, JointModelPZ, JointModelPrismaticUnaligned>
     Variant;
 
   boost::mpl::for_each<Variant::types>(TestJointConstraint());
@@ -187,7 +185,7 @@ struct TestJointMimic
   void operator()(const JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_joint_mimic<JointModel, MimicConfigurationTransform, MimicIdentity>(jmodel);
   }
@@ -195,7 +193,7 @@ struct TestJointMimic
   void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
   {
     JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_joint_mimic<JointModelRevoluteUnaligned, MimicConfigurationTransform, MimicIdentity>(
       jmodel);
@@ -204,7 +202,7 @@ struct TestJointMimic
   void operator()(const JointModelBase<JointModelPrismaticUnaligned> &) const
   {
     JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(1, 0, 0, 0);
 
     test_joint_mimic<JointModelPrismaticUnaligned, MimicConfigurationTransform, MimicIdentity>(
       jmodel);
@@ -220,11 +218,6 @@ BOOST_AUTO_TEST_CASE(test_joint)
     VariantLinear;
 
   typedef boost::variant<JointModelRUBX, JointModelRUBY, JointModelRUBZ> VariantUnboundedRevolute;
-
-  // Test all the joints with scaling == 1.0 and offset == 0.0
-  boost::mpl::for_each<VariantLinear::types>(TestJointMimic<LinearAffineTransform, true>());
-  boost::mpl::for_each<VariantUnboundedRevolute::types>(
-    TestJointMimic<UnboundedRevoluteAffineTransform, true>());
 
   // Test specific transforms for non trivial affine values
   boost::mpl::for_each<VariantLinear::types>(TestJointMimic<LinearAffineTransform, false>());
@@ -270,32 +263,20 @@ BOOST_AUTO_TEST_CASE(test_transform_linear_revolute_unbounded)
     == ConfigVectorType(math::cos(theta * scaling + offset), math::sin(theta * scaling + offset)));
 }
 
-BOOST_AUTO_TEST_CASE(test_transform_no_affine)
-{
-  typedef JointModelRX::ConfigVector_t ConfigVectorType;
-  double scaling = 1., offset = 0.;
-
-  ConfigVectorType q0 = ConfigVectorType::Random();
-  ConfigVectorType q1;
-  NoAffineTransform::run(q0, scaling, offset, q1);
-  BOOST_CHECK(q0 == q1);
-}
-
 BOOST_AUTO_TEST_CASE(test_joint_generic_cast)
 {
   JointModelRX jmodel_ref;
   jmodel_ref.setIndexes(1, 2, 3, 3);
 
   JointModelMimic jmodel(jmodel_ref, 2., 1.);
-  jmodel.setIndexes(1, -1, -1, 3);
+  jmodel.setIndexes(2, -1, -1, 3);
 
-  BOOST_CHECK(jmodel.id() == jmodel_ref.id());
   BOOST_CHECK(jmodel.idx_q() == jmodel_ref.idx_q());
   BOOST_CHECK(jmodel.idx_v() == jmodel_ref.idx_v());
 
   JointModel jmodel_generic(jmodel);
-  jmodel_generic.setIndexes(1, -2, -2, 3);
+  jmodel_generic.setIndexes(2, -2, -2, 3);
 
-  BOOST_CHECK(jmodel_generic.id() == jmodel_ref.id());
+  BOOST_CHECK(jmodel_generic.id() == jmodel.id());
 }
 BOOST_AUTO_TEST_SUITE_END()

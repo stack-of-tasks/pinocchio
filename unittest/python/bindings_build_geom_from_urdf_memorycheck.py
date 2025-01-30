@@ -15,7 +15,7 @@ class TestBuildGeomFromUrdfMemoryCheck(unittest.TestCase):
         )
 
     def test_load(self):
-        model = pin.buildModelFromUrdf(self.model_path, False)
+        model = pin.buildModelFromUrdf(self.model_path)
         for _ in range(2):
             pin.buildGeomFromUrdf(
                 model,

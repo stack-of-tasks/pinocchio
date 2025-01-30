@@ -8,6 +8,7 @@
 
 #include "pinocchio/utils/string-generator.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
+#include "pinocchio/algorithm/model.hpp"
 
 /// @cond DEV
 
@@ -156,6 +157,13 @@ namespace pinocchio
     supports.push_back(supports[parent]);
     supports[joint_id].push_back(joint_id);
 
+    mimic_joint_supports.push_back(mimic_joint_supports[parent]);
+    if (auto jmodel_ = boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&jmodel))
+    {
+      mimicking_joints.push_back(jmodel.id());
+      mimicked_joints.push_back(jmodel_->jmodel().id());
+      mimic_joint_supports[joint_id].push_back(joint_id);
+    }
     return joint_id;
   }
 
@@ -242,6 +250,9 @@ namespace pinocchio
     res.names = names;
     res.subtrees = subtrees;
     res.supports = supports;
+    res.mimic_joint_supports = mimic_joint_supports;
+    res.mimicking_joints = mimicking_joints;
+    res.mimicked_joints = mimicked_joints;
     res.gravity = gravity.template cast<NewScalar>();
     res.name = name;
 
@@ -297,7 +308,9 @@ namespace pinocchio
     bool res = other.nq == nq && other.nv == nv && other.nvExtended == nvExtended
                && other.njoints == njoints && other.nbodies == nbodies && other.nframes == nframes
                && other.parents == parents && other.children == children && other.names == names
-               && other.subtrees == subtrees && other.gravity == gravity && other.name == name;
+               && other.subtrees == subtrees && other.mimicking_joints == mimicking_joints
+               && other.mimicked_joints == mimicked_joints && other.gravity == gravity
+               && other.name == name;
 
     res &= other.idx_qs == idx_qs && other.nqs == nqs && other.idx_vs == idx_vs && other.nvs == nvs
            && other.idx_vExtendeds == idx_vExtendeds && other.nvExtendeds == nvExtendeds;

@@ -92,8 +92,8 @@ namespace boost
 
       void run(pinocchio::JointIndex i_id, int i_q, int i_v, int i_vExtended)
       {
+        joint_m.setMimicIndexes(joint_m.jmodel().id(), i_q, i_v, joint_m.jmodel().idx_vExtended());
         joint_m.setIndexes(i_id, 0, 0, i_vExtended);
-        joint_m.setMimicIndexes(0, i_q, i_v, 0);
       }
     };
 
@@ -119,8 +119,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, axis> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
 
@@ -131,8 +129,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelRevoluteUnboundedTpl<Scalar, Options, axis> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
 
@@ -143,8 +139,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelPrismaticTpl<Scalar, Options, axis> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
 
@@ -178,8 +172,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelFreeFlyerTpl<Scalar, Options> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
 
@@ -190,8 +182,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelPlanarTpl<Scalar, Options> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
 
@@ -202,8 +192,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelSphericalTpl<Scalar, Options> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
 
@@ -214,8 +202,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelSphericalZYXTpl<Scalar, Options> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
 
@@ -226,8 +212,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelTranslationTpl<Scalar, Options> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
 
@@ -238,8 +222,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
       ar & make_nvp("axis", joint.axis);
     }
@@ -251,8 +233,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
       ar & make_nvp("axis", joint.axis);
     }
@@ -264,8 +244,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
       ar & make_nvp("axis", joint.axis);
     }
@@ -277,8 +255,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
       ar & make_nvp("axis1", joint.axis1);
       ar & make_nvp("axis2", joint.axis2);
@@ -295,8 +271,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollectionTpl> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
 
       ::pinocchio::Serialize<JointType>::run(ar, joint);
@@ -313,8 +287,6 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelTpl<Scalar, Options, JointCollectionTpl> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
 
       typedef typename JointCollectionTpl<Scalar, Options>::JointModelVariant JointModelVariant;
@@ -332,13 +304,11 @@ namespace boost
       const unsigned int version)
     {
       typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointType;
-      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType>
-      //      >(joint));
-      fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
-
       ar & make_nvp("jmodel", joint.jmodel());
       ar & make_nvp("scaling", joint.scaling());
       ar & make_nvp("offset", joint.offset());
+
+      fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
 
   } // namespace serialization

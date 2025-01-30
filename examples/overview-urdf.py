@@ -15,7 +15,7 @@ urdf_filename = (
 )
 
 # Load the urdf model
-model = pinocchio.buildModelFromUrdf(urdf_filename, False)
+model = pinocchio.buildModelFromUrdf(urdf_filename)
 print("model name: " + model.name)
 
 # Create data required by the algorithms

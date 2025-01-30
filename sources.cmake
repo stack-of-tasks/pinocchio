@@ -498,6 +498,7 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/std-map.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/cast.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/deprecation.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/model-checker.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/namespace.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/cppadcg.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/cppad.hpp

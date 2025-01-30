@@ -15,6 +15,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Add parsing meshes with vertices for MJCF format ([#2537](https://github.com/stack-of-tasks/pinocchio/pull/2537))
+- Add mimic joint support to the following algorithms: ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+  - Forward kinematics
+  - Jacobians and frames
+  - Centroid algorithms (ccrba)
+  - RNEA
+  - CRBA
+  - Reachable workspace
+- Add `mimic` argument in `pinocchio::urdf::buildModel` to parse URDF mimic field (default to false) ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+- Add `pinocchio::transformJointIntoMimic` to turn a joint into a mimic joint and `buildMimicModel` to transform multiple joints into mimic joints ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+- Add `JointModelBase` methods: ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+  - `nvExtended` to get the DoF of the extended model
+  - `idx_vExtended` to get the joint index in the extended vector of velocity
+  - `jointExtendedModel{Cols,Rows,Block}` to get joint columns/rows/block in extended model matrix
+  - `JointMapped{Config,Velocity}Selector` to get mimicked joint configuration/velocity from the mimicking joint
+- Add precomputed members in `DataTpl` to accelerate algorithms on mimic: ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+  - `idx_vExtended_to_idx_v_fromRow`
+  - `mimic_subtree_joint`
+  - `mimic_parents_fromRow`
+  - `non_mimic_parents_fromRow`
+- Add precomputed members in `ModelTpl` to accelerate algorithms on mimic: ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+  - `nvExtended`
+  - `nvExtendeds`
+  - `idx_vExtendeds`
+  - `mimicking_joints`
+  - `mimicked_joints`
+  - `mimic_joint_supports`
 
 ### Fixed
 - Fix mjcf Euler angle parsing: use xyz as a default value for eulerseq compiler option ([#2526](https://github.com/stack-of-tasks/pinocchio/pull/2526))
@@ -27,6 +53,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix register `std::shared_ptr<{,Geometry}{Model,Data}>` in bindings ([#2566](https://github.com/stack-of-tasks/pinocchio/pull/2566))
 - Removed useless uses of `PINOCCHIO_WITH_CXX11_SUPPORT` ([#2564](https://github.com/stack-of-tasks/pinocchio/pull/2564))
 
+### Changed
+- Rewrite `JointModelMimic` and rename it `JointModelMimicTpl`, since `JointModelMimic` wasn't working, we don't consider it a breaking change ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+- Stop using context::Scalar for GeometryObject([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
 
 ## [3.3.1] - 2024-12-13
 
@@ -57,8 +86,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Allow use of `pathlib.Path | str` for paths in python bindings ([#2431](https://github.com/stack-of-tasks/pinocchio/pull/2431))
 - Add Pseudo inertia and Log-cholesky parametrization ([#2296](https://github.com/stack-of-tasks/pinocchio/pull/2296))
 - Add Pixi support ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
-- Extend support for mimic joint: rnea, crba, forward kinematics, centroidal, jacobians and frames ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
-- Add idx_j, nj members in joint models, with their respective column/row/block selectors. ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
 
 ### Fixed
 - Fix linkage of Boost.Serialization on Windows ([#2400](https://github.com/stack-of-tasks/pinocchio/pull/2400))

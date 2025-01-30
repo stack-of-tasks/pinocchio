@@ -4,6 +4,7 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
 
 namespace pinocchio
 {
@@ -76,7 +77,7 @@ namespace pinocchio
         "For the same price, it also computes the centroidal momentum matrix (data.Ag), the total "
         "joint jacobians (data.J) "
         "and the related joint jacobians time derivative (data.dJ)",
-        bp::return_value_policy<bp::return_by_value>());
+        mimic_not_supported_function<bp::return_value_policy<bp::return_by_value>>(0));
 
       bp::def(
         "computeCentroidalMapTimeVariation",
@@ -88,7 +89,7 @@ namespace pinocchio
         "For the same price, it also computes the centroidal momentum matrix (data.Ag), the "
         "total joint jacobians (data.J) "
         "and the related joint jacobians time derivative (data.dJ)",
-        bp::return_value_policy<bp::return_by_value>());
+        mimic_not_supported_function<bp::return_value_policy<bp::return_by_value>>(0));
     }
 
   } // namespace python

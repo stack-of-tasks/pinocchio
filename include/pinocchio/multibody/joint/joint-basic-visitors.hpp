@@ -145,12 +145,12 @@ namespace pinocchio
   inline int nq(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
-   * @brief      Visit a JointModelTpl through JointNjVisitor to get the dimension of
-   *             the joint configuration space
+   * @brief      Visit a JointModelTpl through JointNvExtendVisitor to get the dimension of
+   *             the joint extended tangent space
    *
    * @param[in]  jmodel  The JointModelVariant
    *
-   * @return     The dimension of joint jacobian space
+   * @return     The dimension of joint extended tangent space
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline int nvExtended(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
@@ -192,7 +192,7 @@ namespace pinocchio
   inline int idx_q(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
-   * @brief      Visit a JointModelTpl through JointIdxVVisitor to get the index in the full model
+   * @brief      Visit a JointModelTpl through JointIdxVVisitor to get the index in the model
    * tangent space corresponding to the first joint tangent space degree
    *
    * @param[in]  jmodel  The JointModelVariant
@@ -204,13 +204,13 @@ namespace pinocchio
   inline int idx_v(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
 
   /**
-   * @brief      Visit a JointModelTpl through JointIdjVVisitor to get the index in the full model
-   * tangent space corresponding to the first joint jacobian space degree
+   * @brief      Visit a JointModelTpl through JointIdvExtendedVisitor to get the index in the model
+   * extended tangent space corresponding to the joint first joint extended tangent space degree
    *
    * @param[in]  jmodel  The JointModelVariant
    *
-   * @return     The index in the full model tangent space corresponding to the first
-   *             joint jacobian space degree
+   * @return     The index in the model extended tangent space corresponding to the first
+   *             joint extended tangent space degree
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline int idx_vExtended(const JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel);
@@ -236,8 +236,8 @@ namespace pinocchio
    * degree of freedom
    * @param[in]  v       The index in the full model tangent space corresponding to the first joint
    * tangent space degree
-   * @param[in]  vExtended       The index in the full model tangent space corresponding to the
-   * first joint jacobian space degree
+   * @param[in]  vExtended       The index in the model extended tangent space corresponding to the
+   * joint first extended tangent space degree
    *
    * @return     The index of the joint in the kinematic chain
    */
@@ -248,6 +248,23 @@ namespace pinocchio
     int q,
     int v,
     int vExtended);
+
+  /**
+   * @brief      Visit a JointModelTpl through JointSetIndexesVisitor to set
+   *             the indexes of the joint in the kinematic chain
+   *
+   * @param[in]  jmodel  The JointModelVariant
+   * @param[in]  id      The index of joint in the kinematic chain
+   * @param[in]  q       The index in the full model configuration space corresponding to the first
+   * degree of freedom
+   * @param[in]  v       The index in the full model tangent space corresponding to the first joint
+   * tangent space degree
+   *
+   * @return     The index of the joint in the kinematic chain
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline void setIndexes(
+    JointModelTpl<Scalar, Options, JointCollectionTpl> & jmodel, JointIndex id, int q, int v);
 
   /**
    * @brief      Visit a JointModelTpl through JointShortnameVisitor to get the shortname of the
@@ -479,6 +496,28 @@ namespace pinocchio
     const Scalar & scaling,
     const Scalar & offset,
     const Eigen::MatrixBase<ConfigVectorOut> & qOut);
+
+  /**
+   * @brief Apply joint constraint (motion subspace) on a force.
+   * @tparam Op AssignmentOperatorType.
+   * @tparam Scalar Type of scaling and offset scalars.
+   * @tparam Options.
+   * @tparam JointCollectionTpl Collection of Joint types.
+   * @tparam ForceType Type of the force to transform.
+   * @tparam ExpressionType Eigen expression used to store the result.
+   * @param jdata Joint data to extract the motion subspace (S).
+   * @param F Force applied on the motion subspace.
+   * @param R Eigen expression to store the result.
+   */
+  template<
+    int Op,
+    typename Scalar,
+    int Options,
+    template<typename S, int O> class JointCollectionTpl,
+    typename ForceType,
+    typename ExpressionType>
+  void applyConstraintOnForceVisitor(
+    JointDataTpl<Scalar, Options, JointCollectionTpl> & jdata, ForceType F, ExpressionType R);
 
 } // namespace pinocchio
 

@@ -143,11 +143,10 @@ void test_joint_methods(
   const Model::ConfigVectorType vec_const(Model::ConfigVectorType::Ones(m));
 
   BOOST_CHECK(
-    jmodel.jointConfigExtendedModelSelector(vec)
-    == jmodel_composite.jointConfigExtendedModelSelector(vec));
+    jmodel.JointMappedConfigSelector(vec) == jmodel_composite.JointMappedConfigSelector(vec));
   BOOST_CHECK(
-    jmodel.jointConfigExtendedModelSelector(vec_const)
-    == jmodel_composite.jointConfigExtendedModelSelector(vec_const));
+    jmodel.JointMappedConfigSelector(vec_const)
+    == jmodel_composite.JointMappedConfigSelector(vec_const));
 
   BOOST_CHECK(jmodel.jointConfigSelector(vec) == jmodel_composite.jointConfigSelector(vec));
   BOOST_CHECK(
@@ -158,11 +157,10 @@ void test_joint_methods(
     jmodel.jointVelocitySelector(vec_const) == jmodel_composite.jointVelocitySelector(vec_const));
 
   BOOST_CHECK(
-    jmodel.jointVelocityExtendedModelSelector(vec)
-    == jmodel_composite.jointVelocityExtendedModelSelector(vec));
+    jmodel.JointMappedVelocitySelector(vec) == jmodel_composite.JointMappedVelocitySelector(vec));
   BOOST_CHECK(
-    jmodel.jointVelocityExtendedModelSelector(vec_const)
-    == jmodel_composite.jointVelocityExtendedModelSelector(vec_const));
+    jmodel.JointMappedVelocitySelector(vec_const)
+    == jmodel_composite.JointMappedVelocitySelector(vec_const));
 
   BOOST_CHECK(jmodel.jointCols(mat) == jmodel_composite.jointCols(mat));
   BOOST_CHECK(jmodel.jointCols(mat_const) == jmodel_composite.jointCols(mat_const));
@@ -178,7 +176,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModel> &) const
   {
     JointModel jmodel;
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
 
     test_joint_methods(jmodel);
   }
@@ -196,7 +194,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
   {
     JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
 
     test_joint_methods(jmodel);
   }
@@ -204,7 +202,7 @@ struct TestJointComposite
   void operator()(const JointModelBase<JointModelPrismaticUnaligned> &) const
   {
     JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0, 0, 0, 0);
+    jmodel.setIndexes(0, 0, 0);
     test_joint_methods(jmodel);
   }
 };
@@ -237,7 +235,7 @@ BOOST_AUTO_TEST_CASE(chain)
 BOOST_AUTO_TEST_CASE(vsZYX)
 {
   JointModelSphericalZYX jmodel_spherical;
-  jmodel_spherical.setIndexes(0, 0, 0, 0);
+  jmodel_spherical.setIndexes(0, 0, 0);
 
   JointModelComposite jmodel_composite((JointModelRZ()));
   jmodel_composite.addJoint(JointModelRY());
@@ -249,7 +247,7 @@ BOOST_AUTO_TEST_CASE(vsZYX)
 BOOST_AUTO_TEST_CASE(vsTranslation)
 {
   JointModelTranslation jmodel_translation;
-  jmodel_translation.setIndexes(0, 0, 0, 0);
+  jmodel_translation.setIndexes(0, 0, 0);
 
   JointModelComposite jmodel_composite((JointModelPX()));
   jmodel_composite.addJoint(JointModelPY());

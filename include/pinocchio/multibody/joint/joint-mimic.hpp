@@ -10,12 +10,6 @@
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
-#include <boost/variant.hpp>
-#include <boost/mpl/filter_view.hpp>
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/contains.hpp>
-#include <boost/mpl/placeholders.hpp>
-#include <iostream>
 
 namespace pinocchio
 {
@@ -114,8 +108,8 @@ namespace pinocchio
     }
 
     explicit ScaledJointMotionSubspaceTpl(const Scalar & scaling_factor)
-    : m_scaling_factor(scaling_factor)
-    , m_constraint(0)
+    : m_constraint(0)
+    , m_scaling_factor(scaling_factor)
     {
     }
 
@@ -313,15 +307,15 @@ namespace pinocchio
       NQ = Eigen::Dynamic,
       NV = Eigen::Dynamic,
       NVExtended = Eigen::Dynamic,
-      MaxNVExtended = 6
+      MaxNVMimicked = 6
     };
 
     typedef JointCollectionTpl<Scalar, Options> JointCollection;
     typedef JointDataMimicTpl<Scalar, Options, JointCollectionTpl> JointDataDerived;
     typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModelDerived;
-    typedef ScaledJointMotionSubspaceTpl<Scalar, Options, MaxNVExtended> Constraint_t;
-    typedef SE3Tpl<Scalar, Options> Transformation_t;
 
+    typedef ScaledJointMotionSubspaceTpl<Scalar, Options, MaxNVMimicked> Constraint_t;
+    typedef SE3Tpl<Scalar, Options> Transformation_t;
     typedef MotionTpl<Scalar, Options> Motion_t;
     typedef MotionTpl<Scalar, Options> Bias_t;
 
@@ -330,12 +324,30 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Options> D_t;
     typedef Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Options> UD_t;
 
+    typedef const Constraint_t & ConstraintTypeConstRef;
+    typedef Constraint_t & ConstraintTypeRef;
+    typedef Transformation_t TansformTypeConstRef;
+    typedef Transformation_t TansformTypeRef;
+    typedef Motion_t MotionTypeConstRef;
+    typedef Motion_t MotionTypeRef;
+    typedef Bias_t BiasTypeConstRef;
+    typedef Bias_t BiasTypeRef;
+    typedef U_t UTypeConstRef;
+    typedef U_t UTypeRef;
+    typedef D_t DTypeConstRef;
+    typedef D_t DTypeRef;
+    typedef UD_t UDTypeConstRef;
+    typedef UD_t UDTypeRef;
+
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> TangentVector_t;
 
-    typedef boost::mpl::false_ is_mimicable_t;
+    typedef const ConfigVector_t & ConfigVectorTypeConstRef;
+    typedef ConfigVector_t & ConfigVectorTypeRef;
+    typedef const TangentVector_t TangentVectorTypeConstRef;
+    typedef TangentVector_t & TangentVectorTypeRef;
 
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
+    typedef boost::mpl::false_ is_mimicable_t;
   };
 
   template<typename _Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
@@ -376,8 +388,8 @@ namespace pinocchio
 
     JointDataMimicTpl(
       const RefJointData & jdata, const Scalar & scaling, const int & nq, const int & nv)
-    : m_jdata_ref(checkMimic(jdata.derived()))
-    , S(m_jdata_ref.S(), scaling)
+    : m_jdata_mimicking(checkMimic(jdata.derived()))
+    , S(m_jdata_mimicking.S(), scaling)
     {
       joint_q.resize(nq, 1);
       joint_q_transformed.resize(nq, 1);
@@ -387,7 +399,7 @@ namespace pinocchio
 
     JointDataMimicTpl & operator=(const JointDataMimicTpl & other)
     {
-      m_jdata_ref = other.m_jdata_ref;
+      m_jdata_mimicking = other.m_jdata_mimicking;
       joint_q = other.joint_q;
       joint_q_transformed = other.joint_q_transformed;
       joint_v = other.joint_v;
@@ -399,9 +411,9 @@ namespace pinocchio
     using Base::isEqual;
     bool isEqual(const JointDataMimicTpl & other) const
     {
-      return Base::isEqual(other) && m_jdata_ref == other.m_jdata_ref && joint_q == other.joint_q
-             && joint_q_transformed == other.joint_q_transformed && joint_v == other.joint_v
-             && joint_v_transformed == other.joint_v_transformed;
+      return Base::isEqual(other) && m_jdata_mimicking == other.m_jdata_mimicking
+             && joint_q == other.joint_q && joint_q_transformed == other.joint_q_transformed
+             && joint_v == other.joint_v && joint_v_transformed == other.joint_v_transformed;
     }
 
     static std::string classname()
@@ -424,113 +436,57 @@ namespace pinocchio
       return S;
     }
 
-    TansformTypeConstRef M_accessor() const
+    Transformation_t M_accessor() const
     {
-      M_ = m_jdata_ref.M();
-      return M_;
-    }
-    TansformTypeRef M_accessor()
-    {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      M_ = m_jdata_ref.M();
-      return M_;
+      return m_jdata_mimicking.M();
     }
 
-    MotionTypeConstRef v_accessor() const
+    Motion_t v_accessor() const
     {
-      v_ = m_jdata_ref.v();
-      return v_;
-    }
-    MotionTypeRef v_accessor()
-    {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      v_ = m_jdata_ref.v();
-      return v_;
+      return m_jdata_mimicking.v();
     }
 
-    BiasTypeConstRef c_accessor() const
+    Bias_t c_accessor() const
     {
-      c_ = m_jdata_ref.c();
-      return c_;
-    }
-    BiasTypeRef c_accessor()
-    {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      c_ = m_jdata_ref.c();
-      return c_;
+      return m_jdata_mimicking.c();
     }
 
-    UTypeConstRef U_accessor() const
+    U_t U_accessor() const
     {
-      U_ = m_jdata_ref.U();
-      return U_;
-    }
-    UTypeRef U_accessor()
-    {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      U_ = m_jdata_ref.U();
-      return U_;
+      return m_jdata_mimicking.U();
     }
 
-    DTypeConstRef Dinv_accessor() const
+    D_t Dinv_accessor() const
     {
-      Dinv_ = m_jdata_ref.Dinv();
-      return Dinv_;
-    }
-    DTypeRef Dinv_accessor()
-    {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      Dinv_ = m_jdata_ref.Dinv();
-      return Dinv_;
+      return m_jdata_mimicking.Dinv();
     }
 
-    UDTypeConstRef UDinv_accessor() const
+    UD_t UDinv_accessor() const
     {
-      UDinv_ = m_jdata_ref.UDinv();
-      return UDinv_;
-    }
-    UDTypeRef UDinv_accessor()
-    {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      UDinv_ = m_jdata_ref.UDinv();
-      return UDinv_;
+      return m_jdata_mimicking.UDinv();
     }
 
-    DTypeConstRef StU_accessor() const
+    D_t StU_accessor() const
     {
-      StU_ = m_jdata_ref.StU();
-      return StU_;
-    }
-    DTypeRef StU_accessor()
-    {
-      // assert(false && "Changes to non const ref on mimic joints won't be taken into account. Use
-      // const ref");
-      StU_ = m_jdata_ref.StU();
-      return StU_;
+      return m_jdata_mimicking.StU();
     }
 
     friend struct JointModelMimicTpl<_Scalar, _Options, JointCollectionTpl>;
 
     const RefJointData & jdata() const
     {
-      return m_jdata_ref;
+      return m_jdata_mimicking;
     }
     RefJointData & jdata()
     {
-      return m_jdata_ref;
+      return m_jdata_mimicking;
     }
 
-    ConfigVector_t & joint_q_accessor()
+    ConfigVectorTypeRef joint_q_accessor()
     {
       return joint_q;
     }
-    const ConfigVector_t & joint_q_accessor() const
+    ConfigVectorTypeConstRef joint_q_accessor() const
     {
       return joint_q;
     }
@@ -543,12 +499,11 @@ namespace pinocchio
     {
       return joint_q_transformed;
     }
-
-    TangentVector_t & joint_v_accessor()
+    TangentVectorTypeRef joint_v_accessor()
     {
       return joint_v;
     }
-    const TangentVector_t & joint_v_accessor() const
+    TangentVectorTypeConstRef joint_v_accessor() const
     {
       return joint_v;
     }
@@ -562,8 +517,13 @@ namespace pinocchio
       return joint_v_transformed;
     }
 
-  protected:
-    RefJointData m_jdata_ref;
+    void disp(std::ostream & os) const
+    {
+      Base::disp(os);
+      os << "  Mimicking joint data: " << m_jdata_mimicking.shortname() << std::endl;
+    }
+
+    RefJointData m_jdata_mimicking;
 
     /// \brief original configuration vector
     ConfigVector_t joint_q;
@@ -573,21 +533,8 @@ namespace pinocchio
     TangentVector_t joint_v;
     /// \brief Transform velocity vector.
     TangentVector_t joint_v_transformed;
-
-  public:
     // data
     Constraint_t S;
-
-  protected:
-    /// \brief Buffer variable for accessors to return references
-    mutable Transformation_t M_;
-    mutable Motion_t v_;
-    mutable Bias_t c_;
-    mutable U_t U_;
-    mutable D_t Dinv_;
-    mutable UD_t UDinv_;
-    mutable D_t StU_;
-
   }; // struct JointDataMimicTpl
 
   template<
@@ -611,12 +558,11 @@ namespace pinocchio
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     enum
     {
-      MaxNVExtended = traits<JointDerived>::MaxNVExtended
+      MaxNVMimicked = traits<JointDerived>::MaxNVMimicked
     };
 
     typedef JointCollectionTpl<Scalar, Options> JointCollection;
     typedef JointModelTpl<Scalar, Options, JointCollectionTpl> JointModel;
-    typedef typename JointModel::JointModelVariant JointModelVariant;
 
     typedef SE3Tpl<Scalar, Options> SE3;
     typedef MotionTpl<Scalar, Options> Motion;
@@ -648,9 +594,11 @@ namespace pinocchio
       const JointModelBase<JointModelMimicked> & jmodel_mimicked,
       const Scalar & scaling,
       const Scalar & offset)
-    : m_jmodel_ref(checkMimic((JointModel)jmodel_mimicking.derived()))
+    : m_jmodel_mimicking(checkMimic((JointModel)jmodel_mimicking.derived()))
     , m_scaling(scaling)
     , m_offset(offset)
+    , m_nqExtended(jmodel_mimicking.nq())
+    , m_nvExtended(jmodel_mimicking.nvExtended())
     {
       assert(jmodel_mimicking.nq() == jmodel_mimicked.nq());
       assert(jmodel_mimicking.nv() == jmodel_mimicked.nv());
@@ -680,54 +628,69 @@ namespace pinocchio
     }
     inline int nvExtended_impl() const
     {
-      return m_jmodel_ref.nvExtended();
+      return m_nvExtended;
     }
 
+    /**
+     * @note q and v are ignored in the _impl for mimic joint because most algorithms will pass
+     * indexes of their current position in the tree, while in this case idx_q and idx_v should
+     * remain pointing to the mimicked joint. (See setMimicIndexes)
+     */
     void setIndexes_impl(JointIndex id, int /*q*/, int /*v*/, int vExtended)
     {
+      PINOCCHIO_THROW(
+        (id > m_jmodel_mimicking.id()), std::invalid_argument,
+        "Mimic joint index is lower than its directing joint. Should never happen");
       Base::i_id = id;
-      // When setting the indexes q and v should remain on the mimicked joint
       // Base::i_q = q;
       // Base::i_v = v;
       Base::i_vExtended = vExtended;
     }
 
-    // Specific way for mimic joints to set the mimicked q,v indexes.
-    // Used for manipulating tree (e.g. appendModel)
+    /**
+     * @brief Specific way for mimic joints to set the mimicked q,v indexes.
+     * Used for manipulating tree (e.g. appendModel)
+     *
+     * @param id Set the mimicking joint id
+     * @param q Set the mimic joint idx_q (should point to the mimicked joint)
+     * @param v Set the mimic joint idx_v (should point to the mimicked joint)
+     * @param vExtended Set the mimicking idx_vExtended
+     */
     void setMimicIndexes(JointIndex id, int q, int v, int vExtended)
     {
-      // Set idx_q, idx_v to zero so that only sub segment of q,v can be passed to ref joint
-      m_jmodel_ref.setIndexes(id, 0, 0, vExtended);
-      // idx_q, idx_v kept separately
+      // Set idx_q, idx_v to zero because only the corresponding subsegment of q,v are passed to the
+      // m_jmodel_mimicking, thus, its indexes starts at 0
+      m_jmodel_mimicking.setIndexes(id, 0, 0, vExtended);
+
+      // idx_q, idx_v are kept separately to extract the subsegment
       Base::i_q = q;
       Base::i_v = v;
     }
 
     JointDataDerived createData() const
     {
-
       return JointDataDerived(
-        m_jmodel_ref.createData(), scaling(), m_jmodel_ref.nq(), m_jmodel_ref.nv());
+        m_jmodel_mimicking.createData(), scaling(), m_nqExtended, m_nvExtended);
     }
 
     const std::vector<bool> hasConfigurationLimit() const
     {
-      return m_jmodel_ref.hasConfigurationLimit();
+      return m_jmodel_mimicking.hasConfigurationLimit();
     }
 
     const std::vector<bool> hasConfigurationLimitInTangent() const
     {
-      return m_jmodel_ref.hasConfigurationLimitInTangent();
+      return m_jmodel_mimicking.hasConfigurationLimitInTangent();
     }
 
     template<typename ConfigVector>
     EIGEN_DONT_INLINE void
     calc(JointDataDerived & jdata, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      jdata.joint_q = qs.segment(idx_q(), m_jmodel_ref.nq());
+      jdata.joint_q = qs.segment(Base::i_q, m_nqExtended);
       configVectorAffineTransform(
-        m_jmodel_ref, jdata.joint_q, m_scaling, m_offset, jdata.joint_q_transformed);
-      m_jmodel_ref.calc(jdata.m_jdata_ref, jdata.joint_q_transformed);
+        m_jmodel_mimicking, jdata.joint_q, m_scaling, m_offset, jdata.joint_q_transformed);
+      m_jmodel_mimicking.calc(jdata.m_jdata_mimicking, jdata.joint_q_transformed);
     }
 
     template<typename ConfigVector, typename TangentVector>
@@ -736,28 +699,27 @@ namespace pinocchio
       const typename Eigen::MatrixBase<ConfigVector> & qs,
       const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      jdata.joint_q = qs.segment(idx_q(), m_jmodel_ref.nq());
-      jdata.joint_v = vs.segment(idx_v(), m_jmodel_ref.nv());
+      jdata.joint_q = qs.segment(Base::i_q, m_nqExtended);
+      jdata.joint_v = vs.segment(Base::i_v, m_nvExtended);
       configVectorAffineTransform(
-        m_jmodel_ref, jdata.joint_q, m_scaling, m_offset, jdata.joint_q_transformed);
+        m_jmodel_mimicking, jdata.joint_q, m_scaling, m_offset, jdata.joint_q_transformed);
       jdata.joint_v_transformed = m_scaling * jdata.joint_v;
-      m_jmodel_ref.calc(jdata.m_jdata_ref, jdata.joint_q_transformed, jdata.joint_v_transformed);
+
+      m_jmodel_mimicking.calc(
+        jdata.m_jdata_mimicking, jdata.joint_q_transformed, jdata.joint_v_transformed);
     }
 
     template<typename VectorLike, typename Matrix6Like>
     void calc_aba(
-      JointDataDerived & data,
-      const Eigen::MatrixBase<VectorLike> & armature,
-      const Eigen::MatrixBase<Matrix6Like> & I,
-      const bool update_I) const
+      JointDataDerived &,
+      const Eigen::MatrixBase<VectorLike> &,
+      const Eigen::MatrixBase<Matrix6Like> &,
+      const bool) const
     {
-      // TODO: fixme
       assert(
         false
         && "Joint Mimic is not supported for aba yet. Remove it from your model if you want to use "
            "this function");
-      m_jmodel_ref.calc_aba(
-        data.m_jdata_ref, armature, PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like, I), update_I);
     }
 
     static std::string classname()
@@ -775,21 +737,22 @@ namespace pinocchio
     typename CastType<NewScalar, JointModelMimicTpl>::type cast() const
     {
       typedef typename CastType<NewScalar, JointModelMimicTpl>::type ReturnType;
-
       ReturnType res(
-        m_jmodel_ref.template cast<NewScalar>(), ScalarCast<NewScalar, Scalar>::cast(m_scaling),
+        m_jmodel_mimicking.template cast<NewScalar>(),
+        ScalarCast<NewScalar, Scalar>::cast(m_scaling),
         ScalarCast<NewScalar, Scalar>::cast(m_offset));
-      res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
+      res.setIndexes(id(), Base::i_q, Base::i_v, Base::i_vExtended);
+      res.setMimicIndexes(m_jmodel_mimicking.id(), Base::i_q, Base::i_v, Base::i_vExtended);
       return res;
     }
 
     const JointModel & jmodel() const
     {
-      return m_jmodel_ref;
+      return m_jmodel_mimicking;
     }
     JointModel & jmodel()
     {
-      return m_jmodel_ref;
+      return m_jmodel_mimicking;
     }
 
     const Scalar & scaling() const
@@ -812,25 +775,42 @@ namespace pinocchio
 
   protected:
     // data
-    JointModel m_jmodel_ref;
+    JointModel m_jmodel_mimicking;
     Scalar m_scaling, m_offset;
+    int m_nqExtended, m_nvExtended;
 
   public:
     /* Acces to dedicated segment in robot config space.  */
     // Const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
-    jointConfigExtendedModelSelector_impl(const Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
-      return SizeDepType<NQ>::segment(a.derived(), idx_q(), m_jmodel_ref.nq());
+      return SizeDepType<NQ>::segment(a.derived(), Base::i_q, m_nqExtended);
     }
 
     // Non-const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type
-    jointConfigExtendedModelSelector_impl(Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector_impl(Eigen::MatrixBase<D> & a) const
     {
-      return SizeDepType<NQ>::segment(a.derived(), idx_q(), m_jmodel_ref.nq());
+      return SizeDepType<NQ>::segment(a.derived(), Base::i_q, m_nqExtended);
+    }
+    /* Acces to dedicated segment in robot tangent space.  */
+    // Const access
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType
+    JointMappedVelocitySelector_impl(const Eigen::MatrixBase<D> & a) const
+    {
+      return SizeDepType<NQ>::segment(a.derived(), Base::i_v, m_nvExtended);
+    }
+
+    // Non-const access
+    template<typename D>
+    typename SizeDepType<NQ>::template SegmentReturn<D>::Type
+    JointMappedVelocitySelector_impl(Eigen::MatrixBase<D> & a) const
+    {
+      return SizeDepType<NQ>::segment(a.derived(), Base::i_v, m_nvExtended);
     }
 
     /* Acces to dedicated columns in a ForceSet or MotionSet matrix.*/
@@ -839,7 +819,7 @@ namespace pinocchio
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType
     jointCols_impl(const Eigen::MatrixBase<D> & A) const
     {
-      return SizeDepType<NV>::middleCols(A.derived(), idx_v(), m_jmodel_ref.nv());
+      return SizeDepType<NV>::middleCols(A.derived(), Base::i_v, m_nvExtended);
     }
 
     // Non-const access
@@ -847,16 +827,16 @@ namespace pinocchio
     typename SizeDepType<NV>::template ColsReturn<D>::Type
     jointCols_impl(Eigen::MatrixBase<D> & A) const
     {
-      return SizeDepType<NV>::middleCols(A.derived(), idx_v(), m_jmodel_ref.nv());
+      return SizeDepType<NV>::middleCols(A.derived(), Base::i_v, m_nvExtended);
     }
 
     /* Acces to dedicated rows in a matrix.*/
     // Const access
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
-    joinVelRows_impl(const Eigen::MatrixBase<D> & A) const
+    jointRows_impl(const Eigen::MatrixBase<D> & A) const
     {
-      return SizeDepType<NV>::middleRows(A.derived(), idx_v(), m_jmodel_ref.nv());
+      return SizeDepType<NV>::middleRows(A.derived(), Base::i_v, m_nvExtended);
     }
 
     // Non-const access
@@ -864,7 +844,7 @@ namespace pinocchio
     typename SizeDepType<NV>::template RowsReturn<D>::Type
     jointRows_impl(Eigen::MatrixBase<D> & A) const
     {
-      return SizeDepType<NV>::middleRows(A.derived(), idx_v(), m_jmodel_ref.nv());
+      return SizeDepType<NV>::middleRows(A.derived(), Base::i_v, m_nvExtended);
     }
 
     // /// \brief Returns a block of dimension nv()xnv() located at position idx_v(),idx_v() in the
@@ -875,7 +855,7 @@ namespace pinocchio
     jointBlock_impl(const Eigen::MatrixBase<D> & Mat) const
     {
       return SizeDepType<NV>::block(
-        Mat.derived(), idx_v(), idx_v(), m_jmodel_ref.nv(), m_jmodel_ref.nv());
+        Mat.derived(), Base::i_v, Base::i_v, m_nvExtended, m_nvExtended);
     }
 
     // Non-const access
@@ -884,7 +864,16 @@ namespace pinocchio
     jointBlock_impl(Eigen::MatrixBase<D> & Mat) const
     {
       return SizeDepType<NV>::block(
-        Mat.derived(), idx_v(), idx_v(), m_jmodel_ref.nv(), m_jmodel_ref.nv());
+        Mat.derived(), Base::i_v, Base::i_v, m_nvExtended, m_nvExtended);
+    }
+
+    void disp(std::ostream & os) const
+    {
+      Base::disp(os);
+      os << "  Mimicking joint type: " << m_jmodel_mimicking.shortname() << std::endl;
+      os << "  Mimicked joint id: " << m_jmodel_mimicking.id() << std::endl;
+      os << "  Mimic scaling: " << m_scaling << std::endl;
+      os << "  Mimic offset: " << m_offset << std::endl;
     }
 
   }; // struct JointModelMimicTpl

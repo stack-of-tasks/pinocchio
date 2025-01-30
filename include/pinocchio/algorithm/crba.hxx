@@ -9,7 +9,7 @@
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/check.hpp"
-#include "pinocchio/algorithm/model.hpp"
+#include "pinocchio/multibody/joint/joint-basic-visitors.hpp"
 
 /// @cond DEV
 
@@ -58,65 +58,6 @@ namespace pinocchio
       }
     };
 
-    /// \brief Patch to the crba algorithm for joint mimic (in local convention)
-    template<
-      typename JointModel,
-      typename Scalar,
-      int Options,
-      template<typename, int> class JointCollectionTpl>
-    static void mimic_patch_CrbaWorldConventionBackwardStep(
-      const JointModelBase<JointModel> &,
-      const ModelTpl<Scalar, Options, JointCollectionTpl> &,
-      DataTpl<Scalar, Options, JointCollectionTpl> &)
-    {
-    }
-
-    /// \note For each joint the crba computation is done only for the sub cols/rows
-    /// from idx_v to joint.nvSubtree. In the case of the joint j=(i+n) mimicking the joint i,
-    /// the joints i+[1..n-1] will have idx_v greater than the joint j. This patch compute
-    /// this "left out" part of the M matrix.
-    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    static void mimic_patch_CrbaWorldConventionBackwardStep(
-      const JointModelBase<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>> & jmodel,
-      const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      DataTpl<Scalar, Options, JointCollectionTpl> & data)
-    {
-      const JointIndex secondary_id = jmodel.id();
-      const JointIndex primary_id = jmodel.derived().jmodel().id();
-      PINOCCHIO_THROW(
-        secondary_id > primary_id, std::invalid_argument,
-        std::string("Mimicking joint id is before the primary in the tree"));
-
-      size_t ancestor_prim, ancestor_sec;
-      findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
-
-      // Traverse the tree backward from parent of mimicking (secondary) joint to common ancestor
-      for (size_t k = model.supports[secondary_id].size() - 2; k >= ancestor_sec; k--)
-      {
-        const JointIndex i = model.supports[secondary_id][k];
-
-        // Skip the common ancestor if it's not the primary id
-        // as this computation would be canceled by the next loop forward
-        if (k == ancestor_sec && i != primary_id)
-          continue;
-
-        jmodel.jointRows(data.M)
-          .middleCols(model.joints[i].idx_v(), model.joints[i].nv())
-          .noalias() +=
-          data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv()).transpose()
-          * model.joints[i].jointExtendedModelCols(data.J);
-      }
-      // Traverse the kinematic tree forward from common ancestor to mimicked (primary) joint
-      for (size_t k = ancestor_prim + 1; k < model.supports[primary_id].size(); k++)
-      {
-        const JointIndex i = model.supports[primary_id][k];
-        jmodel.jointCols(data.M)
-          .middleRows(model.joints[i].idx_v(), model.joints[i].nv())
-          .noalias() -= model.joints[i].jointExtendedModelCols(data.J).transpose()
-                        * data.Ag.middleCols(jmodel.idx_v(), jmodel.derived().jmodel().nv());
-      }
-    }
-
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     struct CrbaWorldConventionBackwardStep
     : public fusion::JointUnaryVisitorBase<
@@ -124,11 +65,19 @@ namespace pinocchio
     {
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
+      typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModelMimic;
 
       typedef boost::fusion::vector<const Model &, Data &> ArgsType;
 
       template<typename JointModel>
       static void algo(const JointModelBase<JointModel> & jmodel, const Model & model, Data & data)
+      {
+        algo_impl(jmodel, model, data);
+      }
+
+      template<typename JointModel>
+      static void
+      algo_impl(const JointModelBase<JointModel> & jmodel, const Model & model, Data & data)
       {
         typedef typename Model::JointIndex JointIndex;
         typedef
@@ -139,15 +88,131 @@ namespace pinocchio
         // Centroidal momentum map
         ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
         ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
-        motionSet::inertiaAction<ADDTO>(data.oYcrb[i], J_cols, Ag_cols);
+        motionSet::inertiaAction(data.oYcrb[i], J_cols, Ag_cols);
 
         // Joint Space Inertia Matrix
-        jmodel.jointRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
+        data.M.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nv(), data.nvSubtree[i]).noalias() =
           J_cols.transpose() * data.Ag.middleCols(jmodel.idx_v(), data.nvSubtree[i]);
 
-        mimic_patch_CrbaWorldConventionBackwardStep(jmodel, model, data);
         const JointIndex & parent = model.parents[i];
         data.oYcrb[parent] += data.oYcrb[i];
+      }
+
+      static void
+      algo_impl(const JointModelBase<JointModelMimic> & jmodel, const Model & model, Data & data)
+      {
+        typedef typename Model::JointIndex JointIndex;
+        const JointIndex & i = jmodel.id();
+
+        const JointIndex & parent = model.parents[i];
+        data.oYcrb[parent] += data.oYcrb[i];
+      }
+    };
+
+    // In case of a tree with a mimic joint, as seen above, the backward pass, is truncated, in
+    // order not to replace the mimicked joint(s) info in the matrix. This step allows for the
+    // mimicking joint(s) contribution to be added. It is done in 3 steps:
+    // - First we compute the mimicking joint(s) Force matrix
+    // - Then we compute the "old" row of the mimicking joint in the matrix, by getting the subtree
+    // of mimicking joint
+    // - Since here only the upper part of the matrix is computed, we need to go over the support of
+    // the mimicking joint, and compute how the force matrix of the mimicking joint is affecting
+    // each joint ATTENTION : the last loop is spilt in 2, to only fill the upper part of the matrix
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    struct CrbaWorldConventionMimicStep
+    : public fusion::JointUnaryVisitorBase<
+        CrbaWorldConventionMimicStep<Scalar, Options, JointCollectionTpl>>
+    {
+      typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+      typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
+      typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModelMimic;
+
+      typedef boost::fusion::vector<const Model &, Data &, const size_t &> ArgsType;
+
+      template<typename JointModel>
+      static void algo(
+        const JointModelBase<JointModel> & jmodel,
+        const Model & model,
+        Data & data,
+        const size_t & mims_id)
+      {
+        algo_impl(jmodel, model, data, mims_id);
+      }
+
+      template<typename JointModel>
+      static void
+      algo_impl(const JointModelBase<JointModel> &, const Model &, Data &, const size_t &)
+      {
+      }
+
+      static void algo_impl(
+        const JointModelBase<JointModelMimic> & jmodel,
+        const Model & model,
+        Data & data,
+        const size_t & mims_id)
+      {
+        typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModel;
+
+        JointIndex mimicking_id = jmodel.id();
+        JointIndex mimicked_id = jmodel.derived().jmodel().id();
+
+        Eigen::Ref<Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Options, 6, JointModel::MaxNVMimicked>>
+          J_cols = jmodel.jointExtendedModelCols(data.J);
+        Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Options, 6, JointModel::MaxNVMimicked> Ag_sec(
+          6, jmodel.nvExtended());
+
+        motionSet::inertiaAction(data.oYcrb[mimicking_id], J_cols, Ag_sec);
+
+        // Compute mimicking terms that were previously in the diagonal
+        data.M.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nvExtended(), jmodel.nvExtended())
+          .noalias() += J_cols.transpose() * Ag_sec;
+
+        // Compute for the "subtree" of the mimicking
+        JointIndex sub_mimic_id = data.mimic_subtree_joint[mims_id];
+        if (sub_mimic_id != 0)
+          jmodel.jointRows(data.M)
+            .middleCols(model.idx_vs[sub_mimic_id], data.nvSubtree[sub_mimic_id])
+            .noalias() +=
+            J_cols.transpose()
+            * data.Ag.middleCols(model.idx_vs[sub_mimic_id], data.nvSubtree[sub_mimic_id]);
+
+        const auto & supports = model.supports[mimicking_id];
+        size_t j = supports.size() - 2;
+        Eigen::Matrix<
+          Scalar, Eigen::Dynamic, Eigen::Dynamic, Options, JointModel::MaxNVMimicked,
+          JointModel::MaxNVMimicked>
+          temp_JAG;
+        for (; model.idx_vs[supports[j]] >= jmodel.idx_v(); j--)
+        {
+          int sup_idx_v = model.idx_vs[supports[j]];
+          int sup_nv = model.nvs[supports[j]];
+          int sup_idx_vExtended = model.idx_vExtendeds[supports[j]];
+          int sup_nvExtended = model.nvExtendeds[supports[j]];
+
+          temp_JAG.noalias() =
+            data.J.middleCols(sup_idx_vExtended, sup_nvExtended).transpose() * Ag_sec;
+          data.M.block(jmodel.idx_v(), sup_idx_v, jmodel.nvExtended(), sup_nv).noalias() +=
+            temp_JAG;
+          if (supports[j] == mimicked_id)
+            data.M.block(jmodel.idx_v(), sup_idx_v, jmodel.nvExtended(), sup_nv).noalias() +=
+              temp_JAG;
+        }
+
+        for (; j > 0; j--)
+        {
+          int sup_idx_v = model.idx_vs[supports[j]];
+          int sup_nv = model.nvs[supports[j]];
+          int sup_idx_vExtended = model.idx_vExtendeds[supports[j]];
+          int sup_nvExtended = model.nvExtendeds[supports[j]];
+
+          data.M.block(sup_idx_v, jmodel.idx_v(), sup_nv, jmodel.nvExtended()).noalias() +=
+            data.J.middleCols(sup_idx_vExtended, sup_nvExtended).transpose() * Ag_sec;
+        }
+
+        // Mimic joint also have an effect on the centroidal map momentum, so it's important to
+        // compute it and add it to its mimicked. It is done here Ag[prim] += oYCRB[sec] * J[sec]
+        motionSet::inertiaAction<ADDTO>(
+          data.oYcrb[mimicking_id], J_cols, jmodel.jointCols(data.Ag));
       }
     };
 
@@ -183,108 +248,6 @@ namespace pinocchio
       }
     };
 
-    // /// \brief Patch to the crba algorithm for joint mimic (in local convention)
-    template<
-      typename JointModel,
-      typename Scalar,
-      int Options,
-      template<typename, int> class JointCollectionTpl>
-    static void mimic_patch_CrbaLocalConventionBackwardStep(
-      const JointModelBase<JointModel> &,
-      const ModelTpl<Scalar, Options, JointCollectionTpl> &,
-      DataTpl<Scalar, Options, JointCollectionTpl> &)
-    {
-    }
-
-    template<typename JointDataTpl, typename ReturnType>
-    struct GetMotionSubspaceTplNoMalloc : public boost::static_visitor<ReturnType>
-    {
-      template<typename JointDataDerived>
-      ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
-      {
-        assert(jdata.S().nv() <= ReturnType::MaxColsAtCompileTime);
-        return ReturnType(jdata.S().matrix());
-      }
-
-      static ReturnType run(const JointDataTpl & jdata)
-      {
-        return boost::apply_visitor(GetMotionSubspaceTplNoMalloc(), jdata);
-      }
-    };
-
-    /// \note For each joint the crba computation is done only for the sub cols/rows
-    /// from idx_v to joint.nvSubtree. In the case of the joint j=(i+n) mimicking the joint i,
-    /// the joints i+[1..n-1] will have idx_v greater than the joint j. This patch compute
-    /// this "left out" part of the M matrix.
-    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    static void mimic_patch_CrbaLocalConventionBackwardStep(
-      const JointModelBase<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>> & jmodel,
-      const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      DataTpl<Scalar, Options, JointCollectionTpl> & data)
-    {
-      typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModel;
-      typedef typename Eigen::Matrix<
-        Scalar, 6, Eigen::Dynamic, Data::Matrix6x::Options, 6, JointModel::MaxNVExtended>
-        SpatialForcesX;
-      typedef JointDataTpl<Scalar, Options, JointCollectionTpl> JointData;
-      typedef
-        typename Eigen::Matrix<Scalar, 6, Eigen::Dynamic, Options, 6, JointModel::MaxNVExtended>
-          MotionSubspace;
-      typedef GetMotionSubspaceTplNoMalloc<JointData, MotionSubspace> GetSNoMalloc;
-      typedef SE3Tpl<Scalar, Options> SE3;
-
-      const JointIndex secondary_id = jmodel.id();
-      const JointIndex primary_id = jmodel.derived().jmodel().id();
-
-      PINOCCHIO_THROW(
-        secondary_id > primary_id, std::invalid_argument,
-        std::string("Mimicking joint id is before the primary in the tree"));
-      size_t ancestor_prim, ancestor_sec;
-      findCommonAncestor(model, primary_id, secondary_id, ancestor_prim, ancestor_sec);
-
-      SpatialForcesX iF(6, jmodel.nvExtended()); // Current joint forces
-      SE3 iMj = SE3::Identity();                 // Transform from current joint to mimic joint
-
-      // Traverse the tree backward from parent of mimicking (secondary) joint to common ancestor
-      for (size_t k = model.supports[secondary_id].size() - 2; k >= ancestor_sec; k--)
-      {
-        const JointIndex i = model.supports[secondary_id][k];
-        const JointIndex ui =
-          model.supports[secondary_id][k + 1]; // Child link to compute placement
-        iMj = data.liMi[ui].act(iMj);
-
-        // Skip the common ancestor if it's not the primary id
-        // as this computation would be canceled by the next loop forward
-        if (k == ancestor_sec && i != primary_id)
-          continue;
-
-        forceSet::se3Action(iMj, jmodel.jointCols(data.Fcrb[secondary_id]), iF);
-
-        jmodel.jointRows(data.M)
-          .middleCols(model.joints[i].idx_v(), model.joints[i].nv())
-          .noalias() += GetSNoMalloc::run(data.joints[i]).transpose() * iF;
-      }
-      // Traverse the kinematic tree forward from common ancestor to mimicked (primary) joint
-      for (size_t k = ancestor_prim + 1; k < model.supports[primary_id].size(); k++)
-      {
-        const JointIndex i = model.supports[primary_id][k];
-        iMj = data.liMi[i].actInv(iMj);
-
-        forceSet::se3Action(iMj, jmodel.jointCols(data.Fcrb[secondary_id]), iF);
-
-        jmodel.jointCols(data.M)
-          .middleRows(model.joints[i].idx_v(), model.joints[i].nv())
-          .noalias() -= iF.transpose() * GetSNoMalloc::run(data.joints[i]);
-      }
-
-      if (model.parents[secondary_id] != primary_id)
-      {
-        forceSet::se3Action<ADDTO>(
-          iMj, data.Fcrb[secondary_id].col(jmodel.idx_v()),
-          data.Fcrb[primary_id].col(jmodel.idx_v()));
-      }
-    }
-
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     struct CrbaLocalConventionBackwardStep
     : public fusion::JointUnaryVisitorBase<
@@ -292,6 +255,7 @@ namespace pinocchio
     {
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
+      typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModelMimic;
 
       typedef boost::fusion::vector<const Model &, Data &> ArgsType;
 
@@ -302,8 +266,18 @@ namespace pinocchio
         const Model & model,
         Data & data)
       {
+        algo_impl(jmodel, jdata, model, data);
+      }
+
+      template<typename JointModel>
+      static void algo_impl(
+        const JointModelBase<JointModel> & jmodel,
+        JointDataBase<typename JointModel::JointDataDerived> & jdata,
+        const Model & model,
+        Data & data)
+      {
         /*
-         * F[1:6,i] += Y*S
+         * F[1:6,i] = Y*S
          * M[i,SUBTREE] = S'*F[1:6,SUBTREE]
          * if li>0
          *   Yli += liXi Yi
@@ -313,13 +287,12 @@ namespace pinocchio
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Matrix6x::ColsBlockXpr Block;
         const JointIndex & i = jmodel.id();
-
         /* F[1:6,i] = Y*S */
         // data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
-        jmodel.jointCols(data.Fcrb[i]) += data.Ycrb[i] * jdata.S();
+        jmodel.jointCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
 
         /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
-        jmodel.jointRows(data.M).middleCols(jmodel.idx_v(), data.nvSubtree[i]).noalias() +=
+        data.M.block(jmodel.idx_v(), jmodel.idx_v(), jmodel.nv(), data.nvSubtree[i]).noalias() =
           jdata.S().transpose() * data.Fcrb[i].middleCols(jmodel.idx_v(), data.nvSubtree[i]);
 
         const JointIndex & parent = model.parents[i];
@@ -331,10 +304,145 @@ namespace pinocchio
           /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
           Block jF = data.Fcrb[parent].middleCols(jmodel.idx_v(), data.nvSubtree[i]);
           Block iF = data.Fcrb[i].middleCols(jmodel.idx_v(), data.nvSubtree[i]);
+          forceSet::se3Action(data.liMi[i], iF, jF);
+        }
+      }
+
+      static void algo_impl(
+        const JointModelBase<JointModelMimic> & jmodel,
+        JointDataBase<typename JointModelMimic::JointDataDerived> &
+        /* jdata */,
+        const Model & model,
+        Data & data)
+      {
+        typedef typename Model::JointIndex JointIndex;
+        typedef typename Data::Matrix6x & Matrix;
+
+        const JointIndex & i = jmodel.id();
+        const JointIndex & parent = model.parents[i];
+        if (parent > 0)
+        {
+          /*   Yli += liXi Yi */
+          data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+
+          /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
+          Matrix jF = data.Fcrb[parent];
+          Matrix iF = data.Fcrb[i];
+          // Since we don't just copy columns, we need to use ADDTO method, to avoid ecrasing
+          // already filled columns, in case of parallel arms, it is important to not ecrase already
+          // filled data from the other part of the tree
+          // By using data.mimic_subtree_joint, we could do the same as for a non-mimic joint.
+          // But to do so, we need to change the either this visitor or data.mimic_subtree_joint
           forceSet::se3Action<ADDTO>(data.liMi[i], iF, jF);
         }
+      }
+    };
 
-        mimic_patch_CrbaLocalConventionBackwardStep(jmodel, model, data);
+    // In case of a tree with a mimic joint, as seen above, the backward pass, is truncated, in
+    // order not to replace the mimicked joint(s) info in the matrix. This step allows for the
+    // mimicking joint(s) contribution to be added. It is done in 3 steps:
+    // - First we compute the mimicking joint(s) Force matrix
+    // - Then we compute the "old" row of the mimicking joint in the matrix, by getting the subtree
+    // of mimicking joint
+    // - Since here only the upper part of the matrix is computed, we need to go over the support of
+    // the mimicking joint, and compute how the force matrix of the mimicking joint is affecting
+    // each joint ATTENTION : the last loop is spilt in 2, to only fill the upper part of the matrix
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    struct CrbaLocalConventionMimicStep
+    : public fusion::JointUnaryVisitorBase<
+        CrbaLocalConventionMimicStep<Scalar, Options, JointCollectionTpl>>
+    {
+      typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+      typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
+      typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModelMimic;
+
+      typedef boost::fusion::vector<const Model &, Data &, const size_t &> ArgsType;
+
+      template<typename JointModel>
+      static void algo(
+        const JointModelBase<JointModel> & jmodel,
+        JointDataBase<typename JointModel::JointDataDerived> & jdata,
+        const Model & model,
+        Data & data,
+        const size_t & mims_id)
+      {
+        algo_impl(jmodel, jdata, model, data, mims_id);
+      }
+
+      template<typename JointModel>
+      static void algo_impl(
+        const JointModelBase<JointModel> &,
+        JointDataBase<typename JointModel::JointDataDerived> &,
+        const Model &,
+        Data &,
+        const size_t &)
+      {
+      }
+
+      static void algo_impl(
+        const JointModelBase<JointModelMimic> & jmodel,
+        JointDataBase<typename JointModelMimic::JointDataDerived> & jdata,
+        const Model & model,
+        Data & data,
+        const size_t & mims_id)
+      {
+        typedef JointModelMimic JointModel;
+
+        const JointIndex & mimicking_id = jmodel.id();
+        const JointIndex & mimicked_id = jmodel.derived().jmodel().id();
+        auto & F = data.Fcrb[mimicking_id];
+
+        /* F[1:6,i] = Y*S */
+        jmodel.jointCols(F) = data.Ycrb[mimicking_id] * jdata.S();
+
+        // Add mimicking joint contribution to the Matrix
+        jmodel.jointBlock(data.M).noalias() += jdata.S().transpose() * jmodel.jointCols(F);
+
+        // Add mimicking subtree contribution to the matrix.
+        JointIndex sub_mimic_id = data.mimic_subtree_joint[mims_id];
+        if (sub_mimic_id != 0)
+        {
+          jmodel.jointRows(data.M)
+            .middleCols(model.idx_vs[sub_mimic_id], data.nvSubtree[sub_mimic_id])
+            .noalias() += jdata.S().transpose()
+                          * F.middleCols(model.idx_vs[sub_mimic_id], data.nvSubtree[sub_mimic_id]);
+        }
+
+        const auto & supports = model.supports[mimicking_id];
+        size_t j = supports.size() - 2;
+        Eigen::Matrix<
+          Scalar, Eigen::Dynamic, Eigen::Dynamic, Options, JointModel::MaxNVMimicked,
+          JointModel::MaxNVMimicked>
+          temp_JAG;
+        for (; model.idx_vs[supports[j]] >= jmodel.idx_v(); j--)
+        {
+          const JointIndex & li = supports[j];
+          const JointIndex & i = supports[j + 1]; // Child link to compute placement
+
+          forceSet::se3Action(data.liMi[i], jmodel.jointCols(F), jmodel.jointCols(F));
+          int row_idx = jmodel.idx_v();
+          int col_idx = model.idx_vs[li];
+
+          applyConstraintOnForceVisitor<SETTO>(
+            data.joints[li], jmodel.jointCols(F), temp_JAG.noalias());
+          data.M.block(row_idx, col_idx, jmodel.nvExtended(), model.nvs[li]).noalias() += temp_JAG;
+          if (li == mimicked_id)
+            data.M.block(row_idx, col_idx, jmodel.nvExtended(), model.nvs[li]).noalias() +=
+              temp_JAG;
+        }
+        for (; j > 0; j--)
+        {
+          const JointIndex & li = supports[j];
+          const JointIndex & i = supports[j + 1]; // Child link to compute placement
+
+          forceSet::se3Action(data.liMi[i], jmodel.jointCols(F), jmodel.jointCols(F));
+          int col_idx = jmodel.idx_v();
+          int row_idx = model.idx_vs[li];
+
+          applyConstraintOnForceVisitor<ADDTO>(
+            data.joints[li], jmodel.jointCols(F),
+            data.M.block(row_idx, col_idx, model.nvs[li], jmodel.nvExtended()).noalias());
+        }
       }
     };
 
@@ -362,15 +470,18 @@ namespace pinocchio
           model.joints[i], data.joints[i], typename Pass1::ArgsType(model, data, q.derived()));
       }
 
-      data.M.setZero();
-      for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
-      {
-        data.Fcrb[i].setZero();
-      }
       typedef CrbaLocalConventionBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
         Pass2::run(model.joints[i], data.joints[i], typename Pass2::ArgsType(model, data));
+      }
+
+      typedef CrbaLocalConventionMimicStep<Scalar, Options, JointCollectionTpl> Pass3;
+      for (size_t i = 0; i < model.mimicking_joints.size(); i++)
+      {
+        Pass3::run(
+          model.joints[model.mimicking_joints[i]], data.joints[model.mimicking_joints[i]],
+          typename Pass3::ArgsType(model, data, i));
       }
 
       // Add the armature contribution
@@ -404,12 +515,17 @@ namespace pinocchio
           model.joints[i], data.joints[i], typename Pass1::ArgsType(model, data, q.derived()));
       }
 
-      data.M.setZero();
-      data.Ag.setZero();
       typedef CrbaWorldConventionBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
         Pass2::run(model.joints[i], typename Pass2::ArgsType(model, data));
+      }
+
+      typedef CrbaWorldConventionMimicStep<Scalar, Options, JointCollectionTpl> Pass3;
+      for (size_t i = 0; i < model.mimicking_joints.size(); i++)
+      {
+        Pass3::run(
+          model.joints[model.mimicking_joints[i]], typename Pass3::ArgsType(model, data, i));
       }
 
       // Add the armature contribution
@@ -495,6 +611,8 @@ namespace pinocchio
       return ::pinocchio::impl::crbaLocalConvention(model, data, make_const_ref(q));
     case Convention::WORLD:
       return ::pinocchio::impl::crbaWorldConvention(model, data, make_const_ref(q));
+    default:
+      throw std::invalid_argument("Bad convention.");
     }
   }
 

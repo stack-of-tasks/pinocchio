@@ -8,7 +8,7 @@ from test_case import PinocchioTestCase
 
 class TestFrameBindings(PinocchioTestCase):
     def setUp(self):
-        self.model = pin.buildSampleModelHumanoidRandom(True, True)
+        self.model = pin.buildSampleModelHumanoidRandom()
         self.parent_idx = (
             self.model.getJointId("rarm2_joint")
             if self.model.existJointName("rarm2_joint")

@@ -386,11 +386,11 @@ namespace pinocchio
     // Const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType
-    jointConfigExtendedModelSelector_impl(const Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector_impl(const Eigen::MatrixBase<D> & a) const
     {
       typedef const Eigen::MatrixBase<D> & InputType;
       typedef typename SizeDepType<NV>::template SegmentReturn<D>::ConstType ReturnType;
-      typedef jointConfigExtendedModelSelectorVisitor<InputType, ReturnType> Visitor;
+      typedef JointMappedConfigSelectorVisitor<InputType, ReturnType> Visitor;
       typename Visitor::ArgsType arg(a);
       return Visitor::run(*this, arg);
     }
@@ -398,11 +398,11 @@ namespace pinocchio
     // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type
-    jointConfigExtendedModelSelector_impl(Eigen::MatrixBase<D> & a) const
+    JointMappedConfigSelector_impl(Eigen::MatrixBase<D> & a) const
     {
       typedef Eigen::MatrixBase<D> & InputType;
       typedef typename SizeDepType<NV>::template SegmentReturn<D>::Type ReturnType;
-      typedef jointConfigExtendedModelSelectorVisitor<InputType, ReturnType> Visitor;
+      typedef JointMappedConfigSelectorVisitor<InputType, ReturnType> Visitor;
       typename Visitor::ArgsType arg(a);
       return Visitor::run(*this, arg);
     }
@@ -445,6 +445,11 @@ namespace pinocchio
     JointIndex id_impl() const
     {
       return ::pinocchio::id(*this);
+    }
+
+    void setIndexes(JointIndex id, int nq, int nv)
+    {
+      ::pinocchio::setIndexes(*this, id, nq, nv, nv);
     }
 
     void setIndexes(JointIndex id, int nq, int nv, int nvExtended)

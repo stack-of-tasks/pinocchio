@@ -132,8 +132,25 @@ namespace pinocchio
             "the current *j* to the root of the kinematic tree.")
 
           .def_readwrite(
+            "mimic_joint_supports", &Model::mimic_joint_supports,
+            "Vector of mimic supports joints. "
+            "mimic_joint_supports[j] corresponds to the vector of mimic joints indices located on "
+            "the path "
+            "between joint *j*  and \"universe\". The first element of mimic_joint_supports[j] is "
+            "\"universe\". "
+            "If *j* is a mimic, the last element is the index of joint *j* itself")
+
+          .def_readwrite(
             "subtrees", &Model::subtrees,
             "Vector of subtrees. subtree[j] corresponds to the subtree supported by the joint j.")
+
+          .def_readwrite(
+            "mimicking_joints", &Model::mimicking_joints,
+            "Vector of mimicking joints in the tree (with type MimicTpl)")
+
+          .def_readwrite(
+            "mimicked_joints", &Model::mimicked_joints,
+            "Vector of mimicked joints in the tree (can be any joint type)")
 
           .def_readwrite(
             "gravity", &Model::gravity,

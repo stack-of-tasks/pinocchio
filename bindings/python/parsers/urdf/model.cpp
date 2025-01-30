@@ -20,23 +20,23 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_URDFDOM
 
-    Model buildModelFromUrdf(const bp::object & filename, const bool mimic = false)
+    Model buildModelFromUrdf(const bp::object & filename, const bool mimic)
     {
       Model model;
-      pinocchio::urdf::buildModel(path(filename), model, mimic);
+      pinocchio::urdf::buildModel(path(filename), model, false, mimic);
       return model;
     }
 
-    Model & buildModelFromUrdf(const bp::object & filename, Model & model, const bool mimic = false)
+    Model & buildModelFromUrdf(const bp::object & filename, Model & model, const bool mimic)
     {
-      return pinocchio::urdf::buildModel(path(filename), model, mimic);
+      return pinocchio::urdf::buildModel(path(filename), model, false, mimic);
     }
 
-    Model buildModelFromUrdf(
-      const bp::object & filename, const JointModel & root_joint, const bool mimic = false)
+    Model
+    buildModelFromUrdf(const bp::object & filename, const JointModel & root_joint, const bool mimic)
     {
       Model model;
-      pinocchio::urdf::buildModel(path(filename), root_joint, model, mimic);
+      pinocchio::urdf::buildModel(path(filename), root_joint, model, false, mimic);
       return model;
     }
 
@@ -44,20 +44,17 @@ namespace pinocchio
       const bp::object & filename,
       const JointModel & root_joint,
       const std::string & root_joint_name,
-      const bool mimic = false)
+      const bool mimic)
     {
       Model model;
-      pinocchio::urdf::buildModel(path(filename), root_joint, root_joint_name, model, mimic);
+      pinocchio::urdf::buildModel(path(filename), root_joint, root_joint_name, model, false, mimic);
       return model;
     }
 
     Model & buildModelFromUrdf(
-      const bp::object & filename,
-      const JointModel & root_joint,
-      Model & model,
-      const bool mimic = false)
+      const bp::object & filename, const JointModel & root_joint, Model & model, const bool mimic)
     {
-      return pinocchio::urdf::buildModel(path(filename), root_joint, model, mimic);
+      return pinocchio::urdf::buildModel(path(filename), root_joint, model, false, mimic);
     }
 
     Model & buildModelFromUrdf(
@@ -65,16 +62,17 @@ namespace pinocchio
       const JointModel & root_joint,
       const std::string & root_joint_name,
       Model & model,
-      const bool mimic = false)
+      const bool mimic)
     {
-      return pinocchio::urdf::buildModel(path(filename), root_joint, root_joint_name, model, mimic);
+      return pinocchio::urdf::buildModel(
+        path(filename), root_joint, root_joint_name, model, false, mimic);
     }
 
     Model buildModelFromXML(
-      const std::string & xml_stream, const JointModel & root_joint, const bool mimic = false)
+      const std::string & xml_stream, const JointModel & root_joint, const bool mimic)
     {
       Model model;
-      pinocchio::urdf::buildModelFromXML(xml_stream, root_joint, model, mimic);
+      pinocchio::urdf::buildModelFromXML(xml_stream, root_joint, model, false, mimic);
       return model;
     }
 
@@ -82,10 +80,11 @@ namespace pinocchio
       const std::string & xml_stream,
       const JointModel & root_joint,
       const std::string & root_joint_name,
-      const bool mimic = false)
+      const bool mimic)
     {
       Model model;
-      pinocchio::urdf::buildModelFromXML(xml_stream, root_joint, root_joint_name, model, mimic);
+      pinocchio::urdf::buildModelFromXML(
+        xml_stream, root_joint, root_joint_name, model, false, mimic);
       return model;
     }
 
@@ -93,9 +92,9 @@ namespace pinocchio
       const std::string & xml_stream,
       const JointModel & root_joint,
       Model & model,
-      const bool mimic = false)
+      const bool mimic)
     {
-      pinocchio::urdf::buildModelFromXML(xml_stream, root_joint, model, mimic);
+      pinocchio::urdf::buildModelFromXML(xml_stream, root_joint, model, false, mimic);
       return model;
     }
 
@@ -104,23 +103,23 @@ namespace pinocchio
       const JointModel & root_joint,
       const std::string & root_joint_name,
       Model & model,
-      const bool mimic = false)
+      const bool mimic)
     {
-      pinocchio::urdf::buildModelFromXML(xml_stream, root_joint, root_joint_name, model, mimic);
+      pinocchio::urdf::buildModelFromXML(
+        xml_stream, root_joint, root_joint_name, model, false, mimic);
       return model;
     }
 
-    Model buildModelFromXML(const std::string & xml_stream, const bool mimic = true)
+    Model buildModelFromXML(const std::string & xml_stream, const bool mimic)
     {
       Model model;
-      pinocchio::urdf::buildModelFromXML(xml_stream, model, mimic);
+      pinocchio::urdf::buildModelFromXML(xml_stream, model, false, mimic);
       return model;
     }
 
-    Model &
-    buildModelFromXML(const std::string & xml_stream, Model & model, const bool mimic = true)
+    Model & buildModelFromXML(const std::string & xml_stream, Model & model, const bool mimic)
     {
-      pinocchio::urdf::buildModelFromXML(xml_stream, model, mimic);
+      pinocchio::urdf::buildModelFromXML(xml_stream, model, false, mimic);
       return model;
     }
 
@@ -135,7 +134,7 @@ namespace pinocchio
         "buildModelFromUrdf",
         static_cast<Model (*)(const bp::object &, const JointModel &, const bool)>(
           pinocchio::python::buildModelFromUrdf),
-        bp::args("urdf_filename", "root_joint", "mimic"),
+        (bp::arg("urdf_filename"), bp::arg("root_joint"), bp::arg("mimic") = false),
         "Parse the URDF file given in input and return a pinocchio Model starting with the "
         "given root joint.");
 
@@ -144,7 +143,8 @@ namespace pinocchio
         static_cast<Model (*)(
           const bp::object &, const JointModel &, const std::string &, const bool)>(
           pinocchio::python::buildModelFromUrdf),
-        bp::args("urdf_filename", "root_joint", "root_joint_name", "mimic"),
+        (bp::arg("urdf_filename"), bp::arg("root_joint"), bp::arg("root_joint_name"),
+         bp::arg("mimic") = false),
         "Parse the URDF file given in input and return a pinocchio Model starting with the "
         "given root joint with its specified name.");
 
@@ -152,14 +152,14 @@ namespace pinocchio
         "buildModelFromUrdf",
         static_cast<Model (*)(const bp::object &, const bool)>(
           pinocchio::python::buildModelFromUrdf),
-        bp::args("urdf_filename", "mimic"),
+        (bp::arg("urdf_filename"), bp::arg("mimic") = false),
         "Parse the URDF file given in input and return a pinocchio Model.");
 
       bp::def(
         "buildModelFromUrdf",
         static_cast<Model & (*)(const bp::object &, Model &, const bool)>(
           pinocchio::python::buildModelFromUrdf),
-        bp::args("urdf_filename", "model", "mimic"),
+        (bp::arg("urdf_filename"), bp::arg("model"), bp::arg("mimic") = false),
         "Append to a given model a URDF structure given by its filename.",
         bp::return_internal_reference<2>());
 
@@ -167,7 +167,8 @@ namespace pinocchio
         "buildModelFromUrdf",
         static_cast<Model & (*)(const bp::object &, const JointModel &, Model &, const bool)>(
           pinocchio::python::buildModelFromUrdf),
-        bp::args("urdf_filename", "root_joint", "model", "mimic"),
+        (bp::arg("urdf_filename"), bp::arg("root_joint"), bp::arg("model"),
+         bp::arg("mimic") = false),
         "Append to a given model a URDF structure given by its filename and the root joint.\n"
         "Remark: In the URDF format, a joint of type fixed can be defined. For efficiency reasons,"
         "it is treated as operational frame and not as a joint of the model.",
@@ -177,7 +178,8 @@ namespace pinocchio
         "buildModelFromUrdf",
         static_cast<Model & (*)(const bp::object &, const JointModel &, const std::string &,
                                 Model &, const bool)>(pinocchio::python::buildModelFromUrdf),
-        bp::args("urdf_filename", "root_joint", "root_joint_name", "model", "mimic"),
+        (bp::arg("urdf_filename"), bp::arg("root_joint"), bp::arg("root_joint_name"),
+         bp::arg("model"), bp::arg("mimic") = false),
         "Append to a given model a URDF structure given by its filename and the root joint with "
         "its specified name.\n"
         "Remark: In the URDF format, a joint of type fixed can be defined. For efficiency reasons,"
@@ -188,7 +190,7 @@ namespace pinocchio
         "buildModelFromXML",
         static_cast<Model (*)(const std::string &, const JointModel &, const bool)>(
           pinocchio::python::buildModelFromXML),
-        bp::args("urdf_xml_stream", "root_joint", "mimic"),
+        (bp::arg("urdf_xml_stream"), bp::arg("root_joint"), bp::arg("mimic") = false),
         "Parse the URDF XML stream given in input and return a pinocchio Model starting with "
         "the given root joint.");
 
@@ -197,19 +199,8 @@ namespace pinocchio
         static_cast<Model (*)(
           const std::string &, const JointModel &, const std::string &, const bool)>(
           pinocchio::python::buildModelFromXML),
-        bp::args(
-          "urdf_xml_stream", "root_joint",
-          "root_joint_name"
-          "mimic"),
-        "Parse the URDF XML stream given in input and return a pinocchio Model starting with "
-        "the given root joint with its specified name.");
-
-      bp::def(
-        "buildModelFromXML",
-        static_cast<Model (*)(
-          const std::string &, const JointModel &, const std::string &, const bool)>(
-          pinocchio::python::buildModelFromXML),
-        bp::args("urdf_xml_stream", "root_joint", "root_joint_name", "mimic"),
+        (bp::arg("urdf_xml_stream"), bp::arg("root_joint"), bp::arg("root_joint_name"),
+         bp::arg("mimic") = false),
         "Parse the URDF XML stream given in input and return a pinocchio Model starting with "
         "the given root joint with its specified name.");
 
@@ -217,7 +208,8 @@ namespace pinocchio
         "buildModelFromXML",
         static_cast<Model & (*)(const std::string &, const JointModel &, Model &, const bool)>(
           pinocchio::python::buildModelFromXML),
-        bp::args("urdf_xml_stream", "root_joint", "model", "mimic"),
+        (bp::arg("urdf_xml_stream"), bp::arg("root_joint"), bp::arg("model"),
+         bp::arg("mimic") = false),
         "Parse the URDF XML stream given in input and append it to the input model with the "
         "given interfacing joint.",
         bp::return_internal_reference<3>());
@@ -226,16 +218,8 @@ namespace pinocchio
         "buildModelFromXML",
         static_cast<Model & (*)(const std::string &, const JointModel &, const std::string &,
                                 Model &, const bool)>(pinocchio::python::buildModelFromXML),
-        bp::args("urdf_xml_stream", "root_joint", "root_joint_name", "model", "mimic"),
-        "Parse the URDF XML stream given in input and append it to the input model with the "
-        "given interfacing joint with its specified name.",
-        bp::return_internal_reference<3>());
-
-      bp::def(
-        "buildModelFromXML",
-        static_cast<Model & (*)(const std::string &, const JointModel &, const std::string &,
-                                Model &, const bool)>(pinocchio::python::buildModelFromXML),
-        bp::args("urdf_xml_stream", "root_joint", "root_joint_name", "model", "mimic"),
+        (bp::arg("urdf_xml_stream"), bp::arg("root_joint"), bp::arg("root_joint_name"),
+         bp::arg("model"), bp::arg("mimic") = false),
         "Parse the URDF XML stream given in input and append it to the input model with the "
         "given interfacing joint with its specified name.",
         bp::return_internal_reference<3>());
@@ -244,14 +228,14 @@ namespace pinocchio
         "buildModelFromXML",
         static_cast<Model (*)(const std::string &, const bool)>(
           pinocchio::python::buildModelFromXML),
-        bp::args("urdf_xml_stream", "mimic"),
+        (bp::arg("urdf_xml_stream"), bp::arg("mimic") = false),
         "Parse the URDF XML stream given in input and return a pinocchio Model.");
 
       bp::def(
         "buildModelFromXML",
         static_cast<Model & (*)(const std::string &, Model &, const bool)>(
           pinocchio::python::buildModelFromXML),
-        bp::args("urdf_xml_stream", "model", "mimic"),
+        (bp::arg("urdf_xml_stream"), bp::arg("model"), bp::arg("mimic") = false),
         "Parse the URDF XML stream given in input and append it to the input model.",
         bp::return_internal_reference<2>());
 #endif

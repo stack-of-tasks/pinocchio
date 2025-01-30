@@ -43,8 +43,8 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic = false,
-      const bool verbose = false);
+      const bool verbose = false,
+      const bool mimic = false);
 
     ///
     /// \brief Build the model from a URDF file with a particular joint as root of the model tree
@@ -62,8 +62,8 @@ namespace pinocchio
       const std::string & filename,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic = true,
-      const bool verbose = false);
+      const bool verbose = false,
+      const bool mimic = false);
 
     ///
     /// \brief Build the model from a URDF file with a fixed joint as root of the model tree.
@@ -78,8 +78,8 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic = true,
-      const bool verbose = false);
+      const bool verbose = false,
+      const bool mimic = false);
 
     ///
     /// \brief Build the model from a URDF model with a particular joint as root of the model tree
@@ -99,8 +99,8 @@ namespace pinocchio
       const std::shared_ptr<::urdf::ModelInterface> urdfTree,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic = true,
-      const bool verbose = false);
+      const bool verbose = false,
+      const bool mimic = false);
 
     ///
     /// \brief Build the model from a URDF model with a particular joint as root of the model tree
@@ -122,8 +122,8 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic = false,
-      const bool verbose = false);
+      const bool verbose = false,
+      const bool mimic = false);
 
     ///
     /// \brief Build the model from a URDF model
@@ -140,8 +140,8 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::shared_ptr<::urdf::ModelInterface> urdfTree,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic = true,
-      const bool verbose = false);
+      const bool verbose = false,
+      const bool mimic = false);
 
     ///
     /// \brief Build the model from an XML stream with a particular joint as root of the model tree
@@ -163,8 +163,8 @@ namespace pinocchio
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       const std::string & rootJointName,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic = false,
-      const bool verbose = false);
+      const bool verbose = false,
+      const bool mimic = false);
 
     ///
     /// \brief Build the model from an XML stream with a particular joint as root of the model tree
@@ -184,8 +184,8 @@ namespace pinocchio
       const std::string & xml_stream,
       const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic = true,
-      const bool verbose = false);
+      const bool verbose = false,
+      const bool mimic = false);
 
     ///
     /// \brief Build the model from an XML stream
@@ -202,8 +202,8 @@ namespace pinocchio
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXML(
       const std::string & xml_stream,
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
-      const bool mimic = true,
-      const bool verbose = false);
+      const bool verbose = false,
+      const bool mimic = false);
 
     /**
      * @brief      Build The GeometryModel from a URDF file. Search for meshes
