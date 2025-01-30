@@ -108,6 +108,8 @@ namespace pinocchio
 
           .def(bp::self == bp::self)
           .def(bp::self != bp::self);
+
+        bp::register_ptr_to_python<std::shared_ptr<GeometryModel>>();
       }
 
       static GeometryData createData(const GeometryModel & geomModel)

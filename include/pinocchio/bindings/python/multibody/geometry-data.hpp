@@ -142,6 +142,8 @@ namespace pinocchio
           .def(bp::self != bp::self)
 
           ;
+
+        bp::register_ptr_to_python<std::shared_ptr<GeometryData>>();
       }
 
       /* --- Expose --------------------------------------------------------- */
