@@ -7,10 +7,6 @@
 
 #include "pinocchio/math/fwd.hpp"
 
-#ifndef PINOCCHIO_WITH_CXX11_SUPPORT
-  #error C++11 compiler required.
-#endif
-
 #include <boost/multiprecision/number.hpp>
 #include <boost/random.hpp>
 #include <Eigen/Dense>

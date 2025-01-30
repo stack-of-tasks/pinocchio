@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix mjcf parsing of keyframe qpos with newlines ([#2535](https://github.com/stack-of-tasks/pinocchio/pull/2535))
 - Fix sites parsing for MJCF format ([#2548](https://github.com/stack-of-tasks/pinocchio/pull/2548))
 - Fix register `std::shared_ptr<{,Geometry}{Model,Data}>` in bindings ([#2566](https://github.com/stack-of-tasks/pinocchio/pull/2566))
+- Removed useless uses of `PINOCCHIO_WITH_CXX11_SUPPORT` ([#2564](https://github.com/stack-of-tasks/pinocchio/pull/2564))
 
 
 ## [3.3.1] - 2024-12-13

@@ -51,7 +51,7 @@
 #define PINOCCHIO_EIGEN_CONST_CAST(TYPE, OBJ) const_cast<TYPE &>(OBJ.derived())
 
 ///  \brief Tell if Pinocchio should use the Eigen Tensor Module or not
-#if defined(PINOCCHIO_WITH_CXX11_SUPPORT) && EIGEN_VERSION_AT_LEAST(3, 2, 90)
+#if EIGEN_VERSION_AT_LEAST(3, 2, 90)
   #define PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
 #endif
 
