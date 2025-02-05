@@ -94,7 +94,7 @@ namespace pinocchio
       }
       else
       {
-        const std::string exception_message("Schemes of form" + scheme + "are not handled");
+        const std::string exception_message("Schemes of form '" + scheme + "' are not handled");
         throw std::invalid_argument(exception_message);
       }
     }
