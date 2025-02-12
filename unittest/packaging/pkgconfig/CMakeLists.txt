@@ -15,8 +15,10 @@ if("-DPINOCCHIO_WITH_URDFDOM" IN_LIST PINOCCHIO_CFLAGS)
   add_executable(load_urdf ../load_urdf.cpp)
   target_link_libraries(load_urdf PRIVATE ${PINOCCHIO_LDFLAGS})
   target_include_directories(load_urdf SYSTEM PRIVATE ${PINOCCHIO_INCLUDE_DIRS})
-  target_compile_definitions(load_urdf PRIVATE ${PINOCCHIO_CFLAGS_OTHER}
-                                               "PINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\"")
+  target_compile_definitions(
+    load_urdf
+    PRIVATE ${PINOCCHIO_CFLAGS_OTHER} "PINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\""
+  )
 endif()
 
 message(STATUS "LDFLAGS: ${PINOCCHIO_LDFLAGS}")

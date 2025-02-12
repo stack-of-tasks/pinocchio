@@ -1,9 +1,6 @@
 if(CMAKE_VERSION VERSION_GREATER 4.11)
   include(FetchContent)
-  FetchContent_Declare(
-    pybind11
-    GIT_REPOSITORY https://github.com/pybind/pybind11
-    GIT_TAG v2.10.0)
+  FetchContent_Declare(pybind11 GIT_REPOSITORY https://github.com/pybind/pybind11 GIT_TAG v2.10.0)
   FetchContent_GetProperties(pybind11)
   if(NOT pybind11_POPULATED)
     FetchContent_Populate(pybind11)
@@ -32,7 +29,11 @@ if(CMAKE_VERSION VERSION_GREATER 4.11)
       target_compile_definitions(cpp2pybind11 PRIVATE -DNOMINMAX)
     endif(WIN32)
 
-    add_python_unit_test("test-py-cpp2pybind11" "unittest/python/pybind11/test-cpp2pybind11.py"
-                         "bindings/python" "unittest/python/pybind11")
+    ADD_PYTHON_UNIT_TEST(
+      "test-py-cpp2pybind11"
+      "unittest/python/pybind11/test-cpp2pybind11.py"
+      "bindings/python"
+      "unittest/python/pybind11"
+    )
   endif()
 endif()

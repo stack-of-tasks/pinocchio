@@ -6,7 +6,6 @@
 # --- MACROS ------------------------------------------------------------------
 # --- MACROS ------------------------------------------------------------------
 macro(ADD_UTIL NAME UTIL_SRC)
-
   if(BUILD_UTILS)
     add_executable(${NAME} "${UTIL_SRC}.cpp")
   else(BUILD_UTILS)
@@ -20,7 +19,6 @@ macro(ADD_UTIL NAME UTIL_SRC)
   if(BUILD_UTILS)
     install(TARGETS ${NAME} DESTINATION bin)
   endif(BUILD_UTILS)
-
 endmacro(ADD_UTIL)
 
 # --- RULES -------------------------------------------------------------------
@@ -29,5 +27,5 @@ endmacro(ADD_UTIL)
 add_custom_target(utils)
 
 if(urdfdom_FOUND)
-  add_util(pinocchio_read_model pinocchio_read_model)
+  ADD_UTIL(pinocchio_read_model pinocchio_read_model)
 endif(urdfdom_FOUND)
