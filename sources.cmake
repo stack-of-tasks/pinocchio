@@ -525,7 +525,8 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/sdf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/mjcf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/srdf.hpp
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/extras.hpp)
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/extras.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/visualizer-visitor.hpp)
 
 set(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/spatial/expose-symmetric3.cpp

@@ -16,7 +16,7 @@ namespace pinocchio
     namespace bp = boost::python;
 
     template<class Visualizer>
-    struct VisualizerVisitor : bp::def_visitor<VisualizerVisitor<Visualizer>>
+    struct VisualizerPythonVisitor : bp::def_visitor<VisualizerPythonVisitor<Visualizer>>
     {
       typedef ::pinocchio::visualizers::BaseVisualizer Base;
       typedef ::pinocchio::visualizers::ConstMatrixRef ConstMatrixRef;
