@@ -1,0 +1,12 @@
+definitions: [
+  ./benchmark,
+  ./bindings,
+  ./CMakeLists.txt,
+  ./cmake,
+  ./src,
+  ./unittest,
+  ./utils
+  ]
+line_length: 100
+indent: 2
+warn_about_unknown_commands: false
