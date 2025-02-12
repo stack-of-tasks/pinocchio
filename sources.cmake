@@ -371,9 +371,11 @@ set(${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS
 
 set(${PROJECT_NAME}_PYTHON_PARSER_SOURCES ${PROJECT_SOURCE_DIR}/src/parsers/python/model.cpp)
 
-set(${PROJECT_NAME}_EXTRA_SOURCES ${PROJECT_SOURCE_DIR}/src/extra/reachable-workspace.cpp)
+set(${PROJECT_NAME}_EXTRA_SOURCES ${PROJECT_SOURCE_DIR}/src/extra/base-visualizer.cpp
+                                  ${PROJECT_SOURCE_DIR}/src/extra/reachable-workspace.cpp)
 
 set(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/base-visualizer.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hxx)
 
