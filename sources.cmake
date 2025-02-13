@@ -371,13 +371,16 @@ set(${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS
 
 set(${PROJECT_NAME}_PYTHON_PARSER_SOURCES ${PROJECT_SOURCE_DIR}/src/parsers/python/model.cpp)
 
-set(${PROJECT_NAME}_EXTRA_SOURCES ${PROJECT_SOURCE_DIR}/src/visualizers/base-visualizer.cpp
-                                  ${PROJECT_SOURCE_DIR}/src/extra/reachable-workspace.cpp)
+set(${PROJECT_NAME}_EXTRA_SOURCES ${PROJECT_SOURCE_DIR}/src/extra/reachable-workspace.cpp)
 
 set(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/visualizers/base-visualizer.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hxx)
+
+set(${PROJECT_NAME}_VISUALIZERS_SOURCES ${PROJECT_SOURCE_DIR}/src/visualizers/base-visualizer.cpp)
+
+set(${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/visualizers/base-visualizer.hpp)
 
 set(_binary_headers_root ${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio)
 set(${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS

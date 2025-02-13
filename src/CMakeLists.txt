@@ -174,11 +174,13 @@ endfunction()
 add_source_group(${PROJECT_NAME}_CORE_SOURCES)
 add_source_group(${PROJECT_NAME}_PARSERS_SOURCES)
 add_source_group(${PROJECT_NAME}_EXTRA_SOURCES)
+add_source_group(${PROJECT_NAME}_VISUALIZERS_SOURCES)
 add_header_group(${PROJECT_NAME}_CORE_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS)
+add_header_group(${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS)
 
 # Define the default target (double).
 #
@@ -210,6 +212,15 @@ if(BUILD_WITH_EXTRA_SUPPORT)
 
   target_compile_definitions(${EXTRA_LIB_NAME} PUBLIC PINOCCHIO_WITH_EXTRA_SUPPORT)
 endif()
+
+# Define the visualizers target
+set(VISUALIZERS_LIB_NAME "${PROJECT_NAME}_visualizers")
+pinocchio_target(
+  ${VISUALIZERS_LIB_NAME}
+  SCALAR default
+  SOURCES ${${PROJECT_NAME}_VISUALIZERS_SOURCES} ${${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS})
+pinocchio_config(visualizers ${VISUALIZERS_LIB_NAME})
+target_link_libraries(${VISUALIZERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_default)
 
 # Define the parallel target.
 if(BUILD_WITH_OPENMP_SUPPORT)
