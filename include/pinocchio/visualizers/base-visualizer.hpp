@@ -10,6 +10,7 @@
 #include "pinocchio/multibody/geometry.hpp"
 
 #include <boost/optional.hpp>
+#include <utility>
 
 namespace pinocchio
 {
@@ -114,7 +115,7 @@ namespace pinocchio
 
       const Model & model() const
       {
-        return *m_model;
+        return m_model;
       }
 
       const GeometryModel & visualModel() const
@@ -135,7 +136,7 @@ namespace pinocchio
       }
 
     protected:
-      Model const * m_model;
+      std::reference_wrapper<Model const> m_model;
       GeometryModel const * m_visualModel;
       GeometryModel const * m_collisionModel;
 

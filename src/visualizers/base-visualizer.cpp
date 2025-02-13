@@ -19,7 +19,7 @@ namespace pinocchio
       const Model & model,
       const GeometryModel & visual_model,
       const GeometryModel * collision_model)
-    : m_model(&model)
+    : m_model(model)
     , m_visualModel(&visual_model)
     , m_collisionModel(collision_model)
     , data(model)
@@ -32,7 +32,7 @@ namespace pinocchio
 
     void BaseVisualizer::rebuildData()
     {
-      data = Data(*m_model);
+      data = Data(m_model);
       visualData = GeometryData(*m_visualModel);
       if (m_collisionModel)
         collisionData = GeometryData(*m_collisionModel);
@@ -43,12 +43,12 @@ namespace pinocchio
       displayPrecall();
       if (q.has_value())
       {
-        forwardKinematics(*m_model, data, *q);
+        forwardKinematics(model(), data, *q);
       }
-      updateGeometryPlacements(*m_model, data, *m_visualModel, visualData);
+      updateGeometryPlacements(model(), data, *m_visualModel, visualData);
       if (hasCollisionModel())
       {
-        updateGeometryPlacements(*m_model, data, *m_collisionModel, collisionData);
+        updateGeometryPlacements(model(), data, *m_collisionModel, collisionData);
       }
       displayImpl();
     }
