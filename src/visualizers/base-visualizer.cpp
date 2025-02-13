@@ -46,6 +46,10 @@ namespace pinocchio
         forwardKinematics(*m_model, data, *q);
       }
       updateGeometryPlacements(*m_model, data, *m_visualModel, visualData);
+      if (hasCollisionModel())
+      {
+        updateGeometryPlacements(*m_model, data, *m_collisionModel, collisionData);
+      }
       displayImpl();
     }
 

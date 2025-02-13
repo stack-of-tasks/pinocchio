@@ -5,6 +5,7 @@
 #ifndef __pinocchio_extra_base_visualizer_hpp__
 #define __pinocchio_extra_base_visualizer_hpp__
 
+#include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
@@ -41,7 +42,7 @@ namespace pinocchio
 
       BaseVisualizer(
         const Model & model,
-        const GeometryModel & viz_model,
+        const GeometryModel & visual_model,
         const GeometryModel * collision_model = nullptr);
 
       /// @brief Initialize the viewer.
@@ -115,14 +116,19 @@ namespace pinocchio
       {
         return *m_model;
       }
+
       const GeometryModel & visualModel() const
       {
         return *m_visualModel;
       }
-      const GeometryModel * collisionModel() const
+
+      const GeometryModel & collisionModel() const
       {
-        return m_collisionModel;
+        PINOCCHIO_THROW(
+          hasCollisionModel(), std::logic_error, "No collision model in the visualizer.");
+        return *m_collisionModel;
       }
+
       bool hasCollisionModel() const
       {
         return m_collisionModel != nullptr;
@@ -133,6 +139,7 @@ namespace pinocchio
       GeometryModel const * m_visualModel;
       GeometryModel const * m_collisionModel;
 
+      /// @brief This method is called at the beginning of display().
       virtual void displayPrecall()
       {
       }
