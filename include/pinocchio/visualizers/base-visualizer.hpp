@@ -41,10 +41,40 @@ namespace pinocchio
     public:
       typedef SE3::Matrix4 Matrix4;
 
+      /// @brief Class constructor for borrowing external data.
+      ///
+      /// @param model Reference to Pinocchio Model class.
+      /// @param visual_model Reference to visual GeometryModel.
+      /// @param collision_model Pointer to collision model. Pass nullptr if no collision model is
+      /// to be provided.
+      /// @param data Reference to Data object. The visualizer will store an internal reference as a
+      /// pointer.
+      /// @param visual_data Reference to visual (VISUAL) GeometryData object. The visualizer will
+      /// store an internal reference as a pointer.
+      /// @param collision_data Pointer to collision (COLLISION) GeometryData object. The visualizer
+      /// will store this pointer internally as a reference.
+      /// @remark This constructor throws if a \p collision_model is provided with no \p
+      /// collision_data. If the reverse happens, then the collision GeometryData is simply ignored.
+      BaseVisualizer(
+        const Model & model,
+        const GeometryModel & visual_model,
+        const GeometryModel * collision_model,
+        Data & data,
+        GeometryData & visual_data,
+        GeometryData * collision_data);
+
+      /// @brief Class constructor which will create internally-managed data objects.
+      ///
+      /// @param model Reference to Pinocchio Model class.
+      /// @param visual_model Reference to visual GeometryModel.
+      /// @param collision_model Pointer to collision model. Pass nullptr if no collision model is
+      /// to be provided.
       BaseVisualizer(
         const Model & model,
         const GeometryModel & visual_model,
         const GeometryModel * collision_model = nullptr);
+
+      virtual ~BaseVisualizer();
 
       /// @brief Initialize the viewer.
       virtual void initViewer()
@@ -111,8 +141,6 @@ namespace pinocchio
       {
       }
 
-      virtual ~BaseVisualizer() = default;
-
       const Model & model() const
       {
         return m_model;
@@ -135,10 +163,53 @@ namespace pinocchio
         return m_collisionModel != nullptr;
       }
 
+      /// @brief Whether the internal data pointers are borrowed (external), or owned.
+      bool hasExternalData() const
+      {
+        return !m_ownedData;
+      }
+
+      Data & data()
+      {
+        return *m_data;
+      }
+      const Data & data() const
+      {
+        return *m_data;
+      }
+
+      GeometryData & visualData()
+      {
+        return *m_visualData;
+      }
+      const GeometryData & visualData() const
+      {
+        return *m_visualData;
+      }
+
+      GeometryData & collisionData()
+      {
+        PINOCCHIO_THROW(
+          hasCollisionModel(), std::logic_error, "No collision model in the visualizer.");
+        return *m_collisionData;
+      }
+
+      const GeometryData & collisionData() const
+      {
+        PINOCCHIO_THROW(
+          hasCollisionModel(), std::logic_error, "No collision model in the visualizer.");
+        return *m_collisionData;
+      }
+
     protected:
       std::reference_wrapper<Model const> m_model;
       GeometryModel const * m_visualModel;
       GeometryModel const * m_collisionModel;
+
+      Data * m_data;
+      GeometryData * m_visualData;
+      GeometryData * m_collisionData;
+      bool m_ownedData;
 
       /// @brief This method is called at the beginning of display().
       virtual void displayPrecall()
@@ -146,10 +217,7 @@ namespace pinocchio
       }
       virtual void displayImpl() = 0;
 
-    public:
-      Data data;
-      GeometryData visualData;
-      GeometryData collisionData;
+      void destroyData();
     };
   } // namespace visualizers
 } // namespace pinocchio

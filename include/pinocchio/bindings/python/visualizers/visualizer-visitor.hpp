@@ -62,9 +62,15 @@ namespace pinocchio
           .add_property(
             "collisionModel",
             bp::make_function(&Visualizer::collisionModel, bp::return_internal_reference<>()))
-          .def_readwrite("data", &Visualizer::data)
-          .def_readwrite("visualData", &Visualizer::visualData)
-          .def_readwrite("collisionData", &Visualizer::collisionData);
+          .def("hasExternalData", &Visualizer::hasExternalData)
+          .add_property(
+            "data", bp::make_function(&Visualizer::data, bp::return_internal_reference<>()))
+          .add_property(
+            "visualData",
+            bp::make_function(&Visualizer::visualData, bp::return_internal_reference<>()))
+          .add_property(
+            "collisionData",
+            bp::make_function(&Visualizer::collisionData, bp::return_internal_reference<>()));
       }
     };
 
