@@ -1,7 +1,7 @@
 //
 // Copyright (c) 2024-2025 INRIA
 //
-#include "pinocchio/extra/base-visualizer.hpp"
+#include "pinocchio/visualizers/base-visualizer.hpp"
 
 #include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/geometry.hpp"

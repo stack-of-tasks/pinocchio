@@ -4,7 +4,7 @@
 #ifndef __pinocchio_python_extra_extras_hpp__
 #define __pinocchio_python_extra_extras_hpp__
 
-#include "pinocchio/extra/base-visualizer.hpp"
+#include "pinocchio/visualizers/base-visualizer.hpp"
 #include "pinocchio/bindings/python/fwd.hpp"
 
 #include <eigenpy/optional.hpp>

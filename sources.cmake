@@ -371,11 +371,11 @@ set(${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS
 
 set(${PROJECT_NAME}_PYTHON_PARSER_SOURCES ${PROJECT_SOURCE_DIR}/src/parsers/python/model.cpp)
 
-set(${PROJECT_NAME}_EXTRA_SOURCES ${PROJECT_SOURCE_DIR}/src/extra/base-visualizer.cpp
+set(${PROJECT_NAME}_EXTRA_SOURCES ${PROJECT_SOURCE_DIR}/src/visualizers/base-visualizer.cpp
                                   ${PROJECT_SOURCE_DIR}/src/extra/reachable-workspace.cpp)
 
 set(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/base-visualizer.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/visualizers/base-visualizer.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hxx)
 
@@ -526,7 +526,7 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/mjcf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/srdf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/extras.hpp
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/visualizer-visitor.hpp)
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/visualizers/visualizer-visitor.hpp)
 
 set(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/spatial/expose-symmetric3.cpp
