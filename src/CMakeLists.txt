@@ -219,6 +219,7 @@ pinocchio_target(
   ${VISUALIZERS_LIB_NAME}
   SCALAR default
   SOURCES ${${PROJECT_NAME}_VISUALIZERS_SOURCES} ${${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS})
+pinocchio_config(visualizers ${VISUALIZERS_LIB_NAME})
 target_link_libraries(${VISUALIZERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_default)
 
 # Define the parallel target.
