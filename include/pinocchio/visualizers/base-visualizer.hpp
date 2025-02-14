@@ -91,6 +91,14 @@ namespace pinocchio
       /// the Pinocchio frames.
       virtual void display(const boost::optional<ConstVectorRef> & q = boost::none);
 
+      /// @copybrief display()
+      template<typename D>
+      void display(const Eigen::MatrixBase<D> & q)
+      {
+        boost::optional<ConstVectorRef> q_(q);
+        display(q_);
+      }
+
       /// @brief Play an entire trajectory, waiting for time @p dt between each
       /// keyframe.
       virtual void play(const std::vector<ConstVectorRef> & qs, Scalar dt);
