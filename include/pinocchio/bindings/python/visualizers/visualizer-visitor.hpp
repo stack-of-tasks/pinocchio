@@ -46,7 +46,9 @@ namespace pinocchio
         cl.def("initViewer", &Visualizer::initViewer)
           .def("loadViewerModel", &Visualizer::loadViewerModel)
           .def("rebuildData", &Visualizer::rebuildData)
-          .def("display", &Visualizer::display, (bp::arg("self"), bp::arg("q") = boost::none))
+          .def(
+            "display", +[](Visualizer & v, const ConstVectorRef & q) { v.display(q); },
+            (bp::arg("self"), bp::arg("q") = boost::none))
           .def("play", play_proxy2, (bp::arg("self"), "qs", "dt"))
           .def("setCameraTarget", &Visualizer::setCameraTarget, (bp::arg("self"), "target"))
           .def("setCameraPosition", &Visualizer::setCameraPosition, (bp::arg("self"), "position"))
@@ -64,13 +66,11 @@ namespace pinocchio
             bp::make_function(&Visualizer::collisionModel, bp::return_internal_reference<>()))
           .def("hasExternalData", &Visualizer::hasExternalData)
           .add_property(
-            "data", bp::make_function(&Visualizer::data, bp::return_internal_reference<>()))
+            "data", +[](Visualizer & v) { return std::ref(v.data()); })
           .add_property(
-            "visualData",
-            bp::make_function(&Visualizer::visualData, bp::return_internal_reference<>()))
+            "visualData", +[](Visualizer & v) { return std::ref(v.visualData()); })
           .add_property(
-            "collisionData",
-            bp::make_function(&Visualizer::collisionData, bp::return_internal_reference<>()));
+            "collisionData", +[](Visualizer & v) { return std::ref(v.collisionData()); });
       }
     };
 
