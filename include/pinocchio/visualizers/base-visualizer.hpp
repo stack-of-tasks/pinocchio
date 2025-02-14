@@ -6,6 +6,7 @@
 #define __pinocchio_extra_base_visualizer_hpp__
 
 #include "pinocchio/macros.hpp"
+#include "pinocchio/config.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
@@ -36,7 +37,7 @@ namespace pinocchio
     /// should be managed by the application context itself.
     /// @remark C++ port of the %BaseVisualizer abstract class in Pinocchio's Python
     /// bindings.
-    class BaseVisualizer
+    class PINOCCHIO_DLLAPI BaseVisualizer
     {
     public:
       typedef SE3::Matrix4 Matrix4;
