@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Added C++ visualization API, `pinocchio::pinocchio_visualizers` target ([#2574](https://github.com/stack-of-tasks/pinocchio/pull/2574))
+
 ## [3.4.0] - 2025-02-12
 
 ### Added
