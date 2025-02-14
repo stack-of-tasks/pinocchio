@@ -382,6 +382,7 @@ endif()
 if(BUILD_WITH_EXTRA_SUPPORT)
   target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_extra)
 endif()
+target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_visualizers)
 
 install(
   TARGETS ${PROJECT_NAME}
