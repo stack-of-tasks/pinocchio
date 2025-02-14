@@ -51,6 +51,7 @@ namespace pinocchio
     , m_collisionModel(collision_model)
     , m_data(new Data(model))
     , m_visualData(new GeometryData(visual_model))
+    , m_collisionData(nullptr)
     , m_ownedData(true)
     {
       if (hasCollisionModel())
