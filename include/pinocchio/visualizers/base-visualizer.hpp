@@ -222,6 +222,4 @@ namespace pinocchio
   } // namespace visualizers
 } // namespace pinocchio
 
-namespace pinviz = ::pinocchio::visualizers; // NOLINT
-
 #endif // ifndef __pinocchio_extra_base_visualizer_hxx__
