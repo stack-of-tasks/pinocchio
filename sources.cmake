@@ -377,6 +377,11 @@ set(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/extra/reachable-workspace.hxx)
 
+set(${PROJECT_NAME}_VISUALIZERS_SOURCES ${PROJECT_SOURCE_DIR}/src/visualizers/base-visualizer.cpp)
+
+set(${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/visualizers/base-visualizer.hpp)
+
 set(_binary_headers_root ${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio)
 set(${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS
     ${_binary_headers_root}/config.hpp ${_binary_headers_root}/deprecated.hpp
@@ -523,7 +528,8 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/sdf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/mjcf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/srdf.hpp
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/extras.hpp)
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/extras.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/visualizers/visualizer-visitor.hpp)
 
 set(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/spatial/expose-symmetric3.cpp

@@ -1,11 +1,12 @@
 //
-// Copyright (c) 2021-2022 INRIA
+// Copyright (c) 2021-2025 INRIA
 //
 
 #ifndef __pinocchio_context_hpp__
 #define __pinocchio_context_hpp__
 
 #define PINOCCHIO_SCALAR_TYPE_DEFAULT double
+#define PINOCCHIO_OPTIONS_DEFAULT 0
 
 #define PINOCCHIO_CONTEXT_FILE_DEFAULT "pinocchio/context/default.hpp"
 

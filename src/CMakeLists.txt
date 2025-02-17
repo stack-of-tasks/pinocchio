@@ -174,11 +174,13 @@ endfunction()
 add_source_group(${PROJECT_NAME}_CORE_SOURCES)
 add_source_group(${PROJECT_NAME}_PARSERS_SOURCES)
 add_source_group(${PROJECT_NAME}_EXTRA_SOURCES)
+add_source_group(${PROJECT_NAME}_VISUALIZERS_SOURCES)
 add_header_group(${PROJECT_NAME}_CORE_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS)
+add_header_group(${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS)
 
 # Define the default target (double).
 #
@@ -250,6 +252,19 @@ if(BUILD_WITH_HPP_FCL_SUPPORT)
     target_link_libraries(${COLLISION_PARALLEL_LIB_NAME} INTERFACE ${COLLISION_LIB_NAME}
                                                                    OpenMP::OpenMP_CXX)
   endif()
+endif()
+
+# Define the visualizers target
+set(VISUALIZERS_LIB_NAME "${PROJECT_NAME}_visualizers")
+pinocchio_target(
+  ${VISUALIZERS_LIB_NAME}
+  SCALAR default
+  SOURCES ${${PROJECT_NAME}_VISUALIZERS_SOURCES} ${${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS})
+pinocchio_config(visualizers ${VISUALIZERS_LIB_NAME})
+target_link_libraries(${VISUALIZERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_default)
+if(BUILD_WITH_HPP_FCL_SUPPORT)
+  target_compile_definitions(${VISUALIZERS_LIB_NAME} PUBLIC PINOCCHIO_WITH_HPP_FCL)
+  target_link_libraries(${VISUALIZERS_LIB_NAME} PUBLIC hpp-fcl::hpp-fcl)
 endif()
 
 # Define the parsers target.
@@ -372,6 +387,7 @@ endif()
 if(BUILD_WITH_EXTRA_SUPPORT)
   target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_extra)
 endif()
+target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_visualizers)
 
 install(
   TARGETS ${PROJECT_NAME}
