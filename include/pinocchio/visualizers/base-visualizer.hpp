@@ -17,6 +17,7 @@ namespace pinocchio
 {
   namespace visualizers
   {
+    typedef PINOCCHIO_SCALAR_TYPE_DEFAULT Scalar;
     PINOCCHIO_COMMON_TYPEDEF(PINOCCHIO_SCALAR_TYPE_DEFAULT, PINOCCHIO_OPTIONS_DEFAULT)
 
     typedef Eigen::Ref<const VectorXs> ConstVectorRef;
