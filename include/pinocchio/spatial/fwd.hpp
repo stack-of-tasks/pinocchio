@@ -58,10 +58,10 @@ namespace pinocchio
   template<typename Scalar, int Options = context::Options>
   struct LogCholeskyParametersTpl;
 
-  typedef SE3Tpl<context::Scalar, context::Options> SE3;
-  typedef MotionTpl<context::Scalar, context::Options> Motion;
-  typedef ForceTpl<context::Scalar, context::Options> Force;
-  typedef InertiaTpl<context::Scalar, context::Options> Inertia;
+  typedef context::SE3 SE3;
+  typedef context::Motion Motion;
+  typedef context::Force Force;
+  typedef context::Inertia Inertia;
   typedef Symmetric3Tpl<context::Scalar, context::Options> Symmetric3;
   typedef MotionZeroTpl<context::Scalar, context::Options> MotionZero;
   typedef PseudoInertiaTpl<context::Scalar, context::Options> PseudoInertia;
