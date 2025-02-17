@@ -17,14 +17,7 @@ namespace pinocchio
 {
   namespace visualizers
   {
-    using context::Data;
-    using context::MatrixXs;
-    using context::Model;
-    using context::Options;
-    using context::Scalar;
-    using context::SE3;
-    using context::Vector3;
-    using context::VectorXs;
+    PINOCCHIO_COMMON_TYPEDEF(PINOCCHIO_SCALAR_TYPE_DEFAULT, PINOCCHIO_OPTIONS_DEFAULT)
 
     typedef Eigen::Ref<const VectorXs> ConstVectorRef;
     typedef Eigen::Ref<const MatrixXs> ConstMatrixRef;
