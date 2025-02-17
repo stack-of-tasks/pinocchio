@@ -15,21 +15,21 @@ namespace pinocchio
   struct JointCollectionDefaultTpl;
   template<
     typename _Scalar,
-    int _Options = 0,
+    int _Options = PINOCCHIO_OPTIONS_DEFAULT,
     template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
   struct ModelTpl;
   template<
     typename _Scalar,
-    int _Options = 0,
+    int _Options = PINOCCHIO_OPTIONS_DEFAULT,
     template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
   struct DataTpl;
-  template<typename _Scalar, int _Options = 0>
+  template<typename _Scalar, int _Options = PINOCCHIO_OPTIONS_DEFAULT>
   struct SE3Tpl;
-  template<typename _Scalar, int _Options = 0>
+  template<typename _Scalar, int _Options = PINOCCHIO_OPTIONS_DEFAULT>
   class MotionTpl;
-  template<typename _Scalar, int _Options = 0>
+  template<typename _Scalar, int _Options = PINOCCHIO_OPTIONS_DEFAULT>
   class ForceTpl;
-  template<typename _Scalar, int _Options = 0>
+  template<typename _Scalar, int _Options = PINOCCHIO_OPTIONS_DEFAULT>
   struct InertiaTpl;
   template<typename _Scalar, int _Options>
   struct RigidConstraintModelTpl;
@@ -79,7 +79,7 @@ namespace pinocchio
     typedef PINOCCHIO_SCALAR_TYPE Scalar;
     enum
     {
-      Options = 0
+      Options = PINOCCHIO_OPTIONS_DEFAULT
     };
 
     PINOCCHIO_COMMON_TYPEDEF(Scalar, Options)
