@@ -5,14 +5,16 @@
 
 include(${JRL_CMAKE_MODULES}/python-helpers.cmake)
 include(${JRL_CMAKE_MODULES}/stubs.cmake)
-set(CMAKE_MODULE_PATH "${JRL_CMAKE_MODULES}/find-external/GMP"
-                      "${JRL_CMAKE_MODULES}/find-external/MPFR" ${CMAKE_MODULE_PATH})
+set(
+  CMAKE_MODULE_PATH
+  "${JRL_CMAKE_MODULES}/find-external/GMP"
+  "${JRL_CMAKE_MODULES}/find-external/MPFR"
+  ${CMAKE_MODULE_PATH}
+)
 
 # --- PYTHON TARGET --- #
 set(PYWRAP ${PROJECT_NAME}_pywrap)
-set(PYWRAP
-    ${PYWRAP}
-    PARENT_SCOPE)
+set(PYWRAP ${PYWRAP} PARENT_SCOPE)
 
 # --- COMPILE WRAPPER
 make_directory("${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
@@ -51,54 +53,59 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   # loaded (see https://github.com/stack-of-tasks/pinocchio/issues/2462).
   set_target_properties(
     ${PYTHON_LIB_NAME}
-    PROPERTIES PREFIX ""
-               DEFINE_SYMBOL "${PYWRAP}_EXPORTS"
-               CXX_VISIBILITY_PRESET hidden
-               VISIBILITY_INLINES_HIDDEN ON)
+    PROPERTIES
+      PREFIX ""
+      DEFINE_SYMBOL "${PYWRAP}_EXPORTS"
+      CXX_VISIBILITY_PRESET hidden
+      VISIBILITY_INLINES_HIDDEN ON
+  )
 
   # Do not report:
   #
   # * -Wconversion as the BOOST_PYTHON_FUNCTION_OVERLOADS implicitly converts.
   # * -Wcomment as latex equations have multi-line comments.
   # * -Wself-assign-overloaded as bp::self operations trigger this (Clang only).
-  cxx_flags_by_compiler_frontend(
+  CXX_FLAGS_BY_COMPILER_FRONTEND(
     GNU -Wno-conversion -Wno-comment -Wno-self-assign-overloaded
     OUTPUT PRIVATE_OPTIONS
-    FILTER)
+    FILTER
+  )
   target_compile_options(${PYTHON_LIB_NAME} PRIVATE ${PRIVATE_OPTIONS})
 
   set(PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE "pinocchio/bindings/python/context/${scalar_name}.hpp")
   target_compile_definitions(
     ${PYTHON_LIB_NAME}
-    PRIVATE PINOCCHIO_PYTHON_CONTEXT_FILE="${PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE}"
-            PINOCCHIO_PYTHON_MODULE_NAME=${PYTHON_LIB_NAME})
+    PRIVATE
+      PINOCCHIO_PYTHON_CONTEXT_FILE="${PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE}"
+      PINOCCHIO_PYTHON_MODULE_NAME=${PYTHON_LIB_NAME}
+  )
 
   set_target_properties(${PYTHON_LIB_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
   if(BUILD_WITH_COMMIT_VERSION)
-    tag_library_version(${PYTHON_LIB_NAME})
+    TAG_LIBRARY_VERSION(${PYTHON_LIB_NAME})
   endif(BUILD_WITH_COMMIT_VERSION)
-  add_header_group(${PYTHON_LIB_NAME}_HEADERS)
-  add_source_group(${PYTHON_LIB_NAME}_SOURCES)
+  ADD_HEADER_GROUP(${PYTHON_LIB_NAME}_HEADERS)
+  ADD_SOURCE_GROUP(${PYTHON_LIB_NAME}_SOURCES)
 
-  modernize_target_link_libraries(
-    ${PYTHON_LIB_NAME}
-    SCOPE PUBLIC
-    TARGETS eigenpy::eigenpy)
+  MODERNIZE_TARGET_LINK_LIBRARIES(${PYTHON_LIB_NAME} SCOPE PUBLIC TARGETS eigenpy::eigenpy)
   target_link_libraries(${PYTHON_LIB_NAME} PUBLIC ${PROJECT_NAME})
 
   if(BUILD_WITH_URDF_SUPPORT)
     # Link directly against console_bridge since we bind some enums and call
     # console_bridge::setLogLevel function.
-    modernize_target_link_libraries(
+    MODERNIZE_TARGET_LINK_LIBRARIES(
       ${PYTHON_LIB_NAME}
       SCOPE PUBLIC
       TARGETS console_bridge::console_bridge
       LIBRARIES ${console_bridge_LIBRARIES}
-      INCLUDE_DIRS ${console_bridge_INCLUDE_DIRS})
+      INCLUDE_DIRS ${console_bridge_INCLUDE_DIRS}
+    )
   endif()
   if(BUILD_WITH_HPP_FCL_SUPPORT)
-    target_compile_definitions(${PYTHON_LIB_NAME}
-                               PRIVATE -DPINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS)
+    target_compile_definitions(
+      ${PYTHON_LIB_NAME}
+      PRIVATE -DPINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS
+    )
   endif()
   if(WIN32)
     target_link_libraries(${PYTHON_LIB_NAME} PUBLIC ${PYTHON_LIBRARY})
@@ -108,22 +115,25 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
 
   set_target_properties(
     ${PYTHON_LIB_NAME}
-    PROPERTIES PREFIX ""
-               SUFFIX ${PYTHON_EXT_SUFFIX}
-               OUTPUT_NAME "${PYTHON_LIB_NAME}"
-               LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bindings/python/${PROJECT_NAME}"
-               # On Windows, shared library are treat as binary
-               RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
+    PROPERTIES
+      PREFIX ""
+      SUFFIX ${PYTHON_EXT_SUFFIX}
+      OUTPUT_NAME "${PYTHON_LIB_NAME}"
+      LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bindings/python/${PROJECT_NAME}"
+      # On Windows, shared library are treat as binary
+      RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bindings/python/${PROJECT_NAME}"
+  )
 
   if(UNIX)
-    get_relative_rpath(${${PYWRAP}_INSTALL_DIR} ${PYWRAP}_INSTALL_RPATH)
+    GET_RELATIVE_RPATH(${${PYWRAP}_INSTALL_DIR} ${PYWRAP}_INSTALL_RPATH)
     set_target_properties(${PYTHON_LIB_NAME} PROPERTIES INSTALL_RPATH "${${PYWRAP}_INSTALL_RPATH}")
   endif()
 
   install(
     TARGETS ${PYTHON_LIB_NAME}
     EXPORT ${TARGETS_EXPORT_NAME}
-    DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR})
+    DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}
+  )
 endfunction()
 
 function(INSTALL_PYTHON_FILES)
@@ -140,7 +150,7 @@ function(INSTALL_PYTHON_FILES)
   endif()
 
   foreach(f ${ARGS_FILES})
-    python_build(${SOURCE_PATH} ${f})
+    PYTHON_BUILD(${SOURCE_PATH} ${f})
     install(FILES ${SOURCE_PATH}/${f} DESTINATION ${INSTALL_PATH})
   endforeach()
 endfunction()
@@ -149,7 +159,7 @@ if(BUILD_PYTHON_INTERFACE)
   add_custom_target(${PROJECT_NAME}-python)
   set_target_properties(${PROJECT_NAME}-python PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
 
-  python_build_get_target(python_build_target)
+  PYTHON_BUILD_GET_TARGET(python_build_target)
   add_dependencies(${PROJECT_NAME}-python ${python_build_target})
 
   set(PKG_CONFIG_PYWRAP_REQUIRES "eigenpy >= 2.6.5")
@@ -160,30 +170,34 @@ if(BUILD_PYTHON_INTERFACE)
   endif()
   set(PINOCCHIO_PYTHON_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})
 
-  pinocchio_python_bindings_specific_type(default)
+  PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE(default)
   set(PYTHON_LIB_NAME "${PYWRAP}_default")
   set(STUBGEN_DEPENDENCIES "${PYWRAP}_default")
 
   if(BUILD_WITH_AUTODIFF_SUPPORT)
-    pinocchio_python_bindings_specific_type(cppad cppad)
+    PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE(cppad cppad)
     # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
     # This can happen when Pinocchio is build in Debug mode and pycppad is build in Release mode.
     # See
     # https://coin-or.github.io/CppAD/doc/preprocessor.htm#Documented%20Here.CPPAD_DEBUG_AND_RELEASE.
     target_compile_definitions(
-      ${PYWRAP}_cppad PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
-                              CPPAD_DEBUG_AND_RELEASE)
-    target_include_directories(${PYWRAP}_cppad SYSTEM
-                               PUBLIC $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>)
+      ${PYWRAP}_cppad
+      PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION CPPAD_DEBUG_AND_RELEASE
+    )
+    target_include_directories(
+      ${PYWRAP}_cppad
+      SYSTEM
+      PUBLIC $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>
+    )
     target_link_libraries(${PYWRAP}_cppad PUBLIC ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppad")
 
     # --- INSTALL SCRIPTS
-    install_python_files(MODULE cppad FILES __init__.py)
+    INSTALL_PYTHON_FILES(MODULE cppad FILES __init__.py)
   endif(BUILD_WITH_AUTODIFF_SUPPORT)
 
   if(BUILD_WITH_CODEGEN_SUPPORT)
-    pinocchio_python_bindings_specific_type(cppadcg cppadcg)
+    PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE(cppadcg cppadcg)
 
     # On osx, use default visiblitiy because of an issue with thread_local storage defined in
     # cppad/cg/cg.hpp header (see
@@ -194,80 +208,89 @@ if(BUILD_PYTHON_INTERFACE)
 
     # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
     target_compile_definitions(
-      ${PYWRAP}_cppadcg PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
-                                CPPAD_DEBUG_AND_RELEASE)
-    target_include_directories(${PYWRAP}_cppadcg SYSTEM
-                               PUBLIC $<BUILD_INTERFACE:${cppadcg_INCLUDE_DIR}>)
+      ${PYWRAP}_cppadcg
+      PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION CPPAD_DEBUG_AND_RELEASE
+    )
+    target_include_directories(
+      ${PYWRAP}_cppadcg
+      SYSTEM
+      PUBLIC $<BUILD_INTERFACE:${cppadcg_INCLUDE_DIR}>
+    )
     target_link_libraries(${PYWRAP}_cppadcg PUBLIC ${cppadcg_LIBRARY} ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppadcg")
 
     # --- INSTALL SCRIPTS
-    install_python_files(MODULE cppadcg FILES __init__.py)
+    INSTALL_PYTHON_FILES(MODULE cppadcg FILES __init__.py)
   endif(BUILD_WITH_CODEGEN_SUPPORT)
 
   if(BUILD_WITH_CASADI_SUPPORT)
-    pinocchio_python_bindings_specific_type(casadi)
+    PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE(casadi)
     target_link_libraries(${PYWRAP}_casadi PUBLIC casadi)
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_casadi")
 
     # --- INSTALL SCRIPTS
-    install_python_files(MODULE casadi FILES __init__.py)
+    INSTALL_PYTHON_FILES(MODULE casadi FILES __init__.py)
   endif(BUILD_WITH_CASADI_SUPPORT)
 
   if(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
     find_package(GMP REQUIRED 6.0.0)
     find_package(MPFR REQUIRED 4.0.0)
-    pinocchio_python_bindings_specific_type(mpfr)
+    PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE(mpfr)
 
     target_link_libraries(${PYWRAP}_mpfr PRIVATE gmp mpfr)
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_mpfr")
 
     # --- INSTALL SCRIPTS
-    install_python_files(MODULE mpfr FILES __init__.py)
+    INSTALL_PYTHON_FILES(MODULE mpfr FILES __init__.py)
   endif(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
 
   # --- INSTALL SCRIPTS
-  install_python_files(
-    FILES __init__.py
-          deprecated.py
-          deprecation.py
-          utils.py
-          robot_wrapper.py
-          romeo_wrapper.py
-          explog.py
-          shortcuts.py
-          windows_dll_manager.py)
+  INSTALL_PYTHON_FILES(
+    FILES
+      __init__.py
+      deprecated.py
+      deprecation.py
+      utils.py
+      robot_wrapper.py
+      romeo_wrapper.py
+      explog.py
+      shortcuts.py
+      windows_dll_manager.py
+  )
 
   # --- INSTALL DERIVATIVE SCRIPTS
-  install_python_files(MODULE derivative FILES xm.py dcrba.py lambdas.py)
+  INSTALL_PYTHON_FILES(MODULE derivative FILES xm.py dcrba.py lambdas.py)
 
   # --- INSTALL VISUALIZATION SCRIPTS
-  install_python_files(
+  INSTALL_PYTHON_FILES(
     MODULE visualize
-    FILES __init__.py
-          base_visualizer.py
-          gepetto_visualizer.py
-          meshcat_visualizer.py
-          panda3d_visualizer.py
-          rviz_visualizer.py
-          visualizers.py)
+    FILES
+      __init__.py
+      base_visualizer.py
+      gepetto_visualizer.py
+      meshcat_visualizer.py
+      panda3d_visualizer.py
+      rviz_visualizer.py
+      visualizers.py
+  )
 
   # --- STUBS --- #
   if(GENERATE_PYTHON_STUBS)
-    python_build_get_target(python_build_target_name)
-    load_stubgen()
+    PYTHON_BUILD_GET_TARGET(python_build_target_name)
+    LOAD_STUBGEN()
     # Set PYWRAP and PROJECT_NAME as stubs dependencies.
     #
     # PROJECT_NAME is mandatory (even if it's a PYWRAP dependency) to find PROJECT_NAME name DLL on
     # windows.
-    generate_stubs(
+    GENERATE_STUBS(
       ${CMAKE_CURRENT_BINARY_DIR}
       ${PROJECT_NAME}
       ${ABSOLUTE_PYTHON_SITELIB}
       ${PYWRAP}_default
       ${PROJECT_NAME}_default
       ${STUBGEN_DEPENDENCIES}
-      ${python_build_target_name})
+      ${python_build_target_name}
+    )
   endif(GENERATE_PYTHON_STUBS)
 
   # --- PACKAGING --- #
@@ -283,8 +306,9 @@ if(BUILD_PYTHON_INTERFACE)
 
   set(_PKG_CONFIG_PYWRAP_LIBS "-L\${libdir} -l${PYWRAP}")
   if(APPLE)
-    set(_PKG_CONFIG_PYWRAP_LIBS
-        "${_PKG_CONFIG_PYWRAP_LIBS} -Wl,-undefined,dynamic_lookup,${Boost_${UPPERCOMPONENT}_LIBRARY}"
+    set(
+      _PKG_CONFIG_PYWRAP_LIBS
+      "${_PKG_CONFIG_PYWRAP_LIBS} -Wl,-undefined,dynamic_lookup,${Boost_${UPPERCOMPONENT}_LIBRARY}"
     )
   else(APPLE)
     set(_PKG_CONFIG_PYWRAP_LIBS "${_PKG_CONFIG_PYWRAP_LIBS} ${LIBINCL_KW}boost_python")
@@ -299,13 +323,16 @@ if(BUILD_PYTHON_INTERFACE)
     set(_PKG_CONFIG_PYWRAP_CFLAGS "${_PKG_CONFIG_PYWRAP_CFLAGS} ${cflags}")
   endforeach()
 
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pinocchiopy.pc.cmake"
-                 "${CMAKE_CURRENT_BINARY_DIR}/pinocchiopy.pc")
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/pinocchiopy.pc.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/pinocchiopy.pc"
+  )
 
   install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/pinocchiopy.pc"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
+    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE
+  )
 
   if(DOXYGEN_FOUND AND DOXYGEN_VERSION VERSION_GREATER 1.8.17)
     set(DOXYGEN_GENERATE_HTML YES)
@@ -313,7 +340,11 @@ if(BUILD_PYTHON_INTERFACE)
     set(DOXYGEN_PROJECT_NAME "Pinocchio PyBind11 helpers.")
     set(_source_headers_root "../../include/${PROJECT_NAME}/bindings/python")
     doxygen_add_docs(
-      doc_pybind11 ${_source_headers_root}/pybind11.hpp ${_source_headers_root}/pybind11-all.hpp
-      USE_STAMP_FILE COMMENT "Generating documentation of the PyBind11 helpers.")
+      doc_pybind11
+      ${_source_headers_root}/pybind11.hpp
+      ${_source_headers_root}/pybind11-all.hpp
+      USE_STAMP_FILE
+      COMMENT "Generating documentation of the PyBind11 helpers."
+    )
   endif()
 endif(BUILD_PYTHON_INTERFACE)

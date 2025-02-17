@@ -3,7 +3,7 @@
 #
 
 # Compute flags outside the macro to avoid recomputing it for each tests
-cxx_flags_by_compiler_frontend(MSVC _USE_MATH_DEFINES OUTPUT EXAMPLE_PRIVATE_DEFINITIONS)
+CXX_FLAGS_BY_COMPILER_FRONTEND(MSVC _USE_MATH_DEFINES OUTPUT EXAMPLE_PRIVATE_DEFINITIONS)
 
 function(ADD_PINOCCHIO_CPP_EXAMPLE EXAMPLE)
   set(options PARSERS CPPAD CPPADCG CASADI)
@@ -13,7 +13,7 @@ function(ADD_PINOCCHIO_CPP_EXAMPLE EXAMPLE)
 
   get_filename_component(EXAMPLE_NAME ${EXAMPLE} NAME)
   set(EXAMPLE_NAME "${PROJECT_NAME}-example-cpp-${EXAMPLE_NAME}")
-  add_unit_test(${EXAMPLE_NAME} "${EXAMPLE}.cpp")
+  ADD_UNIT_TEST(${EXAMPLE_NAME} "${EXAMPLE}.cpp")
   target_link_libraries(${EXAMPLE_NAME} PUBLIC ${PROJECT_NAME})
 
   if(example_PARSERS)
@@ -32,14 +32,17 @@ function(ADD_PINOCCHIO_CPP_EXAMPLE EXAMPLE)
     target_link_libraries(${EXAMPLE_NAME} PUBLIC ${PROJECT_NAME}_casadi)
   endif()
 
-  target_compile_definitions(${EXAMPLE_NAME} PRIVATE ${EXAMPLE_PRIVATE_DEFINITIONS}
-                                                     PINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
+  target_compile_definitions(
+    ${EXAMPLE_NAME}
+    PRIVATE ${EXAMPLE_PRIVATE_DEFINITIONS} PINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}"
+  )
 
   # There is no RPATH in Windows, then we must use the PATH to find the DLL
   if(WIN32)
     string(REPLACE ";" "\\\;" _PATH "$ENV{PATH}")
-    set(ENV_VARIABLES
-        "PATH=${_PATH}\\\;${PROJECT_BINARY_DIR}/src\\\;${PROJECT_BINARY_DIR}/bindings/python/pinocchio"
+    set(
+      ENV_VARIABLES
+      "PATH=${_PATH}\\\;${PROJECT_BINARY_DIR}/src\\\;${PROJECT_BINARY_DIR}/bindings/python/pinocchio"
     )
     set_tests_properties(${EXAMPLE_NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
   endif()
@@ -71,9 +74,15 @@ if(BUILD_WITH_COLLISION_SUPPORT)
 endif()
 
 if(BUILD_PYTHON_INTERFACE)
-  set(${PROJECT_NAME}_PYTHON_EXAMPLES
-      inverse-kinematics inverse-kinematics-3d overview-simple kinematics-derivatives
-      forward-dynamics-derivatives inverse-dynamics-derivatives)
+  set(
+    ${PROJECT_NAME}_PYTHON_EXAMPLES
+    inverse-kinematics
+    inverse-kinematics-3d
+    overview-simple
+    kinematics-derivatives
+    forward-dynamics-derivatives
+    inverse-dynamics-derivatives
+  )
 
   if(BUILD_WITH_URDF_SUPPORT)
     list(
@@ -83,12 +92,18 @@ if(BUILD_PYTHON_INTERFACE)
       gepetto-viewer
       build-reduced-model
       robot-wrapper-viewer
-      geometry-models)
+      geometry-models
+    )
   endif()
 
   if(BUILD_WITH_COLLISION_SUPPORT)
-    list(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES sample-model-viewer display-shapes
-         simulation-pendulum)
+    list(
+      APPEND
+      ${PROJECT_NAME}_PYTHON_EXAMPLES
+      sample-model-viewer
+      display-shapes
+      simulation-pendulum
+    )
     if(BUILD_WITH_URDF_SUPPORT)
       list(
         APPEND
@@ -98,7 +113,8 @@ if(BUILD_PYTHON_INTERFACE)
         collisions
         collision-with-point-clouds
         append-urdf-model-with-another-model
-        simulation-contact-dynamics)
+        simulation-contact-dynamics
+      )
       if(PYTHON_VERSION_MAJOR EQUAL 3)
         list(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES static-contact-dynamics)
       endif()
@@ -111,8 +127,8 @@ if(BUILD_PYTHON_INTERFACE)
 
   foreach(EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
     set(EXAMPLE_NAME "${PROJECT_NAME}-example-py-${EXAMPLE}")
-    add_python_unit_test("${EXAMPLE_NAME}" "examples/${EXAMPLE}.py" "bindings/python")
-    add_windows_dll_path_to_test(${EXAMPLE_NAME})
+    ADD_PYTHON_UNIT_TEST("${EXAMPLE_NAME}" "examples/${EXAMPLE}.py" "bindings/python")
+    ADD_WINDOWS_DLL_PATH_TO_TEST(${EXAMPLE_NAME})
   endforeach()
 endif()
 

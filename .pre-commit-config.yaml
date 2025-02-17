@@ -2,6 +2,7 @@ ci:
   autoupdate_branch: devel
   autofix_prs: false
   autoupdate_schedule: quarterly
+  submodules: true
 repos:
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v19.1.6
@@ -31,11 +32,10 @@ repos:
     hooks:
       - id: ruff
       - id: ruff-format
-  - repo: https://github.com/cheshirekow/cmake-format-precommit
-    rev: v0.6.13
+  - repo: https://github.com/BlankSpruce/gersemi
+    rev: 0.19.0
     hooks:
-      - id: cmake-format
-        additional_dependencies: [pyyaml>=5.1]
+      - id: gersemi
         exclude: pinocchiopy.pc.cmake
   - repo: https://github.com/Lucas-C/pre-commit-hooks
     rev: v1.5.5
