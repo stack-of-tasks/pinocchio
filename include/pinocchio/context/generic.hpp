@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 INRIA
+// Copyright (c) 2022-2025 INRIA
 //
 
 #ifndef __pinocchio_context_generic_hpp__
@@ -23,6 +23,8 @@ namespace pinocchio
     int _Options = 0,
     template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
   struct DataTpl;
+  template<typename _Scalar, int _Options = 0>
+  class SE3Tpl;
   template<typename _Scalar, int _Options = 0>
   class MotionTpl;
   template<typename _Scalar, int _Options = 0>
@@ -71,6 +73,7 @@ namespace pinocchio
     typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData)
       RigidConstraintDataVector;
 
+    typedef SE3Tpl<Scalar, Options> SE3;
     typedef MotionTpl<Scalar, Options> Motion;
     typedef ForceTpl<Scalar, Options> Force;
 
