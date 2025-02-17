@@ -24,7 +24,7 @@ namespace pinocchio
     template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
   struct DataTpl;
   template<typename _Scalar, int _Options = 0>
-  class SE3Tpl;
+  struct SE3Tpl;
   template<typename _Scalar, int _Options = 0>
   class MotionTpl;
   template<typename _Scalar, int _Options = 0>
