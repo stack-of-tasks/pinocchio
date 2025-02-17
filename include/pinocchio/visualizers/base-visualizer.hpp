@@ -22,9 +22,9 @@ namespace pinocchio
     using context::Model;
     using context::Options;
     using context::Scalar;
+    using context::SE3;
     using context::Vector3;
     using context::VectorXs;
-    using ::pinocchio::SE3;
 
     typedef Eigen::Ref<const VectorXs> ConstVectorRef;
     typedef Eigen::Ref<const MatrixXs> ConstMatrixRef;
