@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2025 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -35,9 +35,6 @@ namespace pinocchio
    * @{
    */
 
-  template<typename Scalar, int Options = context::Options>
-  struct SE3Tpl;
-
   template<typename Derived>
   class MotionBase;
   template<typename Derived>
@@ -54,8 +51,6 @@ namespace pinocchio
   template<typename Vector6ArgType>
   class ForceRef;
 
-  template<typename Scalar, int Options = context::Options>
-  struct InertiaTpl;
   template<typename Scalar, int Options = context::Options>
   class Symmetric3Tpl;
   template<typename Scalar, int Options = context::Options>
