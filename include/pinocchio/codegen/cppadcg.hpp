@@ -10,13 +10,10 @@
 #include "pinocchio/math/fwd.hpp"
 
 #include <cmath>
+#include <boost/mpl/int.hpp>
 #include <cppad/cg/support/cppadcg_eigen.hpp>
 
 #include "pinocchio/autodiff/cppad.hpp"
-
-#ifndef PINOCCHIO_WITH_CXX11_SUPPORT
-  #error CppADCodeGen requires C++11 or more
-#endif
 
 namespace boost
 {

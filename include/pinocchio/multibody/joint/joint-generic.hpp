@@ -249,8 +249,7 @@ namespace pinocchio
     typename NewScalar,
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl>
+    template<typename S, int O> class JointCollectionTpl>
   struct CastType<NewScalar, JointModelTpl<Scalar, Options, JointCollectionTpl>>
   {
     typedef JointModelTpl<NewScalar, Options, JointCollectionTpl> type;
@@ -431,8 +430,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename JointDataDerived>
   bool operator==(
     const JointDataBase<JointDataDerived> & joint_data,
@@ -444,8 +442,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename JointDataDerived>
   bool operator!=(
     const JointDataBase<JointDataDerived> & joint_data,
@@ -457,8 +454,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename JointModelDerived>
   bool operator==(
     const JointModelBase<JointModelDerived> & joint_model,
@@ -470,8 +466,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename S, int O>
-    class JointCollectionTpl,
+    template<typename S, int O> class JointCollectionTpl,
     typename JointModelDerived>
   bool operator!=(
     const JointModelBase<JointModelDerived> & joint_model,

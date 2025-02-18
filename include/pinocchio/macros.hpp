@@ -38,9 +38,8 @@
   #define PINOCCHIO_PRAGMA_DEPRECATED(the_message)                                                 \
     PINOCCHIO_PRAGMA_WARNING(Deprecated : #the_message)
   #define PINOCCHIO_PRAGMA_DEPRECATED_HEADER(old_header, new_header)                               \
-    PINOCCHIO_PRAGMA_WARNING(Deprecated header file                                                \
-                             : #old_header has been replaced                                       \
-                                 by #new_header.\n Please use #new_header instead of #old_header.)
+    PINOCCHIO_PRAGMA_WARNING(Deprecated header file : #old_header has been replaced                \
+                               by #new_header.\n Please use #new_header instead of #old_header.)
 #else
   #define PINOCCHIO_PRAGMA(x)
   #define PINOCCHIO_PRAGMA_MESSAGE(the_message)

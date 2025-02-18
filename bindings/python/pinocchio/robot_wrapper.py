@@ -14,24 +14,18 @@ from .shortcuts import (
 
 class RobotWrapper:
     @staticmethod
-    def BuildFromURDF(
-        filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None
-    ):
+    def BuildFromURDF(filename, *args, **kwargs):
         robot = RobotWrapper()
-        robot.initFromURDF(filename, package_dirs, root_joint, verbose, meshLoader)
+
+        robot.initFromURDF(filename, *args, **kwargs)
+
         return robot
 
-    def initFromURDF(
-        self,
-        filename,
-        package_dirs=None,
-        root_joint=None,
-        verbose=False,
-        meshLoader=None,
-    ):
+    def initFromURDF(self, filename, *args, **kwargs):
         model, collision_model, visual_model = buildModelsFromUrdf(
-            filename, package_dirs, root_joint, verbose, meshLoader
+            filename, *args, **kwargs
         )
+
         RobotWrapper.__init__(
             self,
             model=model,
@@ -40,46 +34,16 @@ class RobotWrapper:
         )
 
     @staticmethod
-    def BuildFromSDF(
-        filename,
-        package_dirs=None,
-        root_joint=None,
-        root_link_name="",
-        parent_guidance=[],
-        verbose=False,
-        meshLoader=None,
-    ):
+    def BuildFromSDF(filename, *args, **kwargs):
         robot = RobotWrapper()
-        robot.initFromSDF(
-            filename,
-            package_dirs,
-            root_joint,
-            root_link_name,
-            parent_guidance,
-            verbose,
-            meshLoader,
-        )
+        robot.initFromSDF(filename, *args, **kwargs)
         return robot
 
-    def initFromSDF(
-        self,
-        filename,
-        package_dirs=None,
-        root_joint=None,
-        root_link_name="",
-        parent_guidance=[],
-        verbose=False,
-        meshLoader=None,
-    ):
+    def initFromSDF(self, filename, *args, **kwargs):
         model, constraint_models, collision_model, visual_model = buildModelsFromSdf(
-            filename,
-            package_dirs,
-            root_joint,
-            root_link_name,
-            parent_guidance,
-            verbose,
-            meshLoader,
+            filename, *args, **kwargs
         )
+
         RobotWrapper.__init__(
             self,
             model=model,
@@ -89,21 +53,17 @@ class RobotWrapper:
         self.constraint_models = constraint_models
 
     @staticmethod
-    def BuildFromMJCF(filename, root_joint=None, verbose=False, meshLoader=None):
+    def BuildFromMJCF(filename, *args, **kwargs):
         robot = RobotWrapper()
-        robot.initFromMJCF(filename, root_joint, verbose, meshLoader)
+        robot.initFromMJCF(filename, *args, **kwargs)
+
         return robot
 
-    def initFromMJCF(
-        self,
-        filename,
-        root_joint=None,
-        verbose=False,
-        meshLoader=None,
-    ):
+    def initFromMJCF(self, filename, *args, **kwargs):
         model, collision_model, visual_model = buildModelsFromMJCF(
-            filename, root_joint, verbose, meshLoader
+            filename, *args, **kwargs
         )
+
         RobotWrapper.__init__(
             self,
             model=model,

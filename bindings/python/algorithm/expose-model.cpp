@@ -34,8 +34,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType>
     bp::tuple buildReducedModel(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -57,8 +56,7 @@ namespace pinocchio
     template<
       typename Scalar,
       int Options,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       typename ConfigVectorType>
     bp::tuple buildReducedModel(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
@@ -95,8 +93,9 @@ namespace pinocchio
 
       bp::def(
         "appendModel",
-        (Model(*)(const Model &, const Model &, const FrameIndex, const SE3 &))
-          & appendModel<double, 0, JointCollectionDefaultTpl>,
+        (Model(*)(
+          const Model &, const Model &, const FrameIndex,
+          const SE3 &))&appendModel<double, 0, JointCollectionDefaultTpl>,
         bp::args("modelA", "modelB", "frame_in_modelA", "aMb"),
         "Append a child model into a parent model, after a specific frame given by its index.\n\n"
         "Parameters:\n"
@@ -121,8 +120,9 @@ namespace pinocchio
       bp::def(
         "buildReducedModel",
         (Model(*)(
-          const Model &, const std::vector<JointIndex> &, const Eigen::MatrixBase<VectorXd> &))
-          & pinocchio::buildReducedModel<double, 0, JointCollectionDefaultTpl, VectorXd>,
+          const Model &, const std::vector<JointIndex> &,
+          const Eigen::MatrixBase<VectorXd> &))&pinocchio::
+          buildReducedModel<double, 0, JointCollectionDefaultTpl, VectorXd>,
         bp::args("model", "list_of_joints_to_lock", "reference_configuration"),
         "Build a reduce model from a given input model and a list of joint to lock.\n\n"
         "Parameters:\n"
@@ -135,8 +135,8 @@ namespace pinocchio
         "buildReducedModel",
         (bp::tuple(*)(
           const Model &, const GeometryModel &, const std::vector<JointIndex> &,
-          const Eigen::MatrixBase<VectorXd> &))
-          & buildReducedModel<double, 0, JointCollectionDefaultTpl, VectorXd>,
+          const Eigen::MatrixBase<
+            VectorXd> &))&buildReducedModel<double, 0, JointCollectionDefaultTpl, VectorXd>,
         bp::args("model", "geom_model", "list_of_joints_to_lock", "reference_configuration"),
         "Build a reduced model and a reduced geometry model from a given input model,"
         "an input geometry model and a list of joints to lock.\n\n"

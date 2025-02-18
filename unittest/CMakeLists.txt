@@ -38,6 +38,8 @@ function(ADD_PINOCCHIO_UNIT_TEST name)
       EXTRA
       COLLISION
       PARALLEL
+      VISUALIZERS
+      PYTHON_PARSER
       PARSERS_OPTIONAL
       EXTRA_OPTIONAL
       COLLISION_OPTIONAL
@@ -91,6 +93,26 @@ function(ADD_PINOCCHIO_UNIT_TEST name)
 
   if(unit_test_EXTRA OR (unit_test_EXTRA_OPTIONAL AND TARGET ${PROJECT_NAME}_extra))
     target_link_libraries(${TEST_NAME} PUBLIC ${PROJECT_NAME}_extra)
+  endif()
+
+  if(unit_test_VISUALIZERS)
+    target_link_libraries(${TEST_NAME} PUBLIC ${PROJECT_NAME}_visualizers)
+  endif()
+
+  if(unit_test_PYTHON_PARSER)
+    target_link_libraries(${TEST_NAME} PUBLIC ${PROJECT_NAME}_python_parser)
+    add_windows_dll_path_to_test(${TEST_NAME})
+    get_test_property(${TEST_NAME} ENVIRONMENT ENV_VARIABLES)
+    compute_pythonpath(PYTHON_ENV_VARIABLES "bindings/python")
+    list(APPEND ENV_VARIABLES ${PYTHON_ENV_VARIABLES})
+    if(WIN32)
+      # This line is mandatory because of Github action. The test run well on Windows + Conda. This
+      # hide something wrong. Maybe the test is linking against the wrong Python library or call the
+      # wrong interpreter.
+      get_filename_component(_PYTHONHOME ${PYTHON_EXECUTABLE} PATH)
+      list(APPEND ENV_VARIABLES "PYTHONHOME=${_PYTHONHOME}")
+    endif()
+    set_tests_properties(${TEST_NAME} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
   endif()
 
   modernize_target_link_libraries(
@@ -222,24 +244,13 @@ if(BUILD_WITH_EXTRA_SUPPORT)
     COLLISION_OPTIONAL)
 endif()
 
-if(BUILD_WITH_LIBPYTHON)
-  add_pinocchio_unit_test(python_parser PACKAGES Python3::Python)
-  get_cpp_test_name(python_parser ${CMAKE_CURRENT_SOURCE_DIR} python_parser_target)
-  target_include_directories(${python_parser_target} SYSTEM PUBLIC ${PYTHON_INCLUDE_DIRS})
+add_pinocchio_unit_test(visualizer VISUALIZERS)
 
-  target_link_libraries(${python_parser_target} PUBLIC ${PYWRAP}_default)
-  target_link_libraries(${python_parser_target} PUBLIC ${PYTHON_LIBRARIES})
-  get_test_property(${python_parser_target} ENVIRONMENT ENV_VARIABLES)
-  compute_pythonpath(PYTHON_ENV_VARIABLES "bindings/python")
-  list(APPEND ENV_VARIABLES ${PYTHON_ENV_VARIABLES})
-  if(WIN32)
-    # This line is mandatory because of Github action. The test run well on Windowns + Conda. This
-    # hide something wrong. Maybe the test is linking against the wrong Python library or call the
-    # wrong interpreter.
-    get_filename_component(_PYTHONHOME ${PYTHON_EXECUTABLE} PATH)
-    list(APPEND ENV_VARIABLES "PYTHONHOME=${_PYTHONHOME}")
-  endif()
-  set_tests_properties(${python_parser_target} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
+if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
+  add_pinocchio_unit_test(python_parser PYTHON_PARSER)
+endif()
+
+if(BUILD_PYTHON_INTERFACE)
   add_subdirectory(python)
 endif()
 

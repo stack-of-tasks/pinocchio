@@ -121,7 +121,7 @@ namespace pinocchio
             "Set the linear and angular components of *this to random values.")
 
           .def(
-            "dot", (Scalar(Force::*)(const MotionDense<context::Motion> &) const) & Force::dot,
+            "dot", (Scalar(Force::*)(const MotionDense<context::Motion> &) const)&Force::dot,
             bp::args("self", "m"), "Dot product between *this and a Motion m.")
 
           .def(bp::self + bp::self)
@@ -161,7 +161,10 @@ namespace pinocchio
             "__array__", bp::make_function(
                            (typename Force::ToVectorReturnType(Force::*)()) & Force::toVector,
                            bp::return_internal_reference<>()))
-          .def("__array__", &__array__, bp::return_internal_reference<>())
+          .def(
+            "__array__", &__array__,
+            (bp::arg("self"), bp::arg("dtype") = bp::object(), bp::arg("copy") = bp::object()),
+            bp::return_internal_reference<>())
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def_pickle(Pickle())
 #endif
@@ -197,7 +200,8 @@ namespace pinocchio
       }
 
     private:
-      static typename Force::ToVectorConstReturnType __array__(const Force & self, bp::object)
+      static typename Force::ToVectorConstReturnType
+      __array__(const Force & self, bp::object, bp::object)
       {
         return self.toVector();
       }

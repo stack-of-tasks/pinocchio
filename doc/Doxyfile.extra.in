@@ -661,23 +661,7 @@ EXAMPLE_PATH = @PROJECT_SOURCE_DIR@/examples
 # A dedicated BIB_PATH would be preferable
 EXAMPLE_PATH += @PROJECT_SOURCE_DIR@/doc/bib
 
-# Enable the USE_MATHJAX option to render $\mbox{\LaTeX}$ formulas using
-# MathJax (see http://www.mathjax.org) which uses client side Javascript for
-# the rendering instead of using pre-rendered bitmaps. Use this if you do not
-# have $\mbox{\LaTeX}$ installed or if you want to formulas look prettier in
-# the HTML output. When enabled you may also need to install MathJax separately
-# and configure the path to it using the MATHJAX_RELPATH option.
-
 USE_MATHJAX            = YES
-MATHJAX_RELPATH        = MathJax/
-
-# When MathJax is enabled you can set the default output format to be used for
-# the MathJax output. See the MathJax site for more details. Possible values
-# are: HTML-CSS (which is slower, but has the best compatibility), NativeMML
-# (i.e. MathML) and SVG. The default value is: HTML-CSS. This tag requires that
-# the tag USE_MATHJAX is set to YES.
-
-MATHJAX_FORMAT         = SVG
 
 #---------------------------------------------------------------------------
 # Aliases

@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 import numpy as np
 import pinocchio as pin
@@ -73,11 +74,11 @@ class TestFrameBindings(PinocchioTestCase):
         import pickle
 
         frame = pin.Frame("name", 1, 2, pin.SE3.Random(), pin.OP_FRAME)
-        filename = "frame.pickle"
-        with open(filename, "wb") as f:
+        filename = Path("frame.pickle")
+        with filename.open("wb") as f:
             pickle.dump(frame, f)
 
-        with open(filename, "rb") as f:
+        with filename.open("rb") as f:
             frame_copy = pickle.load(f)
 
         self.assertEqual(frame, frame_copy)

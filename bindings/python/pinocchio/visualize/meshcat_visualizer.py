@@ -1,6 +1,9 @@
-import os
+# TODO: Remove when 20.04 is not supported
+from __future__ import annotations
+
 import warnings
-from typing import ClassVar, List
+from pathlib import Path
+from typing import ClassVar
 
 import numpy as np
 
@@ -21,9 +24,10 @@ import base64
 
 # DaeMeshGeometry
 import xml.etree.ElementTree as Et
-from typing import Any, Dict, Optional, Set, Union
+from typing import Any
 
-MsgType = Dict[str, Union[str, bytes, bool, float, "MsgType"]]
+# TODO: Remove quote when 20.04 is not supported
+MsgType = "dict[str, Union[str, bytes, bool, float, 'MsgType']]"
 
 try:
     import hppfcl
@@ -62,11 +66,21 @@ def hasMeshFileInfo(geometry_object):
     if geometry_object.meshPath == "":
         return False
 
-    _, file_extension = os.path.splitext(geometry_object.meshPath)
+    file_extension = Path(geometry_object.meshPath).suffix
     if file_extension.lower() in [".dae", ".obj", ".stl"]:
         return True
 
     return False
+
+
+def applyScalingOnHomegeneousTransform(
+    homogeneous_transform: np.ndarray, scale: np.ndarray
+) -> np.ndarray:
+    assert homogeneous_transform.shape == (4, 4)
+    assert scale.size == 3
+    scale = np.array(scale).flatten()
+    S = np.diag(np.concatenate((scale, [1.0])))
+    return homogeneous_transform @ S
 
 
 if import_meshcat_succeed:
@@ -100,7 +114,7 @@ if import_meshcat_succeed:
             }
 
     class DaeMeshGeometry(mg.ReferenceSceneElement):
-        def __init__(self, dae_path: str, cache: Optional[Set[str]] = None) -> None:
+        def __init__(self, dae_path: str, cache: set[str] | None = None) -> None:
             """Load Collada files with texture images.
             Inspired from
             https://gist.github.com/danzimmerman/a392f8eadcf1166eb5bd80e3922dbdc5
@@ -108,48 +122,53 @@ if import_meshcat_succeed:
             # Init base class
             super().__init__()
 
+            dae_path = Path(dae_path)
+
             # Attributes to be specified by the user
             self.path = None
             self.material = None
             self.intrinsic_transform = mg.tf.identity_matrix()
 
             # Raw file content
-            dae_dir = os.path.dirname(dae_path)
-            with open(dae_path) as text_file:
+            dae_dir = dae_path.parent
+            with dae_path.open() as text_file:
                 self.dae_raw = text_file.read()
 
             # Parse the image resource in Collada file
-            img_resource_paths = []
+            img_resource_paths: list[Path] = []
             img_lib_element = Et.parse(dae_path).find(
                 "{http://www.collada.org/2005/11/COLLADASchema}library_images"
             )
             if img_lib_element:
                 img_resource_paths = [
-                    e.text for e in img_lib_element.iter() if e.tag.count("init_from")
+                    Path(e.text)
+                    for e in img_lib_element.iter()
+                    if e.tag.count("init_from")
                 ]
 
             # Convert textures to data URL for Three.js ColladaLoader to load them
-            self.img_resources = {}
+            self.img_resources: dict[str, str] = {}
             for img_path in img_resource_paths:
+                img_key = str(img_path)
                 # Return empty string if already in cache
                 if cache is not None:
                     if img_path in cache:
-                        self.img_resources[img_path] = ""
+                        self.img_resources[img_key] = ""
                         continue
                     cache.add(img_path)
 
                 # Encode texture in base64
-                img_path_abs = img_path
-                if not os.path.isabs(img_path):
-                    img_path_abs = os.path.normpath(os.path.join(dae_dir, img_path_abs))
-                if not os.path.isfile(img_path_abs):
+                img_path_abs: Path = img_path
+                if not img_path.is_absolute():
+                    img_path_abs = (dae_dir / img_path_abs).resolve()
+                if not img_path_abs.is_file():
                     raise UserWarning(f"Texture '{img_path}' not found.")
-                with open(img_path_abs, "rb") as img_file:
+                with img_path_abs.open("rb") as img_file:
                     img_data = base64.b64encode(img_file.read())
                 img_uri = f"data:image/png;base64,{img_data.decode('utf-8')}"
-                self.img_resources[img_path] = img_uri
+                self.img_resources[img_key] = img_uri
 
-        def lower(self) -> Dict[str, Any]:
+        def lower(self) -> dict[str, Any]:
             """Pack data into a dictionary of the format that must be passed to
             `Visualizer.window.send`.
             """
@@ -498,23 +517,47 @@ def createCapsule(length, radius, radial_resolution=30, cap_resolution=10):
     for j in range(nbv[0]):
         j_next = (j + 1) % nbv[0]
         indexes[index + 0] = np.array(
-            [j_next * stride + nbv[1], j_next * stride, j * stride]
+            [
+                j_next * stride + nbv[1],
+                j_next * stride,
+                j * stride,
+            ]
         )
         indexes[index + 1] = np.array(
-            [j * stride + nbv[1], j_next * stride + nbv[1], j * stride]
+            [
+                j * stride + nbv[1],
+                j_next * stride + nbv[1],
+                j * stride,
+            ]
         )
         indexes[index + 2] = np.array(
-            [j * stride + nbv[1] - 1, j_next * stride + nbv[1] - 1, last - 1]
+            [
+                j * stride + nbv[1] - 1,
+                j_next * stride + nbv[1] - 1,
+                last - 1,
+            ]
         )
         indexes[index + 3] = np.array(
-            [j_next * stride + 2 * nbv[1] - 1, j * stride + 2 * nbv[1] - 1, last]
+            [
+                j_next * stride + 2 * nbv[1] - 1,
+                j * stride + 2 * nbv[1] - 1,
+                last,
+            ]
         )
         for i in range(nbv[1] - 1):
             indexes[index + 4 + i * 4 + 0] = np.array(
-                [j_next * stride + i, j_next * stride + i + 1, j * stride + i]
+                [
+                    j_next * stride + i,
+                    j_next * stride + i + 1,
+                    j * stride + i,
+                ]
             )
             indexes[index + 4 + i * 4 + 1] = np.array(
-                [j_next * stride + i + 1, j * stride + i + 1, j * stride + i]
+                [
+                    j_next * stride + i + 1,
+                    j * stride + i + 1,
+                    j * stride + i,
+                ]
             )
             indexes[index + 4 + i * 4 + 2] = np.array(
                 [
@@ -744,7 +787,7 @@ class MeshcatVisualizer(BaseVisualizer):
             return None
 
         # Get file type from filename extension.
-        _, file_extension = os.path.splitext(geometry_object.meshPath)
+        file_extension = Path(geometry_object.meshPath).suffix
         if file_extension.lower() == ".dae":
             obj = DaeMeshGeometry(geometry_object.meshPath)
         elif file_extension.lower() == ".obj":
@@ -763,7 +806,6 @@ class MeshcatVisualizer(BaseVisualizer):
         node_name = self.getViewerNodeName(geometry_object, geometry_type)
         meshcat_node = self.viewer[node_name]
 
-        is_mesh = False
         try:
             obj = None
             if WITH_HPP_FCL_BINDINGS:
@@ -777,7 +819,6 @@ class MeshcatVisualizer(BaseVisualizer):
                     obj = loadOctree(geometry_object.geometry)
                 elif hasMeshFileInfo(geometry_object):
                     obj = self.loadMeshFromFile(geometry_object)
-                    is_mesh = True
                 elif isinstance(
                     geometry_object.geometry,
                     (
@@ -789,7 +830,6 @@ class MeshcatVisualizer(BaseVisualizer):
                     obj = loadMesh(geometry_object.geometry)
             if obj is None and hasMeshFileInfo(geometry_object):
                 obj = self.loadMeshFromFile(geometry_object)
-                is_mesh = True
             if obj is None:
                 msg = (
                     "The geometry object named "
@@ -842,18 +882,11 @@ class MeshcatVisualizer(BaseVisualizer):
 
             if isinstance(obj, DaeMeshGeometry):
                 obj.path = meshcat_node.path
-                scale = list(np.asarray(geometry_object.meshScale).flatten())
-                obj.set_scale(scale)
                 if geometry_object.overrideMaterial:
                     obj.material = material
                 meshcat_node.window.send(obj)
             else:
                 meshcat_node.set_object(obj, material)
-
-        # Apply the scaling
-        if is_mesh and not isinstance(obj, DaeMeshGeometry):
-            scale = list(np.asarray(geometry_object.meshScale).flatten())
-            meshcat_node.set_property("scale", scale)
 
     def loadViewerModel(
         self,
@@ -976,12 +1009,14 @@ class MeshcatVisualizer(BaseVisualizer):
                 T = M.homogeneous
 
             # Update viewer configuration.
+            T = applyScalingOnHomegeneousTransform(T, visual.meshScale)
             self.viewer[visual_name].set_transform(T)
 
         for visual in self.static_objects:
             visual_name = self.getViewerNodeName(visual, pin.GeometryType.VISUAL)
             M: pin.SE3 = visual.placement
             T = M.homogeneous
+            T = applyScalingOnHomegeneousTransform(T, visual.meshScale)
             self.viewer[visual_name].set_transform(T)
 
     def addGeometryObject(self, obj: pin.GeometryObject, color=None):
@@ -1081,10 +1116,10 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def _draw_vectors_from_frame(
         self,
-        vecs: List[np.ndarray],
-        frame_ids: List[int],
-        vec_names: List[str],
-        colors: List[int],
+        vecs: list[np.ndarray],
+        frame_ids: list[int],
+        vec_names: list[str],
+        colors: list[int],
     ):
         """Draw vectors extending from given frames."""
         import meshcat.geometry as mg

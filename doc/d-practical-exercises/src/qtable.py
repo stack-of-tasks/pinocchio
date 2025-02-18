@@ -9,18 +9,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 from dpendulum import DPendulum
 
-### --- Random seed
+# --- Random seed
 RANDOM_SEED = int((time.time() % 10) * 1000)
-print("Seed = %d" % RANDOM_SEED)
+print(f"Seed = {RANDOM_SEED}")
 np.random.seed(RANDOM_SEED)
 
-### --- Hyper paramaters
+# --- Hyper paramaters
 NEPISODES = 500  # Number of training episodes
 NSTEPS = 50  # Max episode length
 LEARNING_RATE = 0.85  #
 DECAY_RATE = 0.99  # Discount factor
 
-### --- Environment
+# --- Environment
 env = DPendulum()
 NX = env.nx  # Number of (discrete) states
 NU = env.nu  # Number of (discrete) controls
@@ -66,9 +66,9 @@ for episode in range(1, NEPISODES):
 
     h_rwd.append(rsum)
     if not episode % 20:
-        print("Episode #%d done with %d sucess" % (episode, sum(h_rwd[-20:])))
+        print(f"Episode #{episode} done with {sum(h_rwd[-20:])} sucess")
 
-print("Total rate of success: %.3f" % (sum(h_rwd) / NEPISODES))
+print(f"Total rate of success: {sum(h_rwd) / NEPISODES:.3f}")
 rendertrial()
 plt.plot(np.cumsum(h_rwd) / range(1, NEPISODES))
 plt.show()

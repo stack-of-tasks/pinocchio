@@ -235,8 +235,7 @@ namespace pinocchio
         "computeFrameJacobian",
         (context::Data::Matrix6x(*)(
           const context::Model &, context::Data &, const context::VectorXs &,
-          context::Data::FrameIndex, ReferenceFrame))
-          & compute_frame_jacobian_proxy,
+          context::Data::FrameIndex, ReferenceFrame))&compute_frame_jacobian_proxy,
         bp::args("model", "data", "q", "frame_id", "reference_frame"),
         "Computes the Jacobian of the frame given by its frame_id in the coordinate system "
         "given by reference_frame.\n");
@@ -245,8 +244,7 @@ namespace pinocchio
         "computeFrameJacobian",
         (context::Data::Matrix6x(*)(
           const context::Model &, context::Data &, const context::VectorXs &,
-          context::Data::FrameIndex))
-          & compute_frame_jacobian_proxy,
+          context::Data::FrameIndex))&compute_frame_jacobian_proxy,
         bp::args("model", "data", "q", "frame_id"),
         "Computes the Jacobian of the frame given by its frame_id.\n"
         "The columns of the Jacobian are expressed in the coordinates system of the Frame itself.\n"

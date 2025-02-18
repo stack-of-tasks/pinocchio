@@ -1,5 +1,6 @@
 import contextlib
 import os
+from pathlib import Path
 
 
 def get_dll_paths():
@@ -7,7 +8,7 @@ def get_dll_paths():
     if pinocchio_paths is None:
         # Standard site-packages to bin path
         RELATIVE_DLL_PATH = "..\\..\\..\\bin"
-        return [os.path.join(os.path.dirname(__file__), RELATIVE_DLL_PATH)]
+        return [Path(__file__).parent / RELATIVE_DLL_PATH]
     else:
         return pinocchio_paths.split(os.pathsep)
 

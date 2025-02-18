@@ -30,7 +30,7 @@ while True:
     v = -J.T.dot(solve(J.dot(J.T) + damp * np.eye(3), err))
     q = pinocchio.integrate(model, q, v * DT)
     if not it % 10:
-        print("%d: error = %s" % (it, err.T))
+        print(f"{it}: error = {err.T}")
     it += 1
 
 if success:

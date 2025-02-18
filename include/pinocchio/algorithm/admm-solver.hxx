@@ -6,8 +6,6 @@
 #define __pinocchio_algorithm_admm_solver_hxx__
 
 #include <limits>
-#include <iomanip>
-#include <iostream>
 
 #include "pinocchio/algorithm/contact-solver-utils.hpp"
 #include "pinocchio/algorithm/constraints/coulomb-friction-cone.hpp"

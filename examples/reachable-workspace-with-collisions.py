@@ -1,7 +1,7 @@
 import itertools
 import sys
 import time
-from os.path import abspath, dirname, join
+from pathlib import Path
 
 import meshcat.geometry as g
 import numpy as np
@@ -17,13 +17,13 @@ def XYZRPYtoSE3(xyzrpy):
 
 
 # Load the URDF model.
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+pinocchio_model_dir = Path(__file__).parent.parent / "models"
 
-model_path = join(pinocchio_model_dir, "example-robot-data/robots")
+model_path = pinocchio_model_dir / "example-robot-data/robots"
 mesh_dir = pinocchio_model_dir
 
-urdf_path = join(model_path, "panda_description/urdf/panda.urdf")
-srdf_path = join(model_path, "panda_description/srdf/panda.srdf")
+urdf_path = model_path / "panda_description/urdf/panda.urdf"
+srdf_path = model_path / "panda_description/srdf/panda.srdf"
 
 robot, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_path, mesh_dir)
 data = robot.createData()
@@ -44,7 +44,7 @@ for i, xyzrpy in enumerate(oMobs):
     obs.meshColor = np.array(
         [1.0, 0.2, 0.2, 1.0]
     )  # Don't forget me, otherwise I am transparent ...
-    obs.name = "obs%d" % i  # Set object name
+    obs.name = f"obs{i}"  # Set object name
     obs.parentJoint = 0  # Set object parent = 0 = universe
     obs.placement = XYZRPYtoSE3(xyzrpy)  # Set object placement wrt parent
     collision_model.addGeometryObject(obs)  # Add object to collision model

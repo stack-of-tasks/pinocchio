@@ -3,12 +3,25 @@ Pose a Solo-12 robot on a surface defined through a function and displayed throu
 hppfcl.HeightField.
 """
 
+import time
+from pathlib import Path
+
 import numpy as np
 import pinocchio as pin
-from example_robot_data import load
 from pinocchio.visualize import MeshcatVisualizer
 
-robot = load("solo12")
+# Load the URDF model.
+# Conversion with str seems to be necessary when executing this file with ipython
+pinocchio_model_dir = Path(__file__).parent.parent / "models"
+
+model_path = pinocchio_model_dir / "example-robot-data/robots"
+mesh_dir = pinocchio_model_dir
+urdf_filename = "solo12.urdf"
+urdf_model_path = model_path / "solo_description/robots" / urdf_filename
+
+model, collision_model, visual_model = pin.buildModelsFromUrdf(
+    urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()
+)
 
 q_ref = np.array(
     [
@@ -35,9 +48,8 @@ q_ref = np.array(
 )
 
 
-model = robot.model
-vizer = MeshcatVisualizer(model, robot.collision_model, robot.visual_model)
-vizer.initViewer(loadModel=True)
+vizer = MeshcatVisualizer(model, collision_model, visual_model)
+vizer.initViewer(open=True)
 
 
 def ground(xy):
@@ -66,11 +78,14 @@ def vizGround(viz, elevation_fn, space, name="ground", color=[1.0, 1.0, 0.6, 0.8
     obj = pin.GeometryObject("ground", 0, pl, heightField)
     obj.meshColor[:] = color
     viz.addGeometryObject(obj)
-    viz.viewer.open()
 
+
+# Load the robot in the viewer.
+vizer.loadViewerModel()
 
 colorrgb = [128, 149, 255, 200]
 colorrgb = np.array(colorrgb) / 255.0
 vizGround(vizer, ground, 0.02, color=colorrgb)
 
 vizer.display(q_ref)
+time.sleep(1.0)

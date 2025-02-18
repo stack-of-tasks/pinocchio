@@ -104,9 +104,7 @@ namespace pinocchio
     ///
     /// \brief Default constructor
     ///
-    ContactCholeskyDecompositionTpl()
-    {
-    }
+    ContactCholeskyDecompositionTpl() = default;
 
     ///
     /// \brief Constructor from a model.
@@ -288,8 +286,7 @@ namespace pinocchio
     template<
       typename S1,
       int O1,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       class ConstraintModelAllocator,
       class ConstraintDataAllocator>
     void compute(
@@ -321,8 +318,7 @@ namespace pinocchio
     template<
       typename S1,
       int O1,
-      template<typename, int>
-      class JointCollectionTpl,
+      template<typename, int> class JointCollectionTpl,
       class ConstraintModelAllocator,
       class ConstraintDataAllocator,
       typename VectorLike>
@@ -465,35 +461,10 @@ namespace pinocchio
     ///@}
 
     template<typename S1, int O1>
-    bool operator==(const ContactCholeskyDecompositionTpl<S1, O1> & other) const
-    {
-      bool is_same = true;
-
-      if (nv != other.nv || num_contacts != other.num_contacts)
-        return false;
-
-      if (
-        D.size() != other.D.size() || Dinv.size() != other.Dinv.size() || U.rows() != other.U.rows()
-        || U.cols() != other.U.cols())
-        return false;
-
-      is_same &= (D == other.D);
-      is_same &= (Dinv == other.Dinv);
-      is_same &= (U == other.U);
-
-      is_same &= (parents_fromRow == other.parents_fromRow);
-      is_same &= (nv_subtree_fromRow == other.nv_subtree_fromRow);
-      is_same &= (last_child == other.last_child);
-      //        is_same &= (rowise_sparsity_pattern == other.rowise_sparsity_pattern);
-
-      return is_same;
-    }
+    bool operator==(const ContactCholeskyDecompositionTpl<S1, O1> & other) const;
 
     template<typename S1, int O1>
-    bool operator!=(const ContactCholeskyDecompositionTpl<S1, O1> & other) const
-    {
-      return !(*this == other);
-    }
+    bool operator!=(const ContactCholeskyDecompositionTpl<S1, O1> & other) const;
     PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   protected:
@@ -704,10 +675,17 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#include "pinocchio/algorithm/contact-cholesky.hxx"
-
+// Because of a GCC bug we should NEVER define a function that use ContactCholeskyDecompositionTpl
+// before doing the explicit template instantiation.
+// If we don't take care, GCC will not accept any visibility attribute when declaring the
+// explicit template instantiation of the ContactCholeskyDecompositionTpl class.
+// The warning message will look like this: type attributes ignored after type is already defined
+// [-Wattributes] A minimal code example is added on the PR
+// (https://github.com/stack-of-tasks/pinocchio/pull/2469)
 #if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
   #include "pinocchio/algorithm/contact-cholesky.txx"
 #endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
+#include "pinocchio/algorithm/contact-cholesky.hxx"
 
 #endif // ifndef __pinocchio_algorithm_contact_cholesky_hpp__

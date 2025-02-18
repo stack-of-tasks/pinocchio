@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2025 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -35,9 +35,6 @@ namespace pinocchio
    * @{
    */
 
-  template<typename Scalar, int Options = context::Options>
-  struct SE3Tpl;
-
   template<typename Derived>
   class MotionBase;
   template<typename Derived>
@@ -55,16 +52,20 @@ namespace pinocchio
   class ForceRef;
 
   template<typename Scalar, int Options = context::Options>
-  struct InertiaTpl;
-  template<typename Scalar, int Options = context::Options>
   class Symmetric3Tpl;
+  template<typename Scalar, int Options = context::Options>
+  struct PseudoInertiaTpl;
+  template<typename Scalar, int Options = context::Options>
+  struct LogCholeskyParametersTpl;
 
-  typedef SE3Tpl<context::Scalar, context::Options> SE3;
-  typedef MotionTpl<context::Scalar, context::Options> Motion;
-  typedef ForceTpl<context::Scalar, context::Options> Force;
-  typedef InertiaTpl<context::Scalar, context::Options> Inertia;
+  typedef context::SE3 SE3;
+  typedef context::Motion Motion;
+  typedef context::Force Force;
+  typedef context::Inertia Inertia;
   typedef Symmetric3Tpl<context::Scalar, context::Options> Symmetric3;
   typedef MotionZeroTpl<context::Scalar, context::Options> MotionZero;
+  typedef PseudoInertiaTpl<context::Scalar, context::Options> PseudoInertia;
+  typedef LogCholeskyParametersTpl<context::Scalar, context::Options> LogCholeskyParameters;
 
   /**
    * @}

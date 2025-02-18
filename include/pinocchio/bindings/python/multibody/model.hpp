@@ -232,6 +232,8 @@ namespace pinocchio
 
           .PINOCCHIO_ADD_STATIC_PROPERTY_READONLY_BYVALUE(
             Model, gravity981, "Default gravity field value on the Earth.");
+
+        bp::register_ptr_to_python<std::shared_ptr<Model>>();
       }
 
       static JointIndex addJoint0(

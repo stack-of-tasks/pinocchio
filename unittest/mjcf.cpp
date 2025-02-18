@@ -8,6 +8,7 @@
 #include "pinocchio/multibody/model.hpp"
 
 #include "pinocchio/parsers/mjcf.hpp"
+#include "pinocchio/parsers/mjcf/mjcf-graph.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -386,7 +387,7 @@ BOOST_AUTO_TEST_CASE(merge_default)
   MjcfGraph::UrdfVisitor visitor(model);
 
   MjcfGraph graph(visitor, "fakeMjcf");
-  graph.parseDefault(ptr.get_child("default"), ptr);
+  graph.parseDefault(ptr.get_child("default"), ptr, "default");
 
   std::unordered_map<std::string, pt::ptree> TrueMap;
 
@@ -452,10 +453,11 @@ BOOST_AUTO_TEST_CASE(parse_default_class)
   typedef pinocchio::SE3::Vector3 Vector3;
   typedef pinocchio::SE3::Matrix3 Matrix3;
 
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
   std::string filename = PINOCCHIO_MODEL_DIR + std::string("/../unittest/models/test_mjcf.xml");
 
   pinocchio::Model model_m;
-  pinocchio::mjcf::buildModel(filename, model_m);
+  pinocchio::mjcf::buildModel(filename, model_m, contact_models);
 
   std::string file_u = PINOCCHIO_MODEL_DIR + std::string("/../unittest/models/test_mjcf.urdf");
   pinocchio::Model model_u;
@@ -468,7 +470,7 @@ BOOST_AUTO_TEST_CASE(parse_default_class)
     "joint3");
   model_u.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], model_u.joints[i]);
 }
 #endif // PINOCCHIO_WITH_URDFDOM
@@ -482,7 +484,7 @@ BOOST_AUTO_TEST_CASE(parse_dirs_no_strippath)
                                     <asset>
                                         <texture name="testTexture" file="texture.png" type="2d"/>
                                         <material name="matTest" texture="testTexture"/>
-                                        <mesh file="C://auto/mesh.obj"/>
+                                        <mesh file="C:/auto/mesh.obj"/>
                                     </asset>
                                   </mujoco>)");
 #else
@@ -516,7 +518,7 @@ BOOST_AUTO_TEST_CASE(parse_dirs_no_strippath)
   // Test Meshes
   pinocchio::mjcf::details::MjcfMesh mesh = graph.mapOfMeshes.at("mesh");
 #ifdef _WIN32
-  BOOST_CHECK_EQUAL(boost::filesystem::path(mesh.filePath).generic_string(), "C://auto/mesh.obj");
+  BOOST_CHECK_EQUAL(boost::filesystem::path(mesh.filePath).generic_string(), "C:/auto/mesh.obj");
 #else
   BOOST_CHECK_EQUAL(boost::filesystem::path(mesh.filePath).generic_string(), "/auto/mesh.obj");
 #endif
@@ -581,7 +583,7 @@ BOOST_AUTO_TEST_CASE(parse_RX)
   idx = modelRX.addJoint(0, pinocchio::JointModelRX(), pinocchio::SE3::Identity(), "rx");
   modelRX.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelRX.joints[i]);
 }
 
@@ -618,7 +620,7 @@ BOOST_AUTO_TEST_CASE(parse_PX)
   idx = modelPX.addJoint(0, pinocchio::JointModelPX(), pinocchio::SE3::Identity(), "px");
   modelPX.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPX.joints[i]);
 }
 
@@ -655,7 +657,7 @@ BOOST_AUTO_TEST_CASE(parse_Sphere)
   idx = modelS.addJoint(0, pinocchio::JointModelSpherical(), pinocchio::SE3::Identity(), "s");
   modelS.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelS.joints[i]);
 }
 
@@ -692,7 +694,7 @@ BOOST_AUTO_TEST_CASE(parse_Free)
   idx = modelF.addJoint(0, pinocchio::JointModelFreeFlyer(), pinocchio::SE3::Identity(), "f");
   modelF.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelF.joints[i]);
 }
 
@@ -734,7 +736,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_RXRY)
   idx = modelRXRY.addJoint(0, joint_model_RXRY, pinocchio::SE3::Identity(), "rxry");
   modelRXRY.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelRXRY.joints[i]);
 }
 
@@ -776,7 +778,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXPY)
   idx = modelPXPY.addJoint(0, joint_model_PXPY, pinocchio::SE3::Identity(), "pxpy");
   modelPXPY.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPXPY.joints[i]);
 }
 
@@ -818,7 +820,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXRY)
   idx = modelPXRY.addJoint(0, joint_model_PXRY, pinocchio::SE3::Identity(), "pxry");
   modelPXRY.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPXRY.joints[i]);
 }
 
@@ -860,7 +862,7 @@ BOOST_AUTO_TEST_CASE(parse_composite_PXSphere)
   idx = modelPXSphere.addJoint(0, joint_model_PXSphere, pinocchio::SE3::Identity(), "pxsphere");
   modelPXSphere.appendBodyToJoint(idx, inertia);
 
-  for (int i = 0; i < model_m.njoints; i++)
+  for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], modelPXSphere.joints[i]);
 }
 
@@ -922,7 +924,8 @@ BOOST_AUTO_TEST_CASE(adding_keyframes)
                     <key name="test"
                     qpos="0 0 0.596
                         0.988015 0 0.154359 0
-                        0.988015 0 0.154359 0"/>
+                        0.988015 0 0.154359 0
+                        "/>
                 </keyframe>
                 </mujoco>)");
 
@@ -947,7 +950,7 @@ BOOST_AUTO_TEST_CASE(joint_and_inertias)
   typedef pinocchio::SE3::Matrix3 Matrix3;
 
   std::istringstream xmlData(R"(
-            <mujoco model="testKeyFrame">
+            <mujoco model="testJointInertia">
                 <worldbody>
                     <body name="body1">
                         <freejoint/>
@@ -971,6 +974,47 @@ BOOST_AUTO_TEST_CASE(joint_and_inertias)
   pinocchio::Inertia real_inertia(0.629769, Vector3(-0.041018, -0.00014, 0.049974), inertia_matrix);
 
   BOOST_CHECK(model_m.inertias[1].isApprox(real_inertia));
+}
+
+BOOST_AUTO_TEST_CASE(armature)
+{
+  typedef pinocchio::SE3::Vector3 Vector3;
+  typedef pinocchio::SE3::Matrix3 Matrix3;
+
+  std::istringstream xmlData(R"(
+            <mujoco model="model_RX">
+                <default>
+                  <joint armature="1" damping="1" limited="true"/>
+                </default>
+                <worldbody>
+                    <body name="link0">
+                        <body name="link1" pos="0 0 0">
+                            <joint name="joint1" type="hinge" axis="1 0 0" armature="1.3"/>
+                            <joint name="joint2" type="hinge" axis="0 1 0" armature="2.4"/>
+                            <joint name="joint3" type="hinge" axis="0 0 1" armature="0.4"/>
+                            <body pos=".2 0 0" name="body2">
+                              <joint type="ball"/>
+                        </body>
+                        </body>
+                    </body>
+                </worldbody>
+            </mujoco>)");
+
+  auto namefile = createTempFile(xmlData);
+
+  typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+  pinocchio::Model model_m;
+  MjcfGraph::UrdfVisitor visitor(model_m);
+
+  MjcfGraph graph(visitor, "fakeMjcf");
+  graph.parseGraphFromXML(namefile.name());
+  graph.parseRootTree();
+
+  Eigen::VectorXd armature_real(model_m.nv);
+  armature_real << 1.3, 2.4, 0.4, 1, 1, 1;
+
+  for (size_t i = 0; i < size_t(model_m.nv); i++)
+    BOOST_CHECK_EQUAL(model_m.armature[i], armature_real[i]);
 }
 
 // Test reference positions and how it's included in keyframe
@@ -1076,6 +1120,9 @@ BOOST_AUTO_TEST_CASE(adding_site)
   pinocchio::SE3 real_placement(rotation_matrix, Vector3(0.03, 0, -0.05));
 
   BOOST_CHECK(model_m.frames[model_m.getFrameId("testSite")].placement.isApprox(real_placement));
+  BOOST_CHECK(
+    model_m.frames[model_m.getFrameId("testSite")].parentJoint
+    == model_m.frames[model_m.getFrameId("body3")].parentJoint);
 }
 
 /// @brief test that a fixed model is well parsed
@@ -1089,6 +1136,21 @@ BOOST_AUTO_TEST_CASE(build_model_no_root_joint)
   pinocchio::mjcf::buildModel(filename, model_m);
 
   BOOST_CHECK_EQUAL(model_m.nq, 29);
+}
+
+BOOST_AUTO_TEST_CASE(build_model_with_root_joint_name)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.xml");
+  const std::string dir = PINOCCHIO_MODEL_DIR;
+
+  pinocchio::Model model;
+  pinocchio::mjcf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model);
+  BOOST_CHECK(model.names[1] == "root_joint");
+
+  pinocchio::Model model_name;
+  const std::string name_ = "freeFlyer_joint";
+  pinocchio::mjcf::buildModel(filename, pinocchio::JointModelFreeFlyer(), name_, model_name);
+  BOOST_CHECK(model_name.names[1] == name_);
 }
 
 #ifdef PINOCCHIO_WITH_URDFDOM
@@ -1247,5 +1309,126 @@ BOOST_AUTO_TEST_CASE(test_geometry_parsing)
   BOOST_CHECK(e->radii == sides);
 }
 #endif // if defined(PINOCCHIO_WITH_HPP_FCL)
+
+BOOST_AUTO_TEST_CASE(test_contact_parsing)
+{
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/../unittest/models/closed_chain.xml");
+
+  pinocchio::Model model;
+  pinocchio::mjcf::buildModel(filename, model, contact_models);
+
+  BOOST_CHECK_EQUAL(contact_models.size(), 4);
+  BOOST_CHECK_EQUAL(
+    contact_models[0].joint1_placement.translation(), pinocchio::SE3::Vector3(0.50120, 0, 0));
+  BOOST_CHECK_EQUAL(
+    contact_models[1].joint1_placement.translation(), pinocchio::SE3::Vector3(0.35012, 0, 0));
+  BOOST_CHECK_EQUAL(
+    contact_models[2].joint1_placement.translation(), pinocchio::SE3::Vector3(0.50120, 0, 0));
+  BOOST_CHECK_EQUAL(
+    contact_models[3].joint1_placement.translation(), pinocchio::SE3::Vector3(0.35012, 0, 0));
+  for (const auto & cm : contact_models)
+  {
+    BOOST_CHECK(cm.joint2_placement.isApprox(cm.joint1_placement.inverse()));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_default_eulerseq)
+{
+  std::istringstream xmlData(R"(<mujoco model="arm">
+                                  <compiler angle="radian" />
+                                  <worldbody>
+                                    <body name="base">
+                                      <body name="body" pos="0 0 0.01" euler="1.57 0 0">
+                                      </body>
+                                    </body>
+                                  </worldbody>
+                                </mujoco>)");
+
+  auto namefile = createTempFile(xmlData);
+
+  typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+  pinocchio::Model model_m;
+  MjcfGraph::UrdfVisitor visitor(model_m);
+
+  MjcfGraph graph(visitor, "fakeMjcf");
+  graph.parseGraphFromXML(namefile.name());
+  graph.parseRootTree();
+
+  pinocchio::SE3 placement(
+    Eigen::AngleAxisd(1.57, Eigen::Vector3d::UnitX()).toRotationMatrix(),
+    Eigen::Vector3d(0.0, 0.0, 0.01));
+
+  BOOST_CHECK(graph.mapOfBodies["body"].bodyPlacement.isApprox(placement));
+}
+
+/// @brief Test parsing a mesh with vertices
+/// @param
+BOOST_AUTO_TEST_CASE(parse_mesh_with_vertices)
+{
+  std::istringstream xmlDataNoStrip(R"(<mujoco model="parseVertices">
+                                    <asset>
+                                      <mesh name="chasis" scale=".01 .006 .0015"
+                                        vertex=" 9   2   0
+                                                -10  10  10
+                                                 9  -2   0
+                                                 10  3  -10
+                                                 10 -3  -10
+                                                -8   10 -10
+                                                -10 -10  10
+                                                -8  -10 -10
+                                                -5   0   20"/>
+                                    </asset>
+                                  </mujoco>)");
+
+  auto namefile = createTempFile(xmlDataNoStrip);
+
+  typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+  pinocchio::Model model_m;
+  MjcfGraph::UrdfVisitor visitor(model_m);
+
+  MjcfGraph graph(visitor, "/fakeMjcf/fake.xml");
+  graph.parseGraphFromXML(namefile.name());
+
+  // Test Meshes
+  pinocchio::mjcf::details::MjcfMesh mesh = graph.mapOfMeshes.at("chasis");
+  BOOST_CHECK_EQUAL(mesh.scale, Eigen::Vector3d(0.01, 0.006, 0.0015));
+  Eigen::MatrixX3d vertices(9, 3);
+  vertices << 9, 2, 0, -10, 10, 10, 9, -2, 0, 10, 3, -10, 10, -3, -10, -8, 10, -10, -10, -10, 10,
+    -8, -10, -10, -5, 0, 20;
+  BOOST_CHECK_EQUAL(mesh.vertices.rows(), 9);
+  for (auto i = 0; i < mesh.vertices.rows(); ++i)
+  {
+    BOOST_CHECK(mesh.vertices.row(i) == vertices.row(i));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_get_unknown_size_vector_from_stream)
+{
+  const auto v = pinocchio::mjcf::details::internal::getUnknownSizeVectorFromStream("");
+  BOOST_CHECK(v.size() == 0);
+
+  const auto v1 = pinocchio::mjcf::details::internal::getUnknownSizeVectorFromStream("1 2 3");
+  BOOST_CHECK(v1.size() == 3);
+  Eigen::VectorXd expected(3);
+  expected << 1, 2, 3;
+  BOOST_CHECK(v1 == expected);
+
+  const auto v2 = pinocchio::mjcf::details::internal::getUnknownSizeVectorFromStream(R"(1 2 3
+                                                                                        4 5 6)");
+  BOOST_CHECK(v2.size() == 6);
+  Eigen::VectorXd expected2(6);
+  expected2 << 1, 2, 3, 4, 5, 6;
+  BOOST_CHECK(v2 == expected2);
+
+  const auto v3 = pinocchio::mjcf::details::internal::getUnknownSizeVectorFromStream(R"(1 2 3
+                                                                                        4 5 6
+                                                                                        7 8 9
+                                                                                        )");
+  BOOST_CHECK(v3.size() == 9);
+  Eigen::VectorXd expected3(9);
+  expected3 << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+  BOOST_CHECK(v3 == expected3);
+}
 
 BOOST_AUTO_TEST_SUITE_END()

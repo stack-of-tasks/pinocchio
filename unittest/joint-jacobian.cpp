@@ -129,12 +129,15 @@ BOOST_AUTO_TEST_CASE(test_jacobian_time_variation)
 
   Data::SE3 worldMlocal = data.oMi[idx];
   worldMlocal.translation().setZero();
+  Data::Motion world_v_local = data.ov[idx];
+  world_v_local.linear().setZero();
 
   v_idx = (Motion::Vector6)(J * v);
   BOOST_CHECK(v_idx.isApprox(worldMlocal.act(data_ref.v[idx])));
 
   a_idx = (Motion::Vector6)(J * a + dJ * v);
-  BOOST_CHECK(a_idx.isApprox(worldMlocal.act(data_ref.a[idx])));
+  BOOST_CHECK(a_idx.isApprox(
+    world_v_local.cross(worldMlocal.act(data_ref.v[idx])) + worldMlocal.act(data_ref.a[idx])));
 
   // compare to finite differencies : WORLD
   {
@@ -184,16 +187,42 @@ BOOST_AUTO_TEST_CASE(test_jacobian_time_variation)
     computeJointJacobians(model, data_ref_plus, q_plus);
     getJointJacobian(model, data_ref_plus, idx, LOCAL, J_ref_plus);
 
-    const Data::SE3 M_plus = data_ref.oMi[idx].inverse() * data_ref_plus.oMi[idx];
-
     Data::Matrix6x dJ_ref(6, model.nv);
-    dJ_ref.fill(0.);
-    dJ_ref = (M_plus.toActionMatrix() * J_ref_plus - J_ref) / alpha;
+    dJ_ref = (J_ref_plus - J_ref) / alpha;
 
     computeJointJacobiansTimeVariation(model, data, q, v);
     Data::Matrix6x dJ(6, model.nv);
     dJ.fill(0.);
     getJointJacobianTimeVariation(model, data, idx, LOCAL, dJ);
+
+    BOOST_CHECK(dJ.isApprox(dJ_ref, sqrt(alpha)));
+  }
+
+  // compare to finite differencies : LOCAL_WORLD_ALIGNED
+  {
+    Data data_ref(model), data_ref_plus(model);
+
+    const double alpha = 1e-8;
+    Eigen::VectorXd q_plus(model.nq);
+    q_plus = integrate(model, q, alpha * v);
+
+    Data::Matrix6x J_ref(6, model.nv);
+    J_ref.fill(0.);
+    computeJointJacobians(model, data_ref, q);
+    getJointJacobian(model, data_ref, idx, LOCAL_WORLD_ALIGNED, J_ref);
+
+    Data::Matrix6x J_ref_plus(6, model.nv);
+    J_ref_plus.fill(0.);
+    computeJointJacobians(model, data_ref_plus, q_plus);
+    getJointJacobian(model, data_ref_plus, idx, LOCAL_WORLD_ALIGNED, J_ref_plus);
+
+    Data::Matrix6x dJ_ref(6, model.nv);
+    dJ_ref = (J_ref_plus - J_ref) / alpha;
+
+    computeJointJacobiansTimeVariation(model, data, q, v);
+    Data::Matrix6x dJ(6, model.nv);
+    dJ.fill(0.);
+    getJointJacobianTimeVariation(model, data, idx, LOCAL_WORLD_ALIGNED, dJ);
 
     BOOST_CHECK(dJ.isApprox(dJ_ref, sqrt(alpha)));
   }

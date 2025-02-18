@@ -2,6 +2,15 @@ name: "CI - Nix"
 
 on:
   push:
+    paths-ignore:
+      - doc/**
+      - .gitlab-ci.yml
+      - .gitignore
+      - '*.md'
+      - CITATION.*
+      - COPYING.LESSER
+      - .pre-commit-config.yaml
+      - CHANGELOG.md
 
 jobs:
   nix:
@@ -11,7 +20,7 @@ jobs:
         os: [ubuntu, macos]
     steps:
       - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@V28
+      - uses: cachix/install-nix-action@v30
       - uses: cachix/cachix-action@v15
         with:
           name: gepetto

@@ -28,4 +28,9 @@
             </body>
         </body>
     </worldbody>
+
+    <equality>
+        <weld body1="link0" body2="link1"/>
+        <connect body1="link1" body2="link2"/>
+    </equality>
 </mujoco>

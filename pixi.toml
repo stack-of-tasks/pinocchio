@@ -1,0 +1,223 @@
+[project]
+name = "pinocchio"
+version = "3.4.0"
+description = "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives"
+platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+channels = ["conda-forge"]
+license = "BSD-2-Clause"
+license-file = "LICENSE"
+
+[build-dependencies]
+ccache = ">=4.9.1"
+cmake = ">=3.10"
+cxx-compiler = ">=1.7.0"
+ninja = ">=1.11"
+pkg-config = ">=0.29.2"
+
+[dependencies]
+libboost-devel = ">=1.80.0"
+libboost-python-devel = ">=1.80.0"
+eigen = ">=3.4.0"
+numpy = ">=1.22.0"
+python = ">=3.9.0"
+eigenpy = ">=3.7.0"
+urdfdom = ">=4.0"
+meshcat-python = ">=0.3"
+matplotlib = ">=3.9.2"
+
+[activation]
+scripts = ["development/scripts/pixi/activation.sh"]
+
+[target.win-64.activation]
+scripts = ["development/scripts/pixi/activation.bat"]
+
+[tasks]
+# We must avoid to set CMAKE_CXX_FLAGS because of WIN32
+# https://discourse.cmake.org/t/strictly-appending-to-cmake-lang-flags/6478
+configure = { cmd = [
+  "CXXFLAGS=$PINOCCHIO_CXX_FLAGS",
+  "cmake",
+  "-G",
+  "Ninja",
+  "-B",
+  "build",
+  "-S",
+  ".",
+  "-DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX",
+  "-DCMAKE_BUILD_TYPE=$PINOCCHIO_BUILD_TYPE",
+  "-DGENERATE_PYTHON_STUBS=$PINOCCHIO_PYTHON_STUBS",
+  "-DBUILD_WITH_COLLISION_SUPPORT=$PINOCCHIO_COLLISION_SUPPORT",
+  "-DBUILD_WITH_ACCELERATE_SUPPORT=$PINOCCHIO_ACCELERATE_SUPPORT",
+  "-DBUILD_WITH_CASADI_SUPPORT=$PINOCCHIO_CASADI_SUPPORT",
+  "-DBUILD_WITH_AUTODIFF_SUPPORT=$PINOCCHIO_AUTODIFF_SUPPORT",
+  "-DBUILD_WITH_EXTRA_SUPPORT=$PINOCCHIO_EXTRA_SUPPORT",
+  "-DBUILD_WITH_OPENMP_SUPPORT=$PINOCCHIO_OPENMP_SUPPORT",
+  "-DBUILD_WITH_CODEGEN_SUPPORT=$PINOCCHIO_CODEGEN_SUPPORT",
+  "-DBUILD_WITH_SDF_SUPPORT=$PINOCCHIO_SDF_SUPPORT",
+  "-DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=$PINOCCHIO_MPFR_SUPPORT",
+] }
+build = { cmd = "cmake --build build --target all", depends-on = ["configure"] }
+clean = { cmd = "rm -rf build" }
+test = { cmd = "ctest --test-dir build --output-on-failure", depends-on = [
+  "build",
+] }
+
+# Increment the version number with PINOCCHIO_VERSION variable
+[feature.new-version.dependencies]
+tomlkit = ">=0.13.2"
+
+[feature.new-version.tasks]
+configure_new_version = { cmd = [
+  "CXXFLAGS=$PINOCCHIO_CXX_FLAGS",
+  "cmake",
+  "-G",
+  "Ninja",
+  "-B",
+  "build_new_version",
+  "-S",
+  ".",
+  "-DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX",
+  "-DCMAKE_BUILD_TYPE=$PINOCCHIO_BUILD_TYPE",
+  "-DGENERATE_PYTHON_STUBS=ON",
+  "-DBUILD_WITH_COLLISION_SUPPORT=ON",
+  "-DBUILD_WITH_ACCELERATE_SUPPORT=OFF",
+  "-DBUILD_WITH_CASADI_SUPPORT=OFF",
+  "-DBUILD_WITH_AUTODIFF_SUPPORT=OFF",
+  "-DBUILD_WITH_EXTRA_SUPPORT=OFF",
+  "-DBUILD_WITH_OPENMP_SUPPORT=OFF",
+  "-DBUILD_WITH_CODEGEN_SUPPORT=OFF",
+  "-DBUILD_WITH_SDF_SUPPORT=OFF",
+  "-DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=OFF",
+] }
+release_new_version = { cmd = "VERSION=$PINOCCHIO_VERSION cmake --build build_new_version --target release", depends-on = [
+  "configure_new_version",
+] }
+
+[feature.lint]
+dependencies = { pre-commit = ">=3.6.2" }
+tasks = { lint = { cmd = "pre-commit run --all" } }
+
+[feature.collision]
+dependencies = { hpp-fcl = ">=2.4" }
+activation = { env = { PINOCCHIO_COLLISION_SUPPORT = "ON" } }
+
+[feature.sdf]
+dependencies = { libsdformat = ">=9.8" }
+activation = { env = { PINOCCHIO_SDF_SUPPORT = "ON" } }
+
+[feature.casadi]
+dependencies = { casadi = ">=3.6.7" }
+activation = { env = { PINOCCHIO_CASADI_SUPPORT = "ON" } }
+
+[feature.autodiff]
+dependencies = { cppad = ">=20230000.0", pycppad = ">=1.2.4" }
+activation = { env = { PINOCCHIO_AUTODIFF_SUPPORT = "ON" } }
+
+# Not supported by Windows
+[feature.codegen]
+[feature.codegen.target.unix]
+dependencies = { cppadcodegen = ">=2.4.3" }
+activation = { env = { PINOCCHIO_CODEGEN_SUPPORT = "ON" } }
+
+[feature.mpfr]
+dependencies = { mpfr = ">=4.2.1" }
+activation = { env = { PINOCCHIO_MPFR_SUPPORT = "ON" } }
+
+[feature.extra.target.win]
+dependencies = { qhull = ">=2020.2" }
+activation = { env = { PINOCCHIO_EXTRA_SUPPORT = "ON" } }
+[feature.extra.target.unix]
+dependencies = { qhull = ">=2020.2", qhull-static = ">=2020.2" }
+activation = { env = { PINOCCHIO_EXTRA_SUPPORT = "ON" } }
+
+# Not supported by Windows (because of conda-forge issue)
+[feature.openmp]
+[feature.openmp.target.linux]
+dependencies = { libgomp = ">=14.2" }
+activation = { env = { PINOCCHIO_OPENMP_SUPPORT = "ON" } }
+[feature.openmp.target.osx]
+dependencies = { llvm-openmp = ">=19.1" }
+activation = { env = { PINOCCHIO_OPENMP_SUPPORT = "ON" } }
+
+# Accelerate only work on Apple ARM platform
+[feature.accelerate]
+[feature.accelerate.target.osx-arm64]
+activation = { env = { PINOCCHIO_ACCELERATE_SUPPORT = "ON" } }
+
+[feature.py312.dependencies]
+python = "3.12.*"
+
+[feature.py39.dependencies]
+python = "3.9.*"
+
+# Use clang-cl on Windows.
+# We must use scripts instead of env to setup CC and CXX
+# to avoid cxx-compiler to overwrite them.
+[feature.clang-cl]
+platforms = ["win-64"]
+activation = { scripts = ["development/scripts/pixi/activation_clang_cl.bat"] }
+
+# Use clang on GNU/Linux.
+# We must use scripts instead of env to setup CC and CXX
+# to avoid cxx-compiler to overwrite them.
+[feature.clang]
+platforms = ["linux-64"]
+activation = { scripts = ["development/scripts/pixi/activation_clang.sh"] }
+dependencies = { clangxx = "*" }
+
+[environments]
+default = { features = ["py312"], solve-group = "py312" }
+clang = { features = ["clang", "py312"] }
+lint = { features = ["lint"], solve-group = "py312" }
+collision = { features = ["collision", "py312"], solve-group = "py312" }
+accelerate = { features = ["accelerate", "py312"], solve-group = "py312" }
+casadi = { features = ["casadi", "py312"], solve-group = "py312" }
+autodiff = { features = ["autodiff", "py312"], solve-group = "py312" }
+extra = { features = ["extra", "py312"], solve-group = "py312" }
+openmp = { features = ["openmp", "py312"], solve-group = "py312" }
+# codegen need autodiff
+codegen = { features = ["autodiff", "codegen", "py312"], solve-group = "py312" }
+mpfr = { features = ["mpfr", "py312"], solve-group = "py312" }
+sdf = { features = ["sdf", "py312"], solve-group = "py312" }
+py39 = { features = ["py39"], solve-group = "py39" }
+# Accelerate will only work in Eigen next release
+all = { features = [
+  "collision",
+  "casadi",
+  "autodiff",
+  "extra",
+  "openmp",
+  "codegen",
+  "mpfr",
+  "sdf",
+  "py312",
+], solve-group = "py312" }
+all-py39 = { features = [
+  "collision",
+  "casadi",
+  "autodiff",
+  "extra",
+  "openmp",
+  "codegen",
+  "mpfr",
+  "sdf",
+  "py39",
+], solve-group = "py39" }
+all-clang-cl = { features = [
+  "collision",
+  "casadi",
+  "autodiff",
+  "extra",
+  "openmp",
+  "codegen",
+  "mpfr",
+  "sdf",
+  "clang-cl",
+  "py312",
+], solve-group = "py312" }
+# Release a new software version
+new-version = { features = [
+  "new-version",
+  "collision",
+  "py312",
+], solve-group = "py312" }

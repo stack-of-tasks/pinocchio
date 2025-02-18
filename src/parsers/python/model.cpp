@@ -2,12 +2,12 @@
 // Copyright (c) 2016-2023 CNRS INRIA
 //
 
-#include "pinocchio/bindings/python/parsers/python.hpp"
+#include "pinocchio/parsers/python.hpp"
 
-#include <iostream>
-#include <Python.h>
 #include <boost/version.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+
+#include <boost/python.hpp>
 
 // Boost 1.58
 #if BOOST_VERSION / 100 % 1000 == 58
@@ -27,11 +27,6 @@ namespace pinocchio
       bp::object main_module = bp::import("__main__");
       // Get a dict for the global namespace to exec further python code with
       bp::dict globals = bp::extract<bp::dict>(main_module.attr("__dict__"));
-
-      // We need to link to the pinocchio PyWrap. We delegate the dynamic loading to the python
-      // interpreter.
-      bp::object cpp_module(
-        (bp::handle<>(bp::borrowed(PyImport_AddModule("libpinocchio_pywrap")))));
 
       // That's it, you can exec your python script, starting with a model you
       // can update as you want.
@@ -67,10 +62,6 @@ namespace pinocchio
 
       // close the interpreter
       // cf. https://github.com/numpy/numpy/issues/8097
-#if PY_MAJOR_VERSION < 3
-      Py_Finalize();
-#else
-
       PyObject * poMainModule = PyImport_AddModule("__main__");
       PyObject * poAttrList = PyObject_Dir(poMainModule);
       PyObject * poAttrIter = PyObject_GetIter(poAttrList);
@@ -94,8 +85,6 @@ namespace pinocchio
       }
       Py_DecRef(poAttrIter);
       Py_DecRef(poAttrList);
-#endif
-
       return model;
     }
   } // namespace python

@@ -135,14 +135,14 @@ namespace pinocchio
             "Set the linear and angular components of *this to random values.")
 
           .def(
-            "dot", (Scalar(Motion::*)(const ForceBase<Force> &) const) & Motion::dot,
+            "dot", (Scalar(Motion::*)(const ForceBase<Force> &) const)&Motion::dot,
             bp::args("self", "f"), "Dot product between *this and a Force f.")
 
           .def(
-            "cross", (Motion(Motion::*)(const Motion &) const) & Motion::cross,
-            bp::args("self", "m"), "Action of *this onto another Motion m. Returns ¨*this x m.")
+            "cross", (Motion(Motion::*)(const Motion &) const)&Motion::cross, bp::args("self", "m"),
+            "Action of *this onto another Motion m. Returns ¨*this x m.")
           .def(
-            "cross", (Force(Motion::*)(const Force &) const) & Motion::cross, bp::args("self", "f"),
+            "cross", (Force(Motion::*)(const Force &) const)&Motion::cross, bp::args("self", "f"),
             "Dual action of *this onto a Force f. Returns *this x* f.")
 
           .def(bp::self + bp::self)
@@ -184,7 +184,10 @@ namespace pinocchio
             "__array__", bp::make_function(
                            (typename Motion::ToVectorReturnType(Motion::*)()) & Motion::toVector,
                            bp::return_internal_reference<>()))
-          .def("__array__", &__array__, bp::return_internal_reference<>())
+          .def(
+            "__array__", &__array__,
+            (bp::arg("self"), bp::arg("dtype") = bp::object(), bp::arg("copy") = bp::object()),
+            bp::return_internal_reference<>())
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def_pickle(Pickle())
 #endif
@@ -220,7 +223,8 @@ namespace pinocchio
       }
 
     private:
-      static typename Motion::ToVectorConstReturnType __array__(const Motion & self, bp::object)
+      static typename Motion::ToVectorConstReturnType
+      __array__(const Motion & self, bp::object, bp::object)
       {
         return self.toVector();
       }

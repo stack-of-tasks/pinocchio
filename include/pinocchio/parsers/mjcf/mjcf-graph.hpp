@@ -8,7 +8,7 @@
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/joint/joints.hpp"
-
+#include "pinocchio/algorithm/contact-info.hpp"
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/foreach.hpp>
@@ -21,6 +21,7 @@
 #include <limits>
 #include <iostream>
 #include <unordered_map>
+#include <map>
 
 namespace pinocchio
 {
@@ -51,7 +52,7 @@ namespace pinocchio
         // Value for angle conversion (Mujoco default - degrees)
         double angle_converter = boost::math::constants::pi<double>() / 180.0;
         // Euler Axis to use to convert angles representation to quaternion
-        Eigen::Matrix3d mapEulerAngles;
+        Eigen::Matrix3d mapEulerAngles = Eigen::Matrix3d::Identity();
 
         // Value to crop the mass (if mass < boundMass, mass = boundMass)
         double boundMass = 0;
@@ -134,7 +135,7 @@ namespace pinocchio
         Eigen::VectorXd damping;
 
         // Armature inertia created by this joint
-        double armature = 0.;
+        Eigen::VectorXd armature;
         // Dry friction.
         double frictionLoss = 0.;
 
@@ -148,9 +149,9 @@ namespace pinocchio
           maxConfig = Eigen::VectorXd::Constant(1, infty);
           springStiffness = Eigen::VectorXd::Constant(1, v);
           springReference = Eigen::VectorXd::Constant(1, v);
-          ;
           friction = Eigen::VectorXd::Constant(1, 0.);
           damping = Eigen::VectorXd::Constant(1, 0.);
+          armature = Eigen::VectorXd::Constant(1, 0.);
         }
 
         /// @brief Set dimension to the limits to match the joint nq and nv.
@@ -208,6 +209,8 @@ namespace pinocchio
         Eigen::Vector3d scale = Eigen::Vector3d::Constant(1);
         // Path to the mesh file
         std::string filePath;
+        // Vertices of the mesh
+        Eigen::MatrixX3d vertices;
       };
 
       /// @brief All informations related to a texture are stored here
@@ -325,6 +328,55 @@ namespace pinocchio
         void goThroughElement(const ptree & el, const MjcfGraph & currentGraph);
       };
 
+      /*
+      typedef struct mjsEquality_ {      // equality specification
+        mjsElement* element;             // element type
+        mjString* name;                  // name
+        mjtEq type;                      // constraint type
+        double data[mjNEQDATA];          // type-dependent data
+        mjtByte active;                  // is equality initially active
+        mjString* name1;                 // name of object 1
+        mjString* name2;                 // name of object 2
+        mjtNum solref[mjNREF];           // solver reference
+        mjtNum solimp[mjNIMP];           // solver impedance
+        mjString* info;                  // message appended to errors
+      } mjsEquality;
+      */
+      struct PINOCCHIO_PARSERS_DLLAPI MjcfEquality
+      {
+        typedef boost::property_tree::ptree ptree;
+
+        // Optional name of the equality constraint
+        std::string name;
+
+        // Type of the constraint: (connect for now)
+        std::string type;
+
+        // // Optional class for setting unspecified attributes
+        // std::string class;
+
+        // active: 'true' or 'false' (default: 'true')
+        // solref and solimp
+
+        // Name of the first body participating in the constraint
+        std::string body1;
+        // Name of the second body participating in the constraint (optional, default: world)
+        std::string body2;
+
+        // Coordinates of the 3D anchor point where the two bodies are connected.
+        // Specified relative to the local coordinate frame of the first body.
+        Eigen::Vector3d anchor = Eigen::Vector3d::Zero();
+
+        // TODO: implement when weld is introduced
+        // This attribute specifies the relative pose (3D position followed by 4D quaternion
+        // orientation) of body2 relative to body1. If the quaternion part (i.e., last 4 components
+        // of the vector) are all zeros, as in the default setting, this attribute is ignored and
+        // the relative pose is the one corresponding to the model reference pose in qpos0. The
+        // unusual default is because all equality constraint types share the same default for their
+        // numeric parameters.
+        // Eigen::VectorXd relativePose = Eigen::VectorXd::Zero(7);
+      };
+
       /// @brief The graph which contains all information taken from the mjcf file
       struct PINOCCHIO_PARSERS_DLLAPI MjcfGraph
       {
@@ -337,6 +389,7 @@ namespace pinocchio
         typedef std::unordered_map<std::string, MjcfMesh> MeshMap_t;
         typedef std::unordered_map<std::string, MjcfTexture> TextureMap_t;
         typedef std::unordered_map<std::string, Eigen::VectorXd> ConfigMap_t;
+        typedef std::map<std::string, MjcfEquality> EqualityMap_t;
 
         // Compiler Info needed to properly parse the rest of file
         MjcfCompiler compilerInfo;
@@ -352,6 +405,8 @@ namespace pinocchio
         TextureMap_t mapOfTextures;
         // Map of model configurations
         ConfigMap_t mapOfConfigs;
+        // Map of equality constraints
+        EqualityMap_t mapOfEqualities;
 
         // reference configuration
         Eigen::VectorXd referenceConfig;
@@ -393,7 +448,7 @@ namespace pinocchio
         /// @brief Go through the default part of the file and get all the class name. Fill the
         /// mapOfDefault for later use.
         /// @param el ptree element. Root of the default
-        void parseDefault(ptree & el, const ptree & parent);
+        void parseDefault(ptree & el, const ptree & parent, const std::string & parentTag);
 
         /// @brief Go through the main body of the mjcf file "worldbody" to get all the info ready
         /// to create the model.
@@ -427,6 +482,10 @@ namespace pinocchio
         /// @brief Parse all the info from the meta tag keyframe
         /// @param el ptree keyframe node
         void parseKeyFrame(const ptree & el);
+
+        /// @brief Parse all the info from the equality tag
+        /// @param el ptree equality node
+        void parseEquality(const ptree & el);
 
         /// @brief parse the mjcf file into a graph
         void parseGraph();
@@ -469,6 +528,13 @@ namespace pinocchio
         /// @param keyName Name of the keyframe
         void addKeyFrame(const Eigen::VectorXd & keyframe, const std::string & keyName);
 
+        /// @brief Parse the equality constraints and add them to the model
+        /// @param model Model to add the constraints to
+        /// @param contact_models Vector of contact models to add the constraints to
+        void parseContactInformation(
+          const Model & model,
+          PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) & contact_models);
+
         /// @brief Fill geometry model with all the info taken from the mjcf model file
         /// @param type Type of geometry to parse (COLLISION or VISUAL)
         /// @param geomModel geometry model to fill
@@ -483,7 +549,7 @@ namespace pinocchio
         inline std::istringstream getConfiguredStringStream(const std::string & str)
         {
           std::istringstream posStream(str);
-          posStream.exceptions(std::ios::failbit);
+          posStream.exceptions(std::ios::badbit);
           return posStream;
         }
 
@@ -503,9 +569,8 @@ namespace pinocchio
           std::istringstream stream = getConfiguredStringStream(str);
           std::vector<double> vector;
           double elem;
-          while (!stream.eof())
+          while (stream >> elem)
           {
-            stream >> elem;
             vector.push_back(elem);
           }
 

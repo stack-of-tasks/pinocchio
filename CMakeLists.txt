@@ -59,14 +59,28 @@ else()
 endif()
 
 set(DOXYGEN_USE_MATHJAX YES)
-set(DOXYGEN_USE_TEMPLATE_CSS YES)
+
+# ----------------------------------------------------
+# --- Policy -----------------------------------------
+# CMake Policy setup
+# ----------------------------------------------------
+# Policy can be removed when cmake_minimum_required is updated.
+
+# We also set CMAKE_POLICY_DEFAULT_CMPXXXX because CMake modules can reset policy and redefine some
+# macros like `find_dependency` that will not use our policy.
 
 # Use BoostConfig module distributed by boost library instead of using FindBoost module distributed
-# by CMake
+# by CMake (to remove in 3.30). This policy is not working when using clang-cl.
 if(NOT WIN32 OR NOT ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
   if(POLICY CMP0167)
     cmake_policy(SET CMP0167 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0167 NEW)
   endif()
+endif()
+# install() DESTINATION paths are normalized (to remove in 3.31).
+if(POLICY CMP0177)
+  cmake_policy(SET CMP0177 NEW)
+  set(CMAKE_POLICY_DEFAULT_CMP0177 NEW)
 endif()
 include("${JRL_CMAKE_MODULES}/base.cmake")
 
@@ -134,9 +148,8 @@ cmake_dependent_option(
   BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT
   "Build the Python interface with Boost.Multiprecision MPFR support" OFF BUILD_PYTHON_INTERFACE
   OFF)
-cmake_dependent_option(
-  BUILD_WITH_LIBPYTHON "Link to libpython to embed an interpreter for the python_parser feature" ON
-  "BUILD_PYTHON_INTERFACE" OFF)
+cmake_dependent_option(BUILD_WITH_LIBPYTHON "Build the library with Python format support" ON
+                       "BUILD_PYTHON_INTERFACE" OFF)
 if(APPLE)
   option(BUILD_WITH_ACCELERATE_SUPPORT "Build Pinocchio with the Accelerate support" OFF)
 else(APPLE)
@@ -163,6 +176,9 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
 endif()
 if(BUILD_WITH_AUTODIFF_SUPPORT)
   set(BUILD_WITH_CPPAD_SUPPORT TRUE)
+endif()
+if(BUILD_WITH_LIBPYTHON)
+  set(BUILD_WITH_PYTHON_PARSER_SUPPORT TRUE)
 endif()
 
 if(BUILD_WITH_EXTRA_SUPPORT)
@@ -301,7 +317,7 @@ if(BUILD_PYTHON_INTERFACE)
 
   message(STATUS "Python compiler: ${_python_implementation_value}")
   if(_python_implementation_value MATCHES "PyPy")
-    set(BUILD_WITH_LIBPYTHON OFF)
+    set(BUILD_WITH_PYTHON_PARSER_SUPPORT OFF)
     message(
       STATUS
         "PyPy detected, therefore libpython is not available and BUILD_WITH_LIBPYTHON set to OFF.")
@@ -314,9 +330,7 @@ else()
 endif()
 
 if(BUILD_WITH_HPP_FCL_SUPPORT)
-  list(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_HPP_FCL")
-  list(APPEND LIBRARIES_DEPENDENCIES ${PROJECT_NAME}_collision)
-  add_project_dependency(hpp-fcl 2.1.2 REQUIRED PKG_CONFIG_REQUIRES "hpp-fcl >= 2.1.2")
+  add_project_dependency(hpp-fcl 2.1.2 REQUIRED "hpp-fcl >= 2.1.2")
 endif()
 
 if(BUILD_WITH_ACCELERATE_SUPPORT)
@@ -364,15 +378,6 @@ if(BUILD_WITH_EXTRA_SUPPORT)
        ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_SOURCES})
 endif()
 
-# LibPython sources
-if(BUILD_WITH_LIBPYTHON)
-  list(APPEND ${PROJECT_NAME}_CORE_PUBLIC_HEADERS ${${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS})
-  list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
-       ${${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_SOURCES})
-  list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
-       ${${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_PUBLIC_HEADERS})
-endif(BUILD_WITH_LIBPYTHON)
-
 # HPP-FCL sources
 if(BUILD_WITH_HPP_FCL_SUPPORT)
   if(ENABLE_TEMPLATE_INSTANTIATION)
@@ -407,6 +412,8 @@ list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS})
 if(BUILD_WITH_EXTRA_SUPPORT)
   list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS})
 endif()
+
+list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS})
 
 if(BUILD_WITH_PARSERS_SUPPORT)
   list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS})
@@ -499,6 +506,10 @@ if(BUILD_WITH_EXTRA_SUPPORT)
   export_variable(PINOCCHIO_USE_EXTRA ON)
   set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_EXTRA \"\")")
 endif()
+if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
+  export_variable(PINOCCHIO_USE_PYTHON_PARSER ON)
+  set(PACKAGE_EXTRA_MACROS "${PACKAGE_EXTRA_MACROS}\nset(PINOCCHIO_USE_PYTHON_PARSER \"\")")
+endif()
 export_variable(pinocchio_VERSION ${pinocchio_VERSION})
 
 # Setup pkg-configs flags and libs
@@ -511,17 +522,5 @@ pkg_config_append_cflags("${CFLAGS_OPTIONS}")
 
 # Install catkin package.xml
 install(FILES package.xml DESTINATION share/${PROJECT_NAME})
-# Allows Colcon to find non-Ament packages when using workspace underlays
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME}
-        DESTINATION share/ament_index/resource_index/packages)
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv
-     "prepend-non-duplicate;AMENT_PREFIX_PATH;")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv
-        DESTINATION share/${PROJECT_NAME}/hook)
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv
-     "prepend-non-duplicate;PYTHONPATH;${PYTHON_SITELIB}")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv
-        DESTINATION share/${PROJECT_NAME}/hook)
 
 setup_project_finalize()

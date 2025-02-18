@@ -1,5 +1,5 @@
 import sys
-from os.path import abspath, dirname, join
+from pathlib import Path
 
 import casadi
 import numpy as np
@@ -8,13 +8,8 @@ import pinocchio.casadi as cpin
 
 # This use the example-robot-data submodule, but if you have it already properly
 # installed in your PYTHONPATH, there is no need for this sys.path thing
-path = join(
-    dirname(dirname(dirname(abspath(__file__)))),
-    "models",
-    "example-robot-data",
-    "python",
-)
-sys.path.append(path)
+path = Path(__file__).parent.parent.parent / "models" / "example-robot-data" / "python"
+sys.path.append(str(path))
 import example_robot_data  # noqa: E402
 
 # Problem parameters
@@ -197,9 +192,8 @@ class OptimalControlProblem:
         except:  # noqa: E722
             self.sol = self.opti.debug
 
-        if self.sol.stats()["return_status"] == "Solve_Succeeded":
-            self._retract_trajectory()
-            self._compute_gaps()
+        self._retract_trajectory()
+        self._compute_gaps()
 
     def _retract_trajectory(self):
         self.xs = []

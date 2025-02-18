@@ -1,4 +1,4 @@
-from os.path import abspath, dirname, join
+from pathlib import Path
 
 import numpy as np
 import pinocchio as pin
@@ -52,12 +52,12 @@ np.set_printoptions(linewidth=np.inf)
 # ----- SOLUTION ------
 
 # 0. DATA
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+pinocchio_model_dir = Path(__file__).parent.parent / "models"
 
-model_path = join(pinocchio_model_dir, "example-robot-data/robots")
+model_path = pinocchio_model_dir / "example-robot-data/robots"
 mesh_dir = pinocchio_model_dir
 urdf_filename = "solo12.urdf"
-urdf_model_path = join(join(model_path, "solo_description/robots"), urdf_filename)
+urdf_model_path = model_path / "solo_description/robots" / urdf_filename
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
     urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()

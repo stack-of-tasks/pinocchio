@@ -88,8 +88,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename BroadPhaseManagerDerived,
     typename ConfigVectorType>
   inline bool computeCollisions(
@@ -128,8 +127,7 @@ namespace pinocchio
   template<
     typename Scalar,
     int Options,
-    template<typename, int>
-    class JointCollectionTpl,
+    template<typename, int> class JointCollectionTpl,
     typename BroadPhaseManagerDerived,
     typename ConfigVectorType>
   inline bool computeCollisions(

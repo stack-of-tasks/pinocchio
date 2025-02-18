@@ -496,8 +496,7 @@ namespace pinocchio
     template<
       typename InputMatrix,
       typename OutputMatrix,
-      template<typename, int>
-      class JointCollectionTpl>
+      template<typename, int> class JointCollectionTpl>
     void jacobian_matrix_product(
       const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const DataTpl<Scalar, Options, JointCollectionTpl> & data,
@@ -902,11 +901,43 @@ namespace pinocchio
 
     /// \brief Default constructor
     RigidConstraintDataTpl()
+    : contact_force(Force::Zero())
+    , oMc1(SE3::Identity())
+    , oMc2(SE3::Identity())
+    , c1Mc2(SE3::Identity())
+    , contact_placement_error(Motion::Zero())
+    , contact1_velocity(Motion::Zero())
+    , contact2_velocity(Motion::Zero())
+    , contact_velocity_error(Motion::Zero())
+    , contact_acceleration(Motion::Zero())
+    , contact_acceleration_desired(Motion::Zero())
+    , contact_acceleration_error(Motion::Zero())
+    , contact1_acceleration_drift(Motion::Zero())
+    , contact2_acceleration_drift(Motion::Zero())
+    , contact_acceleration_deviation(Motion::Zero())
+    , extended_motion_propagators_joint1()
+    , lambdas_joint1()
+    , extended_motion_propagators_joint2()
+    , dv1_dq(6, 0)
+    , da1_dq(6, 0)
+    , da1_dv(6, 0)
+    , da1_da(6, 0)
+    , dv2_dq(6, 0)
+    , da2_dq(6, 0)
+    , da2_dv(6, 0)
+    , da2_da(6, 0)
+    , dvc_dq()
+    , dac_dq()
+    , dac_dv()
+    , dac_da()
     {
     }
 
     explicit RigidConstraintDataTpl(const ContactModel & contact_model)
     : contact_force(Force::Zero())
+    , oMc1(SE3::Identity())
+    , oMc2(SE3::Identity())
+    , c1Mc2(SE3::Identity())
     , contact_placement_error(Motion::Zero())
     , contact1_velocity(Motion::Zero())
     , contact2_velocity(Motion::Zero())
@@ -920,18 +951,18 @@ namespace pinocchio
     , extended_motion_propagators_joint1(contact_model.depth_joint1, Matrix6::Zero())
     , lambdas_joint1(contact_model.depth_joint1, Matrix6::Zero())
     , extended_motion_propagators_joint2(contact_model.depth_joint2, Matrix6::Zero())
-    , dv1_dq(6, contact_model.nv)
-    , da1_dq(6, contact_model.nv)
-    , da1_dv(6, contact_model.nv)
-    , da1_da(6, contact_model.nv)
-    , dv2_dq(6, contact_model.nv)
-    , da2_dq(6, contact_model.nv)
-    , da2_dv(6, contact_model.nv)
-    , da2_da(6, contact_model.nv)
-    , dvc_dq(contact_model.size(), contact_model.nv)
-    , dac_dq(contact_model.size(), contact_model.nv)
-    , dac_dv(contact_model.size(), contact_model.nv)
-    , dac_da(contact_model.size(), contact_model.nv)
+    , dv1_dq(Matrix6x::Zero(6, contact_model.nv))
+    , da1_dq(Matrix6x::Zero(6, contact_model.nv))
+    , da1_dv(Matrix6x::Zero(6, contact_model.nv))
+    , da1_da(Matrix6x::Zero(6, contact_model.nv))
+    , dv2_dq(Matrix6x::Zero(6, contact_model.nv))
+    , da2_dq(Matrix6x::Zero(6, contact_model.nv))
+    , da2_dv(Matrix6x::Zero(6, contact_model.nv))
+    , da2_da(Matrix6x::Zero(6, contact_model.nv))
+    , dvc_dq(MatrixX::Zero(contact_model.size(), contact_model.nv))
+    , dac_dq(MatrixX::Zero(contact_model.size(), contact_model.nv))
+    , dac_dv(MatrixX::Zero(contact_model.size(), contact_model.nv))
+    , dac_da(MatrixX::Zero(contact_model.size(), contact_model.nv))
     {
     }
 

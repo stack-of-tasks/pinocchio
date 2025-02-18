@@ -262,6 +262,8 @@ namespace pinocchio
           .def(bp::self != bp::self)
 #endif
           ;
+
+        bp::register_ptr_to_python<std::shared_ptr<Data>>();
       }
 
       /* --- Expose --------------------------------------------------------- */

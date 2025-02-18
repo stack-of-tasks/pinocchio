@@ -1,5 +1,5 @@
-import os
 import unittest
+from pathlib import Path
 
 import pinocchio as pin
 
@@ -7,15 +7,11 @@ import pinocchio as pin
 @unittest.skipUnless(pin.WITH_URDFDOM, "Needs URDFDOM")
 class TestBuildGeomFromUrdfMemoryCheck(unittest.TestCase):
     def setUp(self):
-        self.current_file = os.path.dirname(str(os.path.abspath(__file__)))
-        self.model_dir = os.path.abspath(
-            os.path.join(self.current_file, "../../models/")
-        )
-        self.model_path = os.path.abspath(
-            os.path.join(
-                self.model_dir,
-                "example-robot-data/robots/ur_description/urdf/ur5_robot.urdf",
-            )
+        self.current_dir = Path(__file__).parent
+        self.model_dir = self.current_dir / "../../models"
+        self.model_path = (
+            self.model_dir
+            / "example-robot-data/robots/ur_description/urdf/ur5_robot.urdf"
         )
 
     def test_load(self):

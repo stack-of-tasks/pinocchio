@@ -97,7 +97,9 @@ function(PINOCCHIO_TARGET target_name)
       ${LIB_NAME}
       PROPERTIES LINKER_LANGUAGE CXX
                  INSTALL_RPATH "\$ORIGIN"
-                 VERSION ${PROJECT_VERSION})
+                 VERSION ${PROJECT_VERSION}
+                 CXX_VISIBILITY_PRESET hidden
+                 VISIBILITY_INLINES_HIDDEN ON)
   endif()
 
   if(ENABLE_TEMPLATE_INSTANTIATION AND NOT ARGS_INTERFACE)
@@ -172,16 +174,28 @@ endfunction()
 add_source_group(${PROJECT_NAME}_CORE_SOURCES)
 add_source_group(${PROJECT_NAME}_PARSERS_SOURCES)
 add_source_group(${PROJECT_NAME}_EXTRA_SOURCES)
+add_source_group(${PROJECT_NAME}_VISUALIZERS_SOURCES)
 add_header_group(${PROJECT_NAME}_CORE_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS)
 add_header_group(${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS)
+add_header_group(${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS)
 
 # Define the default target (double).
 #
 # This target will also have hpp-fcl and workspace module in it.
 pinocchio_specific_type(default DEFAULT_SCOPE)
+
+# Some core library algorithms have different behavior if PINOCCHIO_WITH_HPP_FCL is defined. Since
+# some are template instantiated, or some user can link only on pinocchio_default, we muste define
+# PINOCCHIO_WITH_HPP_FCL in pinocchio_default.
+if(BUILD_WITH_HPP_FCL_SUPPORT)
+  target_compile_definitions(pinocchio_default PUBLIC PINOCCHIO_WITH_HPP_FCL)
+  target_include_directories(
+    pinocchio_default PUBLIC $<TARGET_PROPERTY:hpp-fcl::hpp-fcl,INTERFACE_INCLUDE_DIRECTORIES>)
+
+endif()
 
 # Define the extra target This target hold extra algorithms.
 if(BUILD_WITH_EXTRA_SUPPORT)
@@ -238,6 +252,19 @@ if(BUILD_WITH_HPP_FCL_SUPPORT)
     target_link_libraries(${COLLISION_PARALLEL_LIB_NAME} INTERFACE ${COLLISION_LIB_NAME}
                                                                    OpenMP::OpenMP_CXX)
   endif()
+endif()
+
+# Define the visualizers target
+set(VISUALIZERS_LIB_NAME "${PROJECT_NAME}_visualizers")
+pinocchio_target(
+  ${VISUALIZERS_LIB_NAME}
+  SCALAR default
+  SOURCES ${${PROJECT_NAME}_VISUALIZERS_SOURCES} ${${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS})
+pinocchio_config(visualizers ${VISUALIZERS_LIB_NAME})
+target_link_libraries(${VISUALIZERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_default)
+if(BUILD_WITH_HPP_FCL_SUPPORT)
+  target_compile_definitions(${VISUALIZERS_LIB_NAME} PUBLIC PINOCCHIO_WITH_HPP_FCL)
+  target_link_libraries(${VISUALIZERS_LIB_NAME} PUBLIC hpp-fcl::hpp-fcl)
 endif()
 
 # Define the parsers target.
@@ -302,7 +329,8 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
   # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
   # This can happen when Pinocchio is build in Debug mode using another library using cppad.
   target_compile_definitions(${PROJECT_NAME}_cppadcg PUBLIC CPPAD_DEBUG_AND_RELEASE)
-  target_include_directories(${PROJECT_NAME}_cppadcg SYSTEM ${CPPADCG_SCOPE} ${cppadcg_INCLUDE_DIR})
+  target_include_directories(${PROJECT_NAME}_cppadcg SYSTEM ${CPPADCG_SCOPE}
+                             $<BUILD_INTERFACE:${cppadcg_INCLUDE_DIR}>)
   target_link_libraries(${PROJECT_NAME}_cppadcg ${CPPADCG_SCOPE} ${cppadcg_LIBRARY}
                         ${cppad_LIBRARY})
 endif()
@@ -313,7 +341,8 @@ if(BUILD_WITH_AUTODIFF_SUPPORT)
   # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
   # This can happen when Pinocchio is build in Debug mode using another library using cppad.
   target_compile_definitions(${PROJECT_NAME}_cppad PUBLIC CPPAD_DEBUG_AND_RELEASE)
-  target_include_directories(${PROJECT_NAME}_cppad SYSTEM ${CPPAD_SCOPE} ${cppad_INCLUDE_DIR})
+  target_include_directories(${PROJECT_NAME}_cppad SYSTEM ${CPPAD_SCOPE}
+                             $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>)
   target_link_libraries(${PROJECT_NAME}_cppad ${CPPAD_SCOPE} ${cppad_LIBRARY})
 endif()
 
@@ -321,6 +350,20 @@ endif()
 if(BUILD_WITH_CASADI_SUPPORT)
   pinocchio_specific_type(casadi CASADI_SCOPE)
   target_link_libraries(${PROJECT_NAME}_casadi ${CASADI_SCOPE} casadi)
+endif()
+
+if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
+  set(PYTHON_PARSER_LIB_NAME "${PROJECT_NAME}_python_parser")
+
+  pinocchio_target(
+    ${PYTHON_PARSER_LIB_NAME}
+    SCALAR default
+    SOURCES ${${PROJECT_NAME}_PYTHON_PARSER_SOURCES}
+            ${${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS})
+  pinocchio_config(python_parser ${PYTHON_PARSER_LIB_NAME})
+
+  target_link_libraries(${PYTHON_PARSER_LIB_NAME} PUBLIC ${PROJECT_NAME}_default Python3::Python)
+  target_link_boost_python(${PYTHON_PARSER_LIB_NAME} PUBLIC)
 endif()
 
 # Define main target (default, parsers, extra).
@@ -344,6 +387,7 @@ endif()
 if(BUILD_WITH_EXTRA_SUPPORT)
   target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_extra)
 endif()
+target_link_libraries(${PROJECT_NAME} INTERFACE ${PROJECT_NAME}_visualizers)
 
 install(
   TARGETS ${PROJECT_NAME}

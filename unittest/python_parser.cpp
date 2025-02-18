@@ -6,7 +6,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
-#include "pinocchio/bindings/python/parsers/python.hpp"
+#include "pinocchio/parsers/python.hpp"
 
 #include <boost/test/unit_test.hpp>
 

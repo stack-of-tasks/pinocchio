@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 INRIA
+// Copyright (c) 2022-2024 INRIA
 //
 
 #ifndef __pinocchio_python_collision_tree_broadphase_manager_hpp__
@@ -49,11 +49,11 @@ namespace pinocchio
       static void expose()
       {
         std::string derived_name = boost::typeindex::type_id<Derived>().pretty_name();
-        boost::algorithm::replace_all(derived_name, "hpp::fcl::", "");
+        boost::algorithm::replace_all(derived_name, "coal::", "");
         const std::string class_name = "TreeBroadPhaseManager_" + derived_name;
 
         const std::string class_doc =
-          "Tree-based broad phase manager associated to hpp::fcl::" + derived_name;
+          "Tree-based broad phase manager associated to coal::" + derived_name;
         bp::class_<Self> registered_class(class_name.c_str(), class_doc.c_str(), bp::no_init);
         registered_class.def(TreeBroadPhaseManagerPythonVisitor());
 

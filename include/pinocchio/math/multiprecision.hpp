@@ -7,10 +7,6 @@
 
 #include "pinocchio/math/fwd.hpp"
 
-#ifndef PINOCCHIO_WITH_CXX11_SUPPORT
-  #error C++11 compiler required.
-#endif
-
 #include <boost/multiprecision/number.hpp>
 #include <boost/random.hpp>
 #include <Eigen/Dense>
@@ -118,10 +114,10 @@ namespace Eigen
     static int digits10()
     {
       return digits10_imp(
-        boost::mpl::bool_ < std::numeric_limits<Real>::digits10
-            && (std::numeric_limits<Real>::digits10 != INT_MAX)
-          ? true
-          : false > ());
+        boost::mpl::bool_<
+          std::numeric_limits<Real>::digits10 && (std::numeric_limits<Real>::digits10 != INT_MAX)
+            ? true
+            : false>());
     }
 
     constexpr static inline int digits()

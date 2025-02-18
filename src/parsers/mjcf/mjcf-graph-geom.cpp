@@ -75,6 +75,19 @@ namespace pinocchio
         if (geom.geomType == "mesh")
         {
           MjcfMesh currentMesh = currentGraph.mapOfMeshes.at(geom.meshName);
+          if (currentMesh.vertices.size() > 0)
+          {
+            auto vertices = currentMesh.vertices;
+            // Scale vertices
+            for (std::size_t i = 0; i < vertices.rows(); ++i)
+              vertices.row(i) = vertices.row(i).cwiseProduct(currentMesh.scale.transpose());
+            auto model = std::make_shared<hpp::fcl::BVHModel<fcl::OBBRSS>>();
+            model->beginModel();
+            model->addVertices(vertices);
+            model->endModel();
+            model->buildConvexHull(true, "Qt");
+            return model->convex;
+          }
           meshPath = currentMesh.filePath;
           meshScale = currentMesh.scale;
           hpp::fcl::BVHModelPtr_t bvh = meshLoader->load(meshPath, meshScale);
@@ -410,7 +423,13 @@ namespace pinocchio
           geomName =
             currentBody.bodyName + "Geom_" + std::to_string(currentBody.geomChildren.size());
 
-        // ChildClass < Class < Real Joint
+        // default < ChildClass < Class < Real Joint
+        if (currentGraph.mapOfClasses.find("mujoco_default") != currentGraph.mapOfClasses.end())
+        {
+          const MjcfClass & classD = currentGraph.mapOfClasses.at("mujoco_default");
+          if (auto geom_p = classD.classElement.get_child_optional("geom"))
+            goThroughElement(*geom_p, currentGraph);
+        }
         //  childClass
         if (currentBody.childClass != "")
         {
@@ -474,7 +493,13 @@ namespace pinocchio
           siteName =
             currentBody.bodyName + "Site_" + std::to_string(currentBody.siteChildren.size());
 
-        // ChildClass < Class < Real Joint
+        // default < ChildClass < Class < Real Joint
+        if (currentGraph.mapOfClasses.find("mujoco_default") != currentGraph.mapOfClasses.end())
+        {
+          const MjcfClass & classD = currentGraph.mapOfClasses.at("mujoco_default");
+          if (auto site_p = classD.classElement.get_child_optional("site"))
+            goThroughElement(*site_p, currentGraph);
+        }
         //  childClass
         if (currentBody.childClass != "")
         {

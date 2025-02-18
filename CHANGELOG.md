@@ -7,19 +7,76 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Added C++ visualization API, `pinocchio::pinocchio_visualizers` target ([#2574](https://github.com/stack-of-tasks/pinocchio/pull/2574))
+- Added forward declaration for class `SE3Tpl`, and typedef `pinocchio::context::SE3` ([#2574](https://github.com/stack-of-tasks/pinocchio/pull/2574))
+- Add macros PINOCCHIO_COMMON_TYPEDEF and PINOCCHIO_OPTIONS_DEFAULT ([#2574](https://github.com/stack-of-tasks/pinocchio/pull/2574))
+
+## [3.4.0] - 2025-02-12
+
+### Added
+- Add parsing meshes with vertices for MJCF format ([#2537](https://github.com/stack-of-tasks/pinocchio/pull/2537))
+
+### Fixed
+- Fix mjcf Euler angle parsing: use xyz as a default value for eulerseq compiler option ([#2526](https://github.com/stack-of-tasks/pinocchio/pull/2526))
+- Fix variable naming in Python ([#2530](https://github.com/stack-of-tasks/pinocchio/pull/2530))
+- Fix aba explicit template instantiation ([#2541](https://github.com/stack-of-tasks/pinocchio/pull/2541))
+- CMake: fix RPATH on macos ([#2546](https://github.com/stack-of-tasks/pinocchio/pull/2546))
+- Fix aba explicit template instantiation ([#2541](https://github.com/stack-of-tasks/pinocchio/pull/2541))
+- Fix mjcf parsing of keyframe qpos with newlines ([#2535](https://github.com/stack-of-tasks/pinocchio/pull/2535))
+- Fix sites parsing for MJCF format ([#2548](https://github.com/stack-of-tasks/pinocchio/pull/2548))
+- Fix register `std::shared_ptr<{,Geometry}{Model,Data}>` in bindings ([#2566](https://github.com/stack-of-tasks/pinocchio/pull/2566))
+- Removed useless uses of `PINOCCHIO_WITH_CXX11_SUPPORT` ([#2564](https://github.com/stack-of-tasks/pinocchio/pull/2564))
+
+
+## [3.3.1] - 2024-12-13
+
+### Added
+- Add `pinocchio_python_parser` target ([#2475](https://github.com/stack-of-tasks/pinocchio/pull/2475))
+
+### Fixed
+- Fix mjcf parsing of armature and of the default tag in models ([#2477](https://github.com/stack-of-tasks/pinocchio/pull/2477))
+- Fix undefined behavior when using the site attribute in mjcf ([#2477](https://github.com/stack-of-tasks/pinocchio/pull/2477))
+- Fix the type of image paths when loading textures in the meshcat visualizer ([#2478](https://github.com/stack-of-tasks/pinocchio/pull/2478))
+- Fix meshcat examples ([#2503])[https://github.com/stack-of-tasks/pinocchio/pull/2503]
+- Fix `pinocchio-test-cpp-parallel-geometry` when built with Coal ([#2502](https://github.com/stack-of-tasks/pinocchio/pull/2502))
+- Fix scaling support for meshcat ([#2511](https://github.com/stack-of-tasks/pinocchio/pull/2511))
+
+### Changed
+- On GNU/Linux and macOS, hide all symbols by default ([#2469](https://github.com/stack-of-tasks/pinocchio/pull/2469))
+- Build `pinocchio_default` with collision features ([#2517](https://github.com/stack-of-tasks/pinocchio/pull/2517))
+
+## [3.3.0] - 2024-11-06
+
+### Added
 
 - Default visualizer can be changed with `PINOCCHIO_VIEWER` environment variable ([#2419](https://github.com/stack-of-tasks/pinocchio/pull/2419))
 - Add more Python and C++ examples related to inverse kinematics with 3d tasks ([#2428](https://github.com/stack-of-tasks/pinocchio/pull/2428))
+- Add parsing of equality/connect tag for closed-loop chains for MJCF format ([#2413](https://github.com/stack-of-tasks/pinocchio/pull/2413))
+- Add compatibility with NumPy 2 `__array__` API ([#2436](https://github.com/stack-of-tasks/pinocchio/pull/2436))
+- Added argument to let users decide of root joint name when parsing models (urdf, mjcf, sdf) ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
+- Allow use of `pathlib.Path | str` for paths in python bindings ([#2431](https://github.com/stack-of-tasks/pinocchio/pull/2431))
+- Add Pseudo inertia and Log-cholesky parametrization ([#2296](https://github.com/stack-of-tasks/pinocchio/pull/2296))
+- Add Pixi support ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
 
 ### Fixed
 - Fix linkage of Boost.Serialization on Windows ([#2400](https://github.com/stack-of-tasks/pinocchio/pull/2400))
 - Fix mjcf parser appending of inertias at root joint ([#2403](https://github.com/stack-of-tasks/pinocchio/pull/2403))
 - Fix unit tests with GCC 13.3 ([#2406](https://github.com/stack-of-tasks/pinocchio/pull/2416)
-- Fix class abtract error for Rviz viewer ([#2425](https://github.com/stack-of-tasks/pinocchio/pull/2425))
+- Fix class abstract error for Rviz viewer ([#2425](https://github.com/stack-of-tasks/pinocchio/pull/2425))
+- Fix compilation issue with MSCV and C++17 ([#2437](https://github.com/stack-of-tasks/pinocchio/pull/2437))
+- Fix `pinocchio-test-py-robot_wrapper` when building with SDF and collision support ([#2437](https://github.com/stack-of-tasks/pinocchio/pull/2437))
+- Fix crash when calling `Inertia::FromDynamicParameters` in Python with wrong vector size ([#2296](https://github.com/stack-of-tasks/pinocchio/pull/2296))
+- Fix `examples/cassie-simulation.py` and `examples/talos-simulation.py` ([#2443](https://github.com/stack-of-tasks/pinocchio/pull/2443))
+- Fix build with CppAd 2024 ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Fix `pinocchio-test-cpp-mjcf` unittest with Boost 1.86 ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Fix `pinocchio-test-cpp-constraint-variants` uninitialized values ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Fix mixing library symbols between Pinocchio scalar bindings ([#2459](https://github.com/stack-of-tasks/pinocchio/pull/2459))
+- Fix bug for get{Joint,Frame}JacobianTimeVariation ([#2466](https://github.com/stack-of-tasks/pinocchio/pull/2466))
 
 ### Changed
 
 - Modernize python code base with ruff ([#2418](https://github.com/stack-of-tasks/pinocchio/pull/2418))
+- Does not create a root_joint frame from parsed models (urdf, mjcf and sdf) when no root joint is provided ([#2402](https://github.com/stack-of-tasks/pinocchio/pull/2402))
 
 ## [3.2.0] - 2024-08-27
 
@@ -1036,7 +1093,10 @@ The model can either be parsed from a URDF format or be created by appendending 
         • Fixed (concatenation of two consecutive bodies)
 
 
-[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v3.2.0...HEAD
+[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v3.4.0...HEAD
+[3.4.0]: https://github.com/stack-of-tasks/pinocchio/compare/v3.3.1...v3.4.0
+[3.3.1]: https://github.com/stack-of-tasks/pinocchio/compare/v3.3.0...v3.3.1
+[3.3.0]: https://github.com/stack-of-tasks/pinocchio/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/stack-of-tasks/pinocchio/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/stack-of-tasks/pinocchio/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/stack-of-tasks/pinocchio/compare/v2.7.1...v3.0.0

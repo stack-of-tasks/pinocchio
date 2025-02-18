@@ -43,15 +43,19 @@ or via pip (currently only available on Linux):
 
 ## Table of contents
 
+  - [Table of contents](#table-of-contents)
+  - [Introducing Pinocchio 3](#introducing-pinocchio-3)
   - [Pinocchio main features](#pinocchio-main-features)
   - [Documentation](#documentation)
   - [Examples](#examples)
   - [Tutorials](#tutorials)
+  - [Pinocchio continuous integrations](#pinocchio-continuous-integrations)
   - [Performances](#performances)
   - [Ongoing developments](#ongoing-developments)
+  - [Installation](#installation)
+    - [ROS](#ros)
   - [Visualization](#visualization)
   - [Citing Pinocchio](#citing-pinocchio)
-  - [Citing specific algorithmic contributions](#citing-specific-algorithmic-contributions)
   - [Questions and Issues](#questions-and-issues)
   - [Credits](#credits)
   - [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
@@ -94,7 +98,7 @@ or via pip (currently only available on Linux):
 
 **Pinocchio** is extensible.
 **Pinocchio** is multi-thread friendly.
-**Pinocchio** is reliable and extensively tested (unit-tests, simulations, and real-world robotics applications).
+**Pinocchio** is reliable and extensively tested (unit tests, simulations, and real-world robotics applications).
 **Pinocchio** is supported and tested on Windows, Mac OS X, Unix, and Linux ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
 
 ## Documentation
@@ -125,7 +129,7 @@ You can also consider the interactive Jupyter notebook [set of tutorials](https:
     </tr><tr><td> CI on OSX via Conda </td>
   <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml"><img alt="mac" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml/badge.svg?branch=devel" /></a></td>
     </tr><tr><td> CI on Windows via Conda </td>
-  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml"><img alt="windows" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml/badge.svg?branch=devel" /></a></td>
+  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda.yml"><img alt="windows" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda.yml/badge.svg?branch=devel" /></a></td>
   </tr><tr><td> CI on Linux via Robotpkg </td>
     <td><img src="https://gitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/pipeline.svg" alt="Pipeline Status"></td>
    </tr>
@@ -134,7 +138,7 @@ You can also consider the interactive Jupyter notebook [set of tutorials](https:
 
 ## Performances
 
-**Pinocchio** exploits, at best, the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigms, **Pinocchio** can unroll most of the computations directly at compile time, allowing to achieve impressive performances for a large range of robots, as illustrated by the plot below, obtained on a standard laptop equipped with an Intel Core i7 CPU @ 2.4 GHz.
+**Pinocchio** exploits, at best, the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigms, **Pinocchio** can unroll most of the computations directly at compile time, allowing to achieve impressive performances for an extensive range of robots, as illustrated by the plot below, obtained on a standard laptop equipped with an Intel Core i7 CPU @ 2.4 GHz.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/stack-of-tasks/pinocchio/master/doc/images/pinocchio-performances.png" width="600" alt="Pinocchio Logo" align="center"/>
@@ -145,14 +149,20 @@ In addition, the [introspection](https://github.com/rbd-benchmarks/rbd-benchmark
 
 ## Ongoing developments
 
-If you want to follow the current developments, you can directly refer to the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel).
-The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) only contains the latest release. Any new Pull Request should then be submitted on the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel/).
+If you want to follow the current developments, you can refer to the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel).
+The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) only contains the latest release. Any new Pull Request should be submitted on the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel/).
 
 ## Installation
 
 **Pinocchio** can be easily installed on various Linux (Ubuntu, Fedora, etc.) and Unix distributions (Mac OS X, BSD, etc.). Please refer to the [installation procedure](http://stack-of-tasks.github.io/pinocchio/download.html).
 
-If you only need the Python bindings of Pinocchio, you may prefer to install it through [Conda](https://docs.conda.io/en/latest/). Please follow the procedure described [here](https://github.com/conda-forge/pinocchio-feedstock#installing-pinocchio).
+### Conda
+
+You simply need this simple line:
+
+```bash
+conda install pinocchio -c conda-forge
+```
 
 ### ROS
 
@@ -220,18 +230,18 @@ And the following one for the link to the GitHub codebase:
 
 ## Citing specific algorithmic contributions
 
-**Pinocchio** goes beyond implementing the standard rigid-body dynamics algorithms and results from active research on simulation, learning and control.
+**Pinocchio** goes beyond implementing the standard rigid-body dynamics algorithms and results from active research on simulation, learning, and control.
 **Pinocchio** provides state-of-the-art algorithms for handling constraints, differentiating forward and inverse dynamics, etc.
 If you use these algorithms, please consider citing them in your research articles.
 
-- Le Lidec, Q., Montaut, L. & Carpentier, J. (2024, July). [From Compliant to Rigid Contact Simulation: a Unified and Efficient Approach](https://hal.science/hal-04588906). In RSS 2024-Robotics: Science and Systems.
+- Carpentier, J., Le Lidec, Q. & Montaut, L. (2024, July). [From Compliant to Rigid Contact Simulation: a Unified and Efficient Approach](https://hal.science/hal-04588906). In RSS 2024-Robotics: Science and Systems (RSS 2024).
+- Le Lidec, Q., Jallet, W., Montaut, L., Laptev, I., Schmid, C., & Carpentier, J. (2024). [Contact models in robotics: a comparative analysis](https://hal.science/hal-04067291/). IEEE Transactions on Robotics.
 - Montaut, L., Le Lidec, Q., Petrik, V., Sivic, J., & Carpentier, J. (2024). [GJK++: Leveraging Acceleration Methods for Faster Collision Detection](https://hal.science/hal-04070039/). IEEE Transactions on Robotics.
-- Sathya, A., & Carpentier, J. (2024). [Constrained Articulated Body Dynamics Algorithms](https://hal.science/hal-04443056/). Under review.
+- Sathya, A., & Carpentier, J. (2024). [Constrained Articulated Body Dynamics Algorithms](https://hal.science/hal-04443056/). IEEE Transactions on Robotics.
 - Montaut, L., Le Lidec, Q., Bambade, A., Petrik, V., Sivic, J., & Carpentier, J. (2023, May). [Differentiable collision detection: a randomized smoothing approach](https://hal.science/hal-03780482/). In 2023 IEEE International Conference on Robotics and Automation (ICRA).
-- Le Lidec, Q., Jallet, W., Montaut, L., Laptev, I., Schmid, C., & Carpentier, J. (2023). [Contact models in robotics: a comparative analysis](https://hal.science/hal-04067291/). Under review.
-- Montaut, L., Le Lidec, Q., Petrik, V., Sivic, J., & Carpentier, J. (2022, June). [Collision Detection Accelerated: An Optimization Perspective](https://hal.science/hal-03662157/). In Robotics: Science and Systems (RSS 2O22).
+- Montaut, L., Le Lidec, Q., Petrik, V., Sivic, J., & Carpentier, J. (2022, June). [Collision Detection Accelerated: An Optimization Perspective](https://hal.science/hal-03662157/). In Robotics: Science and Systems (RSS 2022).
 - Carpentier, J., Budhiraja, R., & Mansard, N. (2021, July). [Proximal and sparse resolution of constrained dynamic equations](https://hal.science/hal-03271811/). In Robotics: Science and Systems (RSS 2021).
-- Carpentier, J., & Mansard, N. (2018, June). [Analytical derivatives of rigid body dynamics algorithms](https://hal.science/hal-01790971/). In Robotics: Science and systems (RSS 2018).
+- Carpentier, J., & Mansard, N. (2018, June). [Analytical derivatives of rigid body dynamics algorithms](https://hal.science/hal-01790971/). In Robotics: Science and Systems (RSS 2018).
 
 ## Questions and Issues
 
@@ -244,12 +254,12 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Justin Carpentier](https://jcarpent.github.io) (Inria): main developer and manager of the project
 -   [Nicolas Mansard](http://projects.laas.fr/gepetto/index.php/Members/NicolasMansard) (LAAS-CNRS): initial project instructor
 -   [Guilhem Saurel](http://projects.laas.fr/gepetto/index.php/Members/GuilhemSaurel) (LAAS-CNRS): continuous integration and deployment
--   [Joseph Mirabel](http://jmirabel.github.io/) (Eureka Robotics): Lie groups and hpp-fcl implementation
+-   [Joseph Mirabel](http://jmirabel.github.io/) (Eureka Robotics): Lie groups and hpp-fcl support
 -   [Antonio El Khoury](https://www.linkedin.com/in/antonioelkhoury) (Wandercraft): bug fixes
 -   [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): features extension, bug fixes, and Python bindings
 -   [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and hpp-fcl support
 -   [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Oxford): ROS integration and support
--   [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
+-   [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (Inria/LAAS-CNRS): features extension
 -   [Loïc Estève](https://github.com/lesteve) (Inria): Conda integration and support
 -   [Igor Kalevatykh](https://github.com/ikalevatykh) (Inria): Panda3d viewer support
 -   [Matthieu Vigne](https://github.com/matthieuvigne) (Wandercraft): MeshCat viewer support
@@ -265,6 +275,9 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Joris Vaillant](https://github.com/jorisv) (Inria): core developer and manager of the project
 -   [Sebastian Castro](https://roboticseabass.com) (The AI Institute): MeshCat viewer feature extension
 -   [Lev Kozlov](https://github.com/lvjonok): Kinetic and potential energy regressors
+-   [Megane Millan](https://github.com/MegMll) (Inria): Features extension and core developer
+-   [Simeon Nedelchev](https://github.com/simeon-ned): Pseudo inertia and Log-Cholesky parametrization
+-   [Ajay Sathya](https://www.ajaysathya.com/) (Inria): core developer
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 
