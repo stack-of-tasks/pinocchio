@@ -7,6 +7,7 @@
   Please check the repository URL for full list of authors and maintainers. -->
   <maintainer email="justin.carpentier@inria.fr">Justin Carpentier</maintainer>
   <maintainer email="opensource@wolfgangmerkt.com">Wolfgang Merkt</maintainer>
+  <maintainer email="guilhem.saurel@laas.fr">Guilhem Saurel</maintainer>
   <license>BSD-2</license>
 
   <url type="website">https://github.com/stack-of-tasks/pinocchio</url>
