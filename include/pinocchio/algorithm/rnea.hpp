@@ -215,6 +215,43 @@ namespace pinocchio
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data);
 
+  ///
+  /// \brief The passivity-based Recursive Newton-Euler algorithm. It computes a modified inverse dynamics, aka the joint
+  /// torques according to the current state of the system and the auxiliary joint velocities and accelerations.
+  /// To be more specific, it computes H(q) * a_r + C(q, v) * v_r + g(q)
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the auxiliary joint velocity vector.
+  /// \tparam TangentVectorType3 Type of the auxiliary joint acceleration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  /// \param[in] v_r The auxiliary joint velocity vector (dim model.nv).
+  /// \param[in] a_r The auxiliary joint acceleration vector (dim model.nv).
+  ///
+  /// \return The desired joint torques stored in data.tau.
+  ///
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType,
+    typename TangentVectorType1,
+    typename TangentVectorType2,
+    typename TangentVectorType3>
+  const typename DataTpl<Scalar, Options, JointCollectionTpl>::TangentVectorType & passivityRNEA(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q,
+    const Eigen::MatrixBase<TangentVectorType1> & v,
+    const Eigen::MatrixBase<TangentVectorType2> & v_r,
+    const Eigen::MatrixBase<TangentVectorType3> & a_r);
+
 } // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */

@@ -83,6 +83,14 @@ class TestRNEA(TestCase):
         ) - pin.rnea(model, data2, self.q, self.v * 0, self.a * 0)
 
         self.assertApprox(tau_coriolis_ref, C.dot(self.v))
+        
+    def test_passivity_rnea(self):
+        model = self.model
+        
+        tau1 = pin.rnea(self.model, self.data, self.q, self.v, self.a)
+        tau2 = pin.passivityRNEA(self.model, self.data, self.q, self.v, self.v, self.a)
+        
+        self.assertApprox(tau1, tau2)
 
 
 if __name__ == "__main__":
