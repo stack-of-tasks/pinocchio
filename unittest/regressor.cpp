@@ -11,8 +11,9 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
-
+#include "pinocchio/parsers/urdf.hpp"
 #include <iostream>
+#include "pinocchio/algorithm/kinematics.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -426,6 +427,47 @@ BOOST_AUTO_TEST_CASE(test_potential_energy_regressor)
   const double potential_energy_regressor = data.potentialEnergyRegressor * params;
 
   BOOST_CHECK_CLOSE(potential_energy_regressor, target_energy, 1e-12);
+}
+
+BOOST_AUTO_TEST_CASE(test_indirect_regressors)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  buildModels::manipulator(model);
+
+  pinocchio::Data data(model);
+
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = Eigen::VectorXd::Random(model.nv);
+
+  Eigen::VectorXd params(10 * (model.njoints - 1));
+  for (JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
+    params.segment<10>(Eigen::DenseIndex((i - 1) * 10)) = model.inertias[i].toDynamicParameters();
+
+  computeAllTerms(model, data, q, v);
+  forwardKinematics(model, data, q, v);
+  framesForwardKinematics(model, data, q);
+  auto regressors = computeIndirectRegressors(model, data, q, v);
+  auto Hregressor = regressors.first;
+  auto CTregressor = regressors.second;
+  auto CTv_regressor = CTregressor * params;
+
+  auto CTv = computeCoriolisMatrix(model, data, q, v).transpose() * v;
+
+  // they should match
+  BOOST_CHECK(CTv_regressor.isApprox(CTv));
+
+  // fill in the mass inertia matrix
+  data.M.triangularView<Eigen::StrictlyLower>() =
+    data.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+  const auto momentum = data.M * v;
+
+  auto momentum_regressor = Hregressor * params;
+
+  BOOST_CHECK(momentum_regressor.isApprox(momentum));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -27,6 +27,17 @@ namespace pinocchio
       return frameBodyRegressor(model, data, frameId);
     }
 
+    boost::python::tuple computeIndirectRegressors_proxy(
+      const context::Model & model,
+      context::Data & data,
+      const context::VectorXs & q,
+      const context::VectorXs & v)
+    {
+      auto result = computeIndirectRegressors(model, data, q, v);
+
+      return boost::python::make_tuple(result.first, result.second);
+    }
+
     void exposeRegressor()
     {
       typedef context::Scalar Scalar;
@@ -123,6 +134,18 @@ namespace pinocchio
         "\tdata: data related to the model\n"
         "\tq: the joint configuration vector (size model.nq)\n",
         bp::return_value_policy<bp::return_by_value>());
+
+      bp::def(
+        "computeIndirectRegressors", &computeIndirectRegressors_proxy,
+        bp::args("model", "data", "q", "v"),
+        "Compute the indirect regressors of momentum and transposed coriolis matrix times velocity,\n"
+        "Parameters:\n"
+        "\tmodel: model of the kinematic tree\n"
+        "\tdata: data related to the model\n"
+        "\tq: the joint configuration vector (size model.nq)\n"
+        "\tv: the joint velocity vector (size model.nv)\n",
+        bp::return_value_policy<bp::return_by_value>());
+
     }
 
   } // namespace python

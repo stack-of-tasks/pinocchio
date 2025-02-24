@@ -256,6 +256,9 @@ namespace pinocchio
           .ADD_DATA_PROPERTY(jointTorqueRegressor, "Joint torque regressor.")
           .ADD_DATA_PROPERTY(kineticEnergyRegressor, "Kinetic energy regressor.")
           .ADD_DATA_PROPERTY(potentialEnergyRegressor, "Potential energy regressor.")
+          .ADD_DATA_PROPERTY(momentumRegressor, "Momentum regressor.")
+          .ADD_DATA_PROPERTY(
+            dpartial_lagrangian_q, "Partial Lagrangian with respect to the joint configuration.")
 
 #ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
           .def(bp::self == bp::self)

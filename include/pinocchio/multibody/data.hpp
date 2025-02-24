@@ -505,6 +505,12 @@ namespace pinocchio
     /// \brief Matrix related to potential energy regressor
     RowVectorXs potentialEnergyRegressor;
 
+    /// \brief Matrix related to YCTv regressor
+    MatrixXs YCTvRegressor;
+
+    /// \brief Matrix related to momentum regressor
+    MatrixXs HRegressor;
+
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) KA;
     PINOCCHIO_ALIGNED_STD_VECTOR(MatrixXs) LA;
     PINOCCHIO_ALIGNED_STD_VECTOR(VectorXs) lA;

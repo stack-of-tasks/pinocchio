@@ -372,6 +372,46 @@ namespace pinocchio
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
     const Eigen::MatrixBase<ConfigVectorType> & q);
+
+  /// \brief Computes the indirect regressors Y_Hqd and Y_CTqd
+  /// of momentum and transposed coriolis matrix times velocity.
+  ///
+  /// These regressors are such that:
+  /// \f$ p = Y_Hqd(q, v) \pi$ and \f$ C^T v = Y_CTqd(q, v) \pi \f$
+  /// where \f$ \pi \f$ represents the vector of dynamic parameters of each link.
+  ///
+  /// This algorithm can be applied in the context of system identification based on the
+  /// generalized momentum \f$ p \f$.
+  /// \f$ \dot{p} = \tau + C^T v - g \f$
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
+  ///
+  /// \param[in] model The model structure representing the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  ///
+  /// \return A pair containing:
+  ///         - The momentum regressor matrix.
+  ///         - A matrix containing a component of the time derivative of the momentum regressor.
+  ///
+  template<
+    typename Scalar,
+    int Options,
+    template<typename, int>
+    class JointCollectionTpl,
+    typename ConfigVectorType,
+    typename TangentVectorType>
+  std::pair<
+    typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs,
+    typename DataTpl<Scalar, Options, JointCollectionTpl>::MatrixXs>
+  computeIndirectRegressors(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const Eigen::MatrixBase<ConfigVectorType> & q,
+    const Eigen::MatrixBase<TangentVectorType> & v);
 } // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
