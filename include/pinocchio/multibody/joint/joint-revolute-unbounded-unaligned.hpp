@@ -24,7 +24,8 @@ namespace pinocchio
     enum
     {
       NQ = 2,
-      NV = 1
+      NV = 1,
+      NVExtended = 1
     };
     typedef _Scalar Scalar;
     enum
@@ -47,6 +48,8 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar, 6, NV, Options> U_t;
     typedef Eigen::Matrix<Scalar, NV, NV, Options> D_t;
     typedef Eigen::Matrix<Scalar, 6, NV, Options> UD_t;
+
+    typedef boost::mpl::true_ is_mimicable_t;
 
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
@@ -141,6 +144,7 @@ namespace pinocchio
     using Base::id;
     using Base::idx_q;
     using Base::idx_v;
+    using Base::idx_vExtended;
     using Base::setIndexes;
 
     JointModelRevoluteUnboundedUnalignedTpl()
@@ -246,7 +250,7 @@ namespace pinocchio
     {
       typedef JointModelRevoluteUnboundedUnalignedTpl<NewScalar, Options> ReturnType;
       ReturnType res(axis.template cast<NewScalar>());
-      res.setIndexes(id(), idx_q(), idx_v());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
       return res;
     }
 
@@ -257,6 +261,11 @@ namespace pinocchio
     Vector3 axis;
   }; // struct JointModelRevoluteUnboundedUnalignedTpl
 
+  template<typename Scalar, int Options>
+  struct ConfigVectorAffineTransform<JointRevoluteUnboundedUnalignedTpl<Scalar, Options>>
+  {
+    typedef UnboundedRevoluteAffineTransform Type;
+  };
 } // namespace pinocchio
 
 #include <boost/type_traits.hpp>

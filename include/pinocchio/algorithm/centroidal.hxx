@@ -136,11 +136,13 @@ namespace pinocchio
         const JointIndex & i = jmodel.id();
         const JointIndex & parent = model.parents[i];
 
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
         J_cols = data.oMi[i].act(jdata.S());
 
         ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
-        motionSet::inertiaAction(data.oYcrb[i], J_cols, Ag_cols);
+        // Mimic joint contributes to the inertia of their mimicked and don't have their own
+        motionSet::inertiaAction<ADDTO>(data.oYcrb[i], J_cols, Ag_cols);
+
         data.oYcrb[parent] += data.oYcrb[i];
       }
 
@@ -173,6 +175,9 @@ namespace pinocchio
         data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
 
       typedef CcrbaBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
+      // Set to zero, because it's not an assignation, that is done in the algorithm but a sum to
+      // take mimic joint into account
+      data.Ag.setZero();
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
         Pass2::run(model.joints[i], data.joints[i], typename Pass2::ArgsType(model, data));
@@ -220,6 +225,9 @@ namespace pinocchio
         data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
 
       typedef CcrbaBackwardStep<Scalar, Options, JointCollectionTpl> Pass2;
+      // Set to zero, because it's not an assignation, that is done in the algorithm but a sum to
+      // take mimic joint into account
+      data.Ag.setZero();
       for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
       {
         Pass2::run(model.joints[i], data.joints[i], typename Pass2::ArgsType(model, data));
@@ -264,10 +272,10 @@ namespace pinocchio
         const Inertia & Y = data.oYcrb[i];
         const typename Inertia::Matrix6 & doYcrb = data.doYcrb[i];
 
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        ColsBlock J_cols = jmodel.jointExtendedModelCols(data.J);
         J_cols = data.oMi[i].act(jdata.S());
 
-        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+        ColsBlock dJ_cols = jmodel.jointExtendedModelCols(data.dJ);
         motionSet::motionAction(data.ov[i], J_cols, dJ_cols);
 
         data.oYcrb[parent] += Y;
@@ -299,6 +307,7 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType> & v)
     {
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         q.size(), model.nq, "The configuration vector is not of right size");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The velocity vector is not of right size");
@@ -361,6 +370,7 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType> & v)
     {
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         q.size(), model.nq, "The configuration vector is not of right size");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The velocity vector is not of right size");

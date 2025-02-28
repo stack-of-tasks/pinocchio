@@ -398,6 +398,7 @@ namespace pinocchio
       "The gravity must be a pure force vector, no angular part");
 
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     // TODO: User should make sure the internal quantities are reset.
     data.dtau_dq.setZero();

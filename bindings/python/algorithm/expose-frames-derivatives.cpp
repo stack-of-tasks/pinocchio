@@ -7,6 +7,8 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/frames-derivatives.hpp"
 
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
+
 namespace pinocchio
 {
   namespace python
@@ -104,7 +106,8 @@ namespace pinocchio
         "\tmodel: model of the kinematic tree\n"
         "\tdata: data related to the model\n"
         "\tframe_id: index of the frame\n"
-        "\treference_frame: reference frame in which the resulting derivatives are expressed\n");
+        "\treference_frame: reference frame in which the resulting derivatives are expressed\n",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "getFrameVelocityDerivatives", getFrameVelocityDerivatives_proxy2,
@@ -121,7 +124,8 @@ namespace pinocchio
         "\tdata: data related to the model\n"
         "\tjoint_id: index of the joint\n"
         "\tplacement: placement of the Frame w.r.t. the joint frame.\n"
-        "\treference_frame: reference frame in which the resulting derivatives are expressed\n");
+        "\treference_frame: reference frame in which the resulting derivatives are expressed\n",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "getFrameAccelerationDerivatives", getFrameAccelerationDerivatives_proxy1,
@@ -137,7 +141,8 @@ namespace pinocchio
         "\tmodel: model of the kinematic tree\n"
         "\tdata: data related to the model\n"
         "\tframe_id: index of the frame\n"
-        "\treference_frame: reference frame in which the resulting derivatives are expressed\n");
+        "\treference_frame: reference frame in which the resulting derivatives are expressed\n",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "getFrameAccelerationDerivatives", getFrameAccelerationDerivatives_proxy2,
@@ -154,7 +159,8 @@ namespace pinocchio
         "\tdata: data related to the model\n"
         "\tjoint_id: index of the joint\n"
         "\tplacement: placement of the Frame w.r.t. the joint frame.\n"
-        "\treference_frame: reference frame in which the resulting derivatives are expressed\n");
+        "\treference_frame: reference frame in which the resulting derivatives are expressed\n",
+        mimic_not_supported_function<>(0));
     }
 
   } // namespace python

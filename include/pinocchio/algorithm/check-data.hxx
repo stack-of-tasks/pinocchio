@@ -1,78 +1,15 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2025 INRIA
 //
 
-#ifndef __pinocchio_check_hxx__
-#define __pinocchio_check_hxx__
+#ifndef __pinocchio_algorithm_check_data_hxx__
+#define __pinocchio_algorithm_check_data_hxx__
 
-#include <boost/fusion/algorithm.hpp>
-#include <boost/foreach.hpp>
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 
 namespace pinocchio
 {
-  namespace internal
-  {
-    // Dedicated structure for the fusion::accumulate algorithm: validate the check-algorithm
-    // for all elements in a fusion list of AlgoCheckers.
-    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    struct AlgoFusionChecker
-    {
-      typedef bool result_type;
-      typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
-      const Model & model;
-
-      AlgoFusionChecker(const Model & model)
-      : model(model)
-      {
-      }
-
-      inline bool operator()(const bool & accumul, const boost::fusion::void_ &) const
-      {
-        return accumul;
-      }
-
-      template<typename T>
-      inline bool operator()(const bool & accumul, const AlgorithmCheckerBase<T> & t) const
-      {
-        return accumul && t.checkModel(model);
-      }
-    };
-  } // namespace internal
-
-  // Check the validity of the kinematic tree defined by parents.
-  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  inline bool
-  ParentChecker::checkModel_impl(const ModelTpl<Scalar, Options, JointCollectionTpl> & model) const
-  {
-    typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
-
-    for (JointIndex j = 1; j < (JointIndex)model.njoints; ++j)
-      if (model.parents[j] >= j)
-        return false;
-
-    return true;
-  }
-
-#if !defined(BOOST_FUSION_HAS_VARIADIC_LIST)
-  template<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE, class T)>
-  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  bool AlgorithmCheckerList<BOOST_PP_ENUM_PARAMS(PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE, T)>::
-    checkModel_impl(const ModelTpl<Scalar, Options, JointCollectionTpl> & model) const
-  {
-    return boost::fusion::accumulate(
-      checkerList, true, internal::AlgoFusionChecker<Scalar, Options, JointCollectionTpl>(model));
-  }
-#else
-  template<class... T>
-  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  bool AlgorithmCheckerList<T...>::checkModel_impl(
-    const ModelTpl<Scalar, Options, JointCollectionTpl> & model) const
-  {
-    return boost::fusion::accumulate(
-      checkerList, true, internal::AlgoFusionChecker<Scalar, Options, JointCollectionTpl>(model));
-  }
-#endif
 
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   inline bool checkData(
@@ -102,7 +39,7 @@ namespace pinocchio
     CHECK_DATA((int)data.Ycrb.size() == model.njoints);
     CHECK_DATA((int)data.Yaba.size() == model.njoints);
     CHECK_DATA((int)data.Fcrb.size() == model.njoints);
-    BOOST_FOREACH (const typename Data::Matrix6x & F, data.Fcrb)
+    for (const typename Data::Matrix6x & F : data.Fcrb)
     {
       CHECK_DATA(F.cols() == model.nv);
     }
@@ -124,7 +61,7 @@ namespace pinocchio
     CHECK_DATA(data.U.rows() == model.nv);
     CHECK_DATA(data.D.size() == model.nv);
     CHECK_DATA(data.tmp.size() >= model.nv);
-    CHECK_DATA(data.J.cols() == model.nv);
+    CHECK_DATA(data.J.cols() == model.nvExtended);
     CHECK_DATA(data.Jcom.cols() == model.nv);
     CHECK_DATA(data.torque_residual.size() == model.nv);
     CHECK_DATA(data.dq_after.size() == model.nv);
@@ -143,8 +80,13 @@ namespace pinocchio
 
     CHECK_DATA((int)data.lastChild.size() == model.njoints);
     CHECK_DATA((int)data.nvSubtree.size() == model.njoints);
-    CHECK_DATA((int)data.parents_fromRow.size() == model.nv);
-    CHECK_DATA((int)data.nvSubtree_fromRow.size() == model.nv);
+    CHECK_DATA((int)data.parents_fromRow.size() == model.nvExtended);
+    CHECK_DATA((int)data.mimic_parents_fromRow.size() == model.nvExtended);
+    CHECK_DATA((int)data.non_mimic_parents_fromRow.size() == model.nvExtended);
+    CHECK_DATA((int)data.idx_vExtended_to_idx_v_fromRow.size() == model.nvExtended);
+    CHECK_DATA((int)data.nvSubtree_fromRow.size() == model.nvExtended);
+    CHECK_DATA((int)data.start_idx_v_fromRow.size() == model.nvExtended);
+    CHECK_DATA((int)data.end_idx_v_fromRow.size() == model.nvExtended);
 
     for (JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
     {
@@ -154,34 +96,76 @@ namespace pinocchio
       CHECK_DATA(model.idx_qs[joint_id] == jmodel.idx_q());
       CHECK_DATA(model.nvs[joint_id] == jmodel.nv());
       CHECK_DATA(model.idx_vs[joint_id] == jmodel.idx_v());
+      CHECK_DATA(model.nvExtendeds[joint_id] == jmodel.nvExtended());
+      CHECK_DATA(model.idx_vExtendeds[joint_id] == jmodel.idx_vExtended());
     }
-
     for (JointIndex j = 1; int(j) < model.njoints; ++j)
     {
       JointIndex c = (JointIndex)data.lastChild[j];
       CHECK_DATA((int)c < model.njoints);
-      int nv = model.joints[j].nv();
-      for (JointIndex d = j + 1; d <= c; ++d) // explore all descendant
+      int nv;
+      // For mimic, since in nvSubtree we're using the idx_vExtended, we need to do the same here
+      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[j]))
+        nv = 0;
+      else
       {
-        CHECK_DATA(model.parents[d] >= j);
-        nv += model.joints[d].nv();
+        nv = model.joints[j].nv();
+        for (JointIndex d = j + 1; d <= c; ++d) // explore all descendant
+        {
+          CHECK_DATA(model.parents[d] >= j);
+
+          nv += model.joints[d].nv();
+        }
       }
       CHECK_DATA(nv == data.nvSubtree[j]);
 
       for (JointIndex d = c + 1; (int)d < model.njoints; ++d)
         CHECK_DATA((model.parents[d] < j) || (model.parents[d] > c));
 
-      int row = model.joints[j].idx_v();
-      CHECK_DATA(data.nvSubtree[j] == data.nvSubtree_fromRow[(size_t)row]);
+      CHECK_DATA(
+        data.nvSubtree[j] == data.nvSubtree_fromRow[(size_t)model.joints[j].idx_vExtended()]);
 
+      int row = model.joints[j].idx_vExtended();
       const JointModel & jparent = model.joints[model.parents[j]];
       if (row == 0)
       {
         CHECK_DATA(data.parents_fromRow[(size_t)row] == -1);
+        CHECK_DATA(data.mimic_parents_fromRow[(size_t)row] == -1);
+        CHECK_DATA(data.non_mimic_parents_fromRow[(size_t)row] == -1);
       }
       else
       {
-        CHECK_DATA(jparent.idx_v() + jparent.nv() - 1 == data.parents_fromRow[(size_t)row]);
+        CHECK_DATA(
+          jparent.idx_vExtended() + jparent.nvExtended() - 1 == data.parents_fromRow[(size_t)row]);
+        if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&jparent))
+        {
+          CHECK_DATA(data.parents_fromRow[(size_t)row] == data.mimic_parents_fromRow[(size_t)row]);
+        }
+        else
+        {
+          CHECK_DATA(
+            data.parents_fromRow[(size_t)row] == data.non_mimic_parents_fromRow[(size_t)row]);
+        }
+      }
+    }
+
+    if (model.mimicking_joints.size() != 0)
+    {
+      for (size_t k = 0; k < model.mimicking_joints.size(); k++)
+      {
+        // Check the mimic_subtree_joint
+        const auto & mimicking_sub = model.subtrees[model.mimicking_joints[k]];
+        size_t j = 1;
+        JointIndex id_subtree = 0;
+        for (; j < mimicking_sub.size(); j++)
+        {
+          if (model.nvs[mimicking_sub[j]] != 0)
+          {
+            id_subtree = mimicking_sub[j];
+          }
+          break;
+        }
+        CHECK_DATA(id_subtree == data.mimic_subtree_joint[k]);
       }
     }
 
@@ -198,4 +182,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_check_hxx__
+#endif // __pinocchio_algorithm_check_data_hxx__

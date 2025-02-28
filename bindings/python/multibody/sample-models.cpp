@@ -12,24 +12,17 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    Model buildSampleModelHumanoidRandom()
+    Model buildSampleModelHumanoidRandom(bool usingFF, bool mimic)
     {
       Model model;
-      buildModels::humanoidRandom(model);
+      buildModels::humanoidRandom(model, usingFF, mimic);
       return model;
     }
 
-    Model buildSampleModelHumanoidRandom(bool usingFF)
+    Model buildSampleModelManipulator(bool mimic)
     {
       Model model;
-      buildModels::humanoidRandom(model, usingFF);
-      return model;
-    }
-
-    Model buildSampleModelManipulator()
-    {
-      Model model;
-      buildModels::manipulator(model);
+      buildModels::manipulator(model, mimic);
       return model;
     }
 
@@ -41,13 +34,6 @@ namespace pinocchio
       return geom;
     }
 #endif
-
-    Model buildSampleModelHumanoid()
-    {
-      Model model;
-      buildModels::humanoid(model);
-      return model;
-    }
 
     Model buildSampleModelHumanoid(bool usingFF)
     {
@@ -69,21 +55,15 @@ namespace pinocchio
     {
       bp::def(
         "buildSampleModelHumanoidRandom",
-        static_cast<Model (*)()>(pinocchio::python::buildSampleModelHumanoidRandom),
-        "Generate a (hard-coded) model of a humanoid robot with 6-DOF limbs and random joint "
-        "placements.\nOnly meant for unit tests.");
-
-      bp::def(
-        "buildSampleModelHumanoidRandom",
-        static_cast<Model (*)(bool)>(pinocchio::python::buildSampleModelHumanoidRandom),
-        bp::args("using_free_flyer"),
+        static_cast<Model (*)(bool, bool)>(pinocchio::python::buildSampleModelHumanoidRandom),
+        (bp::arg("using_free_flyer") = true, bp::arg("mimic") = false),
         "Generate a (hard-coded) model of a humanoid robot with 6-DOF limbs and random joint "
         "placements.\nOnly meant for unit tests.");
 
       bp::def(
         "buildSampleModelManipulator",
-        static_cast<Model (*)()>(pinocchio::python::buildSampleModelManipulator),
-        "Generate a (hard-coded) model of a simple manipulator.");
+        static_cast<Model (*)(bool)>(pinocchio::python::buildSampleModelManipulator),
+        (bp::arg("mimic") = false), "Generate a (hard-coded) model of a simple manipulator.");
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def(
@@ -95,13 +75,9 @@ namespace pinocchio
 
       bp::def(
         "buildSampleModelHumanoid",
-        static_cast<Model (*)()>(pinocchio::python::buildSampleModelHumanoid),
-        "Generate a (hard-coded) model of a simple humanoid.");
-
-      bp::def(
-        "buildSampleModelHumanoid",
         static_cast<Model (*)(bool)>(pinocchio::python::buildSampleModelHumanoid),
-        bp::args("using_free_flyer"), "Generate a (hard-coded) model of a simple humanoid.");
+        (bp::arg("using_free_flyer") = true),
+        "Generate a (hard-coded) model of a simple humanoid.");
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def(

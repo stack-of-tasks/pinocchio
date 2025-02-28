@@ -27,15 +27,18 @@ namespace pinocchio
           .add_property("id", &getId)
           .add_property("idx_q", &getIdx_q)
           .add_property("idx_v", &getIdx_v)
+          .add_property("idx_vExtended", &getIdx_vExtended)
           .add_property("nq", &getNq)
           .add_property("nv", &getNv)
+          .add_property("nvExtended", &getNvExtended)
           .def(
             "hasConfigurationLimit", &JointModel::hasConfigurationLimit,
             "Return vector of boolean if joint has configuration limits.")
           .def(
             "hasConfigurationLimitInTangent", &JointModel::hasConfigurationLimitInTangent,
             "Return vector of boolean if joint has configuration limits in tangent space.")
-          .def("setIndexes", &JointModel::setIndexes, bp::args("self", "id", "idx_q", "idx_v"))
+          .def("setIndexes", setIndexes0, bp::args("self", "id", "idx_q", "idx_v"))
+          .def("setIndexes", setIndexes1, bp::args("self", "id", "idx_q", "idx_v", "idx_vExtended"))
           .def(
             "hasSameIndexes", &JointModel::hasSameIndexes<JointModel>, bp::args("self", "other"),
             "Check if this has same indexes than other.")
@@ -73,6 +76,10 @@ namespace pinocchio
       {
         return self.idx_v();
       }
+      static int getIdx_vExtended(const JointModel & self)
+      {
+        return self.idx_vExtended();
+      }
       static int getNq(const JointModel & self)
       {
         return self.nq();
@@ -80,6 +87,26 @@ namespace pinocchio
       static int getNv(const JointModel & self)
       {
         return self.nv();
+      }
+      static int getNvExtended(const JointModel & self)
+      {
+        return self.nvExtended();
+      }
+
+      static void
+      setIndexes0(JointModelDerived & self, const int & id, const int & idx_q, const int & idx_v)
+      {
+        self.setIndexes(id, idx_q, idx_v);
+      }
+
+      static void setIndexes1(
+        JointModelDerived & self,
+        const int & id,
+        const int & idx_q,
+        const int & idx_v,
+        const int & idx_vExtended)
+      {
+        self.setIndexes(id, idx_q, idx_v, idx_vExtended);
       }
 
       static void expose()

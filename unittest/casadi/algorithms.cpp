@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(test_jacobian)
 
   Model::Index joint_id =
     model.existJointName("rarm2") ? model.getJointId("rarm2") : (Model::Index)(model.njoints - 1);
-  Data::Matrix6x jacobian_local(6, model.nv), jacobian_world(6, model.nv);
+  Data::Matrix6x jacobian_local(6, model.nvExtended), jacobian_world(6, model.nvExtended);
   jacobian_local.setZero();
   jacobian_world.setZero();
 

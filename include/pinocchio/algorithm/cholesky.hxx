@@ -34,6 +34,7 @@ namespace pinocchio
        */
       PINOCCHIO_UNUSED_VARIABLE(model);
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 
@@ -91,6 +92,8 @@ namespace pinocchio
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
           PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
+          assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
           PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
 
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat, v);
@@ -155,6 +158,8 @@ namespace pinocchio
 
           PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
+          assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
           PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat, v);
 
@@ -215,6 +220,8 @@ namespace pinocchio
 
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
           assert(model.check(data) && "data is not consistent with model.");
+          assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
           PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat, v);
 
@@ -278,6 +285,8 @@ namespace pinocchio
 
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
           assert(model.check(data) && "data is not consistent with model.");
+          assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
           PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat, v);
 
@@ -342,6 +351,8 @@ namespace pinocchio
 
           PINOCCHIO_UNUSED_VARIABLE(model);
           assert(model.check(data) && "data is not consistent with model.");
+          assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
           PINOCCHIO_CHECK_ARGUMENT_SIZE(vin.size(), model.nv);
           PINOCCHIO_CHECK_ARGUMENT_SIZE(vout.size(), model.nv);
 
@@ -422,6 +433,8 @@ namespace pinocchio
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
 
           assert(model.check(data) && "data is not consistent with model.");
+          assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
           PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
 
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat, v);
@@ -479,6 +492,7 @@ namespace pinocchio
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat)
 
           assert(model.check(data) && "data is not consistent with model.");
+          assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
           Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat, v);
 
@@ -522,6 +536,8 @@ namespace pinocchio
 
         PINOCCHIO_UNUSED_VARIABLE(model);
         assert(model.check(data) && "data is not consistent with model.");
+        assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
         PINOCCHIO_CHECK_INPUT_ARGUMENT(col < model.nv && col >= 0);
         PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
 
@@ -567,6 +583,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(Minv.cols(), model.nv);
 
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       Mat & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(Mat, Minv);
 

@@ -94,6 +94,35 @@ BOOST_AUTO_TEST_CASE(test_model_support)
   }
 }
 
+/// Test mimic_joint_support by creating manually a robot and
+/// checking the content.
+BOOST_AUTO_TEST_CASE(test_model_mimic_joint_support)
+{
+  Model model;
+  // j1 -- j2 -- j3
+  //    -- j4 -- j5
+  // with j5 mimicking j3
+  // with j2 mimicking j1
+  model.addJoint(0, JointModelRX(), SE3::Identity(), "j1");
+  model.addJoint(
+    1, JointModelMimic(JointModelRX(), model.joints[1], 1., 0.), SE3::Identity(), "j2");
+  model.addJoint(2, JointModelRX(), SE3::Identity(), "j3");
+  model.addJoint(1, JointModelRX(), SE3::Identity(), "j4");
+  model.addJoint(
+    4, JointModelMimic(JointModelRX(), model.joints[3], 1., 0.), SE3::Identity(), "j5");
+
+  BOOST_REQUIRE_EQUAL(model.mimic_joint_supports.size(), 6);
+  BOOST_CHECK((model.mimic_joint_supports[0] == Model::IndexVector({0})));
+  BOOST_CHECK((model.mimic_joint_supports[1] == Model::IndexVector({0})));
+  // Mimic joint should support itself
+  BOOST_CHECK((model.mimic_joint_supports[2] == Model::IndexVector({0, 2})));
+  // j3 is supported by j2
+  BOOST_CHECK((model.mimic_joint_supports[3] == Model::IndexVector({0, 2})));
+  BOOST_CHECK((model.mimic_joint_supports[4] == Model::IndexVector({0})));
+  // Mimic joint should support itself
+  BOOST_CHECK((model.mimic_joint_supports[5] == Model::IndexVector({0, 5})));
+}
+
 BOOST_AUTO_TEST_CASE(test_model_subspace_dimensions)
 {
   Model model;
@@ -109,6 +138,9 @@ BOOST_AUTO_TEST_CASE(test_model_subspace_dimensions)
 
     BOOST_CHECK(model.nvs[joint_id] == jmodel.nv());
     BOOST_CHECK(model.idx_vs[joint_id] == jmodel.idx_v());
+
+    BOOST_CHECK(model.nvExtendeds[joint_id] == jmodel.nvExtended());
+    BOOST_CHECK(model.idx_vExtendeds[joint_id] == jmodel.idx_vExtended());
   }
 }
 
@@ -174,7 +206,7 @@ BOOST_AUTO_TEST_CASE(append)
   Model manipulator, humanoid;
   GeometryModel geomManipulator, geomHumanoid;
 
-  buildModels::manipulator(manipulator);
+  buildModels::manipulator(manipulator, true);
   buildModels::manipulatorGeometries(manipulator, geomManipulator);
   geomManipulator.addAllCollisionPairs();
   // Add prefix to joint and frame names
@@ -252,6 +284,9 @@ BOOST_AUTO_TEST_CASE(append)
         BOOST_CHECK(
           joint_model_humanoid.jointConfigSelector(humanoid_config->second)
           == joint_model1.jointConfigSelector(config_vector));
+        BOOST_CHECK(
+          joint_model_humanoid.JointMappedConfigSelector(humanoid_config->second)
+          == joint_model1.JointMappedConfigSelector(config_vector));
         // std::cerr<<"humanoid "<<config_name<<" "<<model1.names[joint_id]<<std::endl;
       }
       else if (
@@ -263,6 +298,9 @@ BOOST_AUTO_TEST_CASE(append)
         BOOST_CHECK(
           joint_model_manipulator.jointConfigSelector(manipulator_config->second)
           == joint_model1.jointConfigSelector(config_vector));
+        BOOST_CHECK(
+          joint_model_manipulator.JointMappedConfigSelector(manipulator_config->second)
+          == joint_model1.JointMappedConfigSelector(config_vector));
         // std::cerr<<"manipulator "<<config_name<<" "<<model1.names[joint_id]<<std::endl;
       }
       else
@@ -270,6 +308,9 @@ BOOST_AUTO_TEST_CASE(append)
         BOOST_CHECK(
           joint_model1.jointConfigSelector(neutral_config_vector)
           == joint_model1.jointConfigSelector(config_vector));
+        BOOST_CHECK(
+          joint_model1.JointMappedConfigSelector(neutral_config_vector)
+          == joint_model1.JointMappedConfigSelector(config_vector));
         // std::cerr<<"neutral "<<config_name<<" "<<model1.names[joint_id]<<std::endl;
       }
     }
@@ -327,6 +368,9 @@ BOOST_AUTO_TEST_CASE(append)
         BOOST_CHECK(
           joint_model_humanoid.jointConfigSelector(humanoid_config->second)
           == joint_model.jointConfigSelector(config_vector));
+        BOOST_CHECK(
+          joint_model_humanoid.JointMappedConfigSelector(humanoid_config->second)
+          == joint_model.JointMappedConfigSelector(config_vector));
         // std::cerr<<"humanoid "<<config_name<<" "<<model.names[joint_id]<<std::endl;
       }
       else if (
@@ -338,6 +382,9 @@ BOOST_AUTO_TEST_CASE(append)
         BOOST_CHECK(
           joint_model_manipulator.jointConfigSelector(manipulator_config->second)
           == joint_model.jointConfigSelector(config_vector));
+        BOOST_CHECK(
+          joint_model_manipulator.JointMappedConfigSelector(manipulator_config->second)
+          == joint_model.JointMappedConfigSelector(config_vector));
         // std::cerr<<"manipulator "<<config_name<<" "<<model.names[joint_id]<<std::endl;
       }
       else
@@ -345,6 +392,9 @@ BOOST_AUTO_TEST_CASE(append)
         BOOST_CHECK(
           joint_model.jointConfigSelector(neutral_config_vector)
           == joint_model.jointConfigSelector(config_vector));
+        BOOST_CHECK(
+          joint_model.JointMappedConfigSelector(neutral_config_vector)
+          == joint_model.JointMappedConfigSelector(config_vector));
         // std::cerr<<"neutral "<<config_name<<" "<<model.names[joint_id]<<std::endl;
       }
     }
@@ -572,6 +622,8 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
 
     reduced_humanoid_model.joints[joint_id].jointConfigSelector(reduced_q) =
       humanoid_model.joints[reference_joint_id].jointConfigSelector(q);
+    reduced_humanoid_model.joints[joint_id].JointMappedConfigSelector(reduced_q) =
+      humanoid_model.joints[reference_joint_id].JointMappedConfigSelector(q);
   }
 
   BOOST_CHECK(reduced_humanoid_model.referenceConfigurations["neutral"].isApprox(
@@ -696,6 +748,8 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel_with_geom)
 
     reduced_humanoid_model.joints[joint_id].jointConfigSelector(reduced_q) =
       humanoid_model.joints[reference_joint_id].jointConfigSelector(q);
+    reduced_humanoid_model.joints[joint_id].JointMappedConfigSelector(reduced_q) =
+      humanoid_model.joints[reference_joint_id].JointMappedConfigSelector(q);
   }
 
   framesForwardKinematics(humanoid_model, data, q);
@@ -861,6 +915,146 @@ BOOST_AUTO_TEST_CASE(test_has_configuration_limit)
      false});             // unbounded rotational joint
   std::vector<bool> model_cf_limits_tangent = model.hasConfigurationLimitInTangent();
   BOOST_CHECK((model_cf_limits_tangent == expected_cf_limits_tangent_model));
+}
+
+/// Test transformJointIntoMimic by creating a model manually and
+/// a model modified with transformJointIntoMimic.
+BOOST_AUTO_TEST_CASE(test_transform_to_mimic)
+{
+  Model model_exp;
+  // j1 -- j2 -- j3
+  //    -- j4 -- j5
+  // with j5 mimicking j3
+  // with j2 mimicking j1
+  model_exp.addJoint(0, JointModelRX(), SE3::Identity(), "j1");
+  model_exp.addJoint(
+    1, JointModelMimic(JointModelRX(), model_exp.joints[1], 1., 0.), SE3::Identity(), "j2");
+  model_exp.addJoint(2, JointModelRX(), SE3::Identity(), "j3");
+  model_exp.addJoint(1, JointModelRX(), SE3::Identity(), "j4");
+  model_exp.addJoint(
+    4, JointModelMimic(JointModelRX(), model_exp.joints[3], 1., 0.), SE3::Identity(), "j5");
+
+  // Model transformed with transformJointIntoMimic
+  Model model;
+  Model model_mimic;
+  Model model_mimic2;
+  model.addJoint(0, JointModelRX(), SE3::Identity(), "j1");
+  model.addJoint(1, JointModelRX(), SE3::Identity(), "j2");
+  model.addJoint(2, JointModelRX(), SE3::Identity(), "j3");
+  model.addJoint(1, JointModelRX(), SE3::Identity(), "j4");
+  model.addJoint(4, JointModelRX(), SE3::Identity(), "j5");
+  transformJointIntoMimic(model, 3, 5, 1., 0., model_mimic);
+  transformJointIntoMimic(model_mimic, 1, 2, 1., 0., model_mimic2);
+
+  BOOST_CHECK(model_mimic2 == model_exp);
+}
+
+/// Test buildMimicModel by creating a model manually and
+/// a model modified with buildMimicModel
+BOOST_AUTO_TEST_CASE(test_build_mimic_model)
+{
+  Model model_exp;
+  // j1 -- j2 -- j3
+  //    -- j4 -- j5
+  // with j5 mimicking j3
+  // with j2 mimicking j1
+  model_exp.addJoint(0, JointModelRX(), SE3::Identity(), "j1");
+  model_exp.addJoint(
+    1, JointModelMimic(JointModelRX(), model_exp.joints[1], 1., 0.), SE3::Identity(), "j2");
+  model_exp.addJoint(2, JointModelRX(), SE3::Identity(), "j3");
+  model_exp.addJoint(1, JointModelRX(), SE3::Identity(), "j4");
+  model_exp.addJoint(
+    4, JointModelMimic(JointModelRX(), model_exp.joints[3], 2., 1.), SE3::Identity(), "j5");
+
+  // Model transformed with buildMimicModel
+  Model model;
+  Model model_mimic;
+  model.addJoint(0, JointModelRX(), SE3::Identity(), "j1");
+  model.addJoint(1, JointModelRX(), SE3::Identity(), "j2");
+  model.addJoint(2, JointModelRX(), SE3::Identity(), "j3");
+  model.addJoint(1, JointModelRX(), SE3::Identity(), "j4");
+  model.addJoint(4, JointModelRX(), SE3::Identity(), "j5");
+  buildMimicModel(model, {1, 3}, {2, 5}, {1., 2.}, {0., 1.}, model_mimic);
+
+  BOOST_CHECK(model_mimic == model_exp);
+}
+
+BOOST_AUTO_TEST_CASE(test_cast_mimic)
+{
+  Model humanoid_model, humanoid_mimic;
+  buildModels::humanoid(humanoid_model);
+  Data data(humanoid_model);
+  BOOST_CHECK(humanoid_model.check(data));
+
+  JointIndex index_p = humanoid_model.getJointId("rleg_shoulder3_joint");
+  JointIndex index_s = humanoid_model.getJointId("lleg_shoulder3_joint");
+
+  transformJointIntoMimic(humanoid_model, index_p, index_s, 2.0, 0.4, humanoid_mimic);
+  data = Data(humanoid_mimic);
+  BOOST_CHECK(humanoid_mimic.check(data));
+
+  humanoid_mimic = humanoid_mimic.cast<double>();
+  data = Data(humanoid_mimic);
+  BOOST_CHECK(humanoid_mimic.check(data));
+  index_s = humanoid_mimic.getJointId("lleg_shoulder3_joint");
+  BOOST_CHECK_EQUAL(humanoid_mimic.idx_qs[index_s], humanoid_mimic.joints[index_s].idx_q());
+  BOOST_CHECK_EQUAL(humanoid_mimic.idx_vs[index_s], humanoid_mimic.joints[index_s].idx_v());
+
+  ModelTpl<float> humanoid_mimic_f = humanoid_mimic.cast<float>();
+  DataTpl<float> data_f(humanoid_mimic_f);
+  BOOST_CHECK(humanoid_mimic_f.check(data_f));
+  index_s = humanoid_mimic_f.getJointId("lleg_shoulder3_joint");
+  BOOST_CHECK_EQUAL(humanoid_mimic_f.idx_qs[index_s], humanoid_mimic_f.joints[index_s].idx_q());
+  BOOST_CHECK_EQUAL(humanoid_mimic_f.idx_vs[index_s], humanoid_mimic_f.joints[index_s].idx_v());
+}
+
+BOOST_AUTO_TEST_CASE(test_build_reduced_model_mimic)
+{
+  typedef Model::JointCollection JC;
+  typedef Model::JointIndex JointIndex;
+  typedef JC::JointModelRX JointModelRX;
+  typedef JC::JointModelRUBX JointModelRUBX;
+  Model model;
+
+  JointIndex ffidx = model.addJoint(0, JC::JointModelFreeFlyer(), SE3::Identity(), "root_joint");
+  model.addJointFrame(ffidx);
+  JointIndex idx = model.addJoint(ffidx, JointModelRX(), SE3::Identity(), "joint1");
+  model.addJointFrame(idx);
+  idx = model.addJoint(idx, JointModelRUBX(), SE3::Identity(), "joint2");
+  model.addJointFrame(idx);
+  idx = model.addJoint(idx, JointModelRX(), SE3::Identity(), "joint3");
+  model.addJointFrame(idx);
+
+  auto const mimic = JointModelMimic(
+    boost::get<JointModelRX>(model.joints[model.getJointId("joint3")].toVariant()), 1., 0.);
+  idx = model.addJoint(idx, mimic, SE3::Identity(), "joint4");
+  model.addJointFrame(idx);
+
+  // We lock a 2 DoF joint that is before the mimicked joint.
+  const std::vector<JointIndex> joints_to_lock = {model.getJointId("joint2")};
+  Model reduced_model;
+  BOOST_CHECK_NO_THROW(buildReducedModel(model, joints_to_lock, neutral(model), reduced_model));
+}
+
+BOOST_AUTO_TEST_CASE(test_mimicked_mimicking_vectors)
+{
+  Model man_model, man_mimic;
+  buildModels::manipulator(man_model);
+
+  // No mimic in model, so vectors should be empty
+  BOOST_CHECK(man_model.mimicked_joints.size() == 0);
+  BOOST_CHECK(man_model.mimicking_joints.size() == 0);
+
+  buildMimicModel(man_model, {1, 3}, {2, 5}, {1., 2.}, {0., 1.}, man_mimic);
+
+  // Vectors should be of size 2
+  BOOST_CHECK(man_mimic.mimicked_joints.size() == 2);
+  BOOST_CHECK(man_mimic.mimicking_joints.size() == 2);
+  for (size_t i = 1; i < man_mimic.mimicked_joints.size(); i++)
+  {
+    BOOST_CHECK(man_mimic.mimicked_joints[i - 1] < man_mimic.mimicked_joints[i]);
+    BOOST_CHECK(man_mimic.mimicking_joints[i - 1] < man_mimic.mimicking_joints[i]);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -7,6 +7,7 @@ from test_case import PinocchioTestCase as TestCase
 
 class TestABA(TestCase):
     def setUp(self):
+        # Set up non mimic model
         self.model = pin.buildSampleModelHumanoidRandom()
         self.data = self.model.createData()
 
@@ -18,6 +19,11 @@ class TestABA(TestCase):
         self.fext = []
         for _ in range(self.model.njoints):
             self.fext.append(pin.Force.Random())
+
+        # Set up mimic model
+        self.model_mimic = pin.buildSampleModelManipulator(True)
+        self.data_mimic = self.model_mimic.createData()
+        self.q_mimic = np.zeros((self.model_mimic.nq,))
 
     def test_aba(self):
         model = self.model
@@ -50,6 +56,15 @@ class TestABA(TestCase):
         M = pin.crba(model, data2, self.q)
 
         self.assertApprox(np.linalg.inv(M), Minv)
+
+    def test_assert_mimic_not_supported_function(self):
+        self.assertRaises(
+            RuntimeError,
+            pin.computeMinverse,
+            self.model_mimic,
+            self.data_mimic,
+            self.q_mimic,
+        )
 
 
 if __name__ == "__main__":

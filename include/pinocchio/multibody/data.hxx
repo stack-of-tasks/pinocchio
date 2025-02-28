@@ -70,18 +70,21 @@ namespace pinocchio
   , Fcrb((std::size_t)model.njoints, Matrix6x::Zero(6, model.nv))
   , lastChild((std::size_t)model.njoints, -1)
   , nvSubtree((std::size_t)model.njoints, -1)
-  , start_idx_v_fromRow((std::size_t)model.nv, -1)
-  , end_idx_v_fromRow((std::size_t)model.nv, -1)
+  , start_idx_v_fromRow((std::size_t)model.nvExtended, -1)
+  , end_idx_v_fromRow((std::size_t)model.nvExtended, -1)
   , U(MatrixXs::Identity(model.nv, model.nv))
   , D(VectorXs::Zero(model.nv))
   , Dinv(VectorXs::Zero(model.nv))
   , tmp(VectorXs::Zero(model.nv))
-  , parents_fromRow((std::size_t)model.nv, -1)
+  , parents_fromRow((std::size_t)model.nvExtended, -1)
+  , mimic_parents_fromRow((std::size_t)model.nvExtended, -1)
+  , non_mimic_parents_fromRow((std::size_t)model.nvExtended, -1)
+  , idx_vExtended_to_idx_v_fromRow((std::size_t)model.nvExtended, -1)
   , supports_fromRow((std::size_t)model.nv)
-  , nvSubtree_fromRow((std::size_t)model.nv, -1)
-  , J(Matrix6x::Zero(6, model.nv))
-  , dJ(Matrix6x::Zero(6, model.nv))
-  , ddJ(Matrix6x::Zero(6, model.nv))
+  , nvSubtree_fromRow((std::size_t)model.nvExtended, -1)
+  , J(Matrix6x::Zero(6, model.nvExtended))
+  , dJ(Matrix6x::Zero(6, model.nvExtended))
+  , ddJ(Matrix6x::Zero(6, model.nvExtended))
   , psid(Matrix6x::Zero(6, model.nv))
   , psidd(Matrix6x::Zero(6, model.nv))
   , dVdq(Matrix6x::Zero(6, model.nv))
@@ -122,6 +125,7 @@ namespace pinocchio
   , par_cons_ind((std::size_t)model.njoints, 0)
   , a_bias((std::size_t)model.njoints, Motion::Zero())
   , KAS((std::size_t)model.njoints, MatrixXs::Zero(0, 0))
+
 #if EIGEN_VERSION_AT_LEAST(3, 2, 90) && !EIGEN_VERSION_AT_LEAST(3, 2, 93)
   , kinematic_hessians(
       6,
@@ -158,6 +162,7 @@ namespace pinocchio
   , constraints_supported_dim((std::size_t)model.njoints, 0)
   , constraints_supported((std::size_t)model.njoints)
   , constraints_on_joint((std::size_t)model.njoints)
+  , mimic_subtree_joint()
   {
     typedef typename Model::JointIndex JointIndex;
 
@@ -200,11 +205,39 @@ namespace pinocchio
       if (lastChild[(Index)i] == -1)
         lastChild[(Index)i] = i;
       const Index & parent = model.parents[(Index)i];
+
       lastChild[parent] = std::max<int>(lastChild[(Index)i], lastChild[parent]);
 
-      nvSubtree[(Index)i] = model.joints[(Index)lastChild[(Index)i]].idx_v()
-                            + model.joints[(Index)lastChild[(Index)i]].nv()
-                            - model.joints[(Index)i].idx_v();
+      // Build a "correct" representation of mimic nvSubtree by using nvExtended, which will cover
+      // its children nv, and allow for a simple check
+      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[i]))
+        nvSubtree[(Index)i] = 0;
+      else
+      {
+        int nv_;
+        if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(
+              &model.joints[(Index)lastChild[(Index)i]]))
+          nv_ = model.joints[(Index)lastChild[(Index)i]].nvExtended();
+        else
+          nv_ = model.joints[(Index)lastChild[(Index)i]].nv();
+        nvSubtree[(Index)i] =
+          model.joints[(Index)lastChild[(Index)i]].idx_v() + nv_ - model.joints[(Index)i].idx_v();
+      }
+    }
+    // fill mimic data
+    for (const JointIndex mimicking_id : model.mimicking_joints)
+    {
+      const auto & mimicking_sub = model.subtrees[mimicking_id];
+      size_t j = 1;
+      for (; j < mimicking_sub.size(); j++)
+      {
+        if (model.nvs[mimicking_sub[j]] != 0)
+          break;
+      }
+      if (mimicking_sub.size() == 1)
+        mimic_subtree_joint.push_back(0);
+      else
+        mimic_subtree_joint.push_back(mimicking_sub[j]);
     }
   }
 
@@ -217,25 +250,67 @@ namespace pinocchio
     for (Index joint = 1; joint < (Index)(model.njoints); joint++)
     {
       const Index & parent = model.parents[joint];
-      const int nvj = model.joints[joint].nv();
       const int idx_vj = model.joints[joint].idx_v();
+      const int nvj = model.joints[joint].nv();
+      const int nvExtended_j = model.joints[joint].nvExtended();
+      const int idx_vExtended_j = model.joints[joint].idx_vExtended();
 
+      assert(idx_vExtended_j >= 0 && idx_vExtended_j < model.nvExtended);
       assert(idx_vj >= 0 && idx_vj < model.nv);
-      if (parent > 0)
-        parents_fromRow[(Index)idx_vj] =
-          model.joints[parent].idx_v() + model.joints[parent].nv() - 1;
-      else
-        parents_fromRow[(Index)idx_vj] = -1;
-      nvSubtree_fromRow[(Index)idx_vj] = nvSubtree[joint];
 
-      start_idx_v_fromRow[(size_t)idx_vj] = idx_vj;
-      end_idx_v_fromRow[(size_t)idx_vj] = idx_vj + nvj - 1;
-      for (int row = 1; row < nvj; ++row)
+      if (parent > 0)
+        parents_fromRow[(Index)idx_vExtended_j] =
+          model.joints[parent].idx_vExtended() + model.joints[parent].nvExtended() - 1;
+      else
+        parents_fromRow[(Index)idx_vExtended_j] = -1;
+
+      JointIndex first_non_mimic_parent_id = parent;
+      while (first_non_mimic_parent_id > 0
+             && boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(
+               &model.joints[first_non_mimic_parent_id]))
       {
-        parents_fromRow[(size_t)(idx_vj + row)] = idx_vj + row - 1;
-        nvSubtree_fromRow[(size_t)(idx_vj + row)] = nvSubtree[joint] - row;
-        start_idx_v_fromRow[(size_t)(idx_vj + row)] = start_idx_v_fromRow[(size_t)idx_vj];
-        end_idx_v_fromRow[(size_t)(idx_vj + row)] = end_idx_v_fromRow[(size_t)idx_vj];
+        first_non_mimic_parent_id = model.parents[first_non_mimic_parent_id];
+      }
+
+      if (first_non_mimic_parent_id > 0)
+        non_mimic_parents_fromRow[(Index)idx_vExtended_j] =
+          model.joints[first_non_mimic_parent_id].idx_vExtended()
+          + model.joints[first_non_mimic_parent_id].nvExtended() - 1;
+      else
+        non_mimic_parents_fromRow[(Index)idx_vExtended_j] = -1;
+
+      JointIndex first_mimic_parent_id = parent;
+      while (first_mimic_parent_id > 0
+             && !boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(
+               &model.joints[first_mimic_parent_id]))
+      {
+        first_mimic_parent_id = model.parents[first_mimic_parent_id];
+      }
+
+      if (first_mimic_parent_id > 0)
+        mimic_parents_fromRow[(Index)idx_vExtended_j] =
+          model.joints[first_mimic_parent_id].idx_vExtended()
+          + model.joints[first_mimic_parent_id].nvExtended() - 1;
+      else
+        mimic_parents_fromRow[(Index)idx_vExtended_j] = -1;
+
+      nvSubtree_fromRow[(Index)idx_vExtended_j] = nvSubtree[joint];
+      start_idx_v_fromRow[(size_t)idx_vj] = idx_vj;
+      end_idx_v_fromRow[(size_t)idx_vj] = idx_vj + nvExtended_j - 1;
+      idx_vExtended_to_idx_v_fromRow[(size_t)idx_vExtended_j] = idx_vj;
+
+      for (int row = 1; row < nvExtended_j; ++row)
+      {
+        parents_fromRow[(size_t)(idx_vExtended_j + row)] = idx_vExtended_j + row - 1;
+        mimic_parents_fromRow[(size_t)(idx_vExtended_j + row)] = idx_vExtended_j + row - 1;
+        non_mimic_parents_fromRow[(size_t)(idx_vExtended_j + row)] = idx_vExtended_j + row - 1;
+        nvSubtree_fromRow[(size_t)(idx_vExtended_j + row)] = nvSubtree[joint] - row;
+        start_idx_v_fromRow[(size_t)(idx_vExtended_j + row)] =
+          start_idx_v_fromRow[(size_t)idx_vExtended_j];
+        end_idx_v_fromRow[(size_t)(idx_vExtended_j + row)] =
+          end_idx_v_fromRow[(size_t)idx_vExtended_j];
+        idx_vExtended_to_idx_v_fromRow[(size_t)(idx_vExtended_j + row)] =
+          idx_vExtended_to_idx_v_fromRow[(size_t)idx_vExtended_j] + row;
       }
     }
   }
@@ -297,6 +372,10 @@ namespace pinocchio
       && data1.end_idx_v_fromRow == data2.end_idx_v_fromRow && data1.U == data2.U
       && data1.D == data2.D && data1.Dinv == data2.Dinv
       && data1.parents_fromRow == data2.parents_fromRow
+      && data1.mimic_parents_fromRow == data2.mimic_parents_fromRow
+      && data1.non_mimic_parents_fromRow == data2.non_mimic_parents_fromRow
+      && data1.idx_vExtended_to_idx_v_fromRow == data2.idx_vExtended_to_idx_v_fromRow
+      && data1.mimic_subtree_joint == data2.mimic_subtree_joint
       && data1.supports_fromRow == data2.supports_fromRow
       && data1.nvSubtree_fromRow == data2.nvSubtree_fromRow && data1.J == data2.J
       && data1.dJ == data2.dJ && data1.ddJ == data2.ddJ && data1.psid == data2.psid

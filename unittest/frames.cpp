@@ -19,6 +19,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include "utils/model-generator.hpp"
+
 template<typename Derived>
 inline bool isFinite(const Eigen::MatrixBase<Derived> & x)
 {
@@ -357,6 +359,55 @@ BOOST_AUTO_TEST_CASE(test_frame_getters)
     ac_align.isApprox(getFrameClassicalAcceleration(model, data, frameId, LOCAL_WORLD_ALIGNED)));
 }
 
+// Test getFrameJacobian
+// Jacobian is calculated in LOCAL, WORLD and LOCAL_WORLD_ALIGNED and tested against velocity.
+void test_get_frame_jacobian_impl(
+  const pinocchio::Model & input_model, pinocchio::JointIndex joint_idx)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model(input_model);
+  const std::string & frame_name = std::string(model.names[joint_idx] + "_frame");
+  const SE3 & framePlacement = SE3::Random();
+  auto frame_idx = model.addFrame(Frame(frame_name, joint_idx, 0, framePlacement, OP_FRAME));
+
+  pinocchio::Data data(model);
+  // data_ref is used to compute the frame velocity
+  pinocchio::Data data_ref(model);
+
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = VectorXd::Random(model.nv);
+
+  computeJointJacobians(model, data, q);
+  updateFramePlacement(model, data, frame_idx);
+
+  forwardKinematics(model, data_ref, q, v);
+  updateFramePlacement(model, data_ref, frame_idx);
+
+  // In LOCAL frame
+  Data::Matrix6x J_local(Data::Matrix6x::Zero(6, model.nv));
+  getFrameJacobian(model, data, frame_idx, LOCAL, J_local);
+  auto frame_velocity_local = getFrameVelocity(model, data_ref, frame_idx, LOCAL);
+  BOOST_CHECK((J_local * v).isApprox(frame_velocity_local.toVector()));
+
+  // In WORLD frame
+  Data::Matrix6x J_world(Data::Matrix6x::Zero(6, model.nv));
+  getFrameJacobian(model, data, frame_idx, WORLD, J_world);
+  auto frame_velocity_world = getFrameVelocity(model, data_ref, frame_idx, WORLD);
+  BOOST_CHECK((J_world * v).isApprox(frame_velocity_world.toVector()));
+
+  // In LOCAL_WORLD_ALIGNED frame
+  Data::Matrix6x J_local_world_aligned(Data::Matrix6x::Zero(6, model.nv));
+  getFrameJacobian(model, data, frame_idx, LOCAL_WORLD_ALIGNED, J_local_world_aligned);
+  auto frame_velocity_local_world_aligned =
+    getFrameVelocity(model, data_ref, frame_idx, LOCAL_WORLD_ALIGNED);
+  BOOST_CHECK((J_local_world_aligned * v).isApprox(frame_velocity_local_world_aligned.toVector()));
+}
+
+// Test getFrameJacobian on normal models
 BOOST_AUTO_TEST_CASE(test_get_frame_jacobian)
 {
   using namespace Eigen;
@@ -364,164 +415,103 @@ BOOST_AUTO_TEST_CASE(test_get_frame_jacobian)
 
   Model model;
   buildModels::humanoidRandom(model);
-  Model::Index parent_idx = model.existJointName("rarm2_joint") ? model.getJointId("rarm2_joint")
-                                                                : (Model::Index)(model.njoints - 1);
-  const std::string & frame_name = std::string(model.names[parent_idx] + "_frame");
+  for (int j = 1; j < model.njoints; j++)
+  {
+    test_get_frame_jacobian_impl(model, static_cast<pinocchio::JointIndex>(j));
+  }
+}
+
+// Test getFrameJacobian on model with mimic joint
+BOOST_AUTO_TEST_CASE(test_get_frame_jacobian_mimic)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  for (int i = 0; i < pinocchio::MimicTestCases::N_CASES; i++)
+  {
+    const pinocchio::MimicTestCases mimic_test_case(i);
+    const pinocchio::Model & model_mimic = mimic_test_case.model_mimic;
+    for (int j = 1; j < model_mimic.njoints; j++)
+    {
+      test_get_frame_jacobian_impl(model_mimic, static_cast<pinocchio::JointIndex>(j));
+    }
+  }
+}
+
+// Test computeFrameJacobian
+// Jacobian is calculated in LOCAL, WORLD and LOCAL_WORLD_ALIGNED and tested against velocity.
+void test_compute_frame_jacobian_impl(
+  const pinocchio::Model & input_model, pinocchio::JointIndex joint_idx)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model(input_model);
+  const std::string & frame_name = std::string(model.names[joint_idx] + "_frame");
   const SE3 & framePlacement = SE3::Random();
-  model.addFrame(Frame(frame_name, parent_idx, 0, framePlacement, OP_FRAME));
-  BOOST_CHECK(model.existFrame(frame_name));
+  auto frame_idx = model.addFrame(Frame(frame_name, joint_idx, 0, framePlacement, OP_FRAME));
 
   pinocchio::Data data(model);
+  // data_ref is used to compute the frame velocity
   pinocchio::Data data_ref(model);
 
   model.lowerPositionLimit.head<7>().fill(-1.);
   model.upperPositionLimit.head<7>().fill(1.);
   VectorXd q = randomConfiguration(model);
-  VectorXd v = VectorXd::Ones(model.nv);
+  VectorXd v = VectorXd::Random(model.nv);
+
+  forwardKinematics(model, data_ref, q, v);
+  updateFramePlacement(model, data_ref, frame_idx);
 
   // In LOCAL frame
-  const Model::Index idx = model.getFrameId(frame_name);
-  const Frame & frame = model.frames[idx];
-  BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
-  Data::Matrix6x Jjj(6, model.nv);
-  Jjj.fill(0);
-  Data::Matrix6x Jff(6, model.nv);
-  Jff.fill(0);
-  Data::Matrix6x Jff2(6, model.nv);
-  Jff2.fill(0);
-
-  computeJointJacobians(model, data, q);
-  updateFramePlacement(model, data, idx);
-  getFrameJacobian(model, data, idx, LOCAL, Jff);
-  BOOST_CHECK(Jff.isApprox(getFrameJacobian(model, data, idx, LOCAL)));
-  computeJointJacobians(model, data_ref, q);
-  getJointJacobian(model, data_ref, parent_idx, LOCAL, Jjj);
-
-  Motion nu_frame = Motion(Jff * v);
-  Motion nu_joint = Motion(Jjj * v);
-
-  const SE3::ActionMatrixType jXf = frame.placement.toActionMatrix();
-  Data::Matrix6x Jjj_from_frame(jXf * Jff);
-  BOOST_CHECK(Jjj_from_frame.isApprox(Jjj));
-
-  BOOST_CHECK(nu_frame.isApprox(frame.placement.actInv(nu_joint)));
+  Data::Matrix6x J_local(Data::Matrix6x::Zero(6, model.nv));
+  computeFrameJacobian(model, data, q, frame_idx, LOCAL, J_local);
+  auto frame_velocity_local = getFrameVelocity(model, data_ref, frame_idx, LOCAL);
+  BOOST_CHECK((J_local * v).isApprox(frame_velocity_local.toVector()));
 
   // In WORLD frame
-  Jjj.fill(0);
-  Jff.fill(0);
-  Jff2.fill(0);
-  getFrameJacobian(model, data, idx, WORLD, Jff);
-  BOOST_CHECK(Jff.isApprox(getFrameJacobian(model, data, idx, WORLD)));
-  getJointJacobian(model, data_ref, parent_idx, WORLD, Jjj);
-  BOOST_CHECK(Jff.isApprox(Jjj));
+  Data::Matrix6x J_world(Data::Matrix6x::Zero(6, model.nv));
+  computeFrameJacobian(model, data, q, frame_idx, WORLD, J_world);
+  auto frame_velocity_world = getFrameVelocity(model, data_ref, frame_idx, WORLD);
+  BOOST_CHECK((J_world * v).isApprox(frame_velocity_world.toVector()));
 
-  computeFrameJacobian(model, data, q, idx, WORLD, Jff2);
-
-  BOOST_CHECK(Jff2.isApprox(Jjj));
-
-  // In WORLD frame
-  Jjj.fill(0);
-  Jff.fill(0);
-  Jff2.fill(0);
-  getFrameJacobian(model, data, idx, LOCAL_WORLD_ALIGNED, Jff);
-  BOOST_CHECK(Jff.isApprox(getFrameJacobian(model, data, idx, LOCAL_WORLD_ALIGNED)));
-
-  getJointJacobian(model, data_ref, parent_idx, WORLD, Jjj);
-  const SE3 oMf_translation(SE3::Matrix3::Identity(), data.oMf[idx].translation());
-  Jjj = oMf_translation.toActionMatrixInverse() * Jjj;
-  BOOST_CHECK(Jff.isApprox(Jjj));
-
-  computeFrameJacobian(model, data, q, idx, LOCAL_WORLD_ALIGNED, Jff2);
-  BOOST_CHECK(Jff2.isApprox(Jff));
+  // In LOCAL_WORLD_ALIGNED frame
+  Data::Matrix6x J_local_world_aligned(Data::Matrix6x::Zero(6, model.nv));
+  computeFrameJacobian(model, data, q, frame_idx, LOCAL_WORLD_ALIGNED, J_local_world_aligned);
+  auto frame_velocity_local_world_aligned =
+    getFrameVelocity(model, data_ref, frame_idx, LOCAL_WORLD_ALIGNED);
+  BOOST_CHECK((J_local_world_aligned * v).isApprox(frame_velocity_local_world_aligned.toVector()));
 }
 
-BOOST_AUTO_TEST_CASE(test_frame_jacobian)
+// Test computeFrameJacobian on normal models
+BOOST_AUTO_TEST_CASE(test_compute_frame_jacobian)
 {
   using namespace Eigen;
   using namespace pinocchio;
 
   Model model;
   buildModels::humanoidRandom(model);
-  Model::Index parent_idx = model.existJointName("rarm2_joint") ? model.getJointId("rarm2_joint")
-                                                                : (Model::Index)(model.njoints - 1);
-  const std::string & frame_name = std::string(model.names[parent_idx] + "_frame");
-  const SE3 & framePlacement = SE3::Random();
-  model.addFrame(Frame(frame_name, parent_idx, 0, framePlacement, OP_FRAME));
-  BOOST_CHECK(model.existFrame(frame_name));
-
-  pinocchio::Data data(model);
-  pinocchio::Data data_ref(model);
-
-  model.lowerPositionLimit.head<7>().fill(-1.);
-  model.upperPositionLimit.head<7>().fill(1.);
-  VectorXd q = randomConfiguration(model);
-  VectorXd v = VectorXd::Ones(model.nv);
-
-  Model::Index idx = model.getFrameId(frame_name);
-  const Frame & frame = model.frames[idx];
-  BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
-  Data::Matrix6x Jf(6, model.nv);
-  Jf.fill(0);
-  Data::Matrix6x Jf2(6, model.nv);
-  Jf2.fill(0);
-  Data::Matrix6x Jf_ref(6, model.nv);
-  Jf_ref.fill(0);
-
-  computeFrameJacobian(model, data_ref, q, idx, Jf);
-
-  computeJointJacobians(model, data_ref, q);
-  updateFramePlacement(model, data_ref, idx);
-  getFrameJacobian(model, data_ref, idx, LOCAL, Jf_ref);
-
-  BOOST_CHECK(Jf.isApprox(Jf_ref));
-
-  computeFrameJacobian(model, data, q, idx, LOCAL, Jf2);
-
-  BOOST_CHECK(Jf2.isApprox(Jf_ref));
+  for (int j = 1; j < model.njoints; j++)
+  {
+    test_compute_frame_jacobian_impl(model, static_cast<pinocchio::JointIndex>(j));
+  }
 }
 
-BOOST_AUTO_TEST_CASE(test_frame_jacobian_local_world_oriented)
+// Test computeFrameJacobian on model with mimic joint
+BOOST_AUTO_TEST_CASE(test_compute_frame_jacobian_mimic)
 {
   using namespace Eigen;
   using namespace pinocchio;
 
-  Model model;
-  buildModels::humanoidRandom(model);
-  Model::Index parent_idx = model.existJointName("rarm2_joint") ? model.getJointId("rarm2_joint")
-                                                                : (Model::Index)(model.njoints - 1);
-  const std::string & frame_name = std::string(model.names[parent_idx] + "_frame");
-  const SE3 & framePlacement = SE3::Random();
-  model.addFrame(Frame(frame_name, parent_idx, 0, framePlacement, OP_FRAME));
-  BOOST_CHECK(model.existFrame(frame_name));
-
-  pinocchio::Data data(model);
-
-  model.lowerPositionLimit.head<7>().fill(-1.);
-  model.upperPositionLimit.head<7>().fill(1.);
-  VectorXd q = randomConfiguration(model);
-  VectorXd v = VectorXd::Ones(model.nv);
-
-  Model::Index idx = model.getFrameId(frame_name);
-  Data::Matrix6x Jf(6, model.nv);
-  Jf.fill(0);
-  Data::Matrix6x Jf2(6, model.nv);
-  Jf2.fill(0);
-  Data::Matrix6x Jf_ref(6, model.nv);
-  Jf_ref.fill(0);
-
-  computeJointJacobians(model, data, q);
-  updateFramePlacement(model, data, idx);
-  getFrameJacobian(model, data, idx, LOCAL, Jf_ref);
-
-  // Compute the jacobians.
-  Jf_ref = SE3(data.oMf[idx].rotation(), Eigen::Vector3d::Zero()).toActionMatrix() * Jf_ref;
-  getFrameJacobian(model, data, idx, LOCAL_WORLD_ALIGNED, Jf);
-
-  BOOST_CHECK(Jf.isApprox(Jf_ref));
-
-  computeFrameJacobian(model, data, q, idx, LOCAL_WORLD_ALIGNED, Jf2);
-
-  BOOST_CHECK(Jf2.isApprox(Jf_ref));
+  for (int i = 0; i < pinocchio::MimicTestCases::N_CASES; i++)
+  {
+    const pinocchio::MimicTestCases mimic_test_case(i, true);
+    const pinocchio::Model & model_mimic = mimic_test_case.model_mimic;
+    for (int j = 1; j < model_mimic.njoints; j++)
+    {
+      test_compute_frame_jacobian_impl(model_mimic, static_cast<pinocchio::JointIndex>(j));
+    }
+  }
 }
 
 BOOST_AUTO_TEST_CASE(test_frame_jacobian_time_variation)

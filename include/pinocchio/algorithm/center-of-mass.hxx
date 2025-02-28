@@ -257,12 +257,12 @@ namespace pinocchio
 
       Matrix3x & Jcom_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3x, Jcom);
 
-      ColBlock Jcols = jmodel.jointCols(data.J);
+      ColBlock Jcols = jmodel.jointExtendedModelCols(data.J);
       Jcols = data.oMi[i].act(jdata.S());
 
-      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nv(); ++col_id)
+      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nvExtended(); ++col_id)
       {
-        jmodel.jointCols(Jcom_).col(col_id) =
+        jmodel.jointCols(Jcom_).col(col_id) +=
           data.mass[i] * Jcols.col(col_id).template segment<3>(Motion::LINEAR)
           - data.com[i].cross(Jcols.col(col_id).template segment<3>(Motion::ANGULAR));
       }
@@ -318,6 +318,7 @@ namespace pinocchio
     }
 
     // Backward step
+    data.Jcom.setZero();
     typedef JacobianCenterOfMassBackwardStep<Scalar, Options, JointCollectionTpl, Matrix3x> Pass2;
     for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i)
     {
@@ -366,12 +367,12 @@ namespace pinocchio
 
       Matrix3x & Jcom_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3x, Jcom);
 
-      ColBlock Jcols = jmodel.jointCols(data.J);
+      ColBlock Jcols = jmodel.jointExtendedModelCols(data.J);
       Jcols = data.oMi[i].act(jdata.S());
 
-      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nv(); ++col_id)
+      for (Eigen::DenseIndex col_id = 0; col_id < jmodel.nvExtended(); ++col_id)
       {
-        jmodel.jointCols(Jcom_).col(col_id) =
+        jmodel.jointCols(Jcom_).col(col_id) +=
           Jcols.col(col_id).template segment<3>(Motion::LINEAR)
           - data.com[subtree_root_id].cross(Jcols.col(col_id).template segment<3>(Motion::ANGULAR));
       }
@@ -411,6 +412,7 @@ namespace pinocchio
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
 
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
       PINOCCHIO_CHECK_INPUT_ARGUMENT((int)rootSubtreeId < model.njoints, "Invalid joint id.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         res.rows(), 3, "the resulting matrix does not have the right size.");
@@ -444,6 +446,7 @@ namespace pinocchio
       }
 
       // Backward step
+      data.Jcom.setZero();
       typedef JacobianCenterOfMassBackwardStep<Scalar, Options, JointCollectionTpl, Matrix3xLike>
         Pass2;
       for (Eigen::DenseIndex k = (Eigen::DenseIndex)subtree.size() - 1; k >= 0; --k)
@@ -474,6 +477,7 @@ namespace pinocchio
       Jcom_subtree.middleCols(idx_v, nv_subtree) *= mass_inv_subtree;
 
       // Second backward step
+
       typedef JacobianSubtreeCenterOfMassBackwardStep<
         Scalar, Options, JointCollectionTpl, Matrix3xLike>
         Pass3;
@@ -500,6 +504,7 @@ namespace pinocchio
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
       PINOCCHIO_CHECK_INPUT_ARGUMENT(((int)rootSubtreeId < model.njoints), "Invalid joint id.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         res.rows(), 3, "the resulting matrix does not have the right size.");

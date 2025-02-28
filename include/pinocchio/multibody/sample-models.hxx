@@ -57,6 +57,7 @@ namespace pinocchio
       template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
       static void addManipulator(
         ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+        const bool mimic = false,
         typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointIndex root_joint_idx = 0,
         const typename ModelTpl<Scalar, Options, JointCollectionTpl>::SE3 & Mroot =
           ModelTpl<Scalar, Options, JointCollectionTpl>::SE3::Identity(),
@@ -104,19 +105,37 @@ namespace pinocchio
           model, typename JC::JointModelRX(), model.names[joint_id], pre + "wrist1", Marm);
         model.inertias[joint_id] = Ijoint;
 
-        joint_id = addJointAndBody(
-          model, typename JC::JointModelRY(), model.names[joint_id], pre + "wrist2", Id4);
+        if (mimic)
+        {
+          // Scalar multiplier = JC::JointModelRX::ConfigVector_t::Random(1)(0);
+          // Scalar offset = JC::JointModelRX::ConfigVector_t::Random(1)(0);
+
+          Scalar multiplier = 2.5;
+          Scalar offset = 0.75;
+          joint_id = addJointAndBody(
+            model,
+            typename JC::JointModelMimic(
+              typename JC::JointModelRY(), model.joints[joint_id].derived(), multiplier, offset),
+            model.names[joint_id], pre + "wrist1_mimic", Id4);
+        }
+        else
+        {
+          joint_id = addJointAndBody(
+            model, typename JC::JointModelRY(), model.names[joint_id], pre + "wrist2", Id4);
+        }
+
         model.inertias[joint_id] = Iarm;
         model.addBodyFrame(pre + "effector_body", joint_id);
+        const int nq = mimic ? 5 : 6;
 
         const JointModel & base_joint = model.joints[root_joint_id];
         const int idx_q = base_joint.idx_q();
         const int idx_v = base_joint.idx_v();
 
-        model.lowerPositionLimit.template segment<6>(idx_q).fill(qmin);
-        model.upperPositionLimit.template segment<6>(idx_q).fill(qmax);
-        model.velocityLimit.template segment<6>(idx_v).fill(vmax);
-        model.effortLimit.template segment<6>(idx_v).fill(taumax);
+        model.lowerPositionLimit.segment(idx_q, nq).fill(qmin);
+        model.upperPositionLimit.segment(idx_q, nq).fill(qmax);
+        model.velocityLimit.segment(idx_v, nq).fill(vmax);
+        model.effortLimit.segment(idx_v, nq).fill(taumax);
       }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
@@ -199,9 +218,9 @@ namespace pinocchio
     } // namespace details
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    void manipulator(ModelTpl<Scalar, Options, JointCollectionTpl> & model)
+    void manipulator(ModelTpl<Scalar, Options, JointCollectionTpl> & model, const bool mimic)
     {
-      details::addManipulator(model);
+      details::addManipulator(model, mimic);
     }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
@@ -214,7 +233,8 @@ namespace pinocchio
 #endif
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    void humanoidRandom(ModelTpl<Scalar, Options, JointCollectionTpl> & model, bool usingFF)
+    void
+    humanoidRandom(ModelTpl<Scalar, Options, JointCollectionTpl> & model, bool usingFF, bool mimic)
     {
       typedef JointCollectionTpl<Scalar, Options> JC;
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
@@ -269,8 +289,22 @@ namespace pinocchio
       addJointAndBody(model, typename JC::JointModelRY(), "larm1_joint", "larm2");
       addJointAndBody(model, typename JC::JointModelRZ(), "larm2_joint", "larm3");
       addJointAndBody(model, typename JC::JointModelRY(), "larm3_joint", "larm4");
-      addJointAndBody(model, typename JC::JointModelRY(), "larm4_joint", "larm5");
-      addJointAndBody(model, typename JC::JointModelRX(), "larm5_joint", "larm6");
+      Index joint_id = addJointAndBody(model, typename JC::JointModelRY(), "larm4_joint", "larm5");
+
+      if (mimic)
+      {
+        Scalar multiplier = 2.5;
+        Scalar offset = 0.75;
+        addJointAndBody(
+          model,
+          typename JC::JointModelMimic(
+            typename JC::JointModelRX(), model.joints[joint_id].derived(), multiplier, offset),
+          "larm5_joint", "larm6");
+      }
+      else
+      {
+        addJointAndBody(model, typename JC::JointModelRX(), "larm5_joint", "larm6");
+      }
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -315,11 +349,11 @@ namespace pinocchio
       /* --- Lower limbs --- */
 
       details::addManipulator(
-        model, ffidx,
+        model, false, ffidx,
         SE3(details::rotate(pi, SE3::Vector3::UnitX()), typename SE3::Vector3(0, -0.2, -.1)),
         "rleg_");
       details::addManipulator(
-        model, ffidx,
+        model, false, ffidx,
         SE3(details::rotate(pi, SE3::Vector3::UnitX()), typename SE3::Vector3(0, 0.2, -.1)),
         "lleg_");
 
@@ -359,11 +393,11 @@ namespace pinocchio
 
       /* --- Upper Limbs --- */
       details::addManipulator(
-        model, chest,
+        model, false, chest,
         SE3(details::rotate(pi, SE3::Vector3::UnitX()), typename SE3::Vector3(0, -0.3, 1.)),
         "rarm_");
       details::addManipulator(
-        model, chest,
+        model, false, chest,
         SE3(details::rotate(pi, SE3::Vector3::UnitX()), typename SE3::Vector3(0, 0.3, 1.)),
         "larm_");
     }

@@ -324,14 +324,22 @@ namespace pinocchio
     /// \brief End index of the Joint motion subspace
     std::vector<int> end_idx_v_fromRow;
 
-    /// \brief Joint space intertia matrix square root (upper trianglular part) computed with a
+    /// \brief Extended model mapping of the joint rows
+    /// (idx_vExtended_to_idx_v_fromRow[idx_vExtended] = idx_v)
+    std::vector<int> idx_vExtended_to_idx_v_fromRow;
+
+    /// \brief Store the index of the first non mimic child of each mimic joint (for CRBA).
+    /// Store 0 if there is no non mimic child.
+    std::vector<JointIndex> mimic_subtree_joint;
+
+    /// \brief Joint space inertia matrix square root (upper triangular part) computed with a
     /// Cholesky Decomposition.
     MatrixXs U;
 
-    /// \brief Diagonal of the joint space intertia matrix obtained by a Cholesky Decomposition.
+    /// \brief Diagonal of the joint space inertia matrix obtained by a Cholesky Decomposition.
     VectorXs D;
 
-    /// \brief Diagonal inverse of the joint space intertia matrix obtained by a Cholesky
+    /// \brief Diagonal inverse of the joint space inertia matrix obtained by a Cholesky
     /// Decomposition.
     VectorXs Dinv;
 
@@ -341,10 +349,15 @@ namespace pinocchio
     /// \brief First previous non-zero row in M (used in Cholesky Decomposition).
     std::vector<int> parents_fromRow;
 
-    /// \brief Each element of this vector corresponds to the ordered list of indexes belonging to
-    /// the supporting tree of the
-    ///        given index at the row level. It may be helpful to retrieve the sparsity pattern
-    ///        through it.
+    /// \brief First previous non-zero row belonging to a mimic joint in M (used in Jacobian).
+    std::vector<int> mimic_parents_fromRow;
+
+    /// \brief First previous non-zero row belonging to a non mimic joint in M (used in Jacobian).
+    std::vector<int> non_mimic_parents_fromRow;
+
+    /// \brief Each element of this vector corresponds to the ordered list of indexes
+    /// belonging to the supporting tree of the given index at the row level.
+    /// It may be helpful to retrieve the sparsity pattern through it.
     std::vector<std::vector<int>> supports_fromRow;
 
     /// \brief Subtree of the current row index (used in Cholesky Decomposition).
@@ -354,9 +367,10 @@ namespace pinocchio
     /// \note The columns of J corresponds to the basis of the spatial velocities of each joint and
     /// expressed at the origin of the inertial frame. In other words, if \f$ v_{J_{i}} = S_{i}
     /// \dot{q}_{i}\f$ is the relative velocity of the joint i regarding to its parent, then \f$J =
-    /// \begin{bmatrix} ^{0}X_{1} S_{1} & \cdots & ^{0}X_{i} S_{i} & \cdots & ^{0}X_{\text{nj}}
-    /// S_{\text{nj}} \end{bmatrix} \f$. This Jacobian has no special meaning. To get the jacobian
-    /// of a precise joint, you need to call pinocchio::getJointJacobian
+    /// \begin{bmatrix} ^{0}X_{1} S_{1} & \cdots & ^{0}X_{i} S_{i} & \cdots &
+    /// ^{0}X_{\text{nvExtended}} S_{\text{nvExtended}} \end{bmatrix} \f$. This Jacobian has no
+    /// special meaning. To get the jacobian of a precise joint, you need to call
+    /// pinocchio::getJointJacobian
     Matrix6x J;
 
     /// \brief Derivative of the Jacobian with respect to the time.

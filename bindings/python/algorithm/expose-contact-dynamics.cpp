@@ -5,6 +5,8 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
+
 namespace pinocchio
 {
   namespace python
@@ -108,7 +110,8 @@ namespace pinocchio
          bp::arg("constraint_jacobian"), bp::arg("constraint_drift"), bp::arg("damping") = 0),
         "Solves the constrained dynamics problem with contacts, puts the result in "
         "context::Data::ddq and return it. The contact forces are stored in data.lambda_c.\n"
-        "Note: internally, pinocchio.computeAllTerms is called.");
+        "Note: internally, pinocchio.computeAllTerms is called.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "forwardDynamics", &forwardDynamics_proxy_no_q,
@@ -116,7 +119,8 @@ namespace pinocchio
          bp::arg("constraint_drift"), bp::arg("damping") = 0),
         "Solves the forward dynamics problem with contacts, puts the result in "
         "context::Data::ddq and return it. The contact forces are stored in data.lambda_c.\n"
-        "Note: this function assumes that pinocchio.computeAllTerms has been called first.");
+        "Note: this function assumes that pinocchio.computeAllTerms has been called first.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "impulseDynamics", &impulseDynamics_proxy,
@@ -126,7 +130,8 @@ namespace pinocchio
         "Solves the impact dynamics problem with contacts, store the result in "
         "context::Data::dq_after and return it. The contact impulses are stored in "
         "data.impulse_c.\n"
-        "Note: internally, pinocchio.crba is called.");
+        "Note: internally, pinocchio.crba is called.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "impulseDynamics", &impulseDynamics_proxy_no_q,
@@ -135,13 +140,15 @@ namespace pinocchio
         "Solves the impact dynamics problem with contacts, store the result in "
         "context::Data::dq_after and return it. The contact impulses are stored in "
         "data.impulse_c.\n"
-        "Note: this function assumes that pinocchio.crba has been called first.");
+        "Note: this function assumes that pinocchio.crba has been called first.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeKKTContactDynamicMatrixInverse", computeKKTContactDynamicMatrixInverse_proxy,
         (bp::arg("model"), bp::arg("data"), bp::arg("q"), bp::arg("constraint_jacobian"),
          bp::arg("damping") = 0),
-        "Computes the inverse of the constraint matrix [[M J^T], [J 0]].");
+        "Computes the inverse of the constraint matrix [[M J^T], [J 0]].",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "getKKTContactDynamicMatrixInverse", getKKTContactDynamicMatrixInverse_proxy,
@@ -149,7 +156,8 @@ namespace pinocchio
         "Computes the inverse of the constraint matrix [[M Jt], [J 0]].\n forwardDynamics or "
         "impulseDynamics must have been called first.\n"
         "Note: the constraint Jacobian should be the same that was provided to "
-        "forwardDynamics or impulseDynamics.");
+        "forwardDynamics or impulseDynamics.",
+        mimic_not_supported_function<>(0));
     }
 
   } // namespace python

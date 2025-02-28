@@ -273,9 +273,9 @@ namespace pinocchio
       os << shortname() << endl;
     }
 
-    friend std::ostream & operator<<(std::ostream & os, const JointDataBase<Derived> & joint)
+    friend std::ostream & operator<<(std::ostream & os, const JointDataBase<Derived> & jdata)
     {
-      joint.disp(os);
+      jdata.derived().disp(os);
       return os;
     }
 
