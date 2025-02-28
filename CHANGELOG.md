@@ -10,11 +10,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added C++ visualization API, `pinocchio::pinocchio_visualizers` target ([#2574](https://github.com/stack-of-tasks/pinocchio/pull/2574))
 - Added forward declaration for class `SE3Tpl`, and typedef `pinocchio::context::SE3` ([#2574](https://github.com/stack-of-tasks/pinocchio/pull/2574))
 - Add macros PINOCCHIO_COMMON_TYPEDEF and PINOCCHIO_OPTIONS_DEFAULT ([#2574](https://github.com/stack-of-tasks/pinocchio/pull/2574))
-
-## [3.4.0] - 2025-02-12
-
-### Added
-- Add parsing meshes with vertices for MJCF format ([#2537](https://github.com/stack-of-tasks/pinocchio/pull/2537))
 - Add mimic joint support to the following algorithms: ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
   - Forward kinematics
   - Jacobians and frames
@@ -42,6 +37,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - `mimicked_joints`
   - `mimic_joint_supports`
 
+### Changed
+- Rewrite `JointModelMimic` and rename it `JointModelMimicTpl`, since `JointModelMimic` wasn't working, we don't consider it a breaking change ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+- Stop using context::Scalar for GeometryObject([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+
+## [3.4.0] - 2025-02-12
+
+### Added
+- Add parsing meshes with vertices for MJCF format ([#2537](https://github.com/stack-of-tasks/pinocchio/pull/2537))
+
 ### Fixed
 - Fix mjcf Euler angle parsing: use xyz as a default value for eulerseq compiler option ([#2526](https://github.com/stack-of-tasks/pinocchio/pull/2526))
 - Fix variable naming in Python ([#2530](https://github.com/stack-of-tasks/pinocchio/pull/2530))
@@ -52,10 +56,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix sites parsing for MJCF format ([#2548](https://github.com/stack-of-tasks/pinocchio/pull/2548))
 - Fix register `std::shared_ptr<{,Geometry}{Model,Data}>` in bindings ([#2566](https://github.com/stack-of-tasks/pinocchio/pull/2566))
 - Removed useless uses of `PINOCCHIO_WITH_CXX11_SUPPORT` ([#2564](https://github.com/stack-of-tasks/pinocchio/pull/2564))
-
-### Changed
-- Rewrite `JointModelMimic` and rename it `JointModelMimicTpl`, since `JointModelMimic` wasn't working, we don't consider it a breaking change ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
-- Stop using context::Scalar for GeometryObject([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
 
 ## [3.3.1] - 2024-12-13
 
