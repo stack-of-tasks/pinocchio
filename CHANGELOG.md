@@ -40,6 +40,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Rewrite `JointModelMimic` and rename it `JointModelMimicTpl`, since `JointModelMimic` wasn't working, we don't consider it a breaking change ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
 - Stop using context::Scalar for GeometryObject([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+- Use [Google benchmark](https://github.com/google/benchmark/tree/main) in benchmarks ([#2607](https://github.com/stack-of-tasks/pinocchio/pull/2607))
 
 ### Fixed
 - Add missing Python examples ([#2528](https://github.com/stack-of-tasks/pinocchio/pull/2528))
