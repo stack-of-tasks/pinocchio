@@ -20,8 +20,10 @@
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <Eigen/src/Core/util/Macros.h>
 #include <benchmark/benchmark.h>
+
+#include <boost/none.hpp>
+#include <boost/optional.hpp>
 
 #include <iostream>
 
@@ -194,23 +196,13 @@ static void CustomArguments(benchmark::internal::Benchmark * b)
   b->MinWarmUpTime(3.);
 }
 
-bool WITH_FF = true;
-std::string MODEL_FILENAME(PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf"));
-
-class ModelFixture : public benchmark::Fixture
+struct ModelFixture : benchmark::Fixture
 {
-public:
   void SetUp(benchmark::State &)
   {
-    model = pinocchio::Model();
-    if (MODEL_FILENAME == "HS")
-      pinocchio::buildModels::humanoidRandom(model, true);
-    else if (WITH_FF)
-      pinocchio::urdf::buildModel(MODEL_FILENAME, JointModelFreeFlyer(), model);
-    else
-      pinocchio::urdf::buildModel(MODEL_FILENAME, model);
+    model = MODEL;
+    data = Data(model);
 
-    data = pinocchio::Data(model);
     const Eigen::VectorXd qmax(Eigen::VectorXd::Ones(model.nq));
     q = randomConfiguration(model, -qmax, qmax);
     v = Eigen::VectorXd::Random(model.nv);
@@ -222,13 +214,17 @@ public:
   {
   }
 
-  pinocchio::Model model;
-  pinocchio::Data data;
+  Model model;
+  Data data;
   Eigen::VectorXd q;
   Eigen::VectorXd v;
   Eigen::VectorXd a;
   Eigen::VectorXd tau;
+
+  static Model MODEL;
 };
+
+Model ModelFixture::MODEL;
 
 // RNEA
 
@@ -683,4 +679,90 @@ BENCHMARK_DEFINE_F(ModelFixture, EMPTY_FORWARD_PASS_BINARY_VISIT_NO_DATA)(benchm
 }
 BENCHMARK_REGISTER_F(ModelFixture, EMPTY_FORWARD_PASS_BINARY_VISIT_NO_DATA)->Apply(CustomArguments);
 
-BENCHMARK_MAIN();
+struct ExtraArgs
+{
+  bool with_ff = true;
+  std::string model_filename;
+
+  ExtraArgs()
+  : model_filename(PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf"))
+  {
+  }
+};
+
+// Parse --no-ff and --model arguments
+boost::optional<ExtraArgs> parseExtraArgs(int argc, char ** argv)
+{
+  ExtraArgs args;
+  for (int i = 1; i < argc; ++i)
+  {
+    if (std::strcmp(argv[i], "--no-ff") == 0)
+    {
+      args.with_ff = false;
+    }
+    else if (std::strcmp(argv[i], "--model") == 0)
+    {
+      if (argc > (i + 1))
+      {
+        args.model_filename = argv[i + 1];
+        --argc;
+      }
+      else
+      {
+        std::cerr
+          << argv[0]
+          << ": error: unrecognized command-line flag: --model should be followed by an urdf path"
+          << std::endl;
+        return boost::none;
+      }
+    }
+    else
+    {
+      std::cerr << argv[0] << ": error: unrecognized command-line flag: " << argv[i] << std::endl;
+      return boost::none;
+    }
+  }
+  return args;
+}
+
+// BENCHMARK_MAIN() macro expansion edited to take some extra argument
+int main(int argc, char ** argv)
+{
+  char arg0_default[] = "benchmark";
+  char * args_default = arg0_default;
+  if (!argv)
+  {
+    argc = 1;
+    argv = &args_default;
+  }
+  ::benchmark::Initialize(&argc, argv);
+
+  // It's important to report errors so typos on google benchmark arguments
+  // are detected.
+  auto extra_args = parseExtraArgs(argc, argv);
+  if (!extra_args)
+  {
+    return 1;
+  }
+
+  if (extra_args->model_filename == "HS")
+  {
+    pinocchio::buildModels::humanoidRandom(ModelFixture::MODEL, extra_args->with_ff);
+  }
+  else if (extra_args->with_ff)
+  {
+    pinocchio::urdf::buildModel(
+      extra_args->model_filename, JointModelFreeFlyer(), ModelFixture::MODEL);
+  }
+  else
+  {
+    pinocchio::urdf::buildModel(extra_args->model_filename, ModelFixture::MODEL);
+  }
+  std::cout << "nq = " << ModelFixture::MODEL.nq << std::endl;
+  std::cout << "nv = " << ModelFixture::MODEL.nv << std::endl;
+  std::cout << "--" << std::endl;
+
+  ::benchmark ::RunSpecifiedBenchmarks();
+  ::benchmark ::Shutdown();
+  return 0;
+}
