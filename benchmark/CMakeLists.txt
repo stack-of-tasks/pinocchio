@@ -33,7 +33,7 @@ endmacro()
 
 # timings
 #
-add_pinocchio_bench(timings)
+add_pinocchio_bench(timings GOOGLE_BENCHMARK)
 target_link_libraries(timings PRIVATE pinocchio_parsers)
 if(BUILD_WITH_CODEGEN_SUPPORT)
   add_pinocchio_bench(timings-cg)
