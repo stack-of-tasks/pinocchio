@@ -11,6 +11,13 @@ namespace pinocchio
 {
   namespace quaternion
   {
+
+    template <>
+    struct DefaultNormTolerance<::casadi::SX>
+    {
+      static constexpr double value() { return 1e-8; } // CasADi uses double internally
+    };
+
     namespace internal
     {
 

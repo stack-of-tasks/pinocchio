@@ -410,10 +410,10 @@ namespace pinocchio
     {
       ConstQuaternionMap_t quat0(q0.derived().data());
       assert(quaternion::isNormalized(
-        quat0, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat0, quaternion::DefaultNormTolerance<RealScalar>::value()));
       ConstQuaternionMap_t quat1(q1.derived().data());
       assert(quaternion::isNormalized(
-        quat1, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       PINOCCHIO_EIGEN_CONST_CAST(Tangent_t, d) =
         quaternion::log3(Quaternion_t(quat0.conjugate() * quat1));
@@ -429,10 +429,10 @@ namespace pinocchio
 
       ConstQuaternionMap_t quat0(q0.derived().data());
       assert(quaternion::isNormalized(
-        quat0, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat0, quaternion::DefaultNormTolerance<RealScalar>::value()));
       ConstQuaternionMap_t quat1(q1.derived().data());
       assert(quaternion::isNormalized(
-        quat1, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       // TODO: check whether the merge with 2.6.9 is correct
       const Quaternion_t q = quat0.conjugate() * quat1;
@@ -475,7 +475,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     {
       ConstQuaternionMap_t quat(q.derived().data());
       assert(quaternion::isNormalized(
-        quat, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat, quaternion::DefaultNormTolerance<RealScalar>::value()));
       QuaternionMap_t quat_map(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t, qout).data());
 
       Quaternion_t pOmega;
@@ -483,7 +483,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       quat_map = quat * pOmega;
       quaternion::firstOrderNormalize(quat_map);
       assert(quaternion::isNormalized(
-        quat_map, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat_map, quaternion::DefaultNormTolerance<RealScalar>::value()));
     }
 
     template<class Config_t, class Jacobian_t>
@@ -498,7 +498,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
       ConstQuaternionMap_t quat_map(q.derived().data());
       assert(quaternion::isNormalized(
-        quat_map, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat_map, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
       PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
@@ -640,10 +640,10 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     {
       ConstQuaternionMap_t quat0(q0.derived().data());
       assert(quaternion::isNormalized(
-        quat0, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat0, quaternion::DefaultNormTolerance<RealScalar>::value()));
       ConstQuaternionMap_t quat1(q1.derived().data());
       assert(quaternion::isNormalized(
-        quat1, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       QuaternionMap_t quat_res(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t, qout).data());
 
@@ -651,7 +651,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       difference_impl(q0, q1, w);
       integrate_impl(q0, u * w, qout);
       assert(quaternion::isNormalized(
-        quat_res, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat_res, quaternion::DefaultNormTolerance<RealScalar>::value()));
     }
 
     template<class ConfigL_t, class ConfigR_t>
@@ -687,7 +687,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       quaternion::uniformRandom(quat_map);
 
       assert(quaternion::isNormalized(
-        quat_map, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat_map, quaternion::DefaultNormTolerance<RealScalar>::value()));
     }
 
     template<class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -707,10 +707,10 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     {
       ConstQuaternionMap_t quat1(q0.derived().data());
       assert(quaternion::isNormalized(
-        quat1, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
       ConstQuaternionMap_t quat2(q1.derived().data());
       assert(quaternion::isNormalized(
-        quat1, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       return quaternion::defineSameRotation(quat1, quat2, prec);
     }

@@ -1,13 +1,10 @@
 //
 // Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2025 Heriot-Watt University
 //
 
 #ifndef __pinocchio_math_quaternion_hpp__
 #define __pinocchio_math_quaternion_hpp__
-
-#ifndef PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE
-  #define PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE 1e-8
-#endif
 
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
@@ -22,6 +19,24 @@ namespace pinocchio
 {
   namespace quaternion
   {
+    template <typename Scalar>
+    struct DefaultNormTolerance
+    {
+        static constexpr Scalar value() { return Scalar(1e-8); } // Generic fallback
+    };
+
+    template <>
+    struct DefaultNormTolerance<double>
+    {
+      static constexpr double value() { return 1e-8; }
+    };
+
+    template <>
+    struct DefaultNormTolerance<float>
+    {
+      static constexpr float value() { return 1e-4f; } // Adjust if needed
+    };
+
     ///
     /// \brief Compute the minimal angle between q1 and q2.
     ///

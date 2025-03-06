@@ -600,10 +600,10 @@ namespace pinocchio
       typedef typename Tangent_t::Scalar Scalar;
       ConstQuaternionMap_t quat0(q0.derived().template tail<4>().data());
       assert(quaternion::isNormalized(
-        quat0, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat0, quaternion::DefaultNormTolerance<RealScalar>::value()));
       ConstQuaternionMap_t quat1(q1.derived().template tail<4>().data());
       assert(quaternion::isNormalized(
-        quat1, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       typedef Eigen::Matrix<Scalar, 3, 1, PINOCCHIO_EIGEN_PLAIN_TYPE(Tangent_t)::Options> Vector3;
       const Vector3 dv_pre = q1.derived().template head<3>() - q0.derived().template head<3>();
@@ -624,10 +624,10 @@ namespace pinocchio
 
       ConstQuaternionMap_t quat0(q0.derived().template tail<4>().data());
       assert(quaternion::isNormalized(
-        quat0, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat0, quaternion::DefaultNormTolerance<RealScalar>::value()));
       ConstQuaternionMap_t quat1(q1.derived().template tail<4>().data());
       assert(quaternion::isNormalized(
-        quat1, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       const Vector3 dv_pre = q1.derived().template head<3>() - q0.derived().template head<3>();
       const Vector3 trans = quat0.conjugate() * dv_pre;
@@ -669,7 +669,7 @@ namespace pinocchio
       ConfigOut_t & out = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t, qout);
       Quaternion_t const quat(q.derived().template tail<4>());
       assert(quaternion::isNormalized(
-        quat, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat, quaternion::DefaultNormTolerance<RealScalar>::value()));
       QuaternionMap_t res_quat(out.template tail<4>().data());
 
       using internal::if_then_else;
@@ -701,7 +701,7 @@ namespace pinocchio
       // quaternion.
       quaternion::firstOrderNormalize(res_quat);
       assert(quaternion::isNormalized(
-        res_quat, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        res_quat, quaternion::DefaultNormTolerance<RealScalar>::value()));
     }
 
     template<class Config_t, class Jacobian_t>
@@ -719,7 +719,7 @@ namespace pinocchio
 
       ConstQuaternionMap_t quat_map(q.derived().template tail<4>().data());
       assert(quaternion::isNormalized(
-        quat_map, RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+        quat_map, quaternion::DefaultNormTolerance<RealScalar>::value()));
       Jout.template topLeftCorner<3, 3>() = quat_map.toRotationMatrix();
       //      Jexp3(quat,Jout.template bottomRightCorner<4,3>());
 
