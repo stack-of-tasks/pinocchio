@@ -87,32 +87,32 @@ int main(int argc, const char ** argv)
 
   CodeGenRNEA<double> rnea_code_gen(model);
   rnea_code_gen.initLib();
-  rnea_code_gen.loadLib();
+  rnea_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
 
   CodeGenABA<double> aba_code_gen(model);
   aba_code_gen.initLib();
-  aba_code_gen.loadLib();
+  aba_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
 
   CodeGenCRBA<double> crba_code_gen(model);
   crba_code_gen.initLib();
-  crba_code_gen.loadLib();
+  crba_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
 
   CodeGenMinv<double> minv_code_gen(model);
   minv_code_gen.initLib();
-  minv_code_gen.loadLib();
+  minv_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
 
   CodeGenRNEADerivatives<double> rnea_derivatives_code_gen(model);
   rnea_derivatives_code_gen.initLib();
-  rnea_derivatives_code_gen.loadLib();
+  rnea_derivatives_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
 
   CodeGenABADerivatives<double> aba_derivatives_code_gen(model);
   aba_derivatives_code_gen.initLib();
-  aba_derivatives_code_gen.loadLib();
+  aba_derivatives_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
 
   CodeGenConstraintDynamicsDerivatives<double> constraint_dynamics_derivatives_code_gen(
     model, contact_models_6D6D);
   constraint_dynamics_derivatives_code_gen.initLib();
-  constraint_dynamics_derivatives_code_gen.loadLib();
+  constraint_dynamics_derivatives_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
 
   pinocchio::container::aligned_vector<VectorXd> qs(NBT);
   pinocchio::container::aligned_vector<VectorXd> qdots(NBT);

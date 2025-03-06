@@ -38,6 +38,7 @@ target_link_libraries(timings PRIVATE pinocchio_parsers)
 if(BUILD_WITH_CODEGEN_SUPPORT)
   add_pinocchio_bench(timings-cg)
   target_link_libraries(timings-cg PRIVATE pinocchio_parsers pinocchio_cppadcg ${CMAKE_DL_LIBS})
+  target_compile_definitions(timings-cg PRIVATE PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\")
 endif()
 
 if(BUILD_WITH_OPENMP_SUPPORT)
