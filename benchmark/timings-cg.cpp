@@ -3,6 +3,8 @@
 // Copyright (c) 2020-2024 INRIA
 //
 
+#include "model-fixture.hpp"
+
 #include "pinocchio/codegen/cppadcg.hpp"
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -18,6 +20,7 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
@@ -26,231 +29,264 @@
 
 #include <iostream>
 
-#include "pinocchio/utils/timer.hpp"
-
-int main(int argc, const char ** argv)
+struct CGFixture : ModelFixture
 {
-  using namespace Eigen;
-  using namespace pinocchio;
-
-  PinocchioTicToc timer(PinocchioTicToc::US);
-#ifdef NDEBUG
-  const int NBT = 1000 * 100;
-#else
-  const int NBT = 1;
-  std::cout << "(the time score in debug mode is not relevant) " << std::endl;
-#endif
-
-  pinocchio::Model model;
-  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
-  if (argc > 1)
-    filename = argv[1];
-
-  bool with_ff = true;
-  if (argc > 2)
+  void SetUp(benchmark::State & st)
   {
-    const std::string ff_option = argv[2];
-    if (ff_option == "-no-ff")
-      with_ff = false;
+    ModelFixture::SetUp(st);
   }
 
-  if (filename == "H")
-    pinocchio::buildModels::humanoidRandom(model, true);
-  else if (with_ff)
-    pinocchio::urdf::buildModel(filename, JointModelFreeFlyer(), model);
-  else
-    pinocchio::urdf::buildModel(filename, model);
-
-  std::cout << "nq = " << model.nq << std::endl;
-  std::cout << "nv = " << model.nv << std::endl;
-  std::cout << "--" << std::endl;
-
-  pinocchio::Data data(model);
-
-  const std::string RF = "RLEG_ANKLE_R";
-  const std::string LF = "LLEG_ANKLE_R";
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D6D;
-
-  RigidConstraintModel ci_RF(CONTACT_6D, model, model.getFrameId(RF), LOCAL);
-  RigidConstraintModel ci_LF(CONTACT_6D, model, model.getFrameId(LF), LOCAL);
-  contact_models_6D6D.push_back(ci_RF);
-  contact_models_6D6D.push_back(ci_LF);
-
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_6D6D;
-
-  RigidConstraintData cd_RF(ci_RF);
-  contact_datas_6D6D.push_back(cd_RF);
-  RigidConstraintData cd_LF(ci_LF);
-  contact_datas_6D6D.push_back(cd_LF);
-
-  VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
-
-  CodeGenRNEA<double> rnea_code_gen(model);
-  rnea_code_gen.initLib();
-  rnea_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
-
-  CodeGenABA<double> aba_code_gen(model);
-  aba_code_gen.initLib();
-  aba_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
-
-  CodeGenCRBA<double> crba_code_gen(model);
-  crba_code_gen.initLib();
-  crba_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
-
-  CodeGenMinv<double> minv_code_gen(model);
-  minv_code_gen.initLib();
-  minv_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
-
-  CodeGenRNEADerivatives<double> rnea_derivatives_code_gen(model);
-  rnea_derivatives_code_gen.initLib();
-  rnea_derivatives_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
-
-  CodeGenABADerivatives<double> aba_derivatives_code_gen(model);
-  aba_derivatives_code_gen.initLib();
-  aba_derivatives_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
-
-  CodeGenConstraintDynamicsDerivatives<double> constraint_dynamics_derivatives_code_gen(
-    model, contact_models_6D6D);
-  constraint_dynamics_derivatives_code_gen.initLib();
-  constraint_dynamics_derivatives_code_gen.loadLib(true, PINOCCHIO_CXX_COMPILER);
-
-  pinocchio::container::aligned_vector<VectorXd> qs(NBT);
-  pinocchio::container::aligned_vector<VectorXd> qdots(NBT);
-  pinocchio::container::aligned_vector<VectorXd> qddots(NBT);
-  pinocchio::container::aligned_vector<VectorXd> taus(NBT);
-
-  for (size_t i = 0; i < NBT; ++i)
+  void TearDown(benchmark::State & st)
   {
-    qs[i] = randomConfiguration(model, -qmax, qmax);
-    qdots[i] = Eigen::VectorXd::Random(model.nv);
-    qddots[i] = Eigen::VectorXd::Random(model.nv);
-    taus[i] = Eigen::VectorXd::Random(model.nv);
+    ModelFixture::TearDown(st);
   }
 
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    rnea(model, data, qs[_smooth], qdots[_smooth], qddots[_smooth]);
-  }
-  std::cout << "RNEA = \t\t";
-  timer.toc(std::cout, NBT);
+  static PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel)
+    CONTACT_MODELS_6D6D;
+  static PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData)
+    CONTACT_DATAS_6D6D;
 
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    rnea_code_gen.evalFunction(qs[_smooth], qdots[_smooth], qddots[_smooth]);
-  }
-  std::cout << "RNEA generated = \t\t";
-  timer.toc(std::cout, NBT);
+  // Initialize all as a global variable to avoid long running time
+  static std::unique_ptr<pinocchio::CodeGenRNEA<double>> RNEA_CODE_GEN;
+  static std::unique_ptr<pinocchio::CodeGenABA<double>> ABA_CODE_GEN;
+  static std::unique_ptr<pinocchio::CodeGenCRBA<double>> CRBA_CODE_GEN;
+  static std::unique_ptr<pinocchio::CodeGenMinv<double>> MINV_CODE_GEN;
+  static std::unique_ptr<pinocchio::CodeGenRNEADerivatives<double>> RNEA_DERIVATIVES_CODE_GEN;
+  static std::unique_ptr<pinocchio::CodeGenABADerivatives<double>> ABA_DERIVATIVES_CODE_GEN;
+  static std::unique_ptr<pinocchio::CodeGenConstraintDynamicsDerivatives<double>>
+    CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN;
 
-  timer.tic();
-  SMOOTH(NBT)
+  static void GlobalSetUp(const ExtraArgs & extra_args)
   {
-    rnea_code_gen.evalJacobian(qs[_smooth], qdots[_smooth], qddots[_smooth]);
-  }
-  std::cout << "RNEA partial derivatives auto diff + code gen = \t\t";
-  timer.toc(std::cout, NBT);
+    ModelFixture::GlobalSetUp(extra_args);
 
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    rnea_derivatives_code_gen.evalFunction(qs[_smooth], qdots[_smooth], qddots[_smooth]);
-  }
-  std::cout << "RNEA partial derivatives code gen = \t\t";
-  timer.toc(std::cout, NBT);
+    const std::string RF = "RLEG_ANKLE_R";
+    const std::string LF = "LLEG_ANKLE_R";
+    pinocchio::RigidConstraintModel ci_RF(
+      pinocchio::CONTACT_6D, ModelFixture::MODEL, ModelFixture::MODEL.getFrameId(RF),
+      pinocchio::ReferenceFrame::LOCAL);
+    pinocchio::RigidConstraintModel ci_LF(
+      pinocchio::CONTACT_6D, ModelFixture::MODEL, ModelFixture::MODEL.getFrameId(LF),
+      pinocchio::ReferenceFrame::LOCAL);
+    CONTACT_MODELS_6D6D.push_back(ci_RF);
+    CONTACT_MODELS_6D6D.push_back(ci_LF);
 
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth], Convention::WORLD);
-  }
-  timer.toc();
+    pinocchio::RigidConstraintData cd_RF(ci_RF);
+    pinocchio::RigidConstraintData cd_LF(ci_LF);
+    CONTACT_DATAS_6D6D.push_back(cd_RF);
+    CONTACT_DATAS_6D6D.push_back(cd_LF);
 
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    crba(model, data, qs[_smooth], Convention::WORLD);
-  }
-  std::cout << "CRBA = \t\t";
-  timer.toc(std::cout, NBT);
+    RNEA_CODE_GEN = std::make_unique<pinocchio::CodeGenRNEA<double>>(ModelFixture::MODEL);
+    ABA_CODE_GEN = std::make_unique<pinocchio::CodeGenABA<double>>(ModelFixture::MODEL);
+    CRBA_CODE_GEN = std::make_unique<pinocchio::CodeGenCRBA<double>>(ModelFixture::MODEL);
+    MINV_CODE_GEN = std::make_unique<pinocchio::CodeGenMinv<double>>(ModelFixture::MODEL);
+    RNEA_DERIVATIVES_CODE_GEN =
+      std::make_unique<pinocchio::CodeGenRNEADerivatives<double>>(ModelFixture::MODEL);
+    ABA_DERIVATIVES_CODE_GEN =
+      std::make_unique<pinocchio::CodeGenABADerivatives<double>>(ModelFixture::MODEL);
+    CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN =
+      std::make_unique<pinocchio::CodeGenConstraintDynamicsDerivatives<double>>(
+        ModelFixture::MODEL, CONTACT_MODELS_6D6D);
 
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    crba_code_gen.evalFunction(qs[_smooth]);
+    RNEA_CODE_GEN->initLib();
+    RNEA_CODE_GEN->loadLib(true, PINOCCHIO_CXX_COMPILER);
+    ABA_CODE_GEN->initLib();
+    ABA_CODE_GEN->loadLib(true, PINOCCHIO_CXX_COMPILER);
+    CRBA_CODE_GEN->initLib();
+    CRBA_CODE_GEN->loadLib(true, PINOCCHIO_CXX_COMPILER);
+    MINV_CODE_GEN->initLib();
+    MINV_CODE_GEN->loadLib(true, PINOCCHIO_CXX_COMPILER);
+    RNEA_DERIVATIVES_CODE_GEN->initLib();
+    RNEA_DERIVATIVES_CODE_GEN->loadLib(true, PINOCCHIO_CXX_COMPILER);
+    ABA_DERIVATIVES_CODE_GEN->initLib();
+    ABA_DERIVATIVES_CODE_GEN->loadLib(true, PINOCCHIO_CXX_COMPILER);
+    CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN->initLib();
+    CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN->loadLib(true, PINOCCHIO_CXX_COMPILER);
   }
-  std::cout << "CRBA generated = \t\t";
-  timer.toc(std::cout, NBT);
+};
 
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    computeMinverse(model, data, qs[_smooth]);
-  }
-  std::cout << "Minv = \t\t";
-  timer.toc(std::cout, NBT);
+PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel)
+CGFixture::CONTACT_MODELS_6D6D;
+PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData)
+CGFixture::CONTACT_DATAS_6D6D;
+std::unique_ptr<pinocchio::CodeGenRNEA<double>> CGFixture::RNEA_CODE_GEN;
+std::unique_ptr<pinocchio::CodeGenABA<double>> CGFixture::ABA_CODE_GEN;
+std::unique_ptr<pinocchio::CodeGenCRBA<double>> CGFixture::CRBA_CODE_GEN;
+std::unique_ptr<pinocchio::CodeGenMinv<double>> CGFixture::MINV_CODE_GEN;
+std::unique_ptr<pinocchio::CodeGenRNEADerivatives<double>> CGFixture::RNEA_DERIVATIVES_CODE_GEN;
+std::unique_ptr<pinocchio::CodeGenABADerivatives<double>> CGFixture::ABA_DERIVATIVES_CODE_GEN;
+std::unique_ptr<pinocchio::CodeGenConstraintDynamicsDerivatives<double>>
+  CGFixture::CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN;
 
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    minv_code_gen.evalFunction(qs[_smooth]);
-  }
-  std::cout << "Minv generated = \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth], Convention::WORLD);
-  }
-  std::cout << "ABA = \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    aba_code_gen.evalFunction(qs[_smooth], qdots[_smooth], taus[_smooth]);
-  }
-  std::cout << "ABA generated = \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    aba_code_gen.evalJacobian(qs[_smooth], qdots[_smooth], taus[_smooth]);
-  }
-  std::cout << "ABA partial derivatives auto diff + code gen = \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    aba_derivatives_code_gen.evalFunction(qs[_smooth], qdots[_smooth], qddots[_smooth]);
-  }
-  std::cout << "ABA partial derivatives code gen = \t\t";
-  timer.toc(std::cout, NBT);
-
-  pinocchio::initConstraintDynamics(model, data, contact_models_6D6D);
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    pinocchio::constraintDynamics(
-      model, data, qs[_smooth], qdots[_smooth], qddots[_smooth], contact_models_6D6D,
-      contact_datas_6D6D);
-    pinocchio::computeConstraintDynamicsDerivatives(
-      model, data, contact_models_6D6D, contact_datas_6D6D);
-  }
-  std::cout << "contact dynamics derivatives 6D,6D = \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    constraint_dynamics_derivatives_code_gen.evalFunction(
-      qs[_smooth], qdots[_smooth], qddots[_smooth]);
-  }
-  std::cout << "contact dynamics derivatives 6D,6D code gen = \t\t";
-  timer.toc(std::cout, NBT);
-
-  return 0;
+static void CustomArguments(benchmark::internal::Benchmark * b)
+{
+  b->MinWarmUpTime(3.);
 }
+
+// RNEA
+
+EIGEN_DONT_INLINE static void rneaCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & a)
+{
+  pinocchio::rnea(model, data, q, v, a);
+}
+BENCHMARK_DEFINE_F(CGFixture, RNEA)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    rneaCall(model, data, q, v, a);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, RNEA)->Apply(CustomArguments);
+
+// RNEA_CODE_GEN
+
+BENCHMARK_DEFINE_F(CGFixture, RNEA_CODE_GEN)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    RNEA_CODE_GEN->evalFunction(q, v, a);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, RNEA_CODE_GEN)->Apply(CustomArguments);
+
+// RNEA_JACOBIAN_CODE_GEN
+
+BENCHMARK_DEFINE_F(CGFixture, RNEA_JACOBIAN_CODE_GEN)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    RNEA_CODE_GEN->evalJacobian(q, v, a);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, RNEA_JACOBIAN_CODE_GEN)->Apply(CustomArguments);
+
+// RNEA_DERIVATIVES_CODE_GEN
+
+BENCHMARK_DEFINE_F(CGFixture, RNEA_DERIVATIVES_CODE_GEN)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    RNEA_DERIVATIVES_CODE_GEN->evalFunction(q, v, a);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, RNEA_DERIVATIVES_CODE_GEN)->Apply(CustomArguments);
+
+// CRBA
+
+BENCHMARK_DEFINE_F(CGFixture, CRBA)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    crba(model, data, q, pinocchio::Convention::WORLD);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, CRBA)->Apply(CustomArguments);
+
+// CRBA_CODE_GEN
+
+BENCHMARK_DEFINE_F(CGFixture, CRBA_CODE_GEN)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    CRBA_CODE_GEN->evalFunction(q);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, CRBA_CODE_GEN)->Apply(CustomArguments);
+
+// COMPUTE_M_INVERSE
+
+BENCHMARK_DEFINE_F(CGFixture, COMPUTE_M_INVERSE)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeMinverse(model, data, q);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, COMPUTE_M_INVERSE)->Apply(CustomArguments);
+
+// COMPUTE_M_INVERSE_CODE_GEN
+
+BENCHMARK_DEFINE_F(CGFixture, COMPUTE_M_INVERSE_CODE_GEN)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    MINV_CODE_GEN->evalFunction(q);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, COMPUTE_M_INVERSE_CODE_GEN)->Apply(CustomArguments);
+
+// ABA
+
+BENCHMARK_DEFINE_F(CGFixture, ABA)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    aba(model, data, q, v, tau, pinocchio::Convention::WORLD);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, ABA)->Apply(CustomArguments);
+
+// ABA_CODE_GEN
+
+BENCHMARK_DEFINE_F(CGFixture, ABA_CODE_GEN)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    ABA_CODE_GEN->evalFunction(q, v, tau);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, ABA_CODE_GEN)->Apply(CustomArguments);
+
+// ABA_JACOBIAN_CODE_GEN
+
+BENCHMARK_DEFINE_F(CGFixture, ABA_JACOBIAN_CODE_GEN)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    ABA_CODE_GEN->evalJacobian(q, v, a);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, ABA_JACOBIAN_CODE_GEN)->Apply(CustomArguments);
+
+// ABA_DERIVATIVES_CODE_GEN
+
+BENCHMARK_DEFINE_F(CGFixture, ABA_DERIVATIVES_CODE_GEN)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    ABA_DERIVATIVES_CODE_GEN->evalFunction(q, v, a);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, ABA_DERIVATIVES_CODE_GEN)->Apply(CustomArguments);
+
+// CONSTRAINT_DYNAMICS_DERIVATIVES
+
+BENCHMARK_DEFINE_F(CGFixture, CONSTRAINT_DYNAMICS_DERIVATIVES)(benchmark::State & st)
+{
+  pinocchio::initConstraintDynamics(model, data, CONTACT_MODELS_6D6D);
+  for (auto _ : st)
+  {
+    pinocchio::constraintDynamics(model, data, q, v, a, CONTACT_MODELS_6D6D, CONTACT_DATAS_6D6D);
+    pinocchio::computeConstraintDynamicsDerivatives(
+      model, data, CONTACT_MODELS_6D6D, CONTACT_DATAS_6D6D);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, CONSTRAINT_DYNAMICS_DERIVATIVES)->Apply(CustomArguments);
+
+// CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN
+
+BENCHMARK_DEFINE_F(CGFixture, CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN->evalFunction(q, v, a);
+  }
+}
+BENCHMARK_REGISTER_F(CGFixture, CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN)->Apply(CustomArguments);
+
+PINOCCHIO_BENCHMARK_MAIN_WITH_SETUP(CGFixture::GlobalSetUp);
