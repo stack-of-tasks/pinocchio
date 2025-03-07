@@ -20,6 +20,7 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
@@ -178,11 +179,16 @@ BENCHMARK_REGISTER_F(CGFixture, RNEA_DERIVATIVES_CODE_GEN)->Apply(CustomArgument
 
 // CRBA
 
+PINOCCHIO_DONT_INLINE static void
+crbaWorldCall(const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
+{
+  pinocchio::crba(model, data, q, pinocchio::Convention::WORLD);
+}
 BENCHMARK_DEFINE_F(CGFixture, CRBA)(benchmark::State & st)
 {
   for (auto _ : st)
   {
-    crba(model, data, q, pinocchio::Convention::WORLD);
+    crbaWorldCall(model, data, q);
   }
 }
 BENCHMARK_REGISTER_F(CGFixture, CRBA)->Apply(CustomArguments);
@@ -200,11 +206,16 @@ BENCHMARK_REGISTER_F(CGFixture, CRBA_CODE_GEN)->Apply(CustomArguments);
 
 // COMPUTE_M_INVERSE
 
+PINOCCHIO_DONT_INLINE static void computeMinverseQCall(
+  const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
+{
+  pinocchio::computeMinverse(model, data, q);
+}
 BENCHMARK_DEFINE_F(CGFixture, COMPUTE_M_INVERSE)(benchmark::State & st)
 {
   for (auto _ : st)
   {
-    computeMinverse(model, data, q);
+    computeMinverseQCall(model, data, q);
   }
 }
 BENCHMARK_REGISTER_F(CGFixture, COMPUTE_M_INVERSE)->Apply(CustomArguments);
@@ -222,11 +233,20 @@ BENCHMARK_REGISTER_F(CGFixture, COMPUTE_M_INVERSE_CODE_GEN)->Apply(CustomArgumen
 
 // ABA
 
+PINOCCHIO_DONT_INLINE static void abaWorldCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & a)
+{
+  pinocchio::aba(model, data, q, v, a, pinocchio::Convention::WORLD);
+}
 BENCHMARK_DEFINE_F(CGFixture, ABA)(benchmark::State & st)
 {
   for (auto _ : st)
   {
-    aba(model, data, q, v, tau, pinocchio::Convention::WORLD);
+    abaWorldCall(model, data, q, v, tau);
   }
 }
 BENCHMARK_REGISTER_F(CGFixture, ABA)->Apply(CustomArguments);
@@ -266,14 +286,26 @@ BENCHMARK_REGISTER_F(CGFixture, ABA_DERIVATIVES_CODE_GEN)->Apply(CustomArguments
 
 // CONSTRAINT_DYNAMICS_DERIVATIVES
 
+PINOCCHIO_DONT_INLINE void constraintDynamicsDerivativeCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & a,
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel)
+    & contact_models_6d6d,
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData) & contact_datas_6d6d)
+{
+  pinocchio::constraintDynamics(model, data, q, v, a, contact_models_6d6d, contact_datas_6d6d);
+  pinocchio::computeConstraintDynamicsDerivatives(
+    model, data, contact_models_6d6d, contact_datas_6d6d);
+}
 BENCHMARK_DEFINE_F(CGFixture, CONSTRAINT_DYNAMICS_DERIVATIVES)(benchmark::State & st)
 {
   pinocchio::initConstraintDynamics(model, data, CONTACT_MODELS_6D6D);
   for (auto _ : st)
   {
-    pinocchio::constraintDynamics(model, data, q, v, a, CONTACT_MODELS_6D6D, CONTACT_DATAS_6D6D);
-    pinocchio::computeConstraintDynamicsDerivatives(
-      model, data, CONTACT_MODELS_6D6D, CONTACT_DATAS_6D6D);
+    constraintDynamicsDerivativeCall(model, data, q, v, a, CONTACT_MODELS_6D6D, CONTACT_DATAS_6D6D);
   }
 }
 BENCHMARK_REGISTER_F(CGFixture, CONSTRAINT_DYNAMICS_DERIVATIVES)->Apply(CustomArguments);

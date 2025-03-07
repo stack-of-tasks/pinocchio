@@ -72,6 +72,7 @@ struct ModelFixture : benchmark::Fixture
     }
     std::cout << "nq = " << ModelFixture::MODEL.nq << std::endl;
     std::cout << "nv = " << ModelFixture::MODEL.nv << std::endl;
+    std::cout << "name = " << ModelFixture::MODEL.name << std::endl;
     std::cout << "--" << std::endl;
   }
 
