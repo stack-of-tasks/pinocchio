@@ -42,9 +42,11 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
 endif()
 
 if(BUILD_WITH_OPENMP_SUPPORT)
-  add_pinocchio_bench(timings-parallel)
-  target_link_libraries(timings-parallel PRIVATE pinocchio_parsers pinocchio_parallel
-                                                 pinocchio_collision)
+  add_pinocchio_bench(timings-parallel GOOGLE_BENCHMARK)
+  target_link_libraries(timings-parallel PRIVATE pinocchio_parsers pinocchio_parallel)
+  if(BUILD_WITH_COLLISION_SUPPORT)
+    target_link_libraries(timings-parallel PRIVATE pinocchio_collision)
+  endif()
 endif()
 
 # timings cholesky
