@@ -113,14 +113,14 @@ namespace pinocchio
     }
   };
 
-  template<typename Scalar>
-  struct ScalarCast<Scalar, CppAD::cg::CG<Scalar>>
-  {
-    static Scalar cast(const CppAD::cg::CG<Scalar> & cg_value)
-    {
-      return cg_value.getValue();
-    }
-  };
+   template <typename NewScalar, typename Scalar>
+   struct ScalarCast<NewScalar, CppAD::cg::CG<Scalar>>
+   {
+     static NewScalar cast(const CppAD::cg::CG<Scalar>& cg_value)
+     {
+       return static_cast<NewScalar>(cg_value.getValue());
+     }
+   };
 
 } // namespace pinocchio
 
