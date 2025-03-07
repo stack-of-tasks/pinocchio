@@ -125,7 +125,7 @@ static void CustomArguments(benchmark::internal::Benchmark * b)
 
 // RNEA
 
-EIGEN_DONT_INLINE static void rneaCall(
+PINOCCHIO_DONT_INLINE static void rneaCall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,

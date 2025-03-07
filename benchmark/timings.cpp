@@ -42,9 +42,9 @@ namespace pinocchio
 
     typedef fusion::NoArg ArgsType;
 
-    // Function should not be empty to allow EIGEN_DONT_INLINE to work
+    // Function should not be empty to allow PINOCCHIO_DONT_INLINE to work
     template<typename JointModel>
-    EIGEN_DONT_INLINE static int
+    PINOCCHIO_DONT_INLINE static int
     algo(const JointModelBase<JointModel> &, JointDataBase<typename JointModel::JointDataDerived> &)
     {
       return 0;
@@ -81,9 +81,9 @@ namespace pinocchio
 
     typedef fusion::NoArg ArgsType;
 
-    // Function should not be empty to allow EIGEN_DONT_INLINE to work
+    // Function should not be empty to allow PINOCCHIO_DONT_INLINE to work
     template<typename JointModel>
-    EIGEN_DONT_INLINE static int algo(const JointModelBase<JointModel> &)
+    PINOCCHIO_DONT_INLINE static int algo(const JointModelBase<JointModel> &)
     {
       return 0;
     }
@@ -119,9 +119,9 @@ namespace pinocchio
 
     typedef fusion::NoArg ArgsType;
 
-    // Function should not be empty to allow EIGEN_DONT_INLINE to work
+    // Function should not be empty to allow PINOCCHIO_DONT_INLINE to work
     template<typename JointModel1, typename JointModel2>
-    EIGEN_DONT_INLINE static int algo(
+    PINOCCHIO_DONT_INLINE static int algo(
       const JointModelBase<JointModel1> &,
       const JointModelBase<JointModel2> &,
       JointDataBase<typename JointModel1::JointDataDerived> &,
@@ -161,9 +161,9 @@ namespace pinocchio
 
     typedef fusion::NoArg ArgsType;
 
-    // Function should not be empty to allow EIGEN_DONT_INLINE to work
+    // Function should not be empty to allow PINOCCHIO_DONT_INLINE to work
     template<typename JointModel1, typename JointModel2>
-    EIGEN_DONT_INLINE static int
+    PINOCCHIO_DONT_INLINE static int
     algo(const JointModelBase<JointModel1> &, const JointModelBase<JointModel2> &)
     {
       return 0;
@@ -198,7 +198,7 @@ static void CustomArguments(benchmark::internal::Benchmark * b)
 
 // RNEA
 
-EIGEN_DONT_INLINE static void rneaCall(
+PINOCCHIO_DONT_INLINE static void rneaCall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -218,7 +218,7 @@ BENCHMARK_REGISTER_F(ModelFixture, RNEA)->Apply(CustomArguments);
 
 // nonLinearEffects
 
-EIGEN_DONT_INLINE static void nonLinearEffectsCall(
+PINOCCHIO_DONT_INLINE static void nonLinearEffectsCall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -237,7 +237,7 @@ BENCHMARK_REGISTER_F(ModelFixture, NLE)->Apply(CustomArguments);
 
 // nonLinearEffects via RNEA
 
-EIGEN_DONT_INLINE static void nonLinearEffectsViaRNEACall(
+PINOCCHIO_DONT_INLINE static void nonLinearEffectsViaRNEACall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -256,7 +256,7 @@ BENCHMARK_REGISTER_F(ModelFixture, NLE_via_RNEA)->Apply(CustomArguments);
 
 // CRBA Local
 
-EIGEN_DONT_INLINE static void
+PINOCCHIO_DONT_INLINE static void
 crbaLocalCall(const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
 {
   pinocchio::crba(model, data, q, pinocchio::Convention::LOCAL);
@@ -272,7 +272,7 @@ BENCHMARK_REGISTER_F(ModelFixture, CRBA_LOCAL)->Apply(CustomArguments);
 
 // CRBA World
 
-EIGEN_DONT_INLINE static void
+PINOCCHIO_DONT_INLINE static void
 crbaWorldCall(const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
 {
   pinocchio::crba(model, data, q, pinocchio::Convention::WORLD);
@@ -288,7 +288,7 @@ BENCHMARK_REGISTER_F(ModelFixture, CRBA_WORLD)->Apply(CustomArguments);
 
 // computeAllTerms
 
-EIGEN_DONT_INLINE static void computeAllTermsCall(
+PINOCCHIO_DONT_INLINE static void computeAllTermsCall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -307,7 +307,7 @@ BENCHMARK_REGISTER_F(ModelFixture, COMPUTE_ALL_TERMS)->Apply(CustomArguments);
 
 // choleskyDecompose
 
-EIGEN_DONT_INLINE static void
+PINOCCHIO_DONT_INLINE static void
 choleskyDecomposeCall(const pinocchio::Model & model, pinocchio::Data & data)
 {
   pinocchio::cholesky::decompose(model, data);
@@ -324,7 +324,7 @@ BENCHMARK_REGISTER_F(ModelFixture, CHOLESKY_DECOMPOSE)->Apply(CustomArguments);
 
 // Dense choleskyDecompose
 
-EIGEN_DONT_INLINE static void
+PINOCCHIO_DONT_INLINE static void
 denseCholeksyDecomposeCall(Eigen::LDLT<Eigen::MatrixXd> & M_ldlt, const pinocchio::Data & data)
 {
   M_ldlt.compute(data.M);
@@ -344,7 +344,7 @@ BENCHMARK_REGISTER_F(ModelFixture, DENSE_CHOLESKY_DECOMPOSE)->Apply(CustomArgume
 
 // computeJointJacobians
 
-EIGEN_DONT_INLINE static void computeJointJacobiansCall(
+PINOCCHIO_DONT_INLINE static void computeJointJacobiansCall(
   const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
 {
   pinocchio::computeJointJacobians(model, data, q);
@@ -360,7 +360,7 @@ BENCHMARK_REGISTER_F(ModelFixture, COMPUTE_JOINT_JACOBIANS)->Apply(CustomArgumen
 
 // computeJointJacobiansTimeVariation
 
-EIGEN_DONT_INLINE static void computeJointJacobiansTimeVariationCall(
+PINOCCHIO_DONT_INLINE static void computeJointJacobiansTimeVariationCall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -379,7 +379,7 @@ BENCHMARK_REGISTER_F(ModelFixture, COMPUTE_JOINT_JACOBIANS_TIME_VARIATION)->Appl
 
 // jacobianCenterOfMass
 
-EIGEN_DONT_INLINE static void jacobianCenterOfMassCall(
+PINOCCHIO_DONT_INLINE static void jacobianCenterOfMassCall(
   const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
 {
   pinocchio::jacobianCenterOfMass(model, data, q, true);
@@ -395,7 +395,7 @@ BENCHMARK_REGISTER_F(ModelFixture, JACOBIAN_CENTER_OF_MASS)->Apply(CustomArgumen
 
 // centerOfMass
 
-EIGEN_DONT_INLINE static void centerOfMassCall(
+PINOCCHIO_DONT_INLINE static void centerOfMassCall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -415,7 +415,7 @@ BENCHMARK_REGISTER_F(ModelFixture, CENTER_OF_MASS)->Apply(CustomArguments);
 
 // forwardKinematicsQ
 
-EIGEN_DONT_INLINE static void forwardKinematicsQCall(
+PINOCCHIO_DONT_INLINE static void forwardKinematicsQCall(
   const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
 {
   pinocchio::forwardKinematics(model, data, q);
@@ -431,7 +431,7 @@ BENCHMARK_REGISTER_F(ModelFixture, FORWARD_KINEMATICS_Q)->Apply(CustomArguments)
 
 // forwardKinematicsQV
 
-EIGEN_DONT_INLINE static void forwardKinematicsQVCall(
+PINOCCHIO_DONT_INLINE static void forwardKinematicsQVCall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -450,7 +450,7 @@ BENCHMARK_REGISTER_F(ModelFixture, FORWARD_KINEMATICS_Q_V)->Apply(CustomArgument
 
 // forwardKinematicsQVA
 
-EIGEN_DONT_INLINE static void forwardKinematicsQVACall(
+PINOCCHIO_DONT_INLINE static void forwardKinematicsQVACall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -470,7 +470,7 @@ BENCHMARK_REGISTER_F(ModelFixture, FORWARD_KINEMATICS_Q_V_A)->Apply(CustomArgume
 
 // framesForwardKinematics
 
-EIGEN_DONT_INLINE static void framesForwardKinematicsCall(
+PINOCCHIO_DONT_INLINE static void framesForwardKinematicsCall(
   const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
 {
   pinocchio::framesForwardKinematics(model, data, q);
@@ -486,7 +486,7 @@ BENCHMARK_REGISTER_F(ModelFixture, FRAME_FORWARD_KINEMATICS)->Apply(CustomArgume
 
 // updateFramePlacements
 
-EIGEN_DONT_INLINE static void
+PINOCCHIO_DONT_INLINE static void
 updateFramePlacementsCall(const pinocchio::Model & model, pinocchio::Data & data)
 {
   pinocchio::updateFramePlacements(model, data);
@@ -503,7 +503,7 @@ BENCHMARK_REGISTER_F(ModelFixture, UPDATE_FRAME_PLACEMENTS)->Apply(CustomArgumen
 
 // CCRBA
 
-EIGEN_DONT_INLINE static void ccrbaCall(
+PINOCCHIO_DONT_INLINE static void ccrbaCall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -522,7 +522,7 @@ BENCHMARK_REGISTER_F(ModelFixture, CCRBA)->Apply(CustomArguments);
 
 // ABA Local
 
-EIGEN_DONT_INLINE static void abaLocalCall(
+PINOCCHIO_DONT_INLINE static void abaLocalCall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -542,7 +542,7 @@ BENCHMARK_REGISTER_F(ModelFixture, ABA_LOCAL)->Apply(CustomArguments);
 
 // ABA World
 
-EIGEN_DONT_INLINE static void abaWorldCall(
+PINOCCHIO_DONT_INLINE static void abaWorldCall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -562,7 +562,7 @@ BENCHMARK_REGISTER_F(ModelFixture, ABA_WORLD)->Apply(CustomArguments);
 
 // computeCoriolisMatrix
 
-EIGEN_DONT_INLINE static void computeCoriolisMatrixCall(
+PINOCCHIO_DONT_INLINE static void computeCoriolisMatrixCall(
   const pinocchio::Model & model,
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
@@ -581,7 +581,7 @@ BENCHMARK_REGISTER_F(ModelFixture, COMPUTE_CORIOLIS_MATRIX)->Apply(CustomArgumen
 
 // computeMinverseQ
 
-EIGEN_DONT_INLINE static void computeMinverseQCall(
+PINOCCHIO_DONT_INLINE static void computeMinverseQCall(
   const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
 {
   pinocchio::computeMinverse(model, data, q);
@@ -597,7 +597,7 @@ BENCHMARK_REGISTER_F(ModelFixture, COMPUTE_M_INVERSE_Q)->Apply(CustomArguments);
 
 // computeMinverse
 
-EIGEN_DONT_INLINE static void
+PINOCCHIO_DONT_INLINE static void
 computeMinverseCall(const pinocchio::Model & model, pinocchio::Data & data)
 {
   pinocchio::computeMinverse(model, data);
@@ -614,7 +614,7 @@ BENCHMARK_REGISTER_F(ModelFixture, COMPUTE_M_INVERSE)->Apply(CustomArguments);
 
 // emptyForwardPassUnaryVisit
 
-EIGEN_DONT_INLINE static void
+PINOCCHIO_DONT_INLINE static void
 emptyForwardPassUnaryVisitCall(const pinocchio::Model & model, pinocchio::Data & data)
 {
   pinocchio::emptyForwardPassUnaryVisit(model, data);
@@ -630,7 +630,7 @@ BENCHMARK_REGISTER_F(ModelFixture, EMPTY_FORWARD_PASS_UNARY_VISIT)->Apply(Custom
 
 // emptyForwardPassUnaryVisitNoData
 
-EIGEN_DONT_INLINE static void
+PINOCCHIO_DONT_INLINE static void
 emptyForwardPassUnaryVisitNoDataCall(const pinocchio::Model & model, pinocchio::Data & data)
 {
   pinocchio::emptyForwardPassUnaryVisitNoData(model, data);
@@ -646,7 +646,7 @@ BENCHMARK_REGISTER_F(ModelFixture, EMPTY_FORWARD_PASS_UNARY_VISIT_NO_DATA)->Appl
 
 // emptyForwardPassBinaryVisit
 
-EIGEN_DONT_INLINE static void
+PINOCCHIO_DONT_INLINE static void
 emptyForwardPassBinaryVisitCall(const pinocchio::Model & model, pinocchio::Data & data)
 {
   pinocchio::emptyForwardPassBinaryVisit(model, data);
@@ -662,7 +662,7 @@ BENCHMARK_REGISTER_F(ModelFixture, EMPTY_FORWARD_PASS_BINARY_VISIT)->Apply(Custo
 
 // emptyForwardPassBinaryVisitNoData
 
-EIGEN_DONT_INLINE static void
+PINOCCHIO_DONT_INLINE static void
 emptyForwardPassBinaryVisitNoDataCall(const pinocchio::Model & model, pinocchio::Data & data)
 {
   pinocchio::emptyForwardPassBinaryVisitNoData(model, data);

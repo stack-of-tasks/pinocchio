@@ -530,7 +530,7 @@ namespace pinocchio
     }
 
     template<typename ConfigVector>
-    EIGEN_DONT_INLINE void
+    PINOCCHIO_DONT_INLINE void
     calc(JointDataDerived & data, const typename Eigen::PlainObjectBase<ConfigVector> & qs) const
     {
       typedef typename Eigen::Quaternion<typename ConfigVector::Scalar, ConfigVector::Options>
@@ -542,7 +542,7 @@ namespace pinocchio
     }
 
     template<typename ConfigVector>
-    EIGEN_DONT_INLINE void
+    PINOCCHIO_DONT_INLINE void
     calc(JointDataDerived & data, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
       typedef typename Eigen::Quaternion<Scalar, Options> Quaternion;
