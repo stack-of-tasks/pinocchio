@@ -397,6 +397,11 @@ namespace pinocchio
       joint_v_transformed.resize(nv, 1);
     }
 
+    JointDataMimicTpl(const JointDataMimicTpl & other)
+    {
+      *this = other;
+    }
+
     JointDataMimicTpl & operator=(const JointDataMimicTpl & other)
     {
       m_jdata_mimicking = other.m_jdata_mimicking;

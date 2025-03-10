@@ -219,7 +219,7 @@ namespace pinocchio
              jExtended = data.non_mimic_parents_fromRow[(size_t)jExtended])
         {
           MotionIn v_in(Jin.col(jExtended));
-          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[jExtended]));
+          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[size_t(jExtended)]));
 
           v_out = v_in;
         }
@@ -228,7 +228,7 @@ namespace pinocchio
              jExtended = data.mimic_parents_fromRow[(size_t)jExtended])
         {
           MotionIn v_in(Jin.col(jExtended));
-          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[jExtended]));
+          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[size_t(jExtended)]));
 
           v_out += v_in;
         }
@@ -239,7 +239,7 @@ namespace pinocchio
              jExtended = data.non_mimic_parents_fromRow[(size_t)jExtended])
         {
           MotionIn v_in(Jin.col(jExtended));
-          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[jExtended]));
+          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[size_t(jExtended)]));
 
           v_out = v_in;
           v_out.linear().noalias() -= placement.translation().cross(v_in.angular());
@@ -249,7 +249,7 @@ namespace pinocchio
              jExtended = data.mimic_parents_fromRow[(size_t)jExtended])
         {
           MotionIn v_in(Jin.col(jExtended));
-          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[jExtended]));
+          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[size_t(jExtended)]));
 
           v_out += v_in;
           v_out.linear().noalias() -= placement.translation().cross(v_in.angular());
@@ -261,7 +261,7 @@ namespace pinocchio
              jExtended = data.non_mimic_parents_fromRow[(size_t)jExtended])
         {
           MotionIn v_in(Jin.col(jExtended));
-          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[jExtended]));
+          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[size_t(jExtended)]));
 
           v_out = placement.actInv(v_in);
         }
@@ -270,7 +270,7 @@ namespace pinocchio
              jExtended = data.mimic_parents_fromRow[(size_t)jExtended])
         {
           MotionIn v_in(Jin.col(jExtended));
-          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[jExtended]));
+          MotionOut v_out(Jout_.col(data.idx_vExtended_to_idx_v_fromRow[size_t(jExtended)]));
 
           v_out += placement.actInv(v_in);
         }
@@ -808,7 +808,7 @@ namespace pinocchio
           typedef typename Matrix6xLike::ColXpr ColXprOut;
           typedef MotionRef<ColXprOut> MotionOut;
           MotionIn v_in(data.J.col(jExtended));
-          MotionOut v_out(dJ.col(data.idx_vExtended_to_idx_v_fromRow[jExtended]));
+          MotionOut v_out(dJ.col(data.idx_vExtended_to_idx_v_fromRow[size_t(jExtended)]));
 
           v_out -= v_joint.cross(oMjoint.actInv(v_in));
         }
@@ -827,7 +827,7 @@ namespace pinocchio
           typedef typename Matrix6xLike::ColXpr ColXprOut;
           typedef MotionRef<ColXprOut> MotionOut;
           MotionIn v_in(data.J.col(jExtended));
-          MotionOut v_out(dJ.col(data.idx_vExtended_to_idx_v_fromRow[jExtended]));
+          MotionOut v_out(dJ.col(data.idx_vExtended_to_idx_v_fromRow[size_t(jExtended)]));
 
           v_out.linear() -=
             Vector3(ov_joint.linear() + ov_joint.angular().cross(oMjoint.translation()))

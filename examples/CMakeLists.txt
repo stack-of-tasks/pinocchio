@@ -88,7 +88,7 @@ if(BUILD_PYTHON_INTERFACE)
 
   if(BUILD_WITH_COLLISION_SUPPORT)
     list(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES sample-model-viewer display-shapes
-         simulation-pendulum)
+         simulation-pendulum simulation-closed-kinematic-chains)
     if(BUILD_WITH_URDF_SUPPORT)
       list(
         APPEND
@@ -98,10 +98,9 @@ if(BUILD_PYTHON_INTERFACE)
         collisions
         collision-with-point-clouds
         append-urdf-model-with-another-model
-        simulation-contact-dynamics)
-      if(PYTHON_VERSION_MAJOR EQUAL 3)
-        list(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES static-contact-dynamics)
-      endif()
+        simulation-contact-dynamics
+        # talos-simulation
+        static-contact-dynamics)
     endif()
   endif()
 
