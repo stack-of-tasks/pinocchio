@@ -251,7 +251,6 @@ namespace pinocchio
     {
       const Index & parent = model.parents[joint];
       const int idx_vj = model.joints[joint].idx_v();
-      const int nvj = model.joints[joint].nv();
       const int nvExtended_j = model.joints[joint].nvExtended();
       const int idx_vExtended_j = model.joints[joint].idx_vExtended();
 
