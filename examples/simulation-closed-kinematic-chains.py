@@ -149,7 +149,7 @@ v = np.zeros(model.nv)
 tau = np.zeros(model.nv)
 dt = 5e-3
 
-T_sim = 100000
+T_sim = 10
 t = 0
 mu_sim = 1e-10
 constraint_model.corrector.Kp[:] = 10
