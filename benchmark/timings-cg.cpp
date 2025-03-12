@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2018 CNRS
-// Copyright (c) 2020-2024 INRIA
+// Copyright (c) 2020-2025 INRIA
 //
 
 #include "model-fixture.hpp"

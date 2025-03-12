@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2025 INRIA
 //
 
 #include "model-fixture.hpp"
