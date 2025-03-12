@@ -51,7 +51,7 @@ endif()
 
 # timings cholesky
 #
-add_pinocchio_bench(timings-cholesky)
+add_pinocchio_bench(timings-cholesky GOOGLE_BENCHMARK)
 target_link_libraries(timings-cholesky PRIVATE pinocchio_parsers)
 
 # timings derivatives
