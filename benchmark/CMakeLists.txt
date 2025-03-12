@@ -60,8 +60,7 @@ add_pinocchio_bench(timings-derivatives GOOGLE_BENCHMARK)
 target_link_libraries(timings-derivatives PRIVATE pinocchio_parsers)
 if(BUILD_WITH_AUTODIFF_SUPPORT)
   # timings-cppad-jit
-  add_pinocchio_bench(timings-cppad-jit)
-  target_link_libraries(timings-derivatives PRIVATE pinocchio_cppad)
+  add_pinocchio_bench(timings-cppad-jit GOOGLE_BENCHMARK)
   target_link_libraries(timings-cppad-jit PRIVATE pinocchio_cppad ${CMAKE_DL_LIBS})
   target_compile_definitions(timings-cppad-jit
                              PRIVATE PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\")
