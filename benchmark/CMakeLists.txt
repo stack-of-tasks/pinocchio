@@ -56,7 +56,7 @@ target_link_libraries(timings-cholesky PRIVATE pinocchio_parsers)
 
 # timings derivatives
 #
-add_pinocchio_bench(timings-derivatives)
+add_pinocchio_bench(timings-derivatives GOOGLE_BENCHMARK)
 target_link_libraries(timings-derivatives PRIVATE pinocchio_parsers)
 if(BUILD_WITH_AUTODIFF_SUPPORT)
   # timings-cppad-jit

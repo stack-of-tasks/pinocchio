@@ -1,6 +1,8 @@
 //
-// Copyright (c) 2018-2021 CNRS INRIA
+// Copyright (c) 2018-2025 CNRS INRIA
 //
+
+#include "model-fixture.hpp"
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
@@ -18,7 +20,7 @@
 
 #include <iostream>
 
-#include "pinocchio/utils/timer.hpp"
+typedef pinocchio::Data::Tensor3x Tensor3x;
 
 template<typename Matrix1, typename Matrix2, typename Matrix3>
 void rnea_fd(
@@ -115,202 +117,332 @@ void aba_fd(
   daba_dtau = computeMinverse(model, data_fd, q);
 }
 
-int main(int argc, const char ** argv)
+struct DerivativesFixture : ModelFixture
 {
-  using namespace Eigen;
-  using namespace pinocchio;
-
-  PinocchioTicToc timer(PinocchioTicToc::US);
-#ifdef NDEBUG
-  const int NBT = 1000 * 100;
-#else
-  const int NBT = 1;
-  std::cout << "(the time score in debug mode is not relevant) " << std::endl;
-#endif
-
-  Model model;
-
-  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
-  if (argc > 1)
-    filename = argv[1];
-  bool with_ff = true;
-
-  if (argc > 2)
+  void SetUp(benchmark::State & st)
   {
-    const std::string ff_option = argv[2];
-    if (ff_option == "-no-ff")
-      with_ff = false;
+    ModelFixture::SetUp(st);
+    drnea_dq.setZero(model.nv, model.nv);
+    drnea_dv.setZero(model.nv, model.nv);
+    drnea_da.setZero(model.nv, model.nv);
+
+    daba_dq.setZero(model.nv, model.nv);
+    daba_dv.setZero(model.nv, model.nv);
+    daba_dtau.setZero(model.nv, model.nv);
+
+    dtau2_dq = Tensor3x(model.nv, model.nv, model.nv);
+    dtau2_dv = Tensor3x(model.nv, model.nv, model.nv);
+    dtau2_dqv = Tensor3x(model.nv, model.nv, model.nv);
+    dtau_dadq = Tensor3x(model.nv, model.nv, model.nv);
+    dtau2_dq.setZero();
+    dtau2_dv.setZero();
+    dtau2_dqv.setZero();
+    dtau_dadq.setZero();
   }
 
-  if (filename == "HS")
-    buildModels::humanoidRandom(model, true);
-  else if (with_ff)
-    pinocchio::urdf::buildModel(filename, JointModelFreeFlyer(), model);
-  //      pinocchio::urdf::buildModel(filename,JointModelRX(),model);
-  else
-    pinocchio::urdf::buildModel(filename, model);
-  std::cout << "nq = " << model.nq << std::endl;
-  std::cout << "nv = " << model.nv << std::endl;
-  std::cout << "--" << std::endl;
+  PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(Eigen::MatrixXd) drnea_dq;
+  PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(Eigen::MatrixXd) drnea_dv;
+  Eigen::MatrixXd drnea_da;
 
-  Data data(model);
-  VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
+  Eigen::MatrixXd daba_dq;
+  Eigen::MatrixXd daba_dv;
+  pinocchio::Data::RowMatrixXs daba_dtau;
 
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs(NBT);
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qdots(NBT);
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qddots(NBT);
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) taus(NBT);
+  Tensor3x dtau2_dq;
+  Tensor3x dtau2_dv;
+  Tensor3x dtau2_dqv;
+  Tensor3x dtau_dadq;
 
-  for (size_t i = 0; i < NBT; ++i)
+  void TearDown(benchmark::State & st)
   {
-    qs[i] = randomConfiguration(model, -qmax, qmax);
-    qdots[i] = Eigen::VectorXd::Random(model.nv);
-    qddots[i] = Eigen::VectorXd::Random(model.nv);
-    taus[i] = Eigen::VectorXd::Random(model.nv);
+    ModelFixture::TearDown(st);
   }
 
-  PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(MatrixXd) drnea_dq(MatrixXd::Zero(model.nv, model.nv));
-  PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(MatrixXd) drnea_dv(MatrixXd::Zero(model.nv, model.nv));
-  MatrixXd drnea_da(MatrixXd::Zero(model.nv, model.nv));
-
-  MatrixXd daba_dq(MatrixXd::Zero(model.nv, model.nv));
-  MatrixXd daba_dv(MatrixXd::Zero(model.nv, model.nv));
-  Data::RowMatrixXs daba_dtau(Data::RowMatrixXs::Zero(model.nv, model.nv));
-
-  typedef Data::Tensor3x Tensor3x;
-  //  typedef Eigen::Tensor<double, 3, Eigen::RowMajor> Tensor3x;
-  Tensor3x dtau2_dq(model.nv, model.nv, model.nv);
-  Tensor3x dtau2_dv(model.nv, model.nv, model.nv);
-  Tensor3x dtau2_dqv(model.nv, model.nv, model.nv);
-  Tensor3x dtau_dadq(model.nv, model.nv, model.nv);
-  dtau2_dq.setZero();
-  dtau2_dv.setZero();
-  dtau2_dqv.setZero();
-  dtau_dadq.setZero();
-
-  timer.tic();
-  SMOOTH(NBT)
+  static void GlobalSetUp(const ExtraArgs & extra_args)
   {
-    forwardKinematics(model, data, qs[_smooth], qdots[_smooth], qddots[_smooth]);
+    ModelFixture::GlobalSetUp(extra_args);
   }
-  std::cout << "FK= \t\t\t\t";
-  timer.toc(std::cout, NBT);
+};
 
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    computeForwardKinematicsDerivatives(model, data, qs[_smooth], qdots[_smooth], qddots[_smooth]);
-  }
-  std::cout << "FK derivatives= \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    rnea(model, data, qs[_smooth], qdots[_smooth], qddots[_smooth]);
-  }
-  std::cout << "RNEA= \t\t\t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    computeRNEADerivatives(
-      model, data, qs[_smooth], qdots[_smooth], qddots[_smooth], drnea_dq, drnea_dv, drnea_da);
-  }
-  std::cout << "RNEA derivatives= \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    ComputeRNEASecondOrderDerivatives(
-      model, data, qs[_smooth], qdots[_smooth], qddots[_smooth], dtau2_dq, dtau2_dv, dtau2_dqv,
-      dtau_dadq);
-  }
-  std::cout << "RNEA derivatives SO= \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT / 100)
-  {
-    rnea_fd(
-      model, data, qs[_smooth], qdots[_smooth], qddots[_smooth], drnea_dq, drnea_dv, drnea_da);
-  }
-  std::cout << "RNEA finite differences= \t";
-  timer.toc(std::cout, NBT / 100);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth], Convention::LOCAL);
-  }
-  std::cout << "ABA= \t\t\t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    computeABADerivatives(
-      model, data, qs[_smooth], qdots[_smooth], taus[_smooth], daba_dq, daba_dv, daba_dtau);
-  }
-  std::cout << "ABA derivatives(q,v,tau)= \t";
-  timer.toc(std::cout, NBT);
-
-  {
-    double total = 0;
-    SMOOTH(NBT)
-    {
-      aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth], Convention::WORLD);
-      timer.tic();
-      computeABADerivatives(model, data, daba_dq, daba_dv, daba_dtau);
-      total += timer.toc(timer.DEFAULT_UNIT);
-    }
-    std::cout << "ABA derivatives() = \t\t" << (total / NBT) << " "
-              << timer.unitName(timer.DEFAULT_UNIT) << std::endl;
-  }
-
-  timer.tic();
-  SMOOTH(NBT / 100)
-  {
-    aba_fd(model, data, qs[_smooth], qdots[_smooth], taus[_smooth], daba_dq, daba_dv, daba_dtau);
-  }
-  std::cout << "ABA finite differences= \t";
-  timer.toc(std::cout, NBT / 100);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    computeMinverse(model, data, qs[_smooth]);
-  }
-  std::cout << "M.inverse(q) = \t\t\t";
-  timer.toc(std::cout, NBT);
-
-  {
-    double total = 0;
-    SMOOTH(NBT)
-    {
-      aba(model, data, qs[_smooth], qdots[_smooth], taus[_smooth], Convention::WORLD);
-      timer.tic();
-      computeMinverse(model, data);
-      total += timer.toc(timer.DEFAULT_UNIT);
-    }
-    std::cout << "M.inverse() from ABA = \t\t" << (total / NBT) << " "
-              << timer.unitName(timer.DEFAULT_UNIT) << std::endl;
-  }
-
-  MatrixXd Minv(model.nv, model.nv);
-  Minv.setZero();
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    crba(model, data, qs[_smooth], Convention::WORLD);
-    cholesky::decompose(model, data);
-    cholesky::computeMinv(model, data, Minv);
-  }
-  std::cout << "Minv from Cholesky = \t\t";
-  timer.toc(std::cout, NBT);
-
-  std::cout << "--" << std::endl;
-  return 0;
+static void CustomArguments(benchmark::internal::Benchmark * b)
+{
+  b->MinWarmUpTime(3.);
 }
+
+// FORWARD_KINEMATICS_Q_V_A
+
+PINOCCHIO_DONT_INLINE static void forwardKinematicsQVACall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & a)
+{
+  pinocchio::forwardKinematics(model, data, q, v, a);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, FORWARD_KINEMATICS_Q_V_A)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    forwardKinematicsQVACall(model, data, q, v, a);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, FORWARD_KINEMATICS_Q_V_A)->Apply(CustomArguments);
+
+// FORWARD_KINEMATICS_DERIVATIVES
+
+PINOCCHIO_DONT_INLINE static void computeForwardKinematicsDerivativesCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & a)
+{
+  pinocchio::computeForwardKinematicsDerivatives(model, data, q, v, a);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, FORWARD_KINEMATICS_DERIVATIVES)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeForwardKinematicsDerivativesCall(model, data, q, v, a);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, FORWARD_KINEMATICS_DERIVATIVES)->Apply(CustomArguments);
+
+// RNEA
+
+PINOCCHIO_DONT_INLINE static void rneaCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & a)
+{
+  pinocchio::rnea(model, data, q, v, a);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, RNEA)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    rneaCall(model, data, q, v, a);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, RNEA)->Apply(CustomArguments);
+
+// COMPUTE_RNEA_DERIVATIVES
+
+PINOCCHIO_DONT_INLINE static void computeRNEADerivativesCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & a,
+  const PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(Eigen::MatrixXd) & drnea_dq,
+  const PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(Eigen::MatrixXd) & drnea_dv,
+  const Eigen::MatrixXd & drnea_da)
+{
+  pinocchio::computeRNEADerivatives(model, data, q, v, a, drnea_dq, drnea_dv, drnea_da);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, COMPUTE_RNEA_DERIVATIVES)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeRNEADerivativesCall(model, data, q, v, a, drnea_dq, drnea_dv, drnea_da);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, COMPUTE_RNEA_DERIVATIVES)->Apply(CustomArguments);
+
+// COMUTE_RNEA_SECOND_ORDER_DERIVATIVES
+
+PINOCCHIO_DONT_INLINE static void computeRNEASecondOrderDerivativesCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & a,
+  const Tensor3x & dtau2_dq,
+  const Tensor3x & dtau2_dv,
+  const Tensor3x & dtau2_dqv,
+  const Tensor3x & dtau_dadq)
+{
+  ComputeRNEASecondOrderDerivatives(model, data, q, v, a, dtau2_dq, dtau2_dv, dtau2_dqv, dtau_dadq);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, COMUTE_RNEA_SECOND_ORDER_DERIVATIVES)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeRNEASecondOrderDerivativesCall(
+      model, data, q, v, a, dtau2_dq, dtau2_dv, dtau2_dqv, dtau_dadq);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, COMUTE_RNEA_SECOND_ORDER_DERIVATIVES)
+  ->Apply(CustomArguments);
+
+// COMPUTE_RNEA_FD_DERIVATIVES
+
+PINOCCHIO_DONT_INLINE static void computeRNEAFDDerivativesCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & a,
+  const PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(Eigen::MatrixXd) & drnea_dq,
+  const PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(Eigen::MatrixXd) & drnea_dv,
+  const Eigen::MatrixXd & drnea_da)
+{
+  rnea_fd(model, data, q, v, a, drnea_dq, drnea_dv, drnea_da);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, COMPUTE_RNEA_FD_DERIVATIVES)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeRNEAFDDerivativesCall(model, data, q, v, a, drnea_dq, drnea_dv, drnea_da);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, COMPUTE_RNEA_FD_DERIVATIVES)->Apply(CustomArguments);
+
+// ABA_LOCAL
+
+PINOCCHIO_DONT_INLINE static void abaLocalCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & tau)
+{
+  pinocchio::aba(model, data, q, v, tau, pinocchio::Convention::LOCAL);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, ABA_LOCAL)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    abaLocalCall(model, data, q, v, tau);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, ABA_LOCAL)->Apply(CustomArguments);
+
+// COMPUTE_ABA_DERIVATIVES
+
+PINOCCHIO_DONT_INLINE static void computeABADerivativesCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & tau,
+  const Eigen::MatrixXd & daba_dq,
+  const Eigen::MatrixXd & daba_dv,
+  const pinocchio::Data::RowMatrixXs & daba_dtau)
+{
+  computeABADerivatives(model, data, q, v, tau, daba_dq, daba_dv, daba_dtau);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, COMPUTE_ABA_DERIVATIVES)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeABADerivativesCall(model, data, q, v, tau, daba_dq, daba_dv, daba_dtau);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, COMPUTE_ABA_DERIVATIVES)->Apply(CustomArguments);
+
+// COMPUTE_ABA_DERIVATIVES_NO_Q_V_TAU
+
+PINOCCHIO_DONT_INLINE static void computeABADerivativesNoQVTauCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::MatrixXd & daba_dq,
+  const Eigen::MatrixXd & daba_dv,
+  const pinocchio::Data::RowMatrixXs & daba_dtau)
+{
+  computeABADerivatives(model, data, daba_dq, daba_dv, daba_dtau);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, COMPUTE_ABA_DERIVATIVES_NO_Q_V_TAU)(benchmark::State & st)
+{
+  pinocchio::aba(model, data, q, v, tau, pinocchio::Convention::WORLD);
+  for (auto _ : st)
+  {
+    computeABADerivativesNoQVTauCall(model, data, daba_dq, daba_dv, daba_dtau);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, COMPUTE_ABA_DERIVATIVES_NO_Q_V_TAU)
+  ->Apply(CustomArguments);
+
+// COMPUTE_ABA_FD_DERIVATIVES
+
+PINOCCHIO_DONT_INLINE static void computeABAFDDerivativesCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & tau,
+  Eigen::MatrixXd & daba_dq,
+  Eigen::MatrixXd & daba_dv,
+  pinocchio::Data::RowMatrixXs & daba_dtau)
+{
+  aba_fd(model, data, q, v, tau, daba_dq, daba_dv, daba_dtau);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, COMPUTE_ABA_FD_DERIVATIVES)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeABAFDDerivativesCall(model, data, q, v, tau, daba_dq, daba_dv, daba_dtau);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, COMPUTE_ABA_FD_DERIVATIVES)->Apply(CustomArguments);
+
+// COMPUTE_M_INVERSE_Q
+
+PINOCCHIO_DONT_INLINE static void computeMinverseQCall(
+  const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
+{
+  pinocchio::computeMinverse(model, data, q);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, COMPUTE_M_INVERSE_Q)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeMinverseQCall(model, data, q);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, COMPUTE_M_INVERSE_Q)->Apply(CustomArguments);
+
+// COMPUTE_M_INVERSE
+
+PINOCCHIO_DONT_INLINE static void
+computeMinverseCall(const pinocchio::Model & model, pinocchio::Data & data)
+{
+  pinocchio::computeMinverse(model, data);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, COMPUTE_M_INVERSE)(benchmark::State & st)
+{
+  pinocchio::aba(model, data, q, v, tau, pinocchio::Convention::WORLD);
+  for (auto _ : st)
+  {
+    computeMinverseCall(model, data);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, COMPUTE_M_INVERSE)->Apply(CustomArguments);
+
+// COMPUTE_CHOLESKY_M_INVERSE
+
+PINOCCHIO_DONT_INLINE static void computeCholeskyMinverseCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  Eigen::MatrixXd & Minv)
+{
+  pinocchio::crba(model, data, q, pinocchio::Convention::WORLD);
+  pinocchio::cholesky::decompose(model, data);
+  pinocchio::cholesky::computeMinv(model, data, Minv);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, COMPUTE_CHOLESKY_M_INVERSE)(benchmark::State & st)
+{
+  Eigen::MatrixXd Minv(model.nv, model.nv);
+  Minv.setZero();
+  for (auto _ : st)
+  {
+    computeCholeskyMinverseCall(model, data, q, Minv);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, COMPUTE_CHOLESKY_M_INVERSE)->Apply(CustomArguments);
+
+PINOCCHIO_BENCHMARK_MAIN_WITH_SETUP(DerivativesFixture::GlobalSetUp);
