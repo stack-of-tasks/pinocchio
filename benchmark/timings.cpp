@@ -527,15 +527,15 @@ PINOCCHIO_DONT_INLINE static void abaLocalCall(
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
   const Eigen::VectorXd & v,
-  const Eigen::VectorXd & a)
+  const Eigen::VectorXd & tau)
 {
-  pinocchio::aba(model, data, q, v, a, pinocchio::Convention::LOCAL);
+  pinocchio::aba(model, data, q, v, tau, pinocchio::Convention::LOCAL);
 }
 BENCHMARK_DEFINE_F(ModelFixture, ABA_LOCAL)(benchmark::State & st)
 {
   for (auto _ : st)
   {
-    abaLocalCall(model, data, q, v, a);
+    abaLocalCall(model, data, q, v, tau);
   }
 }
 BENCHMARK_REGISTER_F(ModelFixture, ABA_LOCAL)->Apply(CustomArguments);
@@ -547,15 +547,15 @@ PINOCCHIO_DONT_INLINE static void abaWorldCall(
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
   const Eigen::VectorXd & v,
-  const Eigen::VectorXd & a)
+  const Eigen::VectorXd & tau)
 {
-  pinocchio::aba(model, data, q, v, a, pinocchio::Convention::WORLD);
+  pinocchio::aba(model, data, q, v, tau, pinocchio::Convention::WORLD);
 }
 BENCHMARK_DEFINE_F(ModelFixture, ABA_WORLD)(benchmark::State & st)
 {
   for (auto _ : st)
   {
-    abaWorldCall(model, data, q, v, a);
+    abaWorldCall(model, data, q, v, tau);
   }
 }
 BENCHMARK_REGISTER_F(ModelFixture, ABA_WORLD)->Apply(CustomArguments);
@@ -604,7 +604,7 @@ computeMinverseCall(const pinocchio::Model & model, pinocchio::Data & data)
 }
 BENCHMARK_DEFINE_F(ModelFixture, COMPUTE_M_INVERSE)(benchmark::State & st)
 {
-  pinocchio::aba(model, data, q, v, a, pinocchio::Convention::WORLD);
+  pinocchio::aba(model, data, q, v, tau, pinocchio::Convention::WORLD);
   for (auto _ : st)
   {
     computeMinverseCall(model, data);

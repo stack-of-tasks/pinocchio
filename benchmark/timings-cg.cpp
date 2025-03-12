@@ -238,9 +238,9 @@ PINOCCHIO_DONT_INLINE static void abaWorldCall(
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
   const Eigen::VectorXd & v,
-  const Eigen::VectorXd & a)
+  const Eigen::VectorXd & tau)
 {
-  pinocchio::aba(model, data, q, v, a, pinocchio::Convention::WORLD);
+  pinocchio::aba(model, data, q, v, tau, pinocchio::Convention::WORLD);
 }
 BENCHMARK_DEFINE_F(CGFixture, ABA)(benchmark::State & st)
 {
@@ -268,7 +268,7 @@ BENCHMARK_DEFINE_F(CGFixture, ABA_JACOBIAN_CODE_GEN)(benchmark::State & st)
 {
   for (auto _ : st)
   {
-    ABA_CODE_GEN->evalJacobian(q, v, a);
+    ABA_CODE_GEN->evalJacobian(q, v, tau);
   }
 }
 BENCHMARK_REGISTER_F(CGFixture, ABA_JACOBIAN_CODE_GEN)->Apply(CustomArguments);
@@ -279,7 +279,7 @@ BENCHMARK_DEFINE_F(CGFixture, ABA_DERIVATIVES_CODE_GEN)(benchmark::State & st)
 {
   for (auto _ : st)
   {
-    ABA_DERIVATIVES_CODE_GEN->evalFunction(q, v, a);
+    ABA_DERIVATIVES_CODE_GEN->evalFunction(q, v, tau);
   }
 }
 BENCHMARK_REGISTER_F(CGFixture, ABA_DERIVATIVES_CODE_GEN)->Apply(CustomArguments);
@@ -291,12 +291,12 @@ PINOCCHIO_DONT_INLINE void constraintDynamicsDerivativeCall(
   pinocchio::Data & data,
   const Eigen::VectorXd & q,
   const Eigen::VectorXd & v,
-  const Eigen::VectorXd & a,
+  const Eigen::VectorXd & tau,
   const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel)
     & contact_models_6d6d,
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData) & contact_datas_6d6d)
 {
-  pinocchio::constraintDynamics(model, data, q, v, a, contact_models_6d6d, contact_datas_6d6d);
+  pinocchio::constraintDynamics(model, data, q, v, tau, contact_models_6d6d, contact_datas_6d6d);
   pinocchio::computeConstraintDynamicsDerivatives(
     model, data, contact_models_6d6d, contact_datas_6d6d);
 }
@@ -305,7 +305,8 @@ BENCHMARK_DEFINE_F(CGFixture, CONSTRAINT_DYNAMICS_DERIVATIVES)(benchmark::State 
   pinocchio::initConstraintDynamics(model, data, CONTACT_MODELS_6D6D);
   for (auto _ : st)
   {
-    constraintDynamicsDerivativeCall(model, data, q, v, a, CONTACT_MODELS_6D6D, CONTACT_DATAS_6D6D);
+    constraintDynamicsDerivativeCall(
+      model, data, q, v, tau, CONTACT_MODELS_6D6D, CONTACT_DATAS_6D6D);
   }
 }
 BENCHMARK_REGISTER_F(CGFixture, CONSTRAINT_DYNAMICS_DERIVATIVES)->Apply(CustomArguments);
@@ -316,7 +317,7 @@ BENCHMARK_DEFINE_F(CGFixture, CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN)(benchmar
 {
   for (auto _ : st)
   {
-    CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN->evalFunction(q, v, a);
+    CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN->evalFunction(q, v, tau);
   }
 }
 BENCHMARK_REGISTER_F(CGFixture, CONSTRAINT_DYNAMICS_DERIVATIVES_CODE_GEN)->Apply(CustomArguments);
