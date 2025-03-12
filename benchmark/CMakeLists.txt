@@ -68,7 +68,7 @@ if(BUILD_WITH_AUTODIFF_SUPPORT)
 endif()
 
 # timings-eigen
-add_pinocchio_bench(timings-eigen)
+add_pinocchio_bench(timings-eigen GOOGLE_BENCHMARK)
 modernize_target_link_libraries(
   timings-eigen
   SCOPE PUBLIC
