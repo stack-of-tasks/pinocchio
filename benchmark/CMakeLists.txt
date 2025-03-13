@@ -83,7 +83,7 @@ endif()
 
 # timings-jacobian
 #
-add_pinocchio_bench(timings-jacobian)
+add_pinocchio_bench(timings-jacobian GOOGLE_BENCHMARK)
 target_link_libraries(timings-jacobian PRIVATE pinocchio_parsers)
 
 # timings-contact-dynamics
