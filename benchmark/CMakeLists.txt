@@ -77,7 +77,7 @@ modernize_target_link_libraries(
 # timings-geometry
 #
 if(BUILD_WITH_URDF_SUPPORT AND BUILD_WITH_COLLISION_SUPPORT)
-  add_pinocchio_bench(timings-geometry)
+  add_pinocchio_bench(timings-geometry GOOGLE_BENCHMARK)
   target_link_libraries(timings-geometry PRIVATE pinocchio_parsers pinocchio_collision)
 endif()
 

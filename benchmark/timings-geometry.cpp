@@ -1,6 +1,8 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2025 CNRS INRIA
 //
+
+#include "model-fixture.hpp"
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
@@ -11,108 +13,187 @@
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/multibody/geometry.hpp"
-#include "pinocchio/utils/timer.hpp"
 
 #include <iostream>
 
-int main()
+static void CustomArguments(benchmark::internal::Benchmark * b)
 {
-  using namespace Eigen;
-  using namespace pinocchio;
+  b->MinWarmUpTime(3.);
+}
 
-  PinocchioTicToc timer(PinocchioTicToc::US);
-#ifdef NDEBUG
-  const unsigned int NBT = 1000 * 100;
-  const unsigned int NBD = 1000; // for heavy tests, like computeDistances()
-#else
-  const unsigned int NBT = 1;
-  const unsigned int NBD = 1;
-  std::cout << "(the time score in debug mode is not relevant) " << std::endl;
-#endif
+struct GeometryFixture : benchmark::Fixture
+{
+  void SetUp(benchmark::State &)
+  {
+    model = MODEL;
+    data = pinocchio::Data(model);
+    geometry_model = GEOMETRY_MODEL;
+    geometry_data = pinocchio::GeometryData(geometry_model);
 
-  std::string romeo_filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
-  std::vector<std::string> package_dirs;
-  std::string romeo_meshDir = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots");
-  package_dirs.push_back(romeo_meshDir);
+    const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
+    q = randomConfiguration(model, -qmax, qmax);
+    v = Eigen::VectorXd::Random(model.nv);
+    a = Eigen::VectorXd::Random(model.nv);
+  }
+
+  void TearDown(benchmark::State &)
+  {
+  }
 
   pinocchio::Model model;
-  pinocchio::urdf::buildModel(romeo_filename, pinocchio::JointModelFreeFlyer(), model);
-  pinocchio::GeometryModel geom_model;
-  pinocchio::urdf::buildGeom(model, romeo_filename, COLLISION, geom_model, package_dirs);
+  pinocchio::Data data;
+  pinocchio::GeometryModel geometry_model;
+  pinocchio::GeometryData geometry_data;
+
+  Eigen::VectorXd q;
+  Eigen::VectorXd v;
+  Eigen::VectorXd a;
+
+  static pinocchio::Model MODEL;
+  static pinocchio::GeometryModel GEOMETRY_MODEL;
+
+  static void GlobalSetUp(const ExtraArgs &)
+  {
+    std::string romeo_filename =
+      PINOCCHIO_MODEL_DIR
+      + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    std::vector<std::string> package_dirs;
+    package_dirs.push_back(PINOCCHIO_MODEL_DIR);
+
+    pinocchio::urdf::buildModel(romeo_filename, pinocchio::JointModelFreeFlyer(), MODEL);
+    pinocchio::urdf::buildGeom(
+      MODEL, romeo_filename, pinocchio::COLLISION, GEOMETRY_MODEL, package_dirs);
+
+    std::cout << "nq = " << MODEL.nq << std::endl;
+    std::cout << "nv = " << MODEL.nv << std::endl;
+    std::cout << "name = " << MODEL.name << std::endl;
+    std::cout << "--" << std::endl;
+  }
+};
+pinocchio::Model GeometryFixture::MODEL;
+pinocchio::GeometryModel GeometryFixture::GEOMETRY_MODEL;
+
+// FORWARD_KINEMATICS_Q
+
+PINOCCHIO_DONT_INLINE static void forwardKinematicsQCall(
+  const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
+{
+  pinocchio::forwardKinematics(model, data, q);
+}
+BENCHMARK_DEFINE_F(GeometryFixture, FORWARD_KINEMATICS_Q)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    forwardKinematicsQCall(model, data, q);
+  }
+}
+BENCHMARK_REGISTER_F(GeometryFixture, FORWARD_KINEMATICS_Q)->Apply(CustomArguments);
+
+// UPDATE_GEOMETRY_PLACEMENTS
+
+PINOCCHIO_DONT_INLINE static void updateGeometryPlacementsCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const pinocchio::GeometryModel & geometry_model,
+  pinocchio::GeometryData & geometry_data,
+  const Eigen::VectorXd & q)
+{
+  pinocchio::updateGeometryPlacements(model, data, geometry_model, geometry_data, q);
+}
+BENCHMARK_DEFINE_F(GeometryFixture, UPDATE_GEOMETRY_PLACEMENTS)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    updateGeometryPlacementsCall(model, data, geometry_model, geometry_data, q);
+  }
+}
+BENCHMARK_REGISTER_F(GeometryFixture, UPDATE_GEOMETRY_PLACEMENTS)->Apply(CustomArguments);
+
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  geom_model.addAllCollisionPairs();
-#endif // PINOCCHIO_WITH_HPP_FCL
 
-  Data data(model);
-  GeometryData geom_data(geom_model);
-  VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
-
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs_romeo(NBT);
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qdots_romeo(NBT);
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qddots_romeo(NBT);
-  for (size_t i = 0; i < NBT; ++i)
+struct CollisionFixture : GeometryFixture
+{
+  void SetUp(benchmark::State & st)
   {
-    qs_romeo[i] = randomConfiguration(model, -qmax, qmax);
-    qdots_romeo[i] = Eigen::VectorXd::Random(model.nv);
-    qddots_romeo[i] = Eigen::VectorXd::Random(model.nv);
+    GeometryFixture::SetUp(st);
   }
 
-  timer.tic();
-  SMOOTH(NBT)
+  void TearDown(benchmark::State & st)
   {
-    forwardKinematics(model, data, qs_romeo[_smooth]);
+    GeometryFixture::TearDown(st);
   }
-  double geom_time = timer.toc(PinocchioTicToc::US) / NBT;
 
-  timer.tic();
-  SMOOTH(NBT)
+  static void GlobalSetUp(const ExtraArgs & extra_args)
   {
-    updateGeometryPlacements(model, data, geom_model, geom_data, qs_romeo[_smooth]);
+    GeometryFixture::GlobalSetUp(extra_args);
+    GEOMETRY_MODEL.addAllCollisionPairs();
   }
-  double update_col_time = timer.toc(PinocchioTicToc::US) / NBT - geom_time;
-  std::cout << "Update Collision Geometry < false > = \t" << update_col_time << " "
-            << PinocchioTicToc::unitName(PinocchioTicToc::US) << std::endl;
+};
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
-  timer.tic();
-  SMOOTH(NBT)
+// UPDATE_PLACEMENTS_AND_COMPUTE_COLLISIONS
+
+PINOCCHIO_DONT_INLINE static void computeCollisionCall(
+  const pinocchio::GeometryModel & geometry_model,
+  pinocchio::GeometryData & geometry_data,
+  size_t index)
+{
+  computeCollision(geometry_model, geometry_data, index);
+}
+BENCHMARK_DEFINE_F(CollisionFixture, UPDATE_PLACEMENTS_AND_COMPUTE_COLLISIONS)(
+  benchmark::State & st)
+{
+  for (auto _ : st)
   {
-    updateGeometryPlacements(model, data, geom_model, geom_data, qs_romeo[_smooth]);
-    for (std::vector<pinocchio::CollisionPair>::iterator it = geom_model.collisionPairs.begin();
-         it != geom_model.collisionPairs.end(); ++it)
+    updateGeometryPlacementsCall(model, data, geometry_model, geometry_data, q);
+    for (size_t i = 0; i < geometry_model.collisionPairs.size(); ++i)
     {
-      computeCollision(geom_model, geom_data, std::size_t(it - geom_model.collisionPairs.begin()));
+      computeCollisionCall(geometry_model, geometry_data, i);
     }
   }
-  double collideTime = timer.toc(PinocchioTicToc::US) / NBT - (update_col_time + geom_time);
-  std::cout << "Collision test between two geometry objects (mean time) = \t"
-            << collideTime / double(geom_model.collisionPairs.size())
-            << PinocchioTicToc::unitName(PinocchioTicToc::US) << std::endl;
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    computeCollisions(geom_model, geom_data, true);
-  }
-  double is_colliding_time = timer.toc(PinocchioTicToc::US) / NBT - (update_col_time + geom_time);
-  std::cout << "Collision Test : robot in collision? = \t" << is_colliding_time
-            << PinocchioTicToc::unitName(PinocchioTicToc::US) << std::endl;
-
-  timer.tic();
-  SMOOTH(NBD)
-  {
-    computeDistances(model, data, geom_model, geom_data, qs_romeo[_smooth]);
-  }
-  double computeDistancesTime =
-    timer.toc(PinocchioTicToc::US) / NBD - (update_col_time + geom_time);
-  std::cout << "Compute distance between two geometry objects (mean time) = \t"
-            << computeDistancesTime / double(geom_model.collisionPairs.size()) << " "
-            << PinocchioTicToc::unitName(PinocchioTicToc::US) << " "
-            << geom_model.collisionPairs.size() << " col pairs" << std::endl;
-
-#endif // PINOCCHIO_WITH_HPP_FCL
-
-  return 0;
 }
+BENCHMARK_REGISTER_F(CollisionFixture, UPDATE_PLACEMENTS_AND_COMPUTE_COLLISIONS)
+  ->Apply(CustomArguments);
+
+// COMPUTE_COLLISIONS
+
+PINOCCHIO_DONT_INLINE static void computeCollisionsCall(
+  const pinocchio::GeometryModel & geometry_model, pinocchio::GeometryData & geometry_data)
+{
+  pinocchio::computeCollisions(geometry_model, geometry_data, true);
+}
+BENCHMARK_DEFINE_F(CollisionFixture, COMPUTE_COLLISIONS)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeCollisionsCall(geometry_model, geometry_data);
+  }
+}
+BENCHMARK_REGISTER_F(CollisionFixture, COMPUTE_COLLISIONS)->Apply(CustomArguments);
+
+// COMPUTE_DISTANCES
+
+PINOCCHIO_DONT_INLINE static void computeDistancesCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const pinocchio::GeometryModel & geometry_model,
+  pinocchio::GeometryData & geometry_data,
+  const Eigen::VectorXd & q)
+{
+  pinocchio::computeDistances(model, data, geometry_model, geometry_data, q);
+}
+BENCHMARK_DEFINE_F(CollisionFixture, COMPUTE_DISTANCES)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeDistancesCall(model, data, geometry_model, geometry_data, q);
+  }
+}
+BENCHMARK_REGISTER_F(CollisionFixture, COMPUTE_DISTANCES)->Apply(CustomArguments);
+
+#endif // #ifdef PINOCCHIO_WITH_HPP_FCL
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
+PINOCCHIO_BENCHMARK_MAIN_WITH_SETUP(CollisionFixture::GlobalSetUp);
+#else
+PINOCCHIO_BENCHMARK_MAIN_WITH_SETUP(GeometryFixture::GlobalSetUp);
+#endif
