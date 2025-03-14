@@ -122,6 +122,14 @@ namespace pinocchio
      }
    };
 
+  namespace quaternion
+  {
+    template <typename BaseScalar>
+    struct DefaultNormTolerance<CppAD::AD<CppAD::cg::CG<BaseScalar>>>
+    {
+      static constexpr BaseScalar value() { return DefaultNormTolerance<CppAD::AD<BaseScalar>>::value(); }
+    };
+  }
 } // namespace pinocchio
 
 #endif // #ifndef __pinocchio_codegen_ccpadcg_hpp__

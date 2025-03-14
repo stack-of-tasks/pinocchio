@@ -20,10 +20,7 @@ namespace pinocchio
   namespace quaternion
   {
     template <typename Scalar>
-    struct DefaultNormTolerance
-    {
-        static constexpr Scalar value() { return Scalar(1e-8); } // Generic fallback
-    };
+    struct DefaultNormTolerance;
 
     template <>
     struct DefaultNormTolerance<double>
