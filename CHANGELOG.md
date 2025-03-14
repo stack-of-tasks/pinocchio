@@ -42,6 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Stop using context::Scalar for GeometryObject([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
 
 ### Fixed
+- Fix hpp-fcl dependency ([#2617](https://github.com/stack-of-tasks/pinocchio/pull/2617))
 - Add missing Python examples ([#2528](https://github.com/stack-of-tasks/pinocchio/pull/2528))
 
 ## [3.4.0] - 2025-02-12
