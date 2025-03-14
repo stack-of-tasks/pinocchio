@@ -88,7 +88,7 @@ target_link_libraries(timings-jacobian PRIVATE pinocchio_parsers)
 
 # timings-contact-dynamics
 #
-add_pinocchio_bench(timings-delassus-operations)
+add_pinocchio_bench(timings-delassus-operations GOOGLE_BENCHMARK)
 target_link_libraries(timings-delassus-operations PRIVATE pinocchio_parsers)
 add_pinocchio_bench(timings-contact-dynamics)
 target_link_libraries(timings-contact-dynamics PRIVATE pinocchio_parsers)
