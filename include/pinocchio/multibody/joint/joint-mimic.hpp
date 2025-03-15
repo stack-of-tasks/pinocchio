@@ -103,7 +103,8 @@ namespace pinocchio
     typedef typename SE3GroupAction<RefJointMotionSubspace>::ReturnType SE3ActionReturnType;
 
     ScaledJointMotionSubspaceTpl()
-    : ScaledJointMotionSubspaceTpl(1.0)
+    : m_constraint(0)
+    , m_scaling_factor(Scalar(1))
     {
     }
 
