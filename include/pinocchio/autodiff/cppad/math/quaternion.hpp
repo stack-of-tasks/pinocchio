@@ -11,10 +11,13 @@ namespace pinocchio
 {
   namespace quaternion
   {
-    template <typename BaseScalar>
+    template<typename BaseScalar>
     struct DefaultNormTolerance<CppAD::AD<BaseScalar>>
     {
-      static constexpr BaseScalar value() { return DefaultNormTolerance<BaseScalar>::value(); }
+      static constexpr BaseScalar value()
+      {
+        return DefaultNormTolerance<BaseScalar>::value();
+      }
     };
 
     namespace internal

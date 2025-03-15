@@ -409,11 +409,11 @@ namespace pinocchio
       const Eigen::MatrixBase<Tangent_t> & d)
     {
       ConstQuaternionMap_t quat0(q0.derived().data());
-      assert(quaternion::isNormalized(
-        quat0, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat0, quaternion::DefaultNormTolerance<RealScalar>::value()));
       ConstQuaternionMap_t quat1(q1.derived().data());
-      assert(quaternion::isNormalized(
-        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       PINOCCHIO_EIGEN_CONST_CAST(Tangent_t, d) =
         quaternion::log3(Quaternion_t(quat0.conjugate() * quat1));
@@ -428,11 +428,11 @@ namespace pinocchio
       typedef typename SE3::Matrix3 Matrix3;
 
       ConstQuaternionMap_t quat0(q0.derived().data());
-      assert(quaternion::isNormalized(
-        quat0, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat0, quaternion::DefaultNormTolerance<RealScalar>::value()));
       ConstQuaternionMap_t quat1(q1.derived().data());
-      assert(quaternion::isNormalized(
-        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       // TODO: check whether the merge with 2.6.9 is correct
       const Quaternion_t q = quat0.conjugate() * quat1;
@@ -474,16 +474,15 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
       ConstQuaternionMap_t quat(q.derived().data());
-      assert(quaternion::isNormalized(
-        quat, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(quaternion::isNormalized(quat, quaternion::DefaultNormTolerance<RealScalar>::value()));
       QuaternionMap_t quat_map(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t, qout).data());
 
       Quaternion_t pOmega;
       quaternion::exp3(v, pOmega);
       quat_map = quat * pOmega;
       quaternion::firstOrderNormalize(quat_map);
-      assert(quaternion::isNormalized(
-        quat_map, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat_map, quaternion::DefaultNormTolerance<RealScalar>::value()));
     }
 
     template<class Config_t, class Jacobian_t>
@@ -497,8 +496,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       typedef typename SE3::Matrix3 Matrix3;
 
       ConstQuaternionMap_t quat_map(q.derived().data());
-      assert(quaternion::isNormalized(
-        quat_map, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat_map, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
       PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_MAYBE_UNINITIALIZED
@@ -639,19 +638,19 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
       ConstQuaternionMap_t quat0(q0.derived().data());
-      assert(quaternion::isNormalized(
-        quat0, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat0, quaternion::DefaultNormTolerance<RealScalar>::value()));
       ConstQuaternionMap_t quat1(q1.derived().data());
-      assert(quaternion::isNormalized(
-        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       QuaternionMap_t quat_res(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t, qout).data());
 
       TangentVector_t w;
       difference_impl(q0, q1, w);
       integrate_impl(q0, u * w, qout);
-      assert(quaternion::isNormalized(
-        quat_res, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat_res, quaternion::DefaultNormTolerance<RealScalar>::value()));
     }
 
     template<class ConfigL_t, class ConfigR_t>
@@ -686,8 +685,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       QuaternionMap_t quat_map(PINOCCHIO_EIGEN_CONST_CAST(Config_t, qout).data());
       quaternion::uniformRandom(quat_map);
 
-      assert(quaternion::isNormalized(
-        quat_map, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat_map, quaternion::DefaultNormTolerance<RealScalar>::value()));
     }
 
     template<class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -706,11 +705,11 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       const Scalar & prec)
     {
       ConstQuaternionMap_t quat1(q0.derived().data());
-      assert(quaternion::isNormalized(
-        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
       ConstQuaternionMap_t quat2(q1.derived().data());
-      assert(quaternion::isNormalized(
-        quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
+      assert(
+        quaternion::isNormalized(quat1, quaternion::DefaultNormTolerance<RealScalar>::value()));
 
       return quaternion::defineSameRotation(quat1, quat2, prec);
     }

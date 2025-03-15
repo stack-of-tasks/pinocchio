@@ -113,23 +113,26 @@ namespace pinocchio
     }
   };
 
-   template <typename NewScalar, typename Scalar>
-   struct ScalarCast<NewScalar, CppAD::cg::CG<Scalar>>
-   {
-     static NewScalar cast(const CppAD::cg::CG<Scalar>& cg_value)
-     {
-       return static_cast<NewScalar>(cg_value.getValue());
-     }
-   };
+  template<typename NewScalar, typename Scalar>
+  struct ScalarCast<NewScalar, CppAD::cg::CG<Scalar>>
+  {
+    static NewScalar cast(const CppAD::cg::CG<Scalar> & cg_value)
+    {
+      return static_cast<NewScalar>(cg_value.getValue());
+    }
+  };
 
   namespace quaternion
   {
-    template <typename BaseScalar>
+    template<typename BaseScalar>
     struct DefaultNormTolerance<CppAD::AD<CppAD::cg::CG<BaseScalar>>>
     {
-      static constexpr BaseScalar value() { return DefaultNormTolerance<CppAD::AD<BaseScalar>>::value(); }
+      static constexpr BaseScalar value()
+      {
+        return DefaultNormTolerance<CppAD::AD<BaseScalar>>::value();
+      }
     };
-  }
+  } // namespace quaternion
 } // namespace pinocchio
 
 #endif // #ifndef __pinocchio_codegen_ccpadcg_hpp__

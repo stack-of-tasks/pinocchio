@@ -19,19 +19,25 @@ namespace pinocchio
 {
   namespace quaternion
   {
-    template <typename Scalar>
+    template<typename Scalar>
     struct DefaultNormTolerance;
 
-    template <>
+    template<>
     struct DefaultNormTolerance<double>
     {
-      static constexpr double value() { return 1e-8; }
+      static constexpr double value()
+      {
+        return 1e-8;
+      }
     };
 
-    template <>
+    template<>
     struct DefaultNormTolerance<float>
     {
-      static constexpr float value() { return 1e-4f; } // Adjust if needed
+      static constexpr float value()
+      {
+        return 1e-4f;
+      } // Adjust if needed
     };
 
     ///
