@@ -170,8 +170,7 @@ namespace pinocchio
       typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
 
       ConstQuaternionMap_t q(v.derived().data());
-      assert(quaternion::isNormalized(
-        q, typename Vector4Like::RealScalar(quaternion::DefaultNormTolerance<Scalar>::value())));
+      assert(quaternion::isNormalized(q));
       return quaternion::log3(q);
     }
 
@@ -187,8 +186,7 @@ namespace pinocchio
       typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
 
       ConstQuaternionMap_t q(v.derived().data());
-      assert(quaternion::isNormalized(
-        q, typename Vector4Like::RealScalar(quaternion::DefaultNormTolerance<Scalar>::value())));
+      assert(quaternion::isNormalized(q));
 
       return quaternion::log3(q, theta.coeffRef(0, 0));
     }
@@ -205,8 +203,7 @@ namespace pinocchio
       typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
 
       ConstQuaternionMap_t q(v.derived().data());
-      assert(quaternion::isNormalized(
-        q, typename Vector4Like::RealScalar(quaternion::DefaultNormTolerance<Scalar>::value())));
+      assert(quaternion::isNormalized(q));
 
       return quaternion::log3(q, theta);
     }

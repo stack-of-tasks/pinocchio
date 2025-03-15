@@ -247,7 +247,7 @@ namespace pinocchio
     inline bool isNormalized(
       const Eigen::QuaternionBase<Quaternion> & quat,
       const typename Quaternion::Coefficients::RealScalar & prec =
-        Eigen::NumTraits<typename Quaternion::Coefficients::RealScalar>::dummy_precision())
+        DefaultNormTolerance<typename Quaternion::Coefficients::RealScalar>::value())
     {
       return pinocchio::isNormalized(quat.coeffs(), prec);
     }
