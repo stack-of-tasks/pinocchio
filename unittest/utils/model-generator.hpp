@@ -1,5 +1,6 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS
+// Copyright (c) 2018-2025 INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -84,19 +85,19 @@ namespace pinocchio
       auto it = std::find(mimicking_ids.begin(), mimicking_ids.end(), n);
       if (it != mimicking_ids.end()) // If n was found
       {
-        joint_ratio = ratio[std::distance(mimicking_ids.begin(), it)];
-        joint_offset = offset[std::distance(mimicking_ids.begin(), it)];
+        joint_ratio = ratio[size_t(std::distance(mimicking_ids.begin(), it))];
+        joint_offset = offset[size_t(std::distance(mimicking_ids.begin(), it))];
       }
-      model_full.joints[n].JointMappedConfigSelector(q_full) =
-        joint_ratio * model_mimic.joints[n].JointMappedConfigSelector(q)
-        + joint_offset * Eigen::VectorXd::Ones(model_full.joints[n].nq());
+      model_full.joints[size_t(n)].JointMappedConfigSelector(q_full) =
+        joint_ratio * model_mimic.joints[size_t(n)].JointMappedConfigSelector(q)
+        + joint_offset * Eigen::VectorXd::Ones(model_full.joints[size_t(n)].nq());
     }
   }
 
   void mimicTransformMatrix(
     const Model & model_full,
     const Model & model_mimic,
-    const std::vector<pinocchio::JointIndex> & mimicked_ids,
+    const std::vector<pinocchio::JointIndex> & /*mimicked_ids*/,
     const std::vector<pinocchio::JointIndex> & mimicking_ids,
     const std::vector<double> & ratios,
     Eigen::MatrixXd & G)
@@ -109,8 +110,8 @@ namespace pinocchio
     {
       if (std::find(mimicking_ids.begin(), mimicking_ids.end(), j) == mimicking_ids.end())
         G.block(
-           model_full.joints[j].idx_v(), model_mimic.joints[j].idx_v(), model_full.joints[j].nv(),
-           model_mimic.joints[j].nv())
+           model_full.joints[size_t(j)].idx_v(), model_mimic.joints[size_t(j)].idx_v(),
+           model_full.joints[size_t(j)].nv(), model_mimic.joints[size_t(j)].nv())
           .setIdentity();
     }
 

@@ -209,9 +209,10 @@ namespace pinocchio
 
       // VectorBlock does not implemet such getter, hack the Eigen::Block base class to retreive
       // such values.
-      const Index start = vectorBlock.startRow()
-                          + vectorBlock.startCol(); // The other dimension is always 0 (for vectors)
-      const Index size =
+      const Eigen::DenseIndex start =
+        vectorBlock.startRow()
+        + vectorBlock.startCol(); // The other dimension is always 0 (for vectors)
+      const Eigen::DenseIndex size =
         vectorBlock.rows() * vectorBlock.cols(); // The other dimension is always 1 (for vectors)
 
       return ReturnType(vectorBlock.nestedExpression(), start, size);

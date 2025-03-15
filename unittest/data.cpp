@@ -82,16 +82,18 @@ BOOST_AUTO_TEST_CASE(test_data_mimic_idx_vExtended_to_idx_v_fromRow)
     Data data_mimic(model_mimic);
     Data data_full(model_full);
 
-    for (int joint_id = 1; joint_id < model_mimic.njoints; joint_id++)
+    for (size_t joint_id = 1; joint_id < model_mimic.njoints; joint_id++)
     {
       const int idx_vj = model_mimic.joints[joint_id].idx_v();
       const int idx_vExtended_j = model_mimic.joints[joint_id].idx_vExtended();
       const int nvExtended_j = model_mimic.joints[joint_id].nvExtended();
       for (int v = 0; v < nvExtended_j; v++)
       {
-        BOOST_CHECK(data_mimic.idx_vExtended_to_idx_v_fromRow[idx_vExtended_j + v] == idx_vj + v);
         BOOST_CHECK(
-          data_full.idx_vExtended_to_idx_v_fromRow[idx_vExtended_j + v] == idx_vExtended_j + v);
+          data_mimic.idx_vExtended_to_idx_v_fromRow[size_t(idx_vExtended_j + v)] == idx_vj + v);
+        BOOST_CHECK(
+          data_full.idx_vExtended_to_idx_v_fromRow[size_t(idx_vExtended_j + v)]
+          == idx_vExtended_j + v);
       }
     }
   }
@@ -106,7 +108,7 @@ BOOST_AUTO_TEST_CASE(test_data_mimic_mimic_parents_fromRow)
 
     Data data_mimic(model_mimic);
 
-    for (int joint_id = 1; joint_id < model_mimic.njoints; joint_id++)
+    for (size_t joint_id = 1; joint_id < model_mimic.njoints; joint_id++)
     {
       const int idx_vExtended_j = model_mimic.joints[joint_id].idx_vExtended();
       const int nvExtended_j = model_mimic.joints[joint_id].nvExtended();
@@ -125,7 +127,7 @@ BOOST_AUTO_TEST_CASE(test_data_mimic_mimic_parents_fromRow)
       for (int v = 1; v < nvExtended_j; v++)
       {
         BOOST_CHECK(
-          data_mimic.mimic_parents_fromRow[idx_vExtended_j + v] == idx_vExtended_j + v - 1);
+          data_mimic.mimic_parents_fromRow[size_t(idx_vExtended_j + v)] == idx_vExtended_j + v - 1);
       }
     }
   }

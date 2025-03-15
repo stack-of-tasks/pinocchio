@@ -72,6 +72,7 @@ namespace pinocchio
   , nvSubtree((std::size_t)model.njoints, -1)
   , start_idx_v_fromRow((std::size_t)model.nvExtended, -1)
   , end_idx_v_fromRow((std::size_t)model.nvExtended, -1)
+  , idx_vExtended_to_idx_v_fromRow((std::size_t)model.nvExtended, -1)
   , U(MatrixXs::Identity(model.nv, model.nv))
   , D(VectorXs::Zero(model.nv))
   , Dinv(VectorXs::Zero(model.nv))
@@ -79,7 +80,6 @@ namespace pinocchio
   , parents_fromRow((std::size_t)model.nvExtended, -1)
   , mimic_parents_fromRow((std::size_t)model.nvExtended, -1)
   , non_mimic_parents_fromRow((std::size_t)model.nvExtended, -1)
-  , idx_vExtended_to_idx_v_fromRow((std::size_t)model.nvExtended, -1)
   , supports_fromRow((std::size_t)model.nv)
   , nvSubtree_fromRow((std::size_t)model.nvExtended, -1)
   , J(Matrix6x::Zero(6, model.nvExtended))
@@ -162,7 +162,6 @@ namespace pinocchio
   , constraints_supported_dim((std::size_t)model.njoints, 0)
   , constraints_supported((std::size_t)model.njoints)
   , constraints_on_joint((std::size_t)model.njoints)
-  , mimic_subtree_joint()
   {
     typedef typename Model::JointIndex JointIndex;
 
