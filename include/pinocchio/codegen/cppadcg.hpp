@@ -124,12 +124,15 @@ namespace pinocchio
 
   namespace quaternion
   {
-    template<typename BaseScalar>
-    struct DefaultNormTolerance<CppAD::AD<CppAD::cg::CG<BaseScalar>>>
+    template<typename Scalar>
+    struct DefaultNormTolerance<CppAD::AD<CppAD::cg::CG<Scalar>>>
     {
-      static constexpr BaseScalar value()
+      typedef DefaultNormTolerance<Scalar> Base;
+      typedef CppAD::cg::CG<Scalar> CGScalar;
+
+      static constexpr CGScalar value()
       {
-        return DefaultNormTolerance<CppAD::AD<BaseScalar>>::value();
+        return CGScalar(Base::value());
       }
     };
   } // namespace quaternion
