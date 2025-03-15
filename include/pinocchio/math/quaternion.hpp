@@ -1,6 +1,5 @@
 //
 // Copyright (c) 2016-2020 CNRS INRIA
-// Copyright (c) 2025 Heriot-Watt University
 //
 
 #ifndef __pinocchio_math_quaternion_hpp__
@@ -19,26 +18,6 @@ namespace pinocchio
 {
   namespace quaternion
   {
-    template<typename Scalar>
-    struct DefaultNormTolerance;
-
-    template<>
-    struct DefaultNormTolerance<double>
-    {
-      static constexpr double value()
-      {
-        return 1e-8;
-      }
-    };
-
-    template<>
-    struct DefaultNormTolerance<float>
-    {
-      static constexpr float value()
-      {
-        return 1e-4f;
-      } // Adjust if needed
-    };
 
     ///
     /// \brief Compute the minimal angle between q1 and q2.
@@ -246,9 +225,23 @@ namespace pinocchio
     template<typename Quaternion>
     inline bool isNormalized(
       const Eigen::QuaternionBase<Quaternion> & quat,
-      const typename Quaternion::Coefficients::RealScalar & prec =
-        DefaultNormTolerance<typename Quaternion::Coefficients::RealScalar>::value())
+      const typename Quaternion::Coefficients::RealScalar & prec)
     {
+      return pinocchio::isNormalized(quat.coeffs(), prec);
+    }
+
+    ///
+    /// \brief Check whether the input quaternion is Normalized within the default precision.
+    ///
+    /// \param[in] quat Input quaternion
+    ///
+    /// \returns true if quat is normalized within the default precision.
+    ///
+    template<typename Quaternion>
+    inline bool isNormalized(const Eigen::QuaternionBase<Quaternion> & quat)
+    {
+      typedef typename Quaternion::Coefficients::RealScalar RealScalar;
+      const RealScalar prec = math::sqrt(Eigen::NumTraits<RealScalar>::epsilon());
       return pinocchio::isNormalized(quat.coeffs(), prec);
     }
 
