@@ -210,7 +210,8 @@ namespace pinocchio
 
       // Build a "correct" representation of mimic nvSubtree by using nvExtended, which will cover
       // its children nv, and allow for a simple check
-      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[i]))
+      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(
+            &model.joints[size_t(i)]))
         nvSubtree[(Index)i] = 0;
       else
       {
