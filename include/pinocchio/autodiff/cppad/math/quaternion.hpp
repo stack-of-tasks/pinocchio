@@ -11,6 +11,7 @@ namespace pinocchio
 {
   namespace quaternion
   {
+
     namespace internal
     {
 

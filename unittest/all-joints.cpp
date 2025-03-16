@@ -201,8 +201,10 @@ struct TestJointModelTransform : TestJointModel<TestJointModelTransform>
   {
     typedef typename JointModel::JointDataDerived JointData;
     JointData jdata = jmodel.createData();
-    Eigen::Matrix<typename JointModel::Scalar, 3, 1> v = jdata.M_accessor().translation();
+    Eigen::Matrix<typename JointModel::Scalar, 3, 1> t = jdata.M_accessor().translation();
+    PINOCCHIO_UNUSED_VARIABLE(t);
     Eigen::Matrix<typename JointModel::Scalar, 3, 3> R = jdata.M_accessor().rotation();
+    PINOCCHIO_UNUSED_VARIABLE(R);
   }
 };
 
