@@ -1,3 +1,6 @@
+//
+// Copyright (c) 2025 INRIA
+//
 #include "pinocchio/container/boost-container-limits.hpp"
 #include <eigenpy/eigenpy.hpp>
 #include <boost/python.hpp>
