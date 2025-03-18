@@ -239,6 +239,10 @@ if(BUILD_PYTHON_INTERFACE)
     target_link_libraries(${PYWRAP}_mpfr PRIVATE gmp mpfr)
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_mpfr")
 
+    target_precompile_headers(
+      ${PYWRAP}_mpfr PRIVATE ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
+      <boost/multiprecision/mpfr.hpp>)
+
     # --- INSTALL SCRIPTS
     install_python_files(MODULE mpfr FILES __init__.py)
   endif(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
