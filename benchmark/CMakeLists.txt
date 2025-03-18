@@ -94,3 +94,8 @@ add_pinocchio_bench(timings-contact-dynamics GOOGLE_BENCHMARK)
 target_link_libraries(timings-contact-dynamics PRIVATE pinocchio_parsers)
 add_pinocchio_bench(timings-constrained-dynamics-derivatives GOOGLE_BENCHMARK)
 target_link_libraries(timings-constrained-dynamics-derivatives PRIVATE pinocchio_parsers)
+
+# timings-impulse-dynamics
+#
+add_pinocchio_bench(timings-impulse-dynamics GOOGLE_BENCHMARK)
+target_link_libraries(timings-impulse-dynamics PRIVATE pinocchio_parsers)
