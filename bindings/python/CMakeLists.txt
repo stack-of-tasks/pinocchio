@@ -183,7 +183,9 @@ if(BUILD_PYTHON_INTERFACE)
     target_link_libraries(${PYWRAP}_cppad PUBLIC ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppad")
 
-    target_precompile_headers(${PYWRAP}_cppad PRIVATE <cppad/cppad.hpp> <boost/mpl/int.hpp>)
+    target_precompile_headers(
+      ${PYWRAP}_cppad PRIVATE ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
+      <cppad/cppad.hpp> <boost/mpl/int.hpp>)
 
     # --- INSTALL SCRIPTS
     install_python_files(MODULE cppad FILES __init__.py)
@@ -208,8 +210,9 @@ if(BUILD_PYTHON_INTERFACE)
     target_link_libraries(${PYWRAP}_cppadcg PUBLIC ${cppadcg_LIBRARY} ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppadcg")
 
-    target_precompile_headers(${PYWRAP}_cppadcg PRIVATE <cmath> <boost/mpl/int.hpp>
-                              <cppad/cg/support/cppadcg_eigen.hpp>)
+    target_precompile_headers(
+      ${PYWRAP}_cppadcg PRIVATE ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
+      <cmath> <boost/mpl/int.hpp> <cppad/cg/support/cppadcg_eigen.hpp>)
 
     # --- INSTALL SCRIPTS
     install_python_files(MODULE cppadcg FILES __init__.py)
@@ -220,8 +223,9 @@ if(BUILD_PYTHON_INTERFACE)
     target_link_libraries(${PYWRAP}_casadi PUBLIC casadi)
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_casadi")
 
-    target_precompile_headers(${PYWRAP}_casadi PRIVATE <casadi/casadi.hpp>
-                              <casadi/core/casadi_types.hpp> <casadi/core/code_generator.hpp>)
+    target_precompile_headers(
+      ${PYWRAP}_casadi PRIVATE ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
+      <casadi/casadi.hpp> <casadi/core/casadi_types.hpp> <casadi/core/code_generator.hpp>)
 
     # --- INSTALL SCRIPTS
     install_python_files(MODULE casadi FILES __init__.py)
