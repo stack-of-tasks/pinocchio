@@ -107,3 +107,23 @@ about OpenMP environment variables.
 ## Reducing variance
 
 To reduce the variance, you can follow [the following instructions](https://github.com/google/benchmark/blob/main/docs/reducing_variance.md).
+
+
+## Plotting
+
+We provide `plot.py` to plot benchmarks results.
+
+The following code show how-to use it:
+
+```bash
+pixi shell -e all-benchmark
+cd build
+./benchmark/pinocchio-timings-xxx --benchmark_out=output.json --benchmark_repetitions=X
+../benchmark/plot.py output.json
+```
+
+Where:
+- `pinocchio-timings-xxx` is the benchmark you want to run
+- `X` is the number of repetitions you want to run
+
+The output will be stored in `plot.html`.
