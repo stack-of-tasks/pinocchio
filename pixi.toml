@@ -99,7 +99,7 @@ dependencies = { pre-commit = ">=3.6.2" }
 tasks = { lint = { cmd = "pre-commit run --all" } }
 
 [feature.benchmark]
-dependencies = { benchmark = ">=1.9.1" }
+dependencies = { benchmark = ">=1.9.1", bokeh = ">=3.7.0" }
 activation = { env = { PINOCCHIO_BUILD_BENCHMARK = "ON" } }
 
 [feature.collision]
