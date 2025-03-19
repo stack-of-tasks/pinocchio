@@ -1,6 +1,8 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2025 CNRS
 //
+
+#include "model-fixture.hpp"
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -16,141 +18,209 @@
 
 #include <iostream>
 
-#include "pinocchio/utils/timer.hpp"
-
-int main(int argc, const char ** argv)
+struct CholeskyFixture : ModelFixture
 {
-  using namespace Eigen;
-  using namespace pinocchio;
-
-  PinocchioTicToc timer(PinocchioTicToc::US);
-#ifdef NDEBUG
-  const int NBT = 1000 * 100;
-#else
-  const int NBT = 1;
-  std::cout << "(the time score in debug mode is not relevant) " << std::endl;
-#endif
-
-  pinocchio::Model model;
-
-  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
-  if (argc > 1)
-    filename = argv[1];
-  if (filename == "HS")
-    pinocchio::buildModels::humanoidRandom(model, true);
-  else
-    pinocchio::urdf::buildModel(filename, JointModelFreeFlyer(), model);
-  std::cout << "nq = " << model.nq << std::endl;
-
-  pinocchio::Data data(model);
-  VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
-
-  MatrixXd A(model.nv, model.nv), B(model.nv, model.nv);
-  A.setZero();
-  B.setRandom();
-
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs(NBT);
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) lhs(NBT);
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) rhs(NBT);
-  for (size_t i = 0; i < NBT; ++i)
+  void SetUp(benchmark::State & st)
   {
-    qs[i] = randomConfiguration(model, -qmax, qmax);
-    lhs[i] = Eigen::VectorXd::Zero(model.nv);
-    rhs[i] = Eigen::VectorXd::Random(model.nv);
+    ModelFixture::SetUp(st);
+    lhs.setZero(model.nv);
+    rhs.setRandom(model.nv);
+    A.setZero(model.nv, model.nv);
+    B.setRandom(model.nv, model.nv);
+    Minv.setZero(model.nv, model.nv);
   }
 
-  double total = 0;
-  SMOOTH(NBT)
+  void TearDown(benchmark::State & st)
   {
-    crba(model, data, qs[_smooth], Convention::WORLD);
-    timer.tic();
-    cholesky::decompose(model, data);
-    total += timer.toc(timer.DEFAULT_UNIT);
+    ModelFixture::TearDown(st);
   }
-  std::cout << "Cholesky = \t" << (total / NBT) << " " << timer.unitName(timer.DEFAULT_UNIT)
-            << std::endl;
 
-  total = 0;
-  Eigen::LDLT<Eigen::MatrixXd> Mldlt(data.M);
-  SMOOTH(NBT)
+  Eigen::VectorXd lhs;
+  Eigen::VectorXd rhs;
+  Eigen::MatrixXd A;
+  Eigen::MatrixXd B;
+  Eigen::MatrixXd Minv;
+
+  static void GlobalSetUp(const ExtraArgs & extra_args)
   {
-    crba(model, data, qs[_smooth], Convention::WORLD);
-    data.M.triangularView<Eigen::StrictlyLower>() =
-      data.M.transpose().triangularView<Eigen::StrictlyLower>();
-    timer.tic();
-    Mldlt.compute(data.M);
-    total += timer.toc(timer.DEFAULT_UNIT);
+    ModelFixture::GlobalSetUp(extra_args);
   }
-  std::cout << "Dense Eigen Cholesky = \t" << (total / NBT) << " "
-            << timer.unitName(timer.DEFAULT_UNIT) << std::endl;
+};
 
-  timer.tic();
-  SMOOTH(NBT)
+static void CustomArguments(benchmark::internal::Benchmark * b)
+{
+  b->MinWarmUpTime(3.);
+}
+
+// choleskyDecompose
+
+PINOCCHIO_DONT_INLINE static void
+choleskyDecomposeCall(const pinocchio::Model & model, pinocchio::Data & data)
+{
+  pinocchio::cholesky::decompose(model, data);
+}
+BENCHMARK_DEFINE_F(CholeskyFixture, CHOLESKY_DECOMPOSE)(benchmark::State & st)
+{
+  pinocchio::crba(model, data, q, pinocchio::Convention::WORLD);
+  for (auto _ : st)
   {
-    cholesky::solve(model, data, rhs[_smooth]);
+    choleskyDecomposeCall(model, data);
   }
-  std::cout << "Cholesky solve vector = \t\t";
-  timer.toc(std::cout, NBT);
+}
+BENCHMARK_REGISTER_F(CholeskyFixture, CHOLESKY_DECOMPOSE)->Apply(CustomArguments);
 
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    cholesky::UDUtv(model, data, rhs[_smooth]);
-  }
-  std::cout << "UDUtv = \t\t";
-  timer.toc(std::cout, NBT);
+// Dense choleskyDecompose
 
-  MatrixXd Minv(model.nv, model.nv);
-  Minv.setZero();
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    cholesky::computeMinv(model, data, Minv);
-  }
-  std::cout << "Minv from cholesky = \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    cholesky::solve(model, data, Minv.col(10));
-  }
-  std::cout << "Cholesky solve column = \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    lhs[_smooth].noalias() = Minv * rhs[_smooth];
-  }
-  std::cout << "Minv*v = \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    A.noalias() = Minv * B;
-  }
-  std::cout << "A = Minv*B = \t\t";
-  timer.toc(std::cout, NBT);
-
+PINOCCHIO_DONT_INLINE static void
+denseCholeksyDecomposeCall(Eigen::LDLT<Eigen::MatrixXd> & M_ldlt, const pinocchio::Data & data)
+{
+  M_ldlt.compute(data.M);
+}
+BENCHMARK_DEFINE_F(CholeskyFixture, DENSE_CHOLESKY_DECOMPOSE)(benchmark::State & st)
+{
+  pinocchio::crba(model, data, q, pinocchio::Convention::WORLD);
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  timer.tic();
-  SMOOTH(NBT)
+  Eigen::LDLT<Eigen::MatrixXd> M_ldlt(data.M);
+  for (auto _ : st)
   {
-    A.noalias() = data.M.inverse();
+    denseCholeksyDecomposeCall(M_ldlt, data);
   }
-  std::cout << "M.inverse() = \t\t";
-  timer.toc(std::cout, NBT);
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    computeMinverse(model, data, qs[_smooth]);
-  }
-  std::cout << "computeMinverse = \t\t";
-  timer.toc(std::cout, NBT);
-
-  return 0;
 }
+BENCHMARK_REGISTER_F(CholeskyFixture, DENSE_CHOLESKY_DECOMPOSE)->Apply(CustomArguments);
+
+// CHOLESKY_SOLVE
+
+PINOCCHIO_DONT_INLINE static void choleskySolveCall(
+  const pinocchio::Model & model, const pinocchio::Data & data, Eigen::VectorXd & rhs)
+{
+  pinocchio::cholesky::solve(model, data, rhs);
+}
+BENCHMARK_DEFINE_F(CholeskyFixture, CHOLESKY_SOLVE)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    choleskySolveCall(model, data, rhs);
+  }
+}
+BENCHMARK_REGISTER_F(CholeskyFixture, CHOLESKY_SOLVE)->Apply(CustomArguments);
+
+// CHOLESKY_UDUtv
+
+PINOCCHIO_DONT_INLINE static void choleskyUDUtvCall(
+  const pinocchio::Model & model, const pinocchio::Data & data, Eigen::VectorXd & rhs)
+{
+  pinocchio::cholesky::UDUtv(model, data, rhs);
+}
+BENCHMARK_DEFINE_F(CholeskyFixture, CHOLESKY_UDUtv)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    choleskyUDUtvCall(model, data, rhs);
+  }
+}
+BENCHMARK_REGISTER_F(CholeskyFixture, CHOLESKY_UDUtv)->Apply(CustomArguments);
+
+// CHOLESKY_COMPUTE_M_INV
+
+PINOCCHIO_DONT_INLINE static void choleskyComputeMInvCall(
+  const pinocchio::Model & model, const pinocchio::Data & data, Eigen::MatrixXd & Minv)
+{
+  pinocchio::cholesky::computeMinv(model, data, Minv);
+}
+BENCHMARK_DEFINE_F(CholeskyFixture, CHOLESKY_COMPUTE_M_INV)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    choleskyComputeMInvCall(model, data, Minv);
+  }
+}
+BENCHMARK_REGISTER_F(CholeskyFixture, CHOLESKY_COMPUTE_M_INV)->Apply(CustomArguments);
+
+// CHOLESKY_SOLVE_COLUMN
+
+PINOCCHIO_DONT_INLINE static void choleskySolveColumnCall(
+  const pinocchio::Model & model, const pinocchio::Data & data, Eigen::MatrixXd & Minv)
+{
+  pinocchio::cholesky::solve(model, data, Minv.col(10));
+}
+BENCHMARK_DEFINE_F(CholeskyFixture, CHOLESKY_SOLVE_COLUMN)(benchmark::State & st)
+{
+  pinocchio::cholesky::computeMinv(model, data, Minv);
+  for (auto _ : st)
+  {
+    choleskySolveColumnCall(model, data, Minv);
+  }
+}
+BENCHMARK_REGISTER_F(CholeskyFixture, CHOLESKY_SOLVE_COLUMN)->Apply(CustomArguments);
+
+// CHOLESKY_M_INV_MULT_V
+
+PINOCCHIO_DONT_INLINE static void
+choleskyMInvMultV(const Eigen::MatrixXd & Minv, const Eigen::VectorXd & rhs, Eigen::VectorXd & lhs)
+{
+  lhs.noalias() = Minv * rhs;
+}
+BENCHMARK_DEFINE_F(CholeskyFixture, CHOLESKY_M_INV_MULT_V)(benchmark::State & st)
+{
+  pinocchio::cholesky::computeMinv(model, data, Minv);
+  for (auto _ : st)
+  {
+    choleskyMInvMultV(Minv, rhs, lhs);
+  }
+}
+BENCHMARK_REGISTER_F(CholeskyFixture, CHOLESKY_M_INV_MULT_V)->Apply(CustomArguments);
+
+// CHOLESKY_M_INV_MULT_B
+
+PINOCCHIO_DONT_INLINE static void
+choleskyMInvMultB(const Eigen::MatrixXd & Minv, const Eigen::MatrixXd & B, Eigen::MatrixXd & A)
+{
+  A.noalias() = Minv * B;
+}
+BENCHMARK_DEFINE_F(CholeskyFixture, CHOLESKY_M_INV_MULT_B)(benchmark::State & st)
+{
+  pinocchio::cholesky::computeMinv(model, data, Minv);
+  for (auto _ : st)
+  {
+    choleskyMInvMultB(Minv, B, A);
+  }
+}
+BENCHMARK_REGISTER_F(CholeskyFixture, CHOLESKY_M_INV_MULT_B)->Apply(CustomArguments);
+
+// CHOLESKY_DENSE_M_INVERSE
+
+PINOCCHIO_DONT_INLINE static void
+choleskyDenseMInverse(const Eigen::MatrixXd & M, Eigen::MatrixXd & A)
+{
+  A.noalias() = M.inverse();
+}
+BENCHMARK_DEFINE_F(CholeskyFixture, CHOLESKY_DENSE_M_INVERSE)(benchmark::State & st)
+{
+  pinocchio::crba(model, data, q, pinocchio::Convention::WORLD);
+  data.M.triangularView<Eigen::StrictlyLower>() =
+    data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  for (auto _ : st)
+  {
+    choleskyDenseMInverse(data.M, A);
+  }
+}
+BENCHMARK_REGISTER_F(CholeskyFixture, CHOLESKY_DENSE_M_INVERSE)->Apply(CustomArguments);
+
+// computeMinverseQ
+
+PINOCCHIO_DONT_INLINE static void computeMinverseQCall(
+  const pinocchio::Model & model, pinocchio::Data & data, const Eigen::VectorXd & q)
+{
+  pinocchio::computeMinverse(model, data, q);
+}
+BENCHMARK_DEFINE_F(ModelFixture, COMPUTE_M_INVERSE_Q)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeMinverseQCall(model, data, q);
+  }
+}
+BENCHMARK_REGISTER_F(ModelFixture, COMPUTE_M_INVERSE_Q)->Apply(CustomArguments);
+
+PINOCCHIO_BENCHMARK_MAIN_WITH_SETUP(CholeskyFixture::GlobalSetUp);

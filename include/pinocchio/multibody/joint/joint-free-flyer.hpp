@@ -330,7 +330,7 @@ namespace pinocchio
     }
 
     template<typename Vector3Derived, typename QuaternionDerived>
-    EIGEN_DONT_INLINE void calc(
+    PINOCCHIO_DONT_INLINE void calc(
       JointDataDerived & data,
       const typename Eigen::MatrixBase<Vector3Derived> & trans,
       const typename Eigen::QuaternionBase<QuaternionDerived> & quat) const
@@ -340,7 +340,7 @@ namespace pinocchio
     }
 
     template<typename ConfigVector>
-    EIGEN_DONT_INLINE void
+    PINOCCHIO_DONT_INLINE void
     calc(JointDataDerived & data, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
       typedef typename Eigen::Quaternion<Scalar, Options> Quaternion;
@@ -353,7 +353,7 @@ namespace pinocchio
     }
 
     template<typename TangentVector>
-    EIGEN_DONT_INLINE void
+    PINOCCHIO_DONT_INLINE void
     calc(JointDataDerived & data, const Blank, const typename Eigen::MatrixBase<TangentVector> & vs)
       const
     {
@@ -362,7 +362,7 @@ namespace pinocchio
     }
 
     template<typename ConfigVector, typename TangentVector>
-    EIGEN_DONT_INLINE void calc(
+    PINOCCHIO_DONT_INLINE void calc(
       JointDataDerived & data,
       const typename Eigen::MatrixBase<ConfigVector> & qs,
       const typename Eigen::MatrixBase<TangentVector> & vs) const

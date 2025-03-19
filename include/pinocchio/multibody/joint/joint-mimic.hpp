@@ -690,7 +690,7 @@ namespace pinocchio
     }
 
     template<typename ConfigVector>
-    EIGEN_DONT_INLINE void
+    PINOCCHIO_DONT_INLINE void
     calc(JointDataDerived & jdata, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
       jdata.joint_q = qs.segment(Base::i_q, m_nqExtended);
@@ -700,7 +700,7 @@ namespace pinocchio
     }
 
     template<typename ConfigVector, typename TangentVector>
-    EIGEN_DONT_INLINE void calc(
+    PINOCCHIO_DONT_INLINE void calc(
       JointDataDerived & jdata,
       const typename Eigen::MatrixBase<ConfigVector> & qs,
       const typename Eigen::MatrixBase<TangentVector> & vs) const

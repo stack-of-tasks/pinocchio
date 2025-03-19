@@ -11,3 +11,6 @@ coverage*
 # pixi environments
 .pixi
 *.egg-info
+
+# benchmark
+plot.html

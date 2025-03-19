@@ -1,6 +1,8 @@
 //
-// Copyright (c) 2020 LAAS-CNRS, INRIA
+// Copyright (c) 2020-2025 LAAS-CNRS, INRIA
 //
+
+#include "model-fixture.hpp"
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/impulse-dynamics.hpp"
@@ -9,132 +11,135 @@
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
+#include <benchmark/benchmark.h>
+
 #include <iostream>
 
-#include "pinocchio/utils/timer.hpp"
-
-int main(int argc, const char ** argv)
+struct ContactFixture : ModelFixture
 {
-  using namespace Eigen;
-  using namespace pinocchio;
-
-  PinocchioTicToc timer(PinocchioTicToc::US);
-#ifdef NDEBUG
-  const int NBT = 1000 * 100;
-#else
-  const int NBT = 1;
-  std::cout << "(the time score in debug mode is not relevant) " << std::endl;
-#endif
-
-  // Build model
-  Model model;
-
-  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
-  if (argc > 1)
-    filename = argv[1];
-  bool with_ff = true;
-
-  if (argc > 2)
+  void SetUp(benchmark::State & st)
   {
-    const std::string ff_option = argv[2];
-    if (ff_option == "-no-ff")
-      with_ff = false;
+    ModelFixture::SetUp(st);
+
+    const std::string RF = "RLEG_LINK6";
+    const auto RF_id = model.frames[model.getFrameId(RF)].parentJoint;
+    const std::string LF = "LLEG_LINK6";
+    const auto LF_id = model.frames[model.getFrameId(LF)].parentJoint;
+
+    ci_RF_6D = std::make_unique<pinocchio::RigidConstraintModel>(
+      pinocchio::CONTACT_6D, model, RF_id, pinocchio::LOCAL);
+    ci_LF_6D = std::make_unique<pinocchio::RigidConstraintModel>(
+      pinocchio::CONTACT_6D, model, LF_id, pinocchio::LOCAL);
+
+    contact_chol_empty = pinocchio::ContactCholeskyDecomposition(model, contact_models_empty);
+
+    contact_models_6D.clear();
+    contact_models_6D.push_back(*ci_RF_6D);
+
+    contact_data_6D.clear();
+    contact_data_6D.push_back(pinocchio::RigidConstraintData(*ci_RF_6D));
+
+    contact_chol_6D = pinocchio::ContactCholeskyDecomposition(model, contact_models_6D);
+
+    contact_models_6D6D.clear();
+    contact_models_6D6D.push_back(*ci_RF_6D);
+    contact_models_6D6D.push_back(*ci_LF_6D);
+
+    contact_data_6D6D.clear();
+    contact_data_6D6D.push_back(pinocchio::RigidConstraintData(*ci_RF_6D));
+    contact_data_6D6D.push_back(pinocchio::RigidConstraintData(*ci_LF_6D));
+
+    contact_chol_6D6D = pinocchio::ContactCholeskyDecomposition(model, contact_models_6D6D);
+
+    r_coeff = (Eigen::ArrayXd::Random(1)[0] + 1.) / 2.;
+
+    prox_settings.max_iter = 10;
+    prox_settings.mu = 1e8;
   }
 
-  if (filename == "HS")
-    buildModels::humanoidRandom(model, true);
-  else if (with_ff)
-    pinocchio::urdf::buildModel(filename, JointModelFreeFlyer(), model);
-  //      pinocchio::urdf::buildModel(filename,JointModelRX(),model);
-  else
-    pinocchio::urdf::buildModel(filename, model);
-
-  const std::string RA = "RARM_LINK6";
-  const std::string LA = "LARM_LINK6";
-  const std::string RF = "RLEG_LINK6";
-  const std::string LF = "LLEG_LINK6";
-
-  RigidConstraintModel ci_RF_6D(CONTACT_6D, model.getFrameId(RF), LOCAL);
-  RigidConstraintData cd_RF_6D(ci_RF_6D);
-
-  RigidConstraintModel ci_LF_6D(CONTACT_6D, model.getFrameId(LF), LOCAL);
-  RigidConstraintData cd_LF_6D(ci_LF_6D);
-
-  // Define contact infos structure
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_infos_empty;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_empty;
-
-  cholesky::ContactCholeskyDecomposition contact_chol_empty(model, contact_infos_empty);
-
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_infos_6D;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_6D;
-  contact_infos_6D.push_back(ci_RF_6D);
-  contact_datas_6D.push_back(cd_RF_6D);
-
-  cholesky::ContactCholeskyDecomposition contact_chol_6D(model, contact_infos_6D);
-
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_infos_6D6D;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_6D6D;
-  contact_infos_6D6D.push_back(ci_RF_6D);
-  contact_datas_6D6D.push_back(cd_RF_6D);
-  contact_infos_6D6D.push_back(ci_LF_6D);
-  contact_datas_6D6D.push_back(cd_LF_6D);
-
-  cholesky::ContactCholeskyDecomposition contact_chol_6D6D(model, contact_infos_6D6D);
-
-  std::cout << "nq = " << model.nq << std::endl;
-  std::cout << "nv = " << model.nv << std::endl;
-  std::cout << "--" << std::endl;
-
-  Data data(model);
-  VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
-
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(VectorXd) qs(NBT);
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(VectorXd) qdots(NBT);
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(VectorXd) qddots(NBT);
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(VectorXd) taus(NBT);
-
-  for (size_t i = 0; i < NBT; ++i)
+  void TearDown(benchmark::State & st)
   {
-    qs[i] = randomConfiguration(model, -qmax, qmax);
-    qdots[i] = Eigen::VectorXd::Random(model.nv);
-    qddots[i] = Eigen::VectorXd::Random(model.nv);
-    taus[i] = Eigen::VectorXd::Random(model.nv);
+    ModelFixture::TearDown(st);
   }
 
-  double total_time = 0;
-  initConstraintDynamics(model, data, contact_infos_empty);
-  SMOOTH(NBT)
-  {
-    impulseDynamics(
-      model, data, qs[_smooth], qdots[_smooth], contact_infos_empty, contact_datas_empty);
-    timer.tic();
-    computeImpulseDynamicsDerivatives(model, data, contact_infos_empty, contact_datas_empty);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "impulseDynamicsDerivs {} = \t\t" << (total_time / NBT) << std::endl;
+  std::unique_ptr<pinocchio::RigidConstraintModel> ci_RF_6D;
+  std::unique_ptr<pinocchio::RigidConstraintModel> ci_LF_6D;
 
-  total_time = 0;
-  initConstraintDynamics(model, data, contact_infos_6D);
-  SMOOTH(NBT)
-  {
-    impulseDynamics(model, data, qs[_smooth], qdots[_smooth], contact_infos_6D, contact_datas_6D);
-    timer.tic();
-    computeImpulseDynamicsDerivatives(model, data, contact_infos_6D, contact_datas_6D);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "impulseDynamicsDerivs {6D} = \t\t" << (total_time / NBT) << std::endl;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData) contact_data_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models_6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData) contact_data_6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models_6D6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData) contact_data_6D6D;
 
-  total_time = 0;
-  initConstraintDynamics(model, data, contact_infos_6D6D);
-  SMOOTH(NBT)
-  {
-    impulseDynamics(
-      model, data, qs[_smooth], qdots[_smooth], contact_infos_6D6D, contact_datas_6D6D);
-    timer.tic();
-    computeImpulseDynamicsDerivatives(model, data, contact_infos_6D6D, contact_datas_6D6D);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "impulseDynamicsDerivs {6D,6D} = \t" << (total_time / NBT) << std::endl;
-  return 0;
+  pinocchio::ContactCholeskyDecomposition contact_chol_empty;
+  pinocchio::ContactCholeskyDecomposition contact_chol_6D;
+  pinocchio::ContactCholeskyDecomposition contact_chol_6D6D;
+
+  double r_coeff;
+
+  pinocchio::ProximalSettings prox_settings;
+};
+
+static void CustomArguments(benchmark::internal::Benchmark * b)
+{
+  b->MinWarmUpTime(3.);
 }
+
+// IMPULSE_DYNAMICS_DERIVATIVES_EMPTY
+
+PINOCCHIO_DONT_INLINE static void impulseDynamicsDerivativesCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) & contact_models,
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData) & contact_data,
+  double r_coeff,
+  const pinocchio::ProximalSettings & prox_settings)
+{
+  pinocchio::computeImpulseDynamicsDerivatives(
+    model, data, contact_models, contact_data, r_coeff, prox_settings);
+}
+BENCHMARK_DEFINE_F(ContactFixture, IMPULSE_DYNAMICS_DERIVATIVES_EMPTY)(benchmark::State & st)
+{
+  pinocchio::initConstraintDynamics(model, data, contact_models_empty);
+  pinocchio::impulseDynamics(
+    model, data, q, v, contact_models_empty, contact_data_empty, r_coeff, prox_settings);
+  for (auto _ : st)
+  {
+    impulseDynamicsDerivativesCall(
+      model, data, contact_models_empty, contact_data_empty, r_coeff, prox_settings);
+  }
+}
+BENCHMARK_REGISTER_F(ContactFixture, IMPULSE_DYNAMICS_DERIVATIVES_EMPTY)->Apply(CustomArguments);
+
+// IMPULSE_DYNAMICS_DERIVATIVES_6D
+
+BENCHMARK_DEFINE_F(ContactFixture, IMPULSE_DYNAMICS_DERIVATIVES_6D)(benchmark::State & st)
+{
+  pinocchio::initConstraintDynamics(model, data, contact_models_6D);
+  pinocchio::impulseDynamics(
+    model, data, q, v, contact_models_6D, contact_data_6D, r_coeff, prox_settings);
+  for (auto _ : st)
+  {
+    impulseDynamicsDerivativesCall(
+      model, data, contact_models_6D, contact_data_6D, r_coeff, prox_settings);
+  }
+}
+BENCHMARK_REGISTER_F(ContactFixture, IMPULSE_DYNAMICS_DERIVATIVES_6D)->Apply(CustomArguments);
+
+// IMPULSE_DYNAMICS_DERIVATIVES_6D6D
+
+BENCHMARK_DEFINE_F(ContactFixture, IMPULSE_DYNAMICS_DERIVATIVES_6D6D)(benchmark::State & st)
+{
+  pinocchio::initConstraintDynamics(model, data, contact_models_6D6D);
+  pinocchio::impulseDynamics(
+    model, data, q, v, contact_models_6D6D, contact_data_6D6D, r_coeff, prox_settings);
+  for (auto _ : st)
+  {
+    impulseDynamicsDerivativesCall(
+      model, data, contact_models_6D6D, contact_data_6D6D, r_coeff, prox_settings);
+  }
+}
+BENCHMARK_REGISTER_F(ContactFixture, IMPULSE_DYNAMICS_DERIVATIVES_6D6D)->Apply(CustomArguments);
+
+PINOCCHIO_BENCHMARK_MAIN();

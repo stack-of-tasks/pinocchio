@@ -669,7 +669,7 @@ namespace pinocchio
   {
 
     template<typename Scalar, int Options, typename VectorLike>
-    EIGEN_DONT_INLINE VectorLike & inverseAlgo(
+    PINOCCHIO_DONT_INLINE VectorLike & inverseAlgo(
       const ContactCholeskyDecompositionTpl<Scalar, Options> & chol,
       const Eigen::DenseIndex col,
       const Eigen::MatrixBase<VectorLike> & vec)

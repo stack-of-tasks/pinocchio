@@ -461,7 +461,9 @@ add_subdirectory(unittest)
 add_subdirectory(examples)
 
 # --- BENCHMARKS ---------------------------------------------------------------
-add_subdirectory(benchmark)
+if(BUILD_BENCHMARK)
+  add_subdirectory(benchmark)
+endif()
 
 # --- PACKAGING ----------------------------------------------------------------
 macro(EXPORT_VARIABLE var_name var_value)
