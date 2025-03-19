@@ -1,14 +1,13 @@
 #! /usr/bin/env python3
 # Plot benchmark results
 
-import json
-import typing
 import argparse
 import itertools
+import json
+import typing
 from pathlib import Path
 
 import numpy as np
-
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, Whisker
 from bokeh.plotting import figure, show
