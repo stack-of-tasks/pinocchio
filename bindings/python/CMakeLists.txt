@@ -161,10 +161,10 @@ if(BUILD_PYTHON_INTERFACE)
   set(PINOCCHIO_PYTHON_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})
 
   pinocchio_python_bindings_specific_type(default)
-  # Precompiled headers are used to speed up compilation of the Python bindings. We have also tested 
-  # precompiling headers for the main library's `pinocchio_default` target, but the time gain there was
-  # negligible compared to the time gained in the Python bindings.
-  # We also precompile headers for other scalar types as well.
+  # Precompiled headers are used to speed up compilation of the Python bindings. We have also tested
+  # precompiling headers for the main library's `pinocchio_default` target, but the time gain there
+  # was negligible compared to the time gained in the Python bindings. We also precompile headers
+  # for other scalar types as well.
   target_precompile_headers(${PYWRAP}_default PRIVATE
                             ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp)
   set(PYTHON_LIB_NAME "${PYWRAP}_default")
