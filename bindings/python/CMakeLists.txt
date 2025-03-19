@@ -161,6 +161,12 @@ if(BUILD_PYTHON_INTERFACE)
   set(PINOCCHIO_PYTHON_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})
 
   pinocchio_python_bindings_specific_type(default)
+  # Precompiled headers are used to speed up compilation of the Python bindings. We have also tested
+  # precompiling headers for the main library's `pinocchio_default` target, but the time gain there
+  # was negligible compared to the time gained in the Python bindings. We also precompile headers
+  # for other scalar types as well.
+  target_precompile_headers(${PYWRAP}_default PRIVATE
+                            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp)
   set(PYTHON_LIB_NAME "${PYWRAP}_default")
   set(STUBGEN_DEPENDENCIES "${PYWRAP}_default")
 
@@ -177,6 +183,10 @@ if(BUILD_PYTHON_INTERFACE)
                                PUBLIC $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>)
     target_link_libraries(${PYWRAP}_cppad PUBLIC ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppad")
+
+    target_precompile_headers(
+      ${PYWRAP}_cppad PRIVATE ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
+      <cppad/cppad.hpp> <boost/mpl/int.hpp>)
 
     # --- INSTALL SCRIPTS
     install_python_files(MODULE cppad FILES __init__.py)
@@ -201,6 +211,10 @@ if(BUILD_PYTHON_INTERFACE)
     target_link_libraries(${PYWRAP}_cppadcg PUBLIC ${cppadcg_LIBRARY} ${cppad_LIBRARY})
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppadcg")
 
+    target_precompile_headers(
+      ${PYWRAP}_cppadcg PRIVATE ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
+      <cmath> <boost/mpl/int.hpp> <cppad/cg/support/cppadcg_eigen.hpp>)
+
     # --- INSTALL SCRIPTS
     install_python_files(MODULE cppadcg FILES __init__.py)
   endif(BUILD_WITH_CODEGEN_SUPPORT)
@@ -209,6 +223,10 @@ if(BUILD_PYTHON_INTERFACE)
     pinocchio_python_bindings_specific_type(casadi)
     target_link_libraries(${PYWRAP}_casadi PUBLIC casadi)
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_casadi")
+
+    target_precompile_headers(
+      ${PYWRAP}_casadi PRIVATE ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
+      <casadi/casadi.hpp> <casadi/core/casadi_types.hpp> <casadi/core/code_generator.hpp>)
 
     # --- INSTALL SCRIPTS
     install_python_files(MODULE casadi FILES __init__.py)
@@ -221,6 +239,10 @@ if(BUILD_PYTHON_INTERFACE)
 
     target_link_libraries(${PYWRAP}_mpfr PRIVATE gmp mpfr)
     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_mpfr")
+
+    target_precompile_headers(
+      ${PYWRAP}_mpfr PRIVATE ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
+      <boost/multiprecision/mpfr.hpp>)
 
     # --- INSTALL SCRIPTS
     install_python_files(MODULE mpfr FILES __init__.py)

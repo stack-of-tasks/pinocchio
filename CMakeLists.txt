@@ -1,9 +1,9 @@
 #
-# Copyright (c) 2015-2023 CNRS INRIA
+# Copyright (c) 2015-2025 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 set(PROJECT_NAME pinocchio)
 set(PROJECT_DESCRIPTION
