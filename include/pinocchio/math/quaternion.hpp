@@ -5,6 +5,10 @@
 #ifndef __pinocchio_math_quaternion_hpp__
 #define __pinocchio_math_quaternion_hpp__
 
+#ifndef PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE
+  #define PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE 1e-8
+#endif
+
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
 #include "pinocchio/math/matrix.hpp"
