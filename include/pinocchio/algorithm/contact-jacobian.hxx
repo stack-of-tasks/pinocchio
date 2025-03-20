@@ -7,6 +7,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/algorithm/check.hpp"
 
 namespace pinocchio
 {
