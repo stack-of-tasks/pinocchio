@@ -118,6 +118,9 @@ jobs:
           CMAKE_BUILD_PARALLEL_LEVEL: 2
           PINOCCHIO_BUILD_TYPE: ${{ matrix.build_type }}
         run: |
+          # Clear ccache statistics
+          pixi run -e ${{ matrix.environment }} ccache -z
+
           # Launch configure but overwrite default options
           pixi run -e ${{ matrix.environment }} configure \
             -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }} \
@@ -129,7 +132,12 @@ jobs:
       - name: Uninstall Pinocchio
         shell: bash -el {0}
         run: |
-          cmake --build build --target uninstall
+          pixi run -e ${{ matrix.environment }} cmake --build build --target uninstall
+
+      - name: Display ccache statistics
+        shell: bash -el {0}
+        run: |
+          pixi run -e ${{ matrix.environment }} ccache -sv
 
   check:
     if: always()

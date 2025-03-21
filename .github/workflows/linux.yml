@@ -127,6 +127,9 @@ jobs:
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
           export CMAKE_PREFIX_PATH=/opt/openrobots/lib
 
+          # Clear ccache statistics
+          ccache -z
+
           mkdir build
           cd build
           cmake .. \
@@ -203,6 +206,11 @@ jobs:
         run: |
           cd build
           make uninstall
+
+      - name: Display ccache statistics
+        run: |
+          # TODO: Add -v option when we drop ubuntu-20.04
+          ccache -s
 
   check:
     if: always()
