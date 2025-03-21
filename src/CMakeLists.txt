@@ -191,9 +191,14 @@ pinocchio_specific_type(default DEFAULT_SCOPE)
 # some are template instantiated, or some user can link only on pinocchio_default, we muste define
 # PINOCCHIO_WITH_HPP_FCL in pinocchio_default.
 if(BUILD_WITH_HPP_FCL_SUPPORT)
-  target_compile_definitions(pinocchio_default PUBLIC PINOCCHIO_WITH_HPP_FCL)
+  set(LINK_TYPE "PUBLIC")
+  get_target_property(IS_INTERFACE pinocchio_default TYPE)
+  if(IS_INTERFACE STREQUAL "INTERFACE_LIBRARY")
+    set(LINK_TYPE "INTERFACE")
+  endif()
+  target_compile_definitions(pinocchio_default ${LINK_TYPE} PINOCCHIO_WITH_HPP_FCL)
   target_include_directories(
-    pinocchio_default PUBLIC $<TARGET_PROPERTY:hpp-fcl::hpp-fcl,INTERFACE_INCLUDE_DIRECTORIES>)
+    pinocchio_default ${LINK_TYPE} $<TARGET_PROPERTY:hpp-fcl::hpp-fcl,INTERFACE_INCLUDE_DIRECTORIES>)
 
 endif()
 
