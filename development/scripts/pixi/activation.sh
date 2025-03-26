@@ -20,6 +20,10 @@ then
   # On GNU/Linux, I don't know if these flags are mandatory with g++ but
   # it allow to use clang++ as compiler
   export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib -Wl,-rpath-link,$CONDA_PREFIX/lib -L$CONDA_PREFIX/lib"
+
+  # Conda compiler is named x86_64-conda-linux-gnu-c++, ccache can't resolve it
+  # (https://ccache.dev/manual/latest.html#config_compiler_type)
+  export CCACHE_COMPILERTYPE=gcc
 fi
 
 # Setup ccache
