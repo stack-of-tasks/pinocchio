@@ -90,8 +90,8 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .ccache
-          key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.environment }}-${{ github.sha }}
-          restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.environment }}-
+          key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.environment }}_${{ github.sha }}
+          restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.environment }}_
 
       - uses: prefix-dev/setup-pixi@v0.8.3
         with:
