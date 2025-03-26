@@ -43,6 +43,8 @@ jobs:
       CCACHE_DIR: ${GITHUB_WORKSPACE}/.ccache
       CCACHE_COMPRESS: true
       CCACHE_COMPRESSLEVEL: 5
+      # Help ccache manage generated files and PCH (https://ccache.dev/manual/latest.html#_precompiled_headers)
+      CCACHE_SLOPPINESS: include_file_ctime,include_file_mtime,pch_defines,time_macros
 
     steps:
       - name: Setup Container
