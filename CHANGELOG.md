@@ -43,6 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use [Google benchmark](https://github.com/google/benchmark/tree/main) in benchmarks ([#2607](https://github.com/stack-of-tasks/pinocchio/pull/2607))
 
 ### Fixed
+- Fix `ModelTpl::check()` link ([#2624](https://github.com/stack-of-tasks/pinocchio/pull/2624))
 - Add missing Python examples ([#2528](https://github.com/stack-of-tasks/pinocchio/pull/2528))
 - Fix nominal accuracy check for Quaternion based on the scalar type ([#2608](https://github.com/stack-of-tasks/pinocchio/pull/2608))
 
