@@ -20,6 +20,10 @@ then
   # On GNU/Linux, I don't know if these flags are mandatory with g++ but
   # it allow to use clang++ as compiler
   export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib -Wl,-rpath-link,$CONDA_PREFIX/lib -L$CONDA_PREFIX/lib"
+
+  # Conda compiler is named x86_64-conda-linux-gnu-c++, ccache can't resolve it
+  # (https://ccache.dev/manual/latest.html#config_compiler_type)
+  export CCACHE_COMPILERTYPE=gcc
 fi
 
 # Setup ccache
@@ -30,6 +34,9 @@ export CMAKE_EXPORT_COMPILE_COMMANDS=1
 
 # Activate color output with Ninja
 export CMAKE_COLOR_DIAGNOSTICS=1
+
+# Help ccache manage generated files and PCH (https://ccache.dev/manual/latest.html#_precompiled_headers)
+export CCACHE_SLOPPINESS=include_file_ctime,include_file_mtime,pch_defines,time_macros
 
 # Set default build value only if not previously set
 export PINOCCHIO_BUILD_TYPE=${PINOCCHIO_BUILD_TYPE:=Release}

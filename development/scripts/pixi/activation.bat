@@ -7,6 +7,9 @@ set CMAKE_EXPORT_COMPILE_COMMANDS=1
 :: Activate color output with Ninja
 set CMAKE_COLOR_DIAGNOSTICS=1
 
+:: Help ccache manage generated files and PCH (https://ccache.dev/manual/latest.html#_precompiled_headers)
+set CCACHE_SLOPPINESS=include_file_ctime,include_file_mtime,pch_defines,time_macros
+
 # Set default build value only if not previously set
 if not defined PINOCCHIO_BUILD_TYPE (set PINOCCHIO_BUILD_TYPE=Release)
 if not defined PINOCCHIO_PYTHON_STUBS (set PINOCCHIO_PYTHON_STUBS=ON)
