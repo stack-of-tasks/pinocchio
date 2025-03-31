@@ -94,7 +94,7 @@ or via pip (currently only available on Linux):
 **Pinocchio** is flexible:
 
    - header only,
-   - C++ 98/03/11/14/17/20 compliant.
+   - C++ 11/14/17/20 compliant.
 
 **Pinocchio** is extensible.
 **Pinocchio** is multi-thread friendly.
