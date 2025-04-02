@@ -266,7 +266,7 @@ The following people are **Pinocchio** active developers:
 
 ## Credits
 
-The following people have been involved in the development of **Pinocchio** and are warmly thanked for their contributions:
+In addition to the core dev team, the following people have also been involved in the development of **Pinocchio** and are warmly thanked for their contributions:
 
 -   [Nicolas Mansard](http://projects.laas.fr/gepetto/index.php/Members/NicolasMansard) (LAAS-CNRS): initial project instructor
 -   [Joseph Mirabel](http://jmirabel.github.io/) (Eureka Robotics): Lie groups and hpp-fcl support
