@@ -261,7 +261,7 @@ The following people are **Pinocchio** active developers:
 -   [Fabian Schramm](https://github.com/fabinsch) (Inria): core developper
 -   [Stéphane Caron](https://scaron.info) (Inria): core developper
 -   [Joris Vaillant](https://github.com/jorisv) (Inria): core developer and project manager
--   [Megane Millan](https://github.com/MegMll) (Inria): Features extension and core developer
+-   [Megane Millan](https://github.com/MegMll) (Inria): core developer
 -   [Ajay Sathya](https://www.ajaysathya.com/) (Inria): core developer
 
 ## Credits
