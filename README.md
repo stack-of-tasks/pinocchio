@@ -61,16 +61,6 @@ or via pip (currently only available on Linux):
   - [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
   - [Acknowledgments](#acknowledgments)
 
-## Introducing Pinocchio 3
-
-**Pinocchio3** is the latest major release of Pinocchio. It comes with multiple new features, such as:
-  - [Sparse constrained dynamics](https://laas.hal.science/hal-01790971v2/file/18-rss-analytical-derivatives-carpentier.pdf) and its analytical derivatives
-  - Full support of closed-loop mechanisms
-  - [State-of-the-art frictional contact solvers](https://hal.science/hal-04588906v1/file/simplecontacts2024.pdf)
-  - [Low-complexity constrained articulated body algorithms]()
-  - Full support of [multiple-precision floating-point (MPFR)](https://www.mpfr.org/) in Python and C++
-  - Full [CasADi](https://web.casadi.org/) support in Python and C++
-  - Increased support of [CppAD](https://github.com/coin-or/CppAD) and [CppADCodeGen]()
   - New SDF and MJCF parsers
   - and much more.
 
@@ -80,16 +70,28 @@ or via pip (currently only available on Linux):
 
    - C++ template library,
    - cache friendly,
-   - automatic code generation support is available via [CppADCodeGen](https://github.com/joaoleal/CppADCodeGen).
+   - support custom scalar type.
 
 **Pinocchio** is versatile, implementing basic and more advanced rigid body dynamics algorithms:
 
    - forward kinematics and its analytical derivatives,
    - forward/inverse dynamics and their analytical derivatives,
    - centroidal dynamics and its analytical derivatives,
-   - support multiple precision arithmetic via Boost.Multiprecision or any similar framework,
    - computations of kinematic and dynamic regressors for system identification and more,
-   - and much more with the support of modern and open-source Automatic Differentiation frameworks like [CppAD](https://github.com/coin-or/CppAD) or [CasADi](https://web.casadi.org/).
+   - full support of closed-loop mechanisms,
+   - [state-of-the-art frictional contact solvers](https://hal.science/hal-04588906v1/file/simplecontacts2024.pdf),
+   - low-complexity constrained articulated body algorithms,
+   - [sparse constrained dynamics](https://laas.hal.science/hal-01790971v2/file/18-rss-analytical-derivatives-carpentier.pdf) and its analytical derivatives,
+   - full support of [multiple-precision floating-point (MPFR)](https://www.mpfr.org/) in Python and C++,
+   - support of modern and open-source Automatic Differentiation frameworks like [CppAD](https://github.com/coin-or/CppAD) or [CasADi](https://web.casadi.org/),
+   - automatic code generation support is available via [CppADCodeGen](https://github.com/joaoleal/CppADCodeGen).
+
+**Pinocchio** can create Multi-body system from:
+
+  - URDF file,
+  - SDF file,
+  - MJCF file,
+  - SRDF file to add frame and contact.
 
 **Pinocchio** is flexible:
 
