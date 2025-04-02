@@ -257,7 +257,7 @@ The following people are **Pinocchio** active developers:
 -   [Justin Carpentier](https://jcarpent.github.io) (Inria): main developer and manager of the project
 -   [Guilhem Saurel](https://www.laas.fr/fr/annuaire/gsaurel) (LAAS-CNRS): CI/CD, packaging
 -   [Etienne Arlaud](https://github.com/EtienneAr) (Inria): core developer
--   [Wilson Jallet](https://github.com/ManifoldFR) (LAAS-CNRS/Inria): extension of Python bindings
+-   [Wilson Jallet](https://github.com/ManifoldFR) (LAAS-CNRS/Inria): extension of Python bindings, C++ visualization API
 -   [Fabian Schramm](https://github.com/fabinsch) (Inria): core developper
 -   [Stéphane Caron](https://scaron.info) (Inria): core developper
 -   [Joris Vaillant](https://github.com/jorisv) (Inria): core developer and project manager
