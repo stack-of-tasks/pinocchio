@@ -1,6 +1,6 @@
 [project]
 name = "pinocchio"
-version = "3.4.0"
+version = "3.5.0"
 description = "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives"
 platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 channels = ["conda-forge"]
