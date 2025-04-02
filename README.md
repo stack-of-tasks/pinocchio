@@ -255,7 +255,7 @@ Do you have a question or an issue? You may either directly open a [new question
 The following people are **Pinocchio** active developers:
 
 -   [Justin Carpentier](https://jcarpent.github.io) (Inria): main developer and manager of the project
--   [Guilhem Saurel](http://projects.laas.fr/gepetto/index.php/Members/GuilhemSaurel) (LAAS-CNRS): continuous integration and deployment
+-   [Guilhem Saurel](https://www.laas.fr/fr/annuaire/gsaurel) (LAAS-CNRS): CI/CD, packaging
 -   [Etienne Arlaud](https://github.com/EtienneAr) (Inria): core developer
 -   [Wilson Jallet](https://github.com/ManifoldFR) (LAAS-CNRS/Inria): extension of Python bindings
 -   [Fabian Schramm](https://github.com/fabinsch) (Inria): core developper
