@@ -250,7 +250,7 @@ If you use these algorithms, please consider citing them in your research articl
 
 Do you have a question or an issue? You may either directly open a [new question](https://github.com/stack-of-tasks/pinocchio/discussions/new?category=q-a) or a [new issue](https://github.com/stack-of-tasks/pinocchio/issues) or, directly contact us via the mailing list <pinocchio@inria.fr>.
 
-## Core team
+## Core-dev team
 
 The following people are **Pinocchio** active developers:
 
