@@ -57,7 +57,7 @@ or via pip (currently only available on Linux):
   - [Visualization](#visualization)
   - [Citing Pinocchio](#citing-pinocchio)
   - [Questions and Issues](#questions-and-issues)
-  - [Core team](#core-team)
+  - [Core-dev team](#core-dev-team)
   - [Credits](#credits)
   - [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
   - [Acknowledgments](#acknowledgments)
