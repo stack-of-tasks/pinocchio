@@ -252,7 +252,7 @@ Do you have a question or an issue? You may either directly open a [new question
 
 ## Core-dev team
 
-The following people are **Pinocchio** active developers:
+The following people are the current **Pinocchio** active developers:
 
 -   [Justin Carpentier](https://jcarpent.github.io) (Inria): main developer and manager of the project
 -   [Guilhem Saurel](https://www.laas.fr/fr/annuaire/gsaurel) (LAAS-CNRS): CI/CD, packaging
