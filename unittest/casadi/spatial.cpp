@@ -99,7 +99,6 @@ BOOST_AUTO_TEST_CASE(test_log3_firstorder_derivatives)
 
   typedef pinocchio::SE3Tpl<ADScalar> SE3AD;
   typedef SE3AD::Vector3 Vector3AD;
-  typedef SE3AD::Matrix3 Matrix3AD;
 
   SE3::Matrix3 RTarget;
   pinocchio::toRotationMatrix(Vector3(SE3::Vector3::UnitX()), pinocchio::PI<Scalar>() / 4, RTarget);
