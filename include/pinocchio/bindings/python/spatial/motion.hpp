@@ -76,13 +76,15 @@ namespace pinocchio
         PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
         PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         cl.def(bp::init<>(bp::arg("self"), "Default constructor"))
-          .def(bp::init<const Vector3 &, const Vector3 &>(
-            (bp::arg("self"), bp::arg("linear"), bp::arg("angular")),
-            "Initialize from linear and angular components of a Motion vector (don't mix the "
-            "order)."))
-          .def(bp::init<const Vector6 &>(
-            (bp::arg("self"), bp::arg("array")),
-            "Init from a vector 6 [linear velocity, angular velocity]"))
+          .def(
+            bp::init<const Vector3 &, const Vector3 &>(
+              (bp::arg("self"), bp::arg("linear"), bp::arg("angular")),
+              "Initialize from linear and angular components of a Motion vector (don't mix the "
+              "order)."))
+          .def(
+            bp::init<const Vector6 &>(
+              (bp::arg("self"), bp::arg("array")),
+              "Init from a vector 6 [linear velocity, angular velocity]"))
           .def(bp::init<const Motion &>((bp::arg("self"), bp::arg("clone")), "Copy constructor"))
 
           .add_property(
@@ -102,12 +104,12 @@ namespace pinocchio
           .add_property(
             "vector",
             bp::make_function(
-              (typename Motion::ToVectorReturnType(Motion::*)()) & Motion::toVector,
+              (typename Motion::ToVectorReturnType (Motion::*)())&Motion::toVector,
               bp::return_internal_reference<>()),
             &MotionPythonVisitor::setVector, "Returns the components of *this as a 6d vector.")
           .add_property(
             "np", bp::make_function(
-                    (typename Motion::ToVectorReturnType(Motion::*)()) & Motion::toVector,
+                    (typename Motion::ToVectorReturnType (Motion::*)())&Motion::toVector,
                     bp::return_internal_reference<>()))
 
           .def(
@@ -135,15 +137,15 @@ namespace pinocchio
             "Set the linear and angular components of *this to random values.")
 
           .def(
-            "dot", (Scalar(Motion::*)(const ForceBase<Force> &) const)&Motion::dot,
+            "dot", (Scalar (Motion::*)(const ForceBase<Force> &) const) & Motion::dot,
             bp::args("self", "f"), "Dot product between *this and a Force f.")
 
           .def(
-            "cross", (Motion(Motion::*)(const Motion &) const)&Motion::cross, bp::args("self", "m"),
-            "Action of *this onto another Motion m. Returns ¨*this x m.")
+            "cross", (Motion (Motion::*)(const Motion &) const) & Motion::cross,
+            bp::args("self", "m"), "Action of *this onto another Motion m. Returns ¨*this x m.")
           .def(
-            "cross", (Force(Motion::*)(const Force &) const)&Motion::cross, bp::args("self", "f"),
-            "Dual action of *this onto a Force f. Returns *this x* f.")
+            "cross", (Force (Motion::*)(const Force &) const) & Motion::cross,
+            bp::args("self", "f"), "Dual action of *this onto a Force f. Returns *this x* f.")
 
           .def(bp::self + bp::self)
           .def(bp::self += bp::self)
@@ -182,7 +184,7 @@ namespace pinocchio
 
           .def(
             "__array__", bp::make_function(
-                           (typename Motion::ToVectorReturnType(Motion::*)()) & Motion::toVector,
+                           (typename Motion::ToVectorReturnType (Motion::*)())&Motion::toVector,
                            bp::return_internal_reference<>()))
           .def(
             "__array__", &__array__,

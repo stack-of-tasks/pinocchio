@@ -25,9 +25,10 @@ namespace pinocchio
       {
         const std::string class_name = bp::type_id<GeometryFunctor>().name();
 
-        cl.def(bp::init<const GeometryObject &, const GeometryObject &>(
-                 bp::args("self", "geometry_object1", "geometry_object2"),
-                 (std::string("Constructor of a ") + class_name).c_str()))
+        cl.def(
+            bp::init<const GeometryObject &, const GeometryObject &>(
+              bp::args("self", "geometry_object1", "geometry_object2"),
+              (std::string("Constructor of a ") + class_name).c_str()))
           .def(
             "run", &GeometryFunctor::run, bp::args("self", "tf1", "tf2", "request", "result"),
             "Call the function and return the result")

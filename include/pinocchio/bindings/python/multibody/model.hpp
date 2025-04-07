@@ -236,7 +236,7 @@ namespace pinocchio
             "Create a Data object for the given model.")
 
           .def(
-            "check", (bool(Model::*)(const Data &) const) & Model::check, bp::args("self", "data"),
+            "check", (bool (Model::*)(const Data &) const) & Model::check, bp::args("self", "data"),
             "Check consistency of data wrt model.")
 
           .def(

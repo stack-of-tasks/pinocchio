@@ -51,35 +51,35 @@ namespace pinocchio
             bp::return_internal_reference<>())
 
           .def(
-            "check", (bool(Self::*)() const) & Self::check, bp::arg("self"),
+            "check", (bool (Self::*)() const) & Self::check, bp::arg("self"),
             "Check whether the base broad phase manager is aligned with the current "
             "collision_objects.")
           .def(
-            "check", (bool(Self::*)(CollisionCallBackBase *) const) & Self::check,
+            "check", (bool (Self::*)(CollisionCallBackBase *) const) & Self::check,
             bp::args("self", "callback"), "Check whether the callback is inline with *this.")
 
           .def(
-            "update", (void(Self::*)(const bool)) & Self::update,
+            "update", (void (Self::*)(const bool))&Self::update,
             (bp::arg("self"), bp::arg("compute_local_aabb") = false),
             "Update the manager from the current geometry positions and update the underlying "
             "FCL broad phase manager.")
           .def(
-            "update", (void(Self::*)(GeometryData * geom_data_new)) & Self::update,
+            "update", (void (Self::*)(GeometryData * geom_data_new))&Self::update,
             (bp::arg("self"), bp::arg("geom_data_new")),
             "Update the manager with a new geometry data.", bp::with_custodian_and_ward<1, 2>())
 
           .def(
             "collide",
-            (bool(Self::*)(CollisionObject &, CollisionCallBackBase *) const) & Self::collide,
+            (bool (Self::*)(CollisionObject &, CollisionCallBackBase *) const) & Self::collide,
             bp::args("self", "collision_object", "callback"),
             "Performs collision test between one object and all the objects belonging to the "
             "manager.")
           .def(
-            "collide", (bool(Self::*)(CollisionCallBackBase *) const) & Self::collide,
+            "collide", (bool (Self::*)(CollisionCallBackBase *) const) & Self::collide,
             bp::args("self", "callback"),
             "Performs collision test for the objects belonging to the manager.")
           .def(
-            "collide", (bool(Self::*)(Self &, CollisionCallBackBase *) const) & Self::collide,
+            "collide", (bool (Self::*)(Self &, CollisionCallBackBase *) const) & Self::collide,
             bp::args("self", "other_manager", "callback"),
             "Performs collision test with objects belonging to another manager.");
       }

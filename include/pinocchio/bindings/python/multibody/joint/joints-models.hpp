@@ -33,8 +33,9 @@ namespace pinocchio
     expose_joint_model<context::JointModelRX>(bp::class_<context::JointModelRX> & cl)
     {
       return cl
-        .def(bp::init<>(
-          bp::args("self"), "Init JointModelRX with the X axis ([1, 0, 0]) as rotation axis."))
+        .def(
+          bp::init<>(
+            bp::args("self"), "Init JointModelRX with the X axis ([1, 0, 0]) as rotation axis."))
         .def(
           "getMotionAxis", &context::JointModelRX::getMotionAxis,
           "Rotation axis of the JointModelRX.");
@@ -45,8 +46,9 @@ namespace pinocchio
     expose_joint_model<context::JointModelRY>(bp::class_<context::JointModelRY> & cl)
     {
       return cl
-        .def(bp::init<>(
-          bp::args("self"), "Init JointModelRY with the Y axis ([0, 1, 0]) as rotation axis."))
+        .def(
+          bp::init<>(
+            bp::args("self"), "Init JointModelRY with the Y axis ([0, 1, 0]) as rotation axis."))
         .def(
           "getMotionAxis", &context::JointModelRY::getMotionAxis,
           "Rotation axis of the JointModelRY.");
@@ -57,8 +59,9 @@ namespace pinocchio
     expose_joint_model<context::JointModelRZ>(bp::class_<context::JointModelRZ> & cl)
     {
       return cl
-        .def(bp::init<>(
-          bp::args("self"), "Init JointModelRZ with the Z axis ([0, 0, 1]) as rotation axis"))
+        .def(
+          bp::init<>(
+            bp::args("self"), "Init JointModelRZ with the Z axis ([0, 0, 1]) as rotation axis"))
         .def(
           "getMotionAxis", &context::JointModelRZ::getMotionAxis,
           "Rotation axis of the JointModelRZ.");
@@ -71,12 +74,14 @@ namespace pinocchio
       bp::class_<context::JointModelRevoluteUnaligned> & cl)
     {
       return cl
-        .def(bp::init<context::Scalar, context::Scalar, context::Scalar>(
-          bp::args("self", "x", "y", "z"),
-          "Init JointModelRevoluteUnaligned from the components x, y, z of the axis"))
-        .def(bp::init<const context::Vector3s &>(
-          bp::args("self", "axis"),
-          "Init JointModelRevoluteUnaligned from an axis with x-y-z components"))
+        .def(
+          bp::init<context::Scalar, context::Scalar, context::Scalar>(
+            bp::args("self", "x", "y", "z"),
+            "Init JointModelRevoluteUnaligned from the components x, y, z of the axis"))
+        .def(
+          bp::init<const context::Vector3s &>(
+            bp::args("self", "axis"),
+            "Init JointModelRevoluteUnaligned from an axis with x-y-z components"))
         .def_readwrite(
           "axis", &context::JointModelRevoluteUnaligned::axis,
           "Rotation axis of the JointModelRevoluteUnaligned.");
@@ -88,8 +93,9 @@ namespace pinocchio
     expose_joint_model<context::JointModelRUBX>(bp::class_<context::JointModelRUBX> & cl)
     {
       return cl
-        .def(bp::init<>(
-          bp::args("self"), "Init JointModelRUBX with the X axis ([1, 0, 0]) as rotation axis"))
+        .def(
+          bp::init<>(
+            bp::args("self"), "Init JointModelRUBX with the X axis ([1, 0, 0]) as rotation axis"))
         .def(
           "getMotionAxis", &context::JointModelRUBX::getMotionAxis,
           "Rotation axis of the JointModelRUBX.");
@@ -100,8 +106,9 @@ namespace pinocchio
     expose_joint_model<context::JointModelRUBY>(bp::class_<context::JointModelRUBY> & cl)
     {
       return cl
-        .def(bp::init<>(
-          bp::args("self"), "Init JointModelRUBY with the Y axis ([0, 1, 0]) as rotation axis"))
+        .def(
+          bp::init<>(
+            bp::args("self"), "Init JointModelRUBY with the Y axis ([0, 1, 0]) as rotation axis"))
         .def(
           "getMotionAxis", &context::JointModelRUBY::getMotionAxis,
           "Rotation axis of the JointModelRUBY.");
@@ -112,8 +119,9 @@ namespace pinocchio
     expose_joint_model<context::JointModelRUBZ>(bp::class_<context::JointModelRUBZ> & cl)
     {
       return cl
-        .def(bp::init<>(
-          bp::args("self"), "Init JointModelRUBZ with the Z axis ([0, 0, 1]) as rotation axis"))
+        .def(
+          bp::init<>(
+            bp::args("self"), "Init JointModelRUBZ with the Z axis ([0, 0, 1]) as rotation axis"))
         .def(
           "getMotionAxis", &context::JointModelRUBZ::getMotionAxis,
           "Rotation axis of the JointModelRUBZ.");
@@ -125,8 +133,9 @@ namespace pinocchio
     expose_joint_model<context::JointModelPX>(bp::class_<context::JointModelPX> & cl)
     {
       return cl
-        .def(bp::init<>(
-          bp::args("self"), "Init JointModelPX with the X axis ([1, 0, 0]) as rotation axis"))
+        .def(
+          bp::init<>(
+            bp::args("self"), "Init JointModelPX with the X axis ([1, 0, 0]) as rotation axis"))
         .def(
           "getMotionAxis", &context::JointModelPX::getMotionAxis,
           "Rotation axis of the JointModelPX.");
@@ -137,8 +146,9 @@ namespace pinocchio
     expose_joint_model<context::JointModelPY>(bp::class_<context::JointModelPY> & cl)
     {
       return cl
-        .def(bp::init<>(
-          bp::args("self"), "Init JointModelPY with the Y axis ([0, 1, 0]) as rotation axis"))
+        .def(
+          bp::init<>(
+            bp::args("self"), "Init JointModelPY with the Y axis ([0, 1, 0]) as rotation axis"))
         .def(
           "getMotionAxis", &context::JointModelPY::getMotionAxis,
           "Rotation axis of the JointModelPY.");
@@ -149,8 +159,9 @@ namespace pinocchio
     expose_joint_model<context::JointModelPZ>(bp::class_<context::JointModelPZ> & cl)
     {
       return cl
-        .def(bp::init<>(
-          bp::args("self"), "Init JointModelPZ with the Z axis ([0, 0, 1]) as rotation axis"))
+        .def(
+          bp::init<>(
+            bp::args("self"), "Init JointModelPZ with the Z axis ([0, 0, 1]) as rotation axis"))
         .def(
           "getMotionAxis", &context::JointModelPZ::getMotionAxis,
           "Rotation axis of the JointModelPZ.");
@@ -163,12 +174,14 @@ namespace pinocchio
       bp::class_<context::JointModelPrismaticUnaligned> & cl)
     {
       return cl
-        .def(bp::init<context::Scalar, context::Scalar, context::Scalar>(
-          bp::args("self", "x", "y", "z"),
-          "Init JointModelPrismaticUnaligned from the components x, y, z of the axis"))
-        .def(bp::init<const context::Vector3s &>(
-          bp::args("self", "axis"),
-          "Init JointModelPrismaticUnaligned from an axis with x-y-z components"))
+        .def(
+          bp::init<context::Scalar, context::Scalar, context::Scalar>(
+            bp::args("self", "x", "y", "z"),
+            "Init JointModelPrismaticUnaligned from the components x, y, z of the axis"))
+        .def(
+          bp::init<const context::Vector3s &>(
+            bp::args("self", "axis"),
+            "Init JointModelPrismaticUnaligned from an axis with x-y-z components"))
         .def_readwrite(
           "axis", &context::JointModelPrismaticUnaligned::axis,
           "Translation axis of the JointModelPrismaticUnaligned.");
@@ -181,12 +194,15 @@ namespace pinocchio
       bp::class_<context::JointModelHelicalUnaligned> & cl)
     {
       return cl
-        .def(bp::init<context::Scalar, context::Scalar, context::Scalar, context::Scalar>(
-          bp::args("self", "x", "y", "z", "pitch"),
-          "Init JointModelHelicalUnaligned from the components x, y, z of the axis and the pitch"))
-        .def(bp::init<const context::Vector3s &, context::Scalar>(
-          bp::args("self", "axis", "pitch"),
-          "Init JointModelHelicalUnaligned from an axis with x-y-z components and the pitch"))
+        .def(
+          bp::init<context::Scalar, context::Scalar, context::Scalar, context::Scalar>(
+            bp::args("self", "x", "y", "z", "pitch"),
+            "Init JointModelHelicalUnaligned from the components x, y, z of the axis and the "
+            "pitch"))
+        .def(
+          bp::init<const context::Vector3s &, context::Scalar>(
+            bp::args("self", "axis", "pitch"),
+            "Init JointModelHelicalUnaligned from an axis with x-y-z components and the pitch"))
         .def_readwrite(
           "axis", &context::JointModelHelicalUnaligned::axis,
           "Translation axis of the JointModelHelicalUnaligned.")
@@ -201,12 +217,14 @@ namespace pinocchio
     expose_joint_model<context::JointModelHX>(bp::class_<context::JointModelHX> & cl)
     {
       return cl
-        .def(bp::init<context::Scalar>(
-          bp::args("self", "pitch"),
-          "Init JointModelHX with pitch value and the X axis ([1, 0, 0]) as a rotation axis."))
-        .def(bp::init<>(
-          bp::args("self"),
-          "Init JointModelHX with pitch 0.0 and the X axis ([1, 0, 0]) as a rotation axis."))
+        .def(
+          bp::init<context::Scalar>(
+            bp::args("self", "pitch"),
+            "Init JointModelHX with pitch value and the X axis ([1, 0, 0]) as a rotation axis."))
+        .def(
+          bp::init<>(
+            bp::args("self"),
+            "Init JointModelHX with pitch 0.0 and the X axis ([1, 0, 0]) as a rotation axis."))
         .def(
           "getMotionAxis", &context::JointModelHX::getMotionAxis,
           "Rotation axis of the JointModelHX.")
@@ -218,12 +236,14 @@ namespace pinocchio
     expose_joint_model<context::JointModelHY>(bp::class_<context::JointModelHY> & cl)
     {
       return cl
-        .def(bp::init<context::Scalar>(
-          bp::args("self", "pitch"),
-          "Init JointModelHY with pitch value and the Y axis ([0, 1, 0]) as a rotation axis."))
-        .def(bp::init<>(
-          bp::args("self"),
-          "Init JointModelHY with pitch 0.0 and the Y axis ([0, 1, 0]) as a rotation axis."))
+        .def(
+          bp::init<context::Scalar>(
+            bp::args("self", "pitch"),
+            "Init JointModelHY with pitch value and the Y axis ([0, 1, 0]) as a rotation axis."))
+        .def(
+          bp::init<>(
+            bp::args("self"),
+            "Init JointModelHY with pitch 0.0 and the Y axis ([0, 1, 0]) as a rotation axis."))
         .def(
           "getMotionAxis", &context::JointModelHY::getMotionAxis,
           "Rotation axis of the JointModelHY.")
@@ -235,12 +255,14 @@ namespace pinocchio
     expose_joint_model<context::JointModelHZ>(bp::class_<context::JointModelHZ> & cl)
     {
       return cl
-        .def(bp::init<context::Scalar>(
-          bp::args("self", "pitch"),
-          "Init JointModelHZ with pitch value and the Z axis ([0, 0, 1]) as a rotation axis."))
-        .def(bp::init<>(
-          bp::args("self"),
-          "Init JointModelHZ with pitch 0.0 and the Z axis ([0, 0, 1]) as a rotation axis."))
+        .def(
+          bp::init<context::Scalar>(
+            bp::args("self", "pitch"),
+            "Init JointModelHZ with pitch value and the Z axis ([0, 0, 1]) as a rotation axis."))
+        .def(
+          bp::init<>(
+            bp::args("self"),
+            "Init JointModelHZ with pitch 0.0 and the Z axis ([0, 0, 1]) as a rotation axis."))
         .def(
           "getMotionAxis", &context::JointModelHZ::getMotionAxis,
           "Rotation axis of the JointModelHZ.")
@@ -253,14 +275,16 @@ namespace pinocchio
     expose_joint_model<context::JointModelUniversal>(bp::class_<context::JointModelUniversal> & cl)
     {
       return cl
-        .def(bp::init<
-             context::Scalar, context::Scalar, context::Scalar, context::Scalar, context::Scalar,
-             context::Scalar>(
-          bp::args("self", "x1", "y1", "z1", "x2", "y2", "z2"),
-          "Init JointModelUniversal from the components x, y, z of the axes"))
-        .def(bp::init<const context::Vector3s &, const context::Vector3s &>(
-          bp::args("self", "axis1", "axis2"),
-          "Init JointModelUniversal from two axes with x-y-z components"))
+        .def(
+          bp::init<
+            context::Scalar, context::Scalar, context::Scalar, context::Scalar, context::Scalar,
+            context::Scalar>(
+            bp::args("self", "x1", "y1", "z1", "x2", "y2", "z2"),
+            "Init JointModelUniversal from the components x, y, z of the axes"))
+        .def(
+          bp::init<const context::Vector3s &, const context::Vector3s &>(
+            bp::args("self", "axis1", "axis2"),
+            "Init JointModelUniversal from two axes with x-y-z components"))
         .def_readwrite(
           "axis1", &context::JointModelUniversal::axis1,
           "First rotation axis of the JointModelUniversal.")
@@ -334,8 +358,9 @@ namespace pinocchio
     expose_joint_model<context::JointModelComposite>(bp::class_<context::JointModelComposite> & cl)
     {
       return cl
-        .def(bp::init<const size_t>(
-          bp::args("self", "size"), "Init JointModelComposite with a defined size"))
+        .def(
+          bp::init<const size_t>(
+            bp::args("self", "size"), "Init JointModelComposite with a defined size"))
         .def(
           "__init__",
           bp::make_constructor(init_proxy1, bp::default_call_policies(), bp::args("joint_model")),

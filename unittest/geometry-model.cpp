@@ -50,8 +50,9 @@ BOOST_AUTO_TEST_CASE(manage_collision_pairs)
     }
   }
 
-  GeometryModel::MatrixXb collision_map(GeometryModel::MatrixXb::Zero(
-    (Eigen::DenseIndex)geom_model.ngeoms, (Eigen::DenseIndex)geom_model.ngeoms));
+  GeometryModel::MatrixXb collision_map(
+    GeometryModel::MatrixXb::Zero(
+      (Eigen::DenseIndex)geom_model.ngeoms, (Eigen::DenseIndex)geom_model.ngeoms));
 
   for (size_t k = 0; k < geom_model.collisionPairs.size(); ++k)
   {
@@ -102,8 +103,9 @@ BOOST_AUTO_TEST_CASE(manage_collision_pairs)
     geom_data_copy.deactivateAllCollisionPairs();
     geom_data_copy_lower.deactivateAllCollisionPairs();
 
-    GeometryData::MatrixXb collision_map(GeometryModel::MatrixXb::Zero(
-      (Eigen::DenseIndex)geom_model.ngeoms, (Eigen::DenseIndex)geom_model.ngeoms));
+    GeometryData::MatrixXb collision_map(
+      GeometryModel::MatrixXb::Zero(
+        (Eigen::DenseIndex)geom_model.ngeoms, (Eigen::DenseIndex)geom_model.ngeoms));
     for (size_t k = 0; k < geom_data.activeCollisionPairs.size(); ++k)
     {
       const CollisionPair & cp = geom_model.collisionPairs[k];
@@ -123,8 +125,9 @@ BOOST_AUTO_TEST_CASE(manage_collision_pairs)
   {
     GeometryData geom_data_upper(geom_model), geom_data_lower(geom_model);
 
-    const GeometryData::MatrixXs security_margin_map(GeometryData::MatrixXs::Ones(
-      (Eigen::DenseIndex)geom_model.ngeoms, (Eigen::DenseIndex)geom_model.ngeoms));
+    const GeometryData::MatrixXs security_margin_map(
+      GeometryData::MatrixXs::Ones(
+        (Eigen::DenseIndex)geom_model.ngeoms, (Eigen::DenseIndex)geom_model.ngeoms));
     GeometryData::MatrixXs security_margin_map_upper(security_margin_map);
     security_margin_map_upper.triangularView<Eigen::Lower>().fill(0.);
 

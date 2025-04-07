@@ -39,8 +39,9 @@ void run_test(const Model & model, const Eigen::VectorXd & q, const Eigen::Vecto
   computeGeneralizedGravity(model, data_other, q);
 
   BOOST_CHECK(data.nle.isApprox(data_other.nle));
-  BOOST_CHECK(Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
-                .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>())));
+  BOOST_CHECK(
+    Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
+      .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>())));
   BOOST_CHECK(data.J.isApprox(data_other.J));
   BOOST_CHECK(data.dJ.isApprox(data_other.dJ));
   BOOST_CHECK(data.Jcom.isApprox(data_other.Jcom));

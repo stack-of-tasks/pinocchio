@@ -40,8 +40,9 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass & cl) const
       {
-        cl.def(bp::init<const Model &, bp::optional<size_t>>(
-                 bp::args("self", "model", "size"), "Default constructor."))
+        cl.def(
+            bp::init<const Model &, bp::optional<size_t>>(
+              bp::args("self", "model", "size"), "Default constructor."))
           .def(bp::init<const ModelPool &>(bp::args("self", "other"), "Copy constructor."))
 
           .def(
@@ -63,7 +64,7 @@ namespace pinocchio
           .def("resize", &ModelPool::resize, bp::args("self", "new_size"), "Resize the pool.")
 
           .def(
-            "update", (void(ModelPool::*)(const Data &)) & ModelPool::update,
+            "update", (void (ModelPool::*)(const Data &))&ModelPool::update,
             bp::args("self", "data"), "Update all the datas with the input data value.");
       }
 

@@ -183,8 +183,9 @@ namespace pinocchio
               boost::ref(jmodel1.derived()), boost::ref(jmodel2.derived()),
               boost::ref(
                 boost::get<typename JointModelBase<JointModelDerived1>::JointDataDerived>(jdata1)),
-              boost::ref(boost::get<typename JointModelBase<JointModelDerived2>::JointDataDerived>(
-                jdata2))));
+              boost::ref(
+                boost::get<typename JointModelBase<JointModelDerived2>::JointDataDerived>(
+                  jdata2))));
         }
 
         JointData1 & jdata1;

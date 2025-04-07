@@ -23,11 +23,11 @@ int main(int argc, char ** argv)
   using namespace pinocchio;
 
   // Change to your own URDF file here, or give a path as command-line argument
-  const std::string urdf_filename = (argc <= 1)
-                                      ? PINOCCHIO_MODEL_DIR
-                                          + std::string("/example-robot-data/robots/"
-                                                        "ur_description/urdf/ur5_robot.urdf")
-                                      : argv[1];
+  const std::string urdf_filename = (argc <= 1) ? PINOCCHIO_MODEL_DIR
+                                                    + std::string(
+                                                      "/example-robot-data/robots/"
+                                                      "ur_description/urdf/ur5_robot.urdf")
+                                                : argv[1];
 
   // Load the URDF model
   Model model;

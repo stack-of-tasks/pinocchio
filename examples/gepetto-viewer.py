@@ -36,8 +36,7 @@ try:
     viz.loadViewerModel("pinocchio")
 except AttributeError as err:
     print(
-        "Error while loading the viewer model. "
-        "It seems you should start gepetto-viewer"
+        "Error while loading the viewer model. It seems you should start gepetto-viewer"
     )
     print(err)
     sys.exit(0)

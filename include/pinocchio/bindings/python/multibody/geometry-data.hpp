@@ -39,8 +39,9 @@ namespace pinocchio
           bp::class_<CollisionPair>(
             "CollisionPair", "Pair of ordered index defining a pair of collisions", bp::no_init)
             .def(bp::init<>(bp::args("self"), "Empty constructor."))
-            .def(bp::init<const GeomIndex &, const GeomIndex &>(
-              bp::args("self", "index1", "index2"), "Initializer of collision pair."))
+            .def(
+              bp::init<const GeomIndex &, const GeomIndex &>(
+                bp::args("self", "index1", "index2"), "Initializer of collision pair."))
             .def(PrintableVisitor<CollisionPair>())
             .def(CopyableVisitor<CollisionPair>())
             .def(bp::self == bp::self)
@@ -61,9 +62,10 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass & cl) const
       {
-        cl
-          .def(bp::init<const GeometryModel &>(
-            bp::args("self", "geometry_model"), "Default constructor from a given GeometryModel."))
+        cl.def(
+            bp::init<const GeometryModel &>(
+              bp::args("self", "geometry_model"),
+              "Default constructor from a given GeometryModel."))
 
           .def_readwrite(
             "oMg", &GeometryData::oMg,

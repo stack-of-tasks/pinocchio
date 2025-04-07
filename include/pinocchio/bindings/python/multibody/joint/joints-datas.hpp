@@ -23,8 +23,9 @@ namespace pinocchio
     inline bp::class_<JointDataRevoluteUnaligned> &
     expose_joint_data<JointDataRevoluteUnaligned>(bp::class_<JointDataRevoluteUnaligned> & cl)
     {
-      return cl.def(bp::init<const Eigen::Vector3d &>(
-        bp::args("axis"), "Init JointDataRevoluteUnaligned from an axis with x-y-z components"));
+      return cl.def(
+        bp::init<const Eigen::Vector3d &>(
+          bp::args("axis"), "Init JointDataRevoluteUnaligned from an axis with x-y-z components"));
     }
 
     // specialization for JointDataPrismaticUnaligned
@@ -32,8 +33,9 @@ namespace pinocchio
     inline bp::class_<JointDataPrismaticUnaligned> &
     expose_joint_data<JointDataPrismaticUnaligned>(bp::class_<JointDataPrismaticUnaligned> & cl)
     {
-      return cl.def(bp::init<const Eigen::Vector3d &>(
-        bp::args("axis"), "Init JointDataPrismaticUnaligned from an axis with x-y-z components"));
+      return cl.def(
+        bp::init<const Eigen::Vector3d &>(
+          bp::args("axis"), "Init JointDataPrismaticUnaligned from an axis with x-y-z components"));
     }
 
     // specialization for JointDataHelicalUnaligned
@@ -41,8 +43,9 @@ namespace pinocchio
     inline bp::class_<JointDataHelicalUnaligned> &
     expose_joint_data<JointDataHelicalUnaligned>(bp::class_<JointDataHelicalUnaligned> & cl)
     {
-      return cl.def(bp::init<const Eigen::Vector3d &>(
-        bp::args("axis"), "Init JointDataHelicalUnaligned from an axis with x-y-z components"));
+      return cl.def(
+        bp::init<const Eigen::Vector3d &>(
+          bp::args("axis"), "Init JointDataHelicalUnaligned from an axis with x-y-z components"));
     }
 
     template<>
@@ -64,9 +67,10 @@ namespace pinocchio
     expose_joint_data<JointDataComposite>(bp::class_<JointDataComposite> & cl)
     {
       return cl
-        .def(bp::init<const JointDataComposite::JointDataVector &, const int, const int>(
-          bp::args("joint_data_vectors", "nq", "nv"),
-          "Init JointDataComposite from a given collection of joint data"))
+        .def(
+          bp::init<const JointDataComposite::JointDataVector &, const int, const int>(
+            bp::args("joint_data_vectors", "nq", "nv"),
+            "Init JointDataComposite from a given collection of joint data"))
         .add_property("joints", &JointDataComposite::joints)
         .add_property("iMlast", &JointDataComposite::iMlast)
         .add_property("pjMi", &JointDataComposite::pjMi)

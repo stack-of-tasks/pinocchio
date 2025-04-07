@@ -73,10 +73,11 @@ namespace pinocchio
 
       bp::class_<CollisionCallBackDefault, bp::bases<CollisionCallBackBase>>(
         "CollisionCallBackDefault", bp::no_init)
-        .def(bp::init<const GeometryModel &, GeometryData &, bp::optional<bool>>(
-          bp::args("self", "geometry_model", "geometry_data", "stopAtFirstCollision"),
-          "Default constructor from a given GeometryModel and a GeometryData")
-               [bp::with_custodian_and_ward<1, 2>(), bp::with_custodian_and_ward<1, 3>()])
+        .def(
+          bp::init<const GeometryModel &, GeometryData &, bp::optional<bool>>(
+            bp::args("self", "geometry_model", "geometry_data", "stopAtFirstCollision"),
+            "Default constructor from a given GeometryModel and a GeometryData")
+            [bp::with_custodian_and_ward<1, 2>(), bp::with_custodian_and_ward<1, 3>()])
 
         .def_readwrite(
           "stopAtFirstCollision", &CollisionCallBackDefault::stopAtFirstCollision,

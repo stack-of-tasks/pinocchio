@@ -334,8 +334,9 @@ namespace pinocchio
         if (urdfTree)
           return parseRootTree(urdfTree.get(), model, mimic);
         else
-          throw std::invalid_argument("The XML stream does not contain a valid "
-                                      "URDF model.");
+          throw std::invalid_argument(
+            "The XML stream does not contain a valid "
+            "URDF model.");
       }
     } // namespace details
   } // namespace urdf

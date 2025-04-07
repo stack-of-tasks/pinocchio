@@ -31,9 +31,10 @@ namespace pinocchio
       {
         //        static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
 
-        cl.def(bp::init<const context::MatrixXs &, const Eigen::DenseIndex>(
-                 (bp::arg("self"), bp::arg("mat"), bp::arg("decomposition_size")),
-                 "Default constructor from a given matrix and a given decomposition size."))
+        cl.def(
+            bp::init<const context::MatrixXs &, const Eigen::DenseIndex>(
+              (bp::arg("self"), bp::arg("mat"), bp::arg("decomposition_size")),
+              "Default constructor from a given matrix and a given decomposition size."))
 
           .def(
             "compute", &LanczosDecomposition::template compute<context::MatrixXs>,

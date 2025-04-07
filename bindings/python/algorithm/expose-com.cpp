@@ -103,13 +103,13 @@ namespace pinocchio
 
       bp::def(
         "computeTotalMass",
-        (Scalar(*)(
+        (Scalar (*)(
           const context::Model &))&computeTotalMass<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model"), "Compute the total mass of the model and return it.");
 
       bp::def(
         "computeTotalMass",
-        (Scalar(*)(
+        (Scalar (*)(
           const context::Model &,
           context::Data &))&computeTotalMass<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model", "data"),

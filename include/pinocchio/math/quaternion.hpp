@@ -102,11 +102,12 @@ namespace pinocchio
 #ifndef NDEBUG
       const Scalar M =
         Scalar(3) * math::pow(Scalar(1) - epsilon, ((Scalar)-Scalar(5)) / Scalar(2)) / Scalar(4);
-      assert(static_leq::op(
-        math::fabs(static_cast<Scalar>(q.norm() - Scalar(1))),
-        math::max(
-          M * sqrt(N2) * (N2 - Scalar(1)) * (N2 - Scalar(1)) / Scalar(2),
-          Eigen::NumTraits<Scalar>::dummy_precision())));
+      assert(
+        static_leq::op(
+          math::fabs(static_cast<Scalar>(q.norm() - Scalar(1))),
+          math::max(
+            M * sqrt(N2) * (N2 - Scalar(1)) * (N2 - Scalar(1)) / Scalar(2),
+            Eigen::NumTraits<Scalar>::dummy_precision())));
 #endif
     }
 

@@ -94,8 +94,9 @@ namespace pinocchio
       void visit(PyClass & cl) const
       {
         cl.def(bp::init<>(bp::arg("self"), "Default constructor."))
-          .def(bp::init<const context::Model &>(
-            bp::args("self", "model"), "Constructs a data structure from a given model."))
+          .def(
+            bp::init<const context::Model &>(
+              bp::args("self", "model"), "Constructs a data structure from a given model."))
 
           .ADD_DATA_PROPERTY(
             joints,

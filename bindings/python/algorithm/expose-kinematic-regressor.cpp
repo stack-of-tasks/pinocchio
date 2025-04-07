@@ -21,7 +21,7 @@ namespace pinocchio
 
       bp::def(
         "computeJointKinematicRegressor",
-        (context::Data::Matrix6x(*)(
+        (context::Data::Matrix6x (*)(
           const context::Model &, const context::Data &, const JointIndex, const ReferenceFrame,
           const context::
             SE3 &))&computeJointKinematicRegressor<Scalar, Options, JointCollectionDefaultTpl>,
@@ -40,7 +40,7 @@ namespace pinocchio
 
       bp::def(
         "computeJointKinematicRegressor",
-        (context::Data::Matrix6x(*)(
+        (context::Data::Matrix6x (*)(
           const context::Model &, const context::Data &, const JointIndex,
           const ReferenceFrame))&computeJointKinematicRegressor<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model", "data", "joint_id", "reference_frame"),
@@ -56,7 +56,7 @@ namespace pinocchio
 
       bp::def(
         "computeFrameKinematicRegressor",
-        (context::Data::Matrix6x(*)(
+        (context::Data::Matrix6x (*)(
           const context::Model &, context::Data &, const FrameIndex,
           const ReferenceFrame))&computeFrameKinematicRegressor<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model", "data", "frame_id", "reference_frame"),
