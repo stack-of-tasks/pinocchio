@@ -7,8 +7,10 @@
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/math/matrix.hpp"
+#include "pinocchio/math/fwd.hpp"
 
 #include <boost/type_traits.hpp>
+#include <boost/variant.hpp>
 
 namespace pinocchio
 {
@@ -51,25 +53,61 @@ namespace pinocchio
   {
     template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
     static void run(
-      const Eigen::MatrixBase<ConfigVectorIn> & q,
+      const Eigen::MatrixBase<ConfigVectorIn> & qIn,
       const Scalar & scaling,
       const Scalar & offset,
-      const Eigen::MatrixBase<ConfigVectorOut> & dest)
+      const Eigen::MatrixBase<ConfigVectorOut> & qOut)
     {
-      assert(q.size() == dest.size());
-      PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, dest).noalias() =
-        scaling * q + ConfigVectorOut::Constant(dest.size(), offset);
+      assert(qIn.size() == qOut.size());
+      PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, qOut).noalias() =
+        scaling * qIn + ConfigVectorOut::Constant(qOut.size(), offset);
+    }
+  };
+
+  struct UnboundedRevoluteAffineTransform
+  {
+    template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
+    static void run(
+      const Eigen::MatrixBase<ConfigVectorIn> & qIn,
+      const Scalar & scaling,
+      const Scalar & offset,
+      const Eigen::MatrixBase<ConfigVectorOut> & qOut)
+    {
+      assert(qIn.size() == 2);
+      assert(qOut.size() == 2);
+
+      const typename ConfigVectorIn::Scalar & ca = qIn(0);
+      const typename ConfigVectorIn::Scalar & sa = qIn(1);
+
+      const typename ConfigVectorIn::Scalar & theta = math::atan2(sa, ca);
+      const typename ConfigVectorIn::Scalar & theta_transform = scaling * theta + offset;
+
+      ConfigVectorOut & dest_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut, qOut);
+      SINCOS(theta_transform, &dest_.coeffRef(1), &dest_.coeffRef(0));
+    }
+  };
+
+  struct NoAffineTransform
+  {
+    template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
+    static void run(
+      const Eigen::MatrixBase<ConfigVectorIn> &,
+      const Scalar &,
+      const Scalar &,
+      const Eigen::MatrixBase<ConfigVectorOut> &)
+    {
+      assert(false && "Joint cannot be used with JointMimic.");
     }
   };
 
   ///
   /// \brief Assign the correct configuration vector space affine transformation according to the
-  /// joint type.
+  /// joint type. Must be specialized for every joint type.
   ///
   template<typename Joint>
   struct ConfigVectorAffineTransform
   {
-    typedef LinearAffineTransform Type;
+    typedef NoAffineTransform Type;
   };
 
 } // namespace pinocchio

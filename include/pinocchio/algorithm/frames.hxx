@@ -197,65 +197,90 @@ namespace pinocchio
       "number of Dofs in the model.");
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
-    typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
     typedef typename Model::Frame Frame;
     typedef typename Model::JointIndex JointIndex;
     typedef typename Model::IndexVector IndexVector;
 
     const Frame & frame = model.frames[frameId];
     const JointIndex & joint_id = frame.parentJoint;
-
     const IndexVector & joint_support = model.supports[joint_id];
 
     switch (reference_frame)
     {
-    case WORLD:
-    case LOCAL_WORLD_ALIGNED: {
-      typedef impl::JointJacobiansForwardStep<
+    // In WORLD and LOCAL_WORLD_ALIGNED we first compute the WORLD jacobian.
+    // Then, in LOCAL_WORLD_ALIGNED, we will apply the translation to frameId.
+    case WORLD: {
+      typedef impl::JointJacobianWorldForwardStep<
         Scalar, Options, JointCollectionTpl, ConfigVectorType, Matrix6xLike>
-        Pass;
+        ForwardPass;
+      typedef impl::JointJacobianWorldMimicStep<Scalar, Options, JointCollectionTpl, Matrix6xLike>
+        MimicPass;
       for (size_t k = 1; k < joint_support.size(); k++)
       {
         JointIndex parent = joint_support[k];
-        Pass::run(
+        ForwardPass::run(
           model.joints[parent], data.joints[parent],
-          typename Pass::ArgsType(model, data, q.derived(), J.const_cast_derived()));
+          typename ForwardPass::ArgsType(model, data, q.derived(), J.const_cast_derived()));
       }
 
-      if (reference_frame == LOCAL_WORLD_ALIGNED)
+      const IndexVector & mimic_joint_support = model.mimic_joint_supports[joint_id];
+      for (size_t i = 1; i < mimic_joint_support.size(); i++)
       {
-        typename Data::SE3 & oMframe = data.oMf[frameId];
-        oMframe = data.oMi[joint_id] * frame.placement;
-
-        Matrix6xLike & J_ = J.const_cast_derived();
-
-        const int colRef = nv(model.joints[joint_id]) + idx_v(model.joints[joint_id]) - 1;
-        for (Eigen::DenseIndex j = colRef; j >= 0; j = data.parents_fromRow[(size_t)j])
-        {
-          typedef typename Matrix6xLike::ColXpr ColXprOut;
-          MotionRef<ColXprOut> J_col(J_.col(j));
-
-          J_col.linear() -= oMframe.translation().cross(J_col.angular());
-        }
+        MimicPass::run(
+          model.joints[mimic_joint_support[i]], data.joints[mimic_joint_support[i]],
+          typename MimicPass::ArgsType(data, J.const_cast_derived()));
+      }
+      break;
+    }
+    case LOCAL_WORLD_ALIGNED: {
+      typedef impl::ForwardKinematicZeroStep<Scalar, Options, JointCollectionTpl, ConfigVectorType>
+        KinematicsPass;
+      typedef impl::JointJacobianLocalWorldAlignedForwardStep<
+        Scalar, Options, JointCollectionTpl, Matrix6xLike>
+        JacobianPass;
+      for (size_t k = 1; k < joint_support.size(); k++)
+      {
+        JointIndex support_idx = joint_support[k];
+        KinematicsPass::run(
+          model.joints[support_idx], data.joints[support_idx],
+          typename KinematicsPass::ArgsType(model, data, q.derived()));
+      }
+      auto & oMframe = data.oMf[frameId];
+      oMframe = data.oMi[joint_id] * frame.placement;
+      for (size_t k = 1; k < joint_support.size(); k++)
+      {
+        JointIndex support_idx = joint_support[k];
+        JacobianPass::run(
+          model.joints[support_idx], data.joints[support_idx],
+          typename JacobianPass::ArgsType(data, oMframe, J.const_cast_derived()));
       }
       break;
     }
     case LOCAL: {
       data.iMf[joint_id] = frame.placement;
 
-      typedef impl::JointJacobianForwardStep<
+      typedef impl::JointJacobianLocalBackwardStep<
         Scalar, Options, JointCollectionTpl, ConfigVectorType, Matrix6xLike>
-        Pass;
+        BackwardPass;
+      typedef impl::JointJacobianLocalMimicStep<Scalar, Options, JointCollectionTpl, Matrix6xLike>
+        MimicPass;
+
       for (JointIndex i = joint_id; i > 0; i = model.parents[i])
       {
-        Pass::run(
+        BackwardPass::run(
           model.joints[i], data.joints[i],
-          typename Pass::ArgsType(model, data, q.derived(), J.const_cast_derived()));
+          typename BackwardPass::ArgsType(model, data, q.derived(), J.const_cast_derived()));
+      }
+
+      const typename Model::IndexVector & mimic_joint_support =
+        model.mimic_joint_supports[joint_id];
+      for (size_t i = 1; i < mimic_joint_support.size(); i++)
+      {
+        MimicPass::run(
+          model.joints[mimic_joint_support[i]], data.joints[mimic_joint_support[i]],
+          typename MimicPass::ArgsType(data, J.const_cast_derived()));
       }
       break;
-    }
-    default: {
-      assert(false && "must never happened");
     }
     }
   }
@@ -359,8 +384,8 @@ namespace pinocchio
     const Frame & frame = model.frames[frame_id];
     const JointIndex & joint_id = frame.parentJoint;
 
-    // Add all the inertia of child frames (i.e that are part of the same joint but comes after the
-    // given frame)
+    // Add all the inertia of child frames (i.e that are part of the same joint but comes after
+    // the given frame)
     std::vector<typename Model::JointIndex> child_frames = {frame_id};
     Inertia I = frame.placement.act(frame.inertia); // Express the inertia in the parent joint frame
     for (FrameIndex i = frame_id + 1; i < (FrameIndex)model.nframes; ++i)

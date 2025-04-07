@@ -125,6 +125,8 @@ namespace pinocchio
     const Scalar mu)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
       q.size(), model.nq, "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(
@@ -290,6 +292,8 @@ namespace pinocchio
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
     const std::vector<RigidConstraintModelTpl<Scalar, Options>, Allocator> & contact_models)
   {
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
     std::fill(data.constraints_supported_dim.begin(), data.constraints_supported_dim.end(), 0);
     for (std::size_t i = 0; i < contact_models.size(); ++i)
     {
@@ -476,6 +480,8 @@ namespace pinocchio
     const Scalar mu)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
       q.size(), model.nq, "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(
@@ -802,6 +808,8 @@ namespace pinocchio
     const bool scaled,
     const bool Pv)
   {
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
     PINOCCHIO_CHECK_INPUT_ARGUMENT(
       check_expression_if_real<Scalar>(mu >= Eigen::NumTraits<Scalar>::dummy_precision()),
       "mu is too small.");

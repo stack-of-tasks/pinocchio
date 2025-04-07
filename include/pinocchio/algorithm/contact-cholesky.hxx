@@ -6,6 +6,7 @@
 #define __pinocchio_algorithm_contact_cholesky_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
+#include "pinocchio/multibody/data.hpp"
 
 #include <algorithm>
 
@@ -26,6 +27,8 @@ namespace pinocchio
     typedef typename Model::JointModel JointModel;
     typedef RigidConstraintModelTpl<S1, O1> RigidConstraintModel;
     typedef std::vector<RigidConstraintModel, Allocator> RigidConstraintModelVector;
+
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     nv = model.nv;
     num_contacts = (Eigen::DenseIndex)contact_models.size();
@@ -189,6 +192,8 @@ namespace pinocchio
     typedef RigidConstraintDataTpl<S1, O1> RigidConstraintData;
 
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
     PINOCCHIO_CHECK_INPUT_ARGUMENT(
       (Eigen::DenseIndex)contact_models.size() == num_contacts,
       "The number of contacts inside contact_models and the one during allocation do not match.\n"
@@ -664,7 +669,7 @@ namespace pinocchio
   {
 
     template<typename Scalar, int Options, typename VectorLike>
-    EIGEN_DONT_INLINE VectorLike & inverseAlgo(
+    PINOCCHIO_DONT_INLINE VectorLike & inverseAlgo(
       const ContactCholeskyDecompositionTpl<Scalar, Options> & chol,
       const Eigen::DenseIndex col,
       const Eigen::MatrixBase<VectorLike> & vec)

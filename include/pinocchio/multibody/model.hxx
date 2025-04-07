@@ -8,6 +8,7 @@
 
 #include "pinocchio/utils/string-generator.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
+#include "pinocchio/algorithm/model.hpp"
 
 /// @cond DEV
 
@@ -72,7 +73,7 @@ namespace pinocchio
     assert(
       (njoints == (int)joints.size()) && (njoints == (int)inertias.size())
       && (njoints == (int)parents.size()) && (njoints == (int)jointPlacements.size()));
-    assert((joint_model.nq() >= 0) && (joint_model.nv() >= 0));
+    assert((joint_model.nq() >= 0) && (joint_model.nv() >= 0) && (joint_model.nvExtended() >= 0));
     assert(joint_model.nq() >= joint_model.nv());
 
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
@@ -97,15 +98,18 @@ namespace pinocchio
 
     joints.push_back(JointModel(joint_model.derived()));
     JointModel & jmodel = joints.back();
-    jmodel.setIndexes(joint_id, nq, nv);
+    jmodel.setIndexes(joint_id, nq, nv, nvExtended);
 
     const int joint_nq = jmodel.nq();
     const int joint_idx_q = jmodel.idx_q();
     const int joint_nv = jmodel.nv();
     const int joint_idx_v = jmodel.idx_v();
+    const int joint_nvExtended = jmodel.nvExtended();
+    const int joint_idx_vExtended = jmodel.idx_vExtended();
 
     assert(joint_idx_q >= 0);
     assert(joint_idx_v >= 0);
+    assert(joint_idx_vExtended >= 0);
 
     inertias.push_back(Inertia::Zero());
     parents.push_back(parent);
@@ -120,29 +124,29 @@ namespace pinocchio
     nv += joint_nv;
     nvs.push_back(joint_nv);
     idx_vs.push_back(joint_idx_v);
+    nvExtended += joint_nvExtended;
+    nvExtendeds.push_back(joint_nvExtended);
+    idx_vExtendeds.push_back(joint_idx_vExtended);
 
-    if (joint_nq > 0 && joint_nv > 0)
-    {
-      effortLimit.conservativeResize(nv);
-      jmodel.jointVelocitySelector(effortLimit) = max_effort;
-      velocityLimit.conservativeResize(nv);
-      jmodel.jointVelocitySelector(velocityLimit) = max_velocity;
-      lowerPositionLimit.conservativeResize(nq);
-      jmodel.jointConfigSelector(lowerPositionLimit) = min_config;
-      upperPositionLimit.conservativeResize(nq);
-      jmodel.jointConfigSelector(upperPositionLimit) = max_config;
+    effortLimit.conservativeResize(nv);
+    jmodel.jointVelocitySelector(effortLimit) = max_effort;
+    velocityLimit.conservativeResize(nv);
+    jmodel.jointVelocitySelector(velocityLimit) = max_velocity;
+    lowerPositionLimit.conservativeResize(nq);
+    jmodel.jointConfigSelector(lowerPositionLimit) = min_config;
+    upperPositionLimit.conservativeResize(nq);
+    jmodel.jointConfigSelector(upperPositionLimit) = max_config;
 
-      armature.conservativeResize(nv);
-      jmodel.jointVelocitySelector(armature).setZero();
-      rotorInertia.conservativeResize(nv);
-      jmodel.jointVelocitySelector(rotorInertia).setZero();
-      rotorGearRatio.conservativeResize(nv);
-      jmodel.jointVelocitySelector(rotorGearRatio).setOnes();
-      friction.conservativeResize(nv);
-      jmodel.jointVelocitySelector(friction) = joint_friction;
-      damping.conservativeResize(nv);
-      jmodel.jointVelocitySelector(damping) = joint_damping;
-    }
+    armature.conservativeResize(nv);
+    jmodel.jointVelocitySelector(armature).setZero();
+    rotorInertia.conservativeResize(nv);
+    jmodel.jointVelocitySelector(rotorInertia).setZero();
+    rotorGearRatio.conservativeResize(nv);
+    jmodel.jointVelocitySelector(rotorGearRatio).setOnes();
+    friction.conservativeResize(nv);
+    jmodel.jointVelocitySelector(friction) = joint_friction;
+    damping.conservativeResize(nv);
+    jmodel.jointVelocitySelector(damping) = joint_damping;
 
     // Init and add joint index to its parent subtrees.
     subtrees.push_back(IndexVector(1));
@@ -153,6 +157,13 @@ namespace pinocchio
     supports.push_back(supports[parent]);
     supports[joint_id].push_back(joint_id);
 
+    mimic_joint_supports.push_back(mimic_joint_supports[parent]);
+    if (auto jmodel_ = boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&jmodel))
+    {
+      mimicking_joints.push_back(jmodel.id());
+      mimicked_joints.push_back(jmodel_->jmodel().id());
+      mimic_joint_supports[joint_id].push_back(joint_id);
+    }
     return joint_id;
   }
 
@@ -230,6 +241,7 @@ namespace pinocchio
     ReturnType res;
     res.nq = nq;
     res.nv = nv;
+    res.nvExtended = nvExtended;
     res.njoints = njoints;
     res.nbodies = nbodies;
     res.nframes = nframes;
@@ -238,6 +250,9 @@ namespace pinocchio
     res.names = names;
     res.subtrees = subtrees;
     res.supports = supports;
+    res.mimic_joint_supports = mimic_joint_supports;
+    res.mimicking_joints = mimicking_joints;
+    res.mimicked_joints = mimicked_joints;
     res.gravity = gravity.template cast<NewScalar>();
     res.name = name;
 
@@ -245,7 +260,8 @@ namespace pinocchio
     res.nqs = nqs;
     res.idx_vs = idx_vs;
     res.nvs = nvs;
-
+    res.idx_vExtendeds = idx_vExtendeds;
+    res.nvExtendeds = nvExtendeds;
     // Eigen Vectors
     res.armature = armature.template cast<NewScalar>();
     res.friction = friction.template cast<NewScalar>();
@@ -289,12 +305,15 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   bool ModelTpl<Scalar, Options, JointCollectionTpl>::operator==(const ModelTpl & other) const
   {
-    bool res = other.nq == nq && other.nv == nv && other.njoints == njoints
-               && other.nbodies == nbodies && other.nframes == nframes && other.parents == parents
-               && other.children == children && other.names == names && other.subtrees == subtrees
-               && other.gravity == gravity && other.name == name;
+    bool res = other.nq == nq && other.nv == nv && other.nvExtended == nvExtended
+               && other.njoints == njoints && other.nbodies == nbodies && other.nframes == nframes
+               && other.parents == parents && other.children == children && other.names == names
+               && other.subtrees == subtrees && other.mimicking_joints == mimicking_joints
+               && other.mimicked_joints == mimicked_joints && other.gravity == gravity
+               && other.name == name;
 
-    res &= other.idx_qs == idx_qs && other.nqs == nqs && other.idx_vs == idx_vs && other.nvs == nvs;
+    res &= other.idx_qs == idx_qs && other.nqs == nqs && other.idx_vs == idx_vs && other.nvs == nvs
+           && other.idx_vExtendeds == idx_vExtendeds && other.nvExtendeds == nvExtendeds;
 
     if (other.referenceConfigurations.size() != referenceConfigurations.size())
       return false;

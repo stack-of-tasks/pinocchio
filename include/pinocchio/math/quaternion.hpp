@@ -22,6 +22,7 @@ namespace pinocchio
 {
   namespace quaternion
   {
+
     ///
     /// \brief Compute the minimal angle between q1 and q2.
     ///
@@ -228,9 +229,23 @@ namespace pinocchio
     template<typename Quaternion>
     inline bool isNormalized(
       const Eigen::QuaternionBase<Quaternion> & quat,
-      const typename Quaternion::Coefficients::RealScalar & prec =
-        Eigen::NumTraits<typename Quaternion::Coefficients::RealScalar>::dummy_precision())
+      const typename Quaternion::Coefficients::RealScalar & prec)
     {
+      return pinocchio::isNormalized(quat.coeffs(), prec);
+    }
+
+    ///
+    /// \brief Check whether the input quaternion is Normalized within the default precision.
+    ///
+    /// \param[in] quat Input quaternion
+    ///
+    /// \returns true if quat is normalized within the default precision.
+    ///
+    template<typename Quaternion>
+    inline bool isNormalized(const Eigen::QuaternionBase<Quaternion> & quat)
+    {
+      typedef typename Quaternion::Coefficients::RealScalar RealScalar;
+      const RealScalar prec = math::sqrt(Eigen::NumTraits<RealScalar>::epsilon());
       return pinocchio::isNormalized(quat.coeffs(), prec);
     }
 

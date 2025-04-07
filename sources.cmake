@@ -18,7 +18,11 @@ set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/centroidal.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/centroidal.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check.hpp
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-base.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-data.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-data.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-model.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/check-model.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/cholesky.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/cholesky.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/compute-all-terms.hpp
@@ -494,6 +498,7 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/std-map.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/cast.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/deprecation.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/model-checker.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/namespace.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/cppadcg.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/cppad.hpp

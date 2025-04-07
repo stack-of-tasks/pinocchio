@@ -7,6 +7,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/algorithm/check.hpp"
 
 namespace pinocchio
 {
@@ -24,6 +25,8 @@ namespace pinocchio
     const Eigen::MatrixBase<Matrix6or3Like> & J_)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
     PINOCCHIO_CHECK_ARGUMENT_SIZE(J_.rows(), constraint_model.size());
     PINOCCHIO_CHECK_ARGUMENT_SIZE(J_.cols(), model.nv);
 

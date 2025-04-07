@@ -382,7 +382,8 @@ namespace pinocchio
     enum
     {
       NQ = 4,
-      NV = 3
+      NV = 3,
+      NVExtended = 3
     };
     typedef _Scalar Scalar;
     enum
@@ -403,6 +404,8 @@ namespace pinocchio
 
     typedef Eigen::Matrix<Scalar, NQ, 1, Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar, NV, 1, Options> TangentVector_t;
+
+    typedef boost::mpl::false_ is_mimicable_t;
 
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
@@ -480,6 +483,7 @@ namespace pinocchio
     using Base::id;
     using Base::idx_q;
     using Base::idx_v;
+    using Base::idx_vExtended;
     using Base::setIndexes;
 
     JointDataDerived createData() const
@@ -526,7 +530,7 @@ namespace pinocchio
     }
 
     template<typename ConfigVector>
-    EIGEN_DONT_INLINE void
+    PINOCCHIO_DONT_INLINE void
     calc(JointDataDerived & data, const typename Eigen::PlainObjectBase<ConfigVector> & qs) const
     {
       typedef typename Eigen::Quaternion<typename ConfigVector::Scalar, ConfigVector::Options>
@@ -538,7 +542,7 @@ namespace pinocchio
     }
 
     template<typename ConfigVector>
-    EIGEN_DONT_INLINE void
+    PINOCCHIO_DONT_INLINE void
     calc(JointDataDerived & data, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
       typedef typename Eigen::Quaternion<Scalar, Options> Quaternion;
@@ -600,7 +604,7 @@ namespace pinocchio
     {
       typedef JointModelSphericalTpl<NewScalar, Options> ReturnType;
       ReturnType res;
-      res.setIndexes(id(), idx_q(), idx_v());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
       return res;
     }
 

@@ -18,7 +18,8 @@ namespace pinocchio
      * \param model: model, typically given empty, where the kinematic chain is added.
      */
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    void manipulator(ModelTpl<Scalar, Options, JointCollectionTpl> & model);
+    void
+    manipulator(ModelTpl<Scalar, Options, JointCollectionTpl> & model, const bool mimic = false);
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
     /** \brief Create the geometries on top of the kinematic model created by manipulator function.
@@ -71,7 +72,10 @@ namespace pinocchio
      * This changes the size of the configuration space (33 vs 32).
      */
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-    void humanoidRandom(ModelTpl<Scalar, Options, JointCollectionTpl> & model, bool usingFF = true);
+    void humanoidRandom(
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      bool usingFF = true,
+      bool mimic = false);
 
   } // namespace buildModels
 } // namespace pinocchio

@@ -138,6 +138,9 @@ namespace pinocchio
       typedef JointModelCompositeTpl<Scalar> JointModelComposite;
       typedef JointDataCompositeTpl<Scalar> JointDataComposite;
 
+      typedef JointModelMimicTpl<Scalar> JointModelMimic;
+      typedef JointDataMimicTpl<Scalar> JointDataMimic;
+
       // Algorithm
       typedef ProximalSettingsTpl<Scalar> ProximalSettings;
       typedef ContactCholeskyDecompositionTpl<Scalar, Options> ContactCholeskyDecomposition;

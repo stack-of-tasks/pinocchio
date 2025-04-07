@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024 INRIA
+# Copyright (c) 2025 INRIA
 #
 
 function(ADD_PINOCCHIO_CPP_CASADI_EXAMPLE EXAMPLE)
@@ -9,6 +9,7 @@ endfunction()
 if(BUILD_WITH_CASADI_SUPPORT)
 
   add_pinocchio_cpp_casadi_example(casadi-aba)
+  add_pinocchio_cpp_casadi_example(casadi-crba)
   add_pinocchio_cpp_casadi_example(casadi-rnea)
 
   if(BUILD_PYTHON_INTERFACE)

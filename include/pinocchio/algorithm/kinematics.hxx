@@ -5,6 +5,7 @@
 #ifndef __pinocchio_kinematics_hxx__
 #define __pinocchio_kinematics_hxx__
 
+#include "model.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
@@ -233,7 +234,7 @@ namespace pinocchio
           data.oMi[i] = data.liMi[i];
 
         data.a[i] =
-          jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
+          jdata.S() * jmodel.JointMappedVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
         data.a[i] += data.liMi[i].actInv(data.a[parent]);
       }
     };
@@ -276,6 +277,50 @@ namespace pinocchio
       }
     }
   } // namespace impl
+
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  SE3Tpl<Scalar, Options> getRelativePlacement(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+    const DataTpl<Scalar, Options, JointCollectionTpl> & data,
+    const JointIndex jointIdRef,
+    const JointIndex jointIdTarget,
+    const Convention convention)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    assert(jointIdRef >= 0 && jointIdRef < (JointIndex)model.njoints && "invalid joint id");
+    assert(jointIdTarget >= 0 && jointIdTarget < (JointIndex)model.njoints && "invalid joint id");
+    switch (convention)
+    {
+    case Convention::LOCAL: {
+      SE3Tpl<Scalar, Options> ancestorMref(1);    // Initialize to Identity
+      SE3Tpl<Scalar, Options> ancestorMtarget(1); // Initialize to Identity
+
+      size_t ancestor_ref, ancestor_target;
+      findCommonAncestor(model, jointIdRef, jointIdTarget, ancestor_ref, ancestor_target);
+
+      // Traverse the kinematic chain backward from Ref to the common ancestor
+      for (size_t i = model.supports[jointIdRef].size() - 1; i > ancestor_ref; i--)
+      {
+        const JointIndex j = model.supports[jointIdRef][(size_t)i];
+        ancestorMref = data.liMi[j].act(ancestorMref);
+      }
+
+      // Traverse the kinematic chain backward from Target to the common ancestor
+      for (size_t i = model.supports[jointIdTarget].size() - 1; i > ancestor_target; i--)
+      {
+        const JointIndex j = model.supports[jointIdTarget][(size_t)i];
+        ancestorMtarget = data.liMi[j].act(ancestorMtarget);
+      }
+
+      return ancestorMref.actInv(ancestorMtarget);
+    }
+    case Convention::WORLD:
+      return data.oMi[jointIdRef].actInv(data.oMi[jointIdTarget]);
+    default:
+      throw std::invalid_argument("Bad convention.");
+    }
+  }
+
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   MotionTpl<Scalar, Options> getVelocity(
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,

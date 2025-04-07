@@ -11,6 +11,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include "utils/model-generator.hpp"
+
 using namespace pinocchio;
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
@@ -69,6 +71,68 @@ BOOST_AUTO_TEST_CASE(test_data_supports_fromRow)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_data_mimic_idx_vExtended_to_idx_v_fromRow)
+{
+  for (int i = 0; i < pinocchio::MimicTestCases::N_CASES; i++)
+  {
+    const pinocchio::MimicTestCases mimic_test_case(i);
+    const pinocchio::Model & model_mimic = mimic_test_case.model_mimic;
+    const pinocchio::Model & model_full = mimic_test_case.model_full;
+
+    Data data_mimic(model_mimic);
+    Data data_full(model_full);
+
+    for (size_t joint_id = 1; joint_id < model_mimic.njoints; joint_id++)
+    {
+      const int idx_vj = model_mimic.joints[joint_id].idx_v();
+      const int idx_vExtended_j = model_mimic.joints[joint_id].idx_vExtended();
+      const int nvExtended_j = model_mimic.joints[joint_id].nvExtended();
+      for (int v = 0; v < nvExtended_j; v++)
+      {
+        BOOST_CHECK(
+          data_mimic.idx_vExtended_to_idx_v_fromRow[size_t(idx_vExtended_j + v)] == idx_vj + v);
+        BOOST_CHECK(
+          data_full.idx_vExtended_to_idx_v_fromRow[size_t(idx_vExtended_j + v)]
+          == idx_vExtended_j + v);
+      }
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_data_mimic_mimic_parents_fromRow)
+{
+  for (int i = 0; i < pinocchio::MimicTestCases::N_CASES; i++)
+  {
+    const pinocchio::MimicTestCases mimic_test_case(i);
+    const pinocchio::Model & model_mimic = mimic_test_case.model_mimic;
+
+    Data data_mimic(model_mimic);
+
+    for (size_t joint_id = 1; joint_id < model_mimic.njoints; joint_id++)
+    {
+      const int idx_vExtended_j = model_mimic.joints[joint_id].idx_vExtended();
+      const int nvExtended_j = model_mimic.joints[joint_id].nvExtended();
+
+      // If the parent from row is not the universe, it should be either mimic or non mimic - not
+      // both
+      const bool parent_is_universe = (data_mimic.parents_fromRow[idx_vExtended_j] == -1);
+      const bool parent_is_mimic =
+        (data_mimic.mimic_parents_fromRow[idx_vExtended_j]
+         == data_mimic.parents_fromRow[idx_vExtended_j]);
+      const bool parent_is_not_mimic =
+        (data_mimic.non_mimic_parents_fromRow[idx_vExtended_j]
+         == data_mimic.parents_fromRow[idx_vExtended_j]);
+      BOOST_CHECK(parent_is_universe || (parent_is_mimic != parent_is_not_mimic));
+
+      for (int v = 1; v < nvExtended_j; v++)
+      {
+        BOOST_CHECK(
+          data_mimic.mimic_parents_fromRow[size_t(idx_vExtended_j + v)] == idx_vExtended_j + v - 1);
+      }
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_copy_and_equal_op)
 {
   Model model;
@@ -105,6 +169,37 @@ BOOST_AUTO_TEST_CASE(test_std_vector_of_Data)
   PINOCCHIO_ALIGNED_STD_VECTOR(Data) datas;
   for (size_t k = 0; k < 20; ++k)
     datas.push_back(Data(model));
+}
+
+BOOST_AUTO_TEST_CASE(test_mimic_subtree)
+{
+  Model model;
+  buildModels::manipulator(model);
+  // Direct parent/Child
+  std::vector<pinocchio::JointIndex> mimicked = {model.getJointId("shoulder1_joint")};
+  std::vector<pinocchio::JointIndex> mimicking = {model.getJointId("shoulder2_joint")};
+
+  const std::vector<double> ratio = {2.5};
+  const std::vector<double> offset = {0.75};
+  pinocchio::Model model_mimic;
+  pinocchio::buildMimicModel(model, mimicked, mimicking, ratio, offset, model_mimic);
+
+  Data data_mimic(model_mimic);
+  Data data(model);
+
+  // No mimic so should not be filled
+  BOOST_CHECK(data.mimic_subtree_joint.size() == 0);
+
+  // it's a linear model with RX and RY so the joint after shoulder2 is not a mimic and is in its
+  // subtree
+  BOOST_CHECK(data_mimic.mimic_subtree_joint[0] == model_mimic.getJointId("shoulder3_joint"));
+
+  // Test when mimic is terminal
+  Model man_mimic;
+  buildModels::manipulator(man_mimic, true);
+
+  Data data_man_mimic(man_mimic);
+  BOOST_CHECK(data_man_mimic.mimic_subtree_joint[0] == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

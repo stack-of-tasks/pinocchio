@@ -1,6 +1,6 @@
 [project]
 name = "pinocchio"
-version = "3.4.0"
+version = "3.5.0"
 description = "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives"
 platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
 channels = ["conda-forge"]
@@ -55,6 +55,7 @@ configure = { cmd = [
   "-DBUILD_WITH_CODEGEN_SUPPORT=$PINOCCHIO_CODEGEN_SUPPORT",
   "-DBUILD_WITH_SDF_SUPPORT=$PINOCCHIO_SDF_SUPPORT",
   "-DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=$PINOCCHIO_MPFR_SUPPORT",
+  "-DBUILD_BENCHMARK=$PINOCCHIO_BUILD_BENCHMARK",
 ] }
 build = { cmd = "cmake --build build --target all", depends-on = ["configure"] }
 clean = { cmd = "rm -rf build" }
@@ -96,6 +97,10 @@ release_new_version = { cmd = "VERSION=$PINOCCHIO_VERSION cmake --build build_ne
 [feature.lint]
 dependencies = { pre-commit = ">=3.6.2" }
 tasks = { lint = { cmd = "pre-commit run --all" } }
+
+[feature.benchmark]
+dependencies = { benchmark = ">=1.9.1", bokeh = ">=3.7.0" }
+activation = { env = { PINOCCHIO_BUILD_BENCHMARK = "ON" } }
 
 [feature.collision]
 dependencies = { hpp-fcl = ">=2.4" }
@@ -169,6 +174,7 @@ dependencies = { clangxx = "*" }
 default = { features = ["py312"], solve-group = "py312" }
 clang = { features = ["clang", "py312"] }
 lint = { features = ["lint"], solve-group = "py312" }
+benchmark = { features = ["benchmark", "py312"] }
 collision = { features = ["collision", "py312"], solve-group = "py312" }
 accelerate = { features = ["accelerate", "py312"], solve-group = "py312" }
 casadi = { features = ["casadi", "py312"], solve-group = "py312" }
@@ -213,6 +219,18 @@ all-clang-cl = { features = [
   "mpfr",
   "sdf",
   "clang-cl",
+  "py312",
+], solve-group = "py312" }
+all-benchmark = { features = [
+  "collision",
+  "casadi",
+  "autodiff",
+  "extra",
+  "openmp",
+  "codegen",
+  "mpfr",
+  "sdf",
+  "benchmark",
   "py312",
 ], solve-group = "py312" }
 # Release a new software version

@@ -9,6 +9,7 @@
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/registration.hpp"
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
 
 #include "pinocchio/algorithm/constrained-dynamics.hpp"
 
@@ -86,7 +87,8 @@ namespace pinocchio
           typename RigidConstraintModelVector::allocator_type>,
         bp::args("model", "data", "contact_models"),
         "This function allows to allocate the memory before hand for contact dynamics algorithms.\n"
-        "This allows to avoid online memory allocation when running these algorithms.");
+        "This allows to avoid online memory allocation when running these algorithms.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "constraintDynamics", constraintDynamics_proxy,
@@ -97,7 +99,8 @@ namespace pinocchio
         "When using constraintDynamics for the first time, you should call first "
         "initConstraintDynamics to initialize the internal memory used in the algorithm.\n"
         "This function returns joint acceleration of the system. The contact forces are "
-        "stored in the list data.contact_forces.");
+        "stored in the list data.contact_forces.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "constraintDynamics", constraintDynamics_proxy_default,
@@ -107,7 +110,8 @@ namespace pinocchio
         "When using constraintDynamics for the first time, you should call first "
         "initConstraintDynamics to initialize the internal memory used in the algorithm.\n"
         "This function returns joint acceleration of the system. The contact forces are "
-        "stored in the list data.contact_forces.");
+        "stored in the list data.contact_forces.",
+        mimic_not_supported_function<>(0));
 
 #endif // PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
     }

@@ -5,6 +5,8 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/energy.hpp"
 
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
+
 namespace pinocchio
 {
   namespace python
@@ -25,14 +27,16 @@ namespace pinocchio
         bp::args("model", "data", "q", "v"),
         "Computes the forward kinematics and the kinematic energy of the system for the "
         "given joint configuration and velocity given as input. The result is accessible "
-        "through data.kinetic_energy.");
+        "through data.kinetic_energy.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeKineticEnergy", &computeKineticEnergy<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model", "data"),
         "Computes the kinematic energy of the system for the "
         "given joint placement and velocity stored in data. The result is accessible through "
-        "data.kinetic_energy.");
+        "data.kinetic_energy.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computePotentialEnergy",
@@ -40,7 +44,8 @@ namespace pinocchio
         bp::args("model", "data", "q"),
         "Computes the potential energy of the system for the "
         "given the joint configuration given as input. The result is accessible through "
-        "data.potential_energy.");
+        "data.potential_energy.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computePotentialEnergy",
@@ -48,7 +53,8 @@ namespace pinocchio
         bp::args("model", "data"),
         "Computes the potential energy of the system for the "
         "given joint placement stored in data. The result is accessible through "
-        "data.potential_energy.");
+        "data.potential_energy.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeMechanicalEnergy",
@@ -58,7 +64,8 @@ namespace pinocchio
         "given joint configuration and velocity given as input. The result is accessible through "
         "data.mechanical_energy.\n"
         "A byproduct of this function is the computation of both data.kinetic_energy and "
-        "data.potential_energy too.");
+        "data.potential_energy too.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeMechanicalEnergy",
@@ -68,7 +75,8 @@ namespace pinocchio
         "given joint placement and velocity stored in data. The result is accessible through "
         "data.mechanical_energy.\n"
         "A byproduct of this function is the computation of both data.kinetic_energy and "
-        "data.potential_energy too.");
+        "data.potential_energy too.",
+        mimic_not_supported_function<>(0));
     }
 
   } // namespace python

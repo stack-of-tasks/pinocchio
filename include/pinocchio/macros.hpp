@@ -48,6 +48,10 @@
   #define PINOCCHIO_PRAGMA_DEPRECATED_HEADER(old_header, new_header)
 #endif
 
+/// \brief Function attribute to forbid inlining.
+/// This is a compiler hint that can be not respected.
+#define PINOCCHIO_DONT_INLINE EIGEN_DONT_INLINE
+
 // This macro can be used to prevent from macro expansion, similarly to EIGEN_NOT_A_MACRO
 #define PINOCCHIO_NOT_A_MACRO
 

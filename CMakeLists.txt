@@ -1,9 +1,9 @@
 #
-# Copyright (c) 2015-2023 CNRS INRIA
+# Copyright (c) 2015-2025 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 set(PROJECT_NAME pinocchio)
 set(PROJECT_DESCRIPTION
@@ -330,7 +330,7 @@ else()
 endif()
 
 if(BUILD_WITH_HPP_FCL_SUPPORT)
-  add_project_dependency(hpp-fcl 2.1.2 REQUIRED "hpp-fcl >= 2.1.2")
+  add_project_dependency(hpp-fcl REQUIRED)
 endif()
 
 if(BUILD_WITH_ACCELERATE_SUPPORT)
@@ -461,7 +461,9 @@ add_subdirectory(unittest)
 add_subdirectory(examples)
 
 # --- BENCHMARKS ---------------------------------------------------------------
-add_subdirectory(benchmark)
+if(BUILD_BENCHMARK)
+  add_subdirectory(benchmark)
+endif()
 
 # --- PACKAGING ----------------------------------------------------------------
 macro(EXPORT_VARIABLE var_name var_value)

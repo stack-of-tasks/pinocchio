@@ -6,6 +6,7 @@
 #include "pinocchio/bindings/python/utils/namespace.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/bindings/python/utils/eigen.hpp"
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
 
 #include <eigenpy/eigen-to-python.hpp>
 
@@ -74,7 +75,8 @@ namespace pinocchio
         "\tq: the joint configuration vector (size model.nq)\n"
         "\tv: the joint velocity vector (size model.nv)\n"
         "\ttau: the joint torque vector (size model.nv)\n\n"
-        "Returns: (ddq_dq, ddq_dv, ddq_da)");
+        "Returns: (ddq_dq, ddq_dv, ddq_da)",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeABADerivatives", computeABADerivatives_fext,
@@ -92,7 +94,8 @@ namespace pinocchio
         "\ttau: the joint torque vector (size model.nv)\n"
         "\tfext: list of external forces expressed in the local frame of the joints (size "
         "model.njoints)\n\n"
-        "Returns: (ddq_dq, ddq_dv, ddq_da)");
+        "Returns: (ddq_dq, ddq_dv, ddq_da)",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeABADerivatives", computeABADerivatives_min, bp::args("model", "data"),
@@ -102,7 +105,8 @@ namespace pinocchio
         "velocity and torque vectors.\n"
         "By calling this function, the user assumes that pinocchio.optimized.aba has been called "
         "first, allowing to significantly reduce the computation timings by not recalculating "
-        "intermediate results.");
+        "intermediate results.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeABADerivatives", computeABADerivatives_min_fext, bp::args("model", "data", "fext"),
@@ -112,7 +116,8 @@ namespace pinocchio
         "velocity and torque vectors.\n"
         "By calling this function, the user assumes that pinocchio.optimized.aba has been called "
         "first, allowing to significantly reduce the computation timings by not recalculating "
-        "intermediate results.");
+        "intermediate results.",
+        mimic_not_supported_function<>(0));
     }
   } // namespace python
 } // namespace pinocchio

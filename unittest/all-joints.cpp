@@ -107,18 +107,19 @@ struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
   }
 };
 
-template<typename JointModel_>
-struct init<pinocchio::JointModelMimic<JointModel_>>
+template<typename Scalar, int Options, template<typename, int> class JointCollection>
+struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
 {
-  typedef pinocchio::JointModelMimic<JointModel_> JointModel;
+  typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModel;
 
   static JointModel run()
   {
-    JointModel_ jmodel_ref = init<JointModel_>::run();
+
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
+    JointModelRX jmodel_ref = init<JointModelRX>::run();
 
     JointModel jmodel(jmodel_ref, 1., 0.);
-    jmodel.setIndexes(0, 0, 0);
-
+    jmodel.setIndexes(1, 0, 0, 0);
     return jmodel;
   }
 };
@@ -200,8 +201,10 @@ struct TestJointModelTransform : TestJointModel<TestJointModelTransform>
   {
     typedef typename JointModel::JointDataDerived JointData;
     JointData jdata = jmodel.createData();
-    Eigen::Matrix<typename JointModel::Scalar, 3, 1> v = jdata.M_accessor().translation();
+    Eigen::Matrix<typename JointModel::Scalar, 3, 1> t = jdata.M_accessor().translation();
+    PINOCCHIO_UNUSED_VARIABLE(t);
     Eigen::Matrix<typename JointModel::Scalar, 3, 3> R = jdata.M_accessor().rotation();
+    PINOCCHIO_UNUSED_VARIABLE(R);
   }
 };
 

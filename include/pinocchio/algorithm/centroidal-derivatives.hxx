@@ -280,6 +280,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(dhdot_da.cols(), model.nv);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(dhdot_da.rows(), 6);
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
@@ -425,6 +426,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_ARGUMENT_SIZE(dhdot_da.cols(), model.nv);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(dhdot_da.rows(), 6);
       assert(model.check(data) && "data is not consistent with model.");
+      assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;

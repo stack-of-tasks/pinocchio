@@ -6,10 +6,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [3.5.0] - 2025-04-02
+
 ### Added
 - Added C++ visualization API, `pinocchio::pinocchio_visualizers` target ([#2574](https://github.com/stack-of-tasks/pinocchio/pull/2574))
 - Added forward declaration for class `SE3Tpl`, and typedef `pinocchio::context::SE3` ([#2574](https://github.com/stack-of-tasks/pinocchio/pull/2574))
 - Add macros PINOCCHIO_COMMON_TYPEDEF and PINOCCHIO_OPTIONS_DEFAULT ([#2574](https://github.com/stack-of-tasks/pinocchio/pull/2574))
+- Add mimic joint support to the following algorithms: ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+  - Forward kinematics
+  - Jacobians and frames
+  - Centroid algorithms (ccrba)
+  - RNEA
+  - CRBA
+  - Reachable workspace
+- Add `mimic` argument in `pinocchio::urdf::buildModel` to parse URDF mimic field (default to false) ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+- Add `pinocchio::transformJointIntoMimic` to turn a joint into a mimic joint and `buildMimicModel` to transform multiple joints into mimic joints ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+- Add `JointModelBase` methods: ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+  - `nvExtended` to get the DoF of the extended model
+  - `idx_vExtended` to get the joint index in the extended vector of velocity
+  - `jointExtendedModel{Cols,Rows,Block}` to get joint columns/rows/block in extended model matrix
+  - `JointMapped{Config,Velocity}Selector` to get mimicked joint configuration/velocity from the mimicking joint
+- Add precomputed members in `DataTpl` to accelerate algorithms on mimic: ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+  - `idx_vExtended_to_idx_v_fromRow`
+  - `mimic_subtree_joint`
+  - `mimic_parents_fromRow`
+  - `non_mimic_parents_fromRow`
+- Add precomputed members in `ModelTpl` to accelerate algorithms on mimic: ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+  - `nvExtended`
+  - `nvExtendeds`
+  - `idx_vExtendeds`
+  - `mimicking_joints`
+  - `mimicked_joints`
+  - `mimic_joint_supports`
+
+### Changed
+- Rewrite `JointModelMimic` and rename it `JointModelMimicTpl`, since `JointModelMimic` wasn't working, we don't consider it a breaking change ([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+- Stop using context::Scalar for GeometryObject([#2441](https://github.com/stack-of-tasks/pinocchio/pull/2441))
+- Use [Google benchmark](https://github.com/google/benchmark/tree/main) in benchmarks ([#2607](https://github.com/stack-of-tasks/pinocchio/pull/2607))
+
+### Fixed
+- Fix `ModelTpl::check()` link ([#2624](https://github.com/stack-of-tasks/pinocchio/pull/2624))
+- Add missing Python examples ([#2528](https://github.com/stack-of-tasks/pinocchio/pull/2528))
+- Fix nominal accuracy check for Quaternion based on the scalar type ([#2608](https://github.com/stack-of-tasks/pinocchio/pull/2608))
 
 ## [3.4.0] - 2025-02-12
 
@@ -26,7 +64,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix sites parsing for MJCF format ([#2548](https://github.com/stack-of-tasks/pinocchio/pull/2548))
 - Fix register `std::shared_ptr<{,Geometry}{Model,Data}>` in bindings ([#2566](https://github.com/stack-of-tasks/pinocchio/pull/2566))
 - Removed useless uses of `PINOCCHIO_WITH_CXX11_SUPPORT` ([#2564](https://github.com/stack-of-tasks/pinocchio/pull/2564))
-
 
 ## [3.3.1] - 2024-12-13
 
@@ -1093,7 +1130,8 @@ The model can either be parsed from a URDF format or be created by appendending 
         • Fixed (concatenation of two consecutive bodies)
 
 
-[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v3.4.0...HEAD
+[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v3.5.0...HEAD
+[3.5.0]: https://github.com/stack-of-tasks/pinocchio/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/stack-of-tasks/pinocchio/compare/v3.3.1...v3.4.0
 [3.3.1]: https://github.com/stack-of-tasks/pinocchio/compare/v3.3.0...v3.3.1
 [3.3.0]: https://github.com/stack-of-tasks/pinocchio/compare/v3.2.0...v3.3.0

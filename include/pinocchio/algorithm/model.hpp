@@ -205,13 +205,56 @@ namespace pinocchio
 
   /**
    *
+   *  \brief Transform of a joint of the model into a mimic joint. Keep the type of the joint as it
+   * was previously.
+   *
+   *  \param[in] model the input model to take joints from.
+   *  \param[in] index_mimicked index of the joint to mimic
+   *  \param[in] index_mimicking index of the joint that will mimic
+   *  \param[in] scaling Scaling of joint velocity and configuration
+   *  \param[in] offset Offset of joint configuration
+   *  \param[out] output_model Model with the joint mimic
+   *
+   */
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  void transformJointIntoMimic(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & input_model,
+    const JointIndex & index_mimicked,
+    const JointIndex & index_mimicking,
+    const Scalar & scaling,
+    const Scalar & offset,
+    ModelTpl<Scalar, Options, JointCollectionTpl> & output_model);
+
+  /**
+   *
+   *  \brief Transform joints of a model into mimic joints
+   *
+   *  \param[in] model the input model to take joints from.
+   *  \param[in] index_mimicked indexes of the joint to mimic
+   *  \param[in] index_mimicking indexes of the joint that will mimic
+   *  \param[in] scaling Scalings of joint velocity and configuration
+   *  \param[in] offset Offsets of joint configuration
+   *  \param[out] output_model Model with the joint mimic
+   *
+   */
+  template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+  void buildMimicModel(
+    const ModelTpl<Scalar, Options, JointCollectionTpl> & input_model,
+    const std::vector<JointIndex> & index_mimicked,
+    const std::vector<JointIndex> & index_mimicking,
+    const std::vector<Scalar> & scaling,
+    const std::vector<Scalar> & offset,
+    ModelTpl<Scalar, Options, JointCollectionTpl> & output_model);
+
+  /**
+   *
    *  \brief Computes the common ancestor between two joints belonging to the same kinematic tree.
    *
    *  \param[in] model the input model.
    *  \param[in] joint1_id index of the first joint.
    *  \param[in] joint2_id index of the second joint.
-   *  \param[out] index_ancestor_in_support1 index of the ancestor within model.support[joint1_id].
-   *  \param[out] index_ancestor_in_support2 index of the ancestor within model.support[joint2_id].
+   *  \param[out] index_ancestor_in_support1 index of the ancestor within model.supports[joint1_id].
+   *  \param[out] index_ancestor_in_support2 index of the ancestor within model.supports[joint2_id].
    *
    */
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>

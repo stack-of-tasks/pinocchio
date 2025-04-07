@@ -254,6 +254,7 @@ namespace pinocchio
     const Eigen::MatrixBase<MatrixType4> & impulse_partial_dv)
   {
     const Eigen::DenseIndex nc = data.contact_chol.constraintDim();
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     PINOCCHIO_CHECK_INPUT_ARGUMENT(
       contact_data.size() == contact_models.size(),

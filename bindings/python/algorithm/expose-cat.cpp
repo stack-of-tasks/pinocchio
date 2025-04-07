@@ -4,6 +4,7 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
 
 namespace pinocchio
 {
@@ -43,7 +44,8 @@ namespace pinocchio
         "\tmodel: model of the kinematic tree\n"
         "\tdata: data related to the model\n"
         "\tq: the joint configuration vector (size model.nq)\n"
-        "\tv: the joint velocity vector (size model.nv)\n");
+        "\tv: the joint velocity vector (size model.nv)\n",
+        mimic_not_supported_function<>(0));
     }
   } // namespace python
 } // namespace pinocchio

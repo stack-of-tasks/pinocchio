@@ -40,6 +40,9 @@ jobs:
       CCACHE_DIR: ${GITHUB_WORKSPACE}/.ccache
       CCACHE_COMPRESS: true
       CCACHE_COMPRESSLEVEL: 5
+      # Since pixi will install a compiler, the compiler mtime will be changed.
+      # This can invalidate the cache (https://ccache.dev/manual/latest.html#config_compiler_check)
+      CCACHE_COMPILERCHECK: content
       BUILD_ADVANCED_TESTING: ${{ matrix.BUILD_ADVANCED_TESTING }}
 
     strategy:
@@ -87,10 +90,10 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .ccache
-          key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.python-version }}-${{ github.sha }}
-          restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.python-version }}-
+          key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.environment }}_${{ github.sha }}
+          restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.environment }}_
 
-      - uses: prefix-dev/setup-pixi@v0.8.2
+      - uses: prefix-dev/setup-pixi@v0.8.4
         with:
           cache: true
           environments: ${{ matrix.environment }}
@@ -118,6 +121,9 @@ jobs:
           CMAKE_BUILD_PARALLEL_LEVEL: 2
           PINOCCHIO_BUILD_TYPE: ${{ matrix.build_type }}
         run: |
+          # Clear ccache statistics
+          pixi run -e ${{ matrix.environment }} ccache -z
+
           # Launch configure but overwrite default options
           pixi run -e ${{ matrix.environment }} configure \
             -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }} \
@@ -129,7 +135,12 @@ jobs:
       - name: Uninstall Pinocchio
         shell: bash -el {0}
         run: |
-          cmake --build build --target uninstall
+          pixi run -e ${{ matrix.environment }} cmake --build build --target uninstall
+
+      - name: Display ccache statistics
+        shell: bash -el {0}
+        run: |
+          pixi run -e ${{ matrix.environment }} ccache -sv
 
   check:
     if: always()

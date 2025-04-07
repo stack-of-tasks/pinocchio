@@ -16,6 +16,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/algorithm/model.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -29,6 +30,8 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include "utils/model-generator.hpp"
 
 template<typename JointModel>
 static void addJointAndBody(
@@ -74,7 +77,7 @@ BOOST_AUTO_TEST_CASE(test_crba)
   const size_t NBT = 10;
   #endif
 
-  Eigen::VectorXd q = Eigen::VectorXd::Zero(model.nq);
+  Eigen::VectorXd q = pinocchio::neutral(model);
 
   PinocchioTicToc timer(PinocchioTicToc::US);
   timer.tic();
@@ -112,7 +115,7 @@ BOOST_AUTO_TEST_CASE(test_crba)
 
   std::cout << "(the time score in debug mode is not relevant)  ";
 
-  q = Eigen::VectorXd::Zero(model.nq);
+  q = pinocchio::neutral(model);
 
   PinocchioTicToc timer(PinocchioTicToc::US);
   timer.tic();
@@ -123,6 +126,47 @@ BOOST_AUTO_TEST_CASE(test_crba)
   timer.toc(std::cout, NBT);
 
 #endif // ifndef NDEBUG
+}
+
+BOOST_AUTO_TEST_CASE(test_crba_mimic)
+{
+  for (int i = 0; i < pinocchio::MimicTestCases::N_CASES; i++)
+  {
+    const pinocchio::MimicTestCases mimic_test_case(i);
+    const pinocchio::Model & model_mimic = mimic_test_case.model_mimic;
+    const pinocchio::Model & model_full = mimic_test_case.model_full;
+    const Eigen::MatrixXd & G = mimic_test_case.G;
+
+    Eigen::VectorXd q_mimic = pinocchio::randomConfiguration(model_mimic);
+    Eigen::VectorXd v_mimic = Eigen::VectorXd::Random(model_mimic.nv);
+    Eigen::VectorXd as_mimic = Eigen::VectorXd::Random(model_mimic.nv);
+
+    Eigen::VectorXd q_full(model_full.nq);
+    Eigen::VectorXd v_full = G * v_mimic;
+    Eigen::VectorXd a_full = G * as_mimic;
+
+    mimic_test_case.toFull(q_mimic, q_full);
+
+    pinocchio::Data data_full(model_full);
+    pinocchio::Data data_mimic(model_mimic);
+    pinocchio::Data data_ref_mimic(model_mimic);
+
+    pinocchio::crba(model_full, data_full, q_full);
+    // World vs local
+    pinocchio::crba(model_mimic, data_ref_mimic, q_mimic, pinocchio::Convention::WORLD);
+    pinocchio::crba(model_mimic, data_mimic, q_mimic, pinocchio::Convention::LOCAL);
+
+    BOOST_CHECK(data_ref_mimic.M.isApprox(data_mimic.M));
+
+    // Compute other half of matrix
+    data_mimic.M.triangularView<Eigen::StrictlyLower>() =
+      data_mimic.M.transpose().triangularView<Eigen::StrictlyLower>();
+    data_full.M.triangularView<Eigen::StrictlyLower>() =
+      data_full.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+    // Check full model against reduced
+    BOOST_CHECK(data_mimic.M.isApprox(G.transpose() * data_full.M * G, 1e-12));
+  }
 }
 
 BOOST_AUTO_TEST_CASE(test_minimal_crba)
@@ -194,7 +238,7 @@ BOOST_AUTO_TEST_CASE(test_crba_malloc)
 {
   using namespace pinocchio;
   pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::buildModels::humanoidRandom(model, true, true);
 
   model.addJoint(
     size_t(model.njoints - 1), pinocchio::JointModelRevoluteUnaligned(SE3::Vector3::UnitX()),
@@ -203,7 +247,8 @@ BOOST_AUTO_TEST_CASE(test_crba_malloc)
 
   const Eigen::VectorXd q = pinocchio::neutral(model);
   Eigen::internal::set_is_malloc_allowed(false);
-  crba(model, data, q);
+  crba(model, data, q, pinocchio::Convention::WORLD);
+  crba(model, data, q, pinocchio::Convention::LOCAL);
   Eigen::internal::set_is_malloc_allowed(true);
 }
 

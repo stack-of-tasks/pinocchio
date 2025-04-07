@@ -168,7 +168,8 @@ namespace pinocchio
     enum
     {
       NQ = 7,
-      NV = 6
+      NV = 6,
+      NVExtended = 6
     };
     typedef _Scalar Scalar;
     enum
@@ -189,6 +190,8 @@ namespace pinocchio
 
     typedef Eigen::Matrix<Scalar, NQ, 1, Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar, NV, 1, Options> TangentVector_t;
+
+    typedef boost::mpl::false_ is_mimicable_t;
 
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
@@ -289,6 +292,7 @@ namespace pinocchio
     using Base::id;
     using Base::idx_q;
     using Base::idx_v;
+    using Base::idx_vExtended;
     using Base::setIndexes;
 
     JointDataDerived createData() const
@@ -326,7 +330,7 @@ namespace pinocchio
     }
 
     template<typename Vector3Derived, typename QuaternionDerived>
-    EIGEN_DONT_INLINE void calc(
+    PINOCCHIO_DONT_INLINE void calc(
       JointDataDerived & data,
       const typename Eigen::MatrixBase<Vector3Derived> & trans,
       const typename Eigen::QuaternionBase<QuaternionDerived> & quat) const
@@ -336,7 +340,7 @@ namespace pinocchio
     }
 
     template<typename ConfigVector>
-    EIGEN_DONT_INLINE void
+    PINOCCHIO_DONT_INLINE void
     calc(JointDataDerived & data, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
       typedef typename Eigen::Quaternion<Scalar, Options> Quaternion;
@@ -349,7 +353,7 @@ namespace pinocchio
     }
 
     template<typename TangentVector>
-    EIGEN_DONT_INLINE void
+    PINOCCHIO_DONT_INLINE void
     calc(JointDataDerived & data, const Blank, const typename Eigen::MatrixBase<TangentVector> & vs)
       const
     {
@@ -358,7 +362,7 @@ namespace pinocchio
     }
 
     template<typename ConfigVector, typename TangentVector>
-    EIGEN_DONT_INLINE void calc(
+    PINOCCHIO_DONT_INLINE void calc(
       JointDataDerived & data,
       const typename Eigen::MatrixBase<ConfigVector> & qs,
       const typename Eigen::MatrixBase<TangentVector> & vs) const
@@ -402,7 +406,7 @@ namespace pinocchio
     {
       typedef JointModelFreeFlyerTpl<NewScalar, Options> ReturnType;
       ReturnType res;
-      res.setIndexes(id(), idx_q(), idx_v());
+      res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
       return res;
     }
 

@@ -264,17 +264,18 @@ struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
   }
 };
 
-template<typename JointModel_>
-struct init<pinocchio::JointModelMimic<JointModel_>>
+template<typename Scalar, int Options, template<typename, int> class JointCollection>
+struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
 {
-  typedef pinocchio::JointModelMimic<JointModel_> JointModel;
+  typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModel;
 
   static JointModel run()
   {
-    JointModel_ jmodel_ref = init<JointModel_>::run();
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
+    JointModelRX jmodel_ref = init<JointModelRX>::run();
 
     JointModel jmodel(jmodel_ref, 1., 0.);
-
+    jmodel.setIndexes(1, 0, 0, 0);
     return jmodel;
   }
 
@@ -290,7 +291,6 @@ struct TestADOnJoints
   void operator()(const pinocchio::JointModelBase<JointModel_> &) const
   {
     JointModel_ jmodel = init<JointModel_>::run();
-    jmodel.setIndexes(0, 0, 0);
     test(jmodel);
   }
 
@@ -384,8 +384,9 @@ struct TestADOnJoints
   }
 
   // TODO: get the nq and nv quantity from LieGroups
-  template<typename JointModel_>
-  static void test(const pinocchio::JointModelMimic<JointModel_> & /*jmodel*/)
+  template<typename Scalar, int Options, template<typename, int> class JointCollection>
+  static void
+  test(const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/)
   { /* do nothing */
   }
 

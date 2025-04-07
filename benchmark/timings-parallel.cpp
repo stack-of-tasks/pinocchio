@@ -1,6 +1,8 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2025 INRIA
 //
+
+#include "model-fixture.hpp"
 
 #include "pinocchio/algorithm/parallel/rnea.hpp"
 #include "pinocchio/algorithm/parallel/aba.hpp"
@@ -27,56 +29,229 @@
 #include "pinocchio/parsers/srdf.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
+#include <benchmark/benchmark.h>
+
 #include <iostream>
 
-#include "pinocchio/utils/timer.hpp"
+typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
 
-int main(int /*argc*/, const char ** /*argv*/)
+struct ParallelFixture : benchmark::Fixture
 {
-  using namespace Eigen;
-  using namespace pinocchio;
+  void SetUp(benchmark::State & st)
+  {
+    const auto BATCH_SIZE = st.range(0);
+    const auto NUM_THREADS = st.range(1);
 
-  typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> VectorXb;
-  //  typedef Eigen::Matrix<bool,Eigen::Dynamic,Eigen::Dynamic> MatrixXb;
+    model = MODEL;
+    data = pinocchio::Data(model);
 
-  PinocchioTicToc timer(PinocchioTicToc::US);
-#ifdef NDEBUG
-  const int NBT = 4000;
+    const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
+    qs = Eigen::MatrixXd(model.nq, BATCH_SIZE);
+    vs = Eigen::MatrixXd(model.nv, BATCH_SIZE);
+    as = Eigen::MatrixXd(model.nv, BATCH_SIZE);
+    taus = Eigen::MatrixXd(model.nv, BATCH_SIZE);
+    res = Eigen::MatrixXd(model.nv, BATCH_SIZE);
 
-#else
-  const int NBT = 1;
-  std::cout << "(the time score in debug mode is not relevant) " << std::endl;
-#endif
+    for (Eigen::DenseIndex i = 0; i < BATCH_SIZE; ++i)
+    {
+      qs.col(i) = randomConfiguration(model, -qmax, qmax);
+      vs.col(i) = Eigen::VectorXd::Random(model.nv);
+      as.col(i) = Eigen::VectorXd::Random(model.nv);
+      taus.col(i) = Eigen::VectorXd::Random(model.nv);
+    }
 
-  const int BATCH_SIZE = 256;
-  const size_t NUM_THREADS = (size_t)omp_get_max_threads();
+    pool = std::make_unique<pinocchio::ModelPool>(model, static_cast<size_t>(NUM_THREADS));
+  }
 
-  const std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
+  void TearDown(benchmark::State &)
+  {
+  }
 
   pinocchio::Model model;
-  pinocchio::urdf::buildModel(filename, JointModelFreeFlyer(), model);
+  pinocchio::Data data;
+  Eigen::MatrixXd qs;
+  Eigen::MatrixXd vs;
+  Eigen::MatrixXd as;
+  Eigen::MatrixXd taus;
+  Eigen::MatrixXd res;
+  std::unique_ptr<pinocchio::ModelPool> pool;
 
-  std::cout << "nq = " << model.nq << std::endl;
-  std::cout << "nv = " << model.nv << std::endl;
-  std::cout << "name = " << model.name << std::endl;
+  static pinocchio::Model MODEL;
+
+  static void GlobalSetUp(const ExtraArgs &)
+  {
+    const std::string filename =
+      PINOCCHIO_MODEL_DIR
+      + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
+
+    pinocchio::urdf::buildModel(
+      filename,
+      pinocchio::JointModelFreeFlyerTpl<pinocchio::context::Scalar, pinocchio::context::Options>(),
+      MODEL);
+
+    std::cout << "nq = " << MODEL.nq << std::endl;
+    std::cout << "nv = " << MODEL.nv << std::endl;
+    std::cout << "name = " << MODEL.name << std::endl;
+    std::cout << "--" << std::endl;
+  }
+};
+
+pinocchio::Model ParallelFixture::MODEL;
+
+static void MonoThreadCustomArguments(benchmark::internal::Benchmark * b)
+{
+  b->MinWarmUpTime(3.)->ArgsProduct({{256}, {1}})->ArgNames({"BATCH_SIZE", "NUM_THREADS"});
+}
+
+static void MultiThreadCustomArguments(benchmark::internal::Benchmark * b)
+{
+  b->MinWarmUpTime(3.)
+    ->ArgsProduct({{256}, benchmark::CreateRange(1, omp_get_max_threads(), 2)})
+    ->ArgNames({"BATCH_SIZE", "NUM_THREADS"})
+    ->UseRealTime();
+}
+
+// RNEA
+
+PINOCCHIO_DONT_INLINE static void rneaCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::MatrixXd::ColXpr & q,
+  const Eigen::MatrixXd::ColXpr & v,
+  const Eigen::MatrixXd::ColXpr & a,
+  const Eigen::MatrixXd::ColXpr & r)
+{
+  PINOCCHIO_EIGEN_CONST_CAST(Eigen::MatrixXd::ColXpr, r) = pinocchio::rnea(model, data, q, v, a);
+}
+BENCHMARK_DEFINE_F(ParallelFixture, RNEA)(benchmark::State & st)
+{
+  const auto BATCH_SIZE = st.range(0);
+  for (auto _ : st)
+  {
+    for (auto i = 0; i < BATCH_SIZE; ++i)
+    {
+      rneaCall(model, data, qs.col(i), vs.col(i), as.col(i), res.col(i));
+    }
+  }
+}
+BENCHMARK_REGISTER_F(ParallelFixture, RNEA)->Apply(MonoThreadCustomArguments);
+
+// RNEA_IN_PARALLEL
+
+PINOCCHIO_DONT_INLINE static void rneaInParallelCall(
+  size_t num_threads,
+  pinocchio::ModelPool & pool,
+  const Eigen::MatrixXd & qs,
+  const Eigen::MatrixXd & vs,
+  const Eigen::MatrixXd & as,
+  const Eigen::MatrixXd & res)
+{
+  pinocchio::rneaInParallel(num_threads, pool, qs, vs, as, res);
+}
+BENCHMARK_DEFINE_F(ParallelFixture, RNEA_IN_PARALLEL)(benchmark::State & st)
+{
+  const auto NUM_THREADS = st.range(1);
+  for (auto _ : st)
+  {
+    rneaInParallelCall(static_cast<size_t>(NUM_THREADS), *pool, qs, vs, as, res);
+  }
+}
+BENCHMARK_REGISTER_F(ParallelFixture, RNEA_IN_PARALLEL)->Apply(MultiThreadCustomArguments);
+
+// ABA
+
+PINOCCHIO_DONT_INLINE static void abaCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::MatrixXd::ColXpr & q,
+  const Eigen::MatrixXd::ColXpr & v,
+  const Eigen::MatrixXd::ColXpr & taus,
+  const Eigen::MatrixXd::ColXpr & r)
+{
+  PINOCCHIO_EIGEN_CONST_CAST(Eigen::MatrixXd::ColXpr, r) =
+    pinocchio::aba(model, data, q, v, taus, pinocchio::Convention::WORLD);
+}
+BENCHMARK_DEFINE_F(ParallelFixture, ABA)(benchmark::State & st)
+{
+  const auto BATCH_SIZE = st.range(0);
+  for (auto _ : st)
+  {
+    for (auto i = 0; i < BATCH_SIZE; ++i)
+    {
+      abaCall(model, data, qs.col(i), vs.col(i), taus.col(i), res.col(i));
+    }
+  }
+}
+BENCHMARK_REGISTER_F(ParallelFixture, ABA)->Apply(MonoThreadCustomArguments);
+
+// ABA_IN_PARALLEL
+
+PINOCCHIO_DONT_INLINE static void abaInParallelCall(
+  size_t num_threads,
+  pinocchio::ModelPool & pool,
+  const Eigen::MatrixXd & qs,
+  const Eigen::MatrixXd & vs,
+  const Eigen::MatrixXd & taus,
+  const Eigen::MatrixXd & res)
+{
+  pinocchio::abaInParallel(num_threads, pool, qs, vs, taus, res);
+}
+BENCHMARK_DEFINE_F(ParallelFixture, ABA_IN_PARALLEL)(benchmark::State & st)
+{
+  const auto NUM_THREADS = st.range(1);
+  for (auto _ : st)
+  {
+    abaInParallelCall(static_cast<size_t>(NUM_THREADS), *pool, qs, vs, taus, res);
+  }
+}
+BENCHMARK_REGISTER_F(ParallelFixture, ABA_IN_PARALLEL)->Apply(MultiThreadCustomArguments);
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  const std::string package_path = PINOCCHIO_MODEL_DIR;
-  hpp::fcl::MeshLoaderPtr mesh_loader = std::make_shared<hpp::fcl::CachedMeshLoader>();
-  const std::string srdf_filename =
-    PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
-  std::vector<std::string> package_paths(1, package_path);
-  pinocchio::GeometryModel geometry_model;
-  pinocchio::urdf::buildGeom(
-    model, filename, COLLISION, geometry_model, package_paths, mesh_loader);
 
-  geometry_model.addAllCollisionPairs();
-  pinocchio::srdf::removeCollisionPairs(model, geometry_model, srdf_filename, false);
-
-  GeometryData geometry_data(geometry_model);
+struct GeometryFixture : ParallelFixture
+{
+  void SetUp(benchmark::State & st)
   {
+    ParallelFixture::SetUp(st);
+
+    geometry_model = GEOMETRY_MODEL;
+    geometry_data = pinocchio::GeometryData(geometry_model);
+
+    const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
+    q = randomConfiguration(model, -qmax, qmax);
+  }
+
+  void TearDown(benchmark::State & st)
+  {
+    ParallelFixture::TearDown(st);
+  }
+
+  pinocchio::GeometryModel geometry_model;
+  pinocchio::GeometryData geometry_data;
+  Eigen::VectorXd q;
+
+  static pinocchio::GeometryModel GEOMETRY_MODEL;
+
+  static void GlobalSetUp(const ExtraArgs & extra_args)
+  {
+    ParallelFixture::GlobalSetUp(extra_args);
+
+    const std::string filename =
+      PINOCCHIO_MODEL_DIR
+      + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
+    const std::string package_path = PINOCCHIO_MODEL_DIR;
+    hpp::fcl::MeshLoaderPtr mesh_loader = std::make_shared<hpp::fcl::CachedMeshLoader>();
+    const std::string srdf_filename =
+      PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
+    std::vector<std::string> package_paths(1, package_path);
+    pinocchio::urdf::buildGeom(
+      MODEL, filename, pinocchio::COLLISION, GEOMETRY_MODEL, package_paths, mesh_loader);
+
+    GEOMETRY_MODEL.addAllCollisionPairs();
+    pinocchio::srdf::removeCollisionPairs(MODEL, GEOMETRY_MODEL, srdf_filename, false);
+
+    // Count active collision pair
+    pinocchio::GeometryData geometry_data(GEOMETRY_MODEL);
     int num_active_collision_pairs = 0;
     for (size_t k = 0; k < geometry_data.activeCollisionPairs.size(); ++k)
     {
@@ -84,216 +259,166 @@ int main(int /*argc*/, const char ** /*argv*/)
         num_active_collision_pairs++;
     }
     std::cout << "active collision pairs = " << num_active_collision_pairs << std::endl;
+    std::cout << "---" << std::endl;
   }
-#endif
+};
+pinocchio::GeometryModel GeometryFixture::GEOMETRY_MODEL;
 
-  std::cout << "--" << std::endl;
-  std::cout << "NUM_THREADS: " << NUM_THREADS << std::endl;
-  std::cout << "BATCH_SIZE: " << BATCH_SIZE << std::endl;
-  std::cout << "--" << std::endl;
+// COMPUTE_COLLISIONS
 
-  pinocchio::Data data(model);
-  const VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
-
-  MatrixXd qs(model.nq, BATCH_SIZE);
-  MatrixXd vs(model.nv, BATCH_SIZE);
-  MatrixXd as(model.nv, BATCH_SIZE);
-  MatrixXd taus(model.nv, BATCH_SIZE);
-  MatrixXd res(model.nv, BATCH_SIZE);
-
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) q_vec(NBT);
-  for (size_t i = 0; i < NBT; ++i)
+PINOCCHIO_DONT_INLINE static void computeCollisionsCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const pinocchio::GeometryModel & geometry_model,
+  pinocchio::GeometryData & geometry_data,
+  const Eigen::VectorXd & q)
+{
+  pinocchio::computeCollisions(model, data, geometry_model, geometry_data, q);
+}
+BENCHMARK_DEFINE_F(GeometryFixture, COMPUTE_COLLISIONS)(benchmark::State & st)
+{
+  for (auto _ : st)
   {
-    q_vec[i] = randomConfiguration(model, -qmax, qmax);
+    computeCollisionsCall(model, data, geometry_model, geometry_data, q);
   }
+}
+BENCHMARK_REGISTER_F(GeometryFixture, COMPUTE_COLLISIONS)->Apply(MonoThreadCustomArguments);
 
-  for (Eigen::DenseIndex i = 0; i < BATCH_SIZE; ++i)
+// COMPUTE_COLLISIONS_IN_PARALLEL
+
+PINOCCHIO_DONT_INLINE static void computeCollisionsInParallelCall(
+  size_t num_threads,
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const pinocchio::GeometryModel & geometry_model,
+  pinocchio::GeometryData & geometry_data,
+  const Eigen::VectorXd & q)
+{
+  pinocchio::computeCollisionsInParallel(
+    num_threads, model, data, geometry_model, geometry_data, q);
+}
+BENCHMARK_DEFINE_F(GeometryFixture, COMPUTE_COLLISIONS_IN_PARALLEL)(benchmark::State & st)
+{
+  const auto NUM_THREADS = st.range(1);
+  for (auto _ : st)
   {
-    qs.col(i) = randomConfiguration(model, -qmax, qmax);
-    vs.col(i) = Eigen::VectorXd::Random(model.nv);
-    as.col(i) = Eigen::VectorXd::Random(model.nv);
-    taus.col(i) = Eigen::VectorXd::Random(model.nv);
+    computeCollisionsInParallelCall(
+      static_cast<size_t>(NUM_THREADS), model, data, geometry_model, geometry_data, q);
   }
+}
+BENCHMARK_REGISTER_F(GeometryFixture, COMPUTE_COLLISIONS_IN_PARALLEL)
+  ->Apply(MultiThreadCustomArguments);
 
-  ModelPool pool(model, NUM_THREADS);
+// COMPUTE_COLLISIONS_BATCH
 
-  timer.tic();
-  SMOOTH(NBT)
+PINOCCHIO_DONT_INLINE static void computeCollisionsBatchCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const pinocchio::GeometryModel & geometry_model,
+  pinocchio::GeometryData & geometry_data,
+  const Eigen::MatrixXd::ColXpr & q)
+{
+  pinocchio::computeCollisions(model, data, geometry_model, geometry_data, q);
+}
+BENCHMARK_DEFINE_F(GeometryFixture, COMPUTE_COLLISIONS_BATCH)(benchmark::State & st)
+{
+  const auto BATCH_SIZE = st.range(0);
+  for (auto _ : st)
   {
-    for (Eigen::DenseIndex i = 0; i < BATCH_SIZE; ++i)
-      res.col(i) = rnea(model, data, qs.col(i), vs.col(i), as.col(i));
-  }
-  std::cout << "mean RNEA = \t\t\t\t";
-  timer.toc(std::cout, NBT * BATCH_SIZE);
-
-  for (size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
-  {
-    timer.tic();
-    SMOOTH(NBT)
+    for (auto i = 0; i < BATCH_SIZE; ++i)
     {
-      rneaInParallel(num_threads, pool, qs, vs, as, res);
+      computeCollisionsBatchCall(model, data, geometry_model, geometry_data, qs.col(i));
     }
-    double elapsed = timer.toc() / (NBT * BATCH_SIZE);
-    std::stringstream ss;
-    ss << "mean RNEA pool (";
-    ss << num_threads;
-    ss << " threads) = \t\t";
-    ss << elapsed << " us" << std::endl;
-    std::cout << ss.str();
   }
+}
+BENCHMARK_REGISTER_F(GeometryFixture, COMPUTE_COLLISIONS_BATCH)->Apply(MonoThreadCustomArguments);
 
-  std::cout << "--" << std::endl;
+// COMPUTE_COLLISIONS_BATCH_IN_PARALLEL
 
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    for (Eigen::DenseIndex i = 0; i < BATCH_SIZE; ++i)
-      res.col(i) = aba(model, data, qs.col(i), vs.col(i), taus.col(i), Convention::WORLD);
-  }
-  std::cout << "mean ABA = \t\t\t\t";
-  timer.toc(std::cout, NBT * BATCH_SIZE);
+PINOCCHIO_DONT_INLINE static void computeCollisionsBatchInParallelCall(
+  size_t num_threads, pinocchio::GeometryPool & pool, const Eigen::MatrixXd & qs, VectorXb & res)
+{
+  pinocchio::computeCollisionsInParallel(num_threads, pool, qs, res);
+}
+BENCHMARK_DEFINE_F(GeometryFixture, COMPUTE_COLLISIONS_BATCH_IN_PARALLEL)(benchmark::State & st)
+{
+  const auto BATCH_SIZE = st.range(0);
+  const auto NUM_THREADS = st.range(1);
 
-  for (size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
-  {
-    timer.tic();
-    SMOOTH(NBT)
-    {
-      abaInParallel(num_threads, pool, qs, vs, taus, res);
-    }
-    double elapsed = timer.toc() / (NBT * BATCH_SIZE);
-    std::stringstream ss;
-    ss << "mean ABA pool (";
-    ss << num_threads;
-    ss << " threads) = \t\t";
-    ss << elapsed << " us" << std::endl;
-    std::cout << ss.str();
-  }
-
-#ifdef PINOCCHIO_WITH_HPP_FCL
-  std::cout << "--" << std::endl;
-  const int NBT_COLLISION = math::max(NBT, 1);
-  timer.tic();
-  SMOOTH((size_t)NBT_COLLISION)
-  {
-    computeCollisions(model, data, geometry_model, geometry_data, q_vec[_smooth]);
-  }
-  std::cout << "non parallel collision = \t\t\t";
-  timer.toc(std::cout, NBT_COLLISION);
-
-  for (size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
-  {
-    timer.tic();
-    SMOOTH((size_t)NBT_COLLISION)
-    {
-      computeCollisionsInParallel(
-        num_threads, model, data, geometry_model, geometry_data, q_vec[_smooth]);
-    }
-    double elapsed = timer.toc() / (NBT_COLLISION);
-    std::stringstream ss;
-    ss << "parallel collision (";
-    ss << num_threads;
-    ss << " threads) = \t\t";
-    ss << elapsed << " us" << std::endl;
-    std::cout << ss.str();
-  }
-
-  std::cout << "--" << std::endl;
-  GeometryPool geometry_pool(model, geometry_model, NUM_THREADS);
+  pinocchio::GeometryPool geometry_pool(model, geometry_model, static_cast<size_t>(NUM_THREADS));
   VectorXb collision_res(BATCH_SIZE);
   collision_res.fill(false);
-
-  timer.tic();
-  SMOOTH((size_t)(NBT_COLLISION / BATCH_SIZE))
+  for (auto _ : st)
   {
-    for (Eigen::DenseIndex i = 0; i < BATCH_SIZE; ++i)
-      computeCollisions(model, data, geometry_model, geometry_data, qs.col(i));
+    computeCollisionsBatchInParallelCall(
+      static_cast<size_t>(NUM_THREADS), geometry_pool, qs, collision_res);
   }
-  std::cout << "non parallel collision = \t\t\t";
-  timer.toc(std::cout, NBT_COLLISION);
-
-  for (size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
-  {
-    timer.tic();
-    SMOOTH((size_t)(NBT_COLLISION / BATCH_SIZE))
-    {
-      computeCollisionsInParallel(num_threads, geometry_pool, qs, collision_res);
-    }
-    double elapsed = timer.toc() / (NBT_COLLISION);
-    std::stringstream ss;
-    ss << "pool parallel collision (";
-    ss << num_threads;
-    ss << " threads) = \t\t";
-    ss << elapsed << " us" << std::endl;
-    std::cout << ss.str();
-  }
-
-  std::cout << "--" << std::endl;
-  {
-    BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(
-      model, geometry_model, NUM_THREADS);
-    VectorXb collision_res(BATCH_SIZE);
-    collision_res.fill(false);
-
-    timer.tic();
-    SMOOTH((size_t)(NBT_COLLISION / BATCH_SIZE))
-    {
-      for (Eigen::DenseIndex i = 0; i < BATCH_SIZE; ++i)
-        computeCollisions(model, data, geometry_model, geometry_data, qs.col(i));
-    }
-    std::cout << "non parallel collision = \t\t\t";
-    timer.toc(std::cout, NBT_COLLISION);
-
-    for (size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
-    {
-      timer.tic();
-      SMOOTH((size_t)(NBT_COLLISION / BATCH_SIZE))
-      {
-        computeCollisionsInParallel(num_threads, pool, qs, collision_res);
-      }
-      double elapsed = timer.toc() / (NBT_COLLISION);
-      std::stringstream ss;
-      ss << "pool parallel collision (";
-      ss << num_threads;
-      ss << " threads) = \t\t";
-      ss << elapsed << " us" << std::endl;
-      std::cout << ss.str();
-    }
-  }
-
-  std::cout << "--" << std::endl;
-  {
-    TreeBroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(
-      model, geometry_model, NUM_THREADS);
-    VectorXb collision_res(BATCH_SIZE);
-    collision_res.fill(false);
-
-    timer.tic();
-    SMOOTH((size_t)(NBT_COLLISION / BATCH_SIZE))
-    {
-      for (Eigen::DenseIndex i = 0; i < BATCH_SIZE; ++i)
-        computeCollisions(model, data, geometry_model, geometry_data, qs.col(i));
-    }
-    std::cout << "non parallel collision = \t\t\t";
-    timer.toc(std::cout, NBT_COLLISION);
-
-    for (size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
-    {
-      timer.tic();
-      SMOOTH((size_t)(NBT_COLLISION / BATCH_SIZE))
-      {
-        computeCollisionsInParallel(num_threads, pool, qs, collision_res);
-      }
-      double elapsed = timer.toc() / (NBT_COLLISION);
-      std::stringstream ss;
-      ss << "pool parallel collision (";
-      ss << num_threads;
-      ss << " threads) = \t\t";
-      ss << elapsed << " us" << std::endl;
-      std::cout << ss.str();
-    }
-  }
-#endif
-
-  std::cout << "--" << std::endl;
-  return 0;
 }
+BENCHMARK_REGISTER_F(GeometryFixture, COMPUTE_COLLISIONS_BATCH_IN_PARALLEL)
+  ->Apply(MultiThreadCustomArguments);
+
+// COMPUTE_COLLISIONS_BATCH_IN_PARALLEL_WITH_BROADPHASE
+
+PINOCCHIO_DONT_INLINE static void computeCollisionsBatchInParallelWithBroadPhaseCall(
+  size_t num_threads,
+  pinocchio::BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> & pool,
+  const Eigen::MatrixXd & qs,
+  VectorXb & res)
+{
+  pinocchio::computeCollisionsInParallel(num_threads, pool, qs, res);
+}
+BENCHMARK_DEFINE_F(GeometryFixture, COMPUTE_COLLISIONS_BATCH_IN_PARALLEL_WITH_BROADPHASE)(
+  benchmark::State & st)
+{
+  const auto BATCH_SIZE = st.range(0);
+  const auto NUM_THREADS = st.range(1);
+
+  pinocchio::BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(
+    model, geometry_model, static_cast<size_t>(NUM_THREADS));
+  VectorXb collision_res(BATCH_SIZE);
+  collision_res.fill(false);
+  for (auto _ : st)
+  {
+    computeCollisionsBatchInParallelWithBroadPhaseCall(
+      static_cast<size_t>(NUM_THREADS), pool, qs, collision_res);
+  }
+}
+BENCHMARK_REGISTER_F(GeometryFixture, COMPUTE_COLLISIONS_BATCH_IN_PARALLEL_WITH_BROADPHASE)
+  ->Apply(MultiThreadCustomArguments);
+
+// COMPUTE_COLLISIONS_BATCH_IN_PARALLEL_WITH_TREE_BROADPHASE
+
+PINOCCHIO_DONT_INLINE static void computeCollisionsBatchInParallelWithTreeBroadPhaseCall(
+  size_t num_threads,
+  pinocchio::TreeBroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> & pool,
+  const Eigen::MatrixXd & qs,
+  VectorXb & res)
+{
+  pinocchio::computeCollisionsInParallel(num_threads, pool, qs, res);
+}
+BENCHMARK_DEFINE_F(GeometryFixture, COMPUTE_COLLISIONS_BATCH_IN_PARALLEL_WITH_TREE_BROADPHASE)(
+  benchmark::State & st)
+{
+  const auto BATCH_SIZE = st.range(0);
+  const auto NUM_THREADS = st.range(1);
+
+  pinocchio::TreeBroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(
+    model, geometry_model, static_cast<size_t>(NUM_THREADS));
+  VectorXb collision_res(BATCH_SIZE);
+  collision_res.fill(false);
+  for (auto _ : st)
+  {
+    computeCollisionsBatchInParallelWithTreeBroadPhaseCall(
+      static_cast<size_t>(NUM_THREADS), pool, qs, collision_res);
+  }
+}
+BENCHMARK_REGISTER_F(GeometryFixture, COMPUTE_COLLISIONS_BATCH_IN_PARALLEL_WITH_TREE_BROADPHASE)
+  ->Apply(MultiThreadCustomArguments);
+
+#endif // #ifdef PINOCCHIO_WITH_HPP_FCL
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
+PINOCCHIO_BENCHMARK_MAIN_WITH_SETUP(GeometryFixture::GlobalSetUp);
+#else
+PINOCCHIO_BENCHMARK_MAIN_WITH_SETUP(ParallelFixture::GlobalSetUp);
+#endif

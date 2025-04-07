@@ -7,6 +7,7 @@
 
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/bindings/python/utils/eigen.hpp"
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
 
 namespace pinocchio
 {
@@ -47,7 +48,7 @@ namespace pinocchio
         "\t model: Model of the kinematic tree\n"
         "\t data: Data related to the kinematic tree\n"
         "\t q: joint configuration (size model.nq)",
-        bp::return_value_policy<bp::return_by_value>());
+        mimic_not_supported_function<bp::return_value_policy<bp::return_by_value>>(0));
 
       bp::def(
         "aba", &aba<Scalar, Options, JointCollectionDefaultTpl, VectorXs, VectorXs, VectorXs>,
@@ -61,7 +62,7 @@ namespace pinocchio
         "\t tau: joint velocity (size model.nv)\n"
         "\t v: joint torque (size model.nv)"
         "\t convention: Convention to use",
-        bp::return_value_policy<bp::return_by_value>());
+        mimic_not_supported_function<bp::return_value_policy<bp::return_by_value>>(0));
 
       bp::def(
         "aba",
@@ -79,7 +80,7 @@ namespace pinocchio
         "\t fext: vector of external forces expressed in the local frame of the joint (size "
         "model.njoints)"
         "\t convention: Convention to use",
-        bp::return_value_policy<bp::return_by_value>());
+        mimic_not_supported_function<bp::return_value_policy<bp::return_by_value>>(0));
 
       bp::def(
         "computeMinverse", &computeMinverse_min_proxy, bp::args("model", "data"),
@@ -90,7 +91,7 @@ namespace pinocchio
         "Parameters:\n"
         "\t model: Model of the kinematic tree\n"
         "\t data: Data related to the kinematic tree",
-        bp::return_value_policy<bp::return_by_value>());
+        mimic_not_supported_function<bp::return_value_policy<bp::return_by_value>>(0));
     }
 
   } // namespace python

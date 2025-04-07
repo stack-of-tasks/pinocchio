@@ -100,6 +100,9 @@ namespace pinocchio
     /// \brief Dimension of the velocity vector space.
     int nv;
 
+    /// \brief Dimension of the jacobian space.
+    int nvExtended;
+
     /// \brief Number of joints.
     int njoints;
 
@@ -130,6 +133,12 @@ namespace pinocchio
     /// \brief Dimension of the *i*th joint tangent subspace.
     std::vector<int> nvs;
 
+    /// \brief Starting index of the *i*th joint in the jacobian space.
+    std::vector<int> idx_vExtendeds;
+
+    /// \brief Dimension of the *i*th joint jacobian subspace.
+    std::vector<int> nvExtendeds;
+
     /// \brief Vector of parent joint indexes. The parent of joint *i*, denoted *li*, corresponds to
     /// li==parents[i].
     std::vector<JointIndex> parents;
@@ -137,6 +146,14 @@ namespace pinocchio
     /// \brief Vector of children index. Chidren of the *i*th joint, denoted *mu(i)* corresponds to
     /// the set (i==parents[k] for k in mu(i)).
     std::vector<IndexVector> children;
+
+    /// \brief Vector of mimicking joints in the tree (with type MimicTpl)
+    std::vector<JointIndex> mimicking_joints;
+
+    /// \brief Vector of mimicked joints in the tree (can be any joint type)
+    /// The i-th element of this vector correspond to the mimicked joint of the i-th mimicking
+    /// vector in mimicking_joints
+    std::vector<JointIndex> mimicked_joints;
 
     /// \brief Name of the joints.
     std::vector<std::string> names;
@@ -182,6 +199,12 @@ namespace pinocchio
     /// itself.
     std::vector<IndexVector> supports;
 
+    /// \brief Vector of mimic supports joints.
+    /// mimic_joint_supports[j] corresponds to the vector of mimic joints indices located on the
+    /// path between joint *j*  and "universe". The first element of mimic_joint_supports[j] is
+    /// "universe". If *j* is a mimic, the last element is the index of joint *j* itself.
+    std::vector<IndexVector> mimic_joint_supports;
+
     /// \brief Vector of joint subtrees.
     /// subtree[j] corresponds to the subtree supported by the joint *j*.
     /// The first element of subtree[j] is the index of the joint *j* itself.
@@ -200,6 +223,7 @@ namespace pinocchio
     ModelTpl()
     : nq(0)
     , nv(0)
+    , nvExtended(0)
     , njoints(1)
     , nbodies(1)
     , nframes(0)
@@ -210,10 +234,13 @@ namespace pinocchio
     , nqs(1, 0)
     , idx_vs(1, 0)
     , nvs(1, 0)
+    , idx_vExtendeds(1, 0)
+    , nvExtendeds(1, 0)
     , parents(1, 0)
     , children(1)
     , names(1)
     , supports(1, IndexVector(1, 0))
+    , mimic_joint_supports(1, IndexVector(1, 0))
     , subtrees(1)
     , gravity(gravity981, Vector3::Zero())
     {

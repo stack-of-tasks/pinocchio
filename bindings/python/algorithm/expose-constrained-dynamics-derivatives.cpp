@@ -7,6 +7,7 @@
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/eigen.hpp"
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
 
 namespace bp = boost::python;
 
@@ -49,7 +50,8 @@ namespace pinocchio
         "details.\n"
         "This function returns the derivatives of joint acceleration (ddq) and contact forces "
         "(lambda_c) of the system with respect to q, v and tau.\n"
-        "The output is a tuple with ddq_dq, ddq_dv, ddq_da, dlambda_dq, dlambda_dv, dlambda_da.");
+        "The output is a tuple with ddq_dq, ddq_dv, ddq_da, dlambda_dq, dlambda_dv, dlambda_da.",
+        mimic_not_supported_function<>(0));
     }
   } // namespace python
 } // namespace pinocchio

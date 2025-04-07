@@ -26,6 +26,7 @@ def buildModelsFromUrdf(
         - verbose - print information of parsing (default - False)
         - meshLoader - object used to load meshes (default - hpp::fcl::MeshLoader)
         - geometry_types - Which geometry model to load. Can be pin.GeometryType.COLLISION, pin.GeometryType.VISUAL or both. (default - [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL])
+        - mimic - If urdf mimic joints should be parsed or not (default - False)
     Return:
         Tuple of the models, in this order : model, collision model, and visual model.
 
@@ -35,7 +36,14 @@ def buildModelsFromUrdf(
     Remark: In the URDF format, a joint of type fixed can be defined. For efficiency reasons, it is treated as operational frame and not as a joint of the model.
     """
     # Handle the switch from old to new api
-    arg_keys = ["package_dirs", "root_joint", "verbose", "meshLoader", "geometry_types"]
+    arg_keys = [
+        "package_dirs",
+        "root_joint",
+        "verbose",
+        "meshLoader",
+        "geometry_types",
+        "mimic",
+    ]
     if len(args) >= 3:
         if isinstance(args[2], str):
             arg_keys = [
@@ -45,6 +53,7 @@ def buildModelsFromUrdf(
                 "verbose",
                 "meshLoader",
                 "geometry_types",
+                "mimic",
             ]
 
     for key, arg in zip(arg_keys, args):
@@ -64,16 +73,17 @@ def _buildModelsFromUrdf(
     verbose=False,
     meshLoader=None,
     geometry_types=None,
+    mimic=False,
 ) -> tuple[pin.Model, pin.GeometryModel, pin.GeometryModel]:
     if geometry_types is None:
         geometry_types = [pin.GeometryType.COLLISION, pin.GeometryType.VISUAL]
 
     if root_joint is None:
-        model = pin.buildModelFromUrdf(filename)
+        model = pin.buildModelFromUrdf(filename, mimic)
     elif root_joint is not None and root_joint_name is None:
-        model = pin.buildModelFromUrdf(filename, root_joint)
+        model = pin.buildModelFromUrdf(filename, root_joint, mimic)
     else:
-        model = pin.buildModelFromUrdf(filename, root_joint, root_joint_name)
+        model = pin.buildModelFromUrdf(filename, root_joint, root_joint_name, mimic)
 
     if verbose and not WITH_HPP_FCL and meshLoader is not None:
         print(

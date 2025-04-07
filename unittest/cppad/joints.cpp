@@ -190,8 +190,9 @@ struct TestADOnJoints
   }
 
   // TODO: implement it
-  template<typename JointModel_>
-  void operator()(const pinocchio::JointModelMimic<JointModel_> & /*jmodel*/) const
+  template<typename Scalar, int Options, template<typename, int> class JointCollection>
+  void operator()(
+    const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/) const
   {
     /* do nothing */
   }

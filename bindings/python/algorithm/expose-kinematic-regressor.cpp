@@ -1,6 +1,7 @@
 //
 // Copyright (c) 2020 INRIA
 //
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/regressor.hpp"
@@ -34,7 +35,8 @@ namespace pinocchio
         "\tjoint_id: index of the joint\n"
         "\treference_frame: reference frame in which the result is expressed (LOCAL, "
         "LOCAL_WORLD_ALIGNED or WORLD)\n"
-        "\tplacement: relative placement to the joint frame\n");
+        "\tplacement: relative placement to the joint frame\n",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeJointKinematicRegressor",
@@ -49,7 +51,8 @@ namespace pinocchio
         "\tdata: data related to the model\n"
         "\tjoint_id: index of the joint\n"
         "\treference_frame: reference frame in which the result is expressed (LOCAL, "
-        "LOCAL_WORLD_ALIGNED or WORLD)\n");
+        "LOCAL_WORLD_ALIGNED or WORLD)\n",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeFrameKinematicRegressor",
@@ -64,7 +67,8 @@ namespace pinocchio
         "\tdata: data related to the model\n"
         "\tframe_id: index of the frame\n"
         "\treference_frame: reference frame in which the result is expressed (LOCAL, "
-        "LOCAL_WORLD_ALIGNED or WORLD)\n");
+        "LOCAL_WORLD_ALIGNED or WORLD)\n",
+        mimic_not_supported_function<>(0));
     }
 
   } // namespace python

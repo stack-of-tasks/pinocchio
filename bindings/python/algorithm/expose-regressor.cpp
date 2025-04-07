@@ -5,6 +5,8 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/regressor.hpp"
 
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
+
 namespace pinocchio
 {
   namespace python
@@ -47,7 +49,7 @@ namespace pinocchio
         "\tmodel: model of the kinematic tree\n"
         "\tdata: data related to the model\n"
         "\tq: the joint configuration vector (size model.nq)\n",
-        bp::return_value_policy<bp::return_by_value>());
+        mimic_not_supported_function<bp::return_value_policy<bp::return_by_value>>(0));
 
       bp::def(
         "bodyRegressor", &bodyRegressor_proxy, bp::args("velocity", "acceleration"),
@@ -67,7 +69,8 @@ namespace pinocchio
         "Parameters:\n"
         "\tmodel: model of the kinematic tree\n"
         "\tdata: data related to the model\n"
-        "\tjoint_id: index of the joint\n");
+        "\tjoint_id: index of the joint\n",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "frameBodyRegressor", &frameBodyRegressor_proxy, bp::args("model", "data", "frame_id"),
@@ -78,7 +81,8 @@ namespace pinocchio
         "Parameters:\n"
         "\tmodel: model of the kinematic tree\n"
         "\tdata: data related to the model\n"
-        "\tframe_id: index of the frame\n");
+        "\tframe_id: index of the frame\n",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeJointTorqueRegressor",
@@ -94,7 +98,7 @@ namespace pinocchio
         "\tq: the joint configuration vector (size model.nq)\n"
         "\tv: the joint velocity vector (size model.nv)\n"
         "\ta: the joint acceleration vector (size model.nv)\n",
-        bp::return_value_policy<bp::return_by_value>());
+        mimic_not_supported_function<bp::return_value_policy<bp::return_by_value>>(0));
 
       bp::def(
         "computeKineticEnergyRegressor",
@@ -109,7 +113,7 @@ namespace pinocchio
         "\tdata: data related to the model\n"
         "\tq: the joint configuration vector (size model.nq)\n"
         "\tv: the joint velocity vector (size model.nv)\n",
-        bp::return_value_policy<bp::return_by_value>());
+        mimic_not_supported_function<bp::return_value_policy<bp::return_by_value>>(0));
 
       bp::def(
         "computePotentialEnergyRegressor",
@@ -122,7 +126,7 @@ namespace pinocchio
         "\tmodel: model of the kinematic tree\n"
         "\tdata: data related to the model\n"
         "\tq: the joint configuration vector (size model.nq)\n",
-        bp::return_value_policy<bp::return_by_value>());
+        mimic_not_supported_function<bp::return_value_policy<bp::return_by_value>>(0));
     }
 
   } // namespace python

@@ -4,7 +4,7 @@
 
 #include "pinocchio/spatial/fwd.hpp"
 
-#ifndef PINOCCHIO_SKIP_CASADI_UNSUPPORTED
+#ifndef PINOCCHIO_SKIP_ALGORITHM_GEOMETRY
 
   #include "pinocchio/algorithm/geometry.hpp"
 
@@ -28,4 +28,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // PINOCCHIO_SKIP_CASADI_UNSUPPORTED
+#endif // PINOCCHIO_SKIP_ALGORITHM_GEOMETRY

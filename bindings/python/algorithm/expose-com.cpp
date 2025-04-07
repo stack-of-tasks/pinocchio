@@ -5,6 +5,8 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
+
 #include <boost/python/overloads.hpp>
 
 namespace pinocchio
@@ -198,20 +200,23 @@ namespace pinocchio
         "jacobianSubtreeCenterOfMass", jacobian_subtree_com_kinematics_proxy,
         bp::args("model", "data", "q", "subtree_root_joint_id"),
         "Computes the Jacobian of the CoM of the given subtree (subtree_root_joint_id) "
-        "expressed in the WORLD frame, according to the given joint configuration.");
+        "expressed in the WORLD frame, according to the given joint configuration.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "jacobianSubtreeCenterOfMass", jacobian_subtree_com_proxy,
         bp::args("model", "data", "subtree_root_joint_id"),
         "Computes the Jacobian of the CoM of the given subtree (subtree_root_joint_id) "
-        "expressed in the WORLD frame, according to the given entries in data.");
+        "expressed in the WORLD frame, according to the given entries in data.",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "getJacobianSubtreeCenterOfMass", get_jacobian_subtree_com_proxy,
         bp::args("model", "data", "subtree_root_joint_id"),
         "Get the Jacobian of the CoM of the given subtree expressed in the world frame, "
         "according to the given entries in data. It assumes that jacobianCenterOfMass has "
-        "been called first.");
+        "been called first.",
+        mimic_not_supported_function<>(0));
     }
 
   } // namespace python

@@ -99,6 +99,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(J.cols(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(J.rows(), gamma.size());
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 
@@ -181,6 +182,8 @@ namespace pinocchio
     const Scalar & inv_damping)
   {
     assert(model.check(data));
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
     PINOCCHIO_CHECK_INPUT_ARGUMENT(
       check_expression_if_real<Scalar>(inv_damping >= 0.), "mu must be positive.");
 
@@ -222,6 +225,8 @@ namespace pinocchio
     const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv)
   {
     assert(model.check(data));
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
+
     PINOCCHIO_CHECK_ARGUMENT_SIZE(KKTMatrix_inv.cols(), data.JMinvJt.cols() + model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(KKTMatrix_inv.rows(), data.JMinvJt.rows() + model.nv);
 
@@ -291,6 +296,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v_before.size(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(J.cols(), model.nv);
     assert(model.check(data) && "data is not consistent with model.");
+    assert(model.check(MimicChecker()) && "Function does not support mimic joints");
 
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 

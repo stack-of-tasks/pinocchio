@@ -5,6 +5,7 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/bindings/python/utils/eigen.hpp"
+#include "pinocchio/bindings/python/utils/model-checker.hpp"
 
 namespace pinocchio
 {
@@ -71,7 +72,8 @@ namespace pinocchio
         "\tmodel: model of the kinematic tree\n"
         "\tdata: data related to the model\n"
         "\tq: the joint configuration vector (size model.nq)\n"
-        "Returns: dtau_statique_dq\n");
+        "Returns: dtau_statique_dq\n",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeStaticTorqueDerivatives", computeStaticTorqueDerivatives,
@@ -85,7 +87,8 @@ namespace pinocchio
         "\tq: the joint configuration vector (size model.nq)\n"
         "\tfext: list of external forces expressed in the local frame of the joints (size "
         "model.njoints)\n"
-        "Returns: dtau_statique_dq\n");
+        "Returns: dtau_statique_dq\n",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeRNEADerivatives", computeRNEADerivatives, bp::args("model", "data", "q", "v", "a"),
@@ -100,7 +103,8 @@ namespace pinocchio
         "\tq: the joint configuration vector (size model.nq)\n"
         "\tv: the joint velocity vector (size model.nv)\n"
         "\ta: the joint acceleration vector (size model.nv)\n\n"
-        "Returns: (dtau_dq, dtau_dv, dtau_da)\n");
+        "Returns: (dtau_dq, dtau_dv, dtau_da)\n",
+        mimic_not_supported_function<>(0));
 
       bp::def(
         "computeRNEADerivatives", computeRNEADerivatives_fext,
@@ -118,7 +122,8 @@ namespace pinocchio
         "\ta: the joint acceleration vector (size model.nv)\n"
         "\tfext: list of external forces expressed in the local frame of the joints (size "
         "model.njoints)\n\n"
-        "Returns: (dtau_dq, dtau_dv, dtau_da)\n");
+        "Returns: (dtau_dq, dtau_dv, dtau_da)\n",
+        mimic_not_supported_function<>(0));
     }
 
   } // namespace python
