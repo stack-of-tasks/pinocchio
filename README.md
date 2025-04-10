@@ -62,9 +62,6 @@ or via pip (currently only available on Linux):
   - [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
   - [Acknowledgments](#acknowledgments)
 
-  - New SDF and MJCF parsers
-  - and much more.
-
 ## Pinocchio main features
 
 **Pinocchio** is fast:
