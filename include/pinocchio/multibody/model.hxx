@@ -469,8 +469,8 @@ namespace pinocchio
     typename PINOCCHIO_ALIGNED_STD_VECTOR(Frame)::const_iterator it =
       std::find_if(frames.begin(), frames.end(), details::FilterFrame(name, type));
     std::ostringstream os;
-    os << "Several frames match the filter - please specify the FrameType (name=\""
-       << name << "\", type=\"" << type << "\")";
+    os << "Several frames match the filter - please specify the FrameType (name=\"" << name
+       << "\", type=\"" << type << "\")";
     PINOCCHIO_CHECK_INPUT_ARGUMENT(
       ((it == frames.end()
         || (std::find_if(boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end()))),
