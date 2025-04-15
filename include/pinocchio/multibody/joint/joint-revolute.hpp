@@ -80,9 +80,17 @@ namespace pinocchio
     typedef Matrix3 AngularType;
     typedef Matrix3 AngularRef;
     typedef Matrix3 ConstAngularRef;
+#if EIGEN_VERSION_AT_LEAST(3, 4, 90)
+    typedef typename Vector3::ZeroReturnType LinearType;
+    typedef const typename Vector3::ZeroReturnType ConstLinearType;
+    typedef typename Vector3::ZeroReturnType LinearRef;
+    typedef const typename Vector3::ZeroReturnType ConstLinearRef;
+#else
     typedef typename Vector3::ConstantReturnType LinearType;
+    typedef const typename Vector3::ConstantReturnType ConstLinearType;
     typedef typename Vector3::ConstantReturnType LinearRef;
     typedef const typename Vector3::ConstantReturnType ConstLinearRef;
+#endif
     typedef typename traits<PlainType>::ActionMatrixType ActionMatrixType;
     typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
   }; // traits TransformRevoluteTpl
@@ -98,6 +106,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_SE3_TYPEDEF_TPL(TransformRevoluteTpl);
+    typedef typename traits<TransformRevoluteTpl>::ConstLinearType ConstLinearType;
 
     TransformRevoluteTpl()
     {
@@ -180,9 +189,9 @@ namespace pinocchio
       m_cos = cos;
     }
 
-    LinearType translation() const
+    ConstLinearType translation() const
     {
-      return LinearType::PlainObject::Zero(3);
+      return ConstLinearType::PlainObject::Zero(3);
     }
     AngularType rotation() const
     {
