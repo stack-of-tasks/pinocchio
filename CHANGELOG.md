@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Fix getters for models and data in `VisualizerPythonVisitor` ([#2647](https://github.com/stack-of-tasks/pinocchio/pull/2647))
+
 ## [3.5.0] - 2025-04-02
 
 ### Added
