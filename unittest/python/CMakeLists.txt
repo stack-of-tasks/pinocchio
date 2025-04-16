@@ -137,4 +137,7 @@ else()
   message(STATUS "Valgrind not found, memory checks are disabled")
 endif()
 
+pinocchio_add_python_cpp_module(bindings_visualizer PIN_TARGETS pinocchio_visualizers)
+pinocchio_add_lib_unit_test(bindings_visualizer)
+
 add_subdirectory(pybind11)
