@@ -49,7 +49,8 @@ set(${PROJECT_NAME}_PYTHON_TESTS
 
 function(pinocchio_add_python_cpp_module name)
   set(target_name "test-ext-${name}")
-  string(REPLACE "-" "_" target_name ${target_name})
+  string(REPLACE "_" "-" target_name ${target_name})
+  string(REPLACE "-" "_" module_name ${target_name})
   set(source_file "${name}.cpp")
   set(options)
   set(oneValueArgs)
@@ -62,16 +63,21 @@ function(pinocchio_add_python_cpp_module name)
   endif()
 
   add_library(${target_name} MODULE ${_exclude} ${source_file})
-  target_compile_definitions(${target_name} PRIVATE EXT_MODULE_NAME=${target_name})
+  target_compile_definitions(${target_name} PRIVATE EXT_MODULE_NAME=${module_name})
   target_link_libraries(${target_name} PRIVATE pinocchio_default eigenpy::eigenpy)
   foreach(_dep ${ARGS_PIN_TARGETS})
     target_link_libraries(${target_name} PRIVATE ${_dep})
   endforeach()
-  set_target_properties(${target_name} PROPERTIES PREFIX "" SUFFIX "${PYTHON_EXT_SUFFIX}")
+  set_target_properties(
+    ${target_name}
+    PROPERTIES PREFIX ""
+               SUFFIX "${PYTHON_EXT_SUFFIX}"
+               LIBRARY_OUTPUT_NAME ${module_name}
+               RUNTIME_OUTPUT_NAME ${module_name})
 
   add_test(
     NAME ${target_name}
-    COMMAND ${PYTHON_EXECUTABLE} -c "import ${target_name}"
+    COMMAND ${PYTHON_EXECUTABLE} -c "import ${module_name}"
     WORKING_DIRECTORY $<TARGET_FILE_DIR:${target_name}>)
   set(PYTHONPATH)
   compute_pythonpath(ENV_VARIABLES bindings/python)
