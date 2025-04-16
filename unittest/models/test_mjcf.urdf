@@ -40,5 +40,6 @@
       <origin xyz="0 0 0" rpy="-1.57 0 0"/>
         <axis xyz="0 1 0" />
         <limit lower="-1.7628" upper="1.7628" effort="10" velocity="0"/>
+        <dynamics damping="0.01" friction="0.01"/>
   </joint>
 </robot>

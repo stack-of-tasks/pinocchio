@@ -130,7 +130,6 @@ namespace pinocchio
         ret.friction = Vector::Constant(Nv, 0.);
         ret.damping = Vector::Constant(Nv, 0.);
         ret.armature = Vector::Constant(Nv, armature[0]);
-        ret.frictionLoss = frictionLoss;
         ret.springStiffness = springStiffness;
         ret.springReference = springReference;
         return ret;
@@ -220,7 +219,7 @@ namespace pinocchio
         // friction loss
         value = el.get_optional<double>("<xmlattr>.frictionloss");
         if (value)
-          range.frictionLoss = *value;
+          range.friction[0] = *value;
 
         value = el.get_optional<double>("<xmlattr>.ref");
         if (value)

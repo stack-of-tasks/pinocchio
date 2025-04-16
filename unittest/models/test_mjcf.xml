@@ -18,7 +18,7 @@
                 <body name="link2" quat="1 -1 0 0">
                     <inertial mass="0.629769" pos="-0.041018 -0.00014 0.049974"
                     fullinertia="0.00315 0.00388 0.004285 8.2904e-7 0.00015 8.2299e-6"/>
-                    <joint name="joint2" range="-1.7628 1.7628" class="second"/>
+                    <joint name="joint2" range="-1.7628 1.7628" class="second" frictionloss="0.01" damping="0.01"/>
                     <body name="link3" pos="0 0 0">
                         <inertial mass="0.629769" pos="-0.041018 -0.00014 0.049974"
                         fullinertia="0.00315 0.00388 0.004285 8.2904e-7 0.00015 8.2299e-6"/>
