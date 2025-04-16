@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE(merge_default)
 }
 
 #ifdef PINOCCHIO_WITH_URDFDOM
-// @brief Test to check that default classes and child classes are taken into account
+// @brief Test to check that default classes and child classes are taken into account, also tests friction and damping parameters
 BOOST_AUTO_TEST_CASE(parse_default_class)
 {
   typedef pinocchio::SE3::Vector3 Vector3;
@@ -472,6 +472,12 @@ BOOST_AUTO_TEST_CASE(parse_default_class)
 
   for (size_t i = 0; i < size_t(model_m.njoints); i++)
     BOOST_CHECK_EQUAL(model_m.joints[i], model_u.joints[i]);
+  
+  for (size_t i = 0; i < model_m.friction.size(); i++)
+    BOOST_CHECK_EQUAL(model_m.friction[i], model_u.friction[i]);
+
+  for (size_t i = 0; i < model_m.damping.size(); i++)
+    BOOST_CHECK_EQUAL(model_m.damping[i], model_u.damping[i]);
 }
 #endif // PINOCCHIO_WITH_URDFDOM
 
