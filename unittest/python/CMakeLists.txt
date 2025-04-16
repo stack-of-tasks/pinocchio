@@ -1,6 +1,7 @@
 #
-# Copyright (c) 2015-2023 CNRS INRIA
+# Copyright (c) 2015-2023 CNRS INRIA, 2024-2025 INRIA
 #
+include(${JRL_CMAKE_MODULES}/python-helpers.cmake)
 
 set(${PROJECT_NAME}_PYTHON_TESTS
     bindings
@@ -45,6 +46,49 @@ set(${PROJECT_NAME}_PYTHON_TESTS
     version
     bindings_std_vector
     bindings_std_map)
+
+function(pinocchio_add_python_cpp_module name)
+  set(target_name "test-ext-${name}")
+  string(REPLACE "-" "_" target_name ${target_name})
+  set(source_file "${name}.cpp")
+  set(options)
+  set(oneValueArgs)
+  set(multiValueArgs "PIN_TARGETS")
+  cmake_parse_arguments(ARGS "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  if(BUILD_TESTING)
+    set(_exclude)
+  else()
+    set(_exclude EXCLUDE_FROM_ALL)
+  endif()
+
+  add_library(${target_name} MODULE ${_exclude} ${source_file})
+  target_compile_definitions(${target_name} PRIVATE EXT_MODULE_NAME=${target_name})
+  target_link_libraries(${target_name} PRIVATE pinocchio_default eigenpy::eigenpy)
+  foreach(_dep ${ARGS_PIN_TARGETS})
+    target_link_libraries(${target_name} PRIVATE ${_dep})
+  endforeach()
+  set_target_properties(${target_name} PROPERTIES PREFIX "" SUFFIX "${PYTHON_EXT_SUFFIX}")
+
+  add_test(
+    NAME ${target_name}
+    COMMAND ${PYTHON_EXECUTABLE} -c "import ${target_name}"
+    WORKING_DIRECTORY $<TARGET_FILE_DIR:${target_name}>)
+  set(PYTHONPATH)
+  compute_pythonpath(ENV_VARIABLES bindings/python)
+  set_tests_properties(${target_name} PROPERTIES ENVIRONMENT "${ENV_VARIABLES}")
+
+  add_dependencies(build_tests ${target_name})
+  if(NOT BUILD_TESTING)
+    set_tests_properties(${target_name} PROPERTIES DEPENDS ctest_build_tests)
+  endif()
+endfunction()
+
+function(pinocchio_add_lib_unit_test name)
+  set(TEST_NAME "${PROJECT_NAME}-test-py-${name}")
+  add_python_unit_test(${TEST_NAME} "unittest/python/${name}.py" "bindings/python"
+                       "unittest/python")
+  add_windows_dll_path_to_test(${TEST_NAME})
+endfunction()
 
 if(BUILD_WITH_HPP_FCL_SUPPORT)
   set(${PROJECT_NAME}_PYTHON_TESTS ${${PROJECT_NAME}_PYTHON_TESTS} bindings_geometry_object)
