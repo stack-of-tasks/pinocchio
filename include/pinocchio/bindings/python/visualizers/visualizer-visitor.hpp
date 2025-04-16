@@ -43,6 +43,13 @@ namespace pinocchio
         using ::pinocchio::visualizers::ConstVectorRef;
         eigenpy::OptionalConverter<ConstVectorRef, boost::optional>::registration();
 
+// convenience macro to use a lambda -- passing &Visualizer::<getter-fun> doesn't work
+#define DEF_PROP_PROXY(name)                                                                       \
+  add_property(                                                                                    \
+    #name,                                                                                         \
+    bp::make_function(                                                                             \
+      +[](Visualizer & v) -> auto & { return v.name(); }, bp::return_internal_reference<>()))
+
         cl.def("initViewer", &Visualizer::initViewer)
           .def("loadViewerModel", &Visualizer::loadViewerModel)
           .def("rebuildData", &Visualizer::rebuildData)
@@ -56,21 +63,14 @@ namespace pinocchio
           .def("setCameraPose", setCameraPose_proxy2, (bp::arg("self"), "pose"))
           .def("setCameraZoom", &Visualizer::setCameraZoom, (bp::arg("self"), "value"))
           .def("clean", &Visualizer::clean, bp::arg("self"))
-          .add_property(
-            "model", bp::make_function(&Visualizer::model, bp::return_internal_reference<>()))
-          .add_property(
-            "visualModel",
-            bp::make_function(&Visualizer::visualModel, bp::return_internal_reference<>()))
-          .add_property(
-            "collisionModel",
-            bp::make_function(&Visualizer::collisionModel, bp::return_internal_reference<>()))
           .def("hasExternalData", &Visualizer::hasExternalData)
-          .add_property(
-            "data", +[](Visualizer & v) { return std::ref(v.data()); })
-          .add_property(
-            "visualData", +[](Visualizer & v) { return std::ref(v.visualData()); })
-          .add_property(
-            "collisionData", +[](Visualizer & v) { return std::ref(v.collisionData()); });
+          .DEF_PROP_PROXY(model)
+          .DEF_PROP_PROXY(visualModel)
+          .DEF_PROP_PROXY(collisionModel)
+          .DEF_PROP_PROXY(data)
+          .DEF_PROP_PROXY(visualData)
+          .DEF_PROP_PROXY(collisionData);
+#undef DEF_PROP_PROXY
       }
     };
 
