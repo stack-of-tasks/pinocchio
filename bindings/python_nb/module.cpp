@@ -1,3 +1,3 @@
 //
-// Copyright (c) 2015-2022 CNRS INRIA
+// Copyright (c) 2025 INRIA
 //
