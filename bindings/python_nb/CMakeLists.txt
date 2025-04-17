@@ -15,28 +15,32 @@ set(PYWRAP_NB
 
 # --- COMPILE WRAPPER
 make_directory("${${PROJECT_NAME}_BINARY_DIR}/bindings/python_nb/${PROJECT_NAME}")
-set(${PYWRAP_NB}_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_NB_SOURCES})                             # TODO: Define in sources.cmake
-set(${PYWRAP_NB}_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_NB_HEADERS})                      # TODO: Define in sources.cmake
+set(${PYWRAP_NB}_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_NB_SOURCES}) # TODO: Define in
+                                                                        # sources.cmake
+set(${PYWRAP_NB}_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_NB_HEADERS}) # TODO: Define in
+                                                                               # sources.cmake
 
 function(PINOCCHIO_PYTHON_NB_BINDINGS_SPECIFIC_TYPE scalar_name)
   set(scalar_name "${scalar_name}")
   set(PYTHON_LIB_NAME_NB "${PYWRAP_NB}_${scalar_name}")
 
   string(TOUPPER ${scalar_name} upper_scalar_name)
-  set(EXTRA_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_SOURCES})          # TODO : Define in sources.cmake
-  set(EXTRA_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_PUBLIC_HEADERS})   # TODO : Define in sources.cmake
+  set(EXTRA_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_SOURCES}
+  )# TODO : Define in sources.cmake
+  set(EXTRA_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_PUBLIC_HEADERS}
+  )# TODO : Define in sources.cmake
 
   set(${PYTHON_LIB_NAME_NB}_SOURCES ${${PYWRAP_NB}_SOURCES} ${EXTRA_SOURCES})
   set(${PYTHON_LIB_NAME_NB}_HEADERS ${${PYWRAP_NB}_HEADERS} ${EXTRA_HEADERS})
 
-  add_library(${PYTHON_LIB_NAME_NB} SHARED ${${PYTHON_LIB_NAME_NB}_SOURCES} ${${PYTHON_LIB_NAME_NB}_HEADERS})
+  add_library(${PYTHON_LIB_NAME_NB} SHARED ${${PYTHON_LIB_NAME_NB}_SOURCES}
+                                           ${${PYTHON_LIB_NAME_NB}_HEADERS})
 
-#   # Links against accelerate                                                                      # TODO : Test with Apple device
-#   if(BUILD_WITH_ACCELERATE_SUPPORT)
-#     target_link_libraries(${PYTHON_LIB_NAME_NB} PRIVATE "-framework accelerate")
-#   endif(BUILD_WITH_ACCELERATE_SUPPORT)
-       
-  if(BUILD_WITH_OPENMP_SUPPORT)                                                                   
+  # # Links against accelerate # TODO : Test with Apple device if(BUILD_WITH_ACCELERATE_SUPPORT)
+  # target_link_libraries(${PYTHON_LIB_NAME_NB} PRIVATE "-framework accelerate")
+  # endif(BUILD_WITH_ACCELERATE_SUPPORT)
+
+  if(BUILD_WITH_OPENMP_SUPPORT)
     # OpenMP is linked with pinocchio_parallel target
     target_compile_definitions(${PYTHON_LIB_NAME} PRIVATE -DPINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP)
   endif()
@@ -54,9 +58,10 @@ function(PINOCCHIO_PYTHON_NB_BINDINGS_SPECIFIC_TYPE scalar_name)
     MSVC -Xclang=-fno-pch-timestamp
     OUTPUT PRIVATE_OPTIONS
     FILTER)
-    target_compile_options(${PYTHON_LIB_NAME_NB} PRIVATE ${PRIVATE_OPTIONS})
+  target_compile_options(${PYTHON_LIB_NAME_NB} PRIVATE ${PRIVATE_OPTIONS})
 
-  set(PINOCCHIO_PYTHON_NB_CONTEXT_FILE_VALUE "pinocchio/bindings/python_nb/context/${scalar_name}.hpp")
+  set(PINOCCHIO_PYTHON_NB_CONTEXT_FILE_VALUE
+      "pinocchio/bindings/python_nb/context/${scalar_name}.hpp")
   target_compile_definitions(
     ${PYTHON_LIB_NAME_NB}
     PRIVATE PINOCCHIO_PYTHON_NB_CONTEXT_FILE="${PINOCCHIO_PYTHON_NB_CONTEXT_FILE_VALUE}"
@@ -66,16 +71,15 @@ function(PINOCCHIO_PYTHON_NB_BINDINGS_SPECIFIC_TYPE scalar_name)
   if(BUILD_WITH_COMMIT_VERSION)
     tag_library_version(${PYTHON_LIB_NAME_NB})
   endif(BUILD_WITH_COMMIT_VERSION)
-  add_header_group(${PYTHON_LIB_NAME_NB}_HEADERS)                                                   # TODO : Check if needed with nanobind (not needed in coal for eg)
+  add_header_group(${PYTHON_LIB_NAME_NB}_HEADERS) # TODO : Check if needed with nanobind (not needed
+                                                  # in coal for eg)
   add_source_group(${PYTHON_LIB_NAME_NB}_SOURCES)
 
-#   modernize_target_link_libraries(                                                                # TODO : To put with nanoeigenpy if needed (eg if conda install nanoeigenpy -c conda-forge)
-#     ${PYTHON_LIB_NAME}
-#     SCOPE PUBLIC
-#     TARGETS eigenpy::eigenpy)
+  # modernize_target_link_libraries( # TODO : To put with nanoeigenpy if needed (eg if conda install
+  # nanoeigenpy -c conda-forge) ${PYTHON_LIB_NAME} SCOPE PUBLIC TARGETS eigenpy::eigenpy)
   target_link_libraries(${PYTHON_LIB_NAME_NB} PUBLIC ${PROJECT_NAME})
 
-  if(BUILD_WITH_URDF_SUPPORT)                                                                       
+  if(BUILD_WITH_URDF_SUPPORT)
     # Link directly against console_bridge since we bind some enums and call
     # console_bridge::setLogLevel function.
     modernize_target_link_libraries(
@@ -93,9 +97,16 @@ function(PINOCCHIO_PYTHON_NB_BINDINGS_SPECIFIC_TYPE scalar_name)
     target_link_libraries(${PYTHON_LIB_NAME_NB} PUBLIC ${PYTHON_LIBRARY})
   endif()
 
-  set(${PYWRAP_NB}_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})                          # TODO : Check if no installation conflicts if built previously with Boost.Python (design properly to build one, then another easily)
+  set(${PYWRAP_NB}_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME}) # TODO : Check if no
+                                                                           # installation conflicts
+                                                                           # if built previously
+                                                                           # with Boost.Python
+                                                                           # (design properly to
+                                                                           # build one, then another
+                                                                           # easily)
 
-  set_target_properties(                                                                            # TODO : Same + check if could be lightened (as in coal for nanobind)
+  set_target_properties(
+    # TODO : Same + check if could be lightened (as in coal for nanobind)
     ${PYTHON_LIB_NAME_NB}
     PROPERTIES PREFIX ""
                SUFFIX ${PYTHON_EXT_SUFFIX}
@@ -106,7 +117,8 @@ function(PINOCCHIO_PYTHON_NB_BINDINGS_SPECIFIC_TYPE scalar_name)
 
   if(UNIX)
     get_relative_rpath(${${PYWRAP_NB}_INSTALL_DIR} ${PYWRAP_NB}_INSTALL_RPATH)
-    set_target_properties(${PYTHON_LIB_NAME_NB} PROPERTIES INSTALL_RPATH "${${PYWRAP_NB}_INSTALL_RPATH}")
+    set_target_properties(${PYTHON_LIB_NAME_NB} PROPERTIES INSTALL_RPATH
+                                                           "${${PYWRAP_NB}_INSTALL_RPATH}")
   endif()
 
   install(
@@ -138,11 +150,14 @@ if(BUILD_PYTHON_INTERFACE)
   add_custom_target(${PROJECT_NAME}-python_nb)
   set_target_properties(${PROJECT_NAME}-python_nb PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
 
-  python_build_get_target(python_build_target)                                                   # TODO : Check if should be python_build_target or python_nb_build_target
+  python_build_get_target(python_build_target) # TODO : Check if should be python_build_target or
+                                               # python_nb_build_target
   add_dependencies(${PROJECT_NAME}-python_nb ${python_build_target})
 
-#   set(PKG_CONFIG_PYWRAP_REQUIRES "eigenpy >= 2.6.5")                                           # TODO : Equivalent with nnoeigenpy if needed / possible
-  if(IS_ABSOLUTE ${PYTHON_SITELIB})                                                              # TODO : In coal nanobind we do not use absolute paths -> maybe lighten it
+  # set(PKG_CONFIG_PYWRAP_REQUIRES "eigenpy >= 2.6.5")                                           #
+  # TODO : Equivalent with nnoeigenpy if needed / possible
+  if(IS_ABSOLUTE ${PYTHON_SITELIB}) # TODO : In coal nanobind we do not use absolute paths -> maybe
+                                    # lighten it
     set(ABSOLUTE_PYTHON_SITELIB ${PYTHON_SITELIB})
   else()
     set(ABSOLUTE_PYTHON_SITELIB ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITELIB})
@@ -151,38 +166,35 @@ if(BUILD_PYTHON_INTERFACE)
 
   pinocchio_python_nb_bindings_specific_type(default)
 
-#   target_precompile_headers(${PYWRAP}_default PRIVATE                                          # TODO : Give the equivalent if we use rpecompiled headers
-#                             ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp)
+  # target_precompile_headers(${PYWRAP}_default PRIVATE                                          #
+  # TODO : Give the equivalent if we use rpecompiled headers
+  # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp)
   set(PYTHON_LIB_NAME_NB "${PYWRAP_NB}_default")
   set(STUBGEN_DEPENDENCIES "${PYWRAP_NB}_default")
 
-#   if(BUILD_WITH_AUTODIFF_SUPPORT)                                                              # TODO : Add equivalent of cppad files in nanobind version
-#     pinocchio_python_nb_bindings_specific_type(cppad cppad)
-#     # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
-#     # This can happen when Pinocchio is build in Debug mode and pycppad is build in Release mode.
-#     # See
-#     # https://coin-or.github.io/CppAD/doc/preprocessor.htm#Documented%20Here.CPPAD_DEBUG_AND_RELEASE.
-#     target_compile_definitions(
-#       ${PYWRAP_NB}_cppad PRIVATE PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
-#                               CPPAD_DEBUG_AND_RELEASE)
-#     target_include_directories(${PYWRAP_NB}_cppad SYSTEM
-#                                PUBLIC $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>)
-#     target_link_libraries(${PYWRAP_NB}_cppad PUBLIC ${cppad_LIBRARY})
-#     list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP_NB}_cppad")
+  # if(BUILD_WITH_AUTODIFF_SUPPORT)                                                              #
+  # TODO : Add equivalent of cppad files in nanobind version
+  # pinocchio_python_nb_bindings_specific_type(cppad cppad) # CPPAD_DEBUG_AND_RELEASE allow to mix
+  # debug and release versions of CppAD in the same program. # This can happen when Pinocchio is
+  # build in Debug mode and pycppad is build in Release mode. # See #
+  # https://coin-or.github.io/CppAD/doc/preprocessor.htm#Documented%20Here.CPPAD_DEBUG_AND_RELEASE.
+  # target_compile_definitions( ${PYWRAP_NB}_cppad PRIVATE
+  # PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION CPPAD_DEBUG_AND_RELEASE)
+  # target_include_directories(${PYWRAP_NB}_cppad SYSTEM PUBLIC
+  # $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>) target_link_libraries(${PYWRAP_NB}_cppad PUBLIC
+  # ${cppad_LIBRARY}) list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP_NB}_cppad")
 
-#     target_precompile_headers(
-#       ${PYWRAP_NB}_cppad PRIVATE ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
-#       <cppad/cppad.hpp> <boost/mpl/int.hpp>)
+  # target_precompile_headers( ${PYWRAP_NB}_cppad PRIVATE
+  # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp <cppad/cppad.hpp>
+  # <boost/mpl/int.hpp>)
 
-#     # --- INSTALL SCRIPTS
-#     install_python_files(MODULE cppad FILES __init__.py)
-#   endif(BUILD_WITH_AUTODIFF_SUPPORT)
+  # # --- INSTALL SCRIPTS install_python_files(MODULE cppad FILES __init__.py)
+  # endif(BUILD_WITH_AUTODIFF_SUPPORT)
 
-# TODO : Finish structure of this CMakeLists.txt (and adapt jointly with the main one)
-
-
+  # TODO : Finish structure of this CMakeLists.txt (and adapt jointly with the main one)
 
 endif(BUILD_PYTHON_INTERFACE)
 
-# TODO : Check if could be lightened with nanobind features
-# TODO : For the design of the CMakeLists.txt's, begin with the one from the root, see its architecture, and adapt this one (not reversely, the least possible)
+# TODO : Check if could be lightened with nanobind features TODO : For the design of the
+# CMakeLists.txt's, begin with the one from the root, see its architecture, and adapt this one (not
+# reversely, the least possible)
