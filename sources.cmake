@@ -370,7 +370,7 @@ set(${PROJECT_NAME}_SDF_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sdf/model.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sdf/geometry.hxx)
 
-set(${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS
+set(${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS # TODO : Equivalent for nanobind (if needed)
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/python.hpp)
 
 set(${PROJECT_NAME}_PYTHON_PARSER_SOURCES ${PROJECT_SOURCE_DIR}/src/parsers/python/model.cpp)
@@ -457,7 +457,7 @@ set(${PROJECT_NAME}_TEMPLATE_INSTANTIATION_SOURCES
     ${PROJECT_SOURCE_DIR}/src/multibody/data.cpp
     ${PROJECT_SOURCE_DIR}/src/multibody/sample-models.cpp)
 
-# Define Pinocchio Python binding sources and headers
+# Define Pinocchio Python binding sources and headers (Boost.Python)
 
 set(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/explog.hpp
@@ -645,3 +645,203 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_MPFR_PUBLIC_HEADERS
 
 set(${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_MPFR_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/extra/mpfr/boost_number.cpp)
+
+# Define Pinocchio Python binding sources and headers (nanobind)
+
+set(${PROJECT_NAME}_BINDINGS_PYTHON_NB_PUBLIC_HEADERS
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/explog.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/classic-acceleration.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/symmetric3.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/motion.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/force.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/inertia.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/se3.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/contact-info.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/contact-cholesky.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/contact-solver-base.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/delassus-operator.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/proximal.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/algorithms.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/coulomb-friction-cone.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pybind11-all.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pybind11.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/constant.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/version.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/pickle-vector.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/macros.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/path.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/std-vector.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/printable.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/dependencies.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/conversions.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/address.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/copyable.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/registration.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/pickle.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/pickle-map.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/list.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/std-aligned-vector.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/eigen.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/comparable.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/std-map.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/cast.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/deprecation.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/model-checker.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/namespace.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/cppadcg.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/cppad.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/casadi.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/default.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/mpfr.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/generic.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python_nb/fwd.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/serialization/serialization.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/serialization/serializable.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/math/tridiagonal-matrix.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/math/lanczos-decomposition.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/math/multiprecision/boost/number.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/broadphase-manager-base.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/geometry-functors.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/tree-broadphase-manager.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/data.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/frame.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/geometry-model.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joint.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/model.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joint-model.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joint-derived.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joints-models.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joints-variant.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joints-datas.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joint-data.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/liegroups.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/geometry-data.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/geometry-object.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/urdf.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/sdf.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/mjcf.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/srdf.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/extras.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/visualizers/visualizer-visitor.hpp
+)
+
+set(${PROJECT_NAME}_BINDINGS_PYTHON_NB_SOURCES
+    # ${PROJECT_SOURCE_DIR}/bindings/python/spatial/expose-symmetric3.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/spatial/expose-force.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/spatial/expose-inertia.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/spatial/expose-SE3.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/spatial/expose-motion.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/spatial/expose-explog.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/spatial/expose-skew.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-impulse-dynamics.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-model.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-centroidal.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-aba.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-algorithms.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/admm-solver.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/pgs-solver.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-com.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-frames.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-energy.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-contact-dynamics.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-constrained-dynamics-derivatives.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-rnea-derivatives.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-kinematics.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-geometry.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-aba-derivatives.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-contact-solvers.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-contact-inverse-dynamics.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-joints.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-constrained-dynamics.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-rnea.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-contact-jacobian.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/constraints/expose-cones.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-cholesky.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-regressor.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-kinematics-derivatives.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-cat.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-frames-derivatives.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-centroidal-derivatives.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-jacobian.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-delassus.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-impulse-dynamics-derivatives.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-kinematic-regressor.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/expose-crba.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/module.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python_nb/utils/version.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/utils/dependencies.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/utils/conversions.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/utils/path.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/math/expose-linalg.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/math/expose-tridiagonal-matrix.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/math/expose-lanczos-decomposition.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/math/expose-rpy.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/math/expose-eigen-types.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/serialization/serialization.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/multibody/expose-model.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/multibody/expose-liegroups.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/multibody/expose-geometry.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/multibody/expose-frame.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/multibody/expose-data.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/multibody/joint/expose-joints.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/multibody/sample-models.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/parsers/sdf/model.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/parsers/sdf/geometry.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/parsers/expose-parsers.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/parsers/urdf/console-bridge.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/parsers/urdf/model.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/parsers/urdf/geometry.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/parsers/srdf.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/model.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/geometry.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/extra/expose-extras.cpp
+)
+
+set(${PROJECT_NAME}_BINDINGS_PYTHON_NB_HPP_FCL_SOURCES
+    # ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-broadphase.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-broadphase-callbacks.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-collision.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-fcl.cpp
+)
+
+set(${PROJECT_NAME}_BINDINGS_PYTHON_NB_HPP_FCL_PUBLIC_HEADERS
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/fcl/transform.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/broadphase-manager.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/collision.hpp
+)
+
+set(${PROJECT_NAME}_BINDINGS_PYTHON_NB_PARALLEL_SOURCES
+    # ${PROJECT_SOURCE_DIR}/bindings/python/multibody/pool/expose-pool.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/parallel/aba.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/parallel/expose-parallel.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/algorithm/parallel/rnea.cpp
+)
+
+set(${PROJECT_NAME}_BINDINGS_PYTHON_NB_PARALLEL_PUBLIC_HEADERS
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/pool/model.hpp
+)
+
+set(${PROJECT_NAME}_BINDINGS_PYTHON_NB_HPP_FCL_PARALLEL_SOURCES
+    # ${PROJECT_SOURCE_DIR}/bindings/python/collision/parallel/expose-parallel.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/collision/parallel/geometry.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/collision/parallel/broadphase.cpp
+    # ${PROJECT_SOURCE_DIR}/bindings/python/collision/pool/expose-pool.cpp
+)
+
+set(${PROJECT_NAME}_BINDINGS_PYTHON_NB_HPP_FCL_PARALLEL_PUBLIC_HEADERS
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/pool/geometry.hpp
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/pool/broadphase-manager.hpp
+)
+
+set(${PROJECT_NAME}_BINDINGS_PYTHON_NB_EXTRA_SOURCES
+    # ${PROJECT_SOURCE_DIR}/bindings/python/extra/expose-reachable-workspace.cpp
+)
+
+set(${PROJECT_NAME}_BINDINGS_PYTHON_NB_EXTRA_MPFR_PUBLIC_HEADERS
+    # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/math/multiprecision/boost/number.hpp
+)
+
+set(${PROJECT_NAME}_BINDINGS_PYTHON_NB_EXTRA_MPFR_SOURCES
+    # ${PROJECT_SOURCE_DIR}/bindings/python/extra/mpfr/boost_number.cpp
+)
