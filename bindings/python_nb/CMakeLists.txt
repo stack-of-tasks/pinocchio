@@ -15,20 +15,17 @@ set(PYWRAP_NB
 
 # --- COMPILE WRAPPER
 make_directory("${${PROJECT_NAME}_BINARY_DIR}/bindings/python_nb/${PROJECT_NAME}")
-set(${PYWRAP_NB}_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_NB_SOURCES}) # TODO: Define in
-                                                                        # sources.cmake
-set(${PYWRAP_NB}_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_NB_HEADERS}) # TODO: Define in
-                                                                               # sources.cmake
+set(${PYWRAP_NB}_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_NB_SOURCES})
+set(${PYWRAP_NB}_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_NB_HEADERS})
 
 function(PINOCCHIO_PYTHON_NB_BINDINGS_SPECIFIC_TYPE scalar_name)
   set(scalar_name "${scalar_name}")
   set(PYTHON_LIB_NAME_NB "${PYWRAP_NB}_${scalar_name}")
 
-  string(TOUPPER ${scalar_name} upper_scalar_name)
-  set(EXTRA_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_SOURCES}
-  )# TODO : Define in sources.cmake
-  set(EXTRA_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_PUBLIC_HEADERS}
-  )# TODO : Define in sources.cmake
+  string(TOUPPER ${scalar_name} upper_scalar_name) # TODO : Extra content may not be nneeded (just
+                                                   # Boost specific content)
+  set(EXTRA_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_NB_EXTRA_${upper_scalar_name}_SOURCES})
+  set(EXTRA_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_NB_EXTRA_${upper_scalar_name}_PUBLIC_HEADERS})
 
   set(${PYTHON_LIB_NAME_NB}_SOURCES ${${PYWRAP_NB}_SOURCES} ${EXTRA_SOURCES})
   set(${PYTHON_LIB_NAME_NB}_HEADERS ${${PYWRAP_NB}_HEADERS} ${EXTRA_HEADERS})
@@ -42,7 +39,8 @@ function(PINOCCHIO_PYTHON_NB_BINDINGS_SPECIFIC_TYPE scalar_name)
 
   if(BUILD_WITH_OPENMP_SUPPORT)
     # OpenMP is linked with pinocchio_parallel target
-    target_compile_definitions(${PYTHON_LIB_NAME} PRIVATE -DPINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP)
+    target_compile_definitions(${PYTHON_LIB_NAME_NB}
+                               PRIVATE -DPINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP)
   endif()
   add_dependencies(${PROJECT_NAME}-python_nb ${PYTHON_LIB_NAME_NB})
 
@@ -61,7 +59,7 @@ function(PINOCCHIO_PYTHON_NB_BINDINGS_SPECIFIC_TYPE scalar_name)
   target_compile_options(${PYTHON_LIB_NAME_NB} PRIVATE ${PRIVATE_OPTIONS})
 
   set(PINOCCHIO_PYTHON_NB_CONTEXT_FILE_VALUE
-      "pinocchio/bindings/python_nb/context/${scalar_name}.hpp")
+      "pinocchio/bindings/python_nb/context/${scalar_name}.hpp") # TODO : Create this file
   target_compile_definitions(
     ${PYTHON_LIB_NAME_NB}
     PRIVATE PINOCCHIO_PYTHON_NB_CONTEXT_FILE="${PINOCCHIO_PYTHON_NB_CONTEXT_FILE_VALUE}"
@@ -72,11 +70,33 @@ function(PINOCCHIO_PYTHON_NB_BINDINGS_SPECIFIC_TYPE scalar_name)
     tag_library_version(${PYTHON_LIB_NAME_NB})
   endif(BUILD_WITH_COMMIT_VERSION)
   add_header_group(${PYTHON_LIB_NAME_NB}_HEADERS) # TODO : Check if needed with nanobind (not needed
-                                                  # in coal for eg)
+                                                  # # in coal for eg)
   add_source_group(${PYTHON_LIB_NAME_NB}_SOURCES)
 
-  # modernize_target_link_libraries( # TODO : To put with nanoeigenpy if needed (eg if conda install
-  # nanoeigenpy -c conda-forge) ${PYTHON_LIB_NAME} SCOPE PUBLIC TARGETS eigenpy::eigenpy)
+  # modernize_target_link_libraries( # TODO : conda or from source ? (due to register function)
+  # ${PYTHON_LIB_NAME_NB} SCOPE PUBLIC TARGETS nanoeigenpy::nanoeigenpy)
+
+  # Beginning of the file from coal (to adapt)
+  if(CMAKE_VERSION VERSION_LESS 3.18)
+    set(DEV_MODULE Development)
+  else()
+    set(DEV_MODULE Development.Module)
+  endif()
+
+  # Python
+  find_package(
+    Python
+    COMPONENTS Interpreter ${DEV_MODULE}
+    REQUIRED)
+
+  # Detect the installed nanobind package and import it into CMake
+  execute_process(
+    COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    OUTPUT_VARIABLE nanobind_ROOT)
+  find_package(nanobind CONFIG REQUIRED)
+  find_package(nanoeigenpy CONFIG REQUIRED)
+
   target_link_libraries(${PYTHON_LIB_NAME_NB} PUBLIC ${PROJECT_NAME})
 
   if(BUILD_WITH_URDF_SUPPORT)
@@ -127,7 +147,7 @@ function(PINOCCHIO_PYTHON_NB_BINDINGS_SPECIFIC_TYPE scalar_name)
     DESTINATION ${PINOCCHIO_PYTHON_NB_INSTALL_DIR})
 endfunction()
 
-function(INSTALL_PYTHON_NB_FILES)
+function(INSTALL_PYTHON_FILES)
   set(options)
   set(oneValueArgs MODULE)
   set(multiValueArgs FILES)
@@ -150,14 +170,12 @@ if(BUILD_PYTHON_INTERFACE)
   add_custom_target(${PROJECT_NAME}-python_nb)
   set_target_properties(${PROJECT_NAME}-python_nb PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
 
-  python_build_get_target(python_build_target) # TODO : Check if should be python_build_target or
-                                               # python_nb_build_target
+  python_build_get_target(python_build_target)
   add_dependencies(${PROJECT_NAME}-python_nb ${python_build_target})
 
-  # set(PKG_CONFIG_PYWRAP_REQUIRES "eigenpy >= 2.6.5")                                           #
-  # TODO : Equivalent with nnoeigenpy if needed / possible
-  if(IS_ABSOLUTE ${PYTHON_SITELIB}) # TODO : In coal nanobind we do not use absolute paths -> maybe
-                                    # lighten it
+  # set(PKG_CONFIG_PYWRAP_NB_REQUIRES "nanoeigenpy >= 0.1.0")                         # TODO : conda
+  # or from source ? (due to register function)
+  if(IS_ABSOLUTE ${PYTHON_SITELIB}) # TODO : Check if can be lightened
     set(ABSOLUTE_PYTHON_SITELIB ${PYTHON_SITELIB})
   else()
     set(ABSOLUTE_PYTHON_SITELIB ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITELIB})
@@ -166,35 +184,97 @@ if(BUILD_PYTHON_INTERFACE)
 
   pinocchio_python_nb_bindings_specific_type(default)
 
-  # target_precompile_headers(${PYWRAP}_default PRIVATE                                          #
-  # TODO : Give the equivalent if we use rpecompiled headers
-  # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp)
+  # target_precompile_headers(${PYWRAP}_default PRIVATE                             # TODO : If I
+  # use precompiled headers ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python_nb/pch.hpp)
+
   set(PYTHON_LIB_NAME_NB "${PYWRAP_NB}_default")
   set(STUBGEN_DEPENDENCIES "${PYWRAP_NB}_default")
 
-  # if(BUILD_WITH_AUTODIFF_SUPPORT)                                                              #
-  # TODO : Add equivalent of cppad files in nanobind version
-  # pinocchio_python_nb_bindings_specific_type(cppad cppad) # CPPAD_DEBUG_AND_RELEASE allow to mix
-  # debug and release versions of CppAD in the same program. # This can happen when Pinocchio is
-  # build in Debug mode and pycppad is build in Release mode. # See #
-  # https://coin-or.github.io/CppAD/doc/preprocessor.htm#Documented%20Here.CPPAD_DEBUG_AND_RELEASE.
-  # target_compile_definitions( ${PYWRAP_NB}_cppad PRIVATE
-  # PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION CPPAD_DEBUG_AND_RELEASE)
-  # target_include_directories(${PYWRAP_NB}_cppad SYSTEM PUBLIC
-  # $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>) target_link_libraries(${PYWRAP_NB}_cppad PUBLIC
-  # ${cppad_LIBRARY}) list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP_NB}_cppad")
+  if(BUILD_WITH_AUTODIFF_SUPPORT)
 
-  # target_precompile_headers( ${PYWRAP_NB}_cppad PRIVATE
-  # ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp <cppad/cppad.hpp>
-  # <boost/mpl/int.hpp>)
+  endif(BUILD_WITH_AUTODIFF_SUPPORT)
 
-  # # --- INSTALL SCRIPTS install_python_files(MODULE cppad FILES __init__.py)
-  # endif(BUILD_WITH_AUTODIFF_SUPPORT)
+  if(BUILD_WITH_CODEGEN_SUPPORT)
 
-  # TODO : Finish structure of this CMakeLists.txt (and adapt jointly with the main one)
+  endif(BUILD_WITH_CODEGEN_SUPPORT)
 
-endif(BUILD_PYTHON_INTERFACE)
+  if(BUILD_WITH_CASADI_SUPPORT)
 
-# TODO : Check if could be lightened with nanobind features TODO : For the design of the
-# CMakeLists.txt's, begin with the one from the root, see its architecture, and adapt this one (not
-# reversely, the least possible)
+  endif(BUILD_WITH_CASADI_SUPPORT)
+
+  if(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
+
+  endif(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
+
+  if(BUILD_WITH_AUTODIFF_SUPPORT)
+
+  endif(BUILD_WITH_AUTODIFF_SUPPORT)
+
+  if(BUILD_WITH_CODEGEN_SUPPORT)
+
+  endif(BUILD_WITH_CODEGEN_SUPPORT)
+
+  if(BUILD_WITH_CASADI_SUPPORT)
+
+  endif(BUILD_WITH_CASADI_SUPPORT)
+
+  if(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
+
+  endif(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
+
+  # --- INSTALL SCRIPTS                                       # TODO : Adapt to the new files
+  install_python_files(
+    # FILES __init__.py deprecated.py deprecation.py utils.py robot_wrapper.py romeo_wrapper.py
+    # explog.py shortcuts.py windows_dll_manager.py
+  )
+
+  # --- INSTALL DERIVATIVE SCRIPTS                            # TODO : Adapt to the new files
+  install_python_files(# MODULE derivative FILES xm.py dcrba.py lambdas.py
+  )
+
+  # --- INSTALL VISUALIZATION SCRIPTS                          # TODO : Adapt to the new files
+  install_python_files(
+    # MODULE visualize FILES __init__.py base_visualizer.py gepetto_visualizer.py
+    # meshcat_visualizer.py panda3d_visualizer.py rviz_visualizer.py visualizers.py
+  )
+
+  # --- STUBS --- # TODO : Version lightended with nanobind (cf what is done in coal)
+
+  # --- PACKAGING --- #
+
+  # Format string
+  set(_PKG_CONFIG_PYWRAP_NB_LIBDIR ${PINOCCHIO_PYTHON_NB_INSTALL_DIR})
+  set(_PKG_CONFIG_PYWRAP_NB_BINDIR ${PINOCCHIO_PYTHON_NB_INSTALL_DIR})
+  set(_PKG_CONFIG_PYWRAP_NB_CONFLICTS)
+  set(_PKG_CONFIG_PYWRAP_NB_REQUIRES "${PROJECT_NAME}")
+  foreach(dep ${PKG_CONFIG_PYWRAP_NB_REQUIRES})
+    set(_PKG_CONFIG_PYWRAP_NB_REQUIRES "${_PKG_CONFIG_PYWRAP_NB_REQUIRES}, ${dep}")
+  endforeach(dep ${PKG_CONFIG_PYWRAP_NB_REQUIRES})
+
+  set(_PKG_CONFIG_PYWRAP_NB_LIBS "-L\${libdir} -l${PYWRAP_NB_}")
+  if(APPLE)
+    set(_PKG_CONFIG_PYWRAP_NB_LIBS
+        "${_PKG_CONFIG_PYWRAP_NB_LIBS} -Wl,-undefined,dynamic_lookup,${Boost_${UPPERCOMPONENT}_LIBRARY}"
+    )
+  else(APPLE)
+    set(_PKG_CONFIG_PYWRAP_NB_LIBS "${_PKG_CONFIG_PYWRAP_NB_LIBS} ${LIBINCL_KW}boost_python")
+  endif(APPLE)
+
+  set(_PKG_CONFIG_PYWRAP_NB_CFLAGS "-I\${includedir}")
+  set(_PKG_CONFIG_PYWRAP_NB_CFLAGS "${_PKG_CONFIG_PYWRAP_NB_CFLAGS} -I${PYTHON_INCLUDE_DIRS}")
+  foreach(cflags ${CFLAGS_DEPENDENCIES})
+    set(_PKG_CONFIG_PYWRAP_NB_CFLAGS "${_PKG_CONFIG_PYWRAP_NB_CFLAGS} ${cflags}")
+  endforeach(cflags ${CFLAGS_DEPENDENCIES})
+  foreach(cflags ${CFLAGS_OPTIONS})
+    set(_PKG_CONFIG_PYWRAP_NB_CFLAGS "${_PKG_CONFIG_PYWRAP_NB_CFLAGS} ${cflags}")
+  endforeach()
+
+  # configure_file("${CMAKE_CURRENT_SOURCE_DIR}/pinocchiopy.pc.cmake"                     # TODO :
+  # Make sure it is the one from python_nb/ "${CMAKE_CURRENT_BINARY_DIR}/pinocchiopy.pc")
+
+  # install( FILES "${CMAKE_CURRENT_BINARY_DIR}/pinocchiopy.pc" DESTINATION
+  # ${CMAKE_INSTALL_LIBDIR}/pkgconfig PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
+
+  # TODO : Doxygen
+
+endif()

@@ -288,7 +288,7 @@ if(BUILD_WITH_PARSERS_SUPPORT)
     ${PARSERS_LIB_NAME}
     SCOPE PUBLIC
     TARGETS Boost::filesystem
-    LIBRARIES ${Boost_FILESYSTEM_LIBRARY}}
+    LIBRARIES ${Boost_FILESYSTEM_LIBRARY}
     INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 
   # Special care of urdfdom version
@@ -352,18 +352,20 @@ if(BUILD_WITH_CASADI_SUPPORT)
   target_link_libraries(${PROJECT_NAME}_casadi ${CASADI_SCOPE} casadi)
 endif()
 
-if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
-  set(PYTHON_PARSER_LIB_NAME "${PROJECT_NAME}_python_parser")
+if(NOT PINOCCHIO_PYTHON_NANOBIND) # TODO : Equivalent for nanobind (if needed)
+  if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
+    set(PYTHON_PARSER_LIB_NAME "${PROJECT_NAME}_python_parser")
 
-  pinocchio_target(
-    ${PYTHON_PARSER_LIB_NAME}
-    SCALAR default
-    SOURCES ${${PROJECT_NAME}_PYTHON_PARSER_SOURCES}
-            ${${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS})
-  pinocchio_config(python_parser ${PYTHON_PARSER_LIB_NAME})
+    pinocchio_target(
+      ${PYTHON_PARSER_LIB_NAME}
+      SCALAR default
+      SOURCES ${${PROJECT_NAME}_PYTHON_PARSER_SOURCES}
+              ${${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS})
+    pinocchio_config(python_parser ${PYTHON_PARSER_LIB_NAME})
 
-  target_link_libraries(${PYTHON_PARSER_LIB_NAME} PUBLIC ${PROJECT_NAME}_default Python3::Python)
-  target_link_boost_python(${PYTHON_PARSER_LIB_NAME} PUBLIC)
+    target_link_libraries(${PYTHON_PARSER_LIB_NAME} PUBLIC ${PROJECT_NAME}_default Python3::Python)
+    target_link_boost_python(${PYTHON_PARSER_LIB_NAME} PUBLIC)
+  endif()
 endif()
 
 # Define main target (default, parsers, extra).

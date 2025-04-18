@@ -6,7 +6,7 @@
 if(BUILD_PYTHON_INTERFACE)
   if(PINOCCHIO_PYTHON_NANOBIND)
     add_subdirectory(python_nb)
-    set(PYWRAP_NB
+    set(PYWRAP_NB # TODO : Necessary ? Because also did in the dedicated CMakeLists.txt
         ${PYWRAP_NB}
         PARENT_SCOPE)
   else()
