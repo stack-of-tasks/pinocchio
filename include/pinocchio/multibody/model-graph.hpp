@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 #include <unordered_map>
 
 namespace pinocchio
@@ -29,18 +30,18 @@ namespace pinocchio
     // TODO support all joints
     // TODO tests
     // TODO Redefine Rev{X,Y,Z} to use our options
-    template<typename _Scalar, int _Options, template<typename, int> class JointCollectionTpl>
-    struct ReverseJointVisitorTpl
-    : public boost::static_visitor<JointModelTpl<_Scalar, _Options, JointCollectionTpl>>
+    // template<typename _Scalar, int _Options, template<typename, int> class JointCollectionTpl>
+    struct ReverseJointVisitor
+    : public boost::static_visitor<JointModel>
     {
-      typedef _Scalar Scalar;
-      enum
-      {
-        Options = _Options
-      };
+      // typedef _Scalar Scalar;
+      // enum
+      // {
+      //   Options = _Options
+      // };
 
-      typedef JointCollectionTpl<Scalar, Options> JointCollection;
-      typedef typename JointCollection::JointModelVariant JointModelVariant;
+      // typedef JointCollectionTpl<Scalar, Options> JointCollection;
+      typedef typename JointCollectionDefault::JointModelVariant JointModelVariant;
       typedef JointModelVariant ReturnType;
 
       template<typename JointModelDerived>
@@ -50,24 +51,24 @@ namespace pinocchio
       }
 
       ReturnType
-      operator()(const pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> & joint) const
+      operator()(const pinocchio::JointModelRevoluteUnaligned & joint) const
       {
-        return JointModelRevoluteUnalignedTpl<Scalar, Options>(-joint.axis);
+        return JointModelRevoluteUnaligned(-joint.axis);
       }
 
       ReturnType operator()(const pinocchio::JointModelRX &) const
       {
-        return JointModelRevoluteUnalignedTpl<Scalar, Options>(-1., 0., 0.);
+        return JointModelRevoluteUnaligned(-1., 0., 0.);
       }
 
       ReturnType operator()(const pinocchio::JointModelRY &) const
       {
-        return JointModelRevoluteUnalignedTpl<Scalar, Options>(0., -1., 0.);
+        return JointModelRevoluteUnaligned(0., -1., 0.);
       }
 
       ReturnType operator()(const pinocchio::JointModelRZ &) const
       {
-        return JointModelRevoluteUnalignedTpl<Scalar, Options>(0., 0., -1.);
+        return JointModelRevoluteUnaligned(0., 0., -1.);
       }
     };
 
@@ -86,22 +87,22 @@ namespace pinocchio
         edges->push_back(edge_desc);
       }
 
-      std::vector<EdgeDesc> * edges;
+      std::vector<EdgeDesc> *edges;
     };
 
   } // namespace internal
 
-  template<typename _Scalar, int _Options>
-  struct ModelGraphVertexTpl
+  // template<typename _Scalar, int _Options>
+  struct ModelGraphVertex
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef _Scalar Scalar;
-    enum
-    {
-      Options = _Options
-    };
+    // typedef _Scalar Scalar;
+    // enum
+    // {
+    //   Options = _Options
+    // };
 
-    typedef InertiaTpl<Scalar, Options> Inertia;
+    // typedef InertiaTpl<Scalar, Options> Inertia;
 
     // Body unique name
     std::string name;
@@ -109,19 +110,19 @@ namespace pinocchio
     Inertia inertia;
   };
 
-  template<typename _Scalar, int _Options, template<typename, int> class JointCollectionTpl>
-  struct ModelGraphEdgeTpl
+  // template<typename _Scalar, int _Options, template<typename, int> class JointCollectionTpl>
+  struct ModelGraphEdge
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef _Scalar Scalar;
-    enum
-    {
-      Options = _Options
-    };
+    // typedef _Scalar Scalar;
+    // enum
+    // {
+    //   Options = _Options
+    // };
 
-    typedef JointCollectionTpl<Scalar, Options> JointCollection;
-    typedef SE3Tpl<Scalar, Options> SE3;
-    typedef JointModelTpl<Scalar, Options, JointCollectionTpl> JointModel;
+    // typedef JointCollectionTpl<Scalar, Options> JointCollection;
+    // typedef SE3Tpl<Scalar, Options> SE3;
+    // typedef JointModelTpl<Scalar, Options, JointCollectionTpl> JointModel;
 
     // Joint unique name
     std::string name;
@@ -133,24 +134,24 @@ namespace pinocchio
     SE3 joint_to_in;
   };
 
-  template<typename _Scalar, int _Options, template<typename, int> class JointCollectionTpl>
-  struct ModelGraphTpl
+  // template<typename _Scalar, int _Options, template<typename, int> class JointCollectionTpl>
+  struct ModelGraph
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef _Scalar Scalar;
-    enum
-    {
-      Options = _Options
-    };
+    // typedef _Scalar Scalar;
+    // enum
+    // {
+    //   Options = _Options
+    // };
 
-    typedef ModelGraphVertexTpl<Scalar, Options> ModelGraphVertex;
-    typedef ModelGraphEdgeTpl<Scalar, Options, JointCollectionTpl> ModelGraphEdge;
-    typedef InertiaTpl<Scalar, Options> Inertia;
-    typedef SE3Tpl<Scalar, Options> SE3;
-    typedef JointModelTpl<Scalar, Options, JointCollectionTpl> JointModel;
-    typedef internal::ReverseJointVisitorTpl<Scalar, Options, JointCollectionTpl>
-      ReverseJointVisitor;
-    typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+    // typedef ModelGraphVertexTpl<Scalar, Options> ModelGraphVertex;
+    // typedef ModelGraphEdgeTpl<Scalar, Options, JointCollectionTpl> ModelGraphEdge;
+    // typedef InertiaTpl<Scalar, Options> Inertia;
+    // typedef SE3Tpl<Scalar, Options> SE3;
+    // typedef JointModelTpl<Scalar, Options, JointCollectionTpl> JointModel;
+    // typedef internal::ReverseJointVisitorTpl<Scalar, Options, JointCollectionTpl>
+    //   ReverseJointVisitor;
+    // typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
 
     typedef boost::
       adjacency_list<boost::vecS, boost::vecS, boost::directedS, ModelGraphVertex, ModelGraphEdge>
@@ -206,7 +207,7 @@ namespace pinocchio
       }
       ModelGraphEdge & reverse_edge = g[reverse_edge_desc.first];
       reverse_edge.name = joint_name + std::string("_reverse");
-      edge.joint = JointModel(boost::apply_visitor(ReverseJointVisitor(), joint));
+      edge.joint = JointModel(boost::apply_visitor(pinocchio::internal::ReverseJointVisitor(), joint));
       reverse_edge.out_to_joint = joint_to_in.inverse();
       reverse_edge.joint_to_in = out_to_joint.inverse();
     }
