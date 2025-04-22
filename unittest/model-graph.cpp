@@ -33,12 +33,14 @@ BOOST_AUTO_TEST_CASE(test_linear_robot)
   g.addBody("body1", pinocchio::Inertia::Identity());
   g.addBody("body2", pinocchio::Inertia(0., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero()));
   g.addBody("body3", pinocchio::Inertia(0., pinocchio::Inertia::Vector3(0., -3, -2.), pinocchio::Symmetric3::Zero()));
+
+
   g.addJoint(
-    "body1_to_body2", pinocchio::JointModel(pinocchio::JointModelRZ()), "body1",
+    "body1_to_body2", pinocchio::internal::JointRevoluteGraph("body1_to_body2", Eigen::Vector3d::UnitZ()), "body1",
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "body2",
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 2., 0.)));
   g.addJoint(
-    "body2_to_body3", pinocchio::JointModel(pinocchio::JointModelRZ()), "body2",
+    "body2_to_body3", pinocchio::internal::JointRevoluteGraph("body2_to_body3", Eigen::Vector3d::UnitX()), "body2",
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., -2., 0.)), "body3",
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(4., -3., 0.)));
 
