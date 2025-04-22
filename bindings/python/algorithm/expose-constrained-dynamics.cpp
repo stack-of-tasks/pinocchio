@@ -25,8 +25,6 @@ namespace pinocchio
     typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintData)
       RigidConstraintDataVector;
 
-#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
-
     static const context::VectorXs constraintDynamics_proxy(
       const context::Model & model,
       context::Data & data,
@@ -53,8 +51,6 @@ namespace pinocchio
       return constraintDynamics(model, data, q, v, tau, contact_models, contact_datas);
     }
 
-#endif // PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
-
     void exposeConstraintDynamics()
     {
       using namespace Eigen;
@@ -79,6 +75,7 @@ namespace pinocchio
 
 #ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
       ContactCholeskyDecompositionPythonVisitor<context::ContactCholeskyDecomposition>::expose();
+#endif // PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
 
       bp::def(
         "initConstraintDynamics",
@@ -112,8 +109,6 @@ namespace pinocchio
         "This function returns joint acceleration of the system. The contact forces are "
         "stored in the list data.contact_forces.",
         mimic_not_supported_function<>(0));
-
-#endif // PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
     }
   } // namespace python
 } // namespace pinocchio
