@@ -8,7 +8,6 @@
 #include <cppad/cg/support/cppadcg_eigen.hpp>
 #include <cppad/cppad.hpp>
 
-#define PINOCCHIO_SKIP_ALGORITHM_CONTACT_DYNAMICS
 #define PINOCCHIO_SKIP_ALGORITHM_CONTACT_CHOLESKY
 #define PINOCCHIO_SKIP_ALGORITHM_CONTACT_JACOBIAN
 #define PINOCCHIO_SKIP_ALGORITHM_MODEL
