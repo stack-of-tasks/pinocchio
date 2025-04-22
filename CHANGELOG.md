@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Fix getters for models and data in `VisualizerPythonVisitor` ([#2647](https://github.com/stack-of-tasks/pinocchio/pull/2647))
+- Fix `pinocchio::cholesky::Mv` build with `CppAd` scalar ([#2659](https://github.com/stack-of-tasks/pinocchio/pull/2659))
+- Fix `pinocchio::contactABA` build with `casadi` scalar ([#2659](https://github.com/stack-of-tasks/pinocchio/pull/2659))
+
+### Added
+- Add explicit template instantiation for constraint algorithms for `casadi`, `CppAD` and `CppADCodeGen` scalar ([#2659](https://github.com/stack-of-tasks/pinocchio/pull/2659))
+- Add `casadi` bindings for `pinocchio.initConstraintDynamics` and `pinocchio.constraintDynamics` ([#2659](https://github.com/stack-of-tasks/pinocchio/pull/2659))
+
 
 ## [3.5.0] - 2025-04-02
 
