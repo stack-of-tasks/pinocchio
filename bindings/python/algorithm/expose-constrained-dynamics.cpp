@@ -73,9 +73,7 @@ namespace pinocchio
 
       StdVectorPythonVisitor<RigidConstraintDataVector>::expose("StdVec_RigidConstraintData");
 
-#ifndef PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
       ContactCholeskyDecompositionPythonVisitor<context::ContactCholeskyDecomposition>::expose();
-#endif // PINOCCHIO_PYTHON_SKIP_ALGORITHM_CONSTRAINED_DYNAMICS
 
       bp::def(
         "initConstraintDynamics",

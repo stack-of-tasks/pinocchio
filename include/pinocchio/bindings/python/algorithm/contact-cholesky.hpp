@@ -188,11 +188,11 @@ namespace pinocchio
               "Returns the Constraint Cholesky decomposition associated to this "
               "DelassusCholeskyExpression.",
               bp::return_internal_reference<>())
-
             .def(DelassusOperatorBasePythonVisitor<DelassusCholeskyExpression>());
         }
 
         {
+#ifndef PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
           typedef DelassusOperatorDenseTpl<context::Scalar, context::Options> DelassusOperatorDense;
           bp::class_<DelassusOperatorDense>(
             "DelassusOperatorDense", "Delassus Cholesky dense operator from a dense matrix.",
@@ -201,9 +201,11 @@ namespace pinocchio
               bp::args("self", "matrix"), "Build from a given dense matrix"))
 
             .def(DelassusOperatorBasePythonVisitor<DelassusOperatorDense>());
+#endif // PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
         }
 
         {
+#ifndef PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
           typedef DelassusOperatorSparseTpl<context::Scalar, context::Options>
             DelassusOperatorSparse;
           bp::class_<DelassusOperatorSparse, boost::noncopyable>(
@@ -213,6 +215,7 @@ namespace pinocchio
               bp::args("self", "matrix"), "Build from a given sparse matrix"))
 
             .def(DelassusOperatorBasePythonVisitor<DelassusOperatorSparse>());
+#endif // PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
         }
 #ifdef PINOCCHIO_WITH_ACCELERATE_SUPPORT
         {
