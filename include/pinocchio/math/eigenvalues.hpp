@@ -35,7 +35,7 @@ namespace pinocchio
     void run(const MatrixLike & mat)
     {
       PINOCCHIO_CHECK_INPUT_ARGUMENT(max_it >= 1);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(rel_tol > Scalar(0));
+      PINOCCHIO_CHECK_INPUT_ARGUMENT((check_expression_if_real<Scalar, true>(rel_tol > 0)));
       Scalar eigenvalue_est = principal_eigen_vector.norm();
 
       for (it = 0; it < max_it; ++it)
@@ -68,7 +68,7 @@ namespace pinocchio
     void lowest(const MatrixLike & mat, const bool compute_largest = true)
     {
       PINOCCHIO_CHECK_INPUT_ARGUMENT(max_it >= 1);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(rel_tol > Scalar(0));
+      PINOCCHIO_CHECK_INPUT_ARGUMENT((check_expression_if_real<Scalar, true>(rel_tol > 0)));
 
       if (compute_largest)
         run(mat);

@@ -363,7 +363,7 @@ namespace pinocchio
 
           for (int k = model.nv - 1; k >= 0; --k)
           {
-            vout_[k] = M.row(k).segment(k, nvt[(size_t)k]) * vin.segment(k, nvt[(size_t)k]);
+            vout_[k] = M.row(k).segment(k, nvt[(size_t)k]).dot(vin.segment(k, nvt[(size_t)k]));
             vout_.segment(k + 1, nvt[(size_t)k] - 1) +=
               M.row(k).segment(k + 1, nvt[(size_t)k] - 1).transpose() * vin[k];
           }

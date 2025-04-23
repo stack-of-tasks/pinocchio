@@ -13,6 +13,7 @@
 #include "pinocchio/algorithm/contact-cholesky.hxx"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
+#include "pinocchio/math/fwd.hpp"
 #include <limits>
 
 namespace pinocchio
@@ -888,16 +889,15 @@ namespace pinocchio
           cdata.contact_acceleration_deviation.linear() +=
             contact1_velocity.angular().cross(contact1_velocity.linear());
 
-        using std::max;
         if (cmodel.type == CONTACT_3D)
         {
-          primal_infeasibility = max<Scalar>(
+          primal_infeasibility = math::max<Scalar>(
             primal_infeasibility,
             cdata.contact_acceleration_deviation.linear().template lpNorm<Eigen::Infinity>());
         }
         else
         {
-          primal_infeasibility = max<Scalar>(
+          primal_infeasibility = math::max<Scalar>(
             primal_infeasibility,
             cdata.contact_acceleration_deviation.toVector().template lpNorm<Eigen::Infinity>());
         }
