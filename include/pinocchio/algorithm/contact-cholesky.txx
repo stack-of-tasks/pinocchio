@@ -101,16 +101,6 @@ namespace pinocchio
   ContactCholeskyDecompositionTpl<context::Scalar, context::Options>::inverse<context::MatrixXs>(
     const Eigen::MatrixBase<context::MatrixXs> &) const;
 
-  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI bool
-    ContactCholeskyDecompositionTpl<context::Scalar, context::Options>::
-    operator== <context::Scalar, context::Options>(
-      const ContactCholeskyDecompositionTpl<context::Scalar, context::Options> &) const;
-
-  extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI bool
-    ContactCholeskyDecompositionTpl<context::Scalar, context::Options>::
-    operator!= <context::Scalar, context::Options>(
-      const ContactCholeskyDecompositionTpl<context::Scalar, context::Options> &) const;
-
   PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
 } // namespace pinocchio
