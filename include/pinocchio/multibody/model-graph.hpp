@@ -45,10 +45,37 @@ namespace pinocchio
 
     struct JointRevoluteGraph : public JointBaseGraph<JointRevoluteGraph>
     {
+      // rotation axis
       Eigen::Vector3d axis;
-      JointRevoluteGraph(const std::string & n, const Eigen::Vector3d & ax)
+      // axis to flip around if needed
+      Eigen::Vector3d flip_axis;
+      // if axis is unitary (X, Y, Z) and negative, then flipped is true, to remember to flip
+      // position when adding joint to model
+      bool flipped = false;
+      JointRevoluteGraph(const std::string & n, const Eigen::Vector3d & ax, const bool flip = false)
       : JointBaseGraph(n)
-      , axis(ax) {};
+      , axis(ax)
+      , flipped(flip)
+      {
+        if (axis.isApprox(-Eigen::Vector3d::UnitX()))
+        {
+          flipped = true;
+          axis = Eigen::Vector3d::UnitX();
+          flip_axis = Eigen::Vector3d::UnitY();
+        }
+        else if (axis.isApprox(-Eigen::Vector3d::UnitY()))
+        {
+          flipped = true;
+          axis = Eigen::Vector3d::UnitY();
+          flip_axis = Eigen::Vector3d::UnitX();
+        }
+        else if (axis.isApprox(-Eigen::Vector3d::UnitZ()))
+        {
+          flipped = true;
+          axis = Eigen::Vector3d::UnitZ();
+          flip_axis = Eigen::Vector3d::UnitY();
+        }
+      };
     };
 
     struct JointPrismaticGraph : public JointBaseGraph<JointPrismaticGraph>
@@ -141,7 +168,7 @@ namespace pinocchio
           return pinocchio::JointModelPrismaticUnaligned(joint.axis.normalized());
       }
 
-      ReturnType operator()(const JointFreeFlyerGraph & joint) const
+      ReturnType operator()(const JointFreeFlyerGraph &) const
       {
         return pinocchio::JointModelFreeFlyer();
       }
@@ -176,9 +203,13 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+    typedef std::unordered_map<std::string, pinocchio::SE3> com_pos_wrt_edges;
     // Body unique name
     std::string name;
     // Inertia at the CoM
+    // CoM position is defined wrt to a body frame
+    // Since we reverse, how do we keep this ? Many joints
+    // Inertia matrix also, no ?
     Inertia inertia;
   };
 
@@ -191,8 +222,10 @@ namespace pinocchio
     // Joint type
     internal::JointGraphVariant joint;
     // Transformation from out vertex to joint
+    // transformation from body supporting to joint frame
     SE3 out_to_joint;
     // Transformation from joint to in vertex
+    // transformation from joint frame to body supported
     SE3 joint_to_in;
   };
 
@@ -231,14 +264,14 @@ namespace pinocchio
       {
         throw std::runtime_error("TODO");
       }
-      std::cout << joint_name << " " << out_body << " " << in_body << std::endl;
-
       auto in_vertex = name_to_vertex.find(in_body);
       if (in_vertex == name_to_vertex.end())
       {
         throw std::runtime_error("TODO");
       }
       auto edge_desc = boost::add_edge(out_vertex->second, in_vertex->second, g);
+
+      //
       if (!edge_desc.second)
       {
         throw std::runtime_error("TODO");
@@ -291,19 +324,39 @@ namespace pinocchio
         const ModelGraphEdge & edge = g[edge_desc];
         const ModelGraphVertex & source_vertex = g[source_vertex_desc];
         const ModelGraphVertex & target_vertex = g[target_vertex_desc];
-        std::cout << source_vertex.name << " -> " << edge.name << " -> " << target_vertex.name
-                  << std::endl;
 
         // Get previous body frame and get right joint placement, according to it
-        const Inertia & previous_inertia = model.inertias[j_id];
+        const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
 
+        if (boost::get<pinocchio::internal::JointFixedGraph>(&edge.joint))
+        {
+          // Don't add a new joint in the model — create the fixed_joint frame
+          FrameIndex f_id = model.addFrame(Frame(
+            edge.name, j_id, previous_body.placement * edge.out_to_joint, FIXED_JOINT,
+            target_vertex.inertia));
+          model.addBodyFrame(target_vertex.name, j_id, edge.joint_to_in, (int)f_id);
+          continue;
+        }
+        pinocchio::SE3 joint_pose = edge.out_to_joint;
+        pinocchio::SE3 body_pose = edge.joint_to_in;
+        if (
+          const pinocchio::internal::JointRevoluteGraph * jrg =
+            boost::get<pinocchio::internal::JointRevoluteGraph>(&edge.joint))
+        {
+          if (jrg->flipped)
+          {
+            pinocchio::SE3 transf = pinocchio::SE3(
+              Eigen::AngleAxisd(M_PI, jrg->flip_axis).toRotationMatrix(), Eigen::Vector3d::Zero());
+            joint_pose.rotation() *= transf.rotation();
+            body_pose = transf * body_pose;
+          }
+        }
         j_id = model.addJoint(
           j_id, boost::apply_visitor(pinocchio::internal::createJointModel(), edge.joint),
-          pinocchio::SE3(Eigen::Matrix3d::Identity(), previous_inertia.lever()) * edge.out_to_joint,
-          edge.name);
+          previous_body.placement * joint_pose, edge.name);
         model.addJointFrame(j_id);
         model.appendBodyToJoint(j_id, target_vertex.inertia);
-        model.addBodyFrame(target_vertex.name, j_id);
+        model.addBodyFrame(target_vertex.name, j_id, body_pose);
       }
       return model;
     }
