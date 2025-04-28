@@ -17,7 +17,7 @@ authors:
     given-names: Guilhem
   - family-names: Budhiraja
     given-names: Rohan
-version: 3.5.0
-date-released: "2025-04-02"
+version: 3.6.0
+date-released: "2025-04-28"
 license: BSD-2-Clause
 repository-code: "https://github.com/stack-of-tasks/pinocchio"
