@@ -44,7 +44,6 @@ or via pip (currently only available on Linux):
 ## Table of contents
 
   - [Table of contents](#table-of-contents)
-  - [Introducing Pinocchio 3](#introducing-pinocchio-3)
   - [Pinocchio main features](#pinocchio-main-features)
   - [Documentation](#documentation)
   - [Examples](#examples)
