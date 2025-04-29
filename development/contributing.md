@@ -19,7 +19,7 @@ Please try to include as much information as you can. Details like these are inc
   * Anything unusual about your environment or deployment
 
 ## Contributing via Pull Requests
-The following guidance should be up-to-date, but the documentation as found [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/) should prove as the final say.
+The following guidance should be up-to-date, but the documentation as found [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/devel/doxygen-html/) should prove as the final say.
 
 Contributions via pull requests are much appreciated.
 Before sending us a pull request, please ensure that:

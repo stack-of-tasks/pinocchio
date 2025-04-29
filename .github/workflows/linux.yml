@@ -6,25 +6,21 @@ on:
       - doc/**
       - .gitlab-ci.yml
       - .gitignore
-      - '*.md'
+      - '**.md'
       - CITATION.*
       - COPYING.LESSER
       - colcon.pkg
       - .pre-commit-config.yaml
-      - CHANGELOG.md
-      - development/*.md
   pull_request:
     paths-ignore:
       - doc/**
       - .gitlab-ci.yml
       - .gitignore
-      - '*.md'
+      - '**.md'
       - CITATION.*
       - COPYING.LESSER
       - colcon.pkg
       - .pre-commit-config.yaml
-      - CHANGELOG.md
-      - development/*.md
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

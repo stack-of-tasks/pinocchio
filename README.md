@@ -1,17 +1,17 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/stack-of-tasks/pinocchio/master/doc/images/pinocchio-logo-large.png" width="800" alt="Pinocchio Logo" align="center"/>
+  <img src="https://raw.githubusercontent.com/stack-of-tasks/pinocchio/devel/doc/images/pinocchio-logo-large.png" width="800" alt="Pinocchio Logo" align="center"/>
 </p>
 
 <p align="center">
   <a href="https://opensource.org/licenses/BSD-2-Clause"><img src="https://img.shields.io/badge/License-BSD%202--Clause-green.svg" alt="License"/></a>
-  <a href="https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/"><img src="https://img.shields.io/badge/docs-online-brightgreen" alt="Documentation"/></a>
-  <a href="http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/coverage/"><img src="https://gepgitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/coverage.svg?job=doc-coverage" alt="Coverage Report"/></a>
+  <a href="https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/devel/doxygen-html/"><img src="https://img.shields.io/badge/docs-online-brightgreen" alt="Documentation"/></a>
+  <a href="http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/devel/coverage/"><img src="https://gepgitlab.laas.fr/stack-of-tasks/pinocchio/badges/devel/coverage.svg?job=doc-coverage" alt="Coverage Report"/></a>
   <a href="https://anaconda.org/conda-forge/pinocchio"><img src="https://img.shields.io/conda/dn/conda-forge/pinocchio.svg" alt="Conda Downloads"/></a>
   <a href="https://anaconda.org/conda-forge/pinocchio"><img src="https://img.shields.io/conda/vn/conda-forge/pinocchio.svg" alt="Conda Version"/></a>
   <a href="https://badge.fury.io/py/pin"><img src="https://badge.fury.io/py/pin.svg" alt="PyPI version" height="20"></a>
-  <a href="https://badge.fury.io/py/pin"><img src="https://results.pre-commit.ci/badge/github/stack-of-tasks/pinocchio/master.svg" alt="pre-commit.ci status" height="20"></a>
+  <a href="https://badge.fury.io/py/pin"><img src="https://results.pre-commit.ci/badge/github/stack-of-tasks/pinocchio/devel.svg" alt="pre-commit.ci status" height="20"></a>
   <br>
-  <!--<a href="https://gitlab.laas.fr/stack-of-tasks/pinocchio"><img src="https://gitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/pipeline.svg" alt="Pipeline Status"></a>-->
+  <!--<a href="https://gitlab.laas.fr/stack-of-tasks/pinocchio"><img src="https://gitlab.laas.fr/stack-of-tasks/pinocchio/badges/devel/pipeline.svg" alt="Pipeline Status"></a>-->
 
 </p>
 
@@ -27,7 +27,7 @@ It is built upon Eigen for linear algebra and FCL for collision detection. **Pin
 
 **Pinocchio** is now at the heart of various robotics software as [Crocoddyl](https://github.com/loco-3d/crocoddyl/tree/devel), an open-source and efficient Differential Dynamic Programming solver for robotics, the [Stack-of-Tasks](http://stack-of-tasks.github.io), an open-source and versatile hierarchical controller framework or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc), open-source software for Motion and Manipulation Planning.
 
-If you want to learn more about **Pinocchio** internal behaviors and main features, we invite you to read the related [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228) and the online [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/).
+If you want to learn more about **Pinocchio** internal behaviors and main features, we invite you to read the related [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228) and the online [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/devel/doxygen-html/).
 
 If you want to dive into **Pinocchio** directly, only one single line is sufficient (assuming you have Conda):
 
@@ -102,17 +102,17 @@ or via pip (currently only available on Linux):
 
 ## Documentation
 
-The online **Pinocchio** documentation of the last release is available [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/). A cheat sheet pdf with the main functions and algorithms can be found [here](https://github.com/stack-of-tasks/pinocchio/blob/master/doc/pinocchio_cheat_sheet.pdf).
+The online **Pinocchio** documentation of the last release is available [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/devel/doxygen-html/). A cheat sheet pdf with the main functions and algorithms can be found [here](https://github.com/stack-of-tasks/pinocchio/blob/devel/doc/pinocchio_cheat_sheet.pdf).
 
 ## Examples
 
-In the [examples](https://github.com/stack-of-tasks/pinocchio/tree/master/examples) directory, we provide some basic examples of using Pinocchio in Python.
-Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html).
+In the [examples](https://github.com/stack-of-tasks/pinocchio/tree/devel/examples) directory, we provide some basic examples of using Pinocchio in Python.
+Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/devel/doxygen-html/md_doc_d-practical-exercises_intro.html).
 
 ## Tutorials
 
 **Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robot control.
-Tutorial and training documents are listed [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/index.html#OverviewConclu).
+Tutorial and training documents are listed [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/devel/doxygen-html/index.html#OverviewConclu).
 You can also consider the interactive Jupyter notebook [set of tutorials](https://github.com/ymontmarin/_tps_robotique) developed by [Nicolas Mansard](https://gepettoweb.laas.fr/index.php/Members/NicolasMansard) and [Yann de Mont-Marin](https://github.com/ymontmarin).
 
 ## Pinocchio continuous integrations
@@ -130,7 +130,7 @@ You can also consider the interactive Jupyter notebook [set of tutorials](https:
     </tr><tr><td> CI on Windows via Conda </td>
   <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda.yml"><img alt="windows" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda.yml/badge.svg?branch=devel" /></a></td>
   </tr><tr><td> CI on Linux via Robotpkg </td>
-    <td><img src="https://gitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/pipeline.svg" alt="Pipeline Status"></td>
+    <td><img src="https://gitlab.laas.fr/stack-of-tasks/pinocchio/badges/devel/pipeline.svg" alt="Pipeline Status"></td>
    </tr>
   </table>
 </p>
@@ -140,7 +140,7 @@ You can also consider the interactive Jupyter notebook [set of tutorials](https:
 **Pinocchio** exploits, at best, the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigms, **Pinocchio** can unroll most of the computations directly at compile time, allowing to achieve impressive performances for an extensive range of robots, as illustrated by the plot below, obtained on a standard laptop equipped with an Intel Core i7 CPU @ 2.4 GHz.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/stack-of-tasks/pinocchio/master/doc/images/pinocchio-performances.png" width="600" alt="Pinocchio Logo" align="center"/>
+  <img src="https://raw.githubusercontent.com/stack-of-tasks/pinocchio/devel/doc/images/pinocchio-performances.png" width="600" alt="Pinocchio Logo" align="center"/>
 </p>
 
 For other benchmarks, and mainly the capacity of Pinocchio to exploit, at best, your CPU capacities using advanced code generation techniques, we refer to the technical [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228).
@@ -149,7 +149,7 @@ In addition, the [introspection](https://github.com/rbd-benchmarks/rbd-benchmark
 ## Ongoing developments
 
 If you want to follow the current developments, you can refer to the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel).
-The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) only contains the latest release. Any new Pull Request should be submitted on the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel/).
+The [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel/) only contains the latest release. Any new Pull Request should be submitted on the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel/).
 
 ## Installation
 
@@ -204,7 +204,7 @@ Please note that we always advise including the `pinocchio/fwd.hpp` header as th
 -   [Panda3d](https://github.com/ikalevatykh/panda3d_viewer): supporting visualization in Python and which can be embedded inside any browser.
 -   [RViz](https://github.com/ros-visualization/rviz): supporting visualization in Python and which can interact with other ROS packages.
 
-Many external viewers can also be integrated. For more information, see the example [here](https://github.com/stack-of-tasks/pinocchio/blob/master/bindings/python/pinocchio/visualize/base_visualizer.py).
+Many external viewers can also be integrated. For more information, see the example [here](https://github.com/stack-of-tasks/pinocchio/blob/devel/bindings/python/pinocchio/visualize/base_visualizer.py).
 
 ## Citing Pinocchio
 
