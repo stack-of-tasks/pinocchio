@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- Change the default branch to `devel` ([#2666](https://github.com/stack-of-tasks/pinocchio/pull/2666))
+
 ## [3.6.0] - 2025-04-28
 
 ### Fixed
