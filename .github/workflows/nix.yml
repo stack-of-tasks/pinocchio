@@ -6,12 +6,10 @@ on:
       - doc/**
       - .gitlab-ci.yml
       - .gitignore
-      - '*.md'
+      - '**.md'
       - CITATION.*
       - COPYING.LESSER
       - .pre-commit-config.yaml
-      - CHANGELOG.md
-
 jobs:
   nix:
     runs-on: "${{ matrix.os }}-latest"
