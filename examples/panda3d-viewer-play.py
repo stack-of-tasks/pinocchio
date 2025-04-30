@@ -23,6 +23,7 @@ talos = TalosLoader().robot
 talos.setVisualizer(Panda3dVisualizer())
 talos.initViewer()
 talos.loadViewerModel(group_name="talos", color=(1, 1, 1, 1))
+record_video = False
 
 
 # Play a sample trajectory in a loop
@@ -43,9 +44,24 @@ def play_sample_trajectory():
         -0.1 - beta * 1.56,
     )
 
+    if record_video:
+        dt = 1 / 60
+        fps = 1.0 / dt
+        filename = "talos.mp4"
+        ctx = talos.viz.create_video_ctx(filename, fps=fps)
+        print(f"[video will be recorded @ {filename}]")
+    else:
+        from contextlib import nullcontext
+
+        ctx = nullcontext()
+        print("[no recording]")
+
     while True:
-        talos.play(traj.T, 1.0 / update_rate)
-        traj = np.flip(traj, 1)
+        with ctx:
+            talos.play(traj.T, 1.0 / update_rate)
+            traj = np.flip(traj, 1)
+            if record_video:
+                break
 
 
 try:
