@@ -19,7 +19,7 @@ class Panda3dVisualizer(BaseVisualizer):
     A Pinocchio display using panda3d engine.
     """
 
-    def initViewer(self, viewer=None, load_model=False):  # pylint: disable=arguments-differ
+    def initViewer(self, viewer=None, load_model=False, open=True):  # pylint: disable=arguments-differ
         """Init the viewer by attaching to / creating a GUI viewer."""
         self.visual_group = None
         self.collision_group = None
@@ -30,7 +30,12 @@ class Panda3dVisualizer(BaseVisualizer):
         from panda3d_viewer import Viewer as Panda3dViewer
 
         if viewer is None:
-            self.viewer = Panda3dViewer(window_title="python-pinocchio")
+            if not open:
+                self.viewer = Panda3dViewer(
+                    window_title="python-pinocchio", window_type="offscreen"
+                )
+            else:
+                self.viewer = Panda3dViewer(window_title="python-pinocchio")
 
         if load_model:
             self.loadViewerModel(group_name=self.model.name)
@@ -140,7 +145,10 @@ class Panda3dVisualizer(BaseVisualizer):
         raise NotImplementedError()
 
     def captureImage(self, w=None, h=None):
-        raise NotImplementedError()
+        rgb = self.viewer.get_screenshot(requested_format="RGB")
+        if rgb is None:
+            raise RuntimeError("Failed to capture image from viewer")
+        return rgb
 
     def disableCameraControl(self):
         raise NotImplementedError()
