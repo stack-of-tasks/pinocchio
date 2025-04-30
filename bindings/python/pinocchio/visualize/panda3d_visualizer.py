@@ -140,7 +140,10 @@ class Panda3dVisualizer(BaseVisualizer):
         raise NotImplementedError()
 
     def captureImage(self, w=None, h=None):
-        raise NotImplementedError()
+        rgb = self.viewer.get_screenshot(requested_format="RGB")
+        if rgb is None:
+            raise RuntimeError("Failed to capture image from viewer")
+        return rgb
 
     def disableCameraControl(self):
         raise NotImplementedError()
