@@ -241,14 +241,15 @@ namespace pinocchio
 
     void addBody(const std::string & vertex_name, const Inertia & inertia)
     {
+      if (name_to_vertex.find(vertex_name) != name_to_vertex.end())
+        throw std::runtime_error("Graph - vertex already in graph");
+
       auto vertex_desc = boost::add_vertex(g);
       ModelGraphVertex & vertex = g[vertex_desc];
       vertex.name = vertex_name;
       vertex.inertia = inertia;
-      if (!name_to_vertex.insert({vertex_name, vertex_desc}).second)
-      {
-        throw std::runtime_error("TODO");
-      }
+
+      name_to_vertex.insert({vertex_name, vertex_desc});
     }
 
     void addJoint(
