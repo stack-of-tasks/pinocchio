@@ -288,8 +288,8 @@ namespace pinocchio
         throw std::runtime_error("TODO");
       }
       ModelGraphEdge & reverse_edge = g[reverse_edge_desc.first];
-      reverse_edge.name = joint_name + std::string("_reverse");
-      reverse_edge.joint = boost::apply_visitor(pinocchio::internal::ReverseJointVisitor(), joint);
+      reverse_edge.name = joint_name;
+      reverse_edge.joint = boost::apply_visitor(ReverseJointVisitor(), joint);
       reverse_edge.out_to_joint = joint_to_in.inverse();
       reverse_edge.joint_to_in = out_to_joint.inverse();
     }
