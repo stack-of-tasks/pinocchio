@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2024 INRIA
+// Copyright (c) 2025 INRIA
 //
 
 #ifndef __pinocchio_multibody_model_graph_hpp__
