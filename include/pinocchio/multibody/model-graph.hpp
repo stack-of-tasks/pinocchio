@@ -24,7 +24,7 @@
 
 namespace pinocchio
 {
-  namespace internal
+  struct JointFixedGraph
   {
     template<typename Derived>
     struct JointBaseGraph
