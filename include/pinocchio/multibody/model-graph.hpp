@@ -365,10 +365,47 @@ namespace pinocchio
       return model;
     }
 
+    // When root is a fixed joint
+    Model buildModel(const std::string & root_body, const pinocchio::SE3 root_position) const
+    {
+      auto root_vertex = name_to_vertex.find(root_body);
+      if (root_vertex == name_to_vertex.end())
+      {
+        throw std::runtime_error("Graph - root body does not exist in the graph");
+      }
+      std::vector<boost::default_color_type> colors(
+        boost::num_vertices(g), boost::default_color_type::white_color);
+      std::vector<EdgeDesc> edges;
+      edges.reserve(boost::num_vertices(g));
+      RecordTreeEdgeVisitor<Graph> tree_edge_visitor(&edges);
+      boost::depth_first_search(g, tree_edge_visitor, colors.data(), root_vertex->second);
+
+      Model model;
+      const ModelGraphVertex & root_vertex_data = g[root_vertex->second];
+      const Frame & parent_frame = model.frames[0];
+
+      model.addFrame(Frame(
+        root_vertex_data.name, parent_frame.parentJoint, 0, parent_frame.placement * root_position,
+        BODY, root_vertex_data.inertia));
+
+      JointIndex j_id = 0; // only universe is present in model
+      // Go through rest of the graph
+      for (const EdgeDesc & edge_desc : edges)
+      {
+        VertexDesc source_vertex_desc = boost::source(edge_desc, g);
+        VertexDesc target_vertex_desc = boost::target(edge_desc, g);
+        const ModelGraphEdge & edge = g[edge_desc];
+        const ModelGraphVertex & source_vertex = g[source_vertex_desc];
+        const ModelGraphVertex & target_vertex = g[target_vertex_desc];
+
+        AddJointModel visitor(source_vertex, target_vertex, edge, j_id, model);
+        boost::apply_visitor(visitor, edge.joint);
+      }
+      return model;
+    }
     Graph g;
     std::unordered_map<std::string, VertexDesc> name_to_vertex;
   };
-
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_multibody_model_graph_hpp__
