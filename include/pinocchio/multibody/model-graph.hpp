@@ -54,8 +54,17 @@ namespace pinocchio
     JointFreeFlyerGraph() = default;
   };
 
-  using JointGraphVariant =
-    boost::variant<JointFixedGraph, JointRevoluteGraph, JointPrismaticGraph, JointFreeFlyerGraph>;
+  struct JointSphericalGraph
+  {
+    JointSphericalGraph() = default;
+  };
+
+  using JointGraphVariant = boost::variant<
+    JointFixedGraph,
+    JointRevoluteGraph,
+    JointPrismaticGraph,
+    JointFreeFlyerGraph,
+    JointSphericalGraph>;
 
   struct ReverseJointVisitor : public boost::static_visitor<JointGraphVariant>
   {
@@ -75,6 +84,10 @@ namespace pinocchio
       return joint;
     }
     ReturnType operator()(const JointFreeFlyerGraph & joint) const
+    {
+      return joint;
+    }
+    ReturnType operator()(const JointSphericalGraph & joint) const
     {
       return joint;
     }
@@ -299,6 +312,15 @@ namespace pinocchio
       model.addBodyFrame(target_vertex.name, j_id, body_pose);
     }
 
+    void operator()(const JointSphericalGraph & joint)
+    {
+      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+
+      pinocchio::JointIndex j_id = model.addJoint(
+        previous_body.parentJoint, pinocchio::JointModelSpherical(),
+        previous_body.placement * joint_pose, edge.name);
 
       model.addJointFrame(j_id);
       model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
