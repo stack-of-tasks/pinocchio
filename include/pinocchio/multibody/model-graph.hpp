@@ -59,12 +59,31 @@ namespace pinocchio
     JointSphericalGraph() = default;
   };
 
+  // Flipped whne model is reversed ?
+  struct JointSphericalZYXGraph
+  {
+    JointSphericalZYXGraph() = default;
+  };
+
+  struct JointTranslationGraph
+  {
+    JointTranslationGraph() = default;
+  };
+
+  struct JointPlanarGraph
+  {
+    JointPlanarGraph() = default;
+  };
+
   using JointGraphVariant = boost::variant<
     JointFixedGraph,
     JointRevoluteGraph,
     JointPrismaticGraph,
     JointFreeFlyerGraph,
-    JointSphericalGraph>;
+    JointSphericalGraph,
+    JointSphericalZYXGraph,
+    JointTranslationGraph,
+    JointPlanarGraph>;
 
   struct ReverseJointVisitor : public boost::static_visitor<JointGraphVariant>
   {
@@ -88,6 +107,18 @@ namespace pinocchio
       return joint;
     }
     ReturnType operator()(const JointSphericalGraph & joint) const
+    {
+      return joint;
+    }
+    ReturnType operator()(const JointSphericalZYXGraph & joint) const
+    {
+      return joint;
+    }
+    ReturnType operator()(const JointTranslationGraph & joint) const
+    {
+      return joint;
+    }
+    ReturnType operator()(const JointPlanarGraph & joint) const
     {
       return joint;
     }
@@ -115,10 +146,9 @@ namespace pinocchio
   {
     // Body unique name
     std::string name;
-    // Inertia at the CoM
-    // CoM position is defined wrt to a body frame
-    // Since we reverse, how do we keep this ? Many joints
-    // Inertia matrix also, no ?
+    // Inertia at the CoM of the body
+    // When joint is reversed body frame pose is kept
+    // the same in the model, so no problem for inertia
     Inertia inertia;
   };
 
@@ -320,6 +350,51 @@ namespace pinocchio
 
       pinocchio::JointIndex j_id = model.addJoint(
         previous_body.parentJoint, pinocchio::JointModelSpherical(),
+        previous_body.placement * joint_pose, edge.name);
+
+      model.addJointFrame(j_id);
+      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
+      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+    }
+
+    void operator()(const JointSphericalZYXGraph & joint)
+    {
+      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+
+      pinocchio::JointIndex j_id = model.addJoint(
+        previous_body.parentJoint, pinocchio::JointModelSphericalZYX(),
+        previous_body.placement * joint_pose, edge.name);
+
+      model.addJointFrame(j_id);
+      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
+      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+    }
+
+    void operator()(const JointPlanarGraph & joint)
+    {
+      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+
+      pinocchio::JointIndex j_id = model.addJoint(
+        previous_body.parentJoint, pinocchio::JointModelPlanar(),
+        previous_body.placement * joint_pose, edge.name);
+
+      model.addJointFrame(j_id);
+      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
+      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+    }
+
+    void operator()(const JointTranslationGraph & joint)
+    {
+      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+
+      pinocchio::JointIndex j_id = model.addJoint(
+        previous_body.parentJoint, pinocchio::JointModelTranslation(),
         previous_body.placement * joint_pose, edge.name);
 
       model.addJointFrame(j_id);
