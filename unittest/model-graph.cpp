@@ -138,6 +138,60 @@ BOOST_AUTO_TEST_CASE(test_fixed_joint)
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(4., -1., 0.))));
 }
 
+/// @brief compare reverse model with spherical and sphericalZYX
+BOOST_AUTO_TEST_CASE(test_spherical_joints)
+{
+  pinocchio::ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addBody("body1", pinocchio::Inertia::Identity());
+  g.addBody(
+    "body2",
+    pinocchio::Inertia(4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero()));
+
+  /////////////////////////////////////// Joints
+  g.addJoint(
+    "body1_to_body2", pinocchio::JointSphericalGraph(), "body1",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "body2",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 5., 0.)));
+
+  ///////////////// Model
+  pinocchio::Model m = g.buildModel("body2", pinocchio::SE3::Identity());
+
+  pinocchio::ModelGraph g1;
+  //////////////////////////////////////// Bodies
+  g1.addBody("body1", pinocchio::Inertia::Identity());
+  g1.addBody(
+    "body2",
+    pinocchio::Inertia(4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero()));
+
+  /////////////////////////////////////// Joints
+  g1.addJoint(
+    "body1_to_body2", pinocchio::JointSphericalZYXGraph(), "body1",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "body2",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 5., 0.)));
+
+  ///////////////// Model
+  pinocchio::Model m1 = g1.buildModel("body2", pinocchio::SE3::Identity());
+
+  Eigen::AngleAxisd rollAngle(1, Eigen::Vector3d::UnitZ());
+  Eigen::AngleAxisd yawAngle(1, Eigen::Vector3d::UnitY());
+  Eigen::AngleAxisd pitchAngle(1, Eigen::Vector3d::UnitX());
+  Eigen::Quaterniond q_sph = rollAngle * yawAngle * pitchAngle;
+
+  Eigen::VectorXd qZYX = Eigen::VectorXd::Ones(m1.nq);
+  Eigen::VectorXd q(m.nq);
+  q << q_sph.x(), q_sph.y(), q_sph.z(), q_sph.w();
+
+  pinocchio::Data d(m);
+  pinocchio::framesForwardKinematics(m, d, q);
+
+  pinocchio::Data d1(m1);
+  pinocchio::framesForwardKinematics(m1, d1, qZYX);
+
+  BOOST_CHECK(d.oMf[m.getFrameId("body1", pinocchio::BODY)].isApprox(
+    d1.oMf[m1.getFrameId("body1", pinocchio::BODY)]));
+}
+
 /// @brief Test out if inertias are well placed on the model
 BOOST_AUTO_TEST_CASE(test_inertia)
 {
