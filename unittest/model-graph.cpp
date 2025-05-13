@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(test_add_edges)
 }
 
 /// @brief Test of simple 2R robot to try out kinematics and what happens when we use different body
-/// to start
+/// as root body body1 --- body2
 BOOST_AUTO_TEST_CASE(test_linear_2D_robot)
 {
   pinocchio::ModelGraph g;
