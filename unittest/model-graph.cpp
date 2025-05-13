@@ -2,8 +2,9 @@
 // Copyright (c) 2024-2025 INRIA
 //
 #include "pinocchio/multibody/data.hpp"
-#include <pinocchio/algorithm/kinematics.hpp>
-#include <pinocchio/algorithm/frames.hpp>
+#include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/frames.hpp"
 
 #include "pinocchio/multibody/model-graph.hpp"
 #include "pinocchio/multibody/joint/joint-free-flyer.hpp"
@@ -137,22 +138,71 @@ BOOST_AUTO_TEST_CASE(test_fixed_joint)
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(4., -1., 0.))));
 }
 
-// BOOST_AUTO_TEST_CASE(test_tree_robot)
-// {
-//   pinocchio::ModelGraph g;
-//   g.addBody("torso", pinocchio::Inertia::Identity());
-//   g.addBody("left_leg", pinocchio::Inertia::Identity());
-//   g.addBody("right_leg", pinocchio::Inertia::Identity());
-//   g.addJoint(
-//     "torso_to_left_leg",
-//     pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "torso",
-//     pinocchio::SE3::Identity(), "left_leg", pinocchio::SE3::Identity());
-//   g.addJoint(
-//     "torso_to_right_leg",
-//     pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "torso",
-//     pinocchio::SE3::Identity(), "right_leg", pinocchio::SE3::Identity());
+/// @brief Test out if inertias are well placed on the model
+BOOST_AUTO_TEST_CASE(test_inertia)
+{
+  pinocchio::ModelGraph g;
+  //////////////////////////////////////// Bodies
+  pinocchio::Inertia inert = pinocchio::Inertia(
+    1., pinocchio::Inertia::Vector3(0., -2., 1.), pinocchio::Symmetric3::Random());
+  g.addBody("body1", inert);
+  g.addBody(
+    "body2", pinocchio::Inertia(
+               4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Random()));
+  g.addBody("body3", inert);
 
-//   g.buildModel("torso", pinocchio::JointModelFreeFlyer(), pinocchio::SE3::Identity());
-// }
+  /////////////////////////////////////// Joints
+  g.addJoint(
+    "body1_to_body2", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "body1",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "body2",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 2., 0.)));
+  g.addJoint(
+    "body2_to_body3", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "body2",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., -2., 0.)), "body3",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(-2., 0., 0.)));
+
+  pinocchio::Model m = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Model m1 = g.buildModel("body3", pinocchio::SE3::Identity());
+
+  Eigen::VectorXd q = Eigen::VectorXd::Random(m.nq);
+
+  pinocchio::Data d(m);
+  pinocchio::Data d1(m1);
+
+  pinocchio::crba(m, d, q);
+  pinocchio::crba(m1, d1, q);
+
+  BOOST_CHECK(d.M.isApprox(d1.M));
+}
+
+/// @brief test out a tree robot
+///          /---- left leg
+/// torso ---
+///          \--- right leg
+/// @param
+BOOST_AUTO_TEST_CASE(test_tree_robot)
+{
+  pinocchio::ModelGraph g;
+  g.addBody("torso", pinocchio::Inertia::Identity());
+  g.addBody("left_leg", pinocchio::Inertia::Identity());
+  g.addBody("right_leg", pinocchio::Inertia::Identity());
+  g.addJoint(
+    "torso_to_left_leg", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "torso",
+    pinocchio::SE3::Identity(), "left_leg", pinocchio::SE3::Identity());
+  g.addJoint(
+    "torso_to_right_leg", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "torso",
+    pinocchio::SE3::Identity(), "right_leg", pinocchio::SE3::Identity());
+
+  pinocchio::Model m =
+    g.buildModel("torso", pinocchio::SE3::Identity(), pinocchio::JointModelFreeFlyer());
+
+  BOOST_CHECK(m.parents[m.getJointId("torso_to_left_leg")] == m.getJointId("root_joint"));
+  BOOST_CHECK(m.parents[m.getJointId("torso_to_right_leg")] == m.getJointId("root_joint"));
+
+  pinocchio::Model m1 =
+    g.buildModel("left_leg", pinocchio::SE3::Identity(), pinocchio::JointModelFreeFlyer());
+  BOOST_CHECK(m1.parents[m.getJointId("torso_to_left_leg")] == m1.getJointId("root_joint"));
+  BOOST_CHECK(m1.parents[m.getJointId("torso_to_right_leg")] == m1.getJointId("torso_to_left_leg"));
+}
 
 BOOST_AUTO_TEST_SUITE_END()
