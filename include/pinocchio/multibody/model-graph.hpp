@@ -145,13 +145,15 @@ namespace pinocchio
     }
     ReturnType operator()(const JointHelicalGraph & joint) const
     {
-      // need to check if it's not -joint.pitch
+      // need to check this
+      // Helical = Prismatic + revolute
+      // So reversing axis, reverse both normally
       return JointHelicalGraph(-joint.axis, joint.pitch);
     }
     ReturnType operator()(const JointUniversalGraph & joint) const
     {
-      // need to inverse axis order ?
-      return JointUniversalGraph(-joint.axis2, -joint.axis1);
+      // need to check this
+      return JointUniversalGraph(-joint.axis1, -joint.axis2);
     }
   };
 
@@ -603,7 +605,8 @@ namespace pinocchio
     Model buildModel(
       const std::string & root_body,
       const pinocchio::SE3 root_position,
-      const JointModel & root_joint) const
+      const JointModel & root_joint,
+      const std::string & root_joint_name = "root_joint") const
     {
       auto root_vertex = name_to_vertex.find(root_body);
       if (root_vertex == name_to_vertex.end())
@@ -618,7 +621,7 @@ namespace pinocchio
       boost::depth_first_search(g, tree_edge_visitor, colors.data(), root_vertex->second);
 
       Model model;
-      JointIndex j_id = model.addJoint(0, root_joint, root_position, "root_joint");
+      JointIndex j_id = model.addJoint(0, root_joint, root_position, root_joint_name);
       model.addJointFrame(j_id);
 
       // add root body and glue it on root_joint
