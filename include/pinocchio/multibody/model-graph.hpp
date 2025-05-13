@@ -128,19 +128,16 @@ namespace pinocchio
     const ModelGraphVertex & source_vertex;
     const ModelGraphVertex & target_vertex;
     const ModelGraphEdge & edge;
-    JointIndex & j_id;
     Model & model;
 
     AddJointModel(
       const ModelGraphVertex & source,
       const ModelGraphVertex & target,
       const ModelGraphEdge & edge_,
-      JointIndex & j_id,
       Model & model_)
     : source_vertex(source)
     , target_vertex(target)
     , edge(edge_)
-    , j_id(j_id)
     , model(model_) {};
 
     void operator()(const JointRevoluteGraph & joint)
@@ -148,7 +145,7 @@ namespace pinocchio
       const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       pinocchio::SE3 joint_pose = edge.out_to_joint;
       pinocchio::SE3 body_pose = edge.joint_to_in;
-
+      pinocchio::JointIndex j_id;
       // Check joint axis
       if (joint.axis.isApprox(-Eigen::Vector3d::UnitX()))
       {
@@ -159,7 +156,8 @@ namespace pinocchio
         body_pose = transf * body_pose;
 
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelRX(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelRX(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else if (joint.axis.isApprox(-Eigen::Vector3d::UnitY()))
       {
@@ -170,7 +168,8 @@ namespace pinocchio
         body_pose = transf * body_pose;
 
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelRY(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelRY(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else if (joint.axis.isApprox(-Eigen::Vector3d::UnitZ()))
       {
@@ -181,28 +180,32 @@ namespace pinocchio
         body_pose = transf * body_pose;
 
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelRZ(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelRZ(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
       {
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelRX(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelRX(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
       {
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelRY(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelRY(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
       {
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelRZ(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelRZ(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else
       {
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelRevoluteUnaligned(), previous_body.placement * joint_pose,
-          edge.name);
+          previous_body.parentJoint, pinocchio::JointModelRevoluteUnaligned(),
+          previous_body.placement * joint_pose, edge.name);
       }
       model.addJointFrame(j_id);
       model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
@@ -214,7 +217,7 @@ namespace pinocchio
       const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       pinocchio::SE3 joint_pose = edge.out_to_joint;
       pinocchio::SE3 body_pose = edge.joint_to_in;
-
+      pinocchio::JointIndex j_id;
       // Check joint axis
       if (joint.axis.isApprox(-Eigen::Vector3d::UnitX()))
       {
@@ -225,7 +228,8 @@ namespace pinocchio
         body_pose = transf * body_pose;
 
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelPX(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelPX(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else if (joint.axis.isApprox(-Eigen::Vector3d::UnitY()))
       {
@@ -236,7 +240,8 @@ namespace pinocchio
         body_pose = transf * body_pose;
 
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelPY(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelPY(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else if (joint.axis.isApprox(-Eigen::Vector3d::UnitZ()))
       {
@@ -247,28 +252,32 @@ namespace pinocchio
         body_pose = transf * body_pose;
 
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelPZ(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelPZ(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
       {
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelPX(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelPX(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
       {
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelPY(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelPY(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
       {
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelPZ(), previous_body.placement * joint_pose, edge.name);
+          previous_body.parentJoint, pinocchio::JointModelPZ(),
+          previous_body.placement * joint_pose, edge.name);
       }
       else
       {
         j_id = model.addJoint(
-          j_id, pinocchio::JointModelPrismaticUnaligned(), previous_body.placement * joint_pose,
-          edge.name);
+          previous_body.parentJoint, pinocchio::JointModelPrismaticUnaligned(),
+          previous_body.placement * joint_pose, edge.name);
       }
       model.addJointFrame(j_id);
       model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
@@ -281,9 +290,15 @@ namespace pinocchio
       pinocchio::SE3 joint_pose = edge.out_to_joint;
       pinocchio::SE3 body_pose = edge.joint_to_in;
 
-      j_id = model.addJoint(
-        j_id, pinocchio::JointModelRevoluteUnaligned(), previous_body.placement * joint_pose,
-        edge.name);
+      pinocchio::JointIndex j_id = model.addJoint(
+        previous_body.parentJoint, pinocchio::JointModelFreeFlyer(),
+        previous_body.placement * joint_pose, edge.name);
+
+      model.addJointFrame(j_id);
+      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
+      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+    }
+
 
       model.addJointFrame(j_id);
       model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
@@ -295,9 +310,10 @@ namespace pinocchio
       const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       // Don't add a new joint in the model — create the fixed_joint frame
       FrameIndex f_id = model.addFrame(Frame(
-        edge.name, j_id, previous_body.placement * edge.out_to_joint, FIXED_JOINT,
-        target_vertex.inertia));
-      model.addBodyFrame(target_vertex.name, j_id, edge.joint_to_in, (int)f_id);
+        edge.name, previous_body.parentJoint, previous_body.placement * edge.out_to_joint,
+        FIXED_JOINT, target_vertex.inertia));
+      model.addBodyFrame(
+        target_vertex.name, previous_body.parentJoint, edge.joint_to_in, (int)f_id);
     }
   };
 
@@ -399,7 +415,7 @@ namespace pinocchio
         const ModelGraphVertex & source_vertex = g[source_vertex_desc];
         const ModelGraphVertex & target_vertex = g[target_vertex_desc];
 
-        AddJointModel visitor(source_vertex, target_vertex, edge, j_id, model);
+        AddJointModel visitor(source_vertex, target_vertex, edge, model);
         boost::apply_visitor(visitor, edge.joint);
       }
       return model;
@@ -428,7 +444,6 @@ namespace pinocchio
         root_vertex_data.name, parent_frame.parentJoint, 0, parent_frame.placement * root_position,
         BODY, root_vertex_data.inertia));
 
-      JointIndex j_id = 0; // only universe is present in model
       // Go through rest of the graph
       for (const EdgeDesc & edge_desc : edges)
       {
@@ -438,7 +453,7 @@ namespace pinocchio
         const ModelGraphVertex & source_vertex = g[source_vertex_desc];
         const ModelGraphVertex & target_vertex = g[target_vertex_desc];
 
-        AddJointModel visitor(source_vertex, target_vertex, edge, j_id, model);
+        AddJointModel visitor(source_vertex, target_vertex, edge, model);
         boost::apply_visitor(visitor, edge.joint);
       }
       return model;
