@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(test_linear_2D_robot)
   pinocchio::Model m1 = g.buildModel("body2", pinocchio::SE3::Identity());
   // Compute forward kinematics
   pinocchio::Data d1(m1);
-  pinocchio::framesForwardKinematics(m1, d1, q);
+  pinocchio::framesForwardKinematics(m1, d1, -q);
 
   Eigen::Matrix3d rot;
   rot << -1, 0, 0, 0, -1, 0, 0, 0, 1;
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(test_fixed_joint)
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(4., -1., 0.))));
 }
 
-/// @brief compare reverse model with spherical and sphericalZYX
+/// @brief compare reverse model with spherical
 BOOST_AUTO_TEST_CASE(test_spherical_joints)
 {
   pinocchio::ModelGraph g;
@@ -152,33 +152,18 @@ BOOST_AUTO_TEST_CASE(test_spherical_joints)
   g.addJoint(
     "body1_to_body2", pinocchio::JointSphericalGraph(), "body1",
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "body2",
-    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 5., 0.)));
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(-2., 0., 0.)));
 
   ///////////////// Model
-  pinocchio::Model m = g.buildModel("body2", pinocchio::SE3::Identity());
-
-  pinocchio::ModelGraph g1;
-  //////////////////////////////////////// Bodies
-  g1.addBody("body1", pinocchio::Inertia::Identity());
-  g1.addBody(
-    "body2",
-    pinocchio::Inertia(4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero()));
-
-  /////////////////////////////////////// Joints
-  g1.addJoint(
-    "body1_to_body2", pinocchio::JointSphericalZYXGraph(), "body1",
-    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "body2",
-    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 5., 0.)));
-
+  pinocchio::Model m = g.buildModel("body1", pinocchio::SE3::Identity());
   ///////////////// Model
-  pinocchio::Model m1 = g1.buildModel("body2", pinocchio::SE3::Identity());
+  pinocchio::Model m1 = g.buildModel("body2", pinocchio::SE3::Identity());
 
   Eigen::AngleAxisd rollAngle(1, Eigen::Vector3d::UnitZ());
   Eigen::AngleAxisd yawAngle(1, Eigen::Vector3d::UnitY());
   Eigen::AngleAxisd pitchAngle(1, Eigen::Vector3d::UnitX());
   Eigen::Quaterniond q_sph = rollAngle * yawAngle * pitchAngle;
 
-  Eigen::VectorXd qZYX = Eigen::VectorXd::Ones(m1.nq);
   Eigen::VectorXd q(m.nq);
   q << q_sph.x(), q_sph.y(), q_sph.z(), q_sph.w();
 
@@ -186,10 +171,13 @@ BOOST_AUTO_TEST_CASE(test_spherical_joints)
   pinocchio::framesForwardKinematics(m, d, q);
 
   pinocchio::Data d1(m1);
-  pinocchio::framesForwardKinematics(m1, d1, qZYX);
+  Eigen::VectorXd q_reverse(m.nq);
+  q_reverse << q_sph.inverse().x(), q_sph.inverse().y(), q_sph.inverse().z(), q_sph.inverse().w();
+
+  pinocchio::framesForwardKinematics(m1, d1, q_reverse);
 
   BOOST_CHECK(d.oMf[m.getFrameId("body1", pinocchio::BODY)].isApprox(
-    d1.oMf[m1.getFrameId("body1", pinocchio::BODY)]));
+    d1.oMf[m1.getFrameId("body2", pinocchio::BODY)]));
 }
 
 /// @brief test reversing helical joint on a simple linear robot
@@ -220,6 +208,9 @@ BOOST_AUTO_TEST_CASE(test_helical_joint_reverse)
   q[0] = M_PI / 2;
   pinocchio::framesForwardKinematics(m, d, q);
   pinocchio::framesForwardKinematics(m1, d1, -q);
+  std::cout << d.oMf[m.getFrameId("body1", pinocchio::BODY)] << std::endl;
+  std::cout << d1.oMf[m1.getFrameId("body2", pinocchio::BODY)] << std::endl;
+
   BOOST_CHECK(d.oMf[m.getFrameId("body1", pinocchio::BODY)].isApprox(
     d1.oMf[m1.getFrameId("body2", pinocchio::BODY)]));
 }
@@ -254,6 +245,9 @@ BOOST_AUTO_TEST_CASE(test_universal_joint_reverse)
   q[1] = -M_PI / 2;
   pinocchio::framesForwardKinematics(m, d, q);
   pinocchio::framesForwardKinematics(m1, d1, -q);
+
+  std::cout << d.oMf[m.getFrameId("body1", pinocchio::BODY)] << std::endl;
+  std::cout << d1.oMf[m1.getFrameId("body2", pinocchio::BODY)] << std::endl;
 
   BOOST_CHECK(d.oMf[m.getFrameId("body1", pinocchio::BODY)].isApprox(
     d1.oMf[m1.getFrameId("body2", pinocchio::BODY)]));
@@ -340,7 +334,7 @@ BOOST_AUTO_TEST_CASE(test_inertia)
   pinocchio::Data d1(m1);
 
   pinocchio::crba(m, d, q);
-  pinocchio::crba(m1, d1, q);
+  pinocchio::crba(m1, d1, -q);
 
   BOOST_CHECK(d.M.isApprox(d1.M));
 }
