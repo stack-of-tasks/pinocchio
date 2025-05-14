@@ -455,68 +455,12 @@ namespace pinocchio
       const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       pinocchio::SE3 joint_pose = edge.out_to_joint;
       pinocchio::SE3 body_pose = edge.joint_to_in;
-      pinocchio::JointIndex j_id;
-      // Check joint axis
-      if (joint.axis.isApprox(-Eigen::Vector3d::UnitX()))
-      {
-        pinocchio::SE3 transf = pinocchio::SE3(
-          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitY()).toRotationMatrix(),
-          Eigen::Vector3d::Zero());
-        joint_pose.rotation() *= transf.rotation();
-        body_pose = transf * body_pose;
 
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelRX(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitY()))
-      {
-        pinocchio::SE3 transf = pinocchio::SE3(
-          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitX()).toRotationMatrix(),
-          Eigen::Vector3d::Zero());
-        joint_pose.rotation() *= transf.rotation();
-        body_pose = transf * body_pose;
+      CreateJointModel cjm(joint_pose, body_pose);
+      JointModel jm = cjm(joint);
+      JointIndex j_id = model.addJoint(
+        previous_body.parentJoint, jm, previous_body.placement * joint_pose, edge.name);
 
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelRY(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitZ()))
-      {
-        pinocchio::SE3 transf = pinocchio::SE3(
-          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitY()).toRotationMatrix(),
-          Eigen::Vector3d::Zero());
-        joint_pose.rotation() *= transf.rotation();
-        body_pose = transf * body_pose;
-
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelRZ(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelRX(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelRY(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelRZ(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelRevoluteUnaligned(joint.axis),
-          previous_body.placement * joint_pose, edge.name);
-      }
       model.addJointFrame(j_id);
       model.appendBodyToJoint(
         j_id, target_vertex.inertia); // Check this, inertia on joint or on body frame ? Urdf parser
@@ -529,68 +473,12 @@ namespace pinocchio
       const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       pinocchio::SE3 joint_pose = edge.out_to_joint;
       pinocchio::SE3 body_pose = edge.joint_to_in;
-      pinocchio::JointIndex j_id;
-      // Check joint axis
-      if (joint.axis.isApprox(-Eigen::Vector3d::UnitX()))
-      {
-        pinocchio::SE3 transf = pinocchio::SE3(
-          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitY()).toRotationMatrix(),
-          Eigen::Vector3d::Zero());
-        joint_pose.rotation() *= transf.rotation();
-        body_pose = transf * body_pose;
 
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelPX(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitY()))
-      {
-        pinocchio::SE3 transf = pinocchio::SE3(
-          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitX()).toRotationMatrix(),
-          Eigen::Vector3d::Zero());
-        joint_pose.rotation() *= transf.rotation();
-        body_pose = transf * body_pose;
+      CreateJointModel cjm(joint_pose, body_pose);
+      JointModel jm = cjm(joint);
+      JointIndex j_id = model.addJoint(
+        previous_body.parentJoint, jm, previous_body.placement * joint_pose, edge.name);
 
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelPY(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitZ()))
-      {
-        pinocchio::SE3 transf = pinocchio::SE3(
-          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitY()).toRotationMatrix(),
-          Eigen::Vector3d::Zero());
-        joint_pose.rotation() *= transf.rotation();
-        body_pose = transf * body_pose;
-
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelPZ(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelPX(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelPY(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelPZ(),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelPrismaticUnaligned(joint.axis),
-          previous_body.placement * joint_pose, edge.name);
-      }
       model.addJointFrame(j_id);
       model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
       model.addBodyFrame(target_vertex.name, j_id, body_pose);
@@ -601,68 +489,12 @@ namespace pinocchio
       const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       pinocchio::SE3 joint_pose = edge.out_to_joint;
       pinocchio::SE3 body_pose = edge.joint_to_in;
-      pinocchio::JointIndex j_id;
-      // Check joint axis
-      if (joint.axis.isApprox(-Eigen::Vector3d::UnitX()))
-      {
-        pinocchio::SE3 transf = pinocchio::SE3(
-          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitY()).toRotationMatrix(),
-          Eigen::Vector3d::Zero());
-        joint_pose.rotation() *= transf.rotation();
-        body_pose = transf * body_pose;
 
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelHX(joint.pitch),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitY()))
-      {
-        pinocchio::SE3 transf = pinocchio::SE3(
-          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitX()).toRotationMatrix(),
-          Eigen::Vector3d::Zero());
-        joint_pose.rotation() *= transf.rotation();
-        body_pose = transf * body_pose;
+      CreateJointModel cjm(joint_pose, body_pose);
+      JointModel jm = cjm(joint);
+      JointIndex j_id = model.addJoint(
+        previous_body.parentJoint, jm, previous_body.placement * joint_pose, edge.name);
 
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelHY(joint.pitch),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitZ()))
-      {
-        pinocchio::SE3 transf = pinocchio::SE3(
-          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitY()).toRotationMatrix(),
-          Eigen::Vector3d::Zero());
-        joint_pose.rotation() *= transf.rotation();
-        body_pose = transf * body_pose;
-
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelHZ(joint.pitch),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelHX(joint.pitch),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelHY(joint.pitch),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelHZ(joint.pitch),
-          previous_body.placement * joint_pose, edge.name);
-      }
-      else
-      {
-        j_id = model.addJoint(
-          previous_body.parentJoint, pinocchio::JointModelHelicalUnaligned(joint.axis, joint.pitch),
-          previous_body.placement * joint_pose, edge.name);
-      }
       model.addJointFrame(j_id);
       model.appendBodyToJoint(
         j_id, target_vertex.inertia); // Check this, inertia on joint or on body frame ? Urdf parser
