@@ -631,18 +631,18 @@ namespace pinocchio
       auto out_vertex = name_to_vertex.find(out_body);
       if (out_vertex == name_to_vertex.end())
       {
-        throw std::runtime_error("Graph - out_vertex does not exist");
+        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - out_vertex does not exist");
       }
       auto in_vertex = name_to_vertex.find(in_body);
       if (in_vertex == name_to_vertex.end())
       {
-        throw std::runtime_error("Graph - in_vertex does not exist");
+        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - in_vertex does not exist");
       }
       auto edge_desc = boost::add_edge(out_vertex->second, in_vertex->second, g);
 
       if (!edge_desc.second)
       {
-        throw std::runtime_error("Graph - Edge cannot be added between these two vertexes");
+        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - Edge cannot be added between these two vertexes");
       }
       ModelGraphEdge & edge = g[edge_desc.first];
       edge.name = joint_name;
@@ -653,7 +653,7 @@ namespace pinocchio
       auto reverse_edge_desc = boost::add_edge(in_vertex->second, out_vertex->second, g);
       if (!reverse_edge_desc.second)
       {
-        throw std::runtime_error("Graph - reverse edge cannot be added between these two vertexes");
+        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - Reverse edge cannot be added between these two vertexes");
       }
       ModelGraphEdge & reverse_edge = g[reverse_edge_desc.first];
       reverse_edge.name = joint_name;
@@ -680,7 +680,7 @@ namespace pinocchio
       auto root_vertex = name_to_vertex.find(root_body);
       if (root_vertex == name_to_vertex.end())
       {
-        throw std::runtime_error("Graph - root_body does not exist in the graph");
+        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - root_body does not exist in the graph");
       }
       std::vector<boost::default_color_type> colors(
         boost::num_vertices(g), boost::default_color_type::white_color);
@@ -724,7 +724,7 @@ namespace pinocchio
       auto root_vertex = name_to_vertex.find(root_body);
       if (root_vertex == name_to_vertex.end())
       {
-        throw std::runtime_error("Graph - root_body does not exist in the graph");
+        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - root_body does not exist in the graph");
       }
       std::vector<boost::default_color_type> colors(
         boost::num_vertices(g), boost::default_color_type::white_color);
