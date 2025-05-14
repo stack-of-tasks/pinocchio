@@ -218,27 +218,39 @@ namespace pinocchio
     std::vector<EdgeDesc> * edges;
   };
 
+  /// @brief Represents a vertex (body) in the model graph.
+  ///
+  /// A vertex corresponds to a rigid body in the multibody model.
+  /// For now, a vertex represents only a body, but this may evolve to include
+  /// sensors, actuators, or other entities in the future.
   struct ModelGraphVertex
   {
-    // Body unique name
+    /// @brief Unique name of the body.
     std::string name;
-    // Inertia at the CoM of the body
-    // When joint is reversed body frame pose is kept
-    // the same in the model, so no problem for inertia
+
+    /// @brief Spatial inertia of the body, expressed at its center of mass (CoM).
+    ///
+    /// Note: If the joint is reversed in the model graph, the body frame pose
+    /// is kept the same in the model, so this inertia remains valid.
     Inertia inertia;
   };
 
+  /// @brief Represents an edge (joint) in the model graph.
   struct ModelGraphEdge
   {
-    // Joint unique name
+    /// @brief Unique name of the joint
     std::string name;
-    // Joint type
+
+    /// @brief What is the type of the joint
     JointGraphVariant joint;
-    // Transformation from out vertex to joint
-    // transformation from body supporting to joint frame
+
+    /// @brief Transformation from the previous vertex to edge
+    ///
+    /// Correspond to the transformation from body supporting joint to said joint
     SE3 out_to_joint;
-    // Transformation from joint to in vertex
-    // transformation from joint frame to body supported
+    /// @brief Transformation from edge to next vertex
+    ///
+    /// Correspond to the transformation from the current joint to its supported body.
     SE3 joint_to_in;
   };
 
