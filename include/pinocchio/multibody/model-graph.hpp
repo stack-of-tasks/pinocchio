@@ -118,17 +118,17 @@ namespace pinocchio
 
     JointCompositeGraph() = default;
 
-    JointCompositeGraph(const JointGraphVariant & j, const SE3 jPose)
+    JointCompositeGraph(const JointGraphVariant & j, const SE3 & jPose)
     {
       joints.push_back(j);
       jointsPlacements.push_back(jPose);
-    };
+    }
 
-    JointCompositeGraph(const std::vector<JointGraphVariant> & js, const std::vector<SE3> jPoses)
+    JointCompositeGraph(const std::vector<JointGraphVariant> & js, const std::vector<SE3> & jPoses)
     : joints(js)
     , jointsPlacements(jPoses) {};
 
-    void addJoint(const JointGraphVariant & jm, const SE3 pose = SE3::Identity())
+    void addJoint(const JointGraphVariant & jm, const SE3 & pose = SE3::Identity())
     {
       joints.push_back(jm);
       jointsPlacements.push_back(pose);
@@ -268,7 +268,8 @@ namespace pinocchio
 
     ReturnType operator()(const JointFixedGraph & joint)
     {
-      throw std::invalid_argument(
+      PINOCCHIO_THROW_PRETTY(
+        std::invalid_argument,
         "Graph - cannot create a fixed joint. In pinocchio, fixed joints are frame.");
     }
     ReturnType operator()(const JointRevoluteGraph & joint)
@@ -439,7 +440,7 @@ namespace pinocchio
     }
     ReturnType operator()(const JointCompositeGraph & joint)
     {
-      throw std::invalid_argument("Graph - invalid visitor for jointCompositeGraph");
+      PINOCCHIO_THROW_PRETTY(std::invalid_argument, "TBD");
     }
   };
 
@@ -462,146 +463,80 @@ namespace pinocchio
     {
     }
 
-    void operator()(const JointRevoluteGraph & joint)
+    void
+    addJointToModel(const JointModel & joint_model, const SE3 & joint_pose, const SE3 & body_pose)
     {
       const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+      JointIndex j_id = model.addJoint(
+        previous_body.parentJoint, joint_model, previous_body.placement * joint_pose, edge.name);
+      model.addJointFrame(j_id);
+      model.appendBodyToJoint(j_id, target_vertex.inertia); // check this
+      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+    }
+
+    void operator()(const JointRevoluteGraph & joint)
+    {
       pinocchio::SE3 joint_pose = edge.out_to_joint;
       pinocchio::SE3 body_pose = edge.joint_to_in;
 
       CreateJointModel cjm(joint_pose, body_pose);
       JointModel jm = cjm(joint);
-      JointIndex j_id = model.addJoint(
-        previous_body.parentJoint, jm, previous_body.placement * joint_pose, edge.name);
 
-      model.addJointFrame(j_id);
-      model.appendBodyToJoint(
-        j_id, target_vertex.inertia); // Check this, inertia on joint or on body frame ? Urdf parser
-                                      // does it like this
-      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+      addJointToModel(jm, joint_pose, body_pose);
     }
 
     void operator()(const JointPrismaticGraph & joint)
     {
-      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       pinocchio::SE3 joint_pose = edge.out_to_joint;
       pinocchio::SE3 body_pose = edge.joint_to_in;
 
       CreateJointModel cjm(joint_pose, body_pose);
       JointModel jm = cjm(joint);
-      JointIndex j_id = model.addJoint(
-        previous_body.parentJoint, jm, previous_body.placement * joint_pose, edge.name);
 
-      model.addJointFrame(j_id);
-      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
-      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+      addJointToModel(jm, joint_pose, body_pose);
     }
 
     void operator()(const JointHelicalGraph & joint)
     {
-      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       pinocchio::SE3 joint_pose = edge.out_to_joint;
       pinocchio::SE3 body_pose = edge.joint_to_in;
 
       CreateJointModel cjm(joint_pose, body_pose);
       JointModel jm = cjm(joint);
-      JointIndex j_id = model.addJoint(
-        previous_body.parentJoint, jm, previous_body.placement * joint_pose, edge.name);
 
-      model.addJointFrame(j_id);
-      model.appendBodyToJoint(
-        j_id, target_vertex.inertia); // Check this, inertia on joint or on body frame ? Urdf parser
-                                      // does it like this
-      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+      addJointToModel(jm, joint_pose, body_pose);
     }
 
     void operator()(const JointFreeFlyerGraph & joint)
     {
-      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
-      pinocchio::SE3 joint_pose = edge.out_to_joint;
-      pinocchio::SE3 body_pose = edge.joint_to_in;
-
-      pinocchio::JointIndex j_id = model.addJoint(
-        previous_body.parentJoint, pinocchio::JointModelFreeFlyer(),
-        previous_body.placement * joint_pose, edge.name);
-
-      model.addJointFrame(j_id);
-      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
-      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+      addJointToModel(pinocchio::JointModelFreeFlyer(), edge.out_to_joint, edge.joint_to_in);
     }
 
     void operator()(const JointSphericalGraph & joint)
     {
-      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
-      pinocchio::SE3 joint_pose = edge.out_to_joint;
-      pinocchio::SE3 body_pose = edge.joint_to_in;
-
-      pinocchio::JointIndex j_id = model.addJoint(
-        previous_body.parentJoint, pinocchio::JointModelSpherical(),
-        previous_body.placement * joint_pose, edge.name);
-
-      model.addJointFrame(j_id);
-      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
-      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+      addJointToModel(pinocchio::JointModelSpherical(), edge.out_to_joint, edge.joint_to_in);
     }
 
     void operator()(const JointSphericalZYXGraph & joint)
     {
-      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
-      pinocchio::SE3 joint_pose = edge.out_to_joint;
-      pinocchio::SE3 body_pose = edge.joint_to_in;
-
-      pinocchio::JointIndex j_id = model.addJoint(
-        previous_body.parentJoint, pinocchio::JointModelSphericalZYX(),
-        previous_body.placement * joint_pose, edge.name);
-
-      model.addJointFrame(j_id);
-      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
-      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+      addJointToModel(pinocchio::JointModelSphericalZYX(), edge.out_to_joint, edge.joint_to_in);
     }
 
     void operator()(const JointPlanarGraph & joint)
     {
-      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
-      pinocchio::SE3 joint_pose = edge.out_to_joint;
-      pinocchio::SE3 body_pose = edge.joint_to_in;
-
-      pinocchio::JointIndex j_id = model.addJoint(
-        previous_body.parentJoint, pinocchio::JointModelPlanar(),
-        previous_body.placement * joint_pose, edge.name);
-
-      model.addJointFrame(j_id);
-      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
-      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+      addJointToModel(pinocchio::JointModelPlanar(), edge.out_to_joint, edge.joint_to_in);
     }
 
     void operator()(const JointTranslationGraph & joint)
     {
-      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
-      pinocchio::SE3 joint_pose = edge.out_to_joint;
-      pinocchio::SE3 body_pose = edge.joint_to_in;
-
-      pinocchio::JointIndex j_id = model.addJoint(
-        previous_body.parentJoint, pinocchio::JointModelTranslation(),
-        previous_body.placement * joint_pose, edge.name);
-
-      model.addJointFrame(j_id);
-      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
-      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+      addJointToModel(pinocchio::JointModelTranslation(), edge.out_to_joint, edge.joint_to_in);
     }
 
     void operator()(const JointUniversalGraph & joint)
     {
-      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
-      pinocchio::SE3 joint_pose = edge.out_to_joint;
-      pinocchio::SE3 body_pose = edge.joint_to_in;
-
-      pinocchio::JointIndex j_id = model.addJoint(
-        previous_body.parentJoint, pinocchio::JointModelUniversal(joint.axis1, joint.axis2),
-        previous_body.placement * joint_pose, edge.name);
-
-      model.addJointFrame(j_id);
-      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
-      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+      addJointToModel(
+        pinocchio::JointModelUniversal(joint.axis1, joint.axis2), edge.out_to_joint,
+        edge.joint_to_in);
     }
 
     void operator()(const JointCompositeGraph & joint)
@@ -827,6 +762,95 @@ namespace pinocchio
     std::unordered_map<std::string, VertexDesc> name_to_vertex;
   };
 
+  // ModelGraph mergeGraphs(const ModelGraph & g1, const ModelGraph & g2, const std::string &
+  // g1_body, const std::string & g2_body, const SE3 & pose_g2_body_in_g1)
+  // {
+  //   ModelGraph g_merged;
+
+  //   ModelGraph mergeGraphs(const ModelGraph & g1, const ModelGraph & g2, const std::string &
+  //   g1_body, const std::string & g2_body, const SE3 & pose_g2_body_in_g1)
+  // {
+  //   ModelGraph g_merged;
+  //   std::unordered_map<ModelGraph::VertexDesc, ModelGraph::VertexDesc> g1_old_to_new;
+  //   std::unordered_map<ModelGraph::VertexDesc, ModelGraph::VertexDesc> g2_old_to_new;
+
+  //   // 1. Copy all vertices from g1
+  //   for (const auto & pair : g1.name_to_vertex)
+  //   {
+  //     const auto & name = pair.first;
+  //     const auto & old_v = pair.second;
+  //     const auto & vertex_data = g1.g[old_v];
+
+  //     g_merged.addBody(name, vertex_data.inertia);
+  //     g1_old_to_new[old_v] = g_merged.name_to_vertex[name];
+  //   }
+
+  //   // 2. Copy all edges from g1
+  //   for (auto e_it = boost::edges(g1.g); e_it.first != e_it.second; ++e_it.first)
+  //   {
+  //     const auto & edge = *e_it.first;
+  //     auto src = boost::source(edge, g1.g);
+  //     auto tgt = boost::target(edge, g1.g);
+  //     const auto & edge_data = g1.g[edge];
+
+  //     const auto & src_name = g1.g[src].name;
+  //     const auto & tgt_name = g1.g[tgt].name;
+
+  //     g_merged.addJoint(
+  //       edge_data.name,
+  //       edge_data.joint,
+  //       src_name,
+  //       edge_data.out_to_joint,
+  //       tgt_name,
+  //       edge_data.joint_to_in);
+  //   }
+
+  //   // 3. Copy all vertices from g2 (prefix to avoid name collisions)
+  //   const std::string g2_prefix = "g2::";
+  //   for (const auto & pair : g2.name_to_vertex)
+  //   {
+  //     const auto & name = pair.first;
+  //     const auto & old_v = pair.second;
+  //     const auto & vertex_data = g2.g[old_v];
+
+  //     g_merged.addBody(g2_prefix + name, vertex_data.inertia);
+  //     g2_old_to_new[old_v] = g_merged.name_to_vertex[g2_prefix + name];
+  //   }
+
+  //   // 4. Copy all edges from g2
+  //   for (auto e_it = boost::edges(g2.g); e_it.first != e_it.second; ++e_it.first)
+  //   {
+  //     const auto & edge = *e_it.first;
+  //     auto src = boost::source(edge, g2.g);
+  //     auto tgt = boost::target(edge, g2.g);
+  //     const auto & edge_data = g2.g[edge];
+
+  //     const auto & src_name = g2.g[src].name;
+  //     const auto & tgt_name = g2.g[tgt].name;
+
+  //     g_merged.addJoint(
+  //       edge_data.name,
+  //       edge_data.joint,
+  //       g2_prefix + src_name,
+  //       edge_data.out_to_joint,
+  //       g2_prefix + tgt_name,
+  //       edge_data.joint_to_in);
+  //   }
+
+  //   // 5. Add a connecting joint between g1 and g2
+  //   if (g1.name_to_vertex.find(g1_body) == g1.name_to_vertex.end())
+  //     throw std::runtime_error("mergeGraphs: g1_body not found");
+  //   if (g2.name_to_vertex.find(g2_body) == g2.name_to_vertex.end())
+  //     throw std::runtime_error("mergeGraphs: g2_body not found");
+
+  //   const std::string g2_body_merged = g2_prefix + g2_body;
+
+  //   // Example connection using a fixed joint — replace with another if needed
+  //   g_merged.addJoint("merging_joint", JointFixedGraph(), g1_body, SE3::Identity(),
+  //   g2_body_merged, pose_g2_body_in_g1);
+
+  //   return g_merged;
+  // }
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_multibody_model_graph_hpp__
