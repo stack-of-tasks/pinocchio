@@ -259,6 +259,55 @@ BOOST_AUTO_TEST_CASE(test_universal_joint_reverse)
     d1.oMf[m1.getFrameId("body2", pinocchio::BODY)]));
 }
 
+/// @brief test if reversing of a composite joint is correct.
+/// Can not be done with revolute joints.
+BOOST_AUTO_TEST_CASE(test_composite_reverse)
+{
+  pinocchio::ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addBody("body1", pinocchio::Inertia::Identity());
+  g.addBody(
+    "body2",
+    pinocchio::Inertia(4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero()));
+
+  /////////////////////////////////////// Joints
+  pinocchio::JointCompositeGraph jmodel;
+  jmodel.addJoint(
+    pinocchio::JointPrismaticGraph(Eigen::Vector3d::UnitX()),
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 3., 0.)));
+  jmodel.addJoint(
+    pinocchio::JointPrismaticGraph(Eigen::Vector3d::UnitZ()), pinocchio::SE3::Identity());
+  jmodel.addJoint(
+    pinocchio::JointPrismaticGraph(Eigen::Vector3d::UnitY()),
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., -3., 0.)));
+  g.addJoint(
+    "body1_to_body2", jmodel, "body1",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "body2",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(-2, 0., 0.)));
+
+  ///////////////// Model
+  pinocchio::Model m = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Data d(m);
+  ///////////////// Model
+  pinocchio::Model m1 = g.buildModel("body2", pinocchio::SE3::Identity());
+  pinocchio::Data d1(m1);
+
+  Eigen::VectorXd q = Eigen::VectorXd::Zero(m.nq);
+  q[0] = 0.6;
+  q[1] = 0.2;
+  q[2] = -0.1;
+  pinocchio::framesForwardKinematics(m, d, q);
+
+  Eigen::VectorXd q_reverse = Eigen::VectorXd::Zero(m1.nq);
+  q_reverse[0] = 0.1;
+  q_reverse[1] = -0.2;
+  q_reverse[2] = -0.6;
+  pinocchio::framesForwardKinematics(m1, d1, q_reverse);
+
+  BOOST_CHECK(d.oMf[m.getFrameId("body1", pinocchio::BODY)].isApprox(
+    d1.oMf[m1.getFrameId("body2", pinocchio::BODY)]));
+}
+
 /// @brief Test out if inertias are well placed on the model
 BOOST_AUTO_TEST_CASE(test_inertia)
 {

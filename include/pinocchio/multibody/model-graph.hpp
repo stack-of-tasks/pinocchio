@@ -94,6 +94,10 @@ namespace pinocchio
     : axis1(ax1)
     , axis2(ax2) {};
   };
+
+  // Forward declare
+  struct JointCompositeGraph;
+
   using JointGraphVariant = boost::variant<
     JointFixedGraph,
     JointRevoluteGraph,
@@ -104,7 +108,32 @@ namespace pinocchio
     JointTranslationGraph,
     JointPlanarGraph,
     JointHelicalGraph,
-    JointUniversalGraph>;
+    JointUniversalGraph,
+    boost::recursive_wrapper<JointCompositeGraph>>;
+
+  struct JointCompositeGraph
+  {
+    std::vector<JointGraphVariant> joints;
+    std::vector<SE3> jointsPlacements;
+
+    JointCompositeGraph() = default;
+
+    JointCompositeGraph(const JointGraphVariant & j, const SE3 jPose)
+    {
+      joints.push_back(j);
+      jointsPlacements.push_back(jPose);
+    };
+
+    JointCompositeGraph(const std::vector<JointGraphVariant> & js, const std::vector<SE3> jPoses)
+    : joints(js)
+    , jointsPlacements(jPoses) {};
+
+    void addJoint(const JointGraphVariant & jm, const SE3 pose = SE3::Identity())
+    {
+      joints.push_back(jm);
+      jointsPlacements.push_back(pose);
+    }
+  };
 
   struct ReverseJointVisitor : public boost::static_visitor<JointGraphVariant>
   {
@@ -153,7 +182,21 @@ namespace pinocchio
     ReturnType operator()(const JointUniversalGraph & joint) const
     {
       // need to check this
+      // Need to reverse joints axis ???
+      // Universal = Revolute1 + Revolute2
+      // Reverse should be Revolute2_reverse + Revolute1_reverse ?
       return JointUniversalGraph(-joint.axis1, -joint.axis2);
+    }
+    ReturnType operator()(const JointCompositeGraph & joint) const
+    {
+      JointCompositeGraph jReturn;
+      // Reverse joints
+      for (size_t i = joint.joints.size(); i-- > 0;)
+      {
+        jReturn.joints.push_back(boost::apply_visitor(*this, joint.joints[i]));
+        jReturn.jointsPlacements.push_back(joint.jointsPlacements[i].inverse());
+      }
+      return jReturn;
     }
   };
 
@@ -199,6 +242,195 @@ namespace pinocchio
     SE3 joint_to_in;
   };
 
+  struct CreateJointModel : public boost::static_visitor<JointModel>
+  {
+    typedef JointModel ReturnType;
+
+    SE3 & joint_pose;
+    SE3 & supported_pose;
+
+    CreateJointModel(SE3 & joint_p, SE3 & body_p)
+    : joint_pose(joint_p)
+    , supported_pose(body_p)
+    {
+    }
+
+    ReturnType operator()(const JointFixedGraph & joint)
+    {
+      throw std::invalid_argument(
+        "Graph - cannot create a fixed joint. In pinocchio, fixed joints are frame.");
+    }
+    ReturnType operator()(const JointRevoluteGraph & joint)
+    {
+      if (joint.axis.isApprox(-Eigen::Vector3d::UnitX()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitZ()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelRX();
+      }
+      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitY()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitX()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelRY();
+      }
+      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitZ()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitY()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelRZ();
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
+      {
+        return pinocchio::JointModelRX();
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
+      {
+        return pinocchio::JointModelRY();
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
+      {
+        return pinocchio::JointModelRZ();
+      }
+      else
+      {
+        return pinocchio::JointModelRevoluteUnaligned(joint.axis);
+      }
+    }
+    ReturnType operator()(const JointPrismaticGraph & joint)
+    {
+      if (joint.axis.isApprox(-Eigen::Vector3d::UnitX()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitZ()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelPX();
+      }
+      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitY()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitX()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelPY();
+      }
+      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitZ()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitY()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelPZ();
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
+      {
+        return pinocchio::JointModelPX();
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
+      {
+        return pinocchio::JointModelPY();
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
+      {
+        return pinocchio::JointModelPZ();
+      }
+      else
+      {
+        return pinocchio::JointModelPrismaticUnaligned(joint.axis);
+      }
+    }
+    ReturnType operator()(const JointHelicalGraph & joint)
+    {
+
+      if (joint.axis.isApprox(-Eigen::Vector3d::UnitX()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitZ()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelHX(joint.pitch);
+      }
+      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitY()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitX()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelHY(joint.pitch);
+      }
+      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitZ()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitY()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelHZ(joint.pitch);
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
+      {
+        return pinocchio::JointModelHX(joint.pitch);
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
+      {
+        return pinocchio::JointModelHY(joint.pitch);
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
+      {
+        return pinocchio::JointModelHZ(joint.pitch);
+      }
+      else
+      {
+        return pinocchio::JointModelHelicalUnaligned(joint.axis, joint.pitch);
+      }
+    }
+    ReturnType operator()(const JointFreeFlyerGraph & joint)
+    {
+      return JointModelFreeFlyer();
+    }
+    ReturnType operator()(const JointTranslationGraph & joint)
+    {
+      return JointModelTranslation();
+    }
+    ReturnType operator()(const JointPlanarGraph & joint)
+    {
+      return JointModelPlanar();
+    }
+    ReturnType operator()(const JointSphericalGraph & joint)
+    {
+      return JointModelSpherical();
+    }
+    ReturnType operator()(const JointSphericalZYXGraph & joint)
+    {
+      return JointModelSphericalZYX();
+    }
+    ReturnType operator()(const JointUniversalGraph & joint)
+    {
+      return JointModelUniversal(joint.axis1, joint.axis2);
+    }
+    ReturnType operator()(const JointCompositeGraph & joint)
+    {
+    }
+  };
+
   struct AddJointModel : public boost::static_visitor<>
   {
     const ModelGraphVertex & source_vertex;
@@ -214,7 +446,9 @@ namespace pinocchio
     : source_vertex(source)
     , target_vertex(target)
     , edge(edge_)
-    , model(model_) {};
+    , model(model_)
+    {
+    }
 
     void operator()(const JointRevoluteGraph & joint)
     {
@@ -520,6 +754,34 @@ namespace pinocchio
       pinocchio::JointIndex j_id = model.addJoint(
         previous_body.parentJoint, pinocchio::JointModelUniversal(joint.axis1, joint.axis2),
         previous_body.placement * joint_pose, edge.name);
+
+      model.addJointFrame(j_id);
+      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
+      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+    }
+
+    void operator()(const JointCompositeGraph & joint)
+    {
+      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+
+      JointModelComposite jmodel;
+      std::vector<SE3> jointPositions = joint.jointsPlacements;
+
+      for (size_t i = 0; i < joint.joints.size() - 1; i++)
+      {
+        CreateJointModel cjm(jointPositions[i], jointPositions[i + 1]);
+        JointModel jm = boost::apply_visitor(cjm, joint.joints[i]);
+        jmodel.addJoint(jm, jointPositions[i]);
+      }
+
+      CreateJointModel cjm(jointPositions.back(), body_pose);
+      JointModel jm = boost::apply_visitor(cjm, joint.joints.back());
+      jmodel.addJoint(jm, jointPositions.back());
+
+      pinocchio::JointIndex j_id = model.addJoint(
+        previous_body.parentJoint, jmodel, previous_body.placement * joint_pose, edge.name);
 
       model.addJointFrame(j_id);
       model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
