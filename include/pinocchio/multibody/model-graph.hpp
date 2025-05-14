@@ -174,7 +174,6 @@ namespace pinocchio
     }
     ReturnType operator()(const JointHelicalGraph & joint) const
     {
-      // need to check this
       // Helical = Prismatic + revolute
       // So reversing axis, reverse both normally
       return JointHelicalGraph(-joint.axis, joint.pitch);
@@ -644,6 +643,10 @@ namespace pinocchio
     }
   };
 
+  /// @brief Represents multibody model as a bidirectional graph.
+  ///
+  /// This is an intermediate step before creating a model, that
+  /// allows more flexibility as to which body will be the root...
   struct ModelGraph
   {
     typedef boost::
@@ -652,6 +655,10 @@ namespace pinocchio
     typedef typename boost::graph_traits<Graph>::vertex_descriptor VertexDesc;
     typedef typename boost::graph_traits<Graph>::edge_descriptor EdgeDesc;
 
+    /// \brief Add a new vertex (body) to the graph
+    ///
+    /// \param[in] vertex_name Name of the vertex
+    /// \param[in] inertia pinocchio inertia of the body taken at the Center of Mass of said body.
     void addBody(const std::string & vertex_name, const Inertia & inertia)
     {
       if (name_to_vertex.find(vertex_name) != name_to_vertex.end())
@@ -665,6 +672,18 @@ namespace pinocchio
       name_to_vertex.insert({vertex_name, vertex_desc});
     }
 
+    /// \brief Add edges (joint) to the graph. Since it's a bidirectional graph,
+    /// edge and its reverse are added to the graph.
+    ///
+    /// \param[in] joint_name Name of the edge
+    /// \param[in] joint Type of the joint
+    /// \param[in] out_body Vertex that is supporting the edge
+    /// \param[in] out_to_joint Transformation from supporting vertex to edge
+    /// \param[in] in_body Vertex that is supported by edge
+    /// \param[in] joint_to_in Transformation from edge to supported vertex
+    ///
+    /// \note Since it's a bidirectional graph, two edges are added to the graph.
+    /// Joints and transformation are inverted, to create reverse edge.
     void addJoint(
       const std::string & joint_name,
       const JointGraphVariant & joint,
@@ -676,16 +695,15 @@ namespace pinocchio
       auto out_vertex = name_to_vertex.find(out_body);
       if (out_vertex == name_to_vertex.end())
       {
-        throw std::runtime_error("Graph - out vertex does not exist");
+        throw std::runtime_error("Graph - out_vertex does not exist");
       }
       auto in_vertex = name_to_vertex.find(in_body);
       if (in_vertex == name_to_vertex.end())
       {
-        throw std::runtime_error("Graph - in vertex does not exist");
+        throw std::runtime_error("Graph - in_vertex does not exist");
       }
       auto edge_desc = boost::add_edge(out_vertex->second, in_vertex->second, g);
 
-      //
       if (!edge_desc.second)
       {
         throw std::runtime_error("Graph - Edge cannot be added between these two vertexes");
@@ -699,7 +717,7 @@ namespace pinocchio
       auto reverse_edge_desc = boost::add_edge(in_vertex->second, out_vertex->second, g);
       if (!reverse_edge_desc.second)
       {
-        throw std::runtime_error("Graph - reverse edge cannot be added");
+        throw std::runtime_error("Graph - reverse edge cannot be added between these two vertexes");
       }
       ModelGraphEdge & reverse_edge = g[reverse_edge_desc.first];
       reverse_edge.name = joint_name;
@@ -708,6 +726,15 @@ namespace pinocchio
       reverse_edge.joint_to_in = out_to_joint.inverse();
     }
 
+    /// @brief  Build a pinocchio model based on the graph that was built previously, that allows to
+    /// have a root_joint.
+    ///
+    /// @param root_body First body to add to the model
+    /// @param root_position position of said body wrt to the universe
+    /// @param root_joint joint that will append to the root_body
+    /// @param root_joint_name name of the first joint in the model
+    ///
+    /// @return a pinocchio model
     Model buildModel(
       const std::string & root_body,
       const pinocchio::SE3 root_position,
@@ -717,7 +744,7 @@ namespace pinocchio
       auto root_vertex = name_to_vertex.find(root_body);
       if (root_vertex == name_to_vertex.end())
       {
-        throw std::runtime_error("Graph - root body does not exist in the graph");
+        throw std::runtime_error("Graph - root_body does not exist in the graph");
       }
       std::vector<boost::default_color_type> colors(
         boost::num_vertices(g), boost::default_color_type::white_color);
@@ -749,7 +776,13 @@ namespace pinocchio
       return model;
     }
 
-    // When root is a fixed joint
+    /// @brief  Build a pinocchio model based on the graph that was built previously, fixed in the
+    /// world.
+    ///
+    /// @param root_body First body to add to the model
+    /// @param root_position position of said body wrt to the universe
+    ///
+    /// @return a pinocchio model
     Model buildModel(const std::string & root_body, const pinocchio::SE3 root_position) const
     {
       auto root_vertex = name_to_vertex.find(root_body);
