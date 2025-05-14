@@ -541,7 +541,6 @@ namespace pinocchio
 
     void operator()(const JointCompositeGraph & joint)
     {
-      const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       pinocchio::SE3 joint_pose = edge.out_to_joint;
       pinocchio::SE3 body_pose = edge.joint_to_in;
 
@@ -559,12 +558,7 @@ namespace pinocchio
       JointModel jm = boost::apply_visitor(cjm, joint.joints.back());
       jmodel.addJoint(jm, jointPositions.back());
 
-      pinocchio::JointIndex j_id = model.addJoint(
-        previous_body.parentJoint, jmodel, previous_body.placement * joint_pose, edge.name);
-
-      model.addJointFrame(j_id);
-      model.appendBodyToJoint(j_id, target_vertex.inertia); // Check this
-      model.addBodyFrame(target_vertex.name, j_id, body_pose);
+      addJointToModel(jmodel, joint_pose, body_pose);
     }
 
     void operator()(const JointFixedGraph & joint)
@@ -642,7 +636,8 @@ namespace pinocchio
 
       if (!edge_desc.second)
       {
-        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - Edge cannot be added between these two vertexes");
+        PINOCCHIO_THROW_PRETTY(
+          std::runtime_error, "Graph - Edge cannot be added between these two vertexes");
       }
       ModelGraphEdge & edge = g[edge_desc.first];
       edge.name = joint_name;
@@ -653,7 +648,8 @@ namespace pinocchio
       auto reverse_edge_desc = boost::add_edge(in_vertex->second, out_vertex->second, g);
       if (!reverse_edge_desc.second)
       {
-        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - Reverse edge cannot be added between these two vertexes");
+        PINOCCHIO_THROW_PRETTY(
+          std::runtime_error, "Graph - Reverse edge cannot be added between these two vertexes");
       }
       ModelGraphEdge & reverse_edge = g[reverse_edge_desc.first];
       reverse_edge.name = joint_name;
@@ -673,7 +669,7 @@ namespace pinocchio
     /// @return a pinocchio model
     Model buildModel(
       const std::string & root_body,
-      const pinocchio::SE3 root_position,
+      const pinocchio::SE3 & root_position,
       const JointModel & root_joint,
       const std::string & root_joint_name = "root_joint") const
     {
@@ -719,7 +715,7 @@ namespace pinocchio
     /// @param root_position position of said body wrt to the universe
     ///
     /// @return a pinocchio model
-    Model buildModel(const std::string & root_body, const pinocchio::SE3 root_position) const
+    Model buildModel(const std::string & root_body, const pinocchio::SE3 & root_position) const
     {
       auto root_vertex = name_to_vertex.find(root_body);
       if (root_vertex == name_to_vertex.end())
