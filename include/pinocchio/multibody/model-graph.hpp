@@ -439,6 +439,7 @@ namespace pinocchio
     }
     ReturnType operator()(const JointCompositeGraph & joint)
     {
+      throw std::invalid_argument("Graph - invalid visitor for jointCompositeGraph");
     }
   };
 
@@ -788,7 +789,7 @@ namespace pinocchio
       auto root_vertex = name_to_vertex.find(root_body);
       if (root_vertex == name_to_vertex.end())
       {
-        throw std::runtime_error("Graph - root body does not exist in the graph");
+        throw std::runtime_error("Graph - root_body does not exist in the graph");
       }
       std::vector<boost::default_color_type> colors(
         boost::num_vertices(g), boost::default_color_type::white_color);
@@ -819,9 +820,13 @@ namespace pinocchio
       }
       return model;
     }
+
+    /// @brief Boost graph structure that holds the graph structure
     Graph g;
+    /// @brief Name of the vertexes in the graph. Useful for graph parcours.
     std::unordered_map<std::string, VertexDesc> name_to_vertex;
   };
+
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_multibody_model_graph_hpp__
