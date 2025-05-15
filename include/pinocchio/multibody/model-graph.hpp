@@ -487,7 +487,7 @@ namespace pinocchio
     Model buildModel(
       const std::string & root_body,
       const pinocchio::SE3 & root_position,
-      const boost::optional<JointModelVariant> & root_joint = boost::none,
+      boost::optional<JointGraphVariant> root_joint = boost::none,
       const std::string & root_joint_name = "root_joint") const
     {
       auto root_vertex = name_to_vertex.find(root_body);

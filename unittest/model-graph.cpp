@@ -130,8 +130,10 @@ BOOST_AUTO_TEST_CASE(test_fixed_joint)
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(4., -5., 0.)));
 
   ///////////////// Model
-  pinocchio::Model m =
-    g.buildModel("body1", pinocchio::SE3::Identity(), pinocchio::JointModelFreeFlyer());
+
+  pinocchio::Model m = g.buildModel(
+    "body1", pinocchio::SE3::Identity(),
+    pinocchio::JointGraphVariant(pinocchio::JointFreeFlyerGraph()));
 
   BOOST_CHECK(m.njoints == 3);
   BOOST_CHECK(m.frames[m.getFrameId("body2_to_body3", pinocchio::FIXED_JOINT)].placement.isApprox(
@@ -357,14 +359,16 @@ BOOST_AUTO_TEST_CASE(test_tree_robot)
     "torso_to_right_leg", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "torso",
     pinocchio::SE3::Identity(), "right_leg", pinocchio::SE3::Identity());
 
-  pinocchio::Model m =
-    g.buildModel("torso", pinocchio::SE3::Identity(), pinocchio::JointModelFreeFlyer());
+  pinocchio::Model m = g.buildModel(
+    "torso", pinocchio::SE3::Identity(),
+    pinocchio::JointGraphVariant(pinocchio::JointFreeFlyerGraph()));
 
   BOOST_CHECK(m.parents[m.getJointId("torso_to_left_leg")] == m.getJointId("root_joint"));
   BOOST_CHECK(m.parents[m.getJointId("torso_to_right_leg")] == m.getJointId("root_joint"));
 
-  pinocchio::Model m1 =
-    g.buildModel("left_leg", pinocchio::SE3::Identity(), pinocchio::JointModelFreeFlyer());
+  pinocchio::Model m1 = g.buildModel(
+    "left_leg", pinocchio::SE3::Identity(),
+    pinocchio::JointGraphVariant(pinocchio::JointFreeFlyerGraph()));
   BOOST_CHECK(m1.parents[m.getJointId("torso_to_left_leg")] == m1.getJointId("root_joint"));
   BOOST_CHECK(m1.parents[m.getJointId("torso_to_right_leg")] == m1.getJointId("torso_to_left_leg"));
 }
