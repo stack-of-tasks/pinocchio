@@ -487,7 +487,7 @@ namespace pinocchio
     Model buildModel(
       const std::string & root_body,
       const pinocchio::SE3 & root_position,
-      const JointModel & root_joint,
+      const boost::optional<JointModelVariant> & root_joint = boost::none,
       const std::string & root_joint_name = "root_joint") const
     {
       auto root_vertex = name_to_vertex.find(root_body);
@@ -503,13 +503,23 @@ namespace pinocchio
       boost::depth_first_search(g, tree_edge_visitor, colors.data(), root_vertex->second);
 
       Model model;
-      JointIndex j_id = model.addJoint(0, root_joint, root_position, root_joint_name);
-      model.addJointFrame(j_id);
-
-      // add root body and glue it on root_joint
       const ModelGraphVertex & root_vertex_data = g[root_vertex->second];
-      model.appendBodyToJoint(j_id, root_vertex_data.inertia);
-      model.addBodyFrame(root_vertex_data.name, j_id);
+
+      if (root_joint) // Root joint provided
+      {
+        JointIndex j_id = model.addJoint(0, *root_joint, root_position, root_joint_name);
+        model.addJointFrame(j_id);
+        model.appendBodyToJoint(j_id, root_vertex_data.inertia);
+        model.addBodyFrame(root_vertex_data.name, j_id);
+      }
+      else // Fixed to world
+      {
+        const Frame & parent_frame = model.frames[0];
+        model.addFrame(Frame(
+          root_vertex_data.name, parent_frame.parentJoint, 0,
+          parent_frame.placement * root_position, BODY, root_vertex_data.inertia));
+      }
+
       // Go through rest of the graph
       for (const EdgeDesc & edge_desc : edges)
       {
@@ -532,42 +542,43 @@ namespace pinocchio
     /// @param root_position position of said body wrt to the universe
     ///
     /// @return a pinocchio model
-    Model buildModel(const std::string & root_body, const pinocchio::SE3 & root_position) const
-    {
-      auto root_vertex = name_to_vertex.find(root_body);
-      if (root_vertex == name_to_vertex.end())
-      {
-        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - root_body does not exist in the graph");
-      }
-      std::vector<boost::default_color_type> colors(
-        boost::num_vertices(g), boost::default_color_type::white_color);
-      std::vector<EdgeDesc> edges;
-      edges.reserve(boost::num_vertices(g));
-      RecordTreeEdgeVisitor<Graph> tree_edge_visitor(&edges);
-      boost::depth_first_search(g, tree_edge_visitor, colors.data(), root_vertex->second);
+    // Model buildModel(const std::string & root_body, const pinocchio::SE3 & root_position) const
+    // {
+    //   auto root_vertex = name_to_vertex.find(root_body);
+    //   if (root_vertex == name_to_vertex.end())
+    //   {
+    //     PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - root_body does not exist in the
+    //     graph");
+    //   }
+    //   std::vector<boost::default_color_type> colors(
+    //     boost::num_vertices(g), boost::default_color_type::white_color);
+    //   std::vector<EdgeDesc> edges;
+    //   edges.reserve(boost::num_vertices(g));
+    //   RecordTreeEdgeVisitor<Graph> tree_edge_visitor(&edges);
+    //   boost::depth_first_search(g, tree_edge_visitor, colors.data(), root_vertex->second);
 
-      Model model;
-      const ModelGraphVertex & root_vertex_data = g[root_vertex->second];
-      const Frame & parent_frame = model.frames[0];
+    //   Model model;
+    //   const ModelGraphVertex & root_vertex_data = g[root_vertex->second];
+    //   const Frame & parent_frame = model.frames[0];
 
-      model.addFrame(Frame(
-        root_vertex_data.name, parent_frame.parentJoint, 0, parent_frame.placement * root_position,
-        BODY, root_vertex_data.inertia));
+    //   model.addFrame(Frame(
+    //     root_vertex_data.name, parent_frame.parentJoint, 0, parent_frame.placement *
+    //     root_position, BODY, root_vertex_data.inertia));
 
-      // Go through rest of the graph
-      for (const EdgeDesc & edge_desc : edges)
-      {
-        VertexDesc source_vertex_desc = boost::source(edge_desc, g);
-        VertexDesc target_vertex_desc = boost::target(edge_desc, g);
-        const ModelGraphEdge & edge = g[edge_desc];
-        const ModelGraphVertex & source_vertex = g[source_vertex_desc];
-        const ModelGraphVertex & target_vertex = g[target_vertex_desc];
+    //   // Go through rest of the graph
+    //   for (const EdgeDesc & edge_desc : edges)
+    //   {
+    //     VertexDesc source_vertex_desc = boost::source(edge_desc, g);
+    //     VertexDesc target_vertex_desc = boost::target(edge_desc, g);
+    //     const ModelGraphEdge & edge = g[edge_desc];
+    //     const ModelGraphVertex & source_vertex = g[source_vertex_desc];
+    //     const ModelGraphVertex & target_vertex = g[target_vertex_desc];
 
-        AddJointModel visitor(source_vertex, target_vertex, edge, model);
-        boost::apply_visitor(visitor, edge.joint);
-      }
-      return model;
-    }
+    //     AddJointModel visitor(source_vertex, target_vertex, edge, model);
+    //     boost::apply_visitor(visitor, edge.joint);
+    //   }
+    //   return model;
+    // }
 
     /// @brief Boost graph structure that holds the graph structure
     Graph g;
