@@ -135,6 +135,70 @@ namespace pinocchio
     }
   };
 
+  struct ReverseJointVisitor : public boost::static_visitor<JointGraphVariant>
+  {
+    typedef JointGraphVariant ReturnType;
+
+    ReturnType operator()(const JointRevoluteGraph & joint) const
+    {
+      return joint;
+    }
+
+    ReturnType operator()(const JointPrismaticGraph & joint) const
+    {
+      return joint;
+    }
+    ReturnType operator()(const JointFixedGraph & joint) const
+    {
+      return joint;
+    }
+    ReturnType operator()(const JointFreeFlyerGraph & joint) const
+    {
+      return joint;
+    }
+    ReturnType operator()(const JointSphericalGraph & joint) const
+    {
+      return joint;
+    }
+    ReturnType operator()(const JointSphericalZYXGraph & joint) const
+    {
+      return joint;
+    }
+    ReturnType operator()(const JointTranslationGraph & joint) const
+    {
+      return joint;
+    }
+    ReturnType operator()(const JointPlanarGraph & joint) const
+    {
+      return joint;
+    }
+    ReturnType operator()(const JointHelicalGraph & joint) const
+    {
+      // Helical = Prismatic + revolute
+      // So reversing axis, reverse both normally
+      return JointHelicalGraph(-joint.axis, joint.pitch);
+    }
+    ReturnType operator()(const JointUniversalGraph & joint) const
+    {
+      // need to check this
+      // Need to reverse joints axis ???
+      // Universal = Revolute1 + Revolute2
+      // Reverse should be Revolute2_reverse + Revolute1_reverse ?
+      return JointUniversalGraph(joint.axis2, joint.axis1);
+    }
+    ReturnType operator()(const JointCompositeGraph & joint) const
+    {
+      JointCompositeGraph jReturn;
+      // Reverse joints
+      for (size_t i = joint.joints.size(); i-- > 0;)
+      {
+        jReturn.joints.push_back(boost::apply_visitor(*this, joint.joints[i]));
+        jReturn.jointsPlacements.push_back(joint.jointsPlacements[i].inverse());
+      }
+      return jReturn;
+    }
+  };
+
   template<typename Graph>
   struct RecordTreeEdgeVisitor : public boost::default_dfs_visitor
   {
@@ -196,6 +260,15 @@ namespace pinocchio
   {
     typedef JointModel ReturnType;
 
+    SE3 & joint_pose;
+    SE3 & supported_pose;
+
+    CreateJointModel(SE3 & joint_p, SE3 & body_p)
+    : joint_pose(joint_p)
+    , supported_pose(body_p)
+    {
+    }
+
     ReturnType operator()(const JointFixedGraph & joint)
     {
       PINOCCHIO_THROW_PRETTY(
@@ -242,7 +315,36 @@ namespace pinocchio
     }
     ReturnType operator()(const JointHelicalGraph & joint)
     {
-      if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
+
+      if (joint.axis.isApprox(-Eigen::Vector3d::UnitX()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitZ()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelHX(joint.pitch);
+      }
+      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitY()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitX()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelHY(joint.pitch);
+      }
+      else if (joint.axis.isApprox(-Eigen::Vector3d::UnitZ()))
+      {
+        pinocchio::SE3 transf = pinocchio::SE3(
+          Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitY()).toRotationMatrix(),
+          Eigen::Vector3d::Zero());
+        joint_pose.rotation() *= transf.rotation();
+        supported_pose = transf * supported_pose;
+        return pinocchio::JointModelHZ(joint.pitch);
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
       {
         return pinocchio::JointModelHX(joint.pitch);
       }
@@ -287,8 +389,26 @@ namespace pinocchio
     {
       JointModelComposite jmodel;
 
-      for (size_t i = 0; i < joint.joints.size(); i++)
-        jmodel.addJoint(boost::apply_visitor(*this, joint.joints[i]), joint.jointsPlacements[i]);
+      std::vector<SE3> jPlacements = joint.jointsPlacements;
+      for (size_t i = 0; i < joint.joints.size() - 1; i++)
+      {
+        SE3 & joint_p = jPlacements[i];
+        SE3 & supported_p = jPlacements[i + 1];
+
+        // Create a new visitor for this sub-joint with updated transforms
+        CreateJointModel sub_visitor(joint_p, supported_p);
+        JointModel sub_joint = boost::apply_visitor(sub_visitor, joint.joints[i]);
+
+        jmodel.addJoint(sub_joint, jPlacements[i]);
+      }
+
+      SE3 & joint_p = jPlacements.back();
+
+      // Create a new visitor for this sub-joint with updated transforms
+      CreateJointModel sub_visitor(joint_p, supported_pose);
+      JointModel sub_joint = boost::apply_visitor(sub_visitor, joint.joints.back());
+
+      jmodel.addJoint(sub_joint, jPlacements.back());
 
       return jmodel;
     }
@@ -300,7 +420,6 @@ namespace pinocchio
     const ModelGraphVertex & target_vertex;
     const ModelGraphEdge & edge;
     Model & model;
-    CreateJointModel cjm;
 
     AddJointModel(
       const ModelGraphVertex & source,
@@ -314,11 +433,11 @@ namespace pinocchio
     {
     }
 
-    void addJointToModel(const JointModel & joint_model)
+    void addJointToModel(
+      const JointModel & joint_model,
+      const pinocchio::SE3 & joint_pose,
+      const pinocchio::SE3 & body_pose)
     {
-      const pinocchio::SE3 & joint_pose = edge.out_to_joint;
-      const pinocchio::SE3 & body_pose = edge.joint_to_in;
-
       const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       JointIndex j_id = model.addJoint(
         previous_body.parentJoint, joint_model, previous_body.placement * joint_pose, edge.name);
@@ -329,52 +448,89 @@ namespace pinocchio
 
     void operator()(const JointRevoluteGraph & joint)
     {
-      addJointToModel(cjm(joint));
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+      CreateJointModel cjm(joint_pose, body_pose);
+
+      addJointToModel(cjm(joint), joint_pose, body_pose);
     }
 
     void operator()(const JointPrismaticGraph & joint)
     {
-      addJointToModel(cjm(joint));
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+      CreateJointModel cjm(joint_pose, body_pose);
+      addJointToModel(cjm(joint), joint_pose, body_pose);
     }
 
     void operator()(const JointHelicalGraph & joint)
     {
-      addJointToModel(cjm(joint));
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+      CreateJointModel cjm(joint_pose, body_pose);
+      addJointToModel(cjm(joint), joint_pose, body_pose);
     }
 
     void operator()(const JointFreeFlyerGraph & joint)
     {
-      addJointToModel(cjm(joint));
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+      CreateJointModel cjm(joint_pose, body_pose);
+      addJointToModel(cjm(joint), joint_pose, body_pose);
     }
 
     void operator()(const JointSphericalGraph & joint)
     {
-      addJointToModel(cjm(joint));
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+      CreateJointModel cjm(joint_pose, body_pose);
+      addJointToModel(cjm(joint), joint_pose, body_pose);
     }
 
     void operator()(const JointSphericalZYXGraph & joint)
     {
-      addJointToModel(cjm(joint));
+      if (edge.reverse)
+        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - JointSphericalZYX cannot be reversed.");
+
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+      CreateJointModel cjm(joint_pose, body_pose);
+      addJointToModel(cjm(joint), joint_pose, body_pose);
     }
 
     void operator()(const JointPlanarGraph & joint)
     {
-      addJointToModel(cjm(joint));
+      if (edge.reverse)
+        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - JointPlanar cannot be reversed.");
+
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+      CreateJointModel cjm(joint_pose, body_pose);
+      addJointToModel(cjm(joint), joint_pose, body_pose);
     }
 
     void operator()(const JointTranslationGraph & joint)
     {
-      addJointToModel(cjm(joint));
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+      CreateJointModel cjm(joint_pose, body_pose);
+      addJointToModel(cjm(joint), joint_pose, body_pose);
     }
 
     void operator()(const JointUniversalGraph & joint)
     {
-      addJointToModel(cjm(joint));
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+      CreateJointModel cjm(joint_pose, body_pose);
+      addJointToModel(cjm(joint), joint_pose, body_pose);
     }
 
     void operator()(const JointCompositeGraph & joint)
     {
-      addJointToModel(cjm(joint));
+      pinocchio::SE3 joint_pose = edge.out_to_joint;
+      pinocchio::SE3 body_pose = edge.joint_to_in;
+      CreateJointModel cjm(joint_pose, body_pose);
+      addJointToModel(cjm(joint), joint_pose, body_pose);
     }
 
     void operator()(const JointFixedGraph & joint)
@@ -408,7 +564,7 @@ namespace pinocchio
     void addBody(const std::string & vertex_name, const Inertia & inertia)
     {
       if (name_to_vertex.find(vertex_name) != name_to_vertex.end())
-        throw std::runtime_error("Graph - vertex already in graph");
+        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - vertex already in graph");
 
       auto vertex_desc = boost::add_vertex(g);
       ModelGraphVertex & vertex = g[vertex_desc];
@@ -469,7 +625,7 @@ namespace pinocchio
       }
       ModelGraphEdge & reverse_edge = g[reverse_edge_desc.first];
       reverse_edge.name = joint_name;
-      reverse_edge.joint = joint;
+      reverse_edge.joint = boost::apply_visitor(ReverseJointVisitor(), joint);
       reverse_edge.out_to_joint = joint_to_in.inverse();
       reverse_edge.joint_to_in = out_to_joint.inverse();
       reverse_edge.reverse = true;
@@ -492,9 +648,8 @@ namespace pinocchio
     {
       auto root_vertex = name_to_vertex.find(root_body);
       if (root_vertex == name_to_vertex.end())
-      {
         PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - root_body does not exist in the graph");
-      }
+
       std::vector<boost::default_color_type> colors(
         boost::num_vertices(g), boost::default_color_type::white_color);
       std::vector<EdgeDesc> edges;
@@ -507,7 +662,12 @@ namespace pinocchio
 
       if (root_joint) // Root joint provided
       {
-        JointIndex j_id = model.addJoint(0, *root_joint, root_position, root_joint_name);
+        pinocchio::SE3 joint_pose = pinocchio::SE3::Identity();
+        pinocchio::SE3 supported_pose = pinocchio::SE3::Identity();
+
+        CreateJointModel cjm(joint_pose, supported_pose);
+        JointIndex j_id =
+          model.addJoint(0, boost::apply_visitor(cjm, *root_joint), root_position, root_joint_name);
         model.addJointFrame(j_id);
         model.appendBodyToJoint(j_id, root_vertex_data.inertia);
         model.addBodyFrame(root_vertex_data.name, j_id);
@@ -534,51 +694,6 @@ namespace pinocchio
       }
       return model;
     }
-
-    /// @brief  Build a pinocchio model based on the graph that was built previously, fixed in the
-    /// world.
-    ///
-    /// @param root_body First body to add to the model
-    /// @param root_position position of said body wrt to the universe
-    ///
-    /// @return a pinocchio model
-    // Model buildModel(const std::string & root_body, const pinocchio::SE3 & root_position) const
-    // {
-    //   auto root_vertex = name_to_vertex.find(root_body);
-    //   if (root_vertex == name_to_vertex.end())
-    //   {
-    //     PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - root_body does not exist in the
-    //     graph");
-    //   }
-    //   std::vector<boost::default_color_type> colors(
-    //     boost::num_vertices(g), boost::default_color_type::white_color);
-    //   std::vector<EdgeDesc> edges;
-    //   edges.reserve(boost::num_vertices(g));
-    //   RecordTreeEdgeVisitor<Graph> tree_edge_visitor(&edges);
-    //   boost::depth_first_search(g, tree_edge_visitor, colors.data(), root_vertex->second);
-
-    //   Model model;
-    //   const ModelGraphVertex & root_vertex_data = g[root_vertex->second];
-    //   const Frame & parent_frame = model.frames[0];
-
-    //   model.addFrame(Frame(
-    //     root_vertex_data.name, parent_frame.parentJoint, 0, parent_frame.placement *
-    //     root_position, BODY, root_vertex_data.inertia));
-
-    //   // Go through rest of the graph
-    //   for (const EdgeDesc & edge_desc : edges)
-    //   {
-    //     VertexDesc source_vertex_desc = boost::source(edge_desc, g);
-    //     VertexDesc target_vertex_desc = boost::target(edge_desc, g);
-    //     const ModelGraphEdge & edge = g[edge_desc];
-    //     const ModelGraphVertex & source_vertex = g[source_vertex_desc];
-    //     const ModelGraphVertex & target_vertex = g[target_vertex_desc];
-
-    //     AddJointModel visitor(source_vertex, target_vertex, edge, model);
-    //     boost::apply_visitor(visitor, edge.joint);
-    //   }
-    //   return model;
-    // }
 
     /// @brief Boost graph structure that holds the graph structure
     Graph g;
