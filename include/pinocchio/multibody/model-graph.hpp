@@ -441,6 +441,7 @@ namespace pinocchio
       const Frame & previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
       JointIndex j_id = model.addJoint(
         previous_body.parentJoint, joint_model, previous_body.placement * joint_pose, edge.name);
+
       model.addJointFrame(j_id);
       model.appendBodyToJoint(j_id, target_vertex.inertia); // check this
       model.addBodyFrame(target_vertex.name, j_id, body_pose);
@@ -643,7 +644,7 @@ namespace pinocchio
     Model buildModel(
       const std::string & root_body,
       const pinocchio::SE3 & root_position,
-      boost::optional<JointGraphVariant> root_joint = boost::none,
+      const boost::optional<JointGraphVariant> & root_joint = boost::none,
       const std::string & root_joint_name = "root_joint") const
     {
       auto root_vertex = name_to_vertex.find(root_body);
@@ -695,101 +696,75 @@ namespace pinocchio
       return model;
     }
 
+    void copyGraph(const ModelGraph & g, const std::string & prefix = "")
+    {
+      // Copy all vertices from g1
+      for (const auto & pair : g.name_to_vertex)
+      {
+        const auto & name = pair.first;
+        const auto & old_v = pair.second;
+        const auto & vertex_data = g.g[old_v];
+
+        this->addBody(prefix + name, vertex_data.inertia);
+      }
+
+      // Copy all edges from g1
+      for (auto e_it = boost::edges(g.g); e_it.first != e_it.second; ++e_it.first)
+      {
+        const auto & edge = *e_it.first;
+        auto src = boost::source(edge, g.g);
+        auto tgt = boost::target(edge, g.g);
+        const auto & edge_data = g.g[edge];
+
+        const auto & src_name = g.g[src].name;
+        const auto & tgt_name = g.g[tgt].name;
+
+        this->addJoint(
+          prefix + edge_data.name, edge_data.joint, prefix + src_name, edge_data.out_to_joint,
+          prefix + tgt_name, edge_data.joint_to_in);
+      }
+    }
+
     /// @brief Boost graph structure that holds the graph structure
     Graph g;
     /// @brief Name of the vertexes in the graph. Useful for graph parcours.
     std::unordered_map<std::string, VertexDesc> name_to_vertex;
   };
 
-  // ModelGraph mergeGraphs(const ModelGraph & g1, const ModelGraph & g2, const std::string &
-  // g1_body, const std::string & g2_body, const SE3 & pose_g2_body_in_g1)
-  // {
-  //   ModelGraph g_merged;
+  ModelGraph mergeGraphs(
+    const ModelGraph & g1,
+    const ModelGraph & g2,
+    const std::string & g1_body,
+    const std::string & g2_body,
+    const SE3 & pose_g2_body_in_g1,
+    const boost::optional<JointGraphVariant> & merging_joint = boost::none,
+    const std::string & merging_joint_name = "merging_joint",
+    const std::string & g2_prefix = "g2/")
+  {
+    // Check bodies exists in graphs
+    if (g1.name_to_vertex.find(g1_body) == g1.name_to_vertex.end())
+      PINOCCHIO_THROW_PRETTY(std::runtime_error, "mergeGraph - g1_body not found");
+    if (g2.name_to_vertex.find(g2_body) == g2.name_to_vertex.end())
+      PINOCCHIO_THROW_PRETTY(std::runtime_error, "mergeGraph - g2_body not found");
 
-  //   ModelGraph mergeGraphs(const ModelGraph & g1, const ModelGraph & g2, const std::string &
-  //   g1_body, const std::string & g2_body, const SE3 & pose_g2_body_in_g1)
-  // {
-  //   ModelGraph g_merged;
-  //   std::unordered_map<ModelGraph::VertexDesc, ModelGraph::VertexDesc> g1_old_to_new;
-  //   std::unordered_map<ModelGraph::VertexDesc, ModelGraph::VertexDesc> g2_old_to_new;
+    ModelGraph g_merged;
 
-  //   // 1. Copy all vertices from g1
-  //   for (const auto & pair : g1.name_to_vertex)
-  //   {
-  //     const auto & name = pair.first;
-  //     const auto & old_v = pair.second;
-  //     const auto & vertex_data = g1.g[old_v];
+    g_merged.copyGraph(g1);
+    g_merged.copyGraph(g2, g2_prefix);
 
-  //     g_merged.addBody(name, vertex_data.inertia);
-  //     g1_old_to_new[old_v] = g_merged.name_to_vertex[name];
-  //   }
+    const std::string g2_body_merged = g2_prefix + g2_body;
 
-  //   // 2. Copy all edges from g1
-  //   for (auto e_it = boost::edges(g1.g); e_it.first != e_it.second; ++e_it.first)
-  //   {
-  //     const auto & edge = *e_it.first;
-  //     auto src = boost::source(edge, g1.g);
-  //     auto tgt = boost::target(edge, g1.g);
-  //     const auto & edge_data = g1.g[edge];
+    if (merging_joint)
+      g_merged.addJoint(
+        merging_joint_name, *merging_joint, g1_body, SE3::Identity(), g2_body_merged,
+        pose_g2_body_in_g1);
+    else
+      g_merged.addJoint(
+        merging_joint_name, JointFixedGraph(), g1_body, SE3::Identity(), g2_body_merged,
+        pose_g2_body_in_g1);
 
-  //     const auto & src_name = g1.g[src].name;
-  //     const auto & tgt_name = g1.g[tgt].name;
-
-  //     g_merged.addJoint(
-  //       edge_data.name,
-  //       edge_data.joint,
-  //       src_name,
-  //       edge_data.out_to_joint,
-  //       tgt_name,
-  //       edge_data.joint_to_in);
-  //   }
-
-  //   // 3. Copy all vertices from g2 (prefix to avoid name collisions)
-  //   const std::string g2_prefix = "g2::";
-  //   for (const auto & pair : g2.name_to_vertex)
-  //   {
-  //     const auto & name = pair.first;
-  //     const auto & old_v = pair.second;
-  //     const auto & vertex_data = g2.g[old_v];
-
-  //     g_merged.addBody(g2_prefix + name, vertex_data.inertia);
-  //     g2_old_to_new[old_v] = g_merged.name_to_vertex[g2_prefix + name];
-  //   }
-
-  //   // 4. Copy all edges from g2
-  //   for (auto e_it = boost::edges(g2.g); e_it.first != e_it.second; ++e_it.first)
-  //   {
-  //     const auto & edge = *e_it.first;
-  //     auto src = boost::source(edge, g2.g);
-  //     auto tgt = boost::target(edge, g2.g);
-  //     const auto & edge_data = g2.g[edge];
-
-  //     const auto & src_name = g2.g[src].name;
-  //     const auto & tgt_name = g2.g[tgt].name;
-
-  //     g_merged.addJoint(
-  //       edge_data.name,
-  //       edge_data.joint,
-  //       g2_prefix + src_name,
-  //       edge_data.out_to_joint,
-  //       g2_prefix + tgt_name,
-  //       edge_data.joint_to_in);
-  //   }
-
-  //   // 5. Add a connecting joint between g1 and g2
-  //   if (g1.name_to_vertex.find(g1_body) == g1.name_to_vertex.end())
-  //     throw std::runtime_error("mergeGraphs: g1_body not found");
-  //   if (g2.name_to_vertex.find(g2_body) == g2.name_to_vertex.end())
-  //     throw std::runtime_error("mergeGraphs: g2_body not found");
-
-  //   const std::string g2_body_merged = g2_prefix + g2_body;
-
-  //   // Example connection using a fixed joint — replace with another if needed
-  //   g_merged.addJoint("merging_joint", JointFixedGraph(), g1_body, SE3::Identity(),
-  //   g2_body_merged, pose_g2_body_in_g1);
-
-  //   return g_merged;
-  // }
+    return g_merged;
+  }
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_multibody_model_graph_hpp__

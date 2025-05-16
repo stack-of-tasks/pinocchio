@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(test_spherical_joints)
   pinocchio::Model m1 = g.buildModel("body2", pinocchio::SE3::Identity());
 
   Eigen::AngleAxisd rollAngle(1, Eigen::Vector3d::UnitZ());
-  Eigen::AngleAxisd yawAngle(1, Eigen::Vector3d::UnitY());
+  Eigen::AngleAxisd yawAngle(0.4, Eigen::Vector3d::UnitY());
   Eigen::AngleAxisd pitchAngle(1, Eigen::Vector3d::UnitX());
   Eigen::Quaterniond q_sph = rollAngle * yawAngle * pitchAngle;
 
@@ -241,11 +241,11 @@ BOOST_AUTO_TEST_CASE(test_universal_joint_reverse)
   pinocchio::Data d1(m1);
 
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m.nq);
-  q[0] = M_PI / 2;
+  q[0] = M_PI / 3;
   q[1] = M_PI / 3;
   Eigen::VectorXd q_reverse = Eigen::VectorXd::Zero(m.nq);
-  q_reverse[0] = -M_PI / 3;
-  q_reverse[1] = -M_PI / 2;
+  q_reverse[0] = M_PI / 3;
+  q_reverse[1] = -M_PI / 3;
 
   pinocchio::framesForwardKinematics(m, d, q);
   pinocchio::framesForwardKinematics(m1, d1, q_reverse);
@@ -375,6 +375,52 @@ BOOST_AUTO_TEST_CASE(test_tree_robot)
     pinocchio::JointGraphVariant(pinocchio::JointFreeFlyerGraph()));
   BOOST_CHECK(m1.parents[m.getJointId("torso_to_left_leg")] == m1.getJointId("root_joint"));
   BOOST_CHECK(m1.parents[m.getJointId("torso_to_right_leg")] == m1.getJointId("torso_to_left_leg"));
+}
+
+BOOST_AUTO_TEST_CASE(test_merge_graphs)
+{
+  pinocchio::ModelGraph g;
+  g.addBody("torso", pinocchio::Inertia::Identity());
+  g.addBody("left_leg", pinocchio::Inertia::Identity());
+  g.addBody("right_leg", pinocchio::Inertia::Identity());
+  g.addJoint(
+    "torso2left_leg", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "torso",
+    pinocchio::SE3::Identity(), "left_leg", pinocchio::SE3::Identity());
+  g.addJoint(
+    "torso2right_leg", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "torso",
+    pinocchio::SE3::Identity(), "right_leg", pinocchio::SE3::Identity());
+
+  pinocchio::ModelGraph g1;
+  g1.addBody("upper_arm", pinocchio::Inertia::Identity());
+  g1.addBody("lower_arm", pinocchio::Inertia::Identity());
+  g1.addBody("hand", pinocchio::Inertia::Identity());
+  g1.addJoint(
+    "upper2lower", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitZ()), "upper_arm",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)), "lower_arm",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.)));
+  g1.addJoint(
+    "lower2hand", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "lower_arm",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 1., 0.)), "hand",
+    pinocchio::SE3::Identity());
+
+  pinocchio::ModelGraph g_full = pinocchio::mergeGraphs(
+    g, g1, "torso", "upper_arm",
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 4)),
+    pinocchio::JointGraphVariant(pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitY())));
+
+  pinocchio::Model m = g_full.buildModel(
+    "torso", pinocchio::SE3::Identity(),
+    pinocchio::JointGraphVariant(pinocchio::JointFreeFlyerGraph()));
+
+  BOOST_CHECK(m.parents[m.getJointId("torso2left_leg")] == m.getJointId("root_joint"));
+  BOOST_CHECK(m.parents[m.getJointId("torso2right_leg")] == m.getJointId("root_joint"));
+  BOOST_CHECK(m.parents[m.getJointId("merging_joint")] == m.getJointId("root_joint"));
+  BOOST_CHECK(m.parents[m.getJointId("g2/upper2lower")] == m.getJointId("merging_joint"));
+  BOOST_CHECK(m.parents[m.getJointId("g2/lower2hand")] == m.getJointId("g2/upper2lower"));
+
+  BOOST_CHECK(
+    m.frames[m.getFrameId("g2/upper_arm", pinocchio::BODY)].placement
+    == pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 4)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
