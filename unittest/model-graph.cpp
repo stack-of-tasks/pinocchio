@@ -143,6 +143,7 @@ BOOST_AUTO_TEST_CASE(test_fixed_joint)
   BOOST_CHECK(m.frames[m.getFrameId("body2_to_body3", pinocchio::FIXED_JOINT)].placement.isApprox(
     pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(4., -1., 0.))));
 }
+
 /// @brief test out reverse joint for revolute
 BOOST_AUTO_TEST_CASE(test_reverse_revolute)
 {
@@ -181,6 +182,57 @@ BOOST_AUTO_TEST_CASE(test_reverse_revolute)
   // Forward kinematics
   Eigen::VectorXd q = Eigen::VectorXd::Zero(m_reverse.nq);
   q[0] = M_PI / 2;
+
+  // Compute forward kinematics
+  pinocchio::Data d_reverse(m_reverse);
+  pinocchio::framesForwardKinematics(m_reverse, d_reverse, -q);
+
+  pinocchio::Data d_equi(m_equi);
+  pinocchio::framesForwardKinematics(m_equi, d_equi, q);
+
+  BOOST_CHECK(d_reverse.oMf[m_reverse.getFrameId("body1", pinocchio::BODY)].isApprox(
+    d_equi.oMf[m_equi.getFrameId("body2", pinocchio::BODY)]));
+}
+
+/// @brief Test for a reverse revolute unbounded
+BOOST_AUTO_TEST_CASE(test_reverse_revolute_unbounded)
+{
+  pinocchio::ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addBody("body1", pinocchio::Inertia::Identity());
+  g.addBody(
+    "body2",
+    pinocchio::Inertia(4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero()));
+
+  /////////////////////////////////////// Joints
+  pinocchio::SE3 poseBody1 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.));
+  pinocchio::SE3 poseBody2 =
+    pinocchio::SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 3., 0.));
+  g.addJoint(
+    "body1_to_body2", pinocchio::JointRevoluteUnboundedGraph(Eigen::Vector3d::UnitX()), "body1",
+    poseBody1, "body2", poseBody2);
+
+  pinocchio::ModelGraph g1;
+  //////////////////////////////////////// Bodies
+  g1.addBody("body1", pinocchio::Inertia::Identity());
+  g1.addBody(
+    "body2",
+    pinocchio::Inertia(4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero()));
+
+  /////////////////////////////////////// Joints
+  g1.addJoint(
+    "body1_to_body2", pinocchio::JointRevoluteUnboundedGraph(-Eigen::Vector3d::UnitX()), "body1",
+    poseBody2.inverse(), "body2", poseBody1.inverse());
+
+  //////////////////////////////////// Models
+  pinocchio::Model m_reverse = g.buildModel("body2", pinocchio::SE3::Identity());
+  pinocchio::Model m_equi = g1.buildModel("body1", pinocchio::SE3::Identity());
+
+  // Forward kinematics
+  Eigen::VectorXd q = Eigen::VectorXd::Zero(m_reverse.nq);
+  q[0] = 0;
+  q[1] = 1;
 
   // Compute forward kinematics
   pinocchio::Data d_reverse(m_reverse);
@@ -529,6 +581,7 @@ BOOST_AUTO_TEST_CASE(test_tree_robot)
   BOOST_CHECK(m1.parents[m.getJointId("torso_to_right_leg")] == m1.getJointId("torso_to_left_leg"));
 }
 
+/// @brief  Test the algorithm to merge 2 graphs
 BOOST_AUTO_TEST_CASE(test_merge_graphs)
 {
   pinocchio::ModelGraph g;

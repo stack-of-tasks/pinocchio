@@ -40,6 +40,16 @@ namespace pinocchio
     }
   };
 
+  struct JointRevoluteUnboundedGraph
+  {
+    Eigen::Vector3d axis;
+
+    JointRevoluteUnboundedGraph(const Eigen::Vector3d & ax)
+    : axis(ax)
+    {
+    }
+  };
+
   struct JointPrismaticGraph
   {
     Eigen::Vector3d axis;
@@ -95,12 +105,15 @@ namespace pinocchio
     , axis2(ax2) {};
   };
 
+  // Mimic : joint name, ratio et offset
+
   // Forward declare
   struct JointCompositeGraph;
 
   using JointGraphVariant = boost::variant<
     JointFixedGraph,
     JointRevoluteGraph,
+    JointRevoluteUnboundedGraph,
     JointPrismaticGraph,
     JointFreeFlyerGraph,
     JointSphericalGraph,
@@ -140,6 +153,11 @@ namespace pinocchio
     typedef JointGraphVariant ReturnType;
 
     ReturnType operator()(const JointRevoluteGraph & joint) const
+    {
+      return joint;
+    }
+
+    ReturnType operator()(const JointRevoluteUnboundedGraph & joint) const
     {
       return joint;
     }
@@ -250,17 +268,18 @@ namespace pinocchio
     bool reverse = false;
   };
 
+  // Add const to every operator (otherwise call fails)
   struct CreateJointModel : public boost::static_visitor<JointModel>
   {
     typedef JointModel ReturnType;
 
-    ReturnType operator()(const JointFixedGraph & joint)
+    ReturnType operator()(const JointFixedGraph & joint) const
     {
       PINOCCHIO_THROW_PRETTY(
         std::invalid_argument,
         "Graph - cannot create a fixed joint. In pinocchio, fixed joints are frame.");
     }
-    ReturnType operator()(const JointRevoluteGraph & joint)
+    ReturnType operator()(const JointRevoluteGraph & joint) const
     {
       if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
       {
@@ -279,7 +298,26 @@ namespace pinocchio
         return pinocchio::JointModelRevoluteUnaligned(joint.axis);
       }
     }
-    ReturnType operator()(const JointPrismaticGraph & joint)
+    ReturnType operator()(const JointRevoluteUnboundedGraph & joint) const
+    {
+      if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
+      {
+        return pinocchio::JointModelRUBX();
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitY()))
+      {
+        return pinocchio::JointModelRUBY();
+      }
+      else if (joint.axis.isApprox(Eigen::Vector3d::UnitZ()))
+      {
+        return pinocchio::JointModelRUBZ();
+      }
+      else
+      {
+        return pinocchio::JointModelRevoluteUnboundedUnaligned(joint.axis);
+      }
+    }
+    ReturnType operator()(const JointPrismaticGraph & joint) const
     {
       if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
       {
@@ -298,7 +336,7 @@ namespace pinocchio
         return pinocchio::JointModelPrismaticUnaligned(joint.axis);
       }
     }
-    ReturnType operator()(const JointHelicalGraph & joint)
+    ReturnType operator()(const JointHelicalGraph & joint) const
     {
       if (joint.axis.isApprox(Eigen::Vector3d::UnitX()))
       {
@@ -317,31 +355,31 @@ namespace pinocchio
         return pinocchio::JointModelHelicalUnaligned(joint.axis, joint.pitch);
       }
     }
-    ReturnType operator()(const JointFreeFlyerGraph & joint)
+    ReturnType operator()(const JointFreeFlyerGraph & joint) const
     {
       return JointModelFreeFlyer();
     }
-    ReturnType operator()(const JointTranslationGraph & joint)
+    ReturnType operator()(const JointTranslationGraph & joint) const
     {
       return JointModelTranslation();
     }
-    ReturnType operator()(const JointPlanarGraph & joint)
+    ReturnType operator()(const JointPlanarGraph & joint) const
     {
       return JointModelPlanar();
     }
-    ReturnType operator()(const JointSphericalGraph & joint)
+    ReturnType operator()(const JointSphericalGraph & joint) const
     {
       return JointModelSpherical();
     }
-    ReturnType operator()(const JointSphericalZYXGraph & joint)
+    ReturnType operator()(const JointSphericalZYXGraph & joint) const
     {
       return JointModelSphericalZYX();
     }
-    ReturnType operator()(const JointUniversalGraph & joint)
+    ReturnType operator()(const JointUniversalGraph & joint) const
     {
       return JointModelUniversal(joint.axis1, joint.axis2);
     }
-    ReturnType operator()(const JointCompositeGraph & joint)
+    ReturnType operator()(const JointCompositeGraph & joint) const
     {
       JointModelComposite jmodel;
       for (size_t i = 0; i < joint.joints.size(); i++)
@@ -386,6 +424,11 @@ namespace pinocchio
     }
 
     void operator()(const JointRevoluteGraph & joint)
+    {
+      addJointToModel(cjm(joint));
+    }
+
+    void operator()(const JointRevoluteUnboundedGraph & joint)
     {
       addJointToModel(cjm(joint));
     }
@@ -588,8 +631,8 @@ namespace pinocchio
       // Go through rest of the graph
       for (const EdgeDesc & edge_desc : edges)
       {
-        VertexDesc source_vertex_desc = boost::source(edge_desc, g);
-        VertexDesc target_vertex_desc = boost::target(edge_desc, g);
+        const VertexDesc & source_vertex_desc = boost::source(edge_desc, g);
+        const VertexDesc & target_vertex_desc = boost::target(edge_desc, g);
         const ModelGraphEdge & edge = g[edge_desc];
         const ModelGraphVertex & source_vertex = g[source_vertex_desc];
         const ModelGraphVertex & target_vertex = g[target_vertex_desc];
