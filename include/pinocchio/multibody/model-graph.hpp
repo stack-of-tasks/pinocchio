@@ -490,9 +490,9 @@ namespace pinocchio
 
     void operator()(const JointSphericalZYXGraph & joint)
     {
-      if (edge.reverse)
-        PINOCCHIO_THROW_PRETTY(
-          std::runtime_error, "Graph - JointSphericalZYX cannot be reversed yet.");
+      // if (edge.reverse)
+      //   PINOCCHIO_THROW_PRETTY(
+      //     std::runtime_error, "Graph - JointSphericalZYX cannot be reversed yet.");
 
       addJointToModel(cjm(joint));
     }
