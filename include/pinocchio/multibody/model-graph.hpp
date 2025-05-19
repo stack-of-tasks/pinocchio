@@ -109,6 +109,8 @@ namespace pinocchio
 
   // Forward declare
   struct JointCompositeGraph;
+  // Forward declare
+  struct JointMimicGraph;
 
   using JointGraphVariant = boost::variant<
     JointFixedGraph,
@@ -122,7 +124,8 @@ namespace pinocchio
     JointPlanarGraph,
     JointHelicalGraph,
     JointUniversalGraph,
-    boost::recursive_wrapper<JointCompositeGraph>>;
+    boost::recursive_wrapper<JointCompositeGraph>,
+    boost::recursive_wrapper<JointMimicGraph>>;
 
   struct JointCompositeGraph
   {
@@ -145,6 +148,29 @@ namespace pinocchio
     {
       joints.push_back(jm);
       jointsPlacements.push_back(pose);
+    }
+  };
+
+  struct JointMimicGraph
+  {
+    std::string primary_name;
+
+    JointGraphVariant secondary_joint;
+    double scaling;
+    double offset;
+
+    JointMimicGraph() = default;
+
+    JointMimicGraph(
+      const JointGraphVariant & jmodel_secondary,
+      const std::string & name_primary,
+      const double & scaling_,
+      const double & offset_)
+    : secondary_joint(jmodel_secondary)
+    , primary_name(name_primary)
+    , scaling(scaling_)
+    , offset(offset_)
+    {
     }
   };
 
@@ -197,6 +223,10 @@ namespace pinocchio
     ReturnType operator()(const JointUniversalGraph & joint) const
     {
       return JointUniversalGraph(-joint.axis2, -joint.axis1);
+    }
+    ReturnType operator()(const JointMimicGraph & joint) const
+    {
+      return joint;
     }
     ReturnType operator()(const JointCompositeGraph & joint) const
     {
@@ -379,6 +409,11 @@ namespace pinocchio
     {
       return JointModelUniversal(joint.axis1, joint.axis2);
     }
+
+    ReturnType operator()(const JointMimicGraph & joint) const
+    {
+      return boost::apply_visitor(*this, joint.secondary_joint);
+    }
     ReturnType operator()(const JointCompositeGraph & joint) const
     {
       JointModelComposite jmodel;
@@ -483,6 +518,20 @@ namespace pinocchio
     void operator()(const JointCompositeGraph & joint)
     {
       addJointToModel(cjm(joint));
+    }
+
+    void operator()(const JointMimicGraph & joint)
+    {
+      if (edge.reverse)
+        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - JointMimic cannot be reversed.");
+
+      if (!model.existJointName(joint.primary_name))
+        PINOCCHIO_THROW_PRETTY(
+          std::runtime_error,
+          "Graph - The parent joint of the mimic node is not in the kinematic tree");
+
+      auto primary_joint = model.joints[model.getJointId(joint.primary_name)];
+      addJointToModel(JointModelMimic(cjm(joint), primary_joint, joint.scaling, joint.offset));
     }
 
     void operator()(const JointFixedGraph & joint)

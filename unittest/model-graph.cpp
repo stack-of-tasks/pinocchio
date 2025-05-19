@@ -453,6 +453,55 @@ BOOST_AUTO_TEST_CASE(test_reverse_spherical)
     d1.oMf[m1.getFrameId("body2", pinocchio::BODY)]));
 }
 
+/// @brief test construction of model with a mimic
+BOOST_AUTO_TEST_CASE(test_mimic_model)
+{
+  pinocchio::ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addBody("body1", pinocchio::Inertia::Identity());
+  g.addBody("body2", pinocchio::Inertia::Identity());
+  g.addBody("body3", pinocchio::Inertia::Identity());
+
+  /////////////////////////////////////// Joints
+  pinocchio::SE3 pose_body1_joint1(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.));
+  pinocchio::SE3 pose_body2_joint1(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 4., 0.));
+  g.addJoint(
+    "body1_to_body2", pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitX()), "body1",
+    pose_body1_joint1, "body2", pose_body2_joint1);
+
+  pinocchio::SE3 pose_body2_joint2(Eigen::Matrix3d::Identity(), Eigen::Vector3d(5., 0., 0.));
+  pinocchio::SE3 pose_body3_joint2(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.));
+  double scaling = 2.0;
+  double offset = 0.5;
+  g.addJoint(
+    "body2_to_body3",
+    pinocchio::JointMimicGraph(
+      pinocchio::JointGraphVariant(pinocchio::JointRevoluteGraph(Eigen::Vector3d::UnitY())),
+      "body1_to_body2", scaling, offset),
+    "body2", pose_body2_joint2, "body3", pose_body3_joint2);
+
+  ///////////////// Model
+  pinocchio::SE3 pose_body1_universe = pinocchio::SE3::Identity();
+  pinocchio::Model m = g.buildModel("body1", pose_body1_universe);
+
+  Eigen::VectorXd q(m.nq);
+  q << M_PI / 2;
+
+  pinocchio::Data d(m);
+  pinocchio::framesForwardKinematics(m, d, q);
+
+  // First revolute around X
+  Eigen::AngleAxisd R_x(q[0], Eigen::Vector3d::UnitX());
+  pinocchio::SE3 X_joint1 = pinocchio::SE3(R_x.toRotationMatrix(), Eigen::Vector3d::Zero());
+  Eigen::AngleAxisd R_y(scaling * q[0] + offset, Eigen::Vector3d::UnitY());
+  pinocchio::SE3 X_joint2 = pinocchio::SE3(R_y.toRotationMatrix(), Eigen::Vector3d::Zero());
+  // Final transformation
+  pinocchio::SE3 bodyPose = pose_body1_universe * pose_body1_joint1 * X_joint1 * pose_body2_joint1
+                            * pose_body2_joint2 * X_joint2 * pose_body3_joint2;
+
+  BOOST_CHECK(d.oMf[m.getFrameId("body3", pinocchio::BODY)].isApprox(bodyPose));
+}
+
 /// @brief test if reversing of a composite joint is correct.
 BOOST_AUTO_TEST_CASE(test_reverse_composite)
 {
