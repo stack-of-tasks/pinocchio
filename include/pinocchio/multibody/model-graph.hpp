@@ -181,70 +181,73 @@ namespace pinocchio
     }
   };
 
-  struct ReverseJointVisitor : public boost::static_visitor<JointGraphVariant>
+  struct ReverseJointVisitor
+  : public boost::static_visitor<std::pair<JointGraphVariant, pinocchio::SE3>>
   {
-    typedef JointGraphVariant ReturnType;
+    using ReturnType = std::pair<JointGraphVariant, pinocchio::SE3>;
 
     ReturnType operator()(const JointRevoluteGraph & joint) const
     {
-      return joint;
+      return {joint, pinocchio::SE3::Identity()};
     }
 
     ReturnType operator()(const JointRevoluteUnboundedGraph & joint) const
     {
-      return joint;
+      return {joint, pinocchio::SE3::Identity()};
     }
 
     ReturnType operator()(const JointPrismaticGraph & joint) const
     {
-      return joint;
+      return {joint, pinocchio::SE3::Identity()};
     }
     ReturnType operator()(const JointFixedGraph & joint) const
     {
-      return joint;
+      return {joint, pinocchio::SE3::Identity()};
     }
     ReturnType operator()(const JointFreeFlyerGraph & joint) const
     {
-      return joint;
+      return {joint, pinocchio::SE3::Identity()};
     }
     ReturnType operator()(const JointSphericalGraph & joint) const
     {
-      return joint;
+      return {joint, pinocchio::SE3::Identity()};
     }
     ReturnType operator()(const JointSphericalZYXGraph & joint) const
     {
-      return joint;
+      return {joint, pinocchio::SE3::Identity()};
     }
     ReturnType operator()(const JointTranslationGraph & joint) const
     {
-      return joint;
+      return {joint, pinocchio::SE3::Identity()};
     }
     ReturnType operator()(const JointPlanarGraph & joint) const
     {
-      return joint;
+      return {joint, pinocchio::SE3::Identity()};
     }
     ReturnType operator()(const JointHelicalGraph & joint) const
     {
-      return joint;
+      return {joint, pinocchio::SE3::Identity()};
     }
     ReturnType operator()(const JointUniversalGraph & joint) const
     {
-      return JointUniversalGraph(-joint.axis2, -joint.axis1);
+      return {JointUniversalGraph(-joint.axis2, -joint.axis1), pinocchio::SE3::Identity()};
     }
     ReturnType operator()(const JointMimicGraph & joint) const
     {
-      return joint;
+      return {joint, pinocchio::SE3::Identity()};
     }
     ReturnType operator()(const JointCompositeGraph & joint) const
     {
       JointCompositeGraph jReturn;
+      auto temp = boost::apply_visitor(*this, joint.joints.back());
+      jReturn.addJoint(temp.first, temp.second * pinocchio::SE3::Identity());
       // Reverse joints
-      for (size_t i = joint.joints.size(); i-- > 0;)
+      for (int i = static_cast<int>(joint.joints.size() - 2); i >= 0; i--)
       {
-        jReturn.joints.push_back(boost::apply_visitor(*this, joint.joints[i]));
-        jReturn.jointsPlacements.push_back(joint.jointsPlacements[i].inverse());
+        temp = boost::apply_visitor(*this, joint.joints[i]);
+        jReturn.addJoint(temp.first, temp.second * joint.jointsPlacements[i + 1].inverse());
       }
-      return jReturn;
+      return {jReturn, joint.jointsPlacements[0].inverse()};
     }
   };
 
@@ -633,9 +636,10 @@ namespace pinocchio
       }
       ModelGraphEdge & reverse_edge = g[reverse_edge_desc.first];
       reverse_edge.name = joint_name;
-      reverse_edge.joint = boost::apply_visitor(ReverseJointVisitor(), joint);
+      auto reversed_joint = boost::apply_visitor(ReverseJointVisitor(), joint);
+      reverse_edge.joint = reversed_joint.first;
       reverse_edge.out_to_joint = joint_to_in.inverse();
-      reverse_edge.joint_to_in = out_to_joint.inverse();
+      reverse_edge.joint_to_in = reversed_joint.second * out_to_joint.inverse();
       reverse_edge.reverse = true;
     }
 
