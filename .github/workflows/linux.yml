@@ -32,7 +32,7 @@ jobs:
     container: ${{ matrix.container }}
     strategy:
       matrix:
-        container: ['ubuntu:20.04', 'ubuntu:22.04', 'ubuntu:24.04']
+        container: ['ubuntu:22.04', 'ubuntu:24.04']
 
     env:
       CCACHE_BASEDIR: ${GITHUB_WORKSPACE}
@@ -207,8 +207,7 @@ jobs:
 
       - name: Display ccache statistics
         run: |
-          # TODO: Add -v option when we drop ubuntu-20.04
-          ccache -s
+          ccache -sv
 
   check:
     if: always()
