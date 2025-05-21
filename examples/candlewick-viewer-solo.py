@@ -1,6 +1,5 @@
 """
-Pose a Solo-12 robot on a surface defined through a function and displayed through an
-hppfcl.HeightField.
+See also: meshcat-viewer-solo.py
 """
 
 import time
@@ -8,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pinocchio as pin
-from pinocchio.visualize import MeshcatVisualizer
+from candlewick.multibody import Visualizer, VisualizerConfig
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
@@ -21,6 +20,50 @@ urdf_model_path = model_path / "solo_description/robots" / urdf_filename
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(
     urdf_model_path, mesh_dir, pin.JointModelFreeFlyer()
+)
+visual_model: pin.GeometryModel
+
+config = VisualizerConfig()
+config.width = 1920
+config.height = 1080
+
+
+def ground(xy):
+    return (
+        np.sin(xy[0] * 3) / 5
+        + np.cos(xy[1] ** 2 * 3) / 20
+        + np.sin(xy[1] * xy[0] * 5) / 10
+    )
+
+
+def vizGround(elevation_fn, space, name="ground", color=np.array([1.0, 1.0, 0.6, 0.8])):
+    xg = np.arange(-2, 2, space)
+    nx = xg.shape[0]
+    xy_g = np.meshgrid(xg, xg)
+    xy_g = np.stack(xy_g)
+    elev_g = np.zeros((nx, nx))
+    elev_g[:, :] = elevation_fn(xy_g)
+
+    sx = xg[-1] - xg[0]
+    sy = xg[-1] - xg[0]
+    elev_g[:, :] = elev_g[::-1, :]
+    import coal
+
+    heightField = coal.HeightFieldAABB(sx, sy, elev_g, np.min(elev_g))
+    pl = pin.SE3.Identity()
+    obj = pin.GeometryObject(name, 0, pl, heightField)
+    obj.meshColor[:] = color
+    obj.overrideMaterial = True
+    visual_model.addGeometryObject(obj)
+
+
+colorrgb = [128, 149, 255, 200]
+colorrgb = np.array(colorrgb) / 255.0
+vizGround(ground, 0.02, color=colorrgb)
+
+viz = Visualizer(config, model, geomModel=visual_model)
+print(
+    "Candlewick visualizer: opened on device driver", viz.renderer.device.driverName()
 )
 
 q_ref = np.array(
@@ -47,47 +90,7 @@ q_ref = np.array(
     ]
 )
 
+while not viz.shouldExit:
+    viz.display(q_ref)
 
-vizer = MeshcatVisualizer(model, collision_model, visual_model)
-vizer.initViewer(open=True)
-
-
-def ground(xy):
-    return (
-        np.sin(xy[0] * 3) / 5
-        + np.cos(xy[1] ** 2 * 3) / 20
-        + np.sin(xy[1] * xy[0] * 5) / 10
-    )
-
-
-def vizGround(
-    viz, elevation_fn, space, name="ground", color=np.array([1.0, 1.0, 0.6, 0.8])
-):
-    xg = np.arange(-2, 2, space)
-    nx = xg.shape[0]
-    xy_g = np.meshgrid(xg, xg)
-    xy_g = np.stack(xy_g)
-    elev_g = np.zeros((nx, nx))
-    elev_g[:, :] = elevation_fn(xy_g)
-
-    sx = xg[-1] - xg[0]
-    sy = xg[-1] - xg[0]
-    elev_g[:, :] = elev_g[::-1, :]
-    import hppfcl
-
-    heightField = hppfcl.HeightFieldAABB(sx, sy, elev_g, np.min(elev_g))
-    pl = pin.SE3.Identity()
-    obj = pin.GeometryObject(name, 0, pl, heightField)
-    obj.meshColor[:] = color
-    viz.addGeometryObject(obj)
-
-
-# Load the robot in the viewer.
-vizer.loadViewerModel()
-
-colorrgb = [128, 149, 255, 200]
-colorrgb = np.array(colorrgb) / 255.0
-vizGround(vizer, ground, 0.02, color=colorrgb)
-
-vizer.display(q_ref)
 time.sleep(1.0)
