@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>pinocchio</name>
-  <version>3.6.0</version>
+  <version>3.7.0</version>
   <description>A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives.</description>
   <!-- The maintainer listed here is for the ROS release to receive emails for the buildfarm.
   Please check the repository URL for full list of authors and maintainers. -->
