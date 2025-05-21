@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Add Python example showcasing the candlewick visualizer (https://github.com/stack-of-tasks/pinocchio/pull/2681)
+
+### Changed
+
+- bindings/python : Add missing arg names in `visualizer-visitor.hpp`
+
 ## [3.7.0] - 2025-05-21
 
 ### Changed
