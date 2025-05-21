@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Change the default branch to `devel` ([#2666](https://github.com/stack-of-tasks/pinocchio/pull/2666))
 - Implement `captureImage` for Panda3D visualizer for video recording ([#2668](https://github.com/stack-of-tasks/pinocchio/pull/2668))
+- Drop Ubuntu 20.04 support ([#2680](https://github.com/stack-of-tasks/pinocchio/pull/2680))
 
 ## [3.6.0] - 2025-04-28
 
