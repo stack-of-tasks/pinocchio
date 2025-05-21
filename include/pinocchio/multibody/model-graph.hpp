@@ -34,7 +34,7 @@ namespace pinocchio
     // rotation axis
     Eigen::Vector3d axis;
 
-    JointRevoluteGraph(const Eigen::Vector3d & ax)
+    explicit JointRevoluteGraph(const Eigen::Vector3d & ax)
     : axis(ax)
     {
     }
@@ -44,7 +44,7 @@ namespace pinocchio
   {
     Eigen::Vector3d axis;
 
-    JointRevoluteUnboundedGraph(const Eigen::Vector3d & ax)
+    explicit JointRevoluteUnboundedGraph(const Eigen::Vector3d & ax)
     : axis(ax)
     {
     }
@@ -53,7 +53,8 @@ namespace pinocchio
   struct JointPrismaticGraph
   {
     Eigen::Vector3d axis;
-    JointPrismaticGraph(const Eigen::Vector3d & ax)
+
+    explicit JointPrismaticGraph(const Eigen::Vector3d & ax)
     : axis(ax)
     {
     }
@@ -90,9 +91,11 @@ namespace pinocchio
     Eigen::Vector3d axis;
     double pitch;
 
-    JointHelicalGraph(const Eigen::Vector3d & ax, const double & p)
+    JointHelicalGraph(const Eigen::Vector3d & ax, const double p)
     : axis(ax)
-    , pitch(p) {};
+    , pitch(p)
+    {
+    }
   };
 
   struct JointUniversalGraph
@@ -102,7 +105,9 @@ namespace pinocchio
 
     JointUniversalGraph(const Eigen::Vector3d & ax1, const Eigen::Vector3d & ax2)
     : axis1(ax1)
-    , axis2(ax2) {};
+    , axis2(ax2)
+    {
+    }
   };
 
   // Mimic : joint name, ratio et offset
@@ -142,7 +147,9 @@ namespace pinocchio
 
     JointCompositeGraph(const std::vector<JointGraphVariant> & js, const std::vector<SE3> & jPoses)
     : joints(js)
-    , jointsPlacements(jPoses) {};
+    , jointsPlacements(jPoses)
+    {
+    }
 
     void addJoint(const JointGraphVariant & jm, const SE3 & pose = SE3::Identity())
     {
@@ -164,10 +171,10 @@ namespace pinocchio
     JointMimicGraph(
       const JointGraphVariant & jmodel_secondary,
       const std::string & name_primary,
-      const double & scaling_,
-      const double & offset_)
-    : secondary_joint(jmodel_secondary)
-    , primary_name(name_primary)
+      const double scaling_,
+      const double offset_)
+    : primary_name(name_primary)
+    , secondary_joint(jmodel_secondary)
     , scaling(scaling_)
     , offset(offset_)
     {
