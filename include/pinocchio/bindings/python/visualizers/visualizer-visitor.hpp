@@ -52,9 +52,9 @@ namespace pinocchio
     bp::make_function(                                                                             \
       +[](Visualizer & v) -> auto & { return v.name(); }, bp::return_internal_reference<>()))
 
-        cl.def("initViewer", &Visualizer::initViewer)
-          .def("loadViewerModel", &Visualizer::loadViewerModel)
-          .def("rebuildData", &Visualizer::rebuildData)
+        cl.def("initViewer", &Visualizer::initViewer, bp::arg("self"))
+          .def("loadViewerModel", &Visualizer::loadViewerModel, bp::arg("self"))
+          .def("rebuildData", &Visualizer::rebuildData, bp::arg("self"))
           .def(
             "display", +[](Visualizer & v, const ConstVectorRef & q) { v.display(q); },
             (bp::arg("self"), bp::arg("q") = boost::none))
@@ -65,7 +65,7 @@ namespace pinocchio
           .def("setCameraPose", setCameraPose_proxy2, (bp::arg("self"), "pose"))
           .def("setCameraZoom", &Visualizer::setCameraZoom, (bp::arg("self"), "value"))
           .def("clean", &Visualizer::clean, bp::arg("self"))
-          .def("hasExternalData", &Visualizer::hasExternalData)
+          .def("hasExternalData", &Visualizer::hasExternalData, bp::arg("self"))
           .DEF_PROP_PROXY(model)
           .DEF_PROP_PROXY(visualModel)
           .DEF_PROP_PROXY(collisionModel)
