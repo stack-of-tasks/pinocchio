@@ -314,9 +314,8 @@ BOOST_AUTO_TEST_CASE(test_reverse_helical)
 /// body1 --- body2
 BOOST_AUTO_TEST_CASE(test_reverse_universal)
 {
-  pinocchio::ModelGraph g = buildReversableModelGraph(
-    pinocchio::JointGraphVariant(
-      pinocchio::JointUniversalGraph(Eigen::Vector3d::UnitY(), Eigen::Vector3d::UnitX())));
+  pinocchio::ModelGraph g = buildReversableModelGraph(pinocchio::JointGraphVariant(
+    pinocchio::JointUniversalGraph(Eigen::Vector3d::UnitY(), Eigen::Vector3d::UnitX())));
 
   //////////////////////////////////// Forward model
   pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
