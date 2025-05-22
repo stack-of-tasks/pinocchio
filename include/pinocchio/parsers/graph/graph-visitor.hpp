@@ -306,9 +306,6 @@ namespace pinocchio
 
     void operator()(const JointPlanarGraph & joint)
     {
-      if (edge.reverse)
-        PINOCCHIO_THROW_PRETTY(std::runtime_error, "Graph - JointPlanar cannot be reversed.");
-
       addJointToModel(cjm(joint));
     }
 

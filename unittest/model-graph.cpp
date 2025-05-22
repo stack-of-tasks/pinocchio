@@ -455,8 +455,36 @@ BOOST_AUTO_TEST_CASE(test_reverse_planar)
   pinocchio::ModelGraph g =
     buildReversableModelGraph(pinocchio::JointGraphVariant(pinocchio::JointPlanarGraph()));
 
+  //////////////////////////////////// Forward model
+  pinocchio::Model m_forward = g.buildModel("body1", pinocchio::SE3::Identity());
+  pinocchio::Data d_f(m_forward);
+  Eigen::VectorXd q = Eigen::VectorXd::Zero(m_forward.nq);
+  double ca, sa;
+  pinocchio::SINCOS(M_PI / 3, &ca, &sa);
+  q << 2, 1, ca, sa;
+  pinocchio::framesForwardKinematics(m_forward, d_f, q);
+  //////////////////////////////////// Reverse model
+  pinocchio::Model m_reverse =
+    g.buildModel("body2", d_f.oMf[m_forward.getFrameId("body2", pinocchio::BODY)]);
+  pinocchio::Data d_reverse(m_reverse);
+
+  // Compute reverse coordinate
+  Eigen::Vector3d trans;
+  trans << q[0], q[1], 0;
+  Eigen::VectorXd q_reverse = Eigen::VectorXd::Zero(m_reverse.nq);
+  Eigen::Matrix3d R;
+  R << ca, sa, 0, -sa, ca, 0, 0, 0, 1;
+  Eigen::Vector3d trans_rev;
+  trans_rev = -R * trans;
+  q_reverse << trans_rev[0], trans_rev[1], ca, -sa;
+
+  pinocchio::framesForwardKinematics(m_reverse, d_reverse, q_reverse);
+  //////////////////////////////////// All bodies should be at the same configuration
+  BOOST_CHECK(SE3isApprox(
+    d_reverse.oMf[m_reverse.getFrameId("body1", pinocchio::BODY)],
+    d_f.oMf[m_forward.getFrameId("body1", pinocchio::BODY)]));
   ///////////////// Model
-  BOOST_CHECK_THROW(g.buildModel("body2", pinocchio::SE3::Identity()), std::runtime_error);
+  // BOOST_CHECK_THROW(g.buildModel("body2", pinocchio::SE3::Identity()), std::runtime_error);
 }
 
 /// @brief test if reversing of a composite joint is correct.
