@@ -5,12 +5,13 @@
 #ifndef __pinocchio_multibody_model_graph_hpp__
 #define __pinocchio_multibody_model_graph_hpp__
 
+#include "pinocchio/config.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/se3.hpp"
 
-#include "pinocchio/multibody/graph/joints.hpp"
+#include "pinocchio/parsers/graph/joints.hpp"
 
 #include <Eigen/Core>
 
@@ -69,7 +70,7 @@ namespace pinocchio
   ///
   /// This is an intermediate step before creating a model, that
   /// allows more flexibility as to which body will be the root...
-  struct ModelGraph
+  struct PINOCCHIO_DLLAPI ModelGraph
   {
     typedef boost::
       adjacency_list<boost::vecS, boost::vecS, boost::directedS, ModelGraphVertex, ModelGraphEdge>
@@ -126,8 +127,7 @@ namespace pinocchio
     std::unordered_map<std::string, VertexDesc> name_to_vertex;
   };
 
-
-  ModelGraph mergeGraphs(
+  PINOCCHIO_DLLAPI ModelGraph mergeGraphs(
     const ModelGraph & g1,
     const ModelGraph & g2,
     const std::string & g1_body,

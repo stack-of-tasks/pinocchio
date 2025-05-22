@@ -10,13 +10,13 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/se3.hpp"
 
-#include "pinocchio/multibody/graph/model-graph.hpp"
+#include "pinocchio/parsers/graph/model-graph.hpp"
 
 #include <boost/graph/visitors.hpp>
 
 namespace pinocchio
 {
-    struct ReverseJointVisitor
+  struct ReverseJointVisitor
   : public boost::static_visitor<std::pair<JointGraphVariant, pinocchio::SE3>>
   {
     using ReturnType = std::pair<JointGraphVariant, pinocchio::SE3>;

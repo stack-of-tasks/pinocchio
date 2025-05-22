@@ -282,7 +282,7 @@ add_pinocchio_unit_test(explog)
 add_pinocchio_unit_test(finite-differences)
 add_pinocchio_unit_test(visitor)
 add_pinocchio_unit_test(algo-check)
-add_pinocchio_unit_test(model-graph)
+add_pinocchio_unit_test(model-graph PARSERS)
 
 # Warning ignore with pragma doesn't work for a part of this test, so we ignore two warning globally
 cxx_flags_by_compiler_frontend(
