@@ -13,16 +13,24 @@ namespace pinocchio
 {
   struct JointFixedGraph
   {
+    pinocchio::SE3 joint_offset = pinocchio::SE3::Identity();
+
     JointFixedGraph() = default;
+    JointFixedGraph(const pinocchio::SE3 & pose)
+    : joint_offset(pose)
+    {
+    }
   };
 
   struct JointRevoluteGraph
   {
     // rotation axis
     Eigen::Vector3d axis;
+    double q_ref;
 
-    explicit JointRevoluteGraph(const Eigen::Vector3d & ax)
+    explicit JointRevoluteGraph(const Eigen::Vector3d & ax, const double q_ = 0)
     : axis(ax)
+    , q_ref(q_)
     {
     }
   };
@@ -30,9 +38,17 @@ namespace pinocchio
   struct JointRevoluteUnboundedGraph
   {
     Eigen::Vector3d axis;
+    Eigen::Vector2d q_ref = Eigen::Vector2d::Zero();
 
     explicit JointRevoluteUnboundedGraph(const Eigen::Vector3d & ax)
     : axis(ax)
+    {
+      q_ref << 1, 0; // cos(0), sin(0)
+    }
+
+    explicit JointRevoluteUnboundedGraph(const Eigen::Vector3d & ax, const Eigen::Vector2d & q_)
+    : axis(ax)
+    , q_ref(q_)
     {
     }
   };
@@ -40,37 +56,81 @@ namespace pinocchio
   struct JointPrismaticGraph
   {
     Eigen::Vector3d axis;
+    double q_ref;
 
-    explicit JointPrismaticGraph(const Eigen::Vector3d & ax)
+    explicit JointPrismaticGraph(const Eigen::Vector3d & ax, const double q_ = 0)
     : axis(ax)
+    , q_ref(q_)
     {
     }
   };
 
   struct JointFreeFlyerGraph
   {
-    JointFreeFlyerGraph() = default;
+    Eigen::VectorXd q_ref = Eigen::VectorXd::Zero(7);
+
+    JointFreeFlyerGraph()
+    {
+      q_ref << 0, 0, 0, 0, 0, 0, 1;
+    }
+
+    JointFreeFlyerGraph(const Eigen::VectorXd & q_)
+    : q_ref(q_)
+    {
+    }
   };
 
   struct JointSphericalGraph
   {
-    JointSphericalGraph() = default;
+    Eigen::VectorXd q_ref = Eigen::VectorXd::Zero(4); // quaternion - x, y, z, w
+
+    JointSphericalGraph()
+    {
+      q_ref << 0, 0, 0, 1;
+    }
+
+    JointSphericalGraph(const Eigen::VectorXd & q_)
+    : q_ref(q_)
+    {
+    }
   };
 
   // Flipped whne model is reversed ?
   struct JointSphericalZYXGraph
   {
+    Eigen::Vector3d q_ref = Eigen::Vector3d::Zero();
+
     JointSphericalZYXGraph() = default;
+    JointSphericalZYXGraph(const Eigen::Vector3d & q_)
+    : q_ref(q_)
+    {
+    }
   };
 
   struct JointTranslationGraph
   {
+    Eigen::Vector3d q_ref = Eigen::Vector3d::Zero(); // T_x, T_y, T_z
+
     JointTranslationGraph() = default;
+    JointTranslationGraph(const Eigen::Vector3d & q_)
+    : q_ref(q_)
+    {
+    }
   };
 
   struct JointPlanarGraph
   {
-    JointPlanarGraph() = default;
+    Eigen::VectorXd q_ref = Eigen::VectorXd::Zero(4); // T_x, T_y, cos(a), sin(a)
+
+    JointPlanarGraph()
+    {
+      q_ref << 0, 0, 1, 0;
+    }
+
+    JointPlanarGraph(const Eigen::VectorXd & q_)
+    : q_ref(q_)
+    {
+    }
   };
 
   struct JointHelicalGraph
@@ -78,9 +138,12 @@ namespace pinocchio
     Eigen::Vector3d axis;
     double pitch;
 
-    JointHelicalGraph(const Eigen::Vector3d & ax, const double p)
+    double q_ref;
+
+    JointHelicalGraph(const Eigen::Vector3d & ax, const double p, const double q_ = 0)
     : axis(ax)
     , pitch(p)
+    , q_ref(q_)
     {
     }
   };
@@ -90,14 +153,18 @@ namespace pinocchio
     Eigen::Vector3d axis1;
     Eigen::Vector3d axis2;
 
-    JointUniversalGraph(const Eigen::Vector3d & ax1, const Eigen::Vector3d & ax2)
+    Eigen::Vector2d q_ref;
+
+    JointUniversalGraph(
+      const Eigen::Vector3d & ax1,
+      const Eigen::Vector3d & ax2,
+      const Eigen::Vector2d & q_ = Eigen::Vector2d::Zero())
     : axis1(ax1)
     , axis2(ax2)
+    , q_ref(q_)
     {
     }
   };
-
-  // Mimic : joint name, ratio et offset
 
   // Forward declare
   struct JointCompositeGraph;
