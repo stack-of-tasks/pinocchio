@@ -1,6 +1,6 @@
 # Define Pinocchio sources and headers
 
-set(${PROJECT_NAME}_CORE_SOURCES)
+set(${PROJECT_NAME}_CORE_SOURCES ${PROJECT_SOURCE_DIR}/src/multibody/graph/model-graph.cpp)
 
 set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/aba-derivatives.hpp
@@ -169,6 +169,9 @@ set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/geometry-object.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/geometry-object.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/instance-filter.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/graph/model-graph.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/graph/graph-visitor.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/graph/joints.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/joint/fwd.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/joint/joint-base.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/multibody/joint/joint-basic-visitors.hpp

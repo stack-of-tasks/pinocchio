@@ -6,8 +6,7 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/frames.hpp"
 
-#include "pinocchio/multibody/model-graph.hpp"
-#include "pinocchio/multibody/joint/joint-free-flyer.hpp"
+#include "pinocchio/multibody/graph/model-graph.hpp"
 
 #include <boost/test/unit_test.hpp>
 
