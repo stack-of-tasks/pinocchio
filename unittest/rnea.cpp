@@ -347,6 +347,59 @@ BOOST_AUTO_TEST_CASE(test_compute_coriolis)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_passivityrnea_vs_rnea)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  buildModels::humanoidRandom(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+
+  pinocchio::Data data_passivityrnea(model);
+  pinocchio::Data data_rnea(model);
+
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd a = VectorXd::Random(model.nv);
+  
+  VectorXd tau_passivityrnea = passivityRNEA(model, data_passivityrnea, q, v, v, a);
+  VectorXd tau_rnea = rnea(model, data_rnea, q, v, a);
+
+  BOOST_CHECK(tau_passivityrnea.isApprox(tau_rnea, 1e-12));
+}
+
+BOOST_AUTO_TEST_CASE(test_passivityrnea_compute_coriolis)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  const double prec = Eigen::NumTraits<double>::dummy_precision();
+
+  Model model;
+  buildModels::humanoidRandom(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  model.gravity.setZero();
+
+  Data data_ref(model);
+  Data data(model);
+
+  VectorXd q = randomConfiguration(model);
+
+  VectorXd v(VectorXd::Random(model.nv));
+  computeCoriolisMatrix(model, data, q, v);
+
+  VectorXd v_r(VectorXd::Random(model.nv));
+  passivityRNEA(model, data_ref, q, v, v_r, VectorXd::Zero(model.nv));
+
+  VectorXd tau = data.C * v_r;
+  BOOST_CHECK(tau.isApprox(data_ref.tau, prec));
+}
+
 BOOST_AUTO_TEST_CASE(test_rnea_mimic)
 {
   for (int i = 0; i < pinocchio::MimicTestCases::N_CASES; i++)
