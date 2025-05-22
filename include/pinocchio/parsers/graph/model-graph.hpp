@@ -27,7 +27,7 @@
 namespace pinocchio
 {
 
-  /// @brief Represents a vertex (body) in the model graph.
+  /// @brief Represents a vertex (body, sensor, operational frame) in the model graph.
   ///
   /// A vertex corresponds to a rigid body in the multibody model.
   /// For now, a vertex represents only a body, but this may evolve to include
@@ -127,6 +127,19 @@ namespace pinocchio
     std::unordered_map<std::string, VertexDesc> name_to_vertex;
   };
 
+  /// @brief  Merge 2 graphs together, by adding an edge between the two bodies in arguments.
+  ///
+  /// @param g1 First graph
+  /// @param g2 Second graph
+  /// @param g1_body body in g1 that will connect to g2
+  /// @param g2_body body in g2 that will connect to g1
+  /// @param pose_g2_body_in_g1 pose of g2_body wrt g1_body
+  /// @param merging_joint joint that will connect the two bodies. If none, it will be a fixed
+  /// joint.
+  /// @param merging_joint_name name of the joint that will connect the two graphs
+  /// @param g2_prefix prefix to add to all of g2 vertex and edges to avoid name collision
+  ///
+  /// @return a model graph
   PINOCCHIO_DLLAPI ModelGraph mergeGraphs(
     const ModelGraph & g1,
     const ModelGraph & g2,
