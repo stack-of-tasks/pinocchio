@@ -1,0 +1,9 @@
+If:
+   PathMatch: .*\.hxx
+CompileFlags:
+   Add:
+      - -DPINOCCHIO_LSP
+---
+Diagnostics:
+    Suppress:
+      - unused-includes
