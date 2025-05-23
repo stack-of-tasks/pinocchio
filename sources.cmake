@@ -1,7 +1,5 @@
 # Define Pinocchio sources and headers
 
-set(${PROJECT_NAME}_CORE_SOURCES)
-
 set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/aba-derivatives.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/aba-derivatives.hxx
@@ -336,7 +334,8 @@ set(${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS
 set(${PROJECT_NAME}_PARSERS_SOURCES
     ${PROJECT_SOURCE_DIR}/src/utils/file-explorer.cpp
     ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph.cpp
-    ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph-geom.cpp)
+    ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph-geom.cpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph.cpp)
 
 set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/meshloader-fwd.hpp
@@ -348,7 +347,10 @@ set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/mjcf/model.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/mjcf/geometry.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/mjcf/mjcf-graph.hpp
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sample-models.hpp)
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sample-models.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-graph.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/graph-visitor.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/joints.hpp)
 
 set(${PROJECT_NAME}_URDF_SOURCES
     ${PROJECT_SOURCE_DIR}/src/parsers/urdf/model.cpp
