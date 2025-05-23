@@ -474,8 +474,7 @@ BOOST_AUTO_TEST_CASE(test_reverse_planar)
   Eigen::VectorXd q_reverse = Eigen::VectorXd::Zero(m_reverse.nq);
   Eigen::Matrix3d R;
   R << ca, sa, 0, -sa, ca, 0, 0, 0, 1;
-  Eigen::Vector3d trans_rev;
-  trans_rev = -R * trans;
+  Eigen::Vector3d trans_rev = -R * trans;
   q_reverse << trans_rev[0], trans_rev[1], ca, -sa;
 
   pinocchio::framesForwardKinematics(m_reverse, d_reverse, q_reverse);

@@ -80,13 +80,13 @@ namespace pinocchio
     ReturnType operator()(const JointPlanarGraph & joint) const
     {
       Eigen::Vector3d trans;
-      trans << joint.q_ref[0], joint.q_ref[4], 0;
+      trans << joint.q_ref[0], joint.q_ref[3], 0;
       Eigen::Matrix3d R;
-      R << joint.q_ref[3], joint.q_ref[4], 0, -joint.q_ref[4], joint.q_ref[3], 0, 0, 0, 1;
+      R << joint.q_ref[2], joint.q_ref[3], 0, -joint.q_ref[3], joint.q_ref[2], 0, 0, 0, 1;
       Eigen::Vector3d trans_rev;
       trans_rev = -R * trans;
       Eigen::VectorXd q_ref_rev = Eigen::VectorXd::Zero(4);
-      q_ref_rev << trans_rev[0], trans_rev[1], joint.q_ref[3], -joint.q_ref[4];
+      q_ref_rev << trans_rev[0], trans_rev[1], joint.q_ref[2], -joint.q_ref[3];
       return {JointPlanarGraph(q_ref_rev), pinocchio::SE3::Identity()};
     }
     ReturnType operator()(const JointHelicalGraph & joint) const
