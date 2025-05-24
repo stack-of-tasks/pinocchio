@@ -636,8 +636,7 @@ namespace pinocchio
         J.rows(), 6, "The numbers of rows of the Jacobian matrix is not equal to 6.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         J.cols(), model.nv,
-        "The numbers of columns in the Jacobian matrix does not math the "
-        "number of Dofs in the model.");
+        "The numbers of columns in the Jacobian matrix does not match model.nv.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         q.size(), model.nq, "The configuration vector is not of right size");
 
@@ -800,8 +799,7 @@ namespace pinocchio
         dJ.rows(), 6, "The numbers of rows of the Jacobian matrix is not equal to 6.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         dJ.cols(), model.nv,
-        "The numbers of columns in the Jacobian matrix does not math the "
-        "number of Dofs in the model.");
+        "The numbers of columns in the Jacobian matrix does not match model.nv.");
       ::pinocchio::details::translateJointJacobian(model, data, jointId, rf, data.dJ, dJ);
 
       // Add contribution for LOCAL and LOCAL_WORLD_ALIGNED

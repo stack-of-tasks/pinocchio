@@ -194,9 +194,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
       J.rows(), 6, "The numbers of rows of the Jacobian matrix is not equal to 6.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
-      J.cols(), model.nv,
-      "The numbers of columns in the Jacobian matrix does not math the "
-      "number of Dofs in the model.");
+      J.cols(), model.nv, "The numbers of columns in the Jacobian matrix does not match model.nv.");
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef typename Model::Frame Frame;
@@ -306,8 +304,7 @@ namespace pinocchio
       dJ.rows(), 6, "The numbers of rows of the Jacobian matrix is not equal to 6.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
       dJ.cols(), model.nv,
-      "The numbers of columns in the Jacobian matrix does not math the "
-      "number of Dofs in the model.");
+      "The numbers of columns in the Jacobian matrix does not match model.nv.");
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
