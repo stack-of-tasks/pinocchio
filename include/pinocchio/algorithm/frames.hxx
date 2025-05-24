@@ -190,7 +190,7 @@ namespace pinocchio
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
-      q.size(), model.nq, "The configuration vector is not of right size");
+      q.size(), model.nq, "The configuration vector is not equal to model.nq.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
       J.rows(), 6, "The numbers of rows of the Jacobian matrix is not equal to 6.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(
