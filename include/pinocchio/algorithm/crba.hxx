@@ -458,7 +458,7 @@ namespace pinocchio
     {
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        q.size(), model.nq, "The configuration vector is not of right size");
+        q.size(), model.nq, "The configuration vector is not equal to model.nq.");
 
       typedef typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointIndex JointIndex;
 
@@ -502,7 +502,7 @@ namespace pinocchio
     {
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        q.size(), model.nq, "The configuration vector is not of right size");
+        q.size(), model.nq, "The configuration vector is not equal to model.nq.");
 
       typedef typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointIndex JointIndex;
 
