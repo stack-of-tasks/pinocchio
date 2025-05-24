@@ -633,6 +633,12 @@ namespace pinocchio
     {
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
+        J.rows(), 6, "The numbers of rows of the Jacobian matrix is not equal to 6.");
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(
+        J.cols(), model.nv,
+        "The numbers of columns in the Jacobian matrix does not math the "
+        "number of Dofs in the model.");
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(
         q.size(), model.nq, "The configuration vector is not of right size");
 
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
@@ -790,6 +796,12 @@ namespace pinocchio
         && "jointId is larger than the number of joints contained in the model");
 
       Matrix6xLike & dJ = dJ_.const_cast_derived();
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(
+        dJ.rows(), 6, "The numbers of rows of the Jacobian matrix is not equal to 6.");
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(
+        dJ.cols(), model.nv,
+        "The numbers of columns in the Jacobian matrix does not math the "
+        "number of Dofs in the model.");
       ::pinocchio::details::translateJointJacobian(model, data, jointId, rf, data.dJ, dJ);
 
       // Add contribution for LOCAL and LOCAL_WORLD_ALIGNED
