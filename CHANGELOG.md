@@ -2,9 +2,66 @@
 
 All notable changes to this project will be documented in this file.
 
+Change that doesn't affect end user should not be listed:
+- CI change
+- Github specific file change
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
+
+### Added
+- Beta version of Viser visualizer ([#2718](https://github.com/stack-of-tasks/pinocchio/pull/2718))
+- Add `pinocchio::graph::ModelGraph` class
+  - Simple API to build a model
+  - Manage joint offset
+  - Create a `pinocchio::Model` with any frame as root frame
+  - Create a `pinocchio::Model` with any joint as root joint
+  - Reliably merge two models with `pinocchio::graph::mergeGraphs` function
+  - Reliably fix joints at any configuration with `pinocchio::graph::fixJointsGraph`
+  - [C++ example](./examples/model-graph.cpp)
+  - [Python example](./examples/model-graph.py)
+  - Create a `pinocchio::geometryModel` using a `pinocchio::graph::ModelGraph`
+  - [Python example](./examples/model-graph-geometry.py)
+- Add `pinocchio::graph::ModelConfigurationConverter` class
+  - Convert configuration or tangent vector from two model with different root
+  - [C++ example](./examples/model-configuration-converter.cpp)
+  - [Python example](./examples/model-configuration-converter.py)
+- Fix Viser visualizer loading DAE files as trimesh.Scene ([#2748](https://github.com/stack-of-tasks/pinocchio/pull/2748))
+
+### Fixed
+- Fixed explicit conversions to Scalar type in log.hxx ([#2730](https://github.com/stack-of-tasks/pinocchio/pull/2730))
+- Check row dimensions of input Jacobians when computing kinematics Jacobian ([#2684](https://github.com/stack-of-tasks/pinocchio/pull/2684))
+- Fix case joint_id == 0 in getJointKinematicHessian ([#2705](https://github.com/stack-of-tasks/pinocchio/pull/2705))
+- Fix nvSubtree computation in case a mimic joint is the last joint in the branch ([#2707](https://github.com/stack-of-tasks/pinocchio/pull/2707))
+- Fix `JointModelMimic::hasConfigurationLimit()` to return empty vector instead of delegating to mimicking joint ([#2715](https://github.com/stack-of-tasks/pinocchio/pull/2715))
+- Fix check mimic_subtree_joint ([#2716](https://github.com/stack-of-tasks/pinocchio/pull/2716))
+- Fix mimic patch for crba ([#2716](https://github.com/stack-of-tasks/pinocchio/pull/2716))
+- Fix missing argument in exposeDelassus() pybind definition ([#2731](https://github.com/stack-of-tasks/pinocchio/pull/2731))
+- Fix copy of Model.armature in buidlReducedModel(...) ([#2749](https://github.com/stack-of-tasks/pinocchio/pull/2749))
+
+### Changed
+- Disable coal/hpp-fcl warnings when building Pinocchio ([#2686](https://github.com/stack-of-tasks/pinocchio/pull/2686))
+- CMake: allow use of system example-robot-data ([#2728](https://github.com/stack-of-tasks/pinocchio/pull/2728))
+
+## [3.7.0] - 2025-05-21
+
+### Changed
+- Change the default branch to `devel` ([#2666](https://github.com/stack-of-tasks/pinocchio/pull/2666))
+- Implement `captureImage` for Panda3D visualizer for video recording ([#2668](https://github.com/stack-of-tasks/pinocchio/pull/2668))
+- Drop Ubuntu 20.04 support ([#2680](https://github.com/stack-of-tasks/pinocchio/pull/2680))
+
+## [3.6.0] - 2025-04-28
+
+### Fixed
+- Fix getters for models and data in `VisualizerPythonVisitor` ([#2647](https://github.com/stack-of-tasks/pinocchio/pull/2647))
+- Fix `pinocchio::cholesky::Mv` build with `CppAd` scalar ([#2659](https://github.com/stack-of-tasks/pinocchio/pull/2659))
+- Fix `pinocchio::contactABA` build with `casadi` scalar ([#2659](https://github.com/stack-of-tasks/pinocchio/pull/2659))
+
+### Added
+- Add explicit template instantiation for constraint algorithms for `casadi`, `CppAD` and `CppADCodeGen` scalar ([#2659](https://github.com/stack-of-tasks/pinocchio/pull/2659))
+- Add `casadi` bindings for `pinocchio.initConstraintDynamics` and `pinocchio.constraintDynamics` ([#2659](https://github.com/stack-of-tasks/pinocchio/pull/2659))
+
 
 ## [3.5.0] - 2025-04-02
 
@@ -1130,7 +1187,9 @@ The model can either be parsed from a URDF format or be created by appendending 
         • Fixed (concatenation of two consecutive bodies)
 
 
-[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v3.5.0...HEAD
+[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v3.7.0...HEAD
+[3.7.0]: https://github.com/stack-of-tasks/pinocchio/compare/v3.6.0...v3.7.0
+[3.6.0]: https://github.com/stack-of-tasks/pinocchio/compare/v3.5.0...v3.6.0
 [3.5.0]: https://github.com/stack-of-tasks/pinocchio/compare/v3.4.0...v3.5.0
 [3.4.0]: https://github.com/stack-of-tasks/pinocchio/compare/v3.3.1...v3.4.0
 [3.3.1]: https://github.com/stack-of-tasks/pinocchio/compare/v3.3.0...v3.3.1

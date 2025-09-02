@@ -30,6 +30,7 @@
 #include "pinocchio/multibody/sample-models.hpp"
 
 #include <benchmark/benchmark.h>
+#include <boost/filesystem.hpp>
 
 #include <iostream>
 
@@ -81,8 +82,7 @@ struct ParallelFixture : benchmark::Fixture
   static void GlobalSetUp(const ExtraArgs &)
   {
     const std::string filename =
-      PINOCCHIO_MODEL_DIR
-      + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
+      EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/talos_data/robots/talos_reduced.urdf");
 
     pinocchio::urdf::buildModel(
       filename,
@@ -237,12 +237,12 @@ struct GeometryFixture : ParallelFixture
     ParallelFixture::GlobalSetUp(extra_args);
 
     const std::string filename =
-      PINOCCHIO_MODEL_DIR
-      + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
-    const std::string package_path = PINOCCHIO_MODEL_DIR;
+      EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/talos_data/robots/talos_reduced.urdf");
+    const std::string package_path =
+      boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
     hpp::fcl::MeshLoaderPtr mesh_loader = std::make_shared<hpp::fcl::CachedMeshLoader>();
     const std::string srdf_filename =
-      PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
+      EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/talos_data/srdf/talos.srdf");
     std::vector<std::string> package_paths(1, package_path);
     pinocchio::urdf::buildGeom(
       MODEL, filename, pinocchio::COLLISION, GEOMETRY_MODEL, package_paths, mesh_loader);

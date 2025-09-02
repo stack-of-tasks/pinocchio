@@ -10,25 +10,21 @@ on:
       - doc/**
       - .gitlab-ci.yml
       - .gitignore
-      - '*.md'
+      - '**.md'
       - CITATION.*
       - COPYING.LESSER
       - colcon.pkg
       - .pre-commit-config.yaml
-      - CHANGELOG.md
-      - development/*.md
   pull_request:
     paths-ignore:
       - doc/**
       - .gitlab-ci.yml
       - .gitignore
-      - '*.md'
+      - '**.md'
       - CITATION.*
       - COPYING.LESSER
       - colcon.pkg
       - .pre-commit-config.yaml
-      - CHANGELOG.md
-      - development/*.md
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -40,6 +36,7 @@ jobs:
         env:
           - {ROS_DISTRO: humble}
           - {ROS_DISTRO: jazzy}
+          - {ROS_DISTRO: kilted}
           - {ROS_DISTRO: rolling}
     env:
       CCACHE_DIR: /github/home/.ccache             # Enable ccache
@@ -55,7 +52,7 @@ jobs:
       IMMEDIATE_TEST_OUTPUT: 1
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       # This step will fetch/store the directory used by ccache before/after the ci run
@@ -65,5 +62,5 @@ jobs:
           key: ccache-${{ matrix.env.ROS_DISTRO }}-${{ github.sha }}
           restore-keys: ccache-${{ matrix.env.ROS_DISTRO }}-
       # Run industrial_ci
-      - uses: 'ros-industrial/industrial_ci@3e67ec54d63496e076267392148a26229740befc'
+      - uses: 'ros-industrial/industrial_ci@e3d16c224caf4832cf68e74093eb70f3a979b4cc'
         env: ${{ matrix.env }}

@@ -1,3 +1,4 @@
+import os
 import unittest
 from pathlib import Path
 
@@ -7,8 +8,7 @@ import pinocchio as pin
 @unittest.skipUnless(pin.WITH_URDFDOM, "Needs URDFDOM")
 class TestGeometryObjectUrdfBindings(unittest.TestCase):
     def setUp(self):
-        self.current_dir = Path(__file__).parent
-        self.model_dir = self.current_dir / "../../models/example-robot-data/robots"
+        self.model_dir = Path(os.environ.get("EXAMPLE_ROBOT_DATA_MODEL_DIR"))
         self.model_path = self.model_dir / "romeo_description/urdf/romeo.urdf"
 
     def test_load(self):
@@ -36,8 +36,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
     def test_pickle(self):
         import pickle
 
-        model_dir = self.current_dir / "../../models/example-robot-data/robots"
-        model_path = model_dir / "ur_description/urdf/ur5_robot.urdf"
+        model_path = self.model_dir / "ur_description/urdf/ur5_robot.urdf"
 
         model = pin.buildModelFromUrdf(model_path)
         filename = Path("model.pickle")

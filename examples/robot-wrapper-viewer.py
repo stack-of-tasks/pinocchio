@@ -3,6 +3,7 @@
 # integrating different kinds of viewers
 #
 
+import os
 from pathlib import Path
 from sys import argv
 
@@ -27,10 +28,8 @@ if len(argv) > 1:
 
 # Load the URDF model with RobotWrapper
 # Conversion with str seems to be necessary when executing this file with ipython
-pinocchio_model_dir = Path(__file__).parent.parent / "models"
-
-model_path = pinocchio_model_dir / "example-robot-data/robots"
-mesh_dir = pinocchio_model_dir
+model_path = Path(os.environ.get("EXAMPLE_ROBOT_DATA_MODEL_DIR"))
+mesh_dir = model_path.parent.parent
 urdf_filename = "talos_reduced.urdf"
 urdf_model_path = model_path / "talos_data/robots" / urdf_filename
 

@@ -17,6 +17,7 @@ function CMakeOptions() {
 // options that should be set to ON
 function makeLabelToOptions() {
   const os = process.env.RUNNER_OS;
+  const arch = process.env.RUNNER_ARCH;
   if(os == "Windows") {
     return {
       build_all: [
@@ -33,6 +34,27 @@ function makeLabelToOptions() {
       build_extra: ['BUILD_WITH_EXTRA_SUPPORT'],
       build_codegen: [],
       build_openmp: [],
+      build_mpfr: ['BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT'],
+      build_sdf: ['BUILD_WITH_SDF_SUPPORT'],
+      build_accelerate: ['BUILD_WITH_ACCELERATE_SUPPORT']
+    };
+  } else if (os == "Linux" && arch == "ARM64") {
+    return {
+      build_all: [
+        'BUILD_WITH_COLLISION_SUPPORT',
+        'BUILD_WITH_CASADI_SUPPORT',
+        'BUILD_WITH_AUTODIFF_SUPPORT',
+        'BUILD_WITH_EXTRA_SUPPORT',
+        'BUILD_WITH_OPENMP_SUPPORT',
+        'BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT',
+        'BUILD_WITH_SDF_SUPPORT'
+      ],
+      build_collision: ['BUILD_WITH_COLLISION_SUPPORT'],
+      build_casadi: ['BUILD_WITH_CASADI_SUPPORT'],
+      build_autodiff: ['BUILD_WITH_AUTODIFF_SUPPORT'],
+      build_extra: ['BUILD_WITH_EXTRA_SUPPORT'],
+      build_codegen: [],
+      build_openmp: ['BUILD_WITH_OPENMP_SUPPORT'],
       build_mpfr: ['BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT'],
       build_sdf: ['BUILD_WITH_SDF_SUPPORT'],
       build_accelerate: ['BUILD_WITH_ACCELERATE_SUPPORT']

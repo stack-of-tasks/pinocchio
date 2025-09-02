@@ -8,6 +8,7 @@
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/srdf.hpp"
 
+#include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
@@ -20,12 +21,11 @@ BOOST_AUTO_TEST_CASE(test_removeCollisionPairs)
   using namespace pinocchio::urdf;
   using namespace pinocchio::srdf;
   const string model_filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
-  const string model_dir = PINOCCHIO_MODEL_DIR;
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
+  const std::string model_dir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
   const string srdf_filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/srdf/romeo.srdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/srdf/romeo.srdf");
 
   Model model;
   buildModel(model_filename, model);

@@ -117,7 +117,9 @@ namespace pinocchio
     // of mimicking joint
     // - Since here only the upper part of the matrix is computed, we need to go over the support of
     // the mimicking joint, and compute how the force matrix of the mimicking joint is affecting
-    // each joint ATTENTION : the last loop is spilt in 2, to only fill the upper part of the matrix
+    // each joint.
+    // In the last loop, there is a min/max over indices to make sure we only fill the upper part
+    // of the matrix.
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     struct CrbaWorldConventionMimicStep
     : public fusion::JointUnaryVisitorBase<
@@ -182,31 +184,35 @@ namespace pinocchio
           Scalar, Eigen::Dynamic, Eigen::Dynamic, Options, JointModel::MaxNVMimicked,
           JointModel::MaxNVMimicked>
           temp_JAG;
-        for (; model.idx_vs[supports[j]] >= jmodel.idx_v(); j--)
+
+        int mims_idx_v = model.idx_vs[mimicking_id];
+        int mims_nvExtended = model.nvExtendeds[mimicking_id];
+        for (; j > 0; j--)
         {
           int sup_idx_v = model.idx_vs[supports[j]];
-          int sup_nv = model.nvs[supports[j]];
           int sup_idx_vExtended = model.idx_vExtendeds[supports[j]];
           int sup_nvExtended = model.nvExtendeds[supports[j]];
 
           temp_JAG.noalias() =
             data.J.middleCols(sup_idx_vExtended, sup_nvExtended).transpose() * Ag_sec;
-          data.M.block(jmodel.idx_v(), sup_idx_v, jmodel.nvExtended(), sup_nv).noalias() +=
-            temp_JAG;
-          if (supports[j] == mimicked_id)
-            data.M.block(jmodel.idx_v(), sup_idx_v, jmodel.nvExtended(), sup_nv).noalias() +=
+
+          // fill row
+          if (sup_idx_v >= mims_idx_v)
+          {
+            data.M.block(mims_idx_v, sup_idx_v, mims_nvExtended, sup_nvExtended).noalias() +=
               temp_JAG;
-        }
 
-        for (; j > 0; j--)
-        {
-          int sup_idx_v = model.idx_vs[supports[j]];
-          int sup_nv = model.nvs[supports[j]];
-          int sup_idx_vExtended = model.idx_vExtendeds[supports[j]];
-          int sup_nvExtended = model.nvExtendeds[supports[j]];
-
-          data.M.block(sup_idx_v, jmodel.idx_v(), sup_nv, jmodel.nvExtended()).noalias() +=
-            data.J.middleCols(sup_idx_vExtended, sup_nvExtended).transpose() * Ag_sec;
+            // check if support is either a mimic with the same primary or jmodel primary to add
+            // temp_JAG a second time
+            if (mims_idx_v == sup_idx_v)
+              data.M.block(mims_idx_v, sup_idx_v, mims_nvExtended, sup_nvExtended).noalias() +=
+                temp_JAG;
+          }
+          else // Fill column
+          {
+            data.M.block(sup_idx_v, mims_idx_v, sup_nvExtended, mims_nvExtended).noalias() +=
+              temp_JAG;
+          }
         }
 
         // Mimic joint also have an effect on the centroidal map momentum, so it's important to
@@ -346,7 +352,9 @@ namespace pinocchio
     // of mimicking joint
     // - Since here only the upper part of the matrix is computed, we need to go over the support of
     // the mimicking joint, and compute how the force matrix of the mimicking joint is affecting
-    // each joint ATTENTION : the last loop is spilt in 2, to only fill the upper part of the matrix
+    // each joint
+    // In the last loop, there is a min/max over indices to make sure we only fill the upper part
+    // of the matrix.
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     struct CrbaLocalConventionMimicStep
     : public fusion::JointUnaryVisitorBase<
@@ -414,34 +422,36 @@ namespace pinocchio
           Scalar, Eigen::Dynamic, Eigen::Dynamic, Options, JointModel::MaxNVMimicked,
           JointModel::MaxNVMimicked>
           temp_JAG;
-        for (; model.idx_vs[supports[j]] >= jmodel.idx_v(); j--)
-        {
-          const JointIndex & li = supports[j];
-          const JointIndex & i = supports[j + 1]; // Child link to compute placement
 
-          forceSet::se3Action(data.liMi[i], jmodel.jointCols(F), jmodel.jointCols(F));
-          int row_idx = jmodel.idx_v();
-          int col_idx = model.idx_vs[li];
-
-          applyConstraintOnForceVisitor<SETTO>(
-            data.joints[li], jmodel.jointCols(F), temp_JAG.noalias());
-          data.M.block(row_idx, col_idx, jmodel.nvExtended(), model.nvs[li]).noalias() += temp_JAG;
-          if (li == mimicked_id)
-            data.M.block(row_idx, col_idx, jmodel.nvExtended(), model.nvs[li]).noalias() +=
-              temp_JAG;
-        }
+        int mims_idx_v = model.idx_vs[mimicking_id];
+        int mims_nvExtended = model.nvExtendeds[mimicking_id];
         for (; j > 0; j--)
         {
           const JointIndex & li = supports[j];
           const JointIndex & i = supports[j + 1]; // Child link to compute placement
 
           forceSet::se3Action(data.liMi[i], jmodel.jointCols(F), jmodel.jointCols(F));
-          int col_idx = jmodel.idx_v();
-          int row_idx = model.idx_vs[li];
+          int parent_idx = model.idx_vs[li];
 
-          applyConstraintOnForceVisitor<ADDTO>(
-            data.joints[li], jmodel.jointCols(F),
-            data.M.block(row_idx, col_idx, model.nvs[li], jmodel.nvExtended()).noalias());
+          applyConstraintOnForceVisitor<SETTO>(
+            data.joints[li], jmodel.jointCols(F), temp_JAG.noalias());
+          // fill row
+          if (parent_idx >= mims_idx_v)
+          {
+            data.M.block(mims_idx_v, parent_idx, mims_nvExtended, model.nvExtendeds[li])
+              .noalias() += temp_JAG;
+
+            // check if support is either a mimic with the same primary or jmodel primary to add
+            // temp_JAG a second time
+            if (mims_idx_v == parent_idx)
+              data.M.block(mims_idx_v, parent_idx, mims_nvExtended, model.nvExtendeds[li])
+                .noalias() += temp_JAG;
+          }
+          else // Fill column
+          {
+            data.M.block(parent_idx, mims_idx_v, model.nvExtendeds[li], mims_nvExtended)
+              .noalias() += temp_JAG;
+          }
         }
       }
     };
@@ -458,7 +468,7 @@ namespace pinocchio
     {
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        q.size(), model.nq, "The configuration vector is not of right size");
+        q.size(), model.nq, "The configuration vector is not equal to model.nq.");
 
       typedef typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointIndex JointIndex;
 
@@ -502,7 +512,7 @@ namespace pinocchio
     {
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        q.size(), model.nq, "The configuration vector is not of right size");
+        q.size(), model.nq, "The configuration vector is not equal to model.nq.");
 
       typedef typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointIndex JointIndex;
 

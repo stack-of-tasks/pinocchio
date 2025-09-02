@@ -191,10 +191,12 @@ pinocchio_specific_type(default DEFAULT_SCOPE)
 # some are template instantiated, or some user can link only on pinocchio_default, we muste define
 # PINOCCHIO_WITH_HPP_FCL in pinocchio_default.
 if(BUILD_WITH_HPP_FCL_SUPPORT)
-  target_compile_definitions(pinocchio_default PUBLIC PINOCCHIO_WITH_HPP_FCL)
+  target_compile_definitions(
+    pinocchio_default
+    PUBLIC PINOCCHIO_WITH_HPP_FCL
+    PRIVATE COAL_DISABLE_HPP_FCL_WARNINGS)
   target_include_directories(
     pinocchio_default PUBLIC $<TARGET_PROPERTY:hpp-fcl::hpp-fcl,INTERFACE_INCLUDE_DIRECTORIES>)
-
 endif()
 
 # Define the extra target This target hold extra algorithms.
@@ -236,7 +238,10 @@ if(BUILD_WITH_HPP_FCL_SUPPORT)
     SOURCES ${${PROJECT_NAME}_COLLISION_SOURCES} ${${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS})
   pinocchio_config(collision ${COLLISION_LIB_NAME})
 
-  target_compile_definitions(${COLLISION_LIB_NAME} PUBLIC PINOCCHIO_WITH_HPP_FCL)
+  target_compile_definitions(
+    ${COLLISION_LIB_NAME}
+    PUBLIC PINOCCHIO_WITH_HPP_FCL
+    PRIVATE COAL_DISABLE_HPP_FCL_WARNINGS)
   target_link_libraries(${COLLISION_LIB_NAME} PUBLIC ${PROJECT_NAME}_default hpp-fcl::hpp-fcl)
 
   # Define the collision parallel target
@@ -263,7 +268,10 @@ pinocchio_target(
 pinocchio_config(visualizers ${VISUALIZERS_LIB_NAME})
 target_link_libraries(${VISUALIZERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_default)
 if(BUILD_WITH_HPP_FCL_SUPPORT)
-  target_compile_definitions(${VISUALIZERS_LIB_NAME} PUBLIC PINOCCHIO_WITH_HPP_FCL)
+  target_compile_definitions(
+    ${VISUALIZERS_LIB_NAME}
+    PUBLIC PINOCCHIO_WITH_HPP_FCL
+    PRIVATE COAL_DISABLE_HPP_FCL_WARNINGS)
   target_link_libraries(${VISUALIZERS_LIB_NAME} PUBLIC hpp-fcl::hpp-fcl)
 endif()
 
@@ -282,6 +290,7 @@ if(BUILD_WITH_PARSERS_SUPPORT)
   target_link_libraries(${PARSERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_default)
   if(BUILD_WITH_HPP_FCL_SUPPORT)
     target_link_libraries(${PARSERS_LIB_NAME} PUBLIC ${PROJECT_NAME}_collision)
+    target_compile_definitions(${PARSERS_LIB_NAME} PRIVATE COAL_DISABLE_HPP_FCL_WARNINGS)
   endif()
 
   modernize_target_link_libraries(
@@ -363,6 +372,7 @@ if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
   pinocchio_config(python_parser ${PYTHON_PARSER_LIB_NAME})
 
   target_link_libraries(${PYTHON_PARSER_LIB_NAME} PUBLIC ${PROJECT_NAME}_default Python3::Python)
+  target_compile_definitions(${PYTHON_PARSER_LIB_NAME} PRIVATE COAL_DISABLE_HPP_FCL_WARNINGS)
   target_link_boost_python(${PYTHON_PARSER_LIB_NAME} PUBLIC)
 endif()
 

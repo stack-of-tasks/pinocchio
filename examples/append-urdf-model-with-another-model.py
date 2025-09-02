@@ -1,4 +1,5 @@
 import math
+import os
 import sys
 import time
 from pathlib import Path
@@ -9,10 +10,8 @@ import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer as Visualizer
 
 # load model from example-robot urdf
-pinocchio_model_dir = Path(__file__).parent.parent / "models"
-
-model_path = pinocchio_model_dir / "example-robot-data/robots"
-mesh_dir = pinocchio_model_dir
+model_path = Path(os.environ.get("EXAMPLE_ROBOT_DATA_MODEL_DIR"))
+mesh_dir = model_path.parent.parent
 urdf_filename = "ur5_robot.urdf"
 urdf_model_path = model_path / "ur_description/urdf" / urdf_filename
 

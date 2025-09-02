@@ -1,8 +1,8 @@
 [project]
 name = "pinocchio"
-version = "3.5.0"
+version = "3.7.0"
 description = "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives"
-platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"]
+platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
 channels = ["conda-forge"]
 license = "BSD-2-Clause"
 license-file = "LICENSE"
@@ -118,9 +118,12 @@ activation = { env = { PINOCCHIO_CASADI_SUPPORT = "ON" } }
 dependencies = { cppad = ">=20230000.0", pycppad = ">=1.2.4" }
 activation = { env = { PINOCCHIO_AUTODIFF_SUPPORT = "ON" } }
 
-# Not supported by Windows
+# Not supported by Windows and Linux-aarch64
 [feature.codegen]
-[feature.codegen.target.unix]
+[feature.codegen.target.linux-64]
+dependencies = { cppadcodegen = ">=2.4.3" }
+activation = { env = { PINOCCHIO_CODEGEN_SUPPORT = "ON" } }
+[feature.codegen.target.osx]
 dependencies = { cppadcodegen = ">=2.4.3" }
 activation = { env = { PINOCCHIO_CODEGEN_SUPPORT = "ON" } }
 

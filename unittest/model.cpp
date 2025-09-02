@@ -1,5 +1,6 @@
 //
-// Copyright (c) 2016-2022 CNRS INRIA
+// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2018-2025 INRIA
 //
 
 #include "pinocchio/multibody/data.hpp"
@@ -578,6 +579,9 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
 
   humanoid_model.lowerPositionLimit.head<3>().fill(-1.);
   humanoid_model.upperPositionLimit.head<3>().fill(1.);
+  humanoid_model.armature.setOnes();
+  humanoid_model.rotorGearRatio.setOnes();
+  humanoid_model.rotorInertia.setOnes();
 
   humanoid_model.referenceConfigurations.insert(
     std::pair<std::string, Eigen::VectorXd>("neutral", neutral(humanoid_model)));
@@ -664,6 +668,26 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
       break;
     }
     }
+  }
+
+  // Check other model fields values
+  for (JointIndex joint_id = 1; joint_id < (JointIndex)reduced_humanoid_model.njoints; ++joint_id)
+  {
+    const JointIndex initial_joint_id =
+      humanoid_model.getJointId(reduced_humanoid_model.names[joint_id]);
+
+    const JointModel & reduced_joint = reduced_humanoid_model.joints[joint_id];
+    const JointModel & initial_joint = humanoid_model.joints[initial_joint_id];
+#define CHECK_FIELD_VALUE(field)                                                                   \
+  BOOST_CHECK(                                                                                     \
+    reduced_joint.jointVelocitySelector(reduced_humanoid_model.field)                              \
+    == initial_joint.jointVelocitySelector(humanoid_model.field))
+
+    CHECK_FIELD_VALUE(armature);
+    CHECK_FIELD_VALUE(rotorGearRatio);
+    CHECK_FIELD_VALUE(rotorInertia);
+
+#undef CHECK_FIELD_VALUE
   }
 }
 
@@ -1055,6 +1079,23 @@ BOOST_AUTO_TEST_CASE(test_mimicked_mimicking_vectors)
     BOOST_CHECK(man_mimic.mimicked_joints[i - 1] < man_mimic.mimicked_joints[i]);
     BOOST_CHECK(man_mimic.mimicking_joints[i - 1] < man_mimic.mimicking_joints[i]);
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_has_configuration_limit_mimic)
+{
+  Model model;
+  // j1 -- j2
+  //    -- j3
+  // with j3 mimicking j2
+  model.addJoint(0, JointModelRX(), SE3::Identity(), "j1");
+  model.addJoint(1, JointModelRX(), SE3::Identity(), "j2");
+  model.addJoint(
+    2, JointModelMimic(JointModelRX(), model.joints[1], 1., 0.), SE3::Identity(), "j3");
+
+  BOOST_CHECK_EQUAL(model.lowerPositionLimit.size(), 2);
+  BOOST_CHECK_EQUAL(model.upperPositionLimit.size(), 2);
+  BOOST_CHECK_EQUAL(model.hasConfigurationLimit().size(), 2);
+  BOOST_CHECK_EQUAL(model.hasConfigurationLimitInTangent().size(), 2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

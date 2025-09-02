@@ -11,16 +11,22 @@
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = inputs.nixpkgs.lib.systems.flakeExposed;
       perSystem =
-        { pkgs, self', ... }:
+        {
+          inputs',
+          pkgs,
+          self',
+          system,
+          ...
+        }:
         {
           apps.default = {
             type = "app";
             program = pkgs.python3.withPackages (_: [ self'.packages.default ]);
           };
-          devShells.default = pkgs.mkShell { inputsFrom = [ self'.packages.default ]; };
           packages = {
             default = self'.packages.pinocchio;
-            pinocchio = pkgs.python3Packages.pinocchio.overrideAttrs {
+            pinocchio = pkgs.python3Packages.pinocchio.overrideAttrs (super: {
+              propagatedBuildInputs = super.propagatedBuildInputs ++ [ pkgs.example-robot-data ];
               src = pkgs.lib.fileset.toSource {
                 root = ./.;
                 fileset = pkgs.lib.fileset.unions [
@@ -38,7 +44,7 @@
                   ./utils
                 ];
               };
-            };
+            });
           };
         };
     };

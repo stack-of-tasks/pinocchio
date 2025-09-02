@@ -54,7 +54,8 @@ BOOST_AUTO_TEST_CASE(test_force)
   {
     const SE3 placement_W(SE3::Matrix3::Identity(), placement.translation());
     Force f_sol_w = placement_W.act(f_in);
-    BOOST_CHECK(changeReferenceFrame(placement, f_in, LOCAL_WORLD_ALIGNED, WORLD) == f_sol_w);
+    BOOST_CHECK(
+      changeReferenceFrame(placement, f_in, LOCAL_WORLD_ALIGNED, WORLD).isApprox(f_sol_w));
     BOOST_CHECK(
       changeReferenceFrame(placement, f_sol_w, WORLD, LOCAL_WORLD_ALIGNED).isApprox(f_in));
   }

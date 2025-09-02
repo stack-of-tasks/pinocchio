@@ -3,7 +3,7 @@
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.22)
 
 set(PROJECT_NAME pinocchio)
 set(PROJECT_DESCRIPTION
@@ -41,13 +41,6 @@ else()
       TARGET jrl-cmakemodules::jrl-cmakemodules
       PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
     message(STATUS "JRL cmakemodules found on system at ${JRL_CMAKE_MODULES}")
-  elseif(${CMAKE_VERSION} VERSION_LESS "3.14.0")
-    message(
-      FATAL_ERROR
-        "\nCan't find jrl-cmakemodules. Please either:\n"
-        "  - use git submodule: 'git submodule update --init'\n"
-        "  - or install https://github.com/jrl-umi3218/jrl-cmakemodules\n"
-        "  - or upgrade your CMake version to >= 3.14 to allow automatic fetching\n")
   else()
     message(STATUS "JRL cmakemodules not found. Let's fetch it.")
     include(FetchContent)
@@ -113,6 +106,7 @@ check_minimal_cxx_standard(11 ENFORCE)
 
 # --- OPTIONS ----------------------------------------
 option(BUILD_BENCHMARK "Build the benchmarks" OFF)
+option(BUILD_EXAMPLES "Build the examples" ON)
 option(BUILD_UTILS "Build the utils" OFF)
 option(BUILD_PYTHON_INTERFACE "Build the Python bindings" ON)
 option(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF)
@@ -155,12 +149,33 @@ if(APPLE)
 else(APPLE)
   set(BUILD_WITH_ACCELERATE_SUPPORT FALSE)
 endif(APPLE)
-option(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF)
 
 option(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 option(CHECK_RUNTIME_MALLOC "Check if some memory allocations are performed at runtime" OFF)
 
 option(ENABLE_TEMPLATE_INSTANTIATION "Template instantiation of the main library" ON)
+
+set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
+
+if(BUILD_BENCHMARK
+   OR BUILD_EXAMPLES
+   OR BUILD_TESTING)
+  # example-robot-data is required
+  if(EXAMPLE_ROBOT_DATA_MODEL_DIR)
+    file(REAL_PATH "${EXAMPLE_ROBOT_DATA_MODEL_DIR}" EXAMPLE_ROBOT_DATA_MODEL_DIR EXPAND_TILDE)
+    message(STATUS "Using provided example-robot-data at: ${EXAMPLE_ROBOT_DATA_MODEL_DIR}")
+  elseif(EXISTS "${CMAKE_CURRENT_LIST_DIR}/models/example-robot-data/CMakeLists.txt")
+    set(EXAMPLE_ROBOT_DATA_MODEL_DIR "${PINOCCHIO_MODEL_DIR}/example-robot-data/robots")
+  else()
+    find_package(example-robot-data REQUIRED CONFIG)
+    get_target_property(EXAMPLE_ROBOT_DATA_MODEL_DIR_DEF example-robot-data::example-robot-data
+                        INTERFACE_COMPILE_DEFINITIONS)
+    string(REPLACE "EXAMPLE_ROBOT_DATA_MODEL_DIR=" "" EXAMPLE_ROBOT_DATA_MODEL_DIR_QUOTES
+                   "${EXAMPLE_ROBOT_DATA_MODEL_DIR_DEF}")
+    string(REPLACE "\"" "" EXAMPLE_ROBOT_DATA_MODEL_DIR "${EXAMPLE_ROBOT_DATA_MODEL_DIR_QUOTES}")
+    message(STATUS "Using system example-robot-data at: ${EXAMPLE_ROBOT_DATA_MODEL_DIR}")
+  endif()
+endif()
 
 # Variable containing all the cflags definition, options and libraries to setup pkg-config.
 set(CFLAGS_OPTIONS)
@@ -202,8 +217,6 @@ endif(ENABLE_TEMPLATE_INSTANTIATION)
 macro(TAG_LIBRARY_VERSION target)
   set_target_properties(${target} PROPERTIES SOVERSION ${PROJECT_VERSION})
 endmacro(TAG_LIBRARY_VERSION)
-
-set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
 
 # ----------------------------------------------------
 # --- DEPENDENCIES -----------------------------------
@@ -330,6 +343,7 @@ else()
 endif()
 
 if(BUILD_WITH_HPP_FCL_SUPPORT)
+  set(COAL_DISABLE_HPP_FCL_WARNINGS ON)
   add_project_dependency(hpp-fcl REQUIRED)
 endif()
 
@@ -380,6 +394,12 @@ endif()
 
 # HPP-FCL sources
 if(BUILD_WITH_HPP_FCL_SUPPORT)
+  list(APPEND ${PROJECT_NAME}_PARSERS_SOURCES ${${PROJECT_NAME}_GRAPH_GEOMETRY_SOURCES})
+  list(APPEND ${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS ${${PROJECT_NAME}_GRAPH_GEOMETRY_HEADERS})
+
+  list(APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+       ${${PROJECT_NAME}_BINDINGS_GRAPH_GEOMETRY_SOURCES})
+
   if(ENABLE_TEMPLATE_INSTANTIATION)
     list(APPEND ${PROJECT_NAME}_COLLISION_SOURCES
          ${${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_SOURCES})
@@ -458,7 +478,9 @@ add_subdirectory(utils)
 add_subdirectory(unittest)
 
 # --- CHECK EXAMPLES -----------------------------------------------------------
-add_subdirectory(examples)
+if(BUILD_EXAMPLES)
+  add_subdirectory(examples)
+endif()
 
 # --- BENCHMARKS ---------------------------------------------------------------
 if(BUILD_BENCHMARK)
@@ -521,8 +543,5 @@ foreach(boostlib ${BOOST_REQUIRED_COMPONENTS})
 endforeach()
 pkg_config_append_cflags("${CFLAGS_DEPENDENCIES}")
 pkg_config_append_cflags("${CFLAGS_OPTIONS}")
-
-# Install catkin package.xml
-install(FILES package.xml DESTINATION share/${PROJECT_NAME})
 
 setup_project_finalize()

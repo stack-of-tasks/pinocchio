@@ -112,8 +112,8 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   exposeSampleModels();
 #if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
   exposeGeometry();
-  exposeParsers();
 #endif // defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
+  exposeParsers();
 
   exposeAlgorithms();
   exposeExtras();

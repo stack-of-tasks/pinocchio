@@ -1141,7 +1141,6 @@ BOOST_AUTO_TEST_CASE(build_model_no_root_joint)
 BOOST_AUTO_TEST_CASE(build_model_with_root_joint_name)
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.xml");
-  const std::string dir = PINOCCHIO_MODEL_DIR;
 
   pinocchio::Model model;
   pinocchio::mjcf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model);
@@ -1167,7 +1166,6 @@ BOOST_AUTO_TEST_CASE(compare_to_urdf)
   pinocchio::mjcf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model_m);
 
   const std::string filename_urdf = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
-  const std::string dir_urdf = PINOCCHIO_MODEL_DIR;
   pinocchio::Model model_urdf;
   pinocchio::urdf::buildModel(filename_urdf, pinocchio::JointModelFreeFlyer(), model_urdf);
 

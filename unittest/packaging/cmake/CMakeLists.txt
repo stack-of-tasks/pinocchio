@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 2.6)
 
 project(ExtraLib CXX)
-find_package(pinocchio REQUIRED)
 
 set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/../../../models")
 add_definitions('-DPINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\"')
+
+find_package(pinocchio REQUIRED)
 
 add_executable(run_rnea ../run_rnea.cpp)
 target_link_libraries(run_rnea PUBLIC pinocchio::pinocchio)

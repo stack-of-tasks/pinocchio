@@ -291,10 +291,10 @@ namespace pinocchio
    *
    * @tparam JointCollection Collection of Joint types.
    *
-   * @param[in]  model                        The kinematic model
-   * @param[in]  data                           Data associated to model
-   * @param[in]  joint_id                  Index of the joint.
-   * @param[in]  reference_frame  Reference frame in which the Jacobian is expressed.
+   * @param[in] model The kinematic model
+   * @param[in] data Data associated to model
+   * @param[in] joint_id Index of the joint.
+   * @param[in] reference_frame Reference frame in which the Jacobian is expressed.
    *
    * @warning    The function pinocchio::computeJointJacobians should have been called first.
    */
@@ -412,14 +412,13 @@ namespace pinocchio
   /// \tparam ConfigVectorType Type of the joint configuration vector.
   /// \tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
   ///
-  /// \param[in] model                                The model structure of the rigid body system.
-  /// \param[in] data                                  The data structure of the rigid body system.
-  /// \param[in] q                                         The joint configuration vector (dim
-  /// model.nq). \param[in] frameId                            The id of the Frame refering to
-  /// model.frames[frameId]. \param[in] reference_frame          Reference frame in which the
-  /// Jacobian is expressed. \param[out] J                                       A reference on the
-  /// Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with
-  /// zero elements, e.g. J.setZero().
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] frame_id The id of the Frame refering to model.frames[frame_id].
+  /// \param[in] reference_frame Reference frame in which the Jacobian is expressed.
+  /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x
+  /// model.nv). You must fill J with zero elements, e.g. J.setZero().
   ///
   /// \return The Jacobian of the specific Frame expressed in the desired reference frame (matrix 6
   /// x model.nv).
@@ -439,7 +438,7 @@ namespace pinocchio
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
     const Eigen::MatrixBase<ConfigVectorType> & q,
-    const FrameIndex frameId,
+    const FrameIndex frame_id,
     const ReferenceFrame reference_frame,
     const Eigen::MatrixBase<Matrix6xLike> & J);
 
@@ -454,7 +453,7 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] frameId The id of the Frame refering to model.frames[frameId].
+  /// \param[in] frame_id The id of the Frame refering to model.frames[frame_id].
   ///
   /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x
   /// model.nv). You must fill J with zero elements, e.g. J.setZero().
@@ -477,11 +476,11 @@ namespace pinocchio
     const ModelTpl<Scalar, Options, JointCollectionTpl> & model,
     DataTpl<Scalar, Options, JointCollectionTpl> & data,
     const Eigen::MatrixBase<ConfigVectorType> & q,
-    const FrameIndex frameId,
+    const FrameIndex frame_id,
     const Eigen::MatrixBase<Matrix6xLike> & J)
   {
     computeFrameJacobian(
-      model, data, q.derived(), frameId, LOCAL, PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J));
+      model, data, q.derived(), frame_id, LOCAL, PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike, J));
   }
 
   ///
@@ -497,7 +496,7 @@ namespace pinocchio
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] frameId The index of the frame.
+  /// \param[in] frame_id The index of the frame.
   ///
   /// \param[out] dJ A reference on the Jacobian matrix where the results will be stored in (dim 6 x
   /// model.nv). You must fill dJ with zero elements, e.g. dJ.fill(0.).
@@ -539,7 +538,7 @@ namespace pinocchio
    *
    * @param[in] model The model structure of the rigid body system.
    * @param[in] data The data structure of the rigid body system.
-   * @param[in] frameId The index of the frame.
+   * @param[in] frame_id The index of the frame.
    * @param[in] with_subtree If false, compute the inertia only inside the frame parent joint if
    * false. If true, include child joints inertia.
    *
@@ -562,7 +561,7 @@ namespace pinocchio
    *         * The forces applied by child joints
    *         * (The external forces)
    *        You must first call pinocchio::rnea to update placements, velocities and efforts values
-   * in data structure.
+   * contained in the data structure.
    *
    * @note If an external force is applied to the frame parent joint (during rnea), it won't be
    * taken in consideration in this function (it will be considered to be applied before the frame
@@ -581,7 +580,7 @@ namespace pinocchio
    *
    * @param[in] model The model structure of the rigid body system.
    * @param[in] data The data structure of the rigid body system.
-   * @param[in] frameId The index of the frame.
+   * @param[in] frame_id The index of the frame.
    *
    * @return The computed force.
    *

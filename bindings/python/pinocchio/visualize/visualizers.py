@@ -8,6 +8,13 @@ from .meshcat_visualizer import MeshcatVisualizer
 from .panda3d_visualizer import Panda3dVisualizer
 from .rviz_visualizer import RVizVisualizer
 
+if find_spec("hppfcl") is not None:
+    from .viser_visualizer import ViserVisualizer
+else:
+
+    class ViserVisualizer:
+        pass
+
 
 class Visualizer(Enum):
     BASE = BaseVisualizer
@@ -15,6 +22,7 @@ class Visualizer(Enum):
     MESHCAT = MeshcatVisualizer
     PANDA3D = Panda3dVisualizer
     RVIZ = RVizVisualizer
+    VISER = ViserVisualizer
 
     @classmethod
     def default(cls):
@@ -36,11 +44,12 @@ class Visualizer(Enum):
                 "- gepetto-viewer\n"
                 "- panda3d\n"
                 "- rviz\n"
+                "- viser\n"
             )
             raise ImportError(err)
 
         # Otherwise, use the first available
-        for v in ["meshcat", "gepetto", "panda3d_viewer", "rviz"]:
+        for v in ["meshcat", "gepetto", "panda3d_viewer", "rviz", "viser"]:
             if find_spec(v) is not None:
                 return getattr(cls, v.replace("_viewer", "").upper()).value
 
@@ -51,5 +60,6 @@ class Visualizer(Enum):
             "- gepetto-viewer\n"
             "- panda3d\n"
             "- rviz\n"
+            "- viser\n"
         )
         raise ImportError(err)

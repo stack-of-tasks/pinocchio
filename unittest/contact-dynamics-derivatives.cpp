@@ -2528,12 +2528,9 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
 {
   // TODO: 4 fd tests (ddq/dtau, ddq/dq, ddq/dv, dlambda/dq, dlambda/dv) fail for cassie
   const std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/cassie_description/robots/cassie.sdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/cassie_description/robots/cassie.sdf");
   const std::string srdf_filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/cassie_description/srdf/cassie_v2.srdf");
-  const std::string dir = PINOCCHIO_MODEL_DIR;
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/cassie_description/srdf/cassie_v2.srdf");
 
   pinocchio::Model model;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) constraint_models;

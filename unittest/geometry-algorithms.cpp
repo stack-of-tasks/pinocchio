@@ -15,6 +15,7 @@
 #include "pinocchio/parsers/srdf.hpp"
 
 #include <vector>
+#include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
@@ -144,10 +145,10 @@ BOOST_AUTO_TEST_CASE(loading_model_and_check_distance)
   typedef pinocchio::GeometryData GeometryData;
 
   std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
   std::vector<std::string> packageDirs;
-  std::string meshDir = PINOCCHIO_MODEL_DIR;
+  const std::string meshDir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
   packageDirs.push_back(meshDir);
 
   Model model;
@@ -185,14 +186,13 @@ BOOST_AUTO_TEST_CASE(test_collisions)
   typedef pinocchio::GeometryData GeometryData;
 
   const std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
   std::vector<std::string> packageDirs;
-  const std::string meshDir = PINOCCHIO_MODEL_DIR;
+  const std::string meshDir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
   packageDirs.push_back(meshDir);
   const std::string srdf_filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/srdf/romeo.srdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/srdf/romeo.srdf");
 
   Model model;
   pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model);
@@ -250,14 +250,13 @@ BOOST_AUTO_TEST_CASE(test_distances)
   typedef pinocchio::GeometryData GeometryData;
 
   const std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
   std::vector<std::string> packageDirs;
-  const std::string meshDir = PINOCCHIO_MODEL_DIR;
+  const std::string meshDir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
   packageDirs.push_back(meshDir);
   const std::string srdf_filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/srdf/romeo.srdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/srdf/romeo.srdf");
 
   Model model;
   pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model);
@@ -290,10 +289,10 @@ BOOST_AUTO_TEST_CASE(test_append_geom_models)
   typedef pinocchio::GeometryModel GeometryModel;
 
   const std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
   std::vector<std::string> packageDirs;
-  const std::string meshDir = PINOCCHIO_MODEL_DIR;
+  const std::string meshDir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
   packageDirs.push_back(meshDir);
 
   Model model;
@@ -330,9 +329,9 @@ BOOST_AUTO_TEST_CASE(test_compute_body_radius)
   std::vector<std::string> packageDirs;
 
   std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
-  std::string meshDir = PINOCCHIO_MODEL_DIR;
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
+  const std::string meshDir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
   packageDirs.push_back(meshDir);
 
   pinocchio::Model model;

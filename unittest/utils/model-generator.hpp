@@ -125,7 +125,7 @@ namespace pinocchio
   class MimicTestCases
   {
   public:
-    static const int N_CASES = 6;
+    static const int N_CASES = 12;
 
     pinocchio::Model model_mimic;
     pinocchio::Model model_full;
@@ -222,6 +222,102 @@ namespace pinocchio
         ratios.push_back(2.5);
         offsets.push_back(0.75);
 
+        break;
+      case 6:
+        if (verbose)
+        {
+          std::cout << "Mimicking terminal joint with primary not the direct parent";
+        }
+        mimicked_ids.push_back(model_full.getJointId("larm4_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm6_joint"));
+        ratios.push_back(2.5);
+        offsets.push_back(0.75);
+
+        break;
+      case 7:
+        if (verbose)
+        {
+          std::cout
+            << "Double mimic following each other at the end of the branch, not same parent";
+        }
+        mimicked_ids.push_back(model_full.getJointId("larm2_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm5_joint"));
+        ratios.push_back(2.5);
+        offsets.push_back(0.75);
+
+        mimicked_ids.push_back(model_full.getJointId("larm1_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm6_joint"));
+        ratios.push_back(3.2);
+        offsets.push_back(8);
+
+        break;
+      case 8:
+        if (verbose)
+        {
+          std::cout << "Double mimic following each other at the end of the branch, same parent";
+        }
+        mimicked_ids.push_back(model_full.getJointId("larm2_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm5_joint"));
+        ratios.push_back(2.5);
+        offsets.push_back(0.75);
+
+        mimicked_ids.push_back(model_full.getJointId("larm2_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm6_joint"));
+        ratios.push_back(3.2);
+        offsets.push_back(8);
+
+        break;
+      case 9:
+        if (verbose)
+        {
+          std::cout << "Double mimic following each other middle, not same parent";
+        }
+        mimicked_ids.push_back(model_full.getJointId("larm2_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm4_joint"));
+        ratios.push_back(2.5);
+        offsets.push_back(0.75);
+
+        mimicked_ids.push_back(model_full.getJointId("larm1_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm5_joint"));
+        ratios.push_back(3.2);
+        offsets.push_back(8);
+
+        break;
+      case 10:
+        if (verbose)
+        {
+          std::cout << "Double mimic following each other middle, same parent";
+        }
+        mimicked_ids.push_back(model_full.getJointId("larm2_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm4_joint"));
+        ratios.push_back(2.5);
+        offsets.push_back(0.75);
+
+        mimicked_ids.push_back(model_full.getJointId("larm2_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm5_joint"));
+        ratios.push_back(3.2);
+        offsets.push_back(8);
+        break;
+
+      case 11:
+        if (verbose)
+        {
+          std::cout << "Triple mimic following each other, same parent";
+        }
+        mimicked_ids.push_back(model_full.getJointId("larm2_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm3_joint"));
+        ratios.push_back(2);
+        offsets.push_back(0.);
+
+        mimicked_ids.push_back(model_full.getJointId("larm2_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm4_joint"));
+        ratios.push_back(2.5);
+        offsets.push_back(0.75);
+
+        mimicked_ids.push_back(model_full.getJointId("larm2_joint"));
+        mimicking_ids.push_back(model_full.getJointId("larm5_joint"));
+        ratios.push_back(3.2);
+        offsets.push_back(8);
         break;
       default:
         PINOCCHIO_THROW_PRETTY(

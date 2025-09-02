@@ -67,7 +67,7 @@ namespace pinocchio
       bp::def(
         "computeDampedDelassusMatrixInverse", computeDampedDelassusMatrixInverse_proxy,
         (bp::arg("model"), bp::arg("data"), bp::arg("q"), bp::arg("contact_models"),
-         bp::arg("contact_datas"), bp::arg("mu") = 0),
+         bp::arg("contact_datas"), bp::arg("mu") = 0.0, bp::arg("scaled") = false),
         "Computes the inverse of the Delassus matrix associated to a set of given constraints.",
         mimic_not_supported_function<>(0));
     }

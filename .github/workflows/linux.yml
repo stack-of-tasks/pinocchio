@@ -6,25 +6,21 @@ on:
       - doc/**
       - .gitlab-ci.yml
       - .gitignore
-      - '*.md'
+      - '**.md'
       - CITATION.*
       - COPYING.LESSER
       - colcon.pkg
       - .pre-commit-config.yaml
-      - CHANGELOG.md
-      - development/*.md
   pull_request:
     paths-ignore:
       - doc/**
       - .gitlab-ci.yml
       - .gitignore
-      - '*.md'
+      - '**.md'
       - CITATION.*
       - COPYING.LESSER
       - colcon.pkg
       - .pre-commit-config.yaml
-      - CHANGELOG.md
-      - development/*.md
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -36,7 +32,7 @@ jobs:
     container: ${{ matrix.container }}
     strategy:
       matrix:
-        container: ['ubuntu:20.04', 'ubuntu:22.04', 'ubuntu:24.04']
+        container: ['ubuntu:22.04', 'ubuntu:24.04']
 
     env:
       CCACHE_BASEDIR: ${GITHUB_WORKSPACE}
@@ -52,7 +48,7 @@ jobs:
           apt-get -qq update
           DEBIAN_FRONTEND="noninteractive" apt-get -qq install -y lsb-release gnupg2 cmake git python3
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           submodules: recursive
@@ -161,6 +157,7 @@ jobs:
           cd build
           export CMAKE_PREFIX_PATH=/usr/local
           # Test CMake module packaging
+          echo === Test CMake module packaging ===
           cmake .. \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DPYTHON_EXECUTABLE=$(which python3)
@@ -169,6 +166,7 @@ jobs:
           ./load_urdf
 
           # Test pkg-config packaging
+          echo === Test pkg-config packaging ===
           cd ../../pkgconfig
           mkdir build
           cd build
@@ -180,6 +178,7 @@ jobs:
           ./load_urdf
 
           # Test FetchContent packaging
+          echo === Test FetchContent packaging ===
           cd ../../external
           export PINOCCHIO_GIT_REPOSITORY="file://"$GITHUB_WORKSPACE
           #export PINOCCHIO_GIT_REPOSITORY=$(git remote get-url origin)
@@ -195,6 +194,7 @@ jobs:
           ./load_urdf
 
           # Test CMake module packaging and pinocchio_header target
+          echo === Test CMake module packaging and pinocchio_header target ===
           cd ../../pinocchio_header
           mkdir build
           cd build
@@ -211,8 +211,7 @@ jobs:
 
       - name: Display ccache statistics
         run: |
-          # TODO: Add -v option when we drop ubuntu-20.04
-          ccache -s
+          ccache -sv
 
   check:
     if: always()

@@ -30,12 +30,12 @@ namespace pinocchio
           GE, R.coeff(i2, i1), R.coeff(i1, i2), Scalar(1.),
           Scalar(-1.)); // Ensure value in sqrt is non negative and that s is non zero
       axis[i0] = s / Scalar(2);
-      axis[i1] = Scalar(1) / (2 * s) * (R.coeff(i1, i0) + R.coeff(i0, i1));
-      axis[i2] = Scalar(1) / (2 * s) * (R.coeff(i2, i0) + R.coeff(i0, i2));
-      const Scalar w = Scalar(1) / (2 * s) * (R.coeff(i2, i1) - R.coeff(i1, i2));
+      axis[i1] = Scalar(1) / (Scalar(2) * s) * (R.coeff(i1, i0) + R.coeff(i0, i1));
+      axis[i2] = Scalar(1) / (Scalar(2) * s) * (R.coeff(i2, i0) + R.coeff(i0, i2));
+      const Scalar w = Scalar(1) / (Scalar(2) * s) * (R.coeff(i2, i1) - R.coeff(i1, i2));
 
       const Scalar axis_norm = axis.norm();
-      angle = 2 * math::atan2(axis_norm, w);
+      angle = Scalar(2) * math::atan2(axis_norm, w);
       axis /= axis_norm;
     }
   } // namespace internal
@@ -87,7 +87,7 @@ namespace pinocchio
 
       {
         Vector3 val_singular;
-        val_singular.array() = 2 * Rnormed.diagonal().array() - tr + Scalar(1);
+        val_singular.array() = Scalar(2) * Rnormed.diagonal().array() - tr + Scalar(1);
         Vector3 axis_0, axis_1, axis_2;
         Scalar theta_0, theta_1, theta_2;
 
@@ -106,7 +106,7 @@ namespace pinocchio
             if_then_else(GE, val_singular[0], val_singular[2], axis_0[k], axis_2[k]),
             if_then_else(GE, val_singular[1], val_singular[2], axis_1[k], axis_2[k]));
       }
-      const Scalar acos_expansion = math::sqrt(2 * (1 - cos_value) + eps * eps);
+      const Scalar acos_expansion = math::sqrt(Scalar(2) * (Scalar(1) - cos_value) + eps * eps);
       const Scalar theta_nominal = if_then_else(
         LE, tr, static_cast<Scalar>(Scalar(3) - prec),
         if_then_else(
@@ -171,8 +171,8 @@ namespace pinocchio
 
       const Scalar diag_value = if_then_else(
         LT, theta, prec,
-        static_cast<Scalar>(Scalar(0.5) * (2 - theta * theta / Scalar(6))), // then
-        static_cast<Scalar>(Scalar(0.5) * (theta * st_1mct))                // else
+        static_cast<Scalar>(Scalar(0.5) * (Scalar(2) - theta * theta / Scalar(6))), // then
+        static_cast<Scalar>(Scalar(0.5) * (theta * st_1mct))                        // else
       );
 
       Matrix3Like & Jlog_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like, Jlog);

@@ -70,7 +70,7 @@ namespace pinocchio
   , Ig(Inertia::Zero())
   , Fcrb((std::size_t)model.njoints, Matrix6x::Zero(6, model.nv))
   , lastChild((std::size_t)model.njoints, -1)
-  , nvSubtree((std::size_t)model.njoints, -1)
+  , nvSubtree((std::size_t)model.njoints, 0)
   , start_idx_v_fromRow((std::size_t)model.nvExtended, -1)
   , end_idx_v_fromRow((std::size_t)model.nvExtended, -1)
   , idx_vExtended_to_idx_v_fromRow((std::size_t)model.nvExtended, -1)
@@ -208,34 +208,24 @@ namespace pinocchio
 
       lastChild[parent] = std::max<int>(lastChild[(Index)i], lastChild[parent]);
 
-      // Build a "correct" representation of mimic nvSubtree by using nvExtended, which will cover
-      // its children nv, and allow for a simple check
-      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(
-            &model.joints[size_t(i)]))
-        nvSubtree[(Index)i] = 0;
-      else
-      {
-        int nv_;
-        if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(
-              &model.joints[(Index)lastChild[(Index)i]]))
-          nv_ = model.joints[(Index)lastChild[(Index)i]].nvExtended();
-        else
-          nv_ = model.joints[(Index)lastChild[(Index)i]].nv();
-        nvSubtree[(Index)i] =
-          model.joints[(Index)lastChild[(Index)i]].idx_v() + nv_ - model.joints[(Index)i].idx_v();
-      }
+      nvSubtree[(Index)i] += model.joints[(Index)i].nv();
+      nvSubtree[parent] += nvSubtree[(Index)i];
     }
     // fill mimic data
     for (const JointIndex mimicking_id : model.mimicking_joints)
     {
       const auto & mimicking_sub = model.subtrees[mimicking_id];
       size_t j = 1;
+      bool found = false;
       for (; j < mimicking_sub.size(); j++)
       {
         if (model.nvs[mimicking_sub[j]] != 0)
+        {
+          found = true;
           break;
+        }
       }
-      if (mimicking_sub.size() == 1)
+      if (mimicking_sub.size() == 1 || !found)
         mimic_subtree_joint.push_back(0);
       else
         mimic_subtree_joint.push_back(mimicking_sub[j]);

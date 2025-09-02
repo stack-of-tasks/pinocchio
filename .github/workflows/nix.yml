@@ -2,15 +2,13 @@ name: "CI - Nix"
 
 on:
   push:
-    paths-ignore:
-      - doc/**
-      - .gitlab-ci.yml
-      - .gitignore
-      - '*.md'
-      - CITATION.*
-      - COPYING.LESSER
-      - .pre-commit-config.yaml
-      - CHANGELOG.md
+    branches:
+      - master
+      - devel
+  pull_request:
+    branches:
+      - master
+      - devel
 
 jobs:
   nix:
@@ -19,10 +17,25 @@ jobs:
       matrix:
         os: [ubuntu, macos]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: cachix/install-nix-action@v31
       - uses: cachix/cachix-action@v16
         with:
           name: gepetto
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - run: nix build -L
+
+  check:
+    if: always()
+    name: check-macos-linux-nix
+
+    needs:
+      - nix
+
+    runs-on: Ubuntu-latest
+
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}

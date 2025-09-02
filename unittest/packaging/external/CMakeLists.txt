@@ -14,6 +14,11 @@ FetchContent_Declare(
   GIT_SUBMODULES cmake
   GIT_SHALLOW ON)
 
+set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/../../../models")
+add_definitions('-DPINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\"')
+set(EXAMPLE_ROBOT_DATA_MODEL_DIR "\"${PINOCCHIO_MODEL_DIR}/example-robot-data/robots\"")
+add_definitions('-DEXAMPLE_ROBOT_DATA_MODEL_DIR=\"${EXAMPLE_ROBOT_DATA_MODEL_DIR}\"')
+
 FetchContent_GetProperties(Pinocchio)
 if(NOT pinocchio_POPULATED) # name is lowercased
   FetchContent_Populate(Pinocchio)
@@ -28,9 +33,6 @@ if(NOT pinocchio_POPULATED) # name is lowercased
   add_subdirectory(${pinocchio_SOURCE_DIR} ${pinocchio_BINARY_DIR}) # name is lowercased
 endif()
 # or simply FetchContent_MakeAvailable(Pinocchio)
-
-set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/../../../models")
-add_definitions('-DPINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\"')
 
 add_executable(run_rnea ../run_rnea.cpp)
 target_link_libraries(run_rnea PUBLIC pinocchio)

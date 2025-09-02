@@ -58,7 +58,7 @@ function(ADD_PINOCCHIO_UNIT_TEST name)
   target_compile_definitions(
     ${TEST_NAME}
     PRIVATE ${TEST_PRIVATE_DEFINITIONS} BOOST_TEST_DYN_LINK BOOST_TEST_MODULE=${MODULE_NAME}
-            PINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\")
+            PINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\" COAL_DISABLE_HPP_FCL_WARNINGS)
 
   # There is no RPATH in Windows, then we must use the PATH to find the DLL
   if(WIN32)
@@ -121,8 +121,21 @@ function(ADD_PINOCCHIO_UNIT_TEST name)
     TARGETS Boost::unit_test_framework
     LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
+  modernize_target_link_libraries(
+    ${TEST_NAME}
+    SCOPE PRIVATE
+    TARGETS Boost::filesystem
+    LIBRARIES ${Boost_FILESYSTEM_LIBRARY}}
+    INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
+
   if(PKGS)
     target_link_libraries(${TEST_NAME} PRIVATE ${PKGS})
+  endif()
+  if(TARGET example-robot-data::example-robot-data)
+    target_link_libraries(${TEST_NAME} PRIVATE example-robot-data::example-robot-data)
+  else()
+    target_compile_definitions(
+      ${TEST_NAME} PRIVATE "EXAMPLE_ROBOT_DATA_MODEL_DIR=\"${EXAMPLE_ROBOT_DATA_MODEL_DIR}\"")
   endif()
 endfunction()
 
@@ -282,6 +295,8 @@ add_pinocchio_unit_test(explog)
 add_pinocchio_unit_test(finite-differences)
 add_pinocchio_unit_test(visitor)
 add_pinocchio_unit_test(algo-check)
+add_pinocchio_unit_test(model-graph PARSERS)
+add_pinocchio_unit_test(model-configuration-converter PARSERS)
 
 # Warning ignore with pragma doesn't work for a part of this test, so we ignore two warning globally
 cxx_flags_by_compiler_frontend(

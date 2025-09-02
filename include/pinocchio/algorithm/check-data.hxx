@@ -103,20 +103,15 @@ namespace pinocchio
     {
       JointIndex c = (JointIndex)data.lastChild[j];
       CHECK_DATA((int)c < model.njoints);
-      int nv;
-      // For mimic, since in nvSubtree we're using the idx_vExtended, we need to do the same here
-      if (boost::get<JointModelMimicTpl<Scalar, Options, JointCollectionTpl>>(&model.joints[j]))
-        nv = 0;
-      else
-      {
-        nv = model.joints[j].nv();
-        for (JointIndex d = j + 1; d <= c; ++d) // explore all descendant
-        {
-          CHECK_DATA(model.parents[d] >= j);
 
-          nv += model.joints[d].nv();
-        }
+      int nv = model.joints[j].nv();
+      for (JointIndex d = j + 1; d <= c; ++d) // explore all descendant
+      {
+        CHECK_DATA(model.parents[d] >= j);
+
+        nv += model.joints[d].nv();
       }
+
       CHECK_DATA(nv == data.nvSubtree[j]);
 
       for (JointIndex d = c + 1; (int)d < model.njoints; ++d)
@@ -162,8 +157,8 @@ namespace pinocchio
           if (model.nvs[mimicking_sub[j]] != 0)
           {
             id_subtree = mimicking_sub[j];
+            break;
           }
-          break;
         }
         CHECK_DATA(id_subtree == data.mimic_subtree_joint[k]);
       }

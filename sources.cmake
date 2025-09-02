@@ -1,7 +1,5 @@
 # Define Pinocchio sources and headers
 
-set(${PROJECT_NAME}_CORE_SOURCES)
-
 set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/aba-derivatives.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/aba-derivatives.hxx
@@ -336,7 +334,12 @@ set(${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS
 set(${PROJECT_NAME}_PARSERS_SOURCES
     ${PROJECT_SOURCE_DIR}/src/utils/file-explorer.cpp
     ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph.cpp
-    ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph-geom.cpp)
+    ${PROJECT_SOURCE_DIR}/src/parsers/mjcf/mjcf-graph-geom.cpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph.cpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph-algo.cpp)
+
+set(${PROJECT_NAME}_GRAPH_GEOMETRY_SOURCES
+    ${PROJECT_SOURCE_DIR}/src/parsers/graph/model-graph-algo-geometry.cpp)
 
 set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/meshloader-fwd.hpp
@@ -348,7 +351,19 @@ set(${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/mjcf/model.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/mjcf/geometry.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/mjcf/mjcf-graph.hpp
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sample-models.hpp)
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/sample-models.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/fwd.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-graph.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-graph-algo.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/graph-visitor.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/joints.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/frames.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/geometries.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-configuration-converter.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-configuration-converter.hxx)
+
+set(${PROJECT_NAME}_GRAPH_GEOMETRY_HEADERS
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/parsers/graph/model-graph-algo-geometry.hpp)
 
 set(${PROJECT_NAME}_URDF_SOURCES
     ${PROJECT_SOURCE_DIR}/src/parsers/urdf/model.cpp
@@ -533,6 +548,8 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/sdf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/mjcf.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/srdf.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/model-graph.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/graph/model-configuration-converter.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/extras.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/visualizers/visualizer-visitor.hpp)
 
@@ -605,7 +622,16 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/srdf.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/model.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/parsers/mjcf/geometry.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-edges.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-frames.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-geometries.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-model-graph-algo.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-model-graph.cpp
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-model-configuration-converter.cpp
     ${PROJECT_SOURCE_DIR}/bindings/python/extra/expose-extras.cpp)
+
+set(${PROJECT_NAME}_BINDINGS_GRAPH_GEOMETRY_SOURCES
+    ${PROJECT_SOURCE_DIR}/bindings/python/parsers/graph/expose-model-graph-algo-geometry.cpp)
 
 set(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_SOURCES
     ${PROJECT_SOURCE_DIR}/bindings/python/collision/expose-broadphase.cpp

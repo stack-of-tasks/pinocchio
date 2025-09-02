@@ -46,6 +46,8 @@ namespace pinocchio
 
     // Expose parsers
     void exposeParsers();
+    // Expose ModelConfigurationConverter
+    void exposeModelConfigurationConverter();
 
     // Expose algorithms
     void exposeAlgorithms();

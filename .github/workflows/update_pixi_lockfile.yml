@@ -19,7 +19,7 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           token: ${{ steps.generate-token.outputs.token }}
           ref: devel
@@ -27,7 +27,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.8.4
+        uses: prefix-dev/setup-pixi@v0.9.0
         with:
           run-install: false
 

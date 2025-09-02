@@ -17,8 +17,7 @@ int main(int argc, const char ** argv)
   using namespace Eigen;
 
   std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/ur_description/urdf/ur5_robot.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/ur_description/urdf/ur5_robot.urdf");
   if (argc > 1)
     filename = argv[1];
 

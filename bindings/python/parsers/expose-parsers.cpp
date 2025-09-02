@@ -6,6 +6,7 @@
 #include "pinocchio/bindings/python/parsers/sdf.hpp"
 #include "pinocchio/bindings/python/parsers/srdf.hpp"
 #include "pinocchio/bindings/python/parsers/mjcf.hpp"
+#include "pinocchio/bindings/python/parsers/model-graph.hpp"
 
 namespace pinocchio
 {
@@ -14,10 +15,13 @@ namespace pinocchio
 
     void exposeParsers()
     {
+#if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
       exposeSDFParser();
       exposeURDFParser();
       exposeSRDFParser();
       exposeMJCFParser();
+#endif // if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
+      exposeGraph();
     }
 
   } // namespace python

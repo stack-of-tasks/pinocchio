@@ -156,7 +156,7 @@ namespace pinocchio
       assert(model.check(data) && "data is not consistent with model.");
       assert(model.check(MimicChecker()) && "Function does not support mimic joints");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        q.size(), model.nq, "The configuration vector is not of right size");
+        q.size(), model.nq, "The configuration vector is not equal to model.nq.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The velocity vector is not of right size");
 
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;

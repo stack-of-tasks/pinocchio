@@ -5,9 +5,6 @@
 
 ## In this file, some shortcuts are provided ##
 
-# TODO: Remove when 20.04 is not supported
-from __future__ import annotations
-
 from . import WITH_HPP_FCL, WITH_HPP_FCL_BINDINGS
 from . import pinocchio_pywrap_default as pin
 

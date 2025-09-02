@@ -150,7 +150,7 @@ namespace pinocchio
       const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
     {
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        q.size(), model.nq, "The configuration vector is not of right size");
+        q.size(), model.nq, "The configuration vector is not equal to model.nq.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(gravity_partial_dq.cols(), model.nv);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(gravity_partial_dq.rows(), model.nv);
       assert(model.check(data) && "data is not consistent with model.");
@@ -196,7 +196,7 @@ namespace pinocchio
       const Eigen::MatrixBase<ReturnMatrixType> & static_torque_partial_dq)
     {
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        q.size(), model.nq, "The configuration vector is not of right size");
+        q.size(), model.nq, "The configuration vector is not equal to model.nq.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(static_torque_partial_dq.cols(), model.nv);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(static_torque_partial_dq.rows(), model.nv);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(

@@ -12,9 +12,8 @@ def checkGeom(geom1, geom2):
 @unittest.skipUnless(pin.WITH_URDFDOM, "Needs URDFDOM")
 class TestGeometryObjectUrdfBindings(unittest.TestCase):
     def setUp(self):
-        self.current_dir = Path(__file__).parent
-        self.mesh_path = self.current_dir / "../../models"
-        self.model_dir = self.current_dir / "../../models/example-robot-data/robots"
+        self.model_dir = Path(os.environ.get("EXAMPLE_ROBOT_DATA_MODEL_DIR"))
+        self.mesh_path = self.model_dir.parent.parent
         self.model_path = self.model_dir / "romeo_description/urdf/romeo.urdf"
 
     def test_load(self):

@@ -16,6 +16,8 @@
 
 #include <iostream>
 
+#include <boost/filesystem.hpp>
+
 static void CustomArguments(benchmark::internal::Benchmark * b)
 {
   b->MinWarmUpTime(3.);
@@ -55,10 +57,10 @@ struct GeometryFixture : benchmark::Fixture
   static void GlobalSetUp(const ExtraArgs &)
   {
     std::string romeo_filename =
-      PINOCCHIO_MODEL_DIR
-      + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+      EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
     std::vector<std::string> package_dirs;
-    package_dirs.push_back(PINOCCHIO_MODEL_DIR);
+    package_dirs.push_back(
+      boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string());
 
     pinocchio::urdf::buildModel(romeo_filename, pinocchio::JointModelFreeFlyer(), MODEL);
     pinocchio::urdf::buildGeom(

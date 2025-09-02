@@ -1,5 +1,6 @@
 //
-// Copyright (c) 2015-2024 CNRS INRIA
+// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2018-2025 INRIA
 //
 
 #ifndef __pinocchio_python_multibody_data_hpp__
@@ -155,6 +156,8 @@ namespace pinocchio
             "Each element of this vector corresponds to the ordered list of indexes "
             "belonging to the supporting tree of the given index at the row level. "
             "It may be helpful to retrieve the sparsity pattern through it.")
+          .ADD_DATA_PROPERTY(start_idx_v_fromRow, "Starting index of the Joint motion subspace")
+          .ADD_DATA_PROPERTY(end_idx_v_fromRow, "End index of the Joint motion subspace")
           .ADD_DATA_PROPERTY(parents_fromRow, "First previous non-zero row in M (used in Cholesky)")
           .ADD_DATA_PROPERTY(
             mimic_parents_fromRow,

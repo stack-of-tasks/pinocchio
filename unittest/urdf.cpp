@@ -13,6 +13,7 @@
   #include <hpp/fcl/collision_object.h>
 #endif // PINOCCHIO_WITH_HPP_FCL
 
+#include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <urdf_parser/urdf_parser.h>
@@ -22,9 +23,9 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(build_model)
 {
   const std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
-  const std::string dir = PINOCCHIO_MODEL_DIR;
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
+  const std::string dir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
 
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename, model);
@@ -37,7 +38,8 @@ BOOST_AUTO_TEST_CASE(build_model)
 BOOST_AUTO_TEST_CASE(build_model_with_root_joint_name)
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
-  const std::string dir = PINOCCHIO_MODEL_DIR;
+  const std::string dir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
 
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model);
@@ -111,8 +113,7 @@ BOOST_AUTO_TEST_CASE(check_mesh_relative_path)
 BOOST_AUTO_TEST_CASE(build_model_from_XML)
 {
   const std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
 
   // Read file as XML
   std::ifstream file;
@@ -165,8 +166,7 @@ BOOST_AUTO_TEST_CASE(check_tree_from_XML)
 BOOST_AUTO_TEST_CASE(build_model_from_UDRFTree)
 {
   const std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
 
   ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
 
@@ -179,9 +179,9 @@ BOOST_AUTO_TEST_CASE(build_model_from_UDRFTree)
 BOOST_AUTO_TEST_CASE(build_model_with_joint)
 {
   const std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
-  const std::string dir = PINOCCHIO_MODEL_DIR;
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
+  const std::string dir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
 
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model);
@@ -195,8 +195,7 @@ BOOST_AUTO_TEST_CASE(build_model_with_joint)
 BOOST_AUTO_TEST_CASE(build_model_with_joint_from_XML)
 {
   const std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
 
   // Read file as XML
   std::ifstream file;
@@ -212,8 +211,7 @@ BOOST_AUTO_TEST_CASE(build_model_with_joint_from_XML)
 BOOST_AUTO_TEST_CASE(build_model_with_joint_from_UDRFTree)
 {
   const std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
 
   ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
 
@@ -275,10 +273,10 @@ BOOST_AUTO_TEST_CASE(test_geometry_parsing)
   typedef pinocchio::GeometryModel GeometryModel;
 
   std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
   std::vector<std::string> packageDirs;
-  std::string meshDir = PINOCCHIO_MODEL_DIR;
+  const std::string meshDir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
   packageDirs.push_back(meshDir);
 
   Model model;

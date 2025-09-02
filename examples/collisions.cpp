@@ -7,23 +7,24 @@
 
 #include <iostream>
 
-// PINOCCHIO_MODEL_DIR is defined by the CMake but you can define your own modeldirectory here.
-#ifndef PINOCCHIO_MODEL_DIR
-  #define PINOCCHIO_MODEL_DIR "path_to_the_model_dir"
+#include <boost/filesystem.hpp>
+
+// EXAMPLE_ROBOT_DATA_MODEL_DIR is defined by the CMake but you can define your own modeldirectory
+// here.
+#ifndef EXAMPLE_ROBOT_DATA_MODEL_DIR
+  #define EXAMPLE_ROBOT_DATA_MODEL_DIR "path_to_the_model_dir"
 #endif
 
 int main(int /*argc*/, char ** /*argv*/)
 {
   using namespace pinocchio;
-  const std::string robots_model_path = PINOCCHIO_MODEL_DIR;
+  const std::string robots_model_path = EXAMPLE_ROBOT_DATA_MODEL_DIR;
 
   // You should change here to set up your own URDF file
   const std::string urdf_filename =
-    robots_model_path
-    + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
+    robots_model_path + std::string("/talos_data/robots/talos_reduced.urdf");
   // You should change here to set up your own SRDF file
-  const std::string srdf_filename =
-    robots_model_path + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
+  const std::string srdf_filename = robots_model_path + std::string("/talos_data/srdf/talos.srdf");
 
   // Load the URDF model contained in urdf_filename
   Model model;
@@ -35,7 +36,8 @@ int main(int /*argc*/, char ** /*argv*/)
   // Load the geometries associated to model which are contained in the URDF file
   GeometryModel geom_model;
   pinocchio::urdf::buildGeom(
-    model, urdf_filename, pinocchio::COLLISION, geom_model, robots_model_path);
+    model, urdf_filename, pinocchio::COLLISION, geom_model,
+    boost::filesystem::path(robots_model_path).parent_path().parent_path().string());
 
   // Add all possible collision pairs and remove the ones collected in the SRDF file
   geom_model.addAllCollisionPairs();

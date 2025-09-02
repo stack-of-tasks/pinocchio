@@ -1,22 +1,20 @@
+import os
 from pathlib import Path
 from sys import argv
 
 import pinocchio
 
-# This path refers to Pinocchio source code but you can define your own directory here.
-pinocchio_model_dir = Path(__file__).parent.parent / "models"
-
 model_path = Path(
-    (pinocchio_model_dir / "example-robot-data/robots") if len(argv) < 2 else argv[1]
+    Path(os.environ.get("EXAMPLE_ROBOT_DATA_MODEL_DIR")) if len(argv) < 2 else argv[1]
 )
-mesh_dir = pinocchio_model_dir
+mesh_dir = model_path.parent.parent
 urdf_model_path = model_path / "ur_description/urdf/ur5_robot.urdf"
 
 # Load the urdf model
 model, collision_model, visual_model = pinocchio.buildModelsFromUrdf(
     urdf_model_path, mesh_dir
 )
-print("model name: " + model.name)
+print("model name:", model.name)
 
 # Create data required by the algorithms
 data, collision_data, visual_data = pinocchio.createDatas(

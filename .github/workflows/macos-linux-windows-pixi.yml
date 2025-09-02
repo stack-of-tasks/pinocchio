@@ -8,25 +8,21 @@ on:
       - doc/**
       - .gitlab-ci.yml
       - .gitignore
-      - '*.md'
+      - '**.md'
       - CITATION.*
       - COPYING.LESSER
       - colcon.pkg
       - .pre-commit-config.yaml
-      - CHANGELOG.md
-      - development/*.md
   pull_request:
     paths-ignore:
       - doc/**
       - .gitlab-ci.yml
       - .gitignore
-      - '*.md'
+      - '**.md'
       - CITATION.*
       - COPYING.LESSER
       - colcon.pkg
       - .pre-commit-config.yaml
-      - CHANGELOG.md
-      - development/*.md
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -48,13 +44,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, macos-13]
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, macos-13]
         environment: [all, all-py39]
         build_type: [Release, Debug]
 
         include:
           # Disable BUILD_ADVANCED_TESTING as the test can take many time to run
           - os: ubuntu-latest
+            BUILD_ADVANCED_TESTING: OFF
+          - os: ubuntu-24.04-arm
             BUILD_ADVANCED_TESTING: OFF
           - os: macos-latest
             BUILD_ADVANCED_TESTING: OFF
@@ -82,7 +80,7 @@ jobs:
             echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.BRANCH_NAME }}
           submodules: recursive
@@ -93,7 +91,7 @@ jobs:
           key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.environment }}_${{ github.sha }}
           restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.environment }}_
 
-      - uses: prefix-dev/setup-pixi@v0.8.4
+      - uses: prefix-dev/setup-pixi@v0.9.0
         with:
           cache: true
           environments: ${{ matrix.environment }}

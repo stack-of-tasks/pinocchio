@@ -11,6 +11,7 @@
 #include "pinocchio/parsers/urdf.hpp"
 
 #include <vector>
+#include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
@@ -20,10 +21,10 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(manage_collision_pairs)
 {
   std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
   std::vector<std::string> package_dirs;
-  std::string mesh_dir = PINOCCHIO_MODEL_DIR;
+  const std::string mesh_dir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
   package_dirs.push_back(mesh_dir);
 
   Model model;
@@ -188,10 +189,10 @@ BOOST_AUTO_TEST_CASE(manage_collision_pairs)
 BOOST_AUTO_TEST_CASE(test_clone)
 {
   std::string filename =
-    PINOCCHIO_MODEL_DIR
-    + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+    EXAMPLE_ROBOT_DATA_MODEL_DIR + std::string("/romeo_description/urdf/romeo_small.urdf");
   std::vector<std::string> package_dirs;
-  std::string mesh_dir = PINOCCHIO_MODEL_DIR;
+  const std::string mesh_dir =
+    boost::filesystem::path(EXAMPLE_ROBOT_DATA_MODEL_DIR).parent_path().parent_path().string();
   package_dirs.push_back(mesh_dir);
 
   Model model;

@@ -21,7 +21,7 @@ DU = 2.0 * (UMAX) / NU
 # Continuous to discrete
 def c2dq(q):
     q = (q + pi) % (2 * pi)
-    return int(round(q / DQ)) % NQ
+    return round(q / DQ) % NQ
 
 
 def c2dv(v):

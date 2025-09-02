@@ -30,10 +30,21 @@ function(ADD_PINOCCHIO_BENCH name)
   set(bench_name "pinocchio-${name}")
   add_executable(${bench_name} ${name}.cpp)
 
-  target_compile_definitions(${bench_name} PRIVATE PINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
+  target_compile_definitions(
+    ${bench_name}
+    PRIVATE PINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}"
+            "EXAMPLE_ROBOT_DATA_MODEL_DIR=\"${EXAMPLE_ROBOT_DATA_MODEL_DIR}\""
+            COAL_DISABLE_HPP_FCL_WARNINGS)
 
   target_link_libraries(${bench_name} PRIVATE pinocchio_default)
   target_link_libraries(${bench_name} PRIVATE benchmark::benchmark)
+
+  modernize_target_link_libraries(
+    ${bench_name}
+    SCOPE PRIVATE
+    TARGETS Boost::filesystem
+    LIBRARIES ${Boost_FILESYSTEM_LIBRARY}}
+    INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
 
   set(cppad_special_define OFF)
 

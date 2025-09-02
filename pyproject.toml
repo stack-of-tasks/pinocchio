@@ -3,3 +3,4 @@ exclude = [ "cmake/*", "models/example-robot-data/*" ]
 
 [tool.ruff.lint]
 select = [ "E", "F", "I", "PTH", "RUF", "UP", "W" ]
+extend-ignore = [ "RUF048" ]

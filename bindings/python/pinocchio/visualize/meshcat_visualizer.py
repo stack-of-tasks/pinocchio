@@ -1,9 +1,10 @@
-# TODO: Remove when 20.04 is not supported
+# TODO: Remove when py39 is dropped
+# This allow to use new Optional syntax
 from __future__ import annotations
 
 import warnings
 from pathlib import Path
-from typing import ClassVar
+from typing import ClassVar, Union
 
 import numpy as np
 
@@ -26,8 +27,8 @@ import base64
 import xml.etree.ElementTree as Et
 from typing import Any
 
-# TODO: Remove quote when 20.04 is not supported
-MsgType = "dict[str, Union[str, bytes, bool, float, 'MsgType']]"
+# TODO: Use Union syntax when py39 is dropped
+MsgType = dict[str, Union[str, bytes, bool, float, "MsgType"]]
 
 try:
     import hppfcl

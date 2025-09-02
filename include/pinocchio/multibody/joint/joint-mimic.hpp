@@ -681,12 +681,12 @@ namespace pinocchio
 
     const std::vector<bool> hasConfigurationLimit() const
     {
-      return m_jmodel_mimicking.hasConfigurationLimit();
+      return {};
     }
 
     const std::vector<bool> hasConfigurationLimitInTangent() const
     {
-      return m_jmodel_mimicking.hasConfigurationLimitInTangent();
+      return {};
     }
 
     template<typename ConfigVector>

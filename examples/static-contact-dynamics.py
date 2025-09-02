@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import numpy as np
@@ -52,10 +53,8 @@ np.set_printoptions(linewidth=np.inf)
 # ----- SOLUTION ------
 
 # 0. DATA
-pinocchio_model_dir = Path(__file__).parent.parent / "models"
-
-model_path = pinocchio_model_dir / "example-robot-data/robots"
-mesh_dir = pinocchio_model_dir
+model_path = Path(os.environ.get("EXAMPLE_ROBOT_DATA_MODEL_DIR"))
+mesh_dir = model_path.parent.parent
 urdf_filename = "solo12.urdf"
 urdf_model_path = model_path / "solo_description/robots" / urdf_filename
 

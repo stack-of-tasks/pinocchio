@@ -1,5 +1,6 @@
 //
-// Copyright (c) 2017-2020 CNRS INRIA
+// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2018-2025 INRIA
 //
 
 #include <iostream>
@@ -14,6 +15,26 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+template<typename Scalar, int Options>
+bool isZero(
+  const Eigen::Tensor<Scalar, 3, Options> & tensor3,
+  const Scalar & prec = Eigen::NumTraits<Scalar>::epsilon())
+{
+  typedef Eigen::Tensor<Scalar, 3, Options> Tensor3x;
+  auto dims = tensor3.dimensions();
+  const Eigen::DenseIndex outer_offset = dims[1] * dims[2];
+  bool is_zero = true;
+  for (Eigen::DenseIndex k = 0; k < dims[0]; ++k)
+  {
+    const Eigen::Map<const Eigen::MatrixXd> tensor3_slide(
+      tensor3.data() + k * outer_offset, dims[1], dims[2]);
+
+    is_zero &= tensor3_slide.isZero(prec);
+  }
+
+  return is_zero;
+}
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
@@ -1089,6 +1110,34 @@ BOOST_AUTO_TEST_CASE(test_kinematics_hessians)
     BOOST_CHECK((dJ_dq_ref - dJ_dq).isZero(sqrt(eps)));
     v_plus[k] = 0.;
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_joint_0)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model, true);
+
+  Data data(model), data_ref(model), data_plus(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+
+  const Model::JointIndex joint_id = 0;
+
+  computeJointJacobians(model, data, q);
+  computeJointKinematicHessians(model, data);
+
+  Data::Tensor3x kinematic_hessian_world = getJointKinematicHessian(model, data, joint_id, WORLD);
+  isZero(kinematic_hessian_world, 0.);
+  Data::Tensor3x kinematic_hessian_local = getJointKinematicHessian(model, data, joint_id, LOCAL);
+  isZero(kinematic_hessian_local, 0.);
+  Data::Tensor3x kinematic_hessian_lwa =
+    getJointKinematicHessian(model, data, joint_id, LOCAL_WORLD_ALIGNED);
+  isZero(kinematic_hessian_lwa, 0.);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

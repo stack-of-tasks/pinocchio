@@ -1,5 +1,6 @@
 //
-// Copyright (c) 2017-2020 CNRS INRIA
+// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2018-2025 INRIA
 //
 
 #ifndef __pinocchio_algorithm_kinematics_derivatives_hxx__
@@ -108,7 +109,7 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType2> & a)
     {
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
-        q.size(), model.nq, "The configuration vector is not of right size");
+        q.size(), model.nq, "The configuration vector is not equal to model.nq.");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The velocity vector is not of right size");
       PINOCCHIO_CHECK_ARGUMENT_SIZE(
         a.size(), model.nv, "The acceleration vector is not of right size");
@@ -260,7 +261,9 @@ namespace pinocchio
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
 
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dq.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dq.rows(), 6);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dv.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dv.rows(), 6);
       PINOCCHIO_CHECK_INPUT_ARGUMENT((int)jointId < model.njoints, "The joint id is invalid.");
       assert(model.check(data) && "data is not consistent with model.");
       assert(model.check(MimicChecker()) && "Function does not support mimic joints");
@@ -487,9 +490,13 @@ namespace pinocchio
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
 
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dq.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dq.rows(), 6);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_dq.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_dq.rows(), 6);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_dv.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_dv.rows(), 6);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_da.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_da.rows(), 6);
       PINOCCHIO_CHECK_INPUT_ARGUMENT((int)jointId < model.njoints, "The joint id is invalid.");
       assert(model.check(data) && "data is not consistent with model.");
       assert(model.check(MimicChecker()) && "Function does not support mimic joints");
@@ -666,7 +673,9 @@ namespace pinocchio
       typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dq.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dq.rows(), 3);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dv.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dv.rows(), 3);
       PINOCCHIO_CHECK_INPUT_ARGUMENT((int)joint_id < model.njoints, "The joint id is invalid.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT(
         rf == LOCAL || rf == LOCAL_WORLD_ALIGNED,
@@ -901,9 +910,13 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
 
       PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dq.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dq.rows(), 3);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(a_point_partial_dq.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(a_point_partial_dq.rows(), 3);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(a_point_partial_dv.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(a_point_partial_dv.rows(), 3);
       PINOCCHIO_CHECK_ARGUMENT_SIZE(a_point_partial_da.cols(), model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(a_point_partial_da.rows(), 3);
       PINOCCHIO_CHECK_INPUT_ARGUMENT((int)joint_id < model.njoints, "The joint id is invalid.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT(
         rf == LOCAL || rf == LOCAL_WORLD_ALIGNED,
@@ -953,7 +966,6 @@ namespace pinocchio
       const Eigen::MatrixBase<Matrix3xOut5> & a_point_partial_da)
     {
       EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut2, Data::Matrix3x);
-      PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dv.cols(), model.nv);
       impl::getPointClassicAccelerationDerivatives(
         model, data, joint_id, placement, rf,
         PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut1, v_point_partial_dq),
@@ -1078,12 +1090,15 @@ namespace pinocchio
     assert(model.check(data) && "data is not consistent with model.");
     assert(model.check(MimicChecker()) && "Function does not support mimic joints");
     assert(
-      joint_id < model.joints.size() && joint_id > 0
+      joint_id < model.joints.size()
       && "joint_id is outside the valid index for a joint in model.joints");
 
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
     typedef typename Data::SE3 SE3;
     typedef typename Data::Motion Motion;
+
+    if (joint_id == 0)
+      return;
 
     const typename Data::Matrix6x & J = data.J;
     const typename Data::Tensor3x & kinematic_hessians = data.kinematic_hessians;
