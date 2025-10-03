@@ -260,11 +260,11 @@ namespace pinocchio
       subDiagonal().setZero();
     }
 
-    EIGEN_CONSTEXPR Eigen::Index rows() const EIGEN_NOEXCEPT
+    EIGEN_CONSTEXPR Eigen::Index rows() const noexcept
     {
       return m_size;
     }
-    EIGEN_CONSTEXPR Eigen::Index cols() const EIGEN_NOEXCEPT
+    EIGEN_CONSTEXPR Eigen::Index cols() const noexcept
     {
       return m_size;
     }
@@ -358,11 +358,11 @@ namespace pinocchio
         m_lhs.subDiagonal().asDiagonal() * m_rhs.topRows(reduced_size);
     }
 
-    EIGEN_CONSTEXPR Eigen::Index rows() const EIGEN_NOEXCEPT
+    EIGEN_CONSTEXPR Eigen::Index rows() const noexcept
     {
       return m_lhs.rows();
     }
-    EIGEN_CONSTEXPR Eigen::Index cols() const EIGEN_NOEXCEPT
+    EIGEN_CONSTEXPR Eigen::Index cols() const noexcept
     {
       return m_rhs.cols();
     }
@@ -407,11 +407,11 @@ namespace pinocchio
         m_lhs.rightCols(reduced_size) * m_rhs.subDiagonal().asDiagonal();
     }
 
-    EIGEN_CONSTEXPR Eigen::Index rows() const EIGEN_NOEXCEPT
+    EIGEN_CONSTEXPR Eigen::Index rows() const noexcept
     {
       return m_lhs.rows();
     }
-    EIGEN_CONSTEXPR Eigen::Index cols() const EIGEN_NOEXCEPT
+    EIGEN_CONSTEXPR Eigen::Index cols() const noexcept
     {
       return m_rhs.cols();
     }
@@ -496,11 +496,11 @@ namespace pinocchio
       }
     }
 
-    EIGEN_CONSTEXPR Eigen::Index rows() const EIGEN_NOEXCEPT
+    EIGEN_CONSTEXPR Eigen::Index rows() const noexcept
     {
       return m_size;
     }
-    EIGEN_CONSTEXPR Eigen::Index cols() const EIGEN_NOEXCEPT
+    EIGEN_CONSTEXPR Eigen::Index cols() const noexcept
     {
       return m_size;
     }
@@ -576,11 +576,11 @@ namespace pinocchio
       }
     }
 
-    EIGEN_CONSTEXPR Eigen::Index rows() const EIGEN_NOEXCEPT
+    EIGEN_CONSTEXPR Eigen::Index rows() const noexcept
     {
       return m_lhs.rows();
     }
-    EIGEN_CONSTEXPR Eigen::Index cols() const EIGEN_NOEXCEPT
+    EIGEN_CONSTEXPR Eigen::Index cols() const noexcept
     {
       return m_rhs.cols();
     }
