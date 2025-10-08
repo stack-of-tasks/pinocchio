@@ -285,5 +285,15 @@ namespace boost
       fix::serialize(ar, static_cast<pinocchio::JointDataBase<JointType> &>(joint), version);
     }
 
+    template<class Archive, typename Scalar, int Options>
+    void serialize(
+      Archive & ar,
+      pinocchio::JointDataSplineTpl<Scalar, Options> & joint,
+      const unsigned int version)
+    {
+      typedef pinocchio::JointDataSplineTpl<Scalar, Options> JointType;
+      fix::serialize(ar, static_cast<pinocchio::JointDataBase<JointType> &>(joint), version);
+    }
+
   } // namespace serialization
 } // namespace boost

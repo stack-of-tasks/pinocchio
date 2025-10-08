@@ -331,5 +331,17 @@ namespace boost
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
 
+    template<class Archive, typename Scalar, int Options>
+    void serialize(
+      Archive & ar,
+      pinocchio::JointModelSplineTpl<Scalar, Options> & joint,
+      const unsigned int version)
+    {
+      typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointType;
+      ar & make_nvp("ctrlFrames", joint.ctrlFrames);
+      ar & make_nvp("degree", joint.degree);
+
+      fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
+    }
   } // namespace serialization
 } // namespace boost

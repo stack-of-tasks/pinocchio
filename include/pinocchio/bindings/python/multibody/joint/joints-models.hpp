@@ -311,6 +311,31 @@ namespace pinocchio
           "Second rotation axis of the JointModelUniversal.");
     }
 
+    // Specialization for JointModelSpline
+    template<>
+    bp::class_<context::JointModelSpline> &
+    expose_joint_model<context::JointModelSpline>(bp::class_<context::JointModelSpline> & cl)
+    {
+      return cl
+        .def(bp::init<>(
+          bp::args("self"),
+          "Init an empty joint Spline. Default degree of spline basis function is 3."))
+        .def(
+          "addControlFrame", &context::JointModelSpline::addControlFrame, bp::arg("frame"),
+          "Add a frame to the frame control vector. As of now, they need to be added in the order "
+          "of the movement of the spline")
+        .def(
+          "makeKnots", &context::JointModelSpline::makeKnots,
+          "generate the knots vector for the spline. Call after all the control frame have been "
+          "added")
+        .def(
+          "computeRelativeMotion", &context::JointModelSpline::computeRelativeMotions,
+          "compute the relative motion between the control frames. Call after all the control "
+          "frames have been added")
+        .def_readwrite(
+          "degree", &context::JointModelSpline::degree, "Degree of the spline basis functions");
+    }
+
     // specialization for JointModelComposite
 
     struct JointModelCompositeAddJointVisitor
