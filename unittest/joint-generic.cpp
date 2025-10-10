@@ -292,6 +292,23 @@ struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options>>
   }
 };
 
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelSplineTpl<Scalar, Options>>
+{
+  typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
+
+  static JointModel run()
+  {
+    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
+    ctrlFrames.push_back(SE3::Identity());
+    ctrlFrames.push_back(SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)));
+    JointModel jmodel(ctrlFrames, 1);
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
 struct TestJoint
 {
 

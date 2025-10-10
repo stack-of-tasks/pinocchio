@@ -50,14 +50,14 @@ BOOST_AUTO_TEST_CASE(vsPrismatic)
 
   JointModelSpline jmodel(ctrlFrames, 1);
   JointDataSpline jdata = jmodel.createData();
-  
+
   jmodel.setIndexes(0, 0, 0);
 
   Eigen::VectorXd q(Eigen::VectorXd::Zero(1));
 
   // -------
   q << 0.2;
-  
+
   jmodel.calc(jdata, q);
 
   BOOST_CHECK(expected_configuration.rotation().isApprox(jdata.M.rotation(), 1e-12));
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(vsPrismatic)
 
   expected_configuration.translation() << 0, 0, 0.3;
   expected_v_J.linear() << 0., 0., 0.4;
-  
+
   BOOST_CHECK(expected_configuration.rotation().isApprox(jdata.M.rotation(), 1e-12));
   BOOST_CHECK(expected_configuration.translation().isApprox(jdata.M.translation(), 1e-12));
   BOOST_CHECK(expected_v_J.toVector().isApprox(((Motion)jdata.v).toVector(), 1e-12));
@@ -88,7 +88,6 @@ BOOST_AUTO_TEST_CASE(vsPrismatic)
 //   typedef SE3::Matrix3 Matrix3;
 
 //   Inertia inertia(1., Vector3(0.5, 0., 0.0), Matrix3::Identity());
-
 
 //   PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
 //   ctrlFrames.push_back(SE3::Identity());
@@ -132,8 +131,8 @@ BOOST_AUTO_TEST_CASE(vsPrismatic)
 //   ctrlFrames.push_back(SE3(R4, Eigen::Vector3d::Zero()));
 
 //   Model modelSpline;
-//   addJointAndBody(modelSpline, JointModelSpline(ctrlFrames), 0, SE3::Identity(), "spline_joint", inertia);
-//   Data dataSpline(modelSpline);
+//   addJointAndBody(modelSpline, JointModelSpline(ctrlFrames), 0, SE3::Identity(), "spline_joint",
+//   inertia); Data dataSpline(modelSpline);
 
 //   Model modelSph;
 //   addJointAndBody(modelSph, JointModelSphericalZYX(), 0, SE3::Identity(), "sph_joint", inertia);
@@ -141,7 +140,7 @@ BOOST_AUTO_TEST_CASE(vsPrismatic)
 
 //   Eigen::VectorXd qSpline(Eigen::VectorXd::Zero(1));
 //   qSpline << 0.5;
-  
+
 //   Eigen::Vector3d qSph;
 //   qSph << 0, M_PI / 3, 0;
 
@@ -152,8 +151,5 @@ BOOST_AUTO_TEST_CASE(vsPrismatic)
 //   std::cout << dataSpline.oMi[1] << std::endl;
 //   std::cout << dataSph.oMi[1] << std::endl;
 // }
-
-
-
 
 BOOST_AUTO_TEST_SUITE_END()
