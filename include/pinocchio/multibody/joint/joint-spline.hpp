@@ -205,27 +205,29 @@ namespace pinocchio
     void calc(JointDataDerived & data, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
       data.joint_q = qs.template segment<NQ>(idx_q());
+      int index_span = findSpan(qs);
+      int first_index = index_span - degree;
+
       // Basis functions and their derivatives
       data.N.setZero();
       data.N_der.setZero();
-      for (int i = 0; i < nbCtrlFrames; i++)
+      for (int i = first_index; i < index_span + 1; i++)
       {
         data.N[i] = bsplineBasis(i, degree, data.joint_q[0]);
         data.N_der[i] = bsplineBasisDerivative(i, degree, data.joint_q[0]);
       }
-
       // Compute joint transform M
-      data.M = ctrlFrames[0];
+      data.M = ctrlFrames[first_index];
       // joint subspace S
       data.S.matrix().setZero();
-      for (int i = 0; i < nbCtrlFrames - 1; ++i)
+      for (int i = first_index + 1; i < index_span + 1; i++)
       {
-        const Scalar phi_i = data.N.tail(nbCtrlFrames - (i + 1)).sum();
-        const Scalar phi_dot_i = data.N_der.tail(nbCtrlFrames - (i + 1)).sum();
+        const Scalar phi_i = data.N.segment(i, index_span - i + 1).sum();
+        const Scalar phi_dot_i = data.N_der.segment(i, index_span - i + 1).sum();
 
-        data.M = data.M * exp6(relativeMotions[i] * phi_i);
-        data.S.matrix() = exp6(relativeMotions[i] * phi_i).actInv(data.S)
-                          + relativeMotions[i].toVector() * phi_dot_i;
+        data.M = data.M * exp6(relativeMotions[i - 1] * phi_i);
+        data.S.matrix() = exp6(relativeMotions[i - 1] * phi_i).actInv(data.S)
+                          + relativeMotions[i - 1].toVector() * phi_dot_i;
       }
     }
 
@@ -238,11 +240,14 @@ namespace pinocchio
       data.joint_q = qs.template segment<NQ>(idx_q());
       data.joint_v = vs.template segment<NV>(idx_v());
 
+      int index_span = findSpan(qs);
+      int first_index = index_span - degree;
+
       // Basis functions and their derivatives
       data.N.setZero();
       data.N_der.setZero();
       data.N_der2.setZero();
-      for (int i = 0; i < nbCtrlFrames; ++i)
+      for (int i = first_index; i < index_span + 1; i++)
       {
         data.N[i] = bsplineBasis(i, degree, data.joint_q[0]);
         data.N_der[i] = bsplineBasisDerivative(i, degree, data.joint_q[0]);
@@ -252,20 +257,20 @@ namespace pinocchio
       // Compute time derivative of S (for bias acceleration c)
       data.S.matrix().setZero();
       data.c.setZero();
-      data.M = ctrlFrames[0];
-      for (int i = 0; i < nbCtrlFrames - 1; ++i)
+      data.M = ctrlFrames[first_index];
+      for (int i = first_index + 1; i < index_span + 1; i++)
       {
-        const Scalar phi_i = data.N.tail(nbCtrlFrames - (i + 1)).sum();
-        const Scalar phi_dot_i = data.N_der.tail(nbCtrlFrames - (i + 1)).sum();
-        const Scalar phi_ddot_i = data.N_der2.tail(nbCtrlFrames - (i + 1)).sum();
+        const Scalar phi_i = data.N.segment(i, index_span - i + 1).sum();
+        const Scalar phi_dot_i = data.N_der.segment(i, index_span - i + 1).sum();
+        const Scalar phi_ddot_i = data.N_der2.segment(i, index_span - i + 1).sum();
 
-        data.M = data.M * exp6(relativeMotions[i] * phi_i);
+        data.M = data.M * exp6(relativeMotions[i - 1] * phi_i);
         data.c =
-          relativeMotions[i] * phi_ddot_i
-          + exp6(relativeMotions[i] * phi_i)
-              .actInv(data.c + Motion(data.S.matrix()).cross(relativeMotions[i]) * phi_dot_i);
-        data.S.matrix() = exp6(relativeMotions[i] * phi_i).actInv(data.S)
-                          + relativeMotions[i].toVector() * phi_dot_i;
+          relativeMotions[i - 1] * phi_ddot_i
+          + exp6(relativeMotions[i - 1] * phi_i)
+              .actInv(data.c + Motion(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
+        data.S.matrix() = exp6(relativeMotions[i - 1] * phi_i).actInv(data.S)
+                          + relativeMotions[i - 1].toVector() * phi_dot_i;
       }
 
       data.c = data.c * data.joint_v[0];
@@ -383,6 +388,29 @@ namespace pinocchio
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) relativeMotions;
 
   private:
+    template<typename ConfigVector>
+    int findSpan(const typename Eigen::MatrixBase<ConfigVector> & qs) const
+    {
+      // Edge case
+      if (qs[0] >= Scalar(1.0))
+        return nbCtrlFrames - 1;
+
+      int low = degree;
+      int high = nbCtrlFrames;
+      int mid = low;
+
+      while (low < high)
+      {
+        mid = low + (high - low) / 2;
+        if (qs[0] < knots[mid])
+          high = mid;
+        else
+          low = mid + 1;
+      }
+
+      return low - 1;
+    }
+
     Scalar bsplineBasis(int i, int k, const Scalar x) const
     {
       if (k == 0)
