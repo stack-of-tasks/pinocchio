@@ -198,7 +198,8 @@ namespace pinocchio
     using Base::isEqual;
     bool isEqual(const JointModelSplineTpl & other) const
     {
-      return Base::isEqual(other);
+      return Base::isEqual(other) && other.degree == degree && other.nbCtrlFrames == nbCtrlFrames
+             && other.ctrlFrames == ctrlFrames;
     }
 
     template<typename ConfigVector>
