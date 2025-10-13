@@ -251,6 +251,46 @@ struct FiniteDiffJoint
   {
   }
 
+  void operator()(JointModelSpline & /*jmodel*/) const
+  {
+    typedef typename JointModelSpline::ConfigVector_t CV;
+    typedef typename JointModelSpline::TangentVector_t TV;
+    typedef typename LieGroup<JointModelSpline>::type LieGroupType;
+
+    JointModelSpline jmodel = init<JointModelSpline>::run();
+    std::cout << "name: " << jmodel.classname() << std::endl;
+    JointDataSpline jdata = jmodel.createData();
+
+    CV q = LieGroupType().randomConfiguration(CV::Zero(), CV::Ones());
+    jmodel.calc(jdata, q);
+    SE3 M_ref(jdata.M);
+
+    CV q_int(q);
+    const Eigen::DenseIndex nv = jdata.S.nv();
+    TV v(nv);
+    v.setZero();
+    double eps = 1e-8;
+
+    Eigen::Matrix<double, 6, JointModelSpline::NV> S(6, nv), S_ref(jdata.S.matrix());
+
+    for (int k = 0; k < nv; ++k)
+    {
+      v[k] = eps;
+      q_int = LieGroupType().integrate(q, v);
+      jmodel.calc(jdata.derived(), q_int);
+      SE3 M_int = jdata.M;
+
+      S.col(k) = log6(M_ref.inverse() * M_int).toVector();
+      S.col(k) /= eps;
+
+      v[k] = 0.;
+    }
+
+    BOOST_CHECK(S.isApprox(S_ref, eps * 1e1));
+    std::cout << "S_ref:\n" << S_ref << std::endl;
+    std::cout << "S:\n" << S << std::endl;
+  }
+
   template<typename JointModel>
   void operator()(JointModelBase<JointModel> & /*jmodel*/) const
   {

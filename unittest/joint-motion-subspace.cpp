@@ -251,6 +251,11 @@ void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
   }
 }
 
+template<typename Scalar, int Options>
+void test_constraint_operations(const JointModelSplineTpl<Scalar, Options> & /*jmodel*/)
+{
+} // Disable test for JointSpline, bc using generic subspace
+
 template<typename Scalar, int Options, template<typename, int> class JointCollection>
 void test_constraint_operations(
   const JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/)

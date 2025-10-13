@@ -340,6 +340,7 @@ namespace boost
       typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointType;
       ar & make_nvp("ctrlFrames", joint.ctrlFrames);
       ar & make_nvp("degree", joint.degree);
+      ar & make_nvp("nbCtrlFrames", joint.nbCtrlFrames);
 
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }

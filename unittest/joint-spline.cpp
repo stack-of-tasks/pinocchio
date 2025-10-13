@@ -100,7 +100,8 @@ BOOST_AUTO_TEST_CASE(vsFiniteDiff)
   jmodel.setIndexes(0, 0, 0);
 
   double eps = 1e-8;
-  CV q_ref(1);
+  CV q_ref = LieGroupType().randomConfiguration(CV::Zero(), CV::Ones());
+
   q_ref[0] = 0.6;
   CV q(q_ref);
 
