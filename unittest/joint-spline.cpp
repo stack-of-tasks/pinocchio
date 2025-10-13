@@ -46,7 +46,6 @@ BOOST_AUTO_TEST_CASE(vsPrismatic)
   PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
   ctrlFrames.push_back(SE3::Identity());
   ctrlFrames.push_back(SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)));
-  std::cout << ctrlFrames.size() << std::endl;
 
   JointModelSpline jmodel(ctrlFrames, 1);
   JointDataSpline jdata = jmodel.createData();
@@ -63,9 +62,8 @@ BOOST_AUTO_TEST_CASE(vsPrismatic)
   BOOST_CHECK(expected_configuration.rotation().isApprox(jdata.M.rotation(), 1e-12));
   BOOST_CHECK(expected_configuration.translation().isApprox(jdata.M.translation(), 1e-12));
 
-  Eigen::VectorXd q_dot(Eigen::VectorXd::Zero(1));
-
   // -------
+  Eigen::VectorXd q_dot(Eigen::VectorXd::Zero(1));
   q << 0.3;
   q_dot << 0.4;
 
@@ -80,76 +78,71 @@ BOOST_AUTO_TEST_CASE(vsPrismatic)
   BOOST_CHECK(expected_c_J.isApprox((Motion)jdata.c, 1e-12));
 }
 
-// BOOST_AUTO_TEST_CASE(vsSphericalXYZ)
-// {
+BOOST_AUTO_TEST_CASE(vsFiniteDiff)
+{
+  using namespace pinocchio;
+  typedef SE3::Vector3 Vector3;
+  typedef SE3::Matrix3 Matrix3;
 
-//   using namespace pinocchio;
-//   typedef SE3::Vector3 Vector3;
-//   typedef SE3::Matrix3 Matrix3;
+  typedef typename JointModelSpline::ConfigVector_t CV;
+  typedef typename JointModelSpline::TangentVector_t TV;
+  typedef typename LieGroup<JointModelSpline>::type LieGroupType;
 
-//   Inertia inertia(1., Vector3(0.5, 0., 0.0), Matrix3::Identity());
+  PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
+  ctrlFrames.push_back(SE3::Identity());
+  ctrlFrames.push_back(SE3::Random());
+  ctrlFrames.push_back(SE3::Random());
+  ctrlFrames.push_back(SE3::Random());
 
-//   PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
-//   ctrlFrames.push_back(SE3::Identity());
+  JointModelSpline jmodel(ctrlFrames);
+  JointDataSpline jdata = jmodel.createData();
 
-//   Eigen::Matrix3d R1;
-//   R1 << 0.866025, 0, 0.5,
-//         0,        1, 0       ,
-//        -0.5, 0, 0.866025;
-//   // R1 << 0.770151, -0.219024,  0.599079,
-//   //      0.420735,  0.880347, -0.219024,
-//   //     -0.479426,  0.420735,  0.770151;
-//   ctrlFrames.push_back(SE3(R1, Eigen::Vector3d::Zero()));
+  jmodel.setIndexes(0, 0, 0);
 
-//   // 0.5
-//   Eigen::Matrix3d R2;
+  double eps = 1e-8;
+  CV q_ref(1);
+  q_ref[0] = 0.6;
+  CV q(q_ref);
 
-//   R2 << 0.707107, 0, 0.707107,
-//         0,        1, 0       ,
-//        -0.707107, 0, 0.707107;
-//   // R1 << 0.770151, -0.219024,  0.599079,
-//   //      0.420735,  0.880347, -0.219024,
-//   //     -0.479426,  0.420735,  0.770151;
-//   ctrlFrames.push_back(SE3(R2, Eigen::Vector3d::Zero()));
+  const Eigen::DenseIndex nv = jdata.S.nv();
+  TV q_dot(nv);
+  TV q_dot_ref(nv);
+  q_dot.setZero();
 
-//   Eigen::Matrix3d R3;
+  q_dot[0] = eps;
+  q_dot_ref[0] = 0.3;
 
-//   R3 << 0.5, 0, 0.866025,
-//         0,        1, 0       ,
-//        -0.866025, 0, 0.5;
-//   // R1 << 0.770151, -0.219024,  0.599079,
-//   //      0.420735,  0.880347, -0.219024,
-//   //     -0.479426,  0.420735,  0.770151;
-//   ctrlFrames.push_back(SE3(R3, Eigen::Vector3d::Zero()));
+  q = LieGroupType().integrate(q_ref, q_dot);
 
-//   // 1
-//   Eigen::Matrix3d R4;
-//   R4 << 0, 0, 1, 0, 1, 0, -1, 0, 0;
-//   // R2 <<  0.291927, -0.072075,  0.953721,
-//   //       0.454649,  0.88775,  -0.072075,
-//   //      -0.841471,  0.454649,  0.291927;
-//   ctrlFrames.push_back(SE3(R4, Eigen::Vector3d::Zero()));
+  {
+    // Check S
+    jmodel.calc(jdata, q_ref);
+    SE3 M_ref(jdata.M);
+    Eigen::Matrix<double, 6, JointModelSpline::NV> S(6, JointModelSpline::NV),
+      S_ref(jdata.S.matrix());
 
-//   Model modelSpline;
-//   addJointAndBody(modelSpline, JointModelSpline(ctrlFrames), 0, SE3::Identity(), "spline_joint",
-//   inertia); Data dataSpline(modelSpline);
+    jmodel.calc(jdata, q);
+    SE3 M_ = jdata.M;
 
-//   Model modelSph;
-//   addJointAndBody(modelSph, JointModelSphericalZYX(), 0, SE3::Identity(), "sph_joint", inertia);
-//   Data dataSph(modelSph);
+    S.col(0) = log6(M_ref.inverse() * M_).toVector();
+    S.col(0) /= eps;
 
-//   Eigen::VectorXd qSpline(Eigen::VectorXd::Zero(1));
-//   qSpline << 0.5;
+    BOOST_CHECK(S.isApprox(S_ref, eps * 1e1));
+  }
+  // Check bias
+  {
+    jmodel.calc(jdata, q_ref, q_dot_ref);
+    const Motion & c_ref = jdata.c;
+    Eigen::Matrix<double, 6, JointModelSpline::NV> S_ref(jdata.S.matrix());
 
-//   Eigen::Vector3d qSph;
-//   qSph << 0, M_PI / 3, 0;
+    jmodel.calc(jdata, q);
+    Eigen::Matrix<double, 6, JointModelSpline::NV> S_(jdata.S.matrix());
 
-//   forwardKinematics(modelSpline, dataSpline, qSpline);
-//   forwardKinematics(modelSph, dataSph, qSph);
+    Motion dSdq_fd((S_ - S_ref) / eps);
+    Motion c_fd = dSdq_fd * q_dot_ref[0];
 
-//   BOOST_CHECK(dataSpline.oMi[1].isApprox(dataSph.oMi[1]));
-//   std::cout << dataSpline.oMi[1] << std::endl;
-//   std::cout << dataSph.oMi[1] << std::endl;
-// }
+    BOOST_CHECK(c_ref.isApprox(c_fd, eps * 1e1));
+  }
+}
 
 BOOST_AUTO_TEST_SUITE_END()
