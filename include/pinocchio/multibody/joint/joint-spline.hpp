@@ -17,6 +17,95 @@
 
 namespace pinocchio
 {
+  struct SpanIndexes
+  {
+    int start_idx;
+    int end_idx;
+  };
+
+  template<typename Scalar, int Options>
+  struct FindSpan
+  {
+    static SpanIndexes run(
+      const Eigen::Vector<Scalar, Eigen::Dynamic> & /*q*/,
+      const int /*degree*/,
+      const int nbCtrlFrames,
+      const Eigen::Vector<Scalar, Eigen::Dynamic> & /*knots*/)
+    {
+      return {0, nbCtrlFrames};
+    }
+  };
+
+  template<int Options>
+  struct FindSpan<double, Options>
+  {
+    static SpanIndexes run(
+      const Eigen::Vector<double, Eigen::Dynamic> & q,
+      const int degree,
+      const int nbCtrlFrames,
+      const Eigen::Vector<double, Eigen::Dynamic> & knots)
+    {
+      // Edge case: if q is at or beyond the end of the spline parameterization
+      if (q[0] >= 1.0)
+        return {nbCtrlFrames - (degree + 1), nbCtrlFrames};
+
+      int low = degree;
+      int high = nbCtrlFrames;
+      int mid;
+
+      while (low < high)
+      {
+        mid = low + (high - low) / 2;
+        if (q[0] < knots[mid])
+          high = mid;
+        else
+          low = mid + 1;
+      }
+
+      return {low - 1 - degree, low + 1};
+    }
+  };
+
+  // template<typename Scalar, int Options>
+  // struct FindSpan
+  // {
+  //   static SpanIndexes run(
+  //     const Eigen::Vector<Scalar, Options> & /*q*/,
+  //     const int degree,
+  //     const int nbCtrlFrames,
+  //     const Eigen::Vector<Scalar, Options> & knots)
+  //   {
+  //     return {0, nbCtrlFrames};
+  //   }
+
+  //   static SpanIndexes run(
+  //     const Eigen::Vector<double, Options> & q,
+  //     const int degree,
+  //     const int nbCtrlFrames,
+  //     const Eigen::Vector<double, Options> & knots)
+  //   {
+  //     // Edge case
+
+  //     if (q >= 1.0)
+  //       return {0, nbCtrlFrames - 1};
+
+  //     int low = degree;
+  //     int high = nbCtrlFrames;
+  //     int mid = low;
+
+  //     while (low < high)
+  //     {
+  //       mid = low + (high - low) / 2;
+  //       if (q < knots[mid])
+  //         high = mid;
+  //       else
+  //         low = mid + 1;
+  //     }
+
+  //     return {low - (degree+ 1), low + 1};
+  //   }
+  // };
+
   template<typename Scalar, int Options>
   struct JointSplineTpl;
 
@@ -206,25 +295,24 @@ namespace pinocchio
     void calc(JointDataDerived & data, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
       data.joint_q = qs.template segment<NQ>(idx_q());
-      int index_span = findSpan(qs);
-      int first_index = index_span - degree;
+      SpanIndexes indexes = FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
 
       // Basis functions and their derivatives
       data.N.setZero();
       data.N_der.setZero();
-      for (int i = first_index; i < index_span + 1; i++)
+      for (size_t i = indexes.start_idx; i < indexes.end_idx; i++)
       {
         data.N[i] = bsplineBasis(i, degree, data.joint_q[0]);
         data.N_der[i] = bsplineBasisDerivative(i, degree, data.joint_q[0]);
       }
       // Compute joint transform M
-      data.M = ctrlFrames[first_index];
+      data.M = ctrlFrames[indexes.start_idx];
       // joint subspace S
       data.S.matrix().setZero();
-      for (int i = first_index + 1; i < index_span + 1; i++)
+      for (size_t i = indexes.start_idx + 1; i < indexes.end_idx; i++)
       {
-        const Scalar phi_i = data.N.segment(i, index_span - i + 1).sum();
-        const Scalar phi_dot_i = data.N_der.segment(i, index_span - i + 1).sum();
+        const Scalar phi_i = data.N.segment(i, indexes.end_idx - i).sum();
+        const Scalar phi_dot_i = data.N_der.segment(i, indexes.end_idx - i).sum();
 
         data.M = data.M * exp6(relativeMotions[i - 1] * phi_i);
         data.S.matrix() = exp6(relativeMotions[i - 1] * phi_i).actInv(data.S)
@@ -240,15 +328,13 @@ namespace pinocchio
     {
       data.joint_q = qs.template segment<NQ>(idx_q());
       data.joint_v = vs.template segment<NV>(idx_v());
-
-      int index_span = findSpan(qs);
-      int first_index = index_span - degree;
+      SpanIndexes indexes = FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
 
       // Basis functions and their derivatives
       data.N.setZero();
       data.N_der.setZero();
       data.N_der2.setZero();
-      for (int i = first_index; i < index_span + 1; i++)
+      for (size_t i = indexes.start_idx; i < indexes.end_idx; i++)
       {
         data.N[i] = bsplineBasis(i, degree, data.joint_q[0]);
         data.N_der[i] = bsplineBasisDerivative(i, degree, data.joint_q[0]);
@@ -258,12 +344,12 @@ namespace pinocchio
       // Compute time derivative of S (for bias acceleration c)
       data.S.matrix().setZero();
       data.c.setZero();
-      data.M = ctrlFrames[first_index];
-      for (int i = first_index + 1; i < index_span + 1; i++)
+      data.M = ctrlFrames[indexes.start_idx];
+      for (size_t i = indexes.start_idx + 1; i < indexes.end_idx; i++)
       {
-        const Scalar phi_i = data.N.segment(i, index_span - i + 1).sum();
-        const Scalar phi_dot_i = data.N_der.segment(i, index_span - i + 1).sum();
-        const Scalar phi_ddot_i = data.N_der2.segment(i, index_span - i + 1).sum();
+        const Scalar phi_i = data.N.segment(i, indexes.end_idx - i).sum();
+        const Scalar phi_dot_i = data.N_der.segment(i, indexes.end_idx - i).sum();
+        const Scalar phi_ddot_i = data.N_der2.segment(i, indexes.end_idx - i).sum();
 
         data.M = data.M * exp6(relativeMotions[i - 1] * phi_i);
         data.c =
@@ -369,7 +455,7 @@ namespace pinocchio
       knots.head(degree + 1).setZero();
       const Scalar denominator = static_cast<Scalar>(nbCtrlFrames - degree + 1);
 
-      for (int i = degree + 1; i < nbCtrlFrames; i++)
+      for (size_t i = degree + 1; i < nbCtrlFrames; i++)
         knots[i] = static_cast<Scalar>(i - degree) / denominator;
 
       knots.tail(degree + 1).setOnes();
@@ -377,7 +463,7 @@ namespace pinocchio
 
     void computeRelativeMotions()
     {
-      for (int i = 0; i < nbCtrlFrames - 1; i++)
+      for (size_t i = 0; i < nbCtrlFrames - 1; i++)
         relativeMotions.push_back(log6(ctrlFrames[i].inverse() * ctrlFrames[i + 1]));
     }
 
@@ -389,83 +475,141 @@ namespace pinocchio
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) relativeMotions;
 
   private:
-    template<typename ConfigVector>
-    int findSpan(const typename Eigen::MatrixBase<ConfigVector> & qs) const
-    {
-      // Edge case
-      if (qs[0] >= Scalar(1.0))
-        return nbCtrlFrames - 1;
-
-      int low = degree;
-      int high = nbCtrlFrames;
-      int mid = low;
-
-      while (low < high)
-      {
-        mid = low + (high - low) / 2;
-        if (qs[0] < knots[mid])
-          high = mid;
-        else
-          low = mid + 1;
-      }
-
-      return low - 1;
-    }
-
     Scalar bsplineBasis(int i, int k, const Scalar x) const
     {
+      // Base case of the recursion (structural control flow, remains an `if`)
       if (k == 0)
-        return (knots[i] <= x && x <= knots[i + 1]) ? Scalar(1) : Scalar(0);
+      {
+        // Replicate (knots[i] <= x && x <= knots[i+1]) using nested calls
+        return pinocchio::internal::if_then_else(
+          pinocchio::internal::LE, knots[i], x, // if (knots[i] <= x)
+          pinocchio::internal::if_then_else(
+            pinocchio::internal::LE, x, knots[i + 1], //   if (x <= knots[i + 1])
+            Scalar(1),                                //     return 1;
+            Scalar(0)),                               //   else return 0;
+          Scalar(0));                                 // else return 0;
+      }
 
-      Scalar left = 0, right = 0;
-      Scalar den1 = knots[i + k] - knots[i];
-      if (knots[i + k] > knots[i])
-        left = (x - knots[i]) / den1 * bsplineBasis(i, k - 1, x);
+      // Calculate the left term
+      const Scalar den1 = knots[i + k] - knots[i];
+      const Scalar left = pinocchio::internal::if_then_else(
+        pinocchio::internal::GT,                           // Operator: Greater Than
+        den1,                                              // LHS: The denominator
+        Eigen::NumTraits<Scalar>::dummy_precision(),       // RHS: A small positive value for safe
+                                                           // comparison
+        (x - knots[i]) / den1 * bsplineBasis(i, k - 1, x), // "Then" value (if den1 > 0)
+        Scalar(0)                                          // "Else" value (if den1 <= 0)
+      );
 
-      Scalar den2 = knots[i + k + 1] - knots[i + 1];
-      if (knots[i + k + 1] > knots[i + 1])
-        right = (knots[i + k + 1] - x) / den2 * bsplineBasis(i + 1, k - 1, x);
+      // Calculate the right term
+      const Scalar den2 = knots[i + k + 1] - knots[i + 1];
+      const Scalar right = pinocchio::internal::if_then_else(
+        pinocchio::internal::GT,                                       // Operator: Greater Than
+        den2,                                                          // LHS: The denominator
+        Eigen::NumTraits<Scalar>::dummy_precision(),                   // RHS
+        (knots[i + k + 1] - x) / den2 * bsplineBasis(i + 1, k - 1, x), // "Then" value
+        Scalar(0)                                                      // "Else" value
+      );
 
       return left + right;
     }
 
+    // if (k == 0)
+    //   return (knots[i] <= x && x <= knots[i + 1]) ? Scalar(1) : Scalar(0);
+
+    // Scalar left = 0, right = 0;
+    // Scalar den1 = knots[i + k] - knots[i];
+    // if (knots[i + k] > knots[i])
+    //   left = (x - knots[i]) / den1 * bsplineBasis(i, k - 1, x);
+
+    // Scalar den2 = knots[i + k + 1] - knots[i + 1];
+    // if (knots[i + k + 1] > knots[i + 1])
+    //   right = (knots[i + k + 1] - x) / den2 * bsplineBasis(i + 1, k - 1, x);
+
+    // return left + right;
+
     Scalar bsplineBasisDerivative(int i, int k, const Scalar x) const
     {
+      // Base case (structural, remains an `if`)
       if (k == 0)
+      {
         return Scalar(0);
+      }
 
-      Scalar term1 = 0, term2 = 0;
-      Scalar den1 = knots[i + k] - knots[i];
-      if (den1 > Eigen::NumTraits<Scalar>::dummy_precision())
-      {
-        term1 = (static_cast<Scalar>(k) / den1) * bsplineBasis(i, k - 1, x);
-      }
-      Scalar den2 = knots[i + k + 1] - knots[i + 1];
-      if (den2 > Eigen::NumTraits<Scalar>::dummy_precision())
-      {
-        term2 = (static_cast<Scalar>(k) / den2) * bsplineBasis(i + 1, k - 1, x);
-      }
+      // --- Refactored Part ---
+      const Scalar k_scalar = static_cast<Scalar>(k);
+
+      // Calculate the first term of the derivative
+      const Scalar den1 = knots[i + k] - knots[i];
+      const Scalar term1 = pinocchio::internal::if_then_else(
+        pinocchio::internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
+        (k_scalar / den1) * bsplineBasis(i, k - 1, x), Scalar(0));
+
+      // Calculate the second term of the derivative
+      const Scalar den2 = knots[i + k + 1] - knots[i + 1];
+      const Scalar term2 = pinocchio::internal::if_then_else(
+        pinocchio::internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
+        (k_scalar / den2) * bsplineBasis(i + 1, k - 1, x), Scalar(0));
+
       return term1 - term2;
     }
+    // if (k == 0)
+    //   return Scalar(0);
+
+    // Scalar term1 = 0, term2 = 0;
+    // Scalar den1 = knots[i + k] - knots[i];
+    // if (den1 > Eigen::NumTraits<Scalar>::dummy_precision())
+    // {
+    //   term1 = (static_cast<Scalar>(k) / den1) * bsplineBasis(i, k - 1, x);
+    // }
+    // Scalar den2 = knots[i + k + 1] - knots[i + 1];
+    // if (den2 > Eigen::NumTraits<Scalar>::dummy_precision())
+    // {
+    //   term2 = (static_cast<Scalar>(k) / den2) * bsplineBasis(i + 1, k - 1, x);
+    // }
+    // return term1 - term2;
 
     Scalar bsplineBasisDerivative2(int i, int k, const Scalar x) const
     {
+      // Base case (structural, remains an `if`)
       if (k < 2)
+      {
         return Scalar(0);
+      }
 
-      Scalar term1 = 0, term2 = 0;
-      Scalar den1 = knots[i + k] - knots[i];
-      if (den1 > Eigen::NumTraits<Scalar>::dummy_precision())
-      {
-        term1 = (static_cast<Scalar>(k) / den1) * bsplineBasisDerivative(i, k - 1, x);
-      }
-      Scalar den2 = knots[i + k + 1] - knots[i + 1];
-      if (den2 > Eigen::NumTraits<Scalar>::dummy_precision())
-      {
-        term2 = (static_cast<Scalar>(k) / den2) * bsplineBasisDerivative(i + 1, k - 1, x);
-      }
+      // --- Refactored Part ---
+      const Scalar k_scalar = static_cast<Scalar>(k);
+
+      // Calculate the first term
+      const Scalar den1 = knots[i + k] - knots[i];
+      const Scalar term1 = pinocchio::internal::if_then_else(
+        pinocchio::internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
+        (k_scalar / den1) * bsplineBasisDerivative(i, k - 1, x), Scalar(0));
+
+      // Calculate the second term
+      const Scalar den2 = knots[i + k + 1] - knots[i + 1];
+      const Scalar term2 = pinocchio::internal::if_then_else(
+        pinocchio::internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
+        (k_scalar / den2) * bsplineBasisDerivative(i + 1, k - 1, x), Scalar(0));
+
       return term1 - term2;
     }
+    //   if (k < 2)
+    //     return Scalar(0);
+
+    //   Scalar term1 = 0, term2 = 0;
+    //   Scalar den1 = knots[i + k] - knots[i];
+    //   if (den1 > Eigen::NumTraits<Scalar>::dummy_precision())
+    //   {
+    //     term1 = (static_cast<Scalar>(k) / den1) * bsplineBasisDerivative(i, k - 1, x);
+    //   }
+    //   Scalar den2 = knots[i + k + 1] - knots[i + 1];
+    //   if (den2 > Eigen::NumTraits<Scalar>::dummy_precision())
+    //   {
+    //     term2 = (static_cast<Scalar>(k) / den2) * bsplineBasisDerivative(i + 1, k - 1, x);
+    //   }
+    //   return term1 - term2;
+    // }
   }; // struct JointModelSplineTpl
 
 } // namespace pinocchio
