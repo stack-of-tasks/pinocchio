@@ -26,11 +26,12 @@ namespace pinocchio
   template<typename Scalar, int Options>
   struct FindSpan
   {
+    template<typename ConfigVector, typename KnotsVector>
     static SpanIndexes run(
-      const Eigen::Vector<Scalar, Eigen::Dynamic> & /*q*/,
+      const Eigen::MatrixBase<ConfigVector> & /*q*/,
       const int /*degree*/,
       const int nbCtrlFrames,
-      const Eigen::Vector<Scalar, Eigen::Dynamic> & /*knots*/)
+      const Eigen::MatrixBase<KnotsVector> & /*knots*/)
     {
       return {0, nbCtrlFrames};
     }
@@ -39,11 +40,12 @@ namespace pinocchio
   template<int Options>
   struct FindSpan<double, Options>
   {
+    template<typename ConfigVector, typename KnotsVector>
     static SpanIndexes run(
-      const Eigen::Vector<double, Eigen::Dynamic> & q,
+      const Eigen::MatrixBase<ConfigVector> & q,
       const int degree,
       const int nbCtrlFrames,
-      const Eigen::Vector<double, Eigen::Dynamic> & knots)
+      const Eigen::MatrixBase<KnotsVector> & knots)
     {
       // Edge case: if q is at or beyond the end of the spline parameterization
       if (q[0] >= 1.0)
@@ -65,7 +67,6 @@ namespace pinocchio
       return {low - 1 - degree, low};
     }
   };
-
 
   template<typename Scalar, int Options>
   struct JointSplineTpl;
@@ -256,6 +257,7 @@ namespace pinocchio
     void calc(JointDataDerived & data, const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
       data.joint_q = qs.template segment<NQ>(idx_q());
+
       SpanIndexes indexes = FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
 
       // Basis functions and their derivatives
@@ -289,6 +291,7 @@ namespace pinocchio
     {
       data.joint_q = qs.template segment<NQ>(idx_q());
       data.joint_v = vs.template segment<NV>(idx_v());
+
       SpanIndexes indexes = FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
 
       // Basis functions and their derivatives
@@ -438,66 +441,35 @@ namespace pinocchio
   private:
     Scalar bsplineBasis(int i, int k, const Scalar x) const
     {
-      // Base case of the recursion (structural control flow, remains an `if`)
       if (k == 0)
       {
-        // Replicate (knots[i] <= x && x <= knots[i+1]) using nested calls
         return pinocchio::internal::if_then_else(
-          pinocchio::internal::LE, knots[i], x, // if (knots[i] <= x)
+          pinocchio::internal::LE, knots[i], x,
           pinocchio::internal::if_then_else(
-            pinocchio::internal::LE, x, knots[i + 1], //   if (x <= knots[i + 1])
-            Scalar(1),                                //     return 1;
-            Scalar(0)),                               //   else return 0;
-          Scalar(0));                                 // else return 0;
+            pinocchio::internal::LE, x, knots[i + 1], Scalar(1), Scalar(0)),
+          Scalar(0));
       }
 
       // Calculate the left term
       const Scalar den1 = knots[i + k] - knots[i];
       const Scalar left = pinocchio::internal::if_then_else(
-        pinocchio::internal::GT,                           // Operator: Greater Than
-        den1,                                              // LHS: The denominator
-        Eigen::NumTraits<Scalar>::dummy_precision(),       // RHS: A small positive value for safe
-                                                           // comparison
-        (x - knots[i]) / den1 * bsplineBasis(i, k - 1, x), // "Then" value (if den1 > 0)
-        Scalar(0)                                          // "Else" value (if den1 <= 0)
-      );
+        pinocchio::internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
+        (x - knots[i]) / den1 * bsplineBasis(i, k - 1, x), Scalar(0));
 
       // Calculate the right term
       const Scalar den2 = knots[i + k + 1] - knots[i + 1];
       const Scalar right = pinocchio::internal::if_then_else(
-        pinocchio::internal::GT,                                       // Operator: Greater Than
-        den2,                                                          // LHS: The denominator
-        Eigen::NumTraits<Scalar>::dummy_precision(),                   // RHS
-        (knots[i + k + 1] - x) / den2 * bsplineBasis(i + 1, k - 1, x), // "Then" value
-        Scalar(0)                                                      // "Else" value
-      );
+        pinocchio::internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
+        (knots[i + k + 1] - x) / den2 * bsplineBasis(i + 1, k - 1, x), Scalar(0));
 
       return left + right;
     }
-
-    // if (k == 0)
-    //   return (knots[i] <= x && x <= knots[i + 1]) ? Scalar(1) : Scalar(0);
-
-    // Scalar left = 0, right = 0;
-    // Scalar den1 = knots[i + k] - knots[i];
-    // if (knots[i + k] > knots[i])
-    //   left = (x - knots[i]) / den1 * bsplineBasis(i, k - 1, x);
-
-    // Scalar den2 = knots[i + k + 1] - knots[i + 1];
-    // if (knots[i + k + 1] > knots[i + 1])
-    //   right = (knots[i + k + 1] - x) / den2 * bsplineBasis(i + 1, k - 1, x);
-
-    // return left + right;
-
     Scalar bsplineBasisDerivative(int i, int k, const Scalar x) const
     {
-      // Base case (structural, remains an `if`)
       if (k == 0)
       {
         return Scalar(0);
       }
-
-      // --- Refactored Part ---
       const Scalar k_scalar = static_cast<Scalar>(k);
 
       // Calculate the first term of the derivative
@@ -514,31 +486,14 @@ namespace pinocchio
 
       return term1 - term2;
     }
-    // if (k == 0)
-    //   return Scalar(0);
-
-    // Scalar term1 = 0, term2 = 0;
-    // Scalar den1 = knots[i + k] - knots[i];
-    // if (den1 > Eigen::NumTraits<Scalar>::dummy_precision())
-    // {
-    //   term1 = (static_cast<Scalar>(k) / den1) * bsplineBasis(i, k - 1, x);
-    // }
-    // Scalar den2 = knots[i + k + 1] - knots[i + 1];
-    // if (den2 > Eigen::NumTraits<Scalar>::dummy_precision())
-    // {
-    //   term2 = (static_cast<Scalar>(k) / den2) * bsplineBasis(i + 1, k - 1, x);
-    // }
-    // return term1 - term2;
 
     Scalar bsplineBasisDerivative2(int i, int k, const Scalar x) const
     {
-      // Base case (structural, remains an `if`)
       if (k < 2)
       {
         return Scalar(0);
       }
 
-      // --- Refactored Part ---
       const Scalar k_scalar = static_cast<Scalar>(k);
 
       // Calculate the first term
@@ -555,22 +510,6 @@ namespace pinocchio
 
       return term1 - term2;
     }
-    //   if (k < 2)
-    //     return Scalar(0);
-
-    //   Scalar term1 = 0, term2 = 0;
-    //   Scalar den1 = knots[i + k] - knots[i];
-    //   if (den1 > Eigen::NumTraits<Scalar>::dummy_precision())
-    //   {
-    //     term1 = (static_cast<Scalar>(k) / den1) * bsplineBasisDerivative(i, k - 1, x);
-    //   }
-    //   Scalar den2 = knots[i + k + 1] - knots[i + 1];
-    //   if (den2 > Eigen::NumTraits<Scalar>::dummy_precision())
-    //   {
-    //     term2 = (static_cast<Scalar>(k) / den2) * bsplineBasisDerivative(i + 1, k - 1, x);
-    //   }
-    //   return term1 - term2;
-    // }
   }; // struct JointModelSplineTpl
 
 } // namespace pinocchio
