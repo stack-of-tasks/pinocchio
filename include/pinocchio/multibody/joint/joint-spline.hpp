@@ -66,45 +66,6 @@ namespace pinocchio
     }
   };
 
-  // template<typename Scalar, int Options>
-  // struct FindSpan
-  // {
-  //   static SpanIndexes run(
-  //     const Eigen::Vector<Scalar, Options> & /*q*/,
-  //     const int degree,
-  //     const int nbCtrlFrames,
-  //     const Eigen::Vector<Scalar, Options> & knots)
-  //   {
-  //     return {0, nbCtrlFrames};
-  //   }
-
-  //   static SpanIndexes run(
-  //     const Eigen::Vector<double, Options> & q,
-  //     const int degree,
-  //     const int nbCtrlFrames,
-  //     const Eigen::Vector<double, Options> & knots)
-  //   {
-  //     // Edge case
-
-  //     if (q >= 1.0)
-  //       return {0, nbCtrlFrames - 1};
-
-  //     int low = degree;
-  //     int high = nbCtrlFrames;
-  //     int mid = low;
-
-  //     while (low < high)
-  //     {
-  //       mid = low + (high - low) / 2;
-  //       if (q < knots[mid])
-  //         high = mid;
-  //       else
-  //         low = mid + 1;
-  //     }
-
-  //     return {low - (degree+ 1), low + 1};
-  //   }
-  // };
 
   template<typename Scalar, int Options>
   struct JointSplineTpl;
