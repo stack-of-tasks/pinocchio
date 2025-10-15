@@ -62,7 +62,7 @@ namespace pinocchio
           low = mid + 1;
       }
 
-      return {low - 1 - degree, low + 1};
+      return {low - 1 - degree, low};
     }
   };
 
