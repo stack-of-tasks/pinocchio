@@ -216,19 +216,30 @@ namespace pinocchio
     {
     }
 
+    JointModelSplineTpl(const int degree)
+    : degree(degree)
+    , nbCtrlFrames(0)
+    {
+    }
+
     JointModelSplineTpl(
       const PINOCCHIO_ALIGNED_STD_VECTOR(SE3) & controlFrames, const int degree = 3)
     : degree(degree)
     , nbCtrlFrames(controlFrames.size())
     , ctrlFrames(controlFrames)
     {
-      makeKnots();
-      computeRelativeMotions();
     }
 
     void addControlFrame(const SE3 & frame)
     {
       ctrlFrames.push_back(frame);
+      nbCtrlFrames++;
+    }
+
+    void buildJoint()
+    {
+      makeKnots();
+      computeRelativeMotions();
     }
 
     JointDataDerived createData() const
