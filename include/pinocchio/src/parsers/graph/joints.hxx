@@ -248,6 +248,43 @@ namespace pinocchio
       }
     };
 
+    struct JointSpline
+    {
+      std::vector<SE3> ctrlFrames;
+      int degree = 3;
+
+      static constexpr int nq = 1;
+      static constexpr int nv = 1;
+
+      JointSpline() = default;
+      JointSpline(const int degree)
+      : degree(degree)
+      {
+      }
+
+      JointSpline(const SE3 & ctrlFrame, const int degree = 3)
+      : degree(degree)
+      {
+        ctrlFrames.push_back(ctrlFrame);
+      }
+
+      JointSpline(const std::vector<SE3> & ctrlFrames, const int degree = 3)
+      : degree(degree)
+      , ctrlFrames(ctrlFrames)
+      {
+      }
+
+      void addCtrlFrame(const SE3 & ctrlFrame)
+      {
+        ctrlFrames.push_back(ctrlFrame);
+      }
+
+      bool operator==(const JointSpline & other) const
+      {
+        return degree == other.degree && ctrlFrames == other.ctrlFrames;
+      }
+    };
+
     // Forward declare
     struct JointComposite;
     struct JointMimic;
@@ -265,6 +302,7 @@ namespace pinocchio
       JointPlanar,
       JointHelical,
       JointUniversal,
+      JointSpline,
       boost::recursive_wrapper<JointComposite>,
       boost::recursive_wrapper<JointMimic>>
       JointVariant;
