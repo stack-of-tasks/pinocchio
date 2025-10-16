@@ -30,6 +30,16 @@
           };
           packages = {
             default = self'.packages.pinocchio;
+            eigen_5 = pkgs.eigen.overrideAttrs (super: rec {
+              version = "5.0.0";
+              src = pkgs.fetchFromGitLab {
+                inherit (super.src) owner repo;
+                tag = version;
+                hash = "sha256-L1KUFZsaibC/FD6abTXrT3pvaFhbYnw+GaWsxM2gaxM=";
+              };
+              patches = [ ];
+              postPatch = "";
+            });
             pinocchio = pkgs.python3Packages.pinocchio.overrideAttrs (super: {
               propagatedBuildInputs = super.propagatedBuildInputs ++ [ pkgs.example-robot-data ];
               src = pkgs.lib.fileset.toSource {
@@ -71,6 +81,16 @@
                 ];
               };
             });
+
+            libpinocchio-eigen_5 =
+              (self'.packages.libpinocchio.override { eigen = self'.packages.eigen_5; }).overrideAttrs
+                (super: {
+                  pname = "${super.pname}-eigen_5";
+                  cmakeFlags = super.cmakeFlags ++ [
+                    "-DBUILD_WITH_CASADI_SUPPORT=OFF"
+                    "-DBUILD_WITH_COLLISION_SUPPORT=OFF"
+                  ];
+                });
             pinocchio-py = pkgs.python3Packages.pinocchio.overrideAttrs (super: {
               pname = "pinocchio-py";
               cmakeFlags = super.cmakeFlags ++ [ "-DBUILD_STANDALONE_PYTHON_INTERFACE=ON" ];
