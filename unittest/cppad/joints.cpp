@@ -186,6 +186,24 @@ struct TestADOnJoints
     test(jmodel);
   }
 
+  template<typename Scalar, int Options>
+  void operator()(const pinocchio::JointModelSplineTpl<Scalar, Options> &) const
+  {
+    typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
+    typedef pinocchio::SE3Tpl<Scalar> SE3;
+    typedef Eigen::Matrix<Scalar, 3, 3> Matrix3s;
+    typedef Eigen::Matrix<Scalar, 3, 1> Vector3s;
+
+    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
+    ctrlFrames.push_back(SE3::Identity());
+    ctrlFrames.push_back(SE3(Matrix3s::Identity(), Vector3s(Scalar(0.), Scalar(0.), Scalar(1.))));
+    JointModel jmodel(ctrlFrames, 1);
+    jmodel.buildJoint();
+    jmodel.setIndexes(0, 0, 0);
+
+    test(jmodel);
+  }
+
   // TODO: implement it
   template<typename Scalar, int Options, template<typename, int> class JointCollection>
   void operator()(
@@ -205,6 +223,102 @@ struct TestADOnJoints
     jmodel.setIndexes(0, 0, 0);
 
     test(jmodel);
+  }
+
+  template<typename Scalar, int Options>
+  static void test(const pinocchio::JointModelSplineTpl<Scalar, Options> & jmodel)
+  {
+    using CppAD::AD;
+    using CppAD::NearEqual;
+
+    typedef AD<Scalar> AD_scalar;
+
+    typedef Eigen::Matrix<AD_scalar, Eigen::Dynamic, 1> VectorXAD;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> MatrixX;
+
+    typedef pinocchio::SE3Tpl<AD_scalar> SE3AD;
+    typedef pinocchio::MotionTpl<AD_scalar> MotionAD;
+    typedef pinocchio::SE3Tpl<double> SE3;
+    typedef pinocchio::MotionTpl<double> Motion;
+    typedef pinocchio::JointMotionSubspaceTpl<Eigen::Dynamic, double> JointMotionSubspaceXd;
+
+    typedef Eigen::Matrix<AD_scalar, Eigen::Dynamic, 1> VectorXAD;
+    typedef Eigen::Matrix<AD_scalar, 6, 1> Vector6AD;
+
+    typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
+    typedef typename pinocchio::CastType<AD_scalar, JointModel>::type JointModelAD;
+    typedef typename JointModelAD::JointDataDerived JointDataAD;
+
+    typedef typename JointModelAD::ConfigVector_t ConfigVectorAD;
+
+    typedef typename JointModel::JointDataDerived JointData;
+    typedef typename JointModel::ConfigVector_t ConfigVector;
+    typedef typename JointModel::TangentVector_t TangentVector;
+
+    JointData jdata(jmodel.createData());
+    pinocchio::JointDataBase<JointData> & jdata_base = jdata;
+
+    JointModelAD jmodel_ad = jmodel.template cast<AD_scalar>();
+    JointDataAD jdata_ad(jmodel_ad.createData());
+    pinocchio::JointDataBase<JointDataAD> & jdata_ad_base = jdata_ad;
+
+    ConfigVector q(jmodel.nq());
+    ConfigVector lb(ConfigVector::Constant(jmodel.nq(), 0));
+    ConfigVector ub(ConfigVector::Constant(jmodel.nq(), 1.));
+
+    typedef pinocchio::RandomConfigurationStep<
+      pinocchio::LieGroupMap, ConfigVector, ConfigVector, ConfigVector>
+      RandomConfigAlgo;
+    RandomConfigAlgo::run(jmodel.derived(), typename RandomConfigAlgo::ArgsType(q, lb, ub));
+
+    ConfigVectorAD q_ad(q.template cast<AD_scalar>());
+
+    // Zero order
+    jmodel_ad.calc(jdata_ad, q_ad);
+    jmodel.calc(jdata, q);
+
+    SE3 M1(jdata_base.M());
+    SE3AD M2(jdata_ad_base.M());
+    BOOST_CHECK(M1.isApprox(M2.template cast<Scalar>()));
+
+    // First order
+    TangentVector v(TangentVector::Random(jmodel.nv()));
+    VectorXAD X(jmodel_ad.nv());
+
+    for (Eigen::DenseIndex k = 0; k < jmodel.nv(); ++k)
+    {
+      X[k] = v[k];
+    }
+    CppAD::Independent(X);
+    jmodel_ad.calc(jdata_ad, q_ad, X);
+    jmodel.calc(jdata, q, v);
+    VectorXAD Y(6);
+    MotionAD m_ad(jdata_ad_base.v());
+    Motion m(jdata_base.v());
+    JointMotionSubspaceXd Sref(jdata_base.S().matrix());
+
+    for (Eigen::DenseIndex k = 0; k < 3; ++k)
+    {
+      Y[k + Motion::LINEAR] = m_ad.linear()[k];
+      Y[k + Motion::ANGULAR] = m_ad.angular()[k];
+    }
+
+    CppAD::ADFun<Scalar> vjoint(X, Y);
+
+    CPPAD_TESTVECTOR(Scalar) x((size_t)jmodel_ad.nv());
+    for (Eigen::DenseIndex k = 0; k < jmodel.nv(); ++k)
+    {
+      x[(size_t)k] = v[k];
+    }
+
+    CPPAD_TESTVECTOR(Scalar) jac = vjoint.Jacobian(x);
+    MatrixX S(6, jac.size() / 6);
+    S = Eigen::Map<typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixX)>(
+      jac.data(), S.rows(), S.cols());
+
+    BOOST_CHECK(m.isApprox(m_ad.template cast<Scalar>()));
+
+    BOOST_CHECK(Sref.matrix().isApprox(S));
   }
 
   template<typename JointModel>
