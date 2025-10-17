@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Homogenize python viewers examples ([#2771](https://github.com/stack-of-tasks/pinocchio/pull/2771))
 - Add docker images ([#2776](https://github.com/stack-of-tasks/pinocchio/pull/2776))
 - ROS: added jrl_cmakemodules dependency ([#2789](https://github.com/stack-of-tasks/pinocchio/pull/2789))
+- Rename hpp-fcl dependency to coal ([#2789](https://github.com/stack-of-tasks/pinocchio/pull/2794))
 
 ## [3.8.0] - 2025-09-17
 
