@@ -1,6 +1,6 @@
-# Don't generate debug symbols.
-# This is useless for the CI build (we don't retrieve any binaries) and can stop the build
+# Don't generate debug symbols (remove -g) and minimize binary size with -Os.
+# Debug symbol are useless for CI build (we don't retrieve any binaries) and can stop the build
 # by taking all the disk space.
 set(CMAKE_CXX_FLAGS_DEBUG
-    ""
+    "-Os"
     CACHE STRING "")

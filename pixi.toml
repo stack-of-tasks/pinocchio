@@ -25,6 +25,11 @@ urdfdom = ">=4.0"
 meshcat-python = ">=0.3"
 matplotlib = ">=3.9.2"
 
+# This is a workaround because of nvpl issue:
+# https://github.com/conda-forge/scipy-feedstock/issues/310
+[target.linux-aarch64.dependencies]
+blas = { version = "*", build = "netlib" }
+
 [activation]
 scripts = ["development/scripts/pixi/activation.sh"]
 
