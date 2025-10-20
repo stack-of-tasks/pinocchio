@@ -5,22 +5,17 @@
 #ifndef __pinocchio_multibody_joint_spline_hpp__
 #define __pinocchio_multibody_joint_spline_hpp__
 
-#include "pinocchio/macros.hpp"
-#include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/eigen-macros.hpp"
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/joint-motion-subspace.hpp"
-#include "pinocchio/math/fwd.hpp"
-#include "pinocchio/math/quaternion.hpp"
-
-#include <iostream>
 
 namespace pinocchio
 {
   struct SpanIndexes
   {
-    int start_idx;
-    int end_idx;
+    size_t start_idx;
+    size_t end_idx;
   };
 
   template<typename Scalar, int Options>
@@ -89,9 +84,6 @@ namespace pinocchio
     typedef JointModelSplineTpl<Scalar, Options> JointModelDerived;
     // typedef JointMotionSubspace1d Constraint_t;
     typedef JointMotionSubspaceTpl<1, Scalar, Options, 1> Constraint_t;
-    typedef SE3Tpl<Scalar, Options> Transformation_t;
-    typedef MotionTpl<Scalar, Options> Motion_t;
-    typedef MotionTpl<Scalar, Options> Bias_t;
 
     // [ABA]
     typedef Eigen::Matrix<Scalar, 6, NV, Options> U_t;
@@ -136,7 +128,7 @@ namespace pinocchio
     Constraint_t S;
     Transformation_t M;
     Motion_t v;
-    Bias_t c;
+    Motion_t c;
 
     // [ABA] specific data
     U_t U;
@@ -225,21 +217,17 @@ namespace pinocchio
     JointModelSplineTpl(
       const PINOCCHIO_ALIGNED_STD_VECTOR(SE3) & controlFrames, const int degree = 3)
     : degree(degree)
-    , nbCtrlFrames(controlFrames.size())
-    , ctrlFrames(controlFrames)
     {
+      setControlFrames(controlFrames);
     }
 
-    void addControlFrame(const SE3 & frame)
+    void setControlFrames(const std::vector<SE3> & controlFrames)
     {
-      ctrlFrames.push_back(frame);
-      nbCtrlFrames++;
-    }
-
-    void buildJoint()
-    {
-      makeKnots();
-      computeRelativeMotions();
+      nbCtrlFrames = controlFrames.size();
+      for(size_t i = 0; i < nbCtrlFrames; i++)
+        ctrlFrames.push_back(controlFrames);
+      
+      buildJoint();
     }
 
     JointDataDerived createData() const
@@ -265,7 +253,7 @@ namespace pinocchio
     }
 
     template<typename ConfigVector>
-    void calc(JointDataDerived & data, const typename Eigen::MatrixBase<ConfigVector> & qs) const
+    void calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVector> & qs) const
     {
       data.joint_q = qs.template segment<NQ>(idx_q());
 
@@ -297,8 +285,8 @@ namespace pinocchio
     template<typename ConfigVector, typename TangentVector>
     void calc(
       JointDataDerived & data,
-      const typename Eigen::MatrixBase<ConfigVector> & qs,
-      const typename Eigen::MatrixBase<TangentVector> & vs) const
+      const Eigen::MatrixBase<ConfigVector> & qs,
+      const Eigen::MatrixBase<TangentVector> & vs) const
     {
       data.joint_q = qs.template segment<NQ>(idx_q());
       data.joint_v = vs.template segment<NV>(idx_v());
@@ -343,7 +331,7 @@ namespace pinocchio
     void calc(
       JointDataDerived & data,
       const Blank not_used,
-      const typename Eigen::MatrixBase<TangentVector> & vs) const
+      const Eigen::MatrixBase<TangentVector> & vs) const
     {
       data.joint_v = vs.template segment<NV>(idx_v());
 
@@ -358,7 +346,6 @@ namespace pinocchio
         data.N_der2[i] = bsplineBasisDerivative2(i, degree, data.joint_q[0]);
       }
 
-      // Compute time derivative of S (for bias acceleration c)
       data.S.matrix().setZero();
       data.c.setZero();
       for (int i = 0; i < nbCtrlFrames - 1; ++i)
@@ -414,9 +401,8 @@ namespace pinocchio
       res.degree = degree;
       res.nbCtrlFrames = nbCtrlFrames;
       for (size_t k = 0; k < ctrlFrames.size(); k++)
-      {
         res.ctrlFrames.push_back(ctrlFrames[k].template cast<NewScalar>());
-      }
+
       res.makeKnots();
       res.computeRelativeMotions();
       res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
@@ -425,6 +411,8 @@ namespace pinocchio
 
     void makeKnots()
     {
+      if(nbCtrlFrames <= degree)
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "JointSpline - Number of control frames must be greater than degree of the spline.")
       const int n_knots = nbCtrlFrames + degree + 1;
       knots.resize(n_knots);
       knots.head(degree + 1).setZero();
@@ -450,10 +438,22 @@ namespace pinocchio
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) relativeMotions;
 
   private:
+    void buildJoint()
+    {
+      makeKnots();
+      computeRelativeMotions();
+    }
+
     Scalar bsplineBasis(int i, int k, const Scalar x) const
     {
       if (k == 0)
       {
+        // clang-format off
+        // if(knots[i] <= x && x <= knots[i])
+        //  return 1;
+        // else
+        //  return 0;
+        // clang-format on
         return pinocchio::internal::if_then_else(
           pinocchio::internal::LE, knots[i], x,
           pinocchio::internal::if_then_else(
