@@ -249,12 +249,8 @@ namespace pinocchio
         ReturnType operator()(const JointSpline & joint) const
         {
           JointModelSpline jmodel(joint.degree);
-
-          for (size_t i = 0; i < joint.ctrlFrames.size(); i++)
-          {
-            jmodel.addControlFrame(joint.ctrlFrames[i]);
-          }
-          jmodel.buildJoint();
+          jmodel.setControlFrames(joint.ctrlFrames);
+          
           return jmodel;
         }
         ReturnType operator()(const JointComposite & joint) const
