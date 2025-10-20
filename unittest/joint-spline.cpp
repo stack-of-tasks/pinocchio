@@ -48,7 +48,6 @@ BOOST_AUTO_TEST_CASE(vsPrismatic)
   ctrlFrames.push_back(SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)));
 
   JointModelSpline jmodel(ctrlFrames, 1);
-  jmodel.buildJoint();
   JointDataSpline jdata = jmodel.createData();
 
   jmodel.setIndexes(0, 0, 0);
@@ -96,7 +95,6 @@ BOOST_AUTO_TEST_CASE(vsFiniteDiff)
   ctrlFrames.push_back(SE3::Random());
 
   JointModelSpline jmodel(ctrlFrames);
-  jmodel.buildJoint();
   JointDataSpline jdata = jmodel.createData();
 
   jmodel.setIndexes(0, 0, 0);

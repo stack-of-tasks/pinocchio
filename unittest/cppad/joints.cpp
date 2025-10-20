@@ -198,7 +198,6 @@ struct TestADOnJoints
     ctrlFrames.push_back(SE3::Identity());
     ctrlFrames.push_back(SE3(Matrix3s::Identity(), Vector3s(Scalar(0.), Scalar(0.), Scalar(1.))));
     JointModel jmodel(ctrlFrames, 1);
-    jmodel.buildJoint();
     jmodel.setIndexes(0, 0, 0);
 
     test(jmodel);
