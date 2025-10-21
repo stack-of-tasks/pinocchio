@@ -400,6 +400,48 @@ BOOST_AUTO_TEST_CASE(test_mimic_joint)
   BOOST_CHECK(d.oMf[m.getFrameId("body3", pinocchio::BODY)].isApprox(bodyPose));
 }
 
+/// @brief test spline joint, and that we cannot reverse it
+BOOST_AUTO_TEST_CASE(test_spline)
+{
+  using namespace pinocchio::graph;
+
+  ModelGraph g;
+  //////////////////////////////////////// Bodies
+  g.addBody("body1", pinocchio::Inertia::Identity());
+  g.addFrame("body2", BodyFrame(pinocchio::Inertia::Identity()));
+
+  /////////////////////////////////////// Joints
+  pinocchio::SE3 pose_body1_joint1(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.));
+  pinocchio::SE3 pose_body2_joint1(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 4., 0.));
+
+  pinocchio::SE3 finalPose(pinocchio::SE3::Random());
+  std::vector<pinocchio::SE3> ctrlFrames;
+  ctrlFrames.push_back(pinocchio::SE3::Identity());
+  ctrlFrames.push_back(finalPose);
+
+  g.edgeBuilder()
+    .withName("body1_to_body2")
+    .withSourceVertex("body1")
+    .withSourcePose(pose_body1_joint1)
+    .withTargetVertex("body2")
+    .withTargetPose(pose_body2_joint1)
+    .withJointType(JointSpline(ctrlFrames, 1))
+    .build();
+
+  pinocchio::SE3 pose_body1_universe = pinocchio::SE3::Identity();
+  pinocchio::Model m = buildModel(g, "body1", pose_body1_universe);
+  pinocchio::Data data(m);
+
+  Eigen::VectorXd q = Eigen::VectorXd::Ones(m.nq);
+  pinocchio::framesForwardKinematics(m, data, q);
+
+  BOOST_CHECK(data.oMf[m.getFrameId("body2", pinocchio::BODY)].isApprox(
+    pose_body1_joint1 * finalPose * pose_body2_joint1));
+
+  ///////////////// Reverse Model
+  BOOST_CHECK_THROW(buildModel(g, "body2", pinocchio::SE3::Identity()), std::invalid_argument);
+}
+
 /// @brief test out reverse joint for revolute
 BOOST_AUTO_TEST_CASE(test_reverse_revolute)
 {
