@@ -84,6 +84,9 @@ namespace pinocchio
     typedef JointModelSplineTpl<Scalar, Options> JointModelDerived;
     // typedef JointMotionSubspace1d Constraint_t;
     typedef JointMotionSubspaceTpl<1, Scalar, Options, 1> Constraint_t;
+    typedef SE3Tpl<Scalar, Options> Transformation_t;
+    typedef MotionTpl<Scalar, Options> Motion_t;
+    typedef MotionTpl<Scalar, Options> Bias_t;
 
     // [ABA]
     typedef Eigen::Matrix<Scalar, 6, NV, Options> U_t;
@@ -128,7 +131,7 @@ namespace pinocchio
     Constraint_t S;
     Transformation_t M;
     Motion_t v;
-    Motion_t c;
+    Bias_t c;
 
     // [ABA] specific data
     U_t U;
@@ -146,7 +149,7 @@ namespace pinocchio
     , joint_v(TangentVector_t::Zero())
     , M(Transformation_t::Identity())
     , v(Motion_t::Zero())
-    , c(Motion_t::Zero())
+    , c(Bias_t::Zero())
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Identity())
@@ -162,7 +165,7 @@ namespace pinocchio
     , joint_v(TangentVector_t::Zero())
     , M(Transformation_t::Identity())
     , v(Motion_t::Zero())
-    , c(Motion_t::Zero())
+    , c(Bias_t::Zero())
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Identity())
@@ -217,6 +220,14 @@ namespace pinocchio
     JointModelSplineTpl(
       const PINOCCHIO_ALIGNED_STD_VECTOR(SE3) & controlFrames, const int degree = 3)
     : degree(degree)
+    , ctrlFrames(controlFrames)
+    , nbCtrlFrames(controlFrames.size())
+    {
+      buildJoint();
+    }
+
+    JointModelSplineTpl(const std::vector<SE3> & controlFrames, const int degree = 3)
+    : degree(degree)
     {
       setControlFrames(controlFrames);
     }
@@ -224,9 +235,9 @@ namespace pinocchio
     void setControlFrames(const std::vector<SE3> & controlFrames)
     {
       nbCtrlFrames = controlFrames.size();
-      for(size_t i = 0; i < nbCtrlFrames; i++)
-        ctrlFrames.push_back(controlFrames);
-      
+      for (size_t i = 0; i < nbCtrlFrames; i++)
+        ctrlFrames.push_back(controlFrames[i]);
+
       buildJoint();
     }
 
@@ -276,9 +287,11 @@ namespace pinocchio
         const Scalar phi_i = data.N.segment(i, indexes.end_idx - i).sum();
         const Scalar phi_dot_i = data.N_der.segment(i, indexes.end_idx - i).sum();
 
-        data.M = data.M * exp6(relativeMotions[i - 1] * phi_i);
-        data.S.matrix() = exp6(relativeMotions[i - 1] * phi_i).actInv(data.S)
-                          + relativeMotions[i - 1].toVector() * phi_dot_i;
+        const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
+
+        data.M = data.M * transformation_temp;
+        data.S.matrix() =
+          transformation_temp.actInv(data.S) + relativeMotions[i - 1].toVector() * phi_dot_i;
       }
     }
 
@@ -304,7 +317,6 @@ namespace pinocchio
         data.N_der2[i] = bsplineBasisDerivative2(i, degree, data.joint_q[0]);
       }
 
-      // Compute time derivative of S (for bias acceleration c)
       data.S.matrix().setZero();
       data.c.setZero();
       data.M = ctrlFrames[indexes.start_idx];
@@ -314,13 +326,14 @@ namespace pinocchio
         const Scalar phi_dot_i = data.N_der.segment(i, indexes.end_idx - i).sum();
         const Scalar phi_ddot_i = data.N_der2.segment(i, indexes.end_idx - i).sum();
 
-        data.M = data.M * exp6(relativeMotions[i - 1] * phi_i);
-        data.c =
-          relativeMotions[i - 1] * phi_ddot_i
-          + exp6(relativeMotions[i - 1] * phi_i)
-              .actInv(data.c + Motion(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
-        data.S.matrix() = exp6(relativeMotions[i - 1] * phi_i).actInv(data.S)
-                          + relativeMotions[i - 1].toVector() * phi_dot_i;
+        const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
+
+        data.M = data.M * transformation_temp;
+        data.c = relativeMotions[i - 1] * phi_ddot_i
+                 + transformation_temp.actInv(
+                   data.c + Motion(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
+        data.S.matrix() =
+          transformation_temp.actInv(data.S) + relativeMotions[i - 1].toVector() * phi_dot_i;
       }
 
       data.c = data.c * data.joint_v[0];
@@ -328,10 +341,9 @@ namespace pinocchio
     }
 
     template<typename TangentVector>
-    void calc(
-      JointDataDerived & data,
-      const Blank not_used,
-      const Eigen::MatrixBase<TangentVector> & vs) const
+    void
+    calc(JointDataDerived & data, const Blank not_used, const Eigen::MatrixBase<TangentVector> & vs)
+      const
     {
       data.joint_v = vs.template segment<NV>(idx_v());
 
@@ -354,12 +366,13 @@ namespace pinocchio
         const Scalar phi_dot_i = data.N_der.tail(nbCtrlFrames - (i + 1)).sum();
         const Scalar phi_ddot_i = data.N_der2.tail(nbCtrlFrames - (i + 1)).sum();
 
-        data.c =
-          relativeMotions[i] * phi_ddot_i
-          + exp6(relativeMotions[i] * phi_i)
-              .actInv(data.c + Motion(data.S.matrix()).cross(relativeMotions[i]) * phi_dot_i);
-        data.S.matrix() = exp6(relativeMotions[i] * phi_i).actInv(data.S)
-                          + relativeMotions[i].toVector() * phi_dot_i;
+        const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
+
+        data.c = relativeMotions[i] * phi_ddot_i
+                 + transformation_temp.actInv(
+                   data.c + Motion(data.S.matrix()).cross(relativeMotions[i]) * phi_dot_i);
+        data.S.matrix() =
+          transformation_temp.actInv(data.S) + relativeMotions[i].toVector() * phi_dot_i;
       }
 
       data.c = data.c * data.joint_v[0];
@@ -411,8 +424,10 @@ namespace pinocchio
 
     void makeKnots()
     {
-      if(nbCtrlFrames <= degree)
-        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "JointSpline - Number of control frames must be greater than degree of the spline.")
+      if (nbCtrlFrames <= degree)
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument,
+          "JointSpline - Number of control frames must be greater than degree of the spline.")
       const int n_knots = nbCtrlFrames + degree + 1;
       knots.resize(n_knots);
       knots.head(degree + 1).setZero();
@@ -446,6 +461,7 @@ namespace pinocchio
 
     Scalar bsplineBasis(int i, int k, const Scalar x) const
     {
+      using internal::if_then_else;
       if (k == 0)
       {
         // clang-format off
@@ -454,29 +470,29 @@ namespace pinocchio
         // else
         //  return 0;
         // clang-format on
-        return pinocchio::internal::if_then_else(
-          pinocchio::internal::LE, knots[i], x,
-          pinocchio::internal::if_then_else(
-            pinocchio::internal::LE, x, knots[i + 1], Scalar(1), Scalar(0)),
-          Scalar(0));
+        return if_then_else(
+          internal::LE, knots[i], x,
+          if_then_else(internal::LE, x, knots[i + 1], Scalar(1), Scalar(0)), Scalar(0));
       }
 
       // Calculate the left term
       const Scalar den1 = knots[i + k] - knots[i];
-      const Scalar left = pinocchio::internal::if_then_else(
-        pinocchio::internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
+      const Scalar left = if_then_else(
+        internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
         (x - knots[i]) / den1 * bsplineBasis(i, k - 1, x), Scalar(0));
 
       // Calculate the right term
       const Scalar den2 = knots[i + k + 1] - knots[i + 1];
-      const Scalar right = pinocchio::internal::if_then_else(
-        pinocchio::internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
+      const Scalar right = if_then_else(
+        internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
         (knots[i + k + 1] - x) / den2 * bsplineBasis(i + 1, k - 1, x), Scalar(0));
 
       return left + right;
     }
     Scalar bsplineBasisDerivative(int i, int k, const Scalar x) const
     {
+      using internal::if_then_else;
+
       if (k == 0)
       {
         return Scalar(0);
@@ -485,14 +501,14 @@ namespace pinocchio
 
       // Calculate the first term of the derivative
       const Scalar den1 = knots[i + k] - knots[i];
-      const Scalar term1 = pinocchio::internal::if_then_else(
-        pinocchio::internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
+      const Scalar term1 = if_then_else(
+        internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
         (k_scalar / den1) * bsplineBasis(i, k - 1, x), Scalar(0));
 
       // Calculate the second term of the derivative
       const Scalar den2 = knots[i + k + 1] - knots[i + 1];
-      const Scalar term2 = pinocchio::internal::if_then_else(
-        pinocchio::internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
+      const Scalar term2 = if_then_else(
+        internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
         (k_scalar / den2) * bsplineBasis(i + 1, k - 1, x), Scalar(0));
 
       return term1 - term2;
@@ -500,6 +516,8 @@ namespace pinocchio
 
     Scalar bsplineBasisDerivative2(int i, int k, const Scalar x) const
     {
+      using internal::if_then_else;
+
       if (k < 2)
       {
         return Scalar(0);
@@ -509,14 +527,14 @@ namespace pinocchio
 
       // Calculate the first term
       const Scalar den1 = knots[i + k] - knots[i];
-      const Scalar term1 = pinocchio::internal::if_then_else(
-        pinocchio::internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
+      const Scalar term1 = if_then_else(
+        internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
         (k_scalar / den1) * bsplineBasisDerivative(i, k - 1, x), Scalar(0));
 
       // Calculate the second term
       const Scalar den2 = knots[i + k + 1] - knots[i + 1];
-      const Scalar term2 = pinocchio::internal::if_then_else(
-        pinocchio::internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
+      const Scalar term2 = if_then_else(
+        internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
         (k_scalar / den2) * bsplineBasisDerivative(i + 1, k - 1, x), Scalar(0));
 
       return term1 - term2;
