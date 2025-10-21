@@ -350,3 +350,6 @@ namespace Eigen
 #include "pinocchio/src/autodiff/casadi/spatial/se3-tpl.hxx"
 #include "pinocchio/src/autodiff/casadi/utils/static-if.hxx"
 // IWYU pragma: end_exports
+#include "pinocchio/autodiff/casadi/algorithm/splines.hpp"
+
+#endif // #ifndef __pinocchio_autodiff_casadi_hpp__
