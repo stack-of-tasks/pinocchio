@@ -341,6 +341,8 @@ namespace boost
       ar & make_nvp("ctrlFrames", joint.ctrlFrames);
       ar & make_nvp("degree", joint.degree);
       ar & make_nvp("nbCtrlFrames", joint.nbCtrlFrames);
+      ar & make_nvp("relativeMotions", joint.relativeMotions);
+      ar & make_nvp("knots", joint.knots);
 
       fix::serialize(ar, *static_cast<pinocchio::JointModelBase<JointType> *>(&joint), version);
     }
