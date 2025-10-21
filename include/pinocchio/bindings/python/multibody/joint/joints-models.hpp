@@ -320,10 +320,13 @@ namespace pinocchio
         .def(bp::init<>(
           bp::args("self"),
           "Init an empty joint Spline. Default degree of spline basis function is 3."))
+        .def(bp::init<int>(
+          bp::args("self", "degree"),
+          "Init an empty joint Spline, with the degree of the future basis functions"))
         .def(
-          "addControlFrame", &context::JointModelSpline::addControlFrame, bp::arg("frame"),
-          "Add a frame to the frame control vector. As of now, they need to be added in the order "
-          "of the movement of the spline")
+          "setControlFrames", &context::JointModelSpline::setControlFrames, bp::arg("frames"),
+          "Add a vector of frames to the joint. It cannot be changed afterward and no frames can "
+          "be added afterwards either")
         .def(
           "makeKnots", &context::JointModelSpline::makeKnots,
           "generate the knots vector for the spline. Call after all the control frame have been "
