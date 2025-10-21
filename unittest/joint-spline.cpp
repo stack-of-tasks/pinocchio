@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(vsPrismatic)
 
   SE3 expected_configuration(SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 0.2)));
 
-  PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
+  std::vector<SE3> ctrlFrames;
   ctrlFrames.push_back(SE3::Identity());
   ctrlFrames.push_back(SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)));
 
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(vsFiniteDiff)
   typedef typename JointModelSpline::TangentVector_t TV;
   typedef typename LieGroup<JointModelSpline>::type LieGroupType;
 
-  PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
+  std::vector<SE3> ctrlFrames;
   ctrlFrames.push_back(SE3::Identity());
   ctrlFrames.push_back(SE3::Random());
   ctrlFrames.push_back(SE3::Random());
