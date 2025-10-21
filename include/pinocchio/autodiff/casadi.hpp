@@ -142,6 +142,18 @@ namespace Eigen
     {
       return std::numeric_limits<double>::digits10;
     }
+
+#if EIGEN_VERSION_AT_LEAST(3, 4, 90)
+    EIGEN_DEVICE_FUNC constexpr static int digits()
+    {
+      return NumTraits<double>::digits();
+    }
+
+    EIGEN_DEVICE_FUNC constexpr static int max_digits10()
+    {
+      return NumTraits<double>::max_digits10();
+    }
+#endif
   };
 } // namespace Eigen
 
@@ -391,7 +403,6 @@ namespace Eigen
       typedef
         typename ScalarBinaryOpTraits<LhsScalar, RhsScalar, scalar_max_op>::ReturnType result_type;
 
-      EIGEN_EMPTY_STRUCT_CTOR(scalar_max_op)
       EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const result_type
       operator()(const LhsScalar & a, const RhsScalar & b) const
       {
@@ -412,7 +423,6 @@ namespace Eigen
       typedef
         typename ScalarBinaryOpTraits<LhsScalar, RhsScalar, scalar_max_op>::ReturnType result_type;
 
-      EIGEN_EMPTY_STRUCT_CTOR(scalar_max_op)
       EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const result_type
       operator()(const LhsScalar & a, const RhsScalar & b) const
       {
@@ -428,14 +438,38 @@ namespace Eigen
       typedef
         typename ScalarBinaryOpTraits<LhsScalar, RhsScalar, scalar_max_op>::ReturnType result_type;
 
-      EIGEN_EMPTY_STRUCT_CTOR(scalar_max_op)
       EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const result_type
       operator()(const LhsScalar & a, const RhsScalar & b) const
       {
         return ::pinocchio::math::internal::call_max<LhsScalar, RhsScalar>::run(a, b);
       }
     };
+
   } // namespace internal
+  namespace numext
+  {
+#if EIGEN_VERSION_AT_LEAST(3, 4, 90)
+    // The function Eigen::internal::gemv_dense_selector::run defined in
+    // Eigen/src/Core/GeneralProduct.h call at some point Eigen::numext::is_exactly_zero function.
+    // Since equality operator is not defined on casadi scalar type this create a compilation error.
+    // To overcome this issue, overload Eigen::numext::equal_strict_impl::run function.
+    template<>
+    struct equal_strict_impl<
+      ::casadi::Matrix<::casadi::SXElem>,
+      ::casadi::Matrix<::casadi::SXElem>,
+      false,
+      true,
+      false,
+      true>
+    {
+      static EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC bool
+      run(const ::casadi::Matrix<::casadi::SXElem> &, const ::casadi::Matrix<::casadi::SXElem> &)
+      {
+        return false;
+      }
+    };
+#endif
+  } // namespace numext
 } // namespace Eigen
 
 #include "pinocchio/autodiff/casadi/spatial/se3-tpl.hpp"
