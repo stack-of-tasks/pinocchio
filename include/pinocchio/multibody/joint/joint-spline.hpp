@@ -9,59 +9,61 @@
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/joint-motion-subspace.hpp"
+#include "pinocchio/algorithm/splines.hpp"
 
 namespace pinocchio
 {
-  struct SpanIndexes
-  {
-    size_t start_idx;
-    size_t end_idx;
-  };
+  // struct SpanIndexes
+  // {
+  //   size_t start_idx;
+  //   size_t end_idx;
+  // };
 
-  template<typename Scalar, int Options>
-  struct FindSpan
-  {
-    template<typename ConfigVector, typename KnotsVector>
-    static SpanIndexes run(
-      const Eigen::MatrixBase<ConfigVector> & /*q*/,
-      const int /*degree*/,
-      const int nbCtrlFrames,
-      const Eigen::MatrixBase<KnotsVector> & /*knots*/)
-    {
-      return {0, nbCtrlFrames};
-    }
-  };
+  // // template<typename Scalar, int Options>
+  // // struct FindSpan
+  // // {
+  // //   template<typename ConfigVector, typename KnotsVector>
+  // //   static SpanIndexes run(
+  // //     const Eigen::MatrixBase<ConfigVector> & /*q*/,
+  // //     const int /*degree*/,
+  // //     const int nbCtrlFrames,
+  // //     const Eigen::MatrixBase<KnotsVector> & /*knots*/)
+  // //   {
+  // //     return {0, static_cast<size_t>(nbCtrlFrames)};
+  // //   }
+  // // };
 
-  template<int Options>
-  struct FindSpan<double, Options>
-  {
-    template<typename ConfigVector, typename KnotsVector>
-    static SpanIndexes run(
-      const Eigen::MatrixBase<ConfigVector> & q,
-      const int degree,
-      const int nbCtrlFrames,
-      const Eigen::MatrixBase<KnotsVector> & knots)
-    {
-      // Edge case: if q is at or beyond the end of the spline parameterization
-      if (q[0] >= 1.0)
-        return {nbCtrlFrames - (degree + 1), nbCtrlFrames};
+  // template<typename Scalar, int Options>
+  // struct FindSpan
+  // {
+  //   template<typename ConfigVector, typename KnotsVector>
+  //   static SpanIndexes run(
+  //     const Eigen::MatrixBase<ConfigVector> & q,
+  //     const int degree,
+  //     const int nbCtrlFrames,
+  //     const Eigen::MatrixBase<KnotsVector> & knots)
+  //   {
+  //     // Edge case: if q is at or beyond the end of the spline parameterization
+  //     if (q[0] >= 1.0)
+  //       return {static_cast<size_t>(nbCtrlFrames - (degree + 1)),
+  //       static_cast<size_t>(nbCtrlFrames)};
 
-      int low = degree;
-      int high = nbCtrlFrames;
-      int mid;
+  //     int low = degree;
+  //     int high = nbCtrlFrames;
+  //     int mid;
 
-      while (low < high)
-      {
-        mid = low + (high - low) / 2;
-        if (q[0] < knots[mid])
-          high = mid;
-        else
-          low = mid + 1;
-      }
+  //     while (low < high)
+  //     {
+  //       mid = low + (high - low) / 2;
+  //       if (q[0] < knots[mid])
+  //         high = mid;
+  //       else
+  //         low = mid + 1;
+  //     }
 
-      return {low - 1 - degree, low};
-    }
-  };
+  //     return {static_cast<size_t>(low - (degree + 1)), static_cast<size_t>(low)};
+  //   }
+  // };
 
   template<typename Scalar, int Options>
   struct JointSplineTpl;
