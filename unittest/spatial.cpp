@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(test_SE3)
   {
     const double prec = Eigen::NumTraits<double>::dummy_precision();
     SE3 M(SE3::Random());
-    M.rotation() += prec * SE3::Matrix3::Random();
+    M.rotation() += 2. * prec * SE3::Matrix3::Random();
     BOOST_CHECK(!M.isNormalized());
 
     SE3 M_normalized = M.normalized();
