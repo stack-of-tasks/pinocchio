@@ -7,7 +7,6 @@
 
 #include "pinocchio/algorithm/splines.hpp"
 
-
 namespace pinocchio
 {
   // Fwd Declare

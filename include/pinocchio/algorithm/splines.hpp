@@ -7,7 +7,7 @@
 
 namespace pinocchio
 {
-    struct SpanIndexes
+  struct SpanIndexes
   {
     size_t start_idx;
     size_t end_idx;
@@ -39,7 +39,8 @@ namespace pinocchio
     {
       // Edge case: if q is at or beyond the end of the spline parameterization
       if (q[0] >= 1.0)
-        return {static_cast<size_t>(nbCtrlFrames - (degree + 1)), static_cast<size_t>(nbCtrlFrames)};
+        return {
+          static_cast<size_t>(nbCtrlFrames - (degree + 1)), static_cast<size_t>(nbCtrlFrames)};
 
       int low = degree;
       int high = nbCtrlFrames;
