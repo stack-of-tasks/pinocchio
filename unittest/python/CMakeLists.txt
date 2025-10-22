@@ -164,6 +164,5 @@ endif()
 if(NOT WIN32)
   pinocchio_add_python_cpp_module(bindings_visualizer PIN_TARGETS pinocchio::pinocchio_visualizers)
   pinocchio_add_lib_unit_test(bindings_visualizer)
+  add_subdirectory(pybind11)
 endif()
-
-add_subdirectory(pybind11)

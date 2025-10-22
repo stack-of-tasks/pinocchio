@@ -205,6 +205,7 @@ namespace pinocchio
     , m_nv(0)
     , m_nvExtended(0)
     , njoints(0)
+    , jointNames()
     {
     }
 
@@ -216,6 +217,7 @@ namespace pinocchio
     , m_nv(0)
     , m_nvExtended(0)
     , njoints(0)
+    , jointNames()
     {
       joints.reserve(size);
       jointPlacements.reserve(size);
@@ -225,6 +227,7 @@ namespace pinocchio
       m_nqs.reserve(size);
       m_nvs.reserve(size);
       m_nvExtendeds.reserve(size);
+      jointNames.reserve(size);
     }
 
     ///
@@ -232,10 +235,13 @@ namespace pinocchio
     ///
     /// \param jmodel Model of the first joint.
     /// \param placement Placement of the first joint w.r.t. the joint origin.
+    /// \param name Name of the joint inside the composite
     ///
     template<typename JointModel>
     JointModelCompositeTpl(
-      const JointModelBase<JointModel> & jmodel, const SE3 & placement = SE3::Identity())
+      const JointModelBase<JointModel> & jmodel,
+      const SE3 & placement = SE3::Identity(),
+      const std::string & name = "joint_1")
     : joints(1, (JointModelVariant)jmodel.derived())
     , jointPlacements(1, placement)
     , m_nq(jmodel.nq())
@@ -248,6 +254,7 @@ namespace pinocchio
     , m_idx_vExtended(1, 0)
     , m_nvExtendeds(1, jmodel.nvExtended())
     , njoints(1)
+    , jointNames(1, name)
     {
     }
 
@@ -270,6 +277,7 @@ namespace pinocchio
     , m_idx_vExtended(other.m_idx_vExtended)
     , m_nvExtendeds(other.m_nvExtendeds)
     , njoints(other.njoints)
+    , jointNames(other.jointNames)
     {
     }
 
@@ -278,12 +286,15 @@ namespace pinocchio
     ///
     /// \param jmodel Model of the joint to add.
     /// \param placement Placement of the joint relatively to its predecessor.
+    /// \param name name of the joint inside the composite
     ///
     /// \return A reference to *this
     ///
     template<typename JointModel>
-    JointModelDerived &
-    addJoint(const JointModelBase<JointModel> & jmodel, const SE3 & placement = SE3::Identity())
+    JointModelDerived & addJoint(
+      const JointModelBase<JointModel> & jmodel,
+      const SE3 & placement = SE3::Identity(),
+      const std::string & name = "")
     {
       joints.push_back((JointModelVariant)jmodel.derived());
       jointPlacements.push_back(placement);
@@ -294,6 +305,13 @@ namespace pinocchio
 
       updateJointIndexes();
       njoints++;
+
+      std::string final_name = name;
+      if (name.empty())
+      {
+        final_name = "joint_" + std::to_string(njoints + 1);
+      }
+      jointNames.push_back(final_name);
 
       return *this;
     }
@@ -414,6 +432,7 @@ namespace pinocchio
       joints = other.joints;
       jointPlacements = other.jointPlacements;
       njoints = other.njoints;
+      jointNames = other.jointNames;
 
       return *this;
     }
@@ -432,7 +451,8 @@ namespace pinocchio
              && internal::comparison_eq(m_nvExtendeds, other.m_nvExtendeds)
              && internal::comparison_eq(joints, other.joints)
              && internal::comparison_eq(jointPlacements, other.jointPlacements)
-             && internal::comparison_eq(njoints, other.njoints);
+             && internal::comparison_eq(njoints, other.njoints)
+             && internal::comparison_eq(jointNames, other.jointNames);
     }
 
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
@@ -452,6 +472,7 @@ namespace pinocchio
       res.m_nvs = m_nvs;
       res.m_nvExtendeds = m_nvExtendeds;
       res.njoints = njoints;
+      res.jointNames = jointNames;
 
       res.joints.resize(joints.size());
       res.jointPlacements.resize(jointPlacements.size());
@@ -462,6 +483,16 @@ namespace pinocchio
       }
 
       return res;
+    }
+
+    JointIndex getJointId(const std::string & joint_name) const
+    {
+      auto it = std::find(jointNames.begin(), jointNames.end(), joint_name);
+
+      if (it == jointNames.end())
+        PINOCCHIO_THROW_PRETTY(std::invalid_argument, "JointComposite - joint_name not found");
+
+      return JointIndex(std::distance(jointNames.begin(), it));
     }
 
     /// \brief Vector of joints contained in the joint composite.
@@ -688,6 +719,8 @@ namespace pinocchio
     std::vector<int> m_idx_vExtended;
     /// \brief Dimension of the segment in the jacobian matrix
     std::vector<int> m_nvExtendeds;
+    /// \brief Vector of names for each joint inside the composite
+    std::vector<std::string> jointNames;
 
   public:
     /// \brief Number of joints contained in the JointModelComposite

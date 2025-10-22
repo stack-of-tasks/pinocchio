@@ -276,57 +276,76 @@ namespace pinocchio
     {
       context::JointModelComposite & m_joint_composite;
       const context::SE3 & m_joint_placement;
+      const std::string & m_name;
 
       JointModelCompositeAddJointVisitor(
-        context::JointModelComposite & joint_composite, const context::SE3 & joint_placement)
+        context::JointModelComposite & joint_composite,
+        const context::SE3 & joint_placement,
+        const std::string & name)
       : m_joint_composite(joint_composite)
       , m_joint_placement(joint_placement)
+      , m_name(name)
       {
       }
 
       template<typename JointModelDerived>
       context::JointModelComposite & operator()(JointModelDerived & jmodel) const
       {
-        return m_joint_composite.addJoint(jmodel, m_joint_placement);
+        return m_joint_composite.addJoint(jmodel, m_joint_placement, m_name);
       }
     }; // struct JointModelCompositeAddJointVisitor
 
     static context::JointModelComposite & addJoint_proxy(
       context::JointModelComposite & joint_composite,
       const context::JointModel & jmodel,
-      const context::SE3 & joint_placement = context::SE3::Identity())
+      const context::SE3 & joint_placement = context::SE3::Identity(),
+      const std::string & name = "")
     {
       return boost::apply_visitor(
-        JointModelCompositeAddJointVisitor(joint_composite, joint_placement), jmodel.toVariant());
+        JointModelCompositeAddJointVisitor(joint_composite, joint_placement, name),
+        jmodel.toVariant());
     }
 
     struct JointModelCompositeConstructorVisitor
     : public boost::static_visitor<context::JointModelComposite *>
     {
       const context::SE3 & m_joint_placement;
+      const std::string & m_name;
 
-      JointModelCompositeConstructorVisitor(const context::SE3 & joint_placement)
+      JointModelCompositeConstructorVisitor(
+        const context::SE3 & joint_placement, const std::string & name)
       : m_joint_placement(joint_placement)
+      , m_name(name)
       {
       }
 
       template<typename JointModelDerived>
       context::JointModelComposite * operator()(JointModelDerived & jmodel) const
       {
-        return new context::JointModelComposite(jmodel, m_joint_placement);
+        return new context::JointModelComposite(jmodel, m_joint_placement, m_name);
       }
     }; // struct JointModelCompositeConstructorVisitor
 
     static context::JointModelComposite * init_proxy1(const context::JointModel & jmodel)
     {
       return boost::apply_visitor(
-        JointModelCompositeConstructorVisitor(context::SE3::Identity()), jmodel);
+        JointModelCompositeConstructorVisitor(context::SE3::Identity(), "joint_1"), jmodel);
     }
 
     static context::JointModelComposite *
     init_proxy2(const context::JointModel & jmodel, const context::SE3 & joint_placement)
     {
-      return boost::apply_visitor(JointModelCompositeConstructorVisitor(joint_placement), jmodel);
+      return boost::apply_visitor(
+        JointModelCompositeConstructorVisitor(joint_placement, "joint_1"), jmodel);
+    }
+
+    static context::JointModelComposite * init_proxy3(
+      const context::JointModel & jmodel,
+      const context::SE3 & joint_placement,
+      const std::string & name)
+    {
+      return boost::apply_visitor(
+        JointModelCompositeConstructorVisitor(joint_placement, name), jmodel);
     }
 
     template<>
@@ -345,14 +364,23 @@ namespace pinocchio
           bp::make_constructor(
             init_proxy2, bp::default_call_policies(), bp::args("joint_model", "joint_placement")),
           "Init JointModelComposite from a joint and a placement")
+        .def(
+          "__init__",
+          bp::make_constructor(
+            init_proxy3, bp::default_call_policies(),
+            bp::args("joint_model", "joint_placement", "name")),
+          "Init JointModelComposite from a joint, a placement and a name")
         .add_property("joints", &context::JointModelComposite::joints)
         .add_property("jointPlacements", &context::JointModelComposite::jointPlacements)
         .add_property("njoints", &context::JointModelComposite::njoints)
         .def(
           "addJoint", &addJoint_proxy,
           (bp::arg("self"), bp::arg("joint_model"),
-           bp::arg("joint_placement") = context::SE3::Identity()),
+           bp::arg("joint_placement") = context::SE3::Identity(), bp::arg("name") = "joint_1"),
           "Add a joint to the vector of joints.", bp::return_internal_reference<>())
+        .def(
+          "getJointId", &context::JointModelComposite::getJointId, bp::args("joint_name"),
+          "Find the index of a joint inside a joint composite based on its name.")
 
 #ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)

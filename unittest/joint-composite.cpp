@@ -344,4 +344,16 @@ BOOST_AUTO_TEST_CASE(test_kinematics)
   BOOST_CHECK(data.a.back().isApprox(data_c.a.back()));
 }
 
+BOOST_AUTO_TEST_CASE(checkJointNames)
+{
+  JointModelComposite jmodel_composite;
+  jmodel_composite.addJoint(JointModelRZ())
+    .addJoint(JointModelRY(), SE3::Random(), "penultinum_joint")
+    .addJoint(JointModelRX(), SE3::Random(), "last_joint");
+
+  BOOST_CHECK(jmodel_composite.getJointId("last_joint") == 2);
+  BOOST_CHECK(jmodel_composite.getJointId("penultinum_joint") == 1);
+  BOOST_CHECK_THROW(jmodel_composite.getJointId("wrong_name"), std::invalid_argument);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

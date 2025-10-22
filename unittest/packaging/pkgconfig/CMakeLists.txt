@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.22)
 
 project(ExtraLib CXX)
 find_package(PkgConfig REQUIRED)

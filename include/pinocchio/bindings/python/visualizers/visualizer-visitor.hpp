@@ -8,6 +8,7 @@
 #include "pinocchio/bindings/python/fwd.hpp"
 
 #include <eigenpy/optional.hpp>
+#include <eigenpy/std-vector.hpp>
 
 namespace pinocchio
 {
@@ -19,7 +20,6 @@ namespace pinocchio
     struct VisualizerPythonVisitor : bp::def_visitor<VisualizerPythonVisitor<Visualizer>>
     {
       typedef ::pinocchio::visualizers::BaseVisualizer Base;
-      typedef ::pinocchio::visualizers::ConstMatrixRef ConstMatrixRef;
       static_assert(
         std::is_base_of<Base, Visualizer>::value,
         "Visualizer class must be derived from pinocchio::visualizers::BaseVisualizer.");
@@ -34,7 +34,20 @@ namespace pinocchio
         vis.setCameraPose(pose);
       }
 
-      static void play_proxy2(Visualizer & vis, const ConstMatrixRef & qs, context::Scalar dt)
+      static void play_proxy(
+        Visualizer & vis, const std::vector<visualizers::VectorXs> & qs, context::Scalar dt)
+      {
+        std::vector<visualizers::ConstVectorRef> qs_;
+        qs_.reserve(qs.size());
+        for (size_t i = 0; i < qs.size(); i++)
+        {
+          qs_.emplace_back(qs[i]);
+        }
+        vis.play(qs_, dt);
+      }
+
+      static void
+      play_proxy2(Visualizer & vis, const visualizers::ConstMatrixRef & qs, context::Scalar dt)
       {
         vis.play(qs, dt);
       }
@@ -58,6 +71,7 @@ namespace pinocchio
           .def(
             "display", +[](Visualizer & v, const ConstVectorRef & q) { v.display(q); },
             (bp::arg("self"), bp::arg("q") = boost::none))
+          .def("play", play_proxy, (bp::arg("self"), "qs", "dt"))
           .def("play", play_proxy2, (bp::arg("self"), "qs", "dt"))
           .def("setCameraTarget", &Visualizer::setCameraTarget, (bp::arg("self"), "target"))
           .def("setCameraPosition", &Visualizer::setCameraPosition, (bp::arg("self"), "position"))

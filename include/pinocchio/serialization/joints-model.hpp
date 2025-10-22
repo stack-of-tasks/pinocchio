@@ -29,6 +29,7 @@ namespace pinocchio
 
       ar & make_nvp("joints", joint.joints);
       ar & make_nvp("jointPlacements", joint.jointPlacements);
+      ar & make_nvp("jointNames", joint.jointNames);
     }
   };
 } // namespace pinocchio

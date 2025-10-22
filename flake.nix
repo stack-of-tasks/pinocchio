@@ -32,6 +32,7 @@
             default = self'.packages.pinocchio;
             pinocchio = pkgs.python3Packages.pinocchio.overrideAttrs (super: {
               propagatedBuildInputs = super.propagatedBuildInputs ++ [ pkgs.example-robot-data ];
+              nativeCheckInputs = [ pkgs.python3Packages.pybind11 ];
               src = pkgs.lib.fileset.toSource {
                 root = ./.;
                 fileset = pkgs.lib.fileset.unions [
@@ -78,6 +79,7 @@
                 pkgs.example-robot-data
                 self'.packages.libpinocchio
               ];
+              nativeCheckInputs = [ pkgs.python3Packages.pybind11 ];
               src = pkgs.lib.fileset.toSource {
                 root = ./.;
                 fileset = pkgs.lib.fileset.unions [

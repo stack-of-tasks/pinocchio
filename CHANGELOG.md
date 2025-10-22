@@ -10,10 +10,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
 - Homogenize python viewers examples ([#2771](https://github.com/stack-of-tasks/pinocchio/pull/2771))
-- Add docker images ([#2776](https://github.com/stack-of-tasks/pinocchio/pull/2776))
-- ROS: added jrl_cmakemodules dependency ([#2789](https://github.com/stack-of-tasks/pinocchio/pull/2789))
 - Rename hpp-fcl dependency to coal ([#2789](https://github.com/stack-of-tasks/pinocchio/pull/2794))
+- Removed CMake < 3.22 details ([#2790](https://github.com/stack-of-tasks/pinocchio/pull/2790))
+
+### Added
+- Add names to joints that are inside a composite joint ([#2786](https://github.com/stack-of-tasks/pinocchio/pull/2786))
+- Add docker images ([#2776](https://github.com/stack-of-tasks/pinocchio/pull/2776))
+- Python : add overload of `BaseVisualizer::play()` to `VisualizerPythonVisitor` ([#2796](https://github.com/stack-of-tasks/pinocchio/pull/2796))
+- ROS: added jrl_cmakemodules dependency ([#2789](https://github.com/stack-of-tasks/pinocchio/pull/2789))
 
 ## [3.8.0] - 2025-09-17
 
