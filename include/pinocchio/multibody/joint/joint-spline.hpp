@@ -395,20 +395,6 @@ namespace pinocchio
         relativeMotions.push_back(log6(ctrlFrames[i].inverse() * ctrlFrames[i + 1]));
     }
 
-    // attributes
-    int degree;
-    int nbCtrlFrames;
-    Vector knots;
-    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
-    PINOCCHIO_ALIGNED_STD_VECTOR(Motion) relativeMotions;
-
-  private:
-    void buildJoint()
-    {
-      makeKnots();
-      computeRelativeMotions();
-    }
-
     Scalar bsplineBasis(int i, int k, const Scalar x) const
     {
       using internal::if_then_else;
@@ -488,6 +474,20 @@ namespace pinocchio
         (k_scalar / den2) * bsplineBasisDerivative(i + 1, k - 1, x), Scalar(0));
 
       return term1 - term2;
+    }
+
+    // attributes
+    int degree;
+    int nbCtrlFrames;
+    Vector knots;
+    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Motion) relativeMotions;
+
+  private:
+    void buildJoint()
+    {
+      makeKnots();
+      computeRelativeMotions();
     }
   }; // struct JointModelSplineTpl
 
