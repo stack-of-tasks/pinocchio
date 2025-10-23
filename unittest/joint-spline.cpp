@@ -39,7 +39,7 @@ void addJointAndBody(
   model.appendBodyToJoint(idx, Y);
 }
 
-std::vector<SE3> getTrajectory(std::vector<SE3> & ctrlFrames)
+void getTrajectory(std::vector<SE3> & ctrlFrames)
 {
   Eigen::Matrix3d rotation;
   Eigen::Vector3d translation;
@@ -102,8 +102,6 @@ std::vector<SE3> getTrajectory(std::vector<SE3> & ctrlFrames)
   rotation << -0.500004, 0, 0.866023, 0, 1, 0, -0.866023, 0, -0.500004;
   translation << -0.00525, -0.396, 0;
   ctrlFrames.push_back(pinocchio::SE3(rotation, translation));
-
-  return ctrlFrames;
 }
 
 BOOST_AUTO_TEST_SUITE(JointSpline)
