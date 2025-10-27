@@ -224,6 +224,7 @@ namespace pinocchio
     void calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVector> & qs) const
     {
       data.joint_q = qs.template segment<NQ>(idx_q());
+      // assert(data.joint_q <)
 
       SpanIndexes indexes = FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
 
@@ -286,14 +287,15 @@ namespace pinocchio
         const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
 
         data.M = data.M * transformation_temp;
+        // Compute dS / dq recursively
         data.c = relativeMotions[i - 1] * phi_ddot_i
                  + transformation_temp.actInv(
                    data.c + Motion(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
         data.S.matrix() =
           transformation_temp.actInv(data.S) + relativeMotions[i - 1].toVector() * phi_dot_i;
       }
-
-      data.c = data.c * data.joint_v[0];
+      // C = Sdot * qdot = (dS / dq * qdot) * dot
+      data.c = data.c * data.joint_v[0] * data.joint_v[0];
       data.v = data.S * data.joint_v;
     }
 
