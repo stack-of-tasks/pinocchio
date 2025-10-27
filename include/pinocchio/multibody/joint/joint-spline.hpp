@@ -137,6 +137,13 @@ namespace pinocchio
 
   }; // struct JointDataSplinerTpl
 
+  /// @brief Spline joint in \f$SE(3)\f$.
+  ///
+  /// A spline joint constrains the movement of the child frame to follow the spline defined by the
+  /// controlFrames and the degree of the spline. Implementation of the joint is based on the paper
+  /// from Lee et al. Spline Joints for Multibody Dynamics
+  /// (https://web.cs.ucla.edu/~dt/papers/siggraph08/siggraph08.pdf)
+  ///
   PINOCCHIO_JOINT_CAST_TYPE_SPECIALIZATION(JointModelSplineTpl);
   template<typename _Scalar, int _Options>
   struct JointModelSplineTpl : public JointModelBase<JointModelSplineTpl<_Scalar, _Options>>
