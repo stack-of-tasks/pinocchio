@@ -53,6 +53,9 @@ namespace pinocchio
 
     const int JointMimic::nq;
     const int JointMimic::nv;
+
+    const int JointSpline::nq;
+    const int JointSpline::nv;
   } // namespace graph
 
   namespace python
