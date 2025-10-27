@@ -316,7 +316,7 @@ namespace pinocchio
         const Scalar phi_dot_i = data.N_der.tail(nbCtrlFrames - (i + 1)).sum();
         const Scalar phi_ddot_i = data.N_der2.tail(nbCtrlFrames - (i + 1)).sum();
 
-        const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
+        const Transformation_t transformation_temp(exp6(relativeMotions[i] * phi_i));
 
         data.c = relativeMotions[i] * phi_ddot_i
                  + transformation_temp.actInv(
