@@ -217,7 +217,8 @@ namespace pinocchio
     bool isEqual(const JointModelSplineTpl & other) const
     {
       return Base::isEqual(other) && other.degree == degree && other.nbCtrlFrames == nbCtrlFrames
-             && other.ctrlFrames == ctrlFrames;
+             && other.ctrlFrames == ctrlFrames && other.knots == knots
+             && other.relativeMotions == relativeMotions;
     }
 
     template<typename ConfigVector>
@@ -287,14 +288,14 @@ namespace pinocchio
         const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
 
         data.M = data.M * transformation_temp;
-        // Compute dS / dq recursively
+        // Compute dS/dq recursively
         data.c = relativeMotions[i - 1] * phi_ddot_i
                  + transformation_temp.actInv(
                    data.c + Motion(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
         data.S.matrix() =
           transformation_temp.actInv(data.S) + relativeMotions[i - 1].toVector() * phi_dot_i;
       }
-      // C = Sdot * qdot = (dS / dq * qdot) * dot
+      // C = Sdot * qdot = (dS/dq * qdot) * dot
       data.c = data.c * data.joint_v[0] * data.joint_v[0];
       data.v = data.S * data.joint_v;
     }
