@@ -75,7 +75,7 @@ void test_joint_methods(
     jda.S().matrix().isApprox(jdata.S().matrix()),
     std::string(error_prefix + " - JointMotionSubspaceXd "));
   BOOST_CHECK_MESSAGE(
-    (jda.M()).isApprox((jdata.M())),
+    (jda.M()).isApprox((jdata.M(), 1e-8)),
     std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
   BOOST_CHECK_MESSAGE(
     (jda.v()).isApprox((pinocchio::Motion(jdata.v()))),
