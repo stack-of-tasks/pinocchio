@@ -4,6 +4,7 @@ import hppfcl
 import time
 from pinocchio.visualize import MeshcatVisualizer
 
+
 def generate_random_se3_trajectory(num_steps, radius, num_revolutions, height):
     """
     Generates a random trajectory in SE(3) with rotating orientation.
@@ -23,13 +24,11 @@ def generate_random_se3_trajectory(num_steps, radius, num_revolutions, height):
         # 2. Define the translational part (the helical path)
         # The angle determines the position on the XY plane
         angle = alpha * num_revolutions * 2 * np.pi
-        
+
         # Calculate the x, y, z coordinates for the helix
-        translation = np.array([
-            radius * np.cos(angle),
-            radius * np.sin(angle),
-            alpha * height
-        ])
+        translation = np.array(
+            [radius * np.cos(angle), radius * np.sin(angle), alpha * height]
+        )
 
         # 3. Define the rotational part (a new random orientation at each step)
         # pin.SE3.Random().rotation generates a random 3x3 rotation matrix
@@ -40,20 +39,24 @@ def generate_random_se3_trajectory(num_steps, radius, num_revolutions, height):
         trajectory.append(pose)
 
     return trajectory
+
+
 # --- Visualization Setup ---
 
 # Generate the random trajectory
 # Parameters for the helical trajectory
-num_steps = 100
+num_steps = 30
 radius = 1.0
 num_revolutions = 3
 height = 2
 
-trajectory = generate_random_se3_trajectory(num_steps, radius, num_revolutions,height)
+trajectory = generate_random_se3_trajectory(num_steps, radius, num_revolutions, height)
 
 # Create a Pinocchio model with a single free-flyer joint
 model = pin.Model()
-joint_id = model.addJoint(0, pin.JointModelSpline(trajectory, 3), pin.SE3.Identity(), "free_flyer")
+joint_id = model.addJoint(
+    0, pin.JointModelSpline(trajectory, 3), pin.SE3.Identity(), "free_flyer"
+)
 
 # Attach a simple visual geometry (a box) to the joint
 visual_model = pin.GeometryModel()
@@ -62,7 +65,7 @@ box_shape = hppfcl.Box(0.1, 0.2, 0.3)
 geom_placement = pin.SE3.Identity()
 geom_obj = pin.GeometryObject("box", joint_id, geom_placement, box_shape)
 # Assign a color to the geometry
-geom_obj.meshColor = np.array([1.0, 0.5, 0.5, 1.0]) # RGBA
+geom_obj.meshColor = np.array([1.0, 0.5, 0.5, 1.0])  # RGBA
 visual_model.addGeometryObject(geom_obj)
 
 # --- Main Execution ---
@@ -73,7 +76,9 @@ try:
     viz.initViewer(open=True)
     viz.loadViewerModel()
 except ImportError as e:
-    print("Error while initializing the viewer. It seems you should install Python meshcat.")
+    print(
+        "Error while initializing the viewer. It seems you should install Python meshcat."
+    )
     print(e)
     sys.exit(0)
 
@@ -83,7 +88,7 @@ time.sleep(0.1)
 q = pin.neutral(model)
 
 q_vector = np.arange(0, 1, 0.05)
-for q in  q_vector:
+for q in q_vector:
     # Display the new configuration.
     viz.display(np.array([q]))
 
