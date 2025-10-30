@@ -150,8 +150,6 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSplineTpl<_Scalar, _Options> JointDerived;
-    typedef SE3Tpl<_Scalar, _Options> SE3;
-    typedef MotionTpl<_Scalar, _Options> Motion;
     typedef Eigen::Vector<_Scalar, Eigen::Dynamic> Vector;
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
 
@@ -175,7 +173,7 @@ namespace pinocchio
     }
 
     JointModelSplineTpl(
-      const PINOCCHIO_ALIGNED_STD_VECTOR(SE3) & controlFrames, const int degree = 3)
+      const PINOCCHIO_ALIGNED_STD_VECTOR(Transformation_t) & controlFrames, const int degree = 3)
     : degree(degree)
     , ctrlFrames(controlFrames)
     , nbCtrlFrames(controlFrames.size())
@@ -183,13 +181,13 @@ namespace pinocchio
       buildJoint();
     }
 
-    JointModelSplineTpl(const std::vector<SE3> & controlFrames, const int degree = 3)
+    JointModelSplineTpl(const std::vector<Transformation_t> & controlFrames, const int degree = 3)
     : degree(degree)
     {
       setControlFrames(controlFrames);
     }
 
-    void setControlFrames(const std::vector<SE3> & controlFrames)
+    void setControlFrames(const std::vector<Transformation_t> & controlFrames)
     {
       nbCtrlFrames = controlFrames.size();
       for (size_t i = 0; i < nbCtrlFrames; i++)
@@ -295,7 +293,7 @@ namespace pinocchio
         // Compute dS/dq recursively
         data.c = relativeMotions[i - 1] * phi_ddot_i
                  + transformation_temp.actInv(
-                   data.c + Motion(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
+                   data.c + Motion_t(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
         data.S.matrix() =
           transformation_temp.actInv(data.S) + relativeMotions[i - 1].toVector() * phi_dot_i;
       }
