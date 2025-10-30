@@ -14,14 +14,6 @@
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 
-// Pour calc:
-// Tu peux faire le fitting de trajectoire en Python:
-// Multibody complexe sur N contrôl points extrait de configuration random
-// Stocker la vitesse de la trajectoire généré pour comparer à S*v
-// Comment faire la correspondance q, v spline avec celui du modèle initial ?
-// Si tu mes N fois le même contrôle point (N étant l'ordre de la BSpline), tu devrais forcer le
-// passage à un point Ta spline devient une polyligne simple à tester
-
 using namespace pinocchio;
 
 template<typename D>
