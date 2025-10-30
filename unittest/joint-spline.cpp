@@ -230,6 +230,11 @@ BOOST_AUTO_TEST_CASE(findSpan)
 
   BOOST_CHECK(indexes.start_idx == ctrlFrames.size() - (degree + 1));
   BOOST_CHECK(indexes.end_idx == ctrlFrames.size());
+
+  q[0] = 0;
+  indexes = pinocchio::FindSpan<double, 0>::run(q, degree, ctrlFrames.size(), jmodel.knots);
+  BOOST_CHECK(indexes.start_idx == 0);
+  BOOST_CHECK(indexes.end_idx == degree + 1);
 }
 
 /// @brief Comparing a simple spline joint with a PZ
@@ -419,9 +424,6 @@ BOOST_AUTO_TEST_CASE(vsFiniteDifference)
     Motion c_fd = dSdq_fd * q_dot_ref[0] * q_dot_ref[0];
 
     BOOST_CHECK(c_ref.isApprox(c_fd, 1e-6));
-
-    std::cout << c_fd << std::endl;
-    std::cout << c_ref << std::endl;
   }
 }
 
