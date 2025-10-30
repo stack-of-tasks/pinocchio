@@ -492,8 +492,8 @@ namespace pinocchio
     int degree;
     int nbCtrlFrames;
     Vector knots;
-    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
-    PINOCCHIO_ALIGNED_STD_VECTOR(Motion) relativeMotions;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Transformation_t) ctrlFrames;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Motion_t) relativeMotions;
 
   private:
     void buildJoint()
