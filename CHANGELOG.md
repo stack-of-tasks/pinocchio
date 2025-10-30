@@ -202,6 +202,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add color support for robot meshes in Viser ([#2793](https://github.com/stack-of-tasks/pinocchio/pull/2793))
 - Add Realtime Sanitizer (RTSan) uniittest and CI to track dynamic allocations in main API ([#2809](https://github.com/stack-of-tasks/pinocchio/pull/2809))
 - Add Ellipsoid Joint (3-DOF surface constraint), get ready for biomechanics ([#2797](https://github.com/stack-of-tasks/pinocchio/pull/2797))
+- Add a new spline joint to default joint collection ([#2784](https://github.com/stack-of-tasks/pinocchio/pull/2784))
 
 ### Changed
 - Python version update ([#2802](https://github.com/stack-of-tasks/pinocchio/pull/2802)):
