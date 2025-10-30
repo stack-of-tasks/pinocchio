@@ -163,6 +163,21 @@ namespace pinocchio
         .def_readonly("nq", &JointUniversal::nq, "Number of configuration variables.")
         .def_readonly("nv", &JointUniversal::nv, "Number of tangent variables.");
 
+      bp::class_<JointSpline>(
+        "JointSpline", "Represents a spline-based joint.",
+        bp::init<>(bp::args("self"), "Default constructor."))
+        .def(bp::init<int>(bp::args("self", "degree"), "Constructor with degree."))
+        .def(bp::init<const SE3 &, int>(
+          bp::args("self", "ctrlFrame", "degree"),
+          "Constructor with a single control frame and degree."))
+        .def_readwrite("ctrlFrames", &JointSpline::ctrlFrames, "Control frames of the spline.")
+        .def_readwrite("degree", &JointSpline::degree, "Degree of the spline.")
+        .def_readonly("nq", &JointSpline::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointSpline::nv, "Number of tangent variables.")
+        .def(
+          "addCtrlFrame", &JointSpline::addCtrlFrame, bp::args("self", "ctrlFrame"),
+          "Add a control frame to the spline.");
+
       bp::class_<JointComposite>(
         "JointComposite", "Represents a composite joint.",
         bp::init<>(bp::args("self"), "Default constructor."))
