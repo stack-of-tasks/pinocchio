@@ -128,6 +128,121 @@ void test_joint_methods(
   }
 }
 
+template<typename Scalar, int Options>
+void test_joint_methods(
+  JointModelBase<JointModelSplineTpl<Scalar, Options>> & jmodel,
+  JointDataBase<typename JointModelSplineTpl<Scalar, Options>::JointDataDerived> & jdata)
+{
+  typedef typename LieGroup<JointModel>::type LieGroupType;
+  typedef typename JointModel::JointDataDerived JointData;
+
+  std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
+
+  Eigen::VectorXd q1, q2;
+  Eigen::VectorXd armature =
+    Eigen::VectorXd::Random(jdata.S().nv()) + Eigen::VectorXd::Ones(jdata.S().nv());
+
+  q1 = LieGroupType().randomConfiguration(
+    Eigen::VectorXd::Zero(jmodel.nq()), Eigen::VectorXd::Ones(jmodel.nq()));
+  q2 = LieGroupType().randomConfiguration(
+    Eigen::VectorXd::Zero(jmodel.nq()), Eigen::VectorXd::Ones(jmodel.nq()));
+
+  Eigen::VectorXd v1(Eigen::VectorXd::Random(jdata.S().nv())),
+    v2(Eigen::VectorXd::Random(jdata.S().nv()));
+
+  Inertia::Matrix6 Ia(pinocchio::Inertia::Random().matrix()),
+    Ia2(pinocchio::Inertia::Random().matrix());
+  bool update_I = false;
+
+  jmodel.calc(jdata.derived(), q1, v1);
+  jmodel.calc_aba(jdata.derived(), armature, Ia, update_I);
+
+  pinocchio::JointModel jma(jmodel);
+  BOOST_CHECK(jmodel == jma);
+  BOOST_CHECK(jma == jmodel);
+  BOOST_CHECK(jma.hasSameIndexes(jmodel));
+
+  pinocchio::JointData jda(jdata.derived());
+  BOOST_CHECK(jda == jdata);
+  BOOST_CHECK(jdata == jda);
+
+  jma.calc(jda, q1, v1);
+  jma.calc_aba(jda, armature, Ia, update_I);
+  pinocchio::JointData jda_other(jdata);
+
+  jma.calc(jda_other, q2, v2);
+  jma.calc_aba(jda_other, armature, Ia2, update_I);
+
+  BOOST_CHECK(jda_other != jda);
+  BOOST_CHECK(jda != jda_other);
+  BOOST_CHECK(jda_other != jdata);
+  BOOST_CHECK(jdata != jda_other);
+
+  const std::string error_prefix("JointModel on " + jma.shortname());
+  BOOST_CHECK_MESSAGE(jmodel.nq() == jma.nq(), std::string(error_prefix + " - nq "));
+  BOOST_CHECK_MESSAGE(jmodel.nv() == jma.nv(), std::string(error_prefix + " - nv "));
+
+  BOOST_CHECK_MESSAGE(jmodel.idx_q() == jma.idx_q(), std::string(error_prefix + " - Idx_q "));
+  BOOST_CHECK_MESSAGE(jmodel.idx_v() == jma.idx_v(), std::string(error_prefix + " - Idx_v "));
+  BOOST_CHECK_MESSAGE(jmodel.id() == jma.id(), std::string(error_prefix + " - JointId "));
+
+  BOOST_CHECK_MESSAGE(
+    jda.S().matrix().isApprox(jdata.S().matrix()),
+    std::string(error_prefix + " - JointMotionSubspaceXd "));
+  BOOST_CHECK_MESSAGE(
+    (jda.M()).isApprox((jdata.M()), 1e-6),
+    std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
+  BOOST_CHECK_MESSAGE(
+    (jda.v()).isApprox((pinocchio::Motion(jdata.v()))),
+    std::string(error_prefix + " - Joint motions "));
+  BOOST_CHECK_MESSAGE((jda.c()) == (jdata.c()), std::string(error_prefix + " - Joint bias "));
+
+  BOOST_CHECK_MESSAGE(
+    (jda.U()).isApprox(jdata.U()),
+    std::string(error_prefix + " - Joint U inertia matrix decomposition "));
+  BOOST_CHECK_MESSAGE(
+    (jda.Dinv()).isApprox(jdata.Dinv()),
+    std::string(error_prefix + " - Joint DInv inertia matrix decomposition "));
+  BOOST_CHECK_MESSAGE(
+    (jda.UDinv()).isApprox(jdata.UDinv()),
+    std::string(error_prefix + " - Joint UDInv inertia matrix decomposition "));
+
+  // Test vxS
+  typedef typename JointModel::Constraint_t Constraint_t;
+  typedef typename Constraint_t::DenseBase ConstraintDense;
+
+  Motion v(Motion::Random());
+  ConstraintDense vxS(v.cross(jdata.S()));
+  ConstraintDense vxS_ref = v.toActionMatrix() * jdata.S().matrix();
+
+  BOOST_CHECK_MESSAGE(vxS.isApprox(vxS_ref), std::string(error_prefix + "- Joint vxS operation "));
+
+  // Test Y*S
+  const Inertia Isparse(Inertia::Random());
+  const Inertia::Matrix6 Idense(Isparse.matrix());
+
+  const ConstraintDense IsparseS = Isparse * jdata.S();
+  const ConstraintDense IdenseS = Idense * jdata.S();
+
+  BOOST_CHECK_MESSAGE(
+    IdenseS.isApprox(IsparseS), std::string(error_prefix + "- Joint YS operation "));
+
+  // Test calc
+  {
+    JointData jdata1(jdata.derived());
+
+    jmodel.calc(jdata1.derived(), q1, v1);
+    jmodel.calc(jdata1.derived(), Blank(), v2);
+
+    JointData jdata_ref(jdata.derived());
+    jmodel.calc(jdata_ref.derived(), q1, v2);
+
+    BOOST_CHECK_MESSAGE(
+      pinocchio::JointData(jdata1).v() == pinocchio::JointData(jdata_ref).v(),
+      std::string(error_prefix + "- joint.calc(jdata,*,v) "));
+  }
+}
+
 template<typename JointModel_>
 struct init;
 
