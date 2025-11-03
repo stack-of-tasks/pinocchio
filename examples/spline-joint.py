@@ -1,7 +1,8 @@
-import pinocchio as pin
-import numpy as np
-import hppfcl
 import time
+
+import hppfcl
+import numpy as np
+import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
 
 
@@ -76,11 +77,8 @@ try:
     viz.initViewer(open=True)
     viz.loadViewerModel()
 except ImportError as e:
-    print(
-        "Error while initializing the viewer. It seems you should install Python meshcat."
-    )
+    print("Error while initializing the viewer.")
     print(e)
-    sys.exit(0)
 
 
 time.sleep(0.1)
