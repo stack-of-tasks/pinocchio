@@ -133,8 +133,8 @@ void test_joint_methods(
   JointModelBase<JointModelSplineTpl<Scalar, Options>> & jmodel,
   JointDataBase<typename JointModelSplineTpl<Scalar, Options>::JointDataDerived> & jdata)
 {
-  typedef typename LieGroup<JointModel>::type LieGroupType;
-  typedef typename JointModel::JointDataDerived JointData;
+  typedef typename LieGroup<JointModelSplineTpl<Scalar, Options>>::type LieGroupType;
+  typedef typename JointModelSplineTpl<Scalar, Options>::JointDataDerived JointData;
 
   std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
 
