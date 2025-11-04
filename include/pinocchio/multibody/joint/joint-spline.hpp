@@ -222,8 +222,10 @@ namespace pinocchio
     template<typename ConfigVector>
     void calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      assert(
-        qs[0] >= 0.0 && qs[0] <= 1.0 && "Spline joint configuration (q) must be between 0 and 1.");
+      // TODO : Fix it with casadi, or not include include when compiled with casadi
+      // assert(
+      //   qs[0] >= 0.0 && qs[0] <= 1.0 && "Spline joint configuration (q) must be between 0
+      //   and 1.");
       data.joint_q = qs.template segment<NQ>(idx_q());
 
       SpanIndexes indexes = FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
@@ -259,8 +261,9 @@ namespace pinocchio
       const Eigen::MatrixBase<ConfigVector> & qs,
       const Eigen::MatrixBase<TangentVector> & vs) const
     {
-      assert(
-        qs[0] >= 0.0 && qs[0] <= 1.0 && "Spline joint configuration (q) must be between 0 and 1.");
+      // assert(
+      //   qs[0] >= 0.0 && qs[0] <= 1.0 && "Spline joint configuration (q) must be between 0
+      //   and 1.");
 
       data.joint_q = qs.template segment<NQ>(idx_q());
       data.joint_v = vs.template segment<NV>(idx_v());
