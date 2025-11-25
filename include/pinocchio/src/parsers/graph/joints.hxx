@@ -269,8 +269,8 @@ namespace pinocchio
       }
 
       JointSpline(const std::vector<SE3> & ctrlFrames, const int degree = 3)
-      : degree(degree)
-      , ctrlFrames(ctrlFrames)
+      : ctrlFrames(ctrlFrames)
+      , degree(degree)
       {
       }
 
