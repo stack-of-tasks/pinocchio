@@ -106,13 +106,13 @@ BOOST_AUTO_TEST_CASE(makeKnots)
   int degree = 3;
 
   std::vector<SE3> ctrlFrames;
-  ctrlFrames.push_back(SE3::Identity());
-  ctrlFrames.push_back(SE3::Random());
-  ctrlFrames.push_back(SE3::Random());
+  for (int k = 0; k < 3; k++)
+    ctrlFrames.push_back(SE3::Random());
 
   BOOST_CHECK_THROW(JointModelSpline(ctrlFrames, degree), std::invalid_argument);
 
-  ctrlFrames.push_back(SE3::Random());
+  for (int k = 0; k < 3; k++)
+    ctrlFrames.push_back(SE3::Random());
 
   JointModelSpline jmodel(ctrlFrames, degree);
 
@@ -121,8 +121,8 @@ BOOST_AUTO_TEST_CASE(makeKnots)
 
   // Check Values
   Eigen::VectorXd knots_expected(degree + ctrlFrames.size() + 1);
-  knots_expected << 0., 0., 0., 0., 1., 1., 1., 1.;
-  BOOST_CHECK(jmodel.knots == knots_expected);
+  knots_expected << 0., 0., 0., 0., 0.25, 0.5, 1., 1., 1., 1.;
+  BOOST_CHECK(jmodel.knots.isApprox(knots_expected));
 }
 
 /// @brief Test to make sure the relative motions are correct
@@ -132,9 +132,13 @@ BOOST_AUTO_TEST_CASE(relativeMotions)
 
   std::vector<SE3> ctrlFrames;
   ctrlFrames.push_back(SE3::Identity());
-  ctrlFrames.push_back(SE3::Random());
-  ctrlFrames.push_back(SE3::Random());
-  ctrlFrames.push_back(SE3::Random());
+  std::vector<Motion> relativeMotions;
+  for (int i = 0; i < 10; i++)
+  {
+    relativeMotions.push_back(Motion::Random());
+    const SE3 & currentFrame = ctrlFrames.back();
+    ctrlFrames.push_back(currentFrame * exp6(relativeMotions.back()));
+  }
 
   JointModelSpline jmodel(ctrlFrames, degree);
 
@@ -143,8 +147,7 @@ BOOST_AUTO_TEST_CASE(relativeMotions)
 
   // check values
   for (size_t i = 0; i < ctrlFrames.size() - 1; i++)
-    BOOST_CHECK(jmodel.relativeMotions[i].isApprox(
-      pinocchio::log6(ctrlFrames[i].inverse() * ctrlFrames[i + 1])));
+    BOOST_CHECK(jmodel.relativeMotions[i].isApprox(relativeMotions[i]));
 }
 
 /// @brief Test on the basisSpline function and its first derivative
