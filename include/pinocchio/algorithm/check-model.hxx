@@ -60,10 +60,7 @@ namespace pinocchio
   inline bool
   MimicChecker::checkModel_impl(const ModelTpl<Scalar, Options, JointCollectionTpl> & model) const
   {
-    if (!model.mimicking_joints.empty())
-      return false;
-
-    return true;
+    return (model.mimicking_joints.empty() == false);
   }
 
   template<class... T>
