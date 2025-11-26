@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix `appendModel` issues ([#2807](https://github.com/stack-of-tasks/pinocchio/pull/2807)):
   - Bad inertia transformation when multiple frame with inertia have non null placement
   - Undefined behavior when more than two frame was attached to universe
+- Fix MimicChecker condition ([#2814](https://github.com/stack-of-tasks/pinocchio/pull/2814))
 
 ### Removed
 - Remove CMake < 3.22 details ([#2790](https://github.com/stack-of-tasks/pinocchio/pull/2790))
