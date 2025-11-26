@@ -7,12 +7,21 @@
 
 namespace pinocchio
 {
+  /// @brief Helper structure defining a range of indices.
+  /// @details This struct identifies the subset of control frames in a spline that are active
+  /// (i.e., have non-zero basis functions) for a specific spline parameter value.
+  /// Using this local support property allows for efficient computation of the joint
+  /// transformation, S, and bias c.
   struct SpanIndexes
   {
     size_t start_idx;
     size_t end_idx;
   };
 
+  /// @brief Algorithm to locate the span for a given B-spline parameter, q.
+  /// @details This struct implements a binary search (FindSpan) to determine which knot span
+  /// a given parameter value falls into. In B-spline curves, a parameter value $u$ implies that
+  /// only $(p+1)$ control points affect the curve at that location (where $p$ is the degree).
   template<typename Scalar, int Options>
   struct FindSpan
   {
