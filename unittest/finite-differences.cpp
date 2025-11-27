@@ -60,7 +60,7 @@ void filterValue(MatrixBase<Matrix> & mat, typename Matrix::Scalar value)
 }
 
 template<typename JointModel_>
-struct JmodelWithBounds
+struct JointModelWithParameters
 {
   typedef typename JointModel_::ConfigVector_t ConfigVector;
   JointModel_ jmodel;
@@ -71,7 +71,7 @@ struct JmodelWithBounds
 template<typename JointModel_>
 struct init
 {
-  static JmodelWithBounds<JointModel_> run()
+  static JointModelWithParameters<JointModel_> run()
   {
     JointModel_ jmodel;
     jmodel.setIndexes(0, 0, 0);
@@ -90,7 +90,7 @@ template<typename Scalar, int Options>
 struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options>>
 {
   typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> JointModel;
-  typedef JmodelWithBounds<JointModel> ReturnType;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
   static ReturnType run()
   {
@@ -110,7 +110,7 @@ template<typename Scalar, int Options>
 struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options>>
 {
   typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> JointModel;
-  typedef JmodelWithBounds<JointModel> ReturnType;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
   static ReturnType run()
   {
@@ -130,7 +130,7 @@ template<typename Scalar, int Options>
 struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options>>
 {
   typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> JointModel;
-  typedef JmodelWithBounds<JointModel> ReturnType;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
   static ReturnType run()
   {
@@ -150,7 +150,7 @@ template<typename Scalar, int Options>
 struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options>>
 {
   typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> JointModel;
-  typedef JmodelWithBounds<JointModel> ReturnType;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
   static ReturnType run()
   {
@@ -170,7 +170,7 @@ template<typename Scalar, int Options>
 struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
 {
   typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointModel;
-  typedef JmodelWithBounds<JointModel> ReturnType;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
   static ReturnType run()
   {
@@ -189,7 +189,7 @@ template<typename Scalar, int Options, int axis>
 struct init<pinocchio::JointModelHelicalTpl<Scalar, Options, axis>>
 {
   typedef pinocchio::JointModelHelicalTpl<Scalar, Options, axis> JointModel;
-  typedef JmodelWithBounds<JointModel> ReturnType;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
   static ReturnType run()
   {
@@ -222,7 +222,7 @@ template<typename Scalar, int Options, template<typename, int> class JointCollec
 struct init<pinocchio::JointModelTpl<Scalar, Options, JointCollection>>
 {
   typedef pinocchio::JointModelTpl<Scalar, Options, JointCollection> JointModel;
-  typedef JmodelWithBounds<JointModel> ReturnType;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
   static ReturnType run()
   {
@@ -242,7 +242,7 @@ template<typename Scalar, int Options, template<typename, int> class JointCollec
 struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
 {
   typedef pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> JointModel;
-  typedef JmodelWithBounds<JointModel> ReturnType;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
   static ReturnType run()
   {
@@ -263,7 +263,7 @@ template<typename Scalar, int Options, template<typename, int> class JointCollec
 struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
 {
   typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModel;
-  typedef JmodelWithBounds<JointModel> ReturnType;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
   static ReturnType run()
   {
@@ -284,7 +284,7 @@ template<typename Scalar, int Options>
 struct init<pinocchio::JointModelSplineTpl<Scalar, Options>>
 {
   typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
-  typedef JmodelWithBounds<JointModel> ReturnType;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
   static ReturnType run()
   {
@@ -318,8 +318,8 @@ struct FiniteDiffJoint
     typedef typename JointModel::TangentVector_t TV;
     typedef typename LieGroup<JointModel>::type LieGroupType;
 
-    JmodelWithBounds jmodelWithBounds = init<JointModel>::run();
-    JointModel jmodel = jmodelWithBounds.jmodel;
+    auto JointModelWithParameters = init<JointModel>::run();
+    JointModel jmodel = JointModelWithParameters.jmodel;
 
     std::cout << "name: " << jmodel.classname() << std::endl;
 
@@ -327,7 +327,8 @@ struct FiniteDiffJoint
     typedef JointDataBase<typename JointModel::JointDataDerived> DataBaseType;
     DataBaseType & jdata = static_cast<DataBaseType &>(jdata_);
 
-    CV q = LieGroupType().randomConfiguration(jmodelWithBounds.lb, jmodelWithBounds.ub);
+    CV q =
+      LieGroupType().randomConfiguration(JointModelWithParameters.lb, JointModelWithParameters.ub);
 
     // CV q = LieGroupType().random();
     jmodel.calc(jdata.derived(), q);
