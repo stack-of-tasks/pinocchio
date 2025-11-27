@@ -146,13 +146,29 @@ template<typename JointModel_>
 struct init;
 
 template<typename JointModel_>
+struct JointModelWithParameters
+{
+  typedef typename JointModel_::ConfigVector_t ConfigVector;
+  JointModel_ jmodel;
+  ConfigVector lb;
+  ConfigVector ub;
+};
+
+template<typename JointModel_>
 struct init
 {
-  static JointModel_ run()
+  static JointModelWithParameters<JointModel_> run()
   {
     JointModel_ jmodel;
     jmodel.setIndexes(0, 0, 0);
-    return jmodel;
+
+    // Default generic bounds
+    typename JointModel_::ConfigVector_t lb =
+      JointModel_::ConfigVector_t::Constant(jmodel.nq(), -1.0);
+    typename JointModel_::ConfigVector_t ub =
+      JointModel_::ConfigVector_t::Constant(jmodel.nq(), 1.0);
+
+    return {jmodel, lb, ub};
   }
 
   static std::string name()
@@ -165,14 +181,18 @@ template<typename Scalar, int Options>
 struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options>>
 {
   typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> JointModel;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
-  static JointModel run()
+  static ReturnType run()
   {
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
     jmodel.setIndexes(0, 0, 0);
-    return jmodel;
+    typename JointModel::ConfigVector_t lb =
+      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
+    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
+    return {jmodel, lb, ub};
   }
 
   static std::string name()
@@ -185,14 +205,18 @@ template<typename Scalar, int Options>
 struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options>>
 {
   typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> JointModel;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
-  static JointModel run()
+  static ReturnType run()
   {
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
     jmodel.setIndexes(0, 0, 0);
-    return jmodel;
+    typename JointModel::ConfigVector_t lb =
+      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
+    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
+    return {jmodel, lb, ub};
   }
 
   static std::string name()
@@ -205,14 +229,19 @@ template<typename Scalar, int Options>
 struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options>>
 {
   typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> JointModel;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
-  static JointModel run()
+  static ReturnType run()
   {
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
 
     jmodel.setIndexes(0, 0, 0);
-    return jmodel;
+    typename JointModel::ConfigVector_t lb =
+      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
+    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
+
+    return {jmodel, lb, ub};
   }
 
   static std::string name()
@@ -225,14 +254,18 @@ template<typename Scalar, int Options, template<typename, int> class JointCollec
 struct init<pinocchio::JointModelTpl<Scalar, Options, JointCollection>>
 {
   typedef pinocchio::JointModelTpl<Scalar, Options, JointCollection> JointModel;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
-  static JointModel run()
+  static ReturnType run()
   {
     typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
     JointModel jmodel((JointModelRX()));
 
     jmodel.setIndexes(0, 0, 0);
-    return jmodel;
+    typename JointModel::ConfigVector_t lb =
+      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
+    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
+    return {jmodel, lb, ub};
   }
 
   static std::string name()
@@ -245,8 +278,9 @@ template<typename Scalar, int Options, template<typename, int> class JointCollec
 struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
 {
   typedef pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> JointModel;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
-  static JointModel run()
+  static ReturnType run()
   {
     typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
     typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 1> JointModelRY;
@@ -254,7 +288,10 @@ struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
     jmodel.addJoint(JointModelRY());
 
     jmodel.setIndexes(0, 0, 0);
-    return jmodel;
+    typename JointModel::ConfigVector_t lb =
+      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
+    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
+    return {jmodel, lb, ub};
   }
 
   static std::string name()
@@ -267,15 +304,20 @@ template<typename Scalar, int Options, template<typename, int> class JointCollec
 struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
 {
   typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModel;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
-  static JointModel run()
+  static ReturnType run()
   {
     typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-    JointModelRX jmodel_ref = init<JointModelRX>::run();
+    JointModelRX jmodel_ref;
+    jmodel_ref.setIndexes(0, 0, 0);
 
     JointModel jmodel(jmodel_ref, 1., 0.);
     jmodel.setIndexes(1, 0, 0, 0);
-    return jmodel;
+    typename JointModel::ConfigVector_t lb =
+      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
+    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
+    return {jmodel, lb, ub};
   }
 
   static std::string name()
@@ -288,18 +330,27 @@ template<typename Scalar, int Options>
 struct init<pinocchio::JointModelSplineTpl<Scalar, Options>>
 {
   typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
-  typedef pinocchio::SE3Tpl<Scalar> SE3;
-  typedef Eigen::Matrix<Scalar, 3, 3> Matrix3s;
-  typedef Eigen::Matrix<Scalar, 3, 1> Vector3s;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
-  static JointModel run()
+  typedef pinocchio::SE3Tpl<Scalar> SE3;
+
+  static ReturnType run()
   {
-    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
-    ctrlFrames.push_back(SE3::Identity());
-    ctrlFrames.push_back(SE3(Matrix3s::Identity(), Vector3s(Scalar(0.), Scalar(0.), Scalar(1.))));
-    JointModel jmodel(ctrlFrames, 1);
+    PINOCCHIO_ALIGNED_STD_VECTOR(pinocchio::SE3) ctrlFrames;
+    for (int k = 0; k < 5; k++)
+      ctrlFrames.push_back(SE3::Random());
+
+    JointModel jmodel(ctrlFrames, 3);
     jmodel.setIndexes(0, 0, 0);
-    return jmodel;
+
+    typename JointModel::ConfigVector_t lb =
+      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
+    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
+    return {jmodel, lb, ub};
+  }
+  static std::string name()
+  {
+    return JointModel::classname();
   }
 };
 
@@ -308,265 +359,27 @@ struct TestADOnJoints
   template<typename JointModel_>
   void operator()(const pinocchio::JointModelBase<JointModel_> &) const
   {
-    JointModel_ jmodel = init<JointModel_>::run();
-    test(jmodel);
-  }
+    typedef typename JointModel_::ConfigVector_t ConfigVector;
 
-  template<typename Scalar, int Options, int axis>
-  void operator()(const pinocchio::JointModelHelicalTpl<Scalar, Options, axis> &) const
-  {
-    typedef pinocchio::JointModelHelicalTpl<Scalar, Options, axis> JointModel;
-    JointModel jmodel(Scalar(0.4));
-    jmodel.setIndexes(0, 0, 0);
+    auto jmodelWithParams = init<JointModel_>::run();
 
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelUniversalTpl<Scalar, Options> &) const
-  {
-    typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::UnitX(), Vector3::UnitY());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> &) const
-  {
-    typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> &) const
-  {
-    typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> &) const
-  {
-    typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> &) const
-  {
-    typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelSplineTpl<Scalar, Options> &) const
-  {
-    typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
-    typedef pinocchio::SE3Tpl<Scalar> SE3;
-    typedef Eigen::Matrix<Scalar, 3, 3> Matrix3s;
-    typedef Eigen::Matrix<Scalar, 3, 1> Vector3s;
-
-    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
-    ctrlFrames.push_back(SE3::Identity());
-    ctrlFrames.push_back(SE3(Matrix3s::Identity(), Vector3s(Scalar(0.), Scalar(0.), Scalar(1.))));
-    JointModel jmodel(ctrlFrames, 1);
-
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options, template<typename, int> class JointCollection>
-  void operator()(const pinocchio::JointModelTpl<Scalar, Options, JointCollection> &) const
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-    typedef pinocchio::JointModelTpl<Scalar, Options, JointCollection> JointModel;
-    JointModel jmodel((JointModelRX()));
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options, template<typename, int> class JointCollection>
-  void operator()(const pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> &) const
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 1> JointModelRY;
-    typedef pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> JointModel;
-    JointModel jmodel((JointModelRX()));
-    jmodel.addJoint(JointModelRY());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
+    test(jmodelWithParams.jmodel, jmodelWithParams.lb, jmodelWithParams.ub);
   }
 
   // TODO: get the nq and nv quantity from LieGroups
-  template<typename Scalar, int Options, template<typename, int> class JointCollection>
-  static void
-  test(const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/)
+  template<typename Scalar, int Options, template<typename, int> class JointCollection, typename CV>
+  static void test(
+    const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/,
+    const Eigen::MatrixBase<CV> & /*lb*/,
+    const Eigen::MatrixBase<CV> & /*ub*/)
   { /* do nothing */
   }
 
-  template<typename Scalar, int Options>
-  static void test(const pinocchio::JointModelSplineTpl<Scalar, Options> & jmodel)
-  {
-    std::cout << "--" << std::endl;
-    std::cout << "jmodel: " << jmodel.shortname() << std::endl;
-
-    typedef casadi::SX AD_double;
-
-    typedef pinocchio::SE3Tpl<AD_double> SE3AD;
-    typedef pinocchio::MotionTpl<AD_double> MotionAD;
-    typedef pinocchio::SE3Tpl<double> SE3;
-    typedef pinocchio::MotionTpl<double> Motion;
-    typedef pinocchio::JointMotionSubspaceTpl<Eigen::Dynamic, double> JointMotionSubspaceXd;
-
-    typedef Eigen::Matrix<AD_double, Eigen::Dynamic, 1> VectorXAD;
-    typedef Eigen::Matrix<AD_double, 6, 1> Vector6AD;
-
-    typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
-    typedef typename pinocchio::CastType<AD_double, JointModel>::type JointModelAD;
-    typedef typename JointModelAD::JointDataDerived JointDataAD;
-
-    typedef typename JointModelAD::ConfigVector_t ConfigVectorAD;
-
-    typedef typename JointModel::JointDataDerived JointData;
-    typedef typename JointModel::ConfigVector_t ConfigVector;
-    typedef typename JointModel::TangentVector_t TangentVector;
-
-    JointData jdata(jmodel.createData());
-    pinocchio::JointDataBase<JointData> & jdata_base = jdata;
-
-    JointModelAD jmodel_ad = jmodel.template cast<AD_double>();
-    JointDataAD jdata_ad(jmodel_ad.createData());
-    pinocchio::JointDataBase<JointDataAD> & jdata_ad_base = jdata_ad;
-
-    ConfigVector q(jmodel.nq());
-
-    ConfigVector lb(ConfigVector::Constant(jmodel.nq(), 0.));
-    ConfigVector ub(ConfigVector::Constant(jmodel.nq(), 1.));
-
-    typedef pinocchio::RandomConfigurationStep<
-      pinocchio::LieGroupMap, ConfigVector, ConfigVector, ConfigVector>
-      RandomConfigAlgo;
-    RandomConfigAlgo::run(jmodel.derived(), typename RandomConfigAlgo::ArgsType(q, lb, ub));
-
-    casadi::SX cs_q = casadi::SX::sym("q", jmodel.nq());
-    ConfigVectorAD q_ad(jmodel.nq());
-    for (Eigen::DenseIndex k = 0; k < jmodel.nq(); ++k)
-    {
-      q_ad[k] = cs_q(k);
-    }
-
-    // Zero order
-    jmodel_ad.calc(jdata_ad, q_ad);
-    jmodel.calc(jdata, q);
-
-    SE3 M1(jdata.M);
-    SE3AD M2(jdata_ad_base.M());
-
-    casadi::SX cs_trans(3, 1);
-    for (Eigen::DenseIndex k = 0; k < 3; ++k)
-    {
-      cs_trans(k) = M2.translation()[k];
-    }
-    casadi::SX cs_rot(3, 3);
-    for (Eigen::DenseIndex i = 0; i < 3; ++i)
-    {
-      for (Eigen::DenseIndex j = 0; j < 3; ++j)
-      {
-        cs_rot(i, j) = M2.rotation()(i, j);
-      }
-    }
-
-    casadi::Function eval_placement(
-      "eval_placement", casadi::SXVector{cs_q}, casadi::SXVector{cs_trans, cs_rot});
-    std::cout << "Joint Placement = " << eval_placement << std::endl;
-
-    std::vector<double> q_vec((size_t)jmodel.nq());
-    Eigen::Map<ConfigVector>(q_vec.data(), jmodel.nq(), 1) = q;
-    casadi::DMVector res = eval_placement(casadi::DMVector{q_vec});
-    std::cout << "M(q)=" << res << std::endl;
-
-    BOOST_CHECK(M1.translation().isApprox(Eigen::Map<SE3::Vector3>(res[0]->data())));
-    BOOST_CHECK(M1.rotation().isApprox(Eigen::Map<SE3::Matrix3>(res[1]->data())));
-
-    // First order
-    casadi::SX cs_v = casadi::SX::sym("v", jmodel.nv());
-    TangentVector v(TangentVector::Random(jmodel.nv()));
-    VectorXAD v_ad(jmodel_ad.nv());
-
-    std::vector<double> v_vec((size_t)jmodel.nv());
-    Eigen::Map<TangentVector>(v_vec.data(), jmodel.nv(), 1) = v;
-
-    for (Eigen::DenseIndex k = 0; k < jmodel.nv(); ++k)
-    {
-      v_ad[k] = cs_v(k);
-    }
-
-    jmodel.calc(jdata, q, v);
-    Motion m(jdata_base.v());
-    JointMotionSubspaceXd Sref(jdata_base.S().matrix());
-
-    jmodel_ad.calc(jdata_ad, q_ad, v_ad);
-    Vector6AD Y;
-    MotionAD m_ad(jdata_ad_base.v());
-
-    casadi::SX cs_vel(6, 1);
-    for (Eigen::DenseIndex k = 0; k < 6; ++k)
-    {
-      cs_vel(k) = m_ad.toVector()[k];
-    }
-    casadi::Function eval_velocity(
-      "eval_velocity", casadi::SXVector{cs_q, cs_v}, casadi::SXVector{cs_vel});
-    std::cout << "Joint Velocity = " << eval_velocity << std::endl;
-
-    casadi::DMVector res_vel = eval_velocity(casadi::DMVector{q_vec, v_vec});
-    std::cout << "v(q,v)=" << res_vel << std::endl;
-
-    BOOST_CHECK(m.linear().isApprox(Eigen::Map<Motion::Vector3>(res_vel[0]->data())));
-    BOOST_CHECK(m.angular().isApprox(Eigen::Map<Motion::Vector3>(res_vel[0]->data() + 3)));
-
-    casadi::SX dvel_dv = jacobian(cs_vel, cs_v);
-    casadi::Function eval_S("eval_S", casadi::SXVector{cs_q, cs_v}, casadi::SXVector{dvel_dv});
-    std::cout << "S = " << eval_S << std::endl;
-
-    casadi::DMVector res_S = eval_S(casadi::DMVector{q_vec, v_vec});
-    std::cout << "res_S:" << res_S << std::endl;
-    JointMotionSubspaceXd::DenseBase Sref_mat = Sref.matrix();
-
-    for (Eigen::DenseIndex i = 0; i < 6; ++i)
-    {
-      for (Eigen::DenseIndex j = 0; i < Sref.nv(); ++i)
-        BOOST_CHECK(
-          std::fabs(Sref_mat(i, j) - (double)res_S[0](i, j))
-          <= Eigen::NumTraits<double>::dummy_precision());
-    }
-
-    std::cout << "--" << std::endl << std::endl;
-  }
-
-  template<typename JointModel>
-  static void test(const pinocchio::JointModelBase<JointModel> & jmodel)
+  template<typename JointModel, typename CV>
+  static void test(
+    const pinocchio::JointModelBase<JointModel> & jmodel,
+    const Eigen::MatrixBase<CV> & lb,
+    const Eigen::MatrixBase<CV> & ub)
   {
     std::cout << "--" << std::endl;
     std::cout << "jmodel: " << jmodel.shortname() << std::endl;
@@ -599,9 +412,6 @@ struct TestADOnJoints
     pinocchio::JointDataBase<JointDataAD> & jdata_ad_base = jdata_ad;
 
     ConfigVector q(jmodel.nq());
-
-    ConfigVector lb(ConfigVector::Constant(jmodel.nq(), -1.));
-    ConfigVector ub(ConfigVector::Constant(jmodel.nq(), 1.));
 
     typedef pinocchio::RandomConfigurationStep<
       pinocchio::LieGroupMap, ConfigVector, ConfigVector, ConfigVector>
