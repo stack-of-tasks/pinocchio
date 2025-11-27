@@ -191,13 +191,12 @@ struct TestADOnJoints
   {
     typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
     typedef pinocchio::SE3Tpl<Scalar> SE3;
-    typedef Eigen::Matrix<Scalar, 3, 3> Matrix3s;
-    typedef Eigen::Matrix<Scalar, 3, 1> Vector3s;
 
     PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
-    ctrlFrames.push_back(SE3::Identity());
-    ctrlFrames.push_back(SE3(Matrix3s::Identity(), Vector3s(Scalar(0.), Scalar(0.), Scalar(1.))));
-    JointModel jmodel(ctrlFrames, 1);
+    for (int k = 0; k < 5; k++)
+      ctrlFrames.push_back(SE3::Random());
+
+    JointModel jmodel(ctrlFrames, 3);
     jmodel.setIndexes(0, 0, 0);
 
     test(jmodel);
