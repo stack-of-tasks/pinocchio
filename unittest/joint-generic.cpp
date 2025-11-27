@@ -12,9 +12,12 @@
 
 using namespace pinocchio;
 
-template<typename JointModel>
+template<typename JointModel, typename ConfigVector>
 void test_joint_methods(
-  JointModelBase<JointModel> & jmodel, JointDataBase<typename JointModel::JointDataDerived> & jdata)
+  JointModelBase<JointModel> & jmodel,
+  JointDataBase<typename JointModel::JointDataDerived> & jdata,
+  const Eigen::MatrixBase<ConfigVector> & lb,
+  const Eigen::MatrixBase<ConfigVector> & ub)
 {
   typedef typename LieGroup<JointModel>::type LieGroupType;
   typedef typename JointModel::JointDataDerived JointData;
@@ -414,10 +417,11 @@ struct init<pinocchio::JointModelSplineTpl<Scalar, Options>>
 
   static JointModel run()
   {
-    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
-    ctrlFrames.push_back(SE3::Identity());
-    ctrlFrames.push_back(SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)));
-    JointModel jmodel(ctrlFrames, 1);
+    PINOCCHIO_ALIGNED_STD_VECTOR(pinocchio::SE3) ctrlFrames;
+    for (int k = 0; k < 5; k++)
+      ctrlFrames.push_back(SE3::Random());
+
+    JointModel jmodel(ctrlFrames, 3);
     jmodel.setIndexes(0, 0, 0);
     return jmodel;
   }
@@ -432,8 +436,9 @@ struct TestJoint
     JointModel jmodel = init<JointModel>::run();
     jmodel.setIndexes(0, 0, 0);
     typename JointModel::JointDataDerived jdata = jmodel.createData();
-
-    test_joint_methods(jmodel, jdata);
+    const Eigen::VectorXd lb = Eigen::VectorXd::Constant(jmodel.nq(), -1);
+    const Eigen::VectorXd ub = Eigen::VectorXd::Constant(jmodel.nq(), 1);
+    test_joint_methods(jmodel, jdata, lb, ub);
   }
 
   void operator()(const pinocchio::JointModelComposite &) const
@@ -442,6 +447,17 @@ struct TestJoint
 
   void operator()(const pinocchio::JointModelMimic &) const
   {
+  }
+
+  void operator()(const pinocchio::JointModelSpline &) const
+  {
+
+    JointModelSpline jmodel = init<JointModelSpline>::run();
+    jmodel.setIndexes(0, 0, 0);
+    typename JointModelSpline::JointDataDerived jdata = jmodel.createData();
+    const Eigen::VectorXd lb = Eigen::VectorXd::Zero(jmodel.nq());
+    const Eigen::VectorXd ub = Eigen::VectorXd::Ones(jmodel.nq());
+    test_joint_methods(jmodel, jdata, lb, ub);
   }
 };
 
