@@ -343,8 +343,7 @@ struct init<pinocchio::JointModelSplineTpl<Scalar, Options>>
     JointModel jmodel(ctrlFrames, 3);
     jmodel.setIndexes(0, 0, 0);
 
-    typename JointModel::ConfigVector_t lb =
-      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
+    typename JointModel::ConfigVector_t lb = JointModel::ConfigVector_t::Constant(jmodel.nq(), 0.0);
     typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
     return {jmodel, lb, ub};
   }
@@ -367,19 +366,27 @@ struct TestADOnJoints
   }
 
   // TODO: get the nq and nv quantity from LieGroups
-  template<typename Scalar, int Options, template<typename, int> class JointCollection, typename CV>
-  static void test(
-    const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/,
-    const Eigen::MatrixBase<CV> & /*lb*/,
-    const Eigen::MatrixBase<CV> & /*ub*/)
+  template<typename Scalar, int Options, template<typename, int> class JointCollection>
+  void operator()(
+    const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/) const
   { /* do nothing */
   }
 
-  template<typename JointModel, typename CV>
+  // TODO: get the nq and nv quantity from LieGroups
+  // template<typename Scalar, int Options, template<typename, int> class JointCollection, typename
+  // CV> static void test(
+  //   const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/,
+  //   const typename pinocchio::JointModelMimicTpl<Scalar, Options,
+  //   JointCollection>::ConfigVector_t & /*lb*/, const typename
+  //   pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>::ConfigVector_t & /*ub*/)
+  // { /* do nothing */
+  // }
+
+  template<typename JointModel>
   static void test(
     const pinocchio::JointModelBase<JointModel> & jmodel,
-    const Eigen::MatrixBase<CV> & lb,
-    const Eigen::MatrixBase<CV> & ub)
+    const typename JointModel::ConfigVector_t & lb,
+    const typename JointModel::ConfigVector_t & ub)
   {
     std::cout << "--" << std::endl;
     std::cout << "jmodel: " << jmodel.shortname() << std::endl;
