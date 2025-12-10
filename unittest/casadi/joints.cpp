@@ -250,6 +250,31 @@ struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options>>
   }
 };
 
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options>>
+{
+  typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> JointModel;
+  typedef JointModelWithParameters<JointModel> ReturnType;
+
+  static ReturnType run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+
+    jmodel.setIndexes(0, 0, 0);
+    typename JointModel::ConfigVector_t lb =
+      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
+    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
+
+    return {jmodel, lb, ub};
+  }
+
+  static std::string name()
+  {
+    return JointModel::classname();
+  }
+};
+
 template<typename Scalar, int Options, template<typename, int> class JointCollection>
 struct init<pinocchio::JointModelTpl<Scalar, Options, JointCollection>>
 {
