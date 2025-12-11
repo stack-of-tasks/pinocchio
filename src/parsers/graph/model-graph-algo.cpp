@@ -388,20 +388,7 @@ namespace pinocchio
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - JointSpline cannot be reversed.");
 
-          if (boost::get<BodyFrame>(&source_vertex.frame) == nullptr)
-            PINOCCHIO_THROW_PRETTY(
-              std::invalid_argument, "Graph - Invalid joint between a body and a non body frame.");
-
-          const SE3 & joint_pose = edge.source_to_joint;
-          const SE3 & body_pose = edge.joint_to_target;
-
-          const Frame previous_body = model.frames[model.getFrameId(source_vertex.name, BODY)];
-          JointIndex j_id = model.addJoint(
-            previous_body.parentJoint, cjm(joint), previous_body.placement * joint_pose, edge.name);
-
-          model.addJointFrame(j_id);
-          model.appendBodyToJoint(j_id, b_f.inertia); // check this
-          model.addBodyFrame(target_vertex.name, j_id, body_pose);
+           addJointBetweenBodies(joint, b_f);
         }
 
         void operator()(const JointFixed & joint, const BodyFrame & b_f)
