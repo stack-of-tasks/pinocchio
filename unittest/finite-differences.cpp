@@ -208,8 +208,9 @@ template<typename Scalar, int Options>
 struct init<pinocchio::JointModelEllipsoidTpl<Scalar, Options>>
 {
   typedef pinocchio::JointModelEllipsoidTpl<Scalar, Options> JointModel;
+  typedef JointModelWithParameters<JointModel> ReturnType;
 
-  static JointModel run()
+  static ReturnType run()
   {
     JointModel jmodel(Scalar(0.01), Scalar(0.02), Scalar(0.03));
 
