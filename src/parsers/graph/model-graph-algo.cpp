@@ -388,7 +388,7 @@ namespace pinocchio
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - JointSpline cannot be reversed.");
 
-           addJointBetweenBodies(joint, b_f);
+          addJointBetweenBodies(joint, b_f);
         }
 
         void operator()(const JointFixed & joint, const BodyFrame & b_f)
