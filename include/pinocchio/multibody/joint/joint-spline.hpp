@@ -341,7 +341,7 @@ namespace pinocchio
           transformation_temp.actInv(data.S) + relativeMotions[i].toVector() * phi_dot_i;
       }
 
-      data.c = data.c * data.joint_v[0];
+      data.c = data.c * data.joint_v[0] * data.joint_v[0];
       data.v = data.S * data.joint_v;
     }
 
