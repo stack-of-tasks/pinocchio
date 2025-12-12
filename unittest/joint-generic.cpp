@@ -434,7 +434,7 @@ struct TestJoint
   void operator()(const JointModelBase<JointModel> &) const
   {
     JointModel jmodel = init<JointModel>::run();
-    jmodel.setIndexes(0, 0, 0);
+
     typename JointModel::JointDataDerived jdata = jmodel.createData();
     const Eigen::VectorXd lb = Eigen::VectorXd::Constant(jmodel.nq(), -1);
     const Eigen::VectorXd ub = Eigen::VectorXd::Constant(jmodel.nq(), 1);
@@ -453,7 +453,7 @@ struct TestJoint
   {
 
     JointModelSpline jmodel = init<JointModelSpline>::run();
-    jmodel.setIndexes(0, 0, 0);
+    
     typename JointModelSpline::JointDataDerived jdata = jmodel.createData();
     const Eigen::VectorXd lb = Eigen::VectorXd::Zero(jmodel.nq());
     const Eigen::VectorXd ub = Eigen::VectorXd::Ones(jmodel.nq());
