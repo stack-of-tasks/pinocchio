@@ -214,7 +214,11 @@ struct init<pinocchio::JointModelEllipsoidTpl<Scalar, Options>>
     JointModel jmodel(Scalar(0.01), Scalar(0.02), Scalar(0.03));
 
     jmodel.setIndexes(0, 0, 0);
-    return jmodel;
+    typename JointModel::ConfigVector_t lb =
+      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
+    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
+
+    return {jmodel, lb, ub};
   }
 };
 
