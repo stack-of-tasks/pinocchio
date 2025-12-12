@@ -12,12 +12,12 @@
 
 using namespace pinocchio;
 
-template<typename JointModel, typename ConfigVector>
+template<typename JointModel>
 void test_joint_methods(
   JointModelBase<JointModel> & jmodel,
   JointDataBase<typename JointModel::JointDataDerived> & jdata,
-  const Eigen::MatrixBase<ConfigVector> & lb,
-  const Eigen::MatrixBase<ConfigVector> & ub)
+  const typename JointModel::ConfigVector_t & lb,
+  const typename JointModel::ConfigVector_t & ub)
 {
   typedef typename LieGroup<JointModel>::type LieGroupType;
   typedef typename JointModel::JointDataDerived JointData;
