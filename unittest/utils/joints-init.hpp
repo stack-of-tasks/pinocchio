@@ -233,10 +233,12 @@ namespace pinocchio
     static ReturnType run()
     {
       typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-      JointModelRX jmodel_ref = init<JointModelRX>::run();
+      auto jmodelParams_ref = init<JointModelRX>::run();
+      ;
+      JointModelRX jmodel_ref = jmodelParams_ref.jmodel;
 
       JointModel jmodel(jmodel_ref, 1., 0.);
-      jmodel.setIndexes(0, 0, 0, 0);
+      jmodel.setIndexes(1, 0, 0, 0);
       typename JointModel::ConfigVector_t lb =
         JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
       typename JointModel::ConfigVector_t ub =
