@@ -11,6 +11,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include "../utils/joints-init.hpp"
+
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
@@ -142,266 +144,6 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
   }
 }
 
-template<typename JointModel_>
-struct init;
-
-template<typename JointModel_>
-struct JointModelWithParameters
-{
-  typedef typename JointModel_::ConfigVector_t ConfigVector;
-  JointModel_ jmodel;
-  ConfigVector lb;
-  ConfigVector ub;
-};
-
-template<typename JointModel_>
-struct init
-{
-  static JointModelWithParameters<JointModel_> run()
-  {
-    JointModel_ jmodel;
-    jmodel.setIndexes(0, 0, 0);
-
-    // Default generic bounds
-    typename JointModel_::ConfigVector_t lb =
-      JointModel_::ConfigVector_t::Constant(jmodel.nq(), -1.0);
-    typename JointModel_::ConfigVector_t ub =
-      JointModel_::ConfigVector_t::Constant(jmodel.nq(), 1.0);
-
-    return {jmodel, lb, ub};
-  }
-
-  static std::string name()
-  {
-    return "default " + JointModel_::classname();
-  }
-};
-
-template<typename Scalar, int Options>
-struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options>>
-{
-  typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> JointModel;
-  typedef JointModelWithParameters<JointModel> ReturnType;
-
-  static ReturnType run()
-  {
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-
-    jmodel.setIndexes(0, 0, 0);
-    typename JointModel::ConfigVector_t lb =
-      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
-    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
-    return {jmodel, lb, ub};
-  }
-
-  static std::string name()
-  {
-    return JointModel::classname();
-  }
-};
-
-template<typename Scalar, int Options>
-struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options>>
-{
-  typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> JointModel;
-  typedef JointModelWithParameters<JointModel> ReturnType;
-
-  static ReturnType run()
-  {
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-
-    jmodel.setIndexes(0, 0, 0);
-    typename JointModel::ConfigVector_t lb =
-      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
-    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
-    return {jmodel, lb, ub};
-  }
-
-  static std::string name()
-  {
-    return JointModel::classname();
-  }
-};
-
-template<typename Scalar, int Options>
-struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options>>
-{
-  typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> JointModel;
-  typedef JointModelWithParameters<JointModel> ReturnType;
-
-  static ReturnType run()
-  {
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-
-    jmodel.setIndexes(0, 0, 0);
-    typename JointModel::ConfigVector_t lb =
-      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
-    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
-
-    return {jmodel, lb, ub};
-  }
-
-  static std::string name()
-  {
-    return JointModel::classname();
-  }
-};
-
-template<typename Scalar, int Options>
-struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options>>
-{
-  typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> JointModel;
-  typedef JointModelWithParameters<JointModel> ReturnType;
-
-  static ReturnType run()
-  {
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-
-    jmodel.setIndexes(0, 0, 0);
-    typename JointModel::ConfigVector_t lb =
-      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
-    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
-
-    return {jmodel, lb, ub};
-  }
-
-  static std::string name()
-  {
-    return JointModel::classname();
-  }
-};
-
-template<typename Scalar, int Options>
-struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
-{
-  typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointModel;
-  typedef JointModelWithParameters<JointModel> ReturnType;
-
-  static ReturnType run()
-  {
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::UnitX(), Vector3::UnitY());
-    jmodel.setIndexes(0, 0, 0);
-    typename JointModel::ConfigVector_t lb =
-      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
-    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
-
-    return {jmodel, lb, ub};
-  }
-
-  static std::string name()
-  {
-    return JointModel::classname();
-  }
-};
-
-template<typename Scalar, int Options, template<typename, int> class JointCollection>
-struct init<pinocchio::JointModelTpl<Scalar, Options, JointCollection>>
-{
-  typedef pinocchio::JointModelTpl<Scalar, Options, JointCollection> JointModel;
-  typedef JointModelWithParameters<JointModel> ReturnType;
-
-  static ReturnType run()
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-    JointModel jmodel((JointModelRX()));
-
-    jmodel.setIndexes(0, 0, 0);
-    typename JointModel::ConfigVector_t lb =
-      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
-    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
-    return {jmodel, lb, ub};
-  }
-
-  static std::string name()
-  {
-    return JointModel::classname();
-  }
-};
-
-template<typename Scalar, int Options, template<typename, int> class JointCollection>
-struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
-{
-  typedef pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> JointModel;
-  typedef JointModelWithParameters<JointModel> ReturnType;
-
-  static ReturnType run()
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 1> JointModelRY;
-    JointModel jmodel((JointModelRX()));
-    jmodel.addJoint(JointModelRY());
-
-    jmodel.setIndexes(0, 0, 0);
-    typename JointModel::ConfigVector_t lb =
-      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
-    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
-    return {jmodel, lb, ub};
-  }
-
-  static std::string name()
-  {
-    return JointModel::classname();
-  }
-};
-
-template<typename Scalar, int Options, template<typename, int> class JointCollection>
-struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
-{
-  typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModel;
-  typedef JointModelWithParameters<JointModel> ReturnType;
-
-  static ReturnType run()
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-    JointModelRX jmodel_ref;
-    jmodel_ref.setIndexes(0, 0, 0);
-
-    JointModel jmodel(jmodel_ref, 1., 0.);
-    jmodel.setIndexes(1, 0, 0, 0);
-    typename JointModel::ConfigVector_t lb =
-      JointModel::ConfigVector_t::Constant(jmodel.nq(), -1.0);
-    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
-    return {jmodel, lb, ub};
-  }
-
-  static std::string name()
-  {
-    return JointModel::classname();
-  }
-};
-
-template<typename Scalar, int Options>
-struct init<pinocchio::JointModelSplineTpl<Scalar, Options>>
-{
-  typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
-  typedef JointModelWithParameters<JointModel> ReturnType;
-
-  typedef pinocchio::SE3Tpl<Scalar> SE3;
-
-  static ReturnType run()
-  {
-    PINOCCHIO_ALIGNED_STD_VECTOR(pinocchio::SE3) ctrlFrames;
-    for (int k = 0; k < 5; k++)
-      ctrlFrames.push_back(SE3::Random());
-
-    JointModel jmodel(ctrlFrames, 3);
-    jmodel.setIndexes(0, 0, 0);
-
-    typename JointModel::ConfigVector_t lb = JointModel::ConfigVector_t::Constant(jmodel.nq(), 0.0);
-    typename JointModel::ConfigVector_t ub = JointModel::ConfigVector_t::Constant(jmodel.nq(), 1.0);
-    return {jmodel, lb, ub};
-  }
-  static std::string name()
-  {
-    return JointModel::classname();
-  }
-};
-
 struct TestADOnJoints
 {
   template<typename JointModel_>
@@ -409,7 +151,7 @@ struct TestADOnJoints
   {
     typedef typename JointModel_::ConfigVector_t ConfigVector;
 
-    auto jmodelWithParams = init<JointModel_>::run();
+    auto jmodelWithParams = pinocchio::init<JointModel_>::run();
 
     test(jmodelWithParams.jmodel, jmodelWithParams.lb, jmodelWithParams.ub);
   }
@@ -420,16 +162,6 @@ struct TestADOnJoints
     const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/) const
   { /* do nothing */
   }
-
-  // TODO: get the nq and nv quantity from LieGroups
-  // template<typename Scalar, int Options, template<typename, int> class JointCollection, typename
-  // CV> static void test(
-  //   const pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> & /*jmodel*/,
-  //   const typename pinocchio::JointModelMimicTpl<Scalar, Options,
-  //   JointCollection>::ConfigVector_t & /*lb*/, const typename
-  //   pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>::ConfigVector_t & /*ub*/)
-  // { /* do nothing */
-  // }
 
   template<typename JointModel>
   static void test(

@@ -10,6 +10,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include "utils/joints-init.hpp"
+
 using namespace pinocchio;
 
 template<typename JointModel>
@@ -433,12 +435,11 @@ struct TestJoint
   template<typename JointModel>
   void operator()(const JointModelBase<JointModel> &) const
   {
-    JointModel jmodel = init<JointModel>::run();
+    auto jmodelParams = init<JointModel>::run();
+    JointModel jmodel = jmodelParams.jmodel;
 
     typename JointModel::JointDataDerived jdata = jmodel.createData();
-    const Eigen::VectorXd lb = Eigen::VectorXd::Constant(jmodel.nq(), -1);
-    const Eigen::VectorXd ub = Eigen::VectorXd::Constant(jmodel.nq(), 1);
-    test_joint_methods(jmodel, jdata, lb, ub);
+    test_joint_methods(jmodel, jdata, jmodelParams.lb, jmodelParams.ub);
   }
 
   void operator()(const pinocchio::JointModelComposite &) const
@@ -447,17 +448,6 @@ struct TestJoint
 
   void operator()(const pinocchio::JointModelMimic &) const
   {
-  }
-
-  void operator()(const pinocchio::JointModelSpline &) const
-  {
-
-    JointModelSpline jmodel = init<JointModelSpline>::run();
-    
-    typename JointModelSpline::JointDataDerived jdata = jmodel.createData();
-    const Eigen::VectorXd lb = Eigen::VectorXd::Zero(jmodel.nq());
-    const Eigen::VectorXd ub = Eigen::VectorXd::Ones(jmodel.nq());
-    test_joint_methods(jmodel, jdata, lb, ub);
   }
 };
 
@@ -612,13 +602,15 @@ struct TestJointOperatorEqual
   template<typename JointModel>
   void operator()(const JointModelBase<JointModel> &) const
   {
-    JointModel jmodel_init = init<JointModel>::run();
+    auto jmodelParams = init<JointModel>::run();
+    JointModel jmodel_init = jmodelParams.jmodel;
+
     typedef typename JointModel::JointDataDerived JointData;
 
     Model model;
     model.addJoint(0, jmodel_init, SE3::Random(), "toto");
-    model.lowerPositionLimit.fill(-1.);
-    model.upperPositionLimit.fill(1.);
+    model.lowerPositionLimit = jmodelParams.lb;
+    model.upperPositionLimit = jmodelParams.ub;
 
     const JointModel & jmodel = boost::get<JointModel>(model.joints[1]);
 
