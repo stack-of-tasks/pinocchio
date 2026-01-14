@@ -21,7 +21,7 @@
   <depend>ros_environment</depend>
   <depend>python3</depend>
   <depend>python3-numpy</depend>
-  <depend condition="$ROS_VERSION == 2">urdfdom</depend>
+  <depend>urdfdom</depend>
   <depend>eigen</depend>
   <depend>boost</depend>
   <depend>eigenpy</depend>
