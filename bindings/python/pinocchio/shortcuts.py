@@ -290,9 +290,9 @@ def _buildModelsFromMJCF(
 
     contact_models = []
     if root_joint is None:
-        model = pin.buildModelFromMJCF(filename)
+        model, contact_models = pin.buildModelFromMJCF(filename)
     elif root_joint is not None and root_joint_name is None:
-        model = pin.buildModelFromMJCF(filename, root_joint)
+        model, contact_models = pin.buildModelFromMJCF(filename, root_joint)
     else:
         model, contact_models = pin.buildModelFromMJCF(
             filename, root_joint, root_joint_name

@@ -15,18 +15,21 @@ namespace pinocchio
 
     namespace bp = boost::python;
 
-    Model buildModelFromMJCF(const bp::object & filename)
+    bp::tuple buildModelFromMJCF(const bp::object & filename)
     {
       Model model;
-      ::pinocchio::mjcf::buildModel(path(filename), model);
-      return model;
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+      ::pinocchio::mjcf::buildModel(path(filename), model, contact_models);
+
+      return bp::make_tuple(model, contact_models);
     }
 
-    Model buildModelFromMJCF(const bp::object & filename, const JointModel & root_joint)
+    bp::tuple buildModelFromMJCF(const bp::object & filename, const JointModel & root_joint)
     {
       Model model;
-      ::pinocchio::mjcf::buildModel(path(filename), root_joint, model);
-      return model;
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+      ::pinocchio::mjcf::buildModel(path(filename), root_joint, model, contact_models);
+      return bp::make_tuple(model, contact_models);
     }
 
     bp::tuple buildModelFromMJCF(
@@ -45,16 +48,18 @@ namespace pinocchio
     {
       bp::def(
         "buildModelFromMJCF",
-        static_cast<Model (*)(const bp::object &)>(pinocchio::python::buildModelFromMJCF),
+        static_cast<bp::tuple (*)(const bp::object &)>(pinocchio::python::buildModelFromMJCF),
         bp::args("mjcf_filename"),
-        "Parse the MJCF file given in input and return a pinocchio Model.");
+        "Parse the MJCF file given in input and return a pinocchio Model as "
+        "well as a constraint list if some are present in the MJCF file.");
 
       bp::def(
         "buildModelFromMJCF",
-        static_cast<Model (*)(const bp::object &, const JointModel &)>(
+        static_cast<bp::tuple (*)(const bp::object &, const JointModel &)>(
           pinocchio::python::buildModelFromMJCF),
         bp::args("mjcf_filename", "root_joint"),
-        "Parse the MJCF file and return a pinocchio Model with the given root Joint.");
+        "Parse the MJCF file and return a pinocchio Model with the given root Joint as "
+        "well as a constraint list if some are present in the MJCF file.");
 
       bp::def(
         "buildModelFromMJCF",
