@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- MJCF: load constraint models consistently across all build-model paths in the Python bindings, including fixed-base models.
+
 ## [3.9.0] - 2026-01-05
 
 ### Added
