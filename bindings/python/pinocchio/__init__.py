@@ -17,7 +17,11 @@ import numpy
 # More resources on https://github.com/diffpy/pyobjcryst/issues/33
 try:
     from .pinocchio_pywrap_default import *
-    from .pinocchio_pywrap_default import __raw_version__, __version__
+    from .pinocchio_pywrap_default import (
+        __bindings_framework__,
+        __raw_version__,
+        __version__,
+    )
 except ImportError:
     import platform
 
