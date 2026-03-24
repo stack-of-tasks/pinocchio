@@ -1,3 +1,5 @@
+// Copyright (c) 2026 INRIA
+
 #pragma once
 
 #include "./context.hpp"
@@ -22,8 +24,13 @@ PINOCCHIO_PYTHON_NAMESPACE_END
 
 // DISABLE SPECIFIC TYPE_CASTERS FOR std::vector
 NB_MAKE_OPAQUE(std::vector<std::string>);
+NB_MAKE_OPAQUE(std::vector<pinocchio::Index>);
+// spatial
 PINOCCHIO_PYTHON_STD_VEC_OPAQUE_TPL(pinocchio::SE3Tpl);
 PINOCCHIO_PYTHON_STD_VEC_OPAQUE_TPL(pinocchio::MotionTpl);
 PINOCCHIO_PYTHON_STD_VEC_OPAQUE_TPL(pinocchio::ForceTpl);
 PINOCCHIO_PYTHON_STD_VEC_OPAQUE_TPL(pinocchio::InertiaTpl);
+// multibody
 PINOCCHIO_PYTHON_STD_VEC_OPAQUE_TPL(pinocchio::JointModelTpl);
+PINOCCHIO_PYTHON_STD_VEC_OPAQUE_TPL(pinocchio::JointDataTpl);
+PINOCCHIO_PYTHON_STD_VEC_OPAQUE_TPL(pinocchio::FrameTpl);
