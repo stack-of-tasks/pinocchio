@@ -187,6 +187,14 @@ cmake_dependent_option(
     BUILD_PYTHON_INTERFACE
     OFF
 )
+if(BUILD_PYTHON_INTERFACE)
+    set(BINDINGS_FRAMEWORK
+        "Boost"
+        CACHE STRING
+        "Python bindings framework to use."
+    )
+    set_property(CACHE BINDINGS_FRAMEWORK PROPERTY STRINGS "Boost" "Nanobind")
+endif()
 cmake_dependent_option(
     BUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT
     "Build the Python interface with single-precision support"
