@@ -24,6 +24,7 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
 {
   bp::docstring_options module_docstring_options(true, true, false);
 
+  bp::scope().attr("__bindings_framework__") = bp::str("Boost.Python");
   bp::scope().attr("__version__") = pinocchio::printVersion();
   bp::scope().attr("__raw_version__") = bp::str(PINOCCHIO_VERSION);
   eigenpy::enableEigenPy();
