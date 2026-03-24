@@ -224,7 +224,7 @@ void exposeModel(nb::module_ m)
     // --- operators
     .def("__eq__", [](const Model & a, const Model & b) { return a == b; })
     .def("__ne__", [](const Model & a, const Model & b) { return a != b; })
-    .def(PrintableVisitor<Model>{});
+    .def(PrintableVisitor<Model>());
 
   nb::bind_vector<std::vector<Index>>(m, "IndexStdVec");
   nb::bind_vector<std::vector<IndexVector>>(m, "IndexVecVec");
