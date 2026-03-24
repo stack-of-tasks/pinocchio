@@ -21,18 +21,26 @@ void exposeFrame(nb::module_ m)
     .def(nb::init<>())
     .def(nb::init<const Frame &>(), "other"_a)
     .def(
-      nb::init<const std::string &, JointIndex, const SE3 &, FrameType>(), "name"_a,
-      "parent_joint"_a, "placement"_a, "inertia"_a = Inertia::Zero())
+      nb::init<const std::string &, JointIndex, const SE3 &, FrameType, const Inertia &>(),
+      "name"_a, "parent_joint"_a, "placement"_a, "type"_a, "inertia"_a = Inertia::Zero(),
+      "Initialize from a name, parent joint index, placement wrt parent joint, type and optional "
+      "spatial inertia.")
     .def(
-      nb::init<const std::string &, JointIndex, FrameIndex, const SE3 &, FrameType>(), "name"_a,
-      "parent_joint"_a, "parent_frame"_a, "placement"_a, "inertia"_a = Inertia::Zero())
-    .def_rw("name", &Frame::name)
-    .def_rw("parentJoint", &Frame::parentJoint)
-    .def_rw("parentFrame", &Frame::parentFrame)
-    //
-    .def_rw("placement", &Frame::placement)
-    .def_rw("type", &Frame::type)
+      nb::init<
+        const std::string &, JointIndex, FrameIndex, const SE3 &, FrameType, const Inertia &>(),
+      "name"_a, "parent_joint"_a, "parent_frame"_a, "placement"_a, "type"_a,
+      "inertia"_a = Inertia::Zero(),
+      "Initialize from a name, parent joint index, parent frame index, placement wrt parent "
+      "joint, type and optional spatial inertia.")
+    .def_rw("name", &Frame::name, "Name of the frame.")
+    .def_rw("parentJoint", &Frame::parentJoint, "Index of the parent joint.")
+    .def_rw("parentFrame", &Frame::parentFrame, "Index of the parent frame.")
+    .def_rw(
+      "placement", &Frame::placement, "Placement of the frame in the parent joint local frame.")
+    .def_rw("type", &Frame::type, "Type of the frame.")
     .def_rw("inertia", &Frame::inertia, "Inertia information attached to the frame.")
+    .def("__eq__", [](const Frame & a, const Frame & b) { return a == b; })
+    .def("__ne__", [](const Frame & a, const Frame & b) { return a != b; })
     .def(PrintableVisitor<Frame>());
 
   nb::bind_vector<std::vector<Frame>>(m, "FrameStdVec");
