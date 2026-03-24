@@ -41,6 +41,6 @@ void exposeSE3(nb::module_ m)
       "toActionMatrix", [](Self const & self) { return self.toActionMatrix(); },
       "Returns the related action matrix (acting on Motion).");
 
-  nb::bind_vector<std::vector<SE3>>(m, "StdVec_SE3");
+  nb::bind_vector<std::vector<SE3>>(m, "SE3StdVec");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
