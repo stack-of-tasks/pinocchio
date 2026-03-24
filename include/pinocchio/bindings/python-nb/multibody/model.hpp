@@ -16,6 +16,7 @@ void exposeModel(nb::module_ m)
 {
   using Scalar = typename Model::Scalar;
   using Index = typename Model::Index;
+  using IndexVector = typename Model::IndexVector;
   using SE3 = typename Model::SE3;
   using Data = typename Model::Data;
 
@@ -46,5 +47,9 @@ void exposeModel(nb::module_ m)
     .def_rw("name", &Model::name)
     .def_rw("names", &Model::names)
     .def_rw("armature", &Model::armature);
+
+  nb::bind_vector<std::vector<Index>>(m, "IndexStdVec");
+  nb::bind_vector<std::vector<IndexVector>>(m, "IndexVecVec");
+  nb::bind_vector<std::vector<std::string>>(m, "StringStdVec");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
