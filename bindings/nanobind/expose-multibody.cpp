@@ -5,6 +5,10 @@
 
 namespace nb = nanobind;
 
+constexpr pinocchio::FrameType kAllFrameTypes = static_cast<pinocchio::FrameType>(
+  pinocchio::JOINT | pinocchio::FIXED_JOINT | pinocchio::BODY | pinocchio::OP_FRAME
+  | pinocchio::SENSOR);
+
 void exposeMultibody(nb::module_ m)
 {
   using namespace pinocchio::python_nb;
@@ -16,6 +20,7 @@ void exposeMultibody(nb::module_ m)
     .value("FIXED_JOINT", pinocchio::FIXED_JOINT)
     .value("BODY", pinocchio::BODY)
     .value("SENSOR", pinocchio::SENSOR)
+    .value("_FRAMETYPE_ALL_TYPES", kAllFrameTypes) // useful for default arguments
     .export_values();
 
   exposeModel<pinocchio::Model>(m);
