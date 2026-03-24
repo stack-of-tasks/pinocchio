@@ -1,6 +1,5 @@
 // Copyright (c) 2026 INRIA
 
-#include "pinocchio/bindings/python-nb/spatial/se3.hpp"
 #include "pinocchio/utils/version.hpp"
 
 #include <nanobind/nanobind.h>
@@ -39,9 +38,8 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
   m.import_("coal");
 #endif
 
-  using namespace pinocchio::python_nb;
   // spatial
-  exposeSE3<pinocchio::SE3>(m);
+  exposeSpatial(m);
 
   // multibody
   exposeMultibody(m);

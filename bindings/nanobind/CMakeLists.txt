@@ -25,7 +25,7 @@ endif()
 set(PYWRAP ${PROJECT_NAME}_pywrap)
 set(PYWRAP ${PYWRAP} PARENT_SCOPE)
 
-set(PYWRAP_SOURCES module.cpp expose-multibody.cpp)
+set(PYWRAP_SOURCES module.cpp expose-spatial.cpp expose-multibody.cpp)
 
 file(
     GLOB_RECURSE PYWRAP_HEADERS
