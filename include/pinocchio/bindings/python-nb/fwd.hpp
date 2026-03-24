@@ -6,6 +6,7 @@
 #include <nanobind/nanobind.h>
 #include <vector>
 #include <string>
+#include <map>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 namespace nb = nanobind;
@@ -25,6 +26,8 @@ PINOCCHIO_PYTHON_NAMESPACE_END
 // DISABLE SPECIFIC TYPE_CASTERS FOR std::vector
 NB_MAKE_OPAQUE(std::vector<std::string>);
 NB_MAKE_OPAQUE(std::vector<pinocchio::Index>);
+// multibody map types
+NB_MAKE_OPAQUE(std::map<std::string, pinocchio::python_nb::VectorXs>);
 // spatial
 PINOCCHIO_PYTHON_STD_VEC_OPAQUE_TPL(pinocchio::SE3Tpl);
 PINOCCHIO_PYTHON_STD_VEC_OPAQUE_TPL(pinocchio::MotionTpl);

@@ -28,13 +28,22 @@ PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 using Scalar = PINOCCHIO_PYTHON_SCALAR_TYPE_DEFAULT;
 static constexpr int Options = 0;
 
+// Eigen
+using VectorXs = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
+using MatrixXs = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Options>;
+using RowMatrixXs =
+  Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor | Options>;
+using ConstVectorRef = Eigen::Ref<const VectorXs>;
+
 // Spatial
 using SE3 = SE3Tpl<Scalar, Options>;
 using Motion = MotionTpl<Scalar, Options>;
 using Force = ForceTpl<Scalar, Options>;
-using Inertia = Inertia;
+using Inertia = InertiaTpl<Scalar, Options>;
 
 // Multibody
+using Model = ModelTpl<Scalar, Options>;
+using Data = DataTpl<Scalar, Options>;
 
 // Joints
 using JointModel = JointModelTpl<Scalar, Options>;
