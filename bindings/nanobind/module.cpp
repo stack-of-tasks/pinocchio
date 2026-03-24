@@ -1,6 +1,9 @@
 // Copyright (c) 2026 INRIA
 
 #include "pinocchio/utils/version.hpp"
+#include "pinocchio/fwd.hpp"
+#include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/constraints/fwd.hpp"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
@@ -38,6 +41,35 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
 #if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_COLLISION_PYTHON_BINDINGS)
   m.import_("coal");
 #endif
+
+  // enums
+  nb::enum_<pinocchio::ReferenceFrame>(m, "ReferenceFrame")
+    .value("WORLD", pinocchio::WORLD)
+    .value("LOCAL", pinocchio::LOCAL)
+    .value("LOCAL_WORLD_ALIGNED", pinocchio::LOCAL_WORLD_ALIGNED)
+    .export_values();
+
+  nb::enum_<pinocchio::KinematicLevel>(m, "KinematicLevel")
+    .value("POSITION", pinocchio::POSITION)
+    .value("VELOCITY", pinocchio::VELOCITY)
+    .value("ACCELERATION", pinocchio::ACCELERATION)
+    .export_values();
+
+  nb::enum_<pinocchio::Convention>(m, "Convention")
+    .value("WORLD", pinocchio::Convention::WORLD)
+    .value("LOCAL", pinocchio::Convention::LOCAL);
+
+  nb::enum_<pinocchio::ArgumentPosition>(m, "ArgumentPosition")
+    .value("ARG0", pinocchio::ARG0)
+    .value("ARG1", pinocchio::ARG1)
+    .value("ARG2", pinocchio::ARG2)
+    .value("ARG3", pinocchio::ARG3)
+    .value("ARG4", pinocchio::ARG4)
+    .export_values();
+
+  nb::enum_<pinocchio::ConstraintSelectionType>(m, "ConstraintSelectionType")
+    .value("CURRENT", pinocchio::ConstraintSelectionType::CURRENT)
+    .value("MAXIMAL", pinocchio::ConstraintSelectionType::MAXIMAL);
 
   // spatial
   exposeSpatial(m);
