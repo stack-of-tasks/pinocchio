@@ -1,12 +1,13 @@
 // Copyright (c) 2026 INRIA
 
+#include "pinocchio/bindings/python-nb/spatial/se3.hpp"
+#include "pinocchio/bindings/python-nb/multibody/model.hpp"
 #include "pinocchio/utils/version.hpp"
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 
-namespace nb = nanobind;
-using namespace nb::literals;
+using namespace nanobind::literals;
 
 // PINOCCHIO_PYTHON_MODULE_NAME is defined by the build system as the target name
 // (e.g. pinocchio_pywrap_default).
@@ -34,4 +35,11 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
 #if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_COLLISION_PYTHON_BINDINGS)
   m.import_("coal");
 #endif
+
+  using namespace pinocchio::python_nb;
+  // spatial
+  exposeSE3<pinocchio::SE3>(m);
+
+  // multibody
+  exposeModel<pinocchio::Model>(m);
 }
