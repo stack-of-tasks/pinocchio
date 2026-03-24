@@ -10,6 +10,7 @@ using namespace nanobind::literals;
 
 void exposeSpatial(nb::module_ m);
 void exposeMultibody(nb::module_ m);
+void exposeAlgorithms(nb::module_ m);
 
 // PINOCCHIO_PYTHON_MODULE_NAME is defined by the build system as the target name
 // (e.g. pinocchio_pywrap_default).
@@ -43,4 +44,7 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
 
   // multibody
   exposeMultibody(m);
+
+  // algorithm
+  exposeAlgorithms(m);
 }
