@@ -4,7 +4,10 @@
 
 #include "../fwd.hpp"
 
+#include "pinocchio/spatial.hpp"
+
 #include <nanobind/eigen/dense.h>
+#include <nanobind/stl/bind_vector.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 template<class SE3>
@@ -37,5 +40,7 @@ void exposeSE3(nb::module_ m)
     .def_prop_ro(
       "toActionMatrix", [](Self const & self) { return self.toActionMatrix(); },
       "Returns the related action matrix (acting on Motion).");
+
+  nb::bind_vector<std::vector<SE3>>(m, "StdVec_SE3");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
