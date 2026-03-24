@@ -1,5 +1,6 @@
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 #include "pinocchio/bindings/python-nb/multibody/model.hpp"
+#include "pinocchio/bindings/python-nb/multibody/data.hpp"
 #include "pinocchio/bindings/python-nb/multibody/joint-model.hpp"
 #include "pinocchio/bindings/python-nb/multibody/frame.hpp"
 
@@ -24,6 +25,7 @@ void exposeMultibody(nb::module_ m)
     .export_values();
 
   exposeModel<pinocchio::Model>(m);
+  exposeData<pinocchio::Data>(m);
   exposeJointModel<pinocchio::JointModel>(m);
   exposeFrame<pinocchio::Frame>(m);
 }
