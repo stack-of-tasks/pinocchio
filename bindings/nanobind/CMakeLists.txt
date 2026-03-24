@@ -25,6 +25,13 @@ endif()
 set(PYWRAP ${PROJECT_NAME}_pywrap)
 set(PYWRAP ${PYWRAP} PARENT_SCOPE)
 
+set(PYWRAP_SOURCES module.cpp)
+
+file(
+    GLOB_RECURSE PYWRAP_HEADERS
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python-nb/*.hpp
+)
+
 add_custom_target(${PROJECT_NAME}-python)
 set_target_properties(
     ${PROJECT_NAME}-python
@@ -41,7 +48,7 @@ set(PINOCCHIO_PYTHON_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})
 # --- BUILD MODULE --- #
 set(NB_MODULE_NAME ${PYWRAP}_default)
 
-nanobind_add_module(${NB_MODULE_NAME} NB_STATIC module.cpp)
+nanobind_add_module(${NB_MODULE_NAME} NB_STATIC ${PYWRAP_SOURCES} ${PYWRAP_HEADERS})
 
 add_dependencies(${PROJECT_NAME}-python ${NB_MODULE_NAME})
 
@@ -75,6 +82,7 @@ if(BUILD_WITH_OPENMP_SUPPORT)
 endif()
 
 if(BUILD_WITH_ACCELERATE_SUPPORT)
+    # todo: probably use FindAccelerate instead?
     target_link_libraries(${NB_MODULE_NAME} PRIVATE "-framework accelerate")
 endif()
 
@@ -90,6 +98,7 @@ set_target_properties(
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         # On Windows, shared libraries are treated as binaries
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+        VERSION ${PROJECT_VERSION}
 )
 
 if(UNIX)
@@ -99,6 +108,33 @@ if(UNIX)
         PROPERTIES INSTALL_RPATH "${_NB_INSTALL_RPATH}"
     )
 endif()
+
+function(install_python_files)
+    set(options)
+    set(oneValueArgs MODULE)
+    set(multiValueArgs FILES)
+    cmake_parse_arguments(
+        ARGS
+        "${options}"
+        "${oneValueArgs}"
+        "${multiValueArgs}"
+        ${ARGN}
+    )
+
+    set(SOURCE_PATH ${PROJECT_NAME})
+    set(INSTALL_PATH ${PINOCCHIO_PYTHON_INSTALL_DIR})
+    if(ARGS_MODULE)
+        set(SOURCE_PATH ${SOURCE_PATH}/${ARGS_MODULE})
+        set(INSTALL_PATH ${INSTALL_PATH}/${ARGS_MODULE})
+    endif()
+
+    foreach(f ${ARGS_FILES})
+        python_build(${SOURCE_PATH} ${f})
+        install(FILES ${SOURCE_PATH}/${f} DESTINATION ${INSTALL_PATH})
+    endforeach()
+endfunction()
+
+install_python_files(FILES __init__.py)
 
 install(
     TARGETS ${NB_MODULE_NAME}
@@ -110,11 +146,17 @@ install(
 if(GENERATE_PYTHON_STUBS)
     nanobind_add_stub(
       ${NB_MODULE_NAME}_stub
-      MODULE ${NB_MODULE_NAME}
-      OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${NB_MODULE_NAME}.pyi"
-      PYTHON_PATH "${CMAKE_CURRENT_BINARY_DIR}"
-      DEPENDS ${NB_MODULE_NAME}
-      MARKER_FILE "${CMAKE_CURRENT_BINARY_DIR}/py.typed"
+      VERBOSE
+      MODULE
+      ${NB_MODULE_NAME}
+      OUTPUT
+      "${CMAKE_CURRENT_BINARY_DIR}/${NB_MODULE_NAME}.pyi"
+      PYTHON_PATH
+      "${CMAKE_CURRENT_BINARY_DIR}"
+      DEPENDS
+      ${NB_MODULE_NAME}
+      MARKER_FILE
+      "${CMAKE_CURRENT_BINARY_DIR}/py.typed"
     )
 
     install(
