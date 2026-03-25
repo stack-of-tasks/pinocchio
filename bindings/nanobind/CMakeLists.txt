@@ -26,7 +26,7 @@ set(PYWRAP ${PROJECT_NAME}_pywrap)
 set(PYWRAP ${PYWRAP} PARENT_SCOPE)
 
 set(PYWRAP_SOURCES module.cpp expose-spatial.cpp expose-multibody.cpp expose-algorithm.cpp
-                   algorithm/aba.cpp)
+                   algorithm/aba.cpp multibody/sample-models.cpp)
 
 file(
     GLOB_RECURSE PYWRAP_HEADERS
