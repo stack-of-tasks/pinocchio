@@ -76,36 +76,37 @@ void exposeSE3(nb::module_ m)
       "toDualActionMatrix", [](const Self & self) { return self.toDualActionMatrix(); },
       "Returns the related dual action matrix (acting on Force).")
     // Mutating methods
-    .def("setIdentity", &SE3::setIdentity, "Set *this to the identity placement.")
-    .def("setRandom", &SE3::setRandom, "Set *this to a random placement.")
+    .def("setIdentity", &SE3::setIdentity, "Set this SE3 to the identity placement.")
+    .def("setRandom", &SE3::setRandom, "Set this SE3 to a random placement.")
     // Inverse
     .def("inverse", &SE3::inverse, "Returns the inverse rigid transformation.")
-    .def("__invert__", &SE3::inverse, nb::is_operator(), "Returns the inverse of *this.")
+    .def("__invert__", &SE3::inverse, nb::is_operator(), "Returns the inverse of this SE3.")
     // act / actInv overloads
     .def(
       "act", [](const SE3 & self, const Vector3 & v) { return self.act(v); }, "point"_a,
-      "Returns a point which is the result of the entry point transforms by *this.")
+      "Returns a point which is the result of the entry point transformed by this SE3.")
     .def(
       "actInv", [](const SE3 & self, const Vector3 & v) { return self.actInv(v); }, "point"_a,
-      "Returns a point which is the result of the entry point by the inverse of *this.")
+      "Returns a point which is the result of the entry point transformed by the inverse of this "
+      "SE3.")
     .def(
       "act", [](const SE3 & self, const SE3 & M) { return self.act(M); }, "M"_a,
-      "Returns the result of *this * M.")
+      "Returns the result of this SE3 * M.")
     .def(
       "actInv", [](const SE3 & self, const SE3 & M) { return self.actInv(M); }, "M"_a,
-      "Returns the result of the inverse of *this times M.")
+      "Returns the result of the inverse of this SE3 times M.")
     .def(
       "act", [](const SE3 & self, const Motion & m) { return self.act(m); }, "motion"_a,
-      "Returns the result action of *this onto a Motion.")
+      "Returns the result of the action of this SE3 onto a Motion.")
     .def(
       "actInv", [](const SE3 & self, const Motion & m) { return self.actInv(m); }, "motion"_a,
-      "Returns the result of the inverse of *this onto a Motion.")
+      "Returns the result of the inverse of this SE3 onto a Motion.")
     .def(
       "act", [](const SE3 & self, const Inertia & I) { return self.act(I); }, "inertia"_a,
-      "Returns the result of *this onto an Inertia.")
+      "Returns the result of this SE3 onto an Inertia.")
     .def(
       "actInv", [](const SE3 & self, const Inertia & I) { return self.actInv(I); }, "inertia"_a,
-      "Returns the result of the inverse of *this onto an Inertia.")
+      "Returns the result of the inverse of this SE3 onto an Inertia.")
     // Operators
     .def(
       "__mul__", [](const SE3 & self, const SE3 & other) { return self.act(other); },
@@ -121,10 +122,11 @@ void exposeSE3(nb::module_ m)
     // Comparison
     .def(
       "isApprox", &SE3::isApprox, "other"_a, nb::arg("prec") = dummy_precision,
-      "Returns true if *this is approximately equal to other, within the precision given by prec.")
+      "Returns true if this SE3 is approximately equal to other, within the precision given by "
+      "prec.")
     .def(
       "isIdentity", &SE3::isIdentity, nb::arg("prec") = dummy_precision,
-      "Returns true if *this is approximately equal to the identity placement, within the "
+      "Returns true if this SE3 is approximately equal to the identity placement, within the "
       "precision given by prec.")
     .def(
       "__eq__", [](const SE3 & a, const SE3 & b) { return a == b; }, nb::is_operator())
