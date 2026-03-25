@@ -84,7 +84,7 @@ namespace nanobind::detail
       template<typename U>
       handle operator()(U && v) const
       {
-        return make_caster<std::decay_t<U>>::from_cpp(std::forward<U>(v), policy, cleanup);
+        return make_caster<decltype(v)>::from_cpp(std::forward<decltype(v)>(v), policy, cleanup);
       }
     };
 
