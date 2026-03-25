@@ -8,6 +8,7 @@
 #include "pinocchio/geometry.hpp"
 
 #include <nanobind/stl/bind_vector.h>
+#include <nanobind/stl/string.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 inline void exposeGeometryData(nb::module_ m)
