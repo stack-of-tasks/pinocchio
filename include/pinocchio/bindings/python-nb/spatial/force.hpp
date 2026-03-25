@@ -3,6 +3,7 @@
 #pragma once
 
 #include "../fwd.hpp"
+#include "../utils/comparable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/spatial.hpp"
@@ -98,10 +99,7 @@ void exposeForce(nb::module_ m)
       "prec"_a = dummy_precision,
       "Returns true if this Force is approximately equal to zero, within the precision "
       "given by prec.")
-    .def(
-      "__eq__", [](const Force & a, const Force & b) { return a == b; }, nb::is_operator())
-    .def(
-      "__ne__", [](const Force & a, const Force & b) { return a != b; }, nb::is_operator())
+    .def(ComparableVisitor<Force>())
     // Array interface
     .def("__array__", [](const Self & self) { return Vector6(self.toVector()); })
     // Repr and str

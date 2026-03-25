@@ -3,6 +3,7 @@
 #pragma once
 
 #include "../fwd.hpp"
+#include "../utils/comparable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/spatial.hpp"
@@ -120,10 +121,7 @@ void exposeMotion(nb::module_ m)
       nb::arg("prec") = dummy_precision,
       "Returns true if this Motion is approximately equal to zero, within the precision "
       "given by prec.")
-    .def(
-      "__eq__", [](const Motion & a, const Motion & b) { return a == b; }, nb::is_operator())
-    .def(
-      "__ne__", [](const Motion & a, const Motion & b) { return a != b; }, nb::is_operator())
+    .def(ComparableVisitor<Motion>())
     // Static factory methods
     .def_static("Zero", &Motion::Zero, "Returns a zero Motion.")
     .def_static("Random", &Motion::Random, "Returns a random Motion.")

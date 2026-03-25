@@ -3,6 +3,7 @@
 #pragma once
 
 #include "../fwd.hpp"
+#include "../utils/comparable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/geometry.hpp"
@@ -79,13 +80,7 @@ inline void exposeGeometryModel(nb::module_ m)
       "findCollisionPair", &Self::findCollisionPair, "collision_pair"_a,
       "Return the index of a collision pair.")
 
-    // Comparison operators
-    .def(
-      "__eq__", [](const GeometryModel & m1, const GeometryModel & m2) { return m1 == m2; },
-      nb::is_operator())
-    .def(
-      "__ne__", [](const GeometryModel & m1, const GeometryModel & m2) { return m1 != m2; },
-      nb::is_operator())
+    .def(ComparableVisitor<GeometryModel>())
     // Repr and str
     .def(PrintableVisitor<GeometryModel>());
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "../fwd.hpp"
+#include "../utils/comparable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/spatial.hpp"
@@ -128,10 +129,7 @@ void exposeSE3(nb::module_ m)
       "isIdentity", &SE3::isIdentity, nb::arg("prec") = dummy_precision,
       "Returns true if this SE3 is approximately equal to the identity placement, within the "
       "precision given by prec.")
-    .def(
-      "__eq__", [](const SE3 & a, const SE3 & b) { return a == b; }, nb::is_operator())
-    .def(
-      "__ne__", [](const SE3 & a, const SE3 & b) { return a != b; }, nb::is_operator())
+    .def(ComparableVisitor<SE3>())
     // Static factory methods
     .def_static("Identity", &SE3::Identity, "Returns the identity transformation.")
     .def_static("Random", &SE3::Random, "Returns a random transformation.")
