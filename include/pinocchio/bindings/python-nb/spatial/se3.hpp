@@ -3,11 +3,13 @@
 #pragma once
 
 #include "../fwd.hpp"
+#include "../utils/printable.hpp"
 
 #include "pinocchio/spatial.hpp"
 
 #include <nanobind/eigen/dense.h>
 #include <nanobind/stl/bind_vector.h>
+#include <nanobind/stl/tuple.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 template<class SE3>
@@ -15,31 +17,130 @@ void exposeSE3(nb::module_ m)
 {
   using namespace nb::literals;
   using Self = SE3;
+  using Scalar = typename Self::Scalar;
+  using Matrix3 = typename Self::Matrix3;
+  using Matrix4 = typename Self::Matrix4;
   using Vector3 = typename Self::Vector3;
+  using Quaternion = typename Self::Quaternion;
+  using Inertia = InertiaTpl<Scalar, Self::Options>;
+
+  static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
+
   nb::class_<SE3>(
     m, "SE3", "Rigid transformation defined by a 3D translation vector and rotation matrix.")
-    .def(nb::init<>())
-    .def_prop_ro("translation", [](Self & self) { return self.translation(); })
-    .def_prop_ro("rotation", [](Self & self) { return self.rotation(); })
+    // Constructors
+    .def(nb::init<>(), "Default constructor.")
+    .def(nb::init<const SE3 &>(), "clone"_a, "Copy constructor.")
+    .def(
+      nb::init<const Matrix3 &, const Vector3 &>(), "rotation"_a, "translation"_a,
+      "Initialize from a rotation matrix and a translation vector.")
+    .def(
+      nb::init<const Quaternion &, const Vector3 &>(), "quat"_a, "translation"_a,
+      "Initialize from a quaternion and a translation vector.")
+    .def(nb::init<int>(), "int"_a, "Init to identity.")
+    .def(nb::init<const Matrix4 &>(), "array"_a, "Initialize from a homogeneous matrix.")
+    // Properties
+    .def_prop_rw(
+      "rotation", [](Self & self) { return self.rotation(); },
+      [](Self & self, const Matrix3 & R) { self.rotation(R); },
+      "The rotation part of the transformation.")
+    .def_prop_rw(
+      "translation", [](Self & self) { return self.translation(); },
+      [](Self & self, const Vector3 & t) { self.translation(t); },
+      "The translation part of the transformation.")
     .def_prop_ro(
       "homogeneous", &SE3::toHomogeneousMatrix, "Returns the equivalent 4x4 homogeneous matrix.")
-    //
-    .def("setIdentity", &SE3::setIdentity, "Initialize this SE3 object to the identity transform.")
-    .def(
-      "setRandom", &SE3::setRandom, "Initialize this SE3 object to a random rigid transformation.")
-    //
-    .def("inverse", &SE3::inverse, "Return the inverse rigid transformation.")
-    // action
-    .def(
-      "act", [](const SE3 & self, const Vector3 & v) { return self.act(v); }, "point"_a)
-    .def(
-      "actInv", [](const SE3 & self, const Vector3 & v) { return self.actInv(v); }, "point"_a)
     .def_prop_ro(
-      "action", [](Self const & self) { return self.toActionMatrix(); },
+      "np", [](const Self & self) { return self.toHomogeneousMatrix(); },
+      "Returns the homogeneous matrix (alias for homogeneous).")
+    // Action matrices
+    .def_prop_ro(
+      "action", [](const Self & self) { return self.toActionMatrix(); },
+      "Returns the related action matrix (acting on Motion).")
+    .def(
+      "toActionMatrix", [](const Self & self) { return self.toActionMatrix(); },
       "Returns the related action matrix (acting on Motion).")
     .def_prop_ro(
-      "toActionMatrix", [](Self const & self) { return self.toActionMatrix(); },
-      "Returns the related action matrix (acting on Motion).");
+      "actionInverse", [](const Self & self) { return self.toActionMatrixInverse(); },
+      "Returns the inverse of the action matrix (acting on Motion).\n"
+      "This is equivalent to do m.inverse().action")
+    .def(
+      "toActionMatrixInverse", [](const Self & self) { return self.toActionMatrixInverse(); },
+      "Returns the inverse of the action matrix (acting on Motion).\n"
+      "This is equivalent to do m.inverse().toActionMatrix()")
+    .def_prop_ro(
+      "dualAction", [](const Self & self) { return self.toDualActionMatrix(); },
+      "Returns the related dual action matrix (acting on Force).")
+    .def(
+      "toDualActionMatrix", [](const Self & self) { return self.toDualActionMatrix(); },
+      "Returns the related dual action matrix (acting on Force).")
+    // Mutating methods
+    .def("setIdentity", &SE3::setIdentity, "Set *this to the identity placement.")
+    .def("setRandom", &SE3::setRandom, "Set *this to a random placement.")
+    // Inverse
+    .def("inverse", &SE3::inverse, "Returns the inverse rigid transformation.")
+    .def("__invert__", &SE3::inverse, "Returns the inverse of *this.")
+    // act / actInv overloads
+    .def(
+      "act", [](const SE3 & self, const Vector3 & v) { return self.act(v); }, "point"_a,
+      "Returns a point which is the result of the entry point transforms by *this.")
+    .def(
+      "actInv", [](const SE3 & self, const Vector3 & v) { return self.actInv(v); }, "point"_a,
+      "Returns a point which is the result of the entry point by the inverse of *this.")
+    .def(
+      "act", [](const SE3 & self, const SE3 & M) { return self.act(M); }, "M"_a,
+      "Returns the result of *this * M.")
+    .def(
+      "actInv", [](const SE3 & self, const SE3 & M) { return self.actInv(M); }, "M"_a,
+      "Returns the result of the inverse of *this times M.")
+    .def(
+      "act", [](const SE3 & self, const Inertia & I) { return self.act(I); }, "inertia"_a,
+      "Returns the result of *this onto an Inertia.")
+    .def(
+      "actInv", [](const SE3 & self, const Inertia & I) { return self.actInv(I); }, "inertia"_a,
+      "Returns the result of the inverse of *this onto an Inertia.")
+    // Operators
+    .def("__mul__", [](const SE3 & self, const SE3 & other) { return self.act(other); })
+    .def("__mul__", [](const SE3 & self, const Vector3 & v) { return self.act(v); })
+    .def("__mul__", [](const SE3 & self, const Inertia & I) { return self.act(I); })
+    // Comparison
+    .def(
+      "isApprox", &SE3::isApprox, "other"_a, nb::arg("prec") = dummy_precision,
+      "Returns true if *this is approximately equal to other, within the precision given by prec.")
+    .def(
+      "isIdentity", &SE3::isIdentity, nb::arg("prec") = dummy_precision,
+      "Returns true if *this is approximately equal to the identity placement, within the "
+      "precision given by prec.")
+    .def("__eq__", [](const SE3 & a, const SE3 & b) { return a == b; })
+    .def("__ne__", [](const SE3 & a, const SE3 & b) { return a != b; })
+    // Static factory methods
+    .def_static("Identity", &SE3::Identity, "Returns the identity transformation.")
+    .def_static("Random", &SE3::Random, "Returns a random transformation.")
+    .def_static(
+      "Interpolate", &SE3::template Interpolate<Scalar>, "A"_a, "B"_a, "alpha"_a,
+      "Linear interpolation on the SE3 manifold.\n\n"
+      "This method computes the linear interpolation between A and B, such that the result C "
+      "= A + (B-A)*t if it would be applied on classic Euclidian space.\n"
+      "This operation is very similar to the SLERP operation on Rotations.\n"
+      "Parameters:\n"
+      "\tA: Initial transformation\n"
+      "\tB: Target transformation\n"
+      "\talpha: Interpolation factor")
+    // Array interface
+    .def("__array__", [](const Self & self) { return self.toHomogeneousMatrix(); })
+    // Pickle
+    .def(
+      "__getstate__",
+      [](const SE3 & self) {
+        return std::make_tuple(Matrix3(self.rotation()), Vector3(self.translation()));
+      })
+    .def(
+      "__setstate__",
+      [](SE3 & self, std::tuple<Matrix3, Vector3> t) {
+        new (&self) SE3(std::get<0>(t), std::get<1>(t));
+      })
+    // String representation
+    .def(PrintableVisitor<SE3>());
 
   nb::bind_vector<std::vector<SE3>>(m, "SE3StdVec");
 }
