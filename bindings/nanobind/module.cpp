@@ -16,6 +16,7 @@ namespace pinocchio::python_nb
   void exposeSpatial(nb::module_ m);
   void exposeMultibody(nb::module_ m);
   void exposeAlgorithms(nb::module_ m);
+  void exposeParsers(nb::module_ m);
 } // namespace pinocchio::python_nb
 
 // PINOCCHIO_PYTHON_MODULE_NAME is defined by the build system as the target name
@@ -84,4 +85,7 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
 
   // algorithm
   exposeAlgorithms(m);
+
+  // parsers
+  exposeParsers(m);
 }

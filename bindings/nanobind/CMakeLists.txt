@@ -30,6 +30,7 @@ set(PYWRAP_SOURCES
     expose-spatial.cpp
     expose-multibody.cpp
     expose-algorithm.cpp
+    expose-parsers.cpp
     algorithm/aba.cpp
     algorithm/cat.cpp
     algorithm/aba-derivatives.cpp
