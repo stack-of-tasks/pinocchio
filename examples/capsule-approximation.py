@@ -5,6 +5,7 @@ https://tel.archives-ouvertes.fr/file/index/docid/833019/filename/thesis.pdf
 Section 3.8.1 Computing minimum bounding capsules
 """
 
+import os
 from pathlib import Path
 
 import hppfcl
@@ -167,9 +168,7 @@ if __name__ == "__main__":
     # This path refers to Pinocchio source code but you can define your own directory
     # here.
 
-    pinocchio_model_dir = Path(__file__).parent.parent / "models"
-    urdf_filename = (
-        pinocchio_model_dir
-        + "models/example-robot-data/robots/ur_description/urdf/ur5_gripper.urdf"
-    )
-    parse_urdf(urdf_filename, "ur5_gripper_with_capsules.urdf")
+    model_path = Path(os.environ.get("EXAMPLE_ROBOT_DATA_MODEL_DIR"))
+    urdf_filename = "ur5_gripper.urdf"
+    urdf_model_path = model_path / "ur_description/urdf" / urdf_filename
+    parse_urdf(urdf_model_path, "ur5_gripper_with_capsules.urdf")

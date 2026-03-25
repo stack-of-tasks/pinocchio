@@ -1,13 +1,12 @@
+import os
 from pathlib import Path
 
 import pinocchio as pin
 
-pinocchio_model_dir = Path(__file__).parent.parent / "models"
-urdf_filename = (
-    pinocchio_model_dir
-    / "example-robot-data/robots/anymal_b_simple_description/robots/anymal.urdf"
-)
-model = pin.buildModelFromUrdf(urdf_filename)
+model_path = Path(os.environ.get("EXAMPLE_ROBOT_DATA_MODEL_DIR"))
+urdf_filename = "anymal.urdf"
+urdf_model_path = model_path / "anymal_b_simple_description/robots" / urdf_filename
+model = pin.buildModelFromUrdf(urdf_model_path)
 data = model.createData()
 
 q0 = pin.neutral(model)
