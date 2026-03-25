@@ -73,10 +73,10 @@ void exposeSymmetric3(nb::module_ m)
     // Quadratic form
     .def("vtiv", &Symmetric3::vtiv, "v"_a, "Returns the scalar v^T * S * v.")
     // Cross-product operations
-    .def(
-      "vxs",
-      [](const Self & self, const Vector3 & v) { return Matrix3(self.template vxs<Vector3>(v)); },
-      "v"_a, "Performs the operation [v]_x * S, returning a 3x3 matrix.")
+    // .def(
+    //   "vxs",
+    //   [](const Self & self, const Vector3 & v) { return Matrix3(self.template vxs<Vector3>(v));
+    //   }, "v"_a, "Performs the operation [v]_x * S, returning a 3x3 matrix.")
     .def_static(
       "vxs",
       [](const Vector3 & v, const Self & S3) {
@@ -85,10 +85,10 @@ void exposeSymmetric3(nb::module_ m)
         return M;
       },
       "v"_a, "S3"_a, "Performs the operation M = [v]_x * S3, returning a 3x3 matrix.")
-    .def(
-      "svx",
-      [](const Self & self, const Vector3 & v) { return Matrix3(self.template svx<Vector3>(v)); },
-      "v"_a, "Performs the operation S * [v]_x, returning a 3x3 matrix.")
+    // .def(
+    //   "svx",
+    //   [](const Self & self, const Vector3 & v) { return Matrix3(self.template svx<Vector3>(v));
+    //   }, "v"_a, "Performs the operation S * [v]_x, returning a 3x3 matrix.")
     .def_static(
       "svx",
       [](const Vector3 & v, const Self & S3) {
