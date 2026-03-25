@@ -31,6 +31,7 @@ set(PYWRAP_SOURCES
     expose-multibody.cpp
     expose-algorithm.cpp
     algorithm/aba.cpp
+    algorithm/cat.cpp
     algorithm/aba-derivatives.cpp
     algorithm/geometry.cpp
     algorithm/joints.cpp
