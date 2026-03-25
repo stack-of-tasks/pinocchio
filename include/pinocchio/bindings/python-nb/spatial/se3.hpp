@@ -22,6 +22,7 @@ void exposeSE3(nb::module_ m)
   using Matrix4 = typename Self::Matrix4;
   using Vector3 = typename Self::Vector3;
   using Quaternion = typename Self::Quaternion;
+  using Motion = MotionTpl<Scalar, Self::Options>;
   using Inertia = InertiaTpl<Scalar, Self::Options>;
 
   static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
@@ -49,9 +50,9 @@ void exposeSE3(nb::module_ m)
       [](Self & self, const Vector3 & t) { self.translation(t); },
       "The translation part of the transformation.")
     .def_prop_ro(
-      "homogeneous", &SE3::toHomogeneousMatrix, "Returns the equivalent 4x4 homogeneous matrix.")
+      "homogeneous", &Self::toHomogeneousMatrix, "Returns the equivalent 4x4 homogeneous matrix.")
     .def_prop_ro(
-      "np", [](const Self & self) { return self.toHomogeneousMatrix(); },
+      "np", &Self::toHomogeneousMatrix,
       "Returns the homogeneous matrix (alias for homogeneous).")
     // Action matrices
     .def_prop_ro(
@@ -94,6 +95,12 @@ void exposeSE3(nb::module_ m)
       "actInv", [](const SE3 & self, const SE3 & M) { return self.actInv(M); }, "M"_a,
       "Returns the result of the inverse of *this times M.")
     .def(
+      "act", [](const SE3 & self, const Motion & m) { return self.act(m); }, "motion"_a,
+      "Returns the result action of *this onto a Motion.")
+    .def(
+      "actInv", [](const SE3 & self, const Motion & m) { return self.actInv(m); }, "motion"_a,
+      "Returns the result of the inverse of *this onto a Motion.")
+    .def(
       "act", [](const SE3 & self, const Inertia & I) { return self.act(I); }, "inertia"_a,
       "Returns the result of *this onto an Inertia.")
     .def(
@@ -101,6 +108,7 @@ void exposeSE3(nb::module_ m)
       "Returns the result of the inverse of *this onto an Inertia.")
     // Operators
     .def("__mul__", [](const SE3 & self, const SE3 & other) { return self.act(other); }, nb::is_operator())
+    .def("__mul__", [](const SE3 & self, const Motion & m) { return self.act(m); }, nb::is_operator())
     .def("__mul__", [](const SE3 & self, const Vector3 & v) { return self.act(v); }, nb::is_operator())
     .def("__mul__", [](const SE3 & self, const Inertia & I) { return self.act(I); }, nb::is_operator())
     // Comparison
