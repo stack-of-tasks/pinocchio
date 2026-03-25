@@ -205,6 +205,8 @@ void exposeData(nb::module_ m)
     .def(
       "__eq__", [](const Data & a, const Data & b) { return a == b; }, nb::is_operator())
     .def("__ne__", [](const Data & a, const Data & b) { return a != b; }, nb::is_operator());
+
+  nb::bind_vector<std::vector<int>>(m, "IntStdVec");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
 

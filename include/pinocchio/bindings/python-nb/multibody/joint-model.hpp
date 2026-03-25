@@ -16,6 +16,7 @@ void exposeJointModel(nb::module_ m)
     .def(nb::init<>(), "Default constructor")
     .def(nb::init<const JointModel &>(), nb::arg("other"), "Copy constructor.");
 
-  nb::bind_vector<std::vector<JointModel>>(m, "JointModelStdVec");
+  nb::bind_vector<std::vector<JointModel>, nb::rv_policy::reference_internal>(
+    m, "JointModelStdVec");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

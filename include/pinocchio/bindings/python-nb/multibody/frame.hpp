@@ -45,6 +45,6 @@ void exposeFrame(nb::module_ m)
       "__ne__", [](const Frame & a, const Frame & b) { return a != b; }, nb::is_operator())
     .def(PrintableVisitor<Frame>());
 
-  nb::bind_vector<std::vector<Frame>>(m, "FrameStdVec");
+  nb::bind_vector<std::vector<Frame>, nb::rv_policy::reference_internal>(m, "FrameStdVec");
 };
 PINOCCHIO_PYTHON_NAMESPACE_END
