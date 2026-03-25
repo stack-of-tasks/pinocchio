@@ -4,15 +4,17 @@
 #include "pinocchio/bindings/python-nb/multibody/joint-model.hpp"
 #include "pinocchio/bindings/python-nb/multibody/frame.hpp"
 
-namespace nb = nanobind;
-
 constexpr pinocchio::FrameType kAllFrameTypes = static_cast<pinocchio::FrameType>(
   pinocchio::JOINT | pinocchio::FIXED_JOINT | pinocchio::BODY | pinocchio::OP_FRAME
   | pinocchio::SENSOR);
 
+PINOCCHIO_PYTHON_NAMESPACE_BEGIN
+namespace nb = nanobind;
+
+void exposeSampleModels(nb::module_ m);
+
 void exposeMultibody(nb::module_ m)
 {
-  using namespace pinocchio::python_nb;
   using pinocchio::FrameType;
 
   nb::enum_<FrameType>(m, "FrameType")
@@ -29,3 +31,4 @@ void exposeMultibody(nb::module_ m)
   exposeJointModel<pinocchio::JointModel>(m);
   exposeFrame<pinocchio::Frame>(m);
 }
+PINOCCHIO_PYTHON_NAMESPACE_END
