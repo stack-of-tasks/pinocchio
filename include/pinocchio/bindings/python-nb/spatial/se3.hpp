@@ -23,6 +23,7 @@ void exposeSE3(nb::module_ m)
   using Vector3 = typename Self::Vector3;
   using Quaternion = typename Self::Quaternion;
   using Motion = MotionTpl<Scalar, Self::Options>;
+  using Force = ForceTpl<Scalar, Self::Options>;
   using Inertia = InertiaTpl<Scalar, Self::Options>;
 
   static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
@@ -52,8 +53,7 @@ void exposeSE3(nb::module_ m)
     .def_prop_ro(
       "homogeneous", &Self::toHomogeneousMatrix, "Returns the equivalent 4x4 homogeneous matrix.")
     .def_prop_ro(
-      "np", &Self::toHomogeneousMatrix,
-      "Returns the homogeneous matrix (alias for homogeneous).")
+      "np", &Self::toHomogeneousMatrix, "Returns the homogeneous matrix (alias for homogeneous).")
     // Action matrices
     .def_prop_ro(
       "action", [](const Self & self) { return self.toActionMatrix(); },
@@ -107,10 +107,17 @@ void exposeSE3(nb::module_ m)
       "actInv", [](const SE3 & self, const Inertia & I) { return self.actInv(I); }, "inertia"_a,
       "Returns the result of the inverse of *this onto an Inertia.")
     // Operators
-    .def("__mul__", [](const SE3 & self, const SE3 & other) { return self.act(other); }, nb::is_operator())
-    .def("__mul__", [](const SE3 & self, const Motion & m) { return self.act(m); }, nb::is_operator())
-    .def("__mul__", [](const SE3 & self, const Vector3 & v) { return self.act(v); }, nb::is_operator())
-    .def("__mul__", [](const SE3 & self, const Inertia & I) { return self.act(I); }, nb::is_operator())
+    .def(
+      "__mul__", [](const SE3 & self, const SE3 & other) { return self.act(other); },
+      nb::is_operator())
+    .def(
+      "__mul__", [](const SE3 & self, const Motion & m) { return self.act(m); }, nb::is_operator())
+    .def(
+      "__mul__", [](const SE3 & self, const Force & m) { return self.act(m); }, nb::is_operator())
+    .def(
+      "__mul__", [](const SE3 & self, const Vector3 & v) { return self.act(v); }, nb::is_operator())
+    .def(
+      "__mul__", [](const SE3 & self, const Inertia & I) { return self.act(I); }, nb::is_operator())
     // Comparison
     .def(
       "isApprox", &SE3::isApprox, "other"_a, nb::arg("prec") = dummy_precision,
@@ -119,8 +126,10 @@ void exposeSE3(nb::module_ m)
       "isIdentity", &SE3::isIdentity, nb::arg("prec") = dummy_precision,
       "Returns true if *this is approximately equal to the identity placement, within the "
       "precision given by prec.")
-    .def("__eq__", [](const SE3 & a, const SE3 & b) { return a == b; }, nb::is_operator())
-    .def("__ne__", [](const SE3 & a, const SE3 & b) { return a != b; }, nb::is_operator())
+    .def(
+      "__eq__", [](const SE3 & a, const SE3 & b) { return a == b; }, nb::is_operator())
+    .def(
+      "__ne__", [](const SE3 & a, const SE3 & b) { return a != b; }, nb::is_operator())
     // Static factory methods
     .def_static("Identity", &SE3::Identity, "Returns the identity transformation.")
     .def_static("Random", &SE3::Random, "Returns a random transformation.")
