@@ -36,12 +36,8 @@ void exposeCones(nb::module_ m);
 
 void exposeConstraintSolvers(nb::module_ m);
 
-PINOCCHIO_PYTHON_NAMESPACE_END
-
-namespace nb = nanobind;
-
 void exposeAlgorithms(nb::module_ m)
 {
-  using namespace pinocchio::python_nb;
   exposeABA(m);
 }
+PINOCCHIO_PYTHON_NAMESPACE_END

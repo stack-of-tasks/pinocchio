@@ -11,14 +11,18 @@
 namespace nb = nanobind;
 using namespace nanobind::literals;
 
-void exposeSpatial(nb::module_ m);
-void exposeMultibody(nb::module_ m);
-void exposeAlgorithms(nb::module_ m);
+namespace pinocchio::python_nb
+{
+  void exposeSpatial(nb::module_ m);
+  void exposeMultibody(nb::module_ m);
+  void exposeAlgorithms(nb::module_ m);
+} // namespace pinocchio::python_nb
 
 // PINOCCHIO_PYTHON_MODULE_NAME is defined by the build system as the target name
 // (e.g. pinocchio_pywrap_default).
 NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
 {
+  using namespace pinocchio::python_nb;
   m.doc() = "Pinocchio Python bindings (nanobind)";
   m.attr("__bindings_framework__") = "Nanobind";
   m.attr("__version__") = pinocchio::printVersion();
