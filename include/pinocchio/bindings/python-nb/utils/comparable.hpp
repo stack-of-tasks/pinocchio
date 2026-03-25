@@ -6,7 +6,22 @@
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 
+namespace internal
+{
+  template<class C, class = void>
+  struct has_not_equal_op : std::false_type
+  {
+  };
+
+  template<class C>
+  struct has_not_equal_op<C, std::void_t<decltype(std::declval<C>() != std::declval<C>())>>
+  : std::true_type
+  {
+  };
+} // namespace internal
+
 /// \brief Set the Python methods __eq__ and __ne__ to use the overloaded operators == and !=.
+/// \note __ne__ is only bound if operator!= is defined for C.
 template<class C>
 struct ComparableVisitor : public nb::def_visitor<ComparableVisitor<C>>
 {
@@ -14,7 +29,8 @@ struct ComparableVisitor : public nb::def_visitor<ComparableVisitor<C>>
   void execute(PyClass & cl, const Extra &...) const
   {
     cl.def("__eq__", [](const C & a, const C & b) { return a == b; }, nb::is_operator());
-    cl.def("__ne__", [](const C & a, const C & b) { return a != b; }, nb::is_operator());
+    if constexpr (internal::has_not_equal_op<C>::value)
+      cl.def("__ne__", [](const C & a, const C & b) { return a != b; }, nb::is_operator());
   }
 };
 
