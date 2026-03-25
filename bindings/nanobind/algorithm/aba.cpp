@@ -58,5 +58,24 @@ void exposeABA(nb::module_ m)
     "\t tau: joint velocity (size model.nv)\n"
     "\t v: joint torque (size model.nv)"
     "\t convention: Convention to use");
+
+  m.def(
+    "aba",
+    [](
+      const Model & model, Data & data, ConstVectorRef q, ConstVectorRef v, ConstVectorRef tau,
+      const std::vector<Force> & fext, Convention convention) -> const Data::TangentVectorType & {
+      return aba(model, data, q, v, tau, fext, convention);
+    },
+    "model"_a, "data"_a, "q"_a, "v"_a, "tau"_a, "fext"_a, "convention"_a = Convention::LOCAL,
+    "Compute ABA with external forces, store the result in data.ddq and return it.\n"
+    "Parameters:\n"
+    "\t model: Model of the kinematic tree\n"
+    "\t data: Data related to the kinematic tree\n"
+    "\t q: joint configuration (size model.nq)\n"
+    "\t v: joint velocity (size model.nv)\n"
+    "\t tau: joint torque (size model.nv)\n"
+    "\t fext: vector of external forces expressed in the local frame of the joint (size "
+    "model.njoints)"
+    "\t convention: Convention to use");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END;
