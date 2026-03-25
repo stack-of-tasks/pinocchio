@@ -25,8 +25,14 @@ endif()
 set(PYWRAP ${PROJECT_NAME}_pywrap)
 set(PYWRAP ${PYWRAP} PARENT_SCOPE)
 
-set(PYWRAP_SOURCES module.cpp expose-spatial.cpp expose-multibody.cpp expose-algorithm.cpp
-                   algorithm/aba.cpp multibody/sample-models.cpp)
+set(PYWRAP_SOURCES
+    module.cpp
+    expose-spatial.cpp
+    expose-multibody.cpp
+    expose-algorithm.cpp
+    algorithm/aba.cpp
+    multibody/sample-models.cpp
+)
 
 file(
     GLOB_RECURSE PYWRAP_HEADERS
@@ -50,7 +56,8 @@ set(PINOCCHIO_PYTHON_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})
 set(NB_MODULE_NAME ${PYWRAP}_default)
 
 nanobind_add_module(${NB_MODULE_NAME} NB_STATIC NB_SUPPRESS_WARNINGS ${PYWRAP_SOURCES}
-                    ${PYWRAP_HEADERS})
+                    ${PYWRAP_HEADERS}
+)
 
 add_dependencies(${PROJECT_NAME}-python ${NB_MODULE_NAME})
 
