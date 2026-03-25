@@ -79,7 +79,7 @@ void exposeSE3(nb::module_ m)
     .def("setRandom", &SE3::setRandom, "Set *this to a random placement.")
     // Inverse
     .def("inverse", &SE3::inverse, "Returns the inverse rigid transformation.")
-    .def("__invert__", &SE3::inverse, "Returns the inverse of *this.")
+    .def("__invert__", &SE3::inverse, nb::is_operator(), "Returns the inverse of *this.")
     // act / actInv overloads
     .def(
       "act", [](const SE3 & self, const Vector3 & v) { return self.act(v); }, "point"_a,
@@ -100,9 +100,9 @@ void exposeSE3(nb::module_ m)
       "actInv", [](const SE3 & self, const Inertia & I) { return self.actInv(I); }, "inertia"_a,
       "Returns the result of the inverse of *this onto an Inertia.")
     // Operators
-    .def("__mul__", [](const SE3 & self, const SE3 & other) { return self.act(other); })
-    .def("__mul__", [](const SE3 & self, const Vector3 & v) { return self.act(v); })
-    .def("__mul__", [](const SE3 & self, const Inertia & I) { return self.act(I); })
+    .def("__mul__", [](const SE3 & self, const SE3 & other) { return self.act(other); }, nb::is_operator())
+    .def("__mul__", [](const SE3 & self, const Vector3 & v) { return self.act(v); }, nb::is_operator())
+    .def("__mul__", [](const SE3 & self, const Inertia & I) { return self.act(I); }, nb::is_operator())
     // Comparison
     .def(
       "isApprox", &SE3::isApprox, "other"_a, nb::arg("prec") = dummy_precision,
@@ -111,8 +111,8 @@ void exposeSE3(nb::module_ m)
       "isIdentity", &SE3::isIdentity, nb::arg("prec") = dummy_precision,
       "Returns true if *this is approximately equal to the identity placement, within the "
       "precision given by prec.")
-    .def("__eq__", [](const SE3 & a, const SE3 & b) { return a == b; })
-    .def("__ne__", [](const SE3 & a, const SE3 & b) { return a != b; })
+    .def("__eq__", [](const SE3 & a, const SE3 & b) { return a == b; }, nb::is_operator())
+    .def("__ne__", [](const SE3 & a, const SE3 & b) { return a != b; }, nb::is_operator())
     // Static factory methods
     .def_static("Identity", &SE3::Identity, "Returns the identity transformation.")
     .def_static("Random", &SE3::Random, "Returns a random transformation.")
