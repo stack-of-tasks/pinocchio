@@ -71,12 +71,13 @@ void exposeInertia(nb::module_ m)
       "Rotational part of the Spatial Inertia, i.e. a symmetric matrix representing the "
       "rotational inertia around the center of mass.")
     // 6x6 matrix representations
-    .def("matrix", (Matrix6(Inertia::*)() const)&Inertia::matrix, "Returns the 6x6 inertia matrix.")
     .def(
-      "inverse", (Matrix6(Inertia::*)() const)&Inertia::inverse,
+      "matrix", (Matrix6 (Inertia::*)() const) & Inertia::matrix, "Returns the 6x6 inertia matrix.")
+    .def(
+      "inverse", (Matrix6 (Inertia::*)() const) & Inertia::inverse,
       "Returns the inverse of the 6x6 inertia matrix.")
     .def_prop_ro(
-      "np", (Matrix6(Inertia::*)() const)&Inertia::matrix,
+      "np", (Matrix6 (Inertia::*)() const) & Inertia::matrix,
       "Returns the 6x6 inertia matrix (alias for matrix()).")
     // SE3 action
     .def(
