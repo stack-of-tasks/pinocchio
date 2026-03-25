@@ -229,7 +229,7 @@ void exposeModel(nb::module_ m)
     .def(PrintableVisitor<Model>());
 
   nb::bind_vector<std::vector<Index>>(m, "IndexStdVec");
-  nb::bind_vector<std::vector<IndexVector>>(m, "IndexVecVec");
+  nb::bind_vector<std::vector<IndexVector>, nb::rv_policy::reference_internal>(m, "IndexVecVec");
   nb::bind_vector<std::vector<std::string>>(m, "StringStdVec");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
