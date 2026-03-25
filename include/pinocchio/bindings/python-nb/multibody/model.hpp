@@ -222,8 +222,10 @@ void exposeModel(nb::module_ m)
       "getChildJoints", &Model::getChildJoints,
       "Return the vector of children joints of the kinematic tree.")
     // --- operators
-    .def("__eq__", [](const Model & a, const Model & b) { return a == b; })
-    .def("__ne__", [](const Model & a, const Model & b) { return a != b; })
+    .def(
+      "__eq__", [](const Model & a, const Model & b) { return a == b; }, nb::is_operator())
+    .def(
+      "__ne__", [](const Model & a, const Model & b) { return a != b; }, nb::is_operator())
     .def(PrintableVisitor<Model>());
 
   nb::bind_vector<std::vector<Index>>(m, "IndexStdVec");
