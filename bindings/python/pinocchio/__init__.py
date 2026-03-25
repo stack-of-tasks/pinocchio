@@ -32,7 +32,11 @@ except ImportError:
             for p in get_dll_paths():
                 dll_dir_manager.add_dll_directory(p)
             from .pinocchio_pywrap_default import *
-            from .pinocchio_pywrap_default import __raw_version__, __version__
+            from .pinocchio_pywrap_default import (
+                __bindings_framework__,
+                __raw_version__,
+                __version__,
+            )
     else:
         raise
 
