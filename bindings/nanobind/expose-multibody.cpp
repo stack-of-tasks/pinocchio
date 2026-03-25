@@ -4,6 +4,7 @@
 #include "pinocchio/bindings/python-nb/multibody/joint-model.hpp"
 #include "pinocchio/bindings/python-nb/multibody/frame.hpp"
 #include "pinocchio/bindings/python-nb/multibody/geometry-data.hpp"
+#include "pinocchio/bindings/python-nb/multibody/geometry-model.hpp"
 
 constexpr pinocchio::FrameType kAllFrameTypes = static_cast<pinocchio::FrameType>(
   pinocchio::JOINT | pinocchio::FIXED_JOINT | pinocchio::BODY | pinocchio::OP_FRAME
@@ -35,5 +36,6 @@ void exposeMultibody(nb::module_ m)
 
   // Geometry
   exposeGeometryData(m);
+  exposeGeometryModel(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
