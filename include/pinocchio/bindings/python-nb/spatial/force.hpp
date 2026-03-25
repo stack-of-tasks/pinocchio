@@ -5,6 +5,12 @@
 #include "../fwd.hpp"
 #include "../utils/printable.hpp"
 
+#include "pinocchio/spatial.hpp"
+
+#include <nanobind/eigen/dense.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/bind_vector.h>
+
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 template<class Force>
 void exposeForce(nb::module_ m)
@@ -17,6 +23,10 @@ void exposeForce(nb::module_ m)
   using Vector6 = Eigen::Matrix<Scalar, 6, 1, Options>;
   using Vector3Ref = Eigen::Ref<Vector3>;
   using Vector6Ref = Eigen::Ref<Vector6>;
+  using SE3 = SE3Tpl<Scalar, Options>;
+  using Motion = MotionTpl<Scalar, Options>;
+
+  static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
 
   auto to_vector_ = [](Self & self) -> Vector6Ref { return self.toVector(); };
 
@@ -37,7 +47,6 @@ void exposeForce(nb::module_ m)
     .def_prop_ro("vector", to_vector_, "Returns the components of the Force object as a 6D vector.")
     .def("toVector", to_vector_, "Returns the components of the Force object as a 6D vector.")
     .def_prop_ro("np", to_vector_)
-    //
     // Factories
     .def(
       "setZero", &Force::setZero,
@@ -47,7 +56,57 @@ void exposeForce(nb::module_ m)
       "Set the linear and angular components of the Force object to random values.")
     .def_static("Random", &Force::Random, "Returns a random Force.")
     .def_static("Zero", &Force::Zero, "Returns a zero Force.")
-    //
+    // SE3 action
+    .def(
+      "se3Action", [](const Self & self, const SE3 & M) { return self.se3Action(M); }, "M"_a,
+      "Returns the result of the dual action of M on this Force.")
+    .def(
+      "se3ActionInverse", [](const Self & self, const SE3 & M) { return self.se3ActionInverse(M); },
+      "M"_a, "Returns the result of the dual action of the inverse of M on this Force.")
+    // Dot product
+    .def(
+      "dot", [](const Self & self, const Motion & m) { return self.dot(m); }, "m"_a,
+      "Dot product of this Force with a Motion m.")
+    // Arithmetic operators
+    .def(
+      "__add__", [](const Force & a, const Force & b) { return Force(a + b); }, nb::is_operator())
+    .def(
+      "__sub__", [](const Force & a, const Force & b) { return Force(a - b); }, nb::is_operator())
+    .def(
+      "__neg__", [](const Force & a) { return Force(-a); }, nb::is_operator())
+    .def(
+      "__iadd__", [](Force & a, const Force & b) { return Force(a += b); }, nb::is_operator())
+    .def(
+      "__isub__", [](Force & a, const Force & b) { return Force(a -= b); }, nb::is_operator())
+    .def(
+      "__mul__", [](const Force & f, Scalar s) { return Force(f * s); }, nb::is_operator())
+    .def(
+      "__rmul__", [](const Force & f, Scalar s) { return Force(s * f); }, nb::is_operator())
+    .def(
+      "__truediv__", [](const Force & f, Scalar s) { return Force(f / s); }, nb::is_operator())
+    // Comparison
+    .def(
+      "isApprox",
+      [](const Force & self, const Force & other, Scalar prec) {
+        return self.isApprox(other, prec);
+      },
+      "other"_a, "prec"_a = dummy_precision,
+      "Returns true if this Force is approximately equal to other, within the precision given by "
+      "prec.")
+    .def(
+      "isZero", [](const Force & self, Scalar prec) { return self.isZero(prec); },
+      "prec"_a = dummy_precision,
+      "Returns true if this Force is approximately equal to zero, within the precision "
+      "given by prec.")
+    .def(
+      "__eq__", [](const Force & a, const Force & b) { return a == b; }, nb::is_operator())
+    .def(
+      "__ne__", [](const Force & a, const Force & b) { return a != b; }, nb::is_operator())
+    // Array interface
+    .def("__array__", [](const Self & self) { return Vector6(self.toVector()); })
+    // Repr and str
     .def(PrintableVisitor<Force>());
+
+  nb::bind_vector<std::vector<Force>>(m, "ForceStdVec");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
