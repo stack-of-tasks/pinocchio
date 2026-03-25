@@ -42,5 +42,6 @@ void exposeAlgorithms(nb::module_ m)
   exposeABA(m);
   exposeABADerivatives(m);
   exposeRNEA(m);
+  exposeGeometryAlgo(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
