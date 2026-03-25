@@ -38,6 +38,7 @@ void exposeConstraintSolvers(nb::module_ m);
 
 void exposeAlgorithms(nb::module_ m)
 {
+  exposeJointsAlgo(m);
   exposeABA(m);
   exposeABADerivatives(m);
 }
