@@ -6,6 +6,7 @@
 #include "pinocchio/algorithm/check-data.hpp"
 
 #include "../fwd.hpp"
+#include "../utils/comparable.hpp"
 #include "../utils/printable.hpp"
 
 #include <nanobind/stl/string.h>
@@ -222,10 +223,7 @@ void exposeModel(nb::module_ m)
       "getChildJoints", &Model::getChildJoints,
       "Return the vector of children joints of the kinematic tree.")
     // --- operators
-    .def(
-      "__eq__", [](const Model & a, const Model & b) { return a == b; }, nb::is_operator())
-    .def(
-      "__ne__", [](const Model & a, const Model & b) { return a != b; }, nb::is_operator())
+    .def(ComparableVisitor<Model>())
     .def(PrintableVisitor<Model>());
 
   nb::bind_vector<std::vector<Index>>(m, "IndexStdVec");
