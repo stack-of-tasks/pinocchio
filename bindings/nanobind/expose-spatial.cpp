@@ -1,6 +1,7 @@
 // Copyright (c) 2026 INRIA
 
 #include "pinocchio/bindings/python-nb/spatial/motion.hpp"
+#include "pinocchio/bindings/python-nb/spatial/force.hpp"
 #include "pinocchio/bindings/python-nb/spatial/se3.hpp"
 #include "pinocchio/bindings/python-nb/spatial/inertia.hpp"
 
@@ -11,6 +12,7 @@ void exposeSpatial(nb::module_ m)
   using namespace pinocchio::python_nb;
 
   exposeMotion<pinocchio::Motion>(m);
+  exposeForce<pinocchio::Force>(m);
   exposeSE3<pinocchio::SE3>(m);
   exposeInertia<pinocchio::Inertia>(m);
 }
