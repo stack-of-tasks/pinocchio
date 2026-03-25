@@ -39,5 +39,6 @@ void exposeConstraintSolvers(nb::module_ m);
 void exposeAlgorithms(nb::module_ m)
 {
   exposeABA(m);
+  exposeABADerivatives(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
