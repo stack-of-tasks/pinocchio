@@ -34,6 +34,7 @@ set(PYWRAP_SOURCES
     algorithm/aba-derivatives.cpp
     algorithm/geometry.cpp
     algorithm/joints.cpp
+    algorithm/energy.cpp
     algorithm/rnea.cpp
     multibody/sample-models.cpp
     spatial/skew.cpp
