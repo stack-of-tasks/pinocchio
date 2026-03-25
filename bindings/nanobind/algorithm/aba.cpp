@@ -1,3 +1,5 @@
+// Copyright (c) 2026 INRIA
+
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 
 #include "pinocchio/algorithm/aba.hpp"
