@@ -202,8 +202,9 @@ void exposeData(nb::module_ m)
     .NB_DATA_RW(kineticEnergyRegressor, "Kinetic energy regressor.")
     .NB_DATA_RW(potentialEnergyRegressor, "Potential energy regressor.")
     // --- operators
-    .def("__eq__", [](const Data & a, const Data & b) { return a == b; })
-    .def("__ne__", [](const Data & a, const Data & b) { return a != b; });
+    .def(
+      "__eq__", [](const Data & a, const Data & b) { return a == b; }, nb::is_operator())
+    .def("__ne__", [](const Data & a, const Data & b) { return a != b; }, nb::is_operator());
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
 

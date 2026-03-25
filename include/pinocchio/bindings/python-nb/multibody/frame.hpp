@@ -39,8 +39,10 @@ void exposeFrame(nb::module_ m)
       "placement", &Frame::placement, "Placement of the frame in the parent joint local frame.")
     .def_rw("type", &Frame::type, "Type of the frame.")
     .def_rw("inertia", &Frame::inertia, "Inertia information attached to the frame.")
-    .def("__eq__", [](const Frame & a, const Frame & b) { return a == b; })
-    .def("__ne__", [](const Frame & a, const Frame & b) { return a != b; })
+    .def(
+      "__eq__", [](const Frame & a, const Frame & b) { return a == b; }, nb::is_operator())
+    .def(
+      "__ne__", [](const Frame & a, const Frame & b) { return a != b; }, nb::is_operator())
     .def(PrintableVisitor<Frame>());
 
   nb::bind_vector<std::vector<Frame>>(m, "FrameStdVec");
