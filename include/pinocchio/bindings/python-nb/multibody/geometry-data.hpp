@@ -3,6 +3,7 @@
 #pragma once
 
 #include "../fwd.hpp"
+#include "../utils/comparable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/geometry.hpp"
@@ -23,12 +24,7 @@ inline void exposeGeometryData(nb::module_ m)
       "Initializer of collision pair.")
     .def_rw("first", &CollisionPair::first)
     .def_rw("second", &CollisionPair::second)
-    .def(
-      "__eq__", [](const CollisionPair & p1, const CollisionPair & p2) { return p1 == p2; },
-      nb::is_operator())
-    .def(
-      "__ne__", [](const CollisionPair & p1, const CollisionPair & p2) { return p1 != p2; },
-      nb::is_operator())
+    .def(ComparableVisitor<CollisionPair>())
     .def(PrintableVisitor<CollisionPair>());
 
   nb::bind_vector<std::vector<CollisionPair>, nb::rv_policy::reference_internal>(
@@ -109,12 +105,7 @@ inline void exposeGeometryData(nb::module_ m)
       "Set the security margin of all the collision request in a row, according to the "
       "values stored in the associative map.")
 #endif // PINOCCHIO_WITH_COLLISION
-    .def(
-      "__eq__", [](const GeometryData & gd1, const GeometryData & gd2) { return gd1 == gd2; },
-      nb::is_operator())
-    .def(
-      "__ne__", [](const GeometryData & gd1, const GeometryData & gd2) { return gd1 != gd2; },
-      nb::is_operator())
+    .def(ComparableVisitor<GeometryData>())
     // Repr and str
     .def(PrintableVisitor<GeometryData>());
 }

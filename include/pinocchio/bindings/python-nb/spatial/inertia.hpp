@@ -3,6 +3,7 @@
 #pragma once
 
 #include "../fwd.hpp"
+#include "../utils/comparable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/spatial.hpp"
@@ -135,10 +136,7 @@ void exposeInertia(nb::module_ m)
       nb::arg("prec") = dummy_precision,
       "Returns true if this Inertia object is approximately equal to the zero Inertia, within "
       "the precision given by prec.")
-    .def(
-      "__eq__", [](const Inertia & a, const Inertia & b) { return a == b; }, nb::is_operator())
-    .def(
-      "__ne__", [](const Inertia & a, const Inertia & b) { return a != b; }, nb::is_operator())
+    .def(ComparableVisitor<Inertia>())
     // Static factory methods
     .def_static("Identity", &Inertia::Identity, "Returns the identity Inertia.")
     .def_static("Zero", &Inertia::Zero, "Returns the zero Inertia.")
