@@ -68,7 +68,7 @@ void exposeSymmetric3(nb::module_ m)
     .def("fill", &Symmetric3::fill, "value"_a, "Set all 6 components of this Symmetric3 to value.")
     // Inverse
     .def(
-      "inverse", (Matrix3(Symmetric3::*)() const)&Symmetric3::inverse,
+      "inverse", (Matrix3 (Symmetric3::*)() const) & Symmetric3::inverse,
       "Returns the inverse of this symmetric 3x3 matrix.")
     // Quadratic form
     .def("vtiv", &Symmetric3::vtiv, "v"_a, "Returns the scalar v^T * S * v.")
