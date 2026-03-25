@@ -56,7 +56,7 @@ void exposeABA(nb::module_ m)
     "\t data: Data related to the kinematic tree\n"
     "\t q: joint configuration (size model.nq)\n"
     "\t tau: joint velocity (size model.nv)\n"
-    "\t v: joint torque (size model.nv)"
+    "\t v: joint torque (size model.nv)\n"
     "\t convention: Convention to use");
 
   m.def(
