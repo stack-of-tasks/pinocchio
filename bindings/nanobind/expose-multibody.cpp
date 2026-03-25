@@ -30,5 +30,6 @@ void exposeMultibody(nb::module_ m)
   exposeData<pinocchio::Data>(m);
   exposeJointModel<pinocchio::JointModel>(m);
   exposeFrame<pinocchio::Frame>(m);
+  exposeSampleModels(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
