@@ -31,6 +31,7 @@ set(PYWRAP_SOURCES
     expose-multibody.cpp
     expose-algorithm.cpp
     algorithm/aba.cpp
+    algorithm/aba-derivatives.cpp
     multibody/sample-models.cpp
     spatial/skew.cpp
 )
