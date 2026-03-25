@@ -107,6 +107,6 @@ void exposeForce(nb::module_ m)
     // Repr and str
     .def(PrintableVisitor<Force>());
 
-  nb::bind_vector<std::vector<Force>>(m, "ForceStdVec");
+  nb::bind_vector<std::vector<Force>, nb::rv_policy::reference_internal>(m, "ForceStdVec");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
