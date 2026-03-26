@@ -4,6 +4,12 @@
 
 message(STATUS "Python bindings framework: ${BINDINGS_FRAMEWORK}")
 
+# Capture this directory so install_python_files() resolves Python sources
+# relative to bindings/ regardless of which subdirectory calls it.
+# PYTHON_BUILD is a macro and inherits CMAKE_CURRENT_SOURCE_DIR from its
+# call-site; we shadow it inside the function to point here.
+set(_BINDINGS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
 function(install_python_files)
     set(options)
     set(oneValueArgs MODULE)
@@ -23,9 +29,17 @@ function(install_python_files)
         set(INSTALL_PATH ${INSTALL_PATH}/${ARGS_MODULE})
     endif()
 
+    # Override CMAKE_CURRENT_SOURCE_DIR so the PYTHON_BUILD macro (which is a
+    # macro and therefore sees this scope) finds the Python sources under
+    # bindings/ rather than the subdirectory that called this function.
+    set(CMAKE_CURRENT_SOURCE_DIR "${_BINDINGS_SOURCE_DIR}")
+
     foreach(f ${ARGS_FILES})
         python_build(${SOURCE_PATH} ${f})
-        install(FILES ${SOURCE_PATH}/${f} DESTINATION ${INSTALL_PATH})
+        install(
+            FILES ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_PATH}/${f}
+            DESTINATION ${INSTALL_PATH}
+        )
     endforeach()
 endfunction()
 
