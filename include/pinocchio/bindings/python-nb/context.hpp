@@ -44,4 +44,5 @@ using Data = DataTpl<Scalar, Options>;
 
 // Joints
 using JointModel = JointModelTpl<Scalar, Options>;
+using JointData = JointDataTpl<Scalar, Options>;
 PINOCCHIO_PYTHON_NAMESPACE_END
