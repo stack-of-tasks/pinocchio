@@ -15,6 +15,7 @@ using namespace nanobind::literals;
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 void exposeSpatial(nb::module_ m);
+void exposeRpy(nb::module_ m);
 void exposeMultibody(nb::module_ m);
 void exposeAlgorithms(nb::module_ m);
 void exposeParsers(nb::module_ m);
@@ -81,6 +82,7 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
 
   // spatial
   exposeSpatial(m);
+  exposeRpy(m);
 
   // multibody
   exposeMultibody(m);
