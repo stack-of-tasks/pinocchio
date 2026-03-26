@@ -49,5 +49,6 @@ void exposeAlgorithms(nb::module_ m)
   exposeCholesky(m);
   exposeRNEADerivatives(m);
   exposeABADerivatives(m);
+  exposeCentroidalDerivatives(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
