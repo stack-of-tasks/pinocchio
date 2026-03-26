@@ -1,11 +1,12 @@
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 #include "pinocchio/bindings/python-nb/multibody/model.hpp"
 #include "pinocchio/bindings/python-nb/multibody/data.hpp"
-#include "pinocchio/bindings/python-nb/multibody/joint-model.hpp"
 #include "pinocchio/bindings/python-nb/multibody/frame.hpp"
 #include "pinocchio/bindings/python-nb/multibody/geometry-data.hpp"
 #include "pinocchio/bindings/python-nb/multibody/geometry-model.hpp"
 #include "pinocchio/bindings/python-nb/multibody/geometry-object.hpp"
+
+#include "pinocchio/bindings/python-nb/multibody/joint-generic.hpp"
 
 constexpr pinocchio::FrameType kAllFrameTypes = static_cast<pinocchio::FrameType>(
   pinocchio::JOINT | pinocchio::FIXED_JOINT | pinocchio::BODY | pinocchio::OP_FRAME
@@ -32,6 +33,7 @@ void exposeMultibody(nb::module_ m)
   exposeModel<pinocchio::Model>(m);
   exposeData<pinocchio::Data>(m);
   exposeJointModel<pinocchio::JointModel>(m);
+  exposeJointData<pinocchio::JointData>(m);
   exposeFrame<pinocchio::Frame>(m);
   exposeSampleModels(m);
 
