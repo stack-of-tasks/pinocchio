@@ -16,6 +16,7 @@ PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 namespace nb = nanobind;
 
 void exposeSampleModels(nb::module_ m);
+void exposeJointCollection(nb::module_ m);
 
 void exposeMultibody(nb::module_ m)
 {
@@ -32,10 +33,13 @@ void exposeMultibody(nb::module_ m)
 
   exposeModel<pinocchio::Model>(m);
   exposeData<pinocchio::Data>(m);
-  exposeJointModel<pinocchio::JointModel>(m);
-  exposeJointData<pinocchio::JointData>(m);
   exposeFrame<pinocchio::Frame>(m);
   exposeSampleModels(m);
+
+  // Joints
+  exposeJointModel<pinocchio::JointModel>(m);
+  exposeJointData<pinocchio::JointData>(m);
+  exposeJointCollection(m);
 
   // Geometry
   exposeGeometryData(m);
