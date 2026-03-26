@@ -41,11 +41,9 @@ void exposeJointData(nb::module_ m)
   using JointDataVariant = typename JointData::JointDataVariant;
   nb::class_<JointData>(m, "Generic Joint Data")
     // .def(nb::init<const JointDataVariant &>(), "joint_data"_a)
-    // .def("extract", [](JointData &self)
-    //   -> JointDataVariant &
-    // {
-    //   return self;
-    // })
+    .def("extract", [](JointData & self) -> JointDataVariant & { return self; })
     .def(PrintableVisitor<JointData>());
+
+  nb::bind_vector<std::vector<JointData>, nb::rv_policy::reference_internal>(m, "JointDataStdVec");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
