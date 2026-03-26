@@ -10,6 +10,7 @@ PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 namespace nb = nanobind;
 
 void exposeSkew(nb::module_ m);
+void exposeExplog(nb::module_ m);
 
 void exposeSpatial(nb::module_ m)
 {
@@ -19,5 +20,6 @@ void exposeSpatial(nb::module_ m)
   exposeInertia<pinocchio::Inertia>(m);
   exposeSymmetric3<pinocchio::Symmetric3>(m);
   exposeSkew(m);
+  exposeExplog(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

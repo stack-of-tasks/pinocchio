@@ -41,6 +41,7 @@ set(PYWRAP_SOURCES
     algorithm/rnea.cpp
     multibody/sample-models.cpp
     spatial/skew.cpp
+    spatial/explog.cpp
 )
 
 file(
