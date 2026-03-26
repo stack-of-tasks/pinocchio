@@ -31,6 +31,7 @@ set(PYWRAP_SOURCES
     expose-multibody.cpp
     expose-algorithm.cpp
     expose-parsers.cpp
+    expose-rpy.cpp
     algorithm/aba.cpp
     algorithm/cat.cpp
     algorithm/aba-derivatives.cpp
@@ -164,10 +165,11 @@ if(GENERATE_PYTHON_STUBS)
     nanobind_add_stub(
       ${NB_MODULE_NAME}_stub
       VERBOSE
+      RECURSIVE
       MODULE
       ${NB_MODULE_NAME}
-      OUTPUT
-      "${CMAKE_CURRENT_BINARY_DIR}/${NB_MODULE_NAME}.pyi"
+      OUTPUT_PATH
+      "${CMAKE_CURRENT_BINARY_DIR}"
       PYTHON_PATH
       "${CMAKE_CURRENT_BINARY_DIR}"
       DEPENDS
@@ -177,7 +179,7 @@ if(GENERATE_PYTHON_STUBS)
     )
 
     install(
-        FILES "${CMAKE_CURRENT_BINARY_DIR}/${NB_MODULE_NAME}.pyi"
+        DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${NB_MODULE_NAME}"
         DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}
     )
     install(
