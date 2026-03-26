@@ -17,7 +17,11 @@ namespace nanobind::detail
   struct type_caster<boost::variant<Ts...>>
   {
     using Value = boost::variant<Ts...>;
-    static constexpr auto Name = union_name(make_caster<Ts>::Name...);
+    // Unwrap recursive_wrapper<T> → T for name and caster lookups.
+    template<typename T>
+    using inner_t = typename boost::unwrap_recursive<T>::type;
+
+    static constexpr auto Name = union_name(make_caster<inner_t<Ts>>::Name...);
 
     template<typename T>
     using Cast = movable_cast_t<T>;
@@ -44,13 +48,18 @@ namespace nanobind::detail
     template<typename T>
     bool try_variant(const handle & src, uint8_t flags, cleanup_list * cleanup)
     {
-      using CasterT = make_caster<T>;
+      // Use the unwrapped inner type for caster lookup and flags — recursive_wrapper<B> is not
+      // a registered nanobind type, but B is, so flags_for_local_caster must see B, not the
+      // wrapper.
+      using Inner = inner_t<T>;
+      using CasterT = make_caster<Inner>;
       CasterT caster;
       if (
-        !caster.from_python(src, flags_for_local_caster<T>(flags), cleanup)
-        || !caster.template can_cast<T>())
+        !caster.from_python(src, flags_for_local_caster<Inner>(flags), cleanup)
+        || !caster.template can_cast<Inner>())
         return false;
-      value = caster.operator cast_t<T>();
+      // T{inner} works for both plain T and recursive_wrapper<T> (has T&& ctor).
+      value = caster.operator cast_t<Inner>();
       return true;
     }
 
@@ -84,7 +93,11 @@ namespace nanobind::detail
       template<typename U>
       handle operator()(U && v) const
       {
-        return make_caster<decltype(v)>::from_cpp(std::forward<decltype(v)>(v), policy, cleanup);
+        using Plain = std::decay_t<U>;
+        if constexpr (boost::is_recursive_wrapper<Plain>::value)
+          return make_caster<typename Plain::type>::from_cpp(v.get(), policy, cleanup);
+        else
+          return make_caster<decltype(v)>::from_cpp(std::forward<decltype(v)>(v), policy, cleanup);
       }
     };
 
