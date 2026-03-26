@@ -5,19 +5,21 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/constraints/fwd.hpp"
 
+#include "pinocchio/bindings/python-nb/macros.hpp"
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 
 namespace nb = nanobind;
 using namespace nanobind::literals;
 
-namespace pinocchio::python_nb
-{
-  void exposeSpatial(nb::module_ m);
-  void exposeMultibody(nb::module_ m);
-  void exposeAlgorithms(nb::module_ m);
-  void exposeParsers(nb::module_ m);
-} // namespace pinocchio::python_nb
+PINOCCHIO_PYTHON_NAMESPACE_BEGIN
+void exposeSpatial(nb::module_ m);
+void exposeMultibody(nb::module_ m);
+void exposeAlgorithms(nb::module_ m);
+void exposeParsers(nb::module_ m);
+static void exposeFeatures(nb::module_ m);
+PINOCCHIO_PYTHON_NAMESPACE_END
 
 // PINOCCHIO_PYTHON_MODULE_NAME is defined by the build system as the target name
 // (e.g. pinocchio_pywrap_default).
@@ -88,4 +90,49 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
 
   // parsers
   exposeParsers(m);
+
+  // feature flags
+  exposeFeatures(m);
 }
+
+#ifdef PINOCCHIO_WITH_COLLISION
+  #define WITH_COLLISION true
+#else
+  #define WITH_COLLISION false
+#endif
+
+#ifdef PINOCCHIO_WITH_URDF
+  #define WITH_URDF true
+#else
+  #define WITH_URDF false
+#endif
+
+#ifdef PINOCCHIO_WITH_CPPAD
+  #define WITH_CPPAD true
+#else
+  #define WITH_CPPAD false
+#endif
+
+#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
+  #define WITH_OPENMP true
+#else
+  #define WITH_OPENMP false
+#endif
+
+#ifdef PINOCCHIO_WITH_SDFORMAT
+  #define WITH_SDFORMAT true
+#else
+  #define WITH_SDFORMAT false
+#endif
+
+PINOCCHIO_PYTHON_NAMESPACE_BEGIN
+static void exposeFeatures(nb::module_ m)
+{
+  // translation of exposeDependencies() in bindings/python/utils/dependencies.cpp
+  m.attr("WITH_COLLISION") = WITH_COLLISION;
+  m.attr("WITH_URDFDOM") = WITH_URDF;
+  m.attr("WITH_CPPAD") = WITH_CPPAD;
+  m.attr("WITH_OPENMP") = WITH_OPENMP;
+  m.attr("WITH_SDFORMAT") = WITH_SDFORMAT;
+}
+PINOCCHIO_PYTHON_NAMESPACE_END
