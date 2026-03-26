@@ -76,12 +76,9 @@ target_link_libraries(${NB_MODULE_NAME} PUBLIC ${PROJECT_NAME}::${PROJECT_NAME})
 if(BUILD_WITH_URDF_SUPPORT)
     # Link directly against console_bridge since we bind some enums and call
     # console_bridge::setLogLevel function.
-    modernize_target_link_libraries(
-      ${NB_MODULE_NAME}
-      SCOPE PUBLIC
-      TARGETS console_bridge::console_bridge
-      LIBRARIES ${console_bridge_LIBRARIES}
-      INCLUDE_DIRS ${console_bridge_INCLUDE_DIRS}
+    target_link_libraries(
+        ${NB_MODULE_NAME}
+        PUBLIC console_bridge::console_bridge
     )
 endif()
 
@@ -127,31 +124,6 @@ if(UNIX)
         PROPERTIES INSTALL_RPATH "${_NB_INSTALL_RPATH}"
     )
 endif()
-
-function(install_python_files)
-    set(options)
-    set(oneValueArgs MODULE)
-    set(multiValueArgs FILES)
-    cmake_parse_arguments(
-        ARGS
-        "${options}"
-        "${oneValueArgs}"
-        "${multiValueArgs}"
-        ${ARGN}
-    )
-
-    set(SOURCE_PATH ${PROJECT_NAME})
-    set(INSTALL_PATH ${PINOCCHIO_PYTHON_INSTALL_DIR})
-    if(ARGS_MODULE)
-        set(SOURCE_PATH ${SOURCE_PATH}/${ARGS_MODULE})
-        set(INSTALL_PATH ${INSTALL_PATH}/${ARGS_MODULE})
-    endif()
-
-    foreach(f ${ARGS_FILES})
-        python_build(${SOURCE_PATH} ${f})
-        install(FILES ${SOURCE_PATH}/${f} DESTINATION ${INSTALL_PATH})
-    endforeach()
-endfunction()
 
 install_python_files(FILES __init__.py)
 

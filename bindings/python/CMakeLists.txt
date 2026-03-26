@@ -165,31 +165,6 @@ function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
     )
 endfunction()
 
-function(INSTALL_PYTHON_FILES)
-    set(options)
-    set(oneValueArgs MODULE)
-    set(multiValueArgs FILES)
-    cmake_parse_arguments(
-        ARGS
-        "${options}"
-        "${oneValueArgs}"
-        "${multiValueArgs}"
-        ${ARGN}
-    )
-
-    set(SOURCE_PATH ${PROJECT_NAME})
-    set(INSTALL_PATH ${PINOCCHIO_PYTHON_INSTALL_DIR})
-    if(ARGS_MODULE)
-        set(SOURCE_PATH ${SOURCE_PATH}/${ARGS_MODULE})
-        set(INSTALL_PATH ${INSTALL_PATH}/${ARGS_MODULE})
-    endif()
-
-    foreach(f ${ARGS_FILES})
-        python_build(${SOURCE_PATH} ${f})
-        install(FILES ${SOURCE_PATH}/${f} DESTINATION ${INSTALL_PATH})
-    endforeach()
-endfunction()
-
 if(BUILD_PYTHON_INTERFACE)
     add_custom_target(${PROJECT_NAME}-python)
     set_target_properties(
@@ -334,7 +309,6 @@ if(BUILD_PYTHON_INTERFACE)
     install_python_files(
       FILES __init__.py
             deprecated.py
-            deprecation.py
             utils.py
             robot_wrapper.py
             romeo_wrapper.py

@@ -4,6 +4,31 @@
 
 message(STATUS "Python bindings framework: ${BINDINGS_FRAMEWORK}")
 
+function(install_python_files)
+    set(options)
+    set(oneValueArgs MODULE)
+    set(multiValueArgs FILES)
+    cmake_parse_arguments(
+        ARGS
+        "${options}"
+        "${oneValueArgs}"
+        "${multiValueArgs}"
+        ${ARGN}
+    )
+
+    set(SOURCE_PATH ${PROJECT_NAME})
+    set(INSTALL_PATH ${PINOCCHIO_PYTHON_INSTALL_DIR})
+    if(ARGS_MODULE)
+        set(SOURCE_PATH ${SOURCE_PATH}/${ARGS_MODULE})
+        set(INSTALL_PATH ${INSTALL_PATH}/${ARGS_MODULE})
+    endif()
+
+    foreach(f ${ARGS_FILES})
+        python_build(${SOURCE_PATH} ${f})
+        install(FILES ${SOURCE_PATH}/${f} DESTINATION ${INSTALL_PATH})
+    endforeach()
+endfunction()
+
 if(BINDINGS_FRAMEWORK STREQUAL Boost)
     add_subdirectory(python)
 else()
