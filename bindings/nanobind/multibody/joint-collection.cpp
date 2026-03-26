@@ -37,7 +37,7 @@ struct data_callable
   {
     auto className = sanitizedClassname<Derived>();
     nb::class_<Derived>(m, className.c_str())
-      // .def(JointDataBaseVisitor<Derived>())
+      .def(JointDataBaseVisitor<Derived>())
       .def(PrintableVisitor<Derived>());
   }
 };
