@@ -42,6 +42,7 @@ set(PYWRAP_SOURCES
     algorithm/cholesky.cpp
     algorithm/com.cpp
     algorithm/centroidal.cpp
+    algorithm/centroidal-derivatives.cpp
     algorithm/rnea-derivatives.cpp
     multibody/sample-models.cpp
     spatial/skew.cpp
