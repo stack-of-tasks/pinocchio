@@ -14,15 +14,12 @@
 
 // #include PINOCCHIO_PYTHON_CONTEXT_FILE
 
-#define PINOCCHIO_PYTHON_NAMESPACE_BEGIN                                                           \
-  namespace pinocchio::python_nb                                                                   \
-  {
-#define PINOCCHIO_PYTHON_NAMESPACE_END } // pinocchio::python_nb
-
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/joint/fwd.hpp"
+
+#include "./macros.hpp"
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 using Scalar = PINOCCHIO_PYTHON_SCALAR_TYPE_DEFAULT;
