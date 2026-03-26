@@ -44,6 +44,7 @@ void exposeAlgorithms(nb::module_ m)
   exposeEnergy(m);
   exposeCAT(m);
   exposeGeometryAlgo(m);
+  exposeCholesky(m);
   exposeABADerivatives(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

@@ -39,6 +39,7 @@ set(PYWRAP_SOURCES
     algorithm/joints.cpp
     algorithm/energy.cpp
     algorithm/rnea.cpp
+    algorithm/cholesky.cpp
     multibody/sample-models.cpp
     spatial/skew.cpp
     spatial/explog.cpp
