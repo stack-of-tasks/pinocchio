@@ -1,6 +1,7 @@
 // Copyright (c) 2026 INRIA
 
-#include "pinocchio/bindings/python-nb/multibody/joint-generic.hpp"
+#include "pinocchio/bindings/python-nb/utils/printable.hpp"
+
 #include "pinocchio/bindings/python-nb/multibody/joint-crtp-base.hpp"
 
 #include <boost/mpl/for_each.hpp>
