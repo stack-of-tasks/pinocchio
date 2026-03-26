@@ -40,6 +40,7 @@ set(PYWRAP_SOURCES
     algorithm/energy.cpp
     algorithm/rnea.cpp
     algorithm/cholesky.cpp
+    algorithm/com.cpp
     algorithm/centroidal.cpp
     multibody/sample-models.cpp
     spatial/skew.cpp
