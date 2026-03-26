@@ -115,13 +115,15 @@ target_compile_definitions(
     PRIVATE PINOCCHIO_PYTHON_MODULE_NAME=${NB_MODULE_NAME}
 )
 
+set(_NB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}")
+
 set_target_properties(
     ${NB_MODULE_NAME}
     PROPERTIES
         OUTPUT_NAME "${NB_MODULE_NAME}"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+        LIBRARY_OUTPUT_DIRECTORY "${_NB_OUTPUT_DIRECTORY}"
         # On Windows, shared libraries are treated as binaries
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY "${_NB_OUTPUT_DIRECTORY}"
         VERSION ${PROJECT_VERSION}
 )
 
@@ -133,7 +135,30 @@ if(UNIX)
     )
 endif()
 
-install_python_files(FILES __init__.py)
+# --- INSTALL CORE MODULE SCRIPTS
+install_python_files(
+    FILES __init__.py
+          deprecated.py
+          utils.py
+          robot_wrapper.py
+          romeo_wrapper.py
+          explog.py
+          shortcuts.py
+          windows_dll_manager.py
+)
+
+# --- INSTALL VISUALIZE MODULE SCRIPTS
+install_python_files(
+    MODULE visualize
+    FILES __init__.py
+        base_visualizer.py
+        gepetto_visualizer.py
+        meshcat_visualizer.py
+        panda3d_visualizer.py
+        rviz_visualizer.py
+        viser_visualizer.py
+        visualizers.py
+)
 
 install(
     TARGETS ${NB_MODULE_NAME}
@@ -144,27 +169,22 @@ install(
 # --- STUBS --- #
 if(GENERATE_PYTHON_STUBS)
     nanobind_add_stub(
-      ${NB_MODULE_NAME}_stub
-      VERBOSE
-      RECURSIVE
-      MODULE
-      ${NB_MODULE_NAME}
-      OUTPUT_PATH
-      "${CMAKE_CURRENT_BINARY_DIR}"
-      PYTHON_PATH
-      "${CMAKE_CURRENT_BINARY_DIR}"
-      DEPENDS
-      ${NB_MODULE_NAME}
-      MARKER_FILE
-      "${CMAKE_CURRENT_BINARY_DIR}/py.typed"
+        ${NB_MODULE_NAME}_stub
+        VERBOSE
+        RECURSIVE
+        MODULE ${NB_MODULE_NAME}
+        OUTPUT_PATH ${_NB_OUTPUT_DIRECTORY}
+        PYTHON_PATH ${_NB_OUTPUT_DIRECTORY}
+        MARKER_FILE ${_NB_OUTPUT_DIRECTORY}/py.typed
+        DEPENDS ${NB_MODULE_NAME}
     )
 
     install(
-        DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${NB_MODULE_NAME}"
+        DIRECTORY "${_NB_OUTPUT_DIRECTORY}/${NB_MODULE_NAME}"
         DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}
     )
     install(
-        FILES "${CMAKE_CURRENT_BINARY_DIR}/py.typed"
+        FILES "${_NB_OUTPUT_DIRECTORY}/py.typed"
         DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}
     )
 endif(GENERATE_PYTHON_STUBS)
