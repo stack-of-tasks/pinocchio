@@ -42,4 +42,19 @@ struct JointModelBaseVisitor : nb::def_visitor<JointModelBaseVisitor<Derived>>
   }
 };
 
+// Visitor for exposing the common interface of joint datas.
+template<typename Derived>
+struct JointDataBaseVisitor : nb::def_visitor<JointDataBaseVisitor<Derived>>
+{
+  using Base = JointDataBase<Derived>;
+
+  template<class PyClass, class... Extra>
+  void execute(PyClass & cl, const Extra &...) const
+  {
+    using namespace nb::literals;
+    cl //
+      .def(ComparableVisitor<Derived>());
+  }
+};
+
 PINOCCHIO_PYTHON_NAMESPACE_END
