@@ -45,6 +45,7 @@ set(PYWRAP_SOURCES
     algorithm/centroidal-derivatives.cpp
     algorithm/rnea-derivatives.cpp
     multibody/sample-models.cpp
+    multibody/joint-collection.cpp
     spatial/skew.cpp
     spatial/explog.cpp
     parsers/urdf/console-bridge.cpp
