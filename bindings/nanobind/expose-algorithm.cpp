@@ -40,6 +40,7 @@ void exposeAlgorithms(nb::module_ m)
 {
   exposeJointsAlgo(m);
   exposeABA(m);
+  exposeCRBA(m);
   exposeCentroidal(m);
   exposeRNEA(m);
   exposeCOM(m);
