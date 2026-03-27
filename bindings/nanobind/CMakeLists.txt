@@ -35,6 +35,7 @@ set(PYWRAP_SOURCES
     expose-rpy.cpp
     algorithm/aba.cpp
     algorithm/cat.cpp
+    algorithm/crba.cpp
     algorithm/aba-derivatives.cpp
     algorithm/geometry.cpp
     algorithm/joints.cpp
