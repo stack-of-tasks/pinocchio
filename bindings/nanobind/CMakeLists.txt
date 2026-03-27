@@ -44,6 +44,7 @@ set(PYWRAP_SOURCES
     algorithm/centroidal.cpp
     algorithm/centroidal-derivatives.cpp
     algorithm/rnea-derivatives.cpp
+    multibody/liegroups.cpp
     multibody/sample-models.cpp
     spatial/skew.cpp
     spatial/explog.cpp
