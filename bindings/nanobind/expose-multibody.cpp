@@ -17,6 +17,7 @@ PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 namespace nb = nanobind;
 
 void exposeSampleModels(nb::module_ m);
+void exposeLieGroups(nb::module_ m);
 
 void exposeMultibody(nb::module_ m)
 {
@@ -40,6 +41,9 @@ void exposeMultibody(nb::module_ m)
   exposeJointModel<pinocchio::JointModel>(m);
   exposeJointData<pinocchio::JointData>(m);
   exposeJointCollection<pinocchio::JointCollectionDefault>(m);
+
+  // Lie groups
+  exposeLieGroups(m);
 
   // Geometry
   exposeGeometryData(m);
