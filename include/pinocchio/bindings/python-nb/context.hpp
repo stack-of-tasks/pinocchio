@@ -18,6 +18,7 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/joint/fwd.hpp"
+#include "pinocchio/multibody/pool/fwd.hpp"
 
 #include "./macros.hpp"
 
@@ -41,6 +42,8 @@ using Inertia = InertiaTpl<Scalar, Options>;
 // Multibody
 using Model = ModelTpl<Scalar, Options>;
 using Data = DataTpl<Scalar, Options>;
+using ModelPool = ModelPoolTpl<Scalar, Options>;
+using GeometryPool = GeometryPoolTpl<Scalar, Options>;
 
 // Joints
 using JointModel = JointModelTpl<Scalar, Options>;
