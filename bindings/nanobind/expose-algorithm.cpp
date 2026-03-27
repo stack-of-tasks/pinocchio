@@ -45,6 +45,7 @@ void exposeAlgorithms(nb::module_ m)
   exposeRNEA(m);
   exposeCOM(m);
   exposeEnergy(m);
+  exposeDelassus(m);
   exposeCAT(m);
   exposeGeometryAlgo(m);
   exposeCholesky(m);
