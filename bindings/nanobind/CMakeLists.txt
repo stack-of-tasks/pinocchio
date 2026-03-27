@@ -34,9 +34,10 @@ set(PYWRAP_SOURCES
     expose-parsers.cpp
     expose-rpy.cpp
     algorithm/aba.cpp
+    algorithm/aba-derivatives.cpp
     algorithm/cat.cpp
     algorithm/crba.cpp
-    algorithm/aba-derivatives.cpp
+    algorithm/delassus.cpp
     algorithm/geometry.cpp
     algorithm/joints.cpp
     algorithm/energy.cpp
