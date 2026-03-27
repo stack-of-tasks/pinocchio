@@ -57,7 +57,7 @@ set(PYWRAP_SOURCES
 )
 
 if(BUILD_WITH_OPENMP_SUPPORT)
-    list(APPEND PYWRAP_SOURCES multibody/pool.cpp)
+    list(APPEND PYWRAP_SOURCES algorithm/parallel.cpp multibody/pool.cpp)
 endif()
 
 file(
