@@ -2,14 +2,17 @@
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 #include "pinocchio/bindings/python-nb/utils/comparable.hpp"
+#include "pinocchio/bindings/python-nb/math/tridiagonal-matrix.hpp"
 
 #include "pinocchio/math.hpp"
+
+#include <nanobind/eigen/dense.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 using namespace nb::literals;
 
 template<typename MatrixType>
-typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixType) inv(const Eigen::MatrixBase<MatrixType> & mat)
+typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixType) inv(const MatrixType & mat)
 {
   typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixType) res(mat.rows(), mat.cols());
   inverse(mat, res);
@@ -28,9 +31,10 @@ static void exposeLinalg(nb::module_ m_)
     "estimate.");
 
   m.def(
-    "retrieveLargestEigenvalue", &retrieveLargestEigenvalue<MatrixXs>, "eigenvector"_a,
+    "retrieveLargestEigenvalue",
+    [](const ConstVectorRef & mat) { return retrieveLargestEigenvalue(mat); }, "eigenvector"_a,
     "Compute the lagest eigenvalue of a given matrix. This is taking the eigenvector "
-    "computed by the function computeLargestEigenvector.");
+    "computed by the function computeLargestEigenvector().");
 #endif
 
   m.def("inv", &inv<MatrixXs>, "Computes the inverse of a matrix.");
@@ -83,6 +87,7 @@ void exposeMathUtil(nb::module_ m)
 
   exposeLinalg(m);
   exposeLanczosDecomposition(m);
+  exposeTridiagonalMatrix<Scalar, Options>(m);
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END
