@@ -3,6 +3,7 @@
 #include "pinocchio/bindings/python-nb/utils/printable.hpp"
 #include "pinocchio/bindings/python-nb/multibody/joint-crtp-base.hpp"
 #include "pinocchio/bindings/python-nb/multibody/joint-derived-models.hpp"
+#include "pinocchio/bindings/python-nb/multibody/joint-derived-datas.hpp"
 
 #include <boost/mpl/for_each.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -40,6 +41,7 @@ struct data_callable
     auto className = sanitizedClassname<Derived>();
     nb::class_<Derived>(m, className.c_str())
       .def(JointDataBaseVisitor<Derived>())
+      .def(JointDataDerivedVisitor())
       .def(PrintableVisitor<Derived>());
   }
 };
