@@ -54,6 +54,10 @@ set(PYWRAP_SOURCES
     parsers/urdf/geometry.cpp
 )
 
+if(BUILD_WITH_OPENMP_SUPPORT)
+    list(APPEND PYWRAP_SOURCES multibody/pool.cpp)
+endif()
+
 file(
     GLOB_RECURSE PYWRAP_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python-nb/*.hpp
