@@ -7,6 +7,7 @@
 #include "pinocchio/bindings/python-nb/multibody/geometry-object.hpp"
 
 #include "pinocchio/bindings/python-nb/multibody/joint-generic.hpp"
+#include "pinocchio/bindings/python-nb/multibody/joint-collection.hpp"
 
 constexpr pinocchio::FrameType kAllFrameTypes = static_cast<pinocchio::FrameType>(
   pinocchio::JOINT | pinocchio::FIXED_JOINT | pinocchio::BODY | pinocchio::OP_FRAME
@@ -16,7 +17,6 @@ PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 namespace nb = nanobind;
 
 void exposeSampleModels(nb::module_ m);
-void exposeJointCollection(nb::module_ m);
 
 void exposeMultibody(nb::module_ m)
 {
@@ -39,7 +39,7 @@ void exposeMultibody(nb::module_ m)
   // Joints
   exposeJointModel<pinocchio::JointModel>(m);
   exposeJointData<pinocchio::JointData>(m);
-  exposeJointCollection(m);
+  exposeJointCollection<pinocchio::JointCollectionDefault>(m);
 
   // Geometry
   exposeGeometryData(m);
