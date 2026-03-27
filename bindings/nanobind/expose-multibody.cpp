@@ -20,7 +20,6 @@ void exposeSampleModels(nb::module_ m);
 void exposeLieGroups(nb::module_ m);
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
 void exposePool(nb::module_ m);
-void exposeParallelAlgorithms(nb::module_ m);
 #endif
 
 void exposeMultibody(nb::module_ m)
@@ -52,7 +51,6 @@ void exposeMultibody(nb::module_ m)
   // Pool
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
   exposePool(m);
-  // exposeParallelAlgorithms(m);
 #endif
 
   // Geometry
