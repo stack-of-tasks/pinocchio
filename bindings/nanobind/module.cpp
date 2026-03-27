@@ -14,11 +14,20 @@ namespace nb = nanobind;
 using namespace nanobind::literals;
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
+// expose-math.cpp
+void exposeMathUtil(nb::module_ m);
+// expose-spatial.cpp
 void exposeSpatial(nb::module_ m);
+// expose-rpy.cpp
 void exposeRpy(nb::module_ m);
+// expose-multibody
 void exposeMultibody(nb::module_ m);
+// expose-algorithm.cpp
 void exposeAlgorithms(nb::module_ m);
+// expose-parsers.cpp
 void exposeParsers(nb::module_ m);
+
+// see after NB_MODULE() below
 static void exposeFeatures(nb::module_ m);
 PINOCCHIO_PYTHON_NAMESPACE_END
 
@@ -79,6 +88,9 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
   nb::enum_<pinocchio::ConstraintSelectionType>(m, "ConstraintSelectionType")
     .value("CURRENT", pinocchio::ConstraintSelectionType::CURRENT)
     .value("MAXIMAL", pinocchio::ConstraintSelectionType::MAXIMAL);
+
+  // math
+  exposeMathUtil(m);
 
   // spatial
   exposeSpatial(m);
