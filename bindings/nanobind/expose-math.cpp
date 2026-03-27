@@ -82,12 +82,41 @@ static void exposeLanczosDecomposition(nb::module_ m)
     .def(ComparableVisitor<LanczosDecomposition>());
 }
 
+static void exposeGramSchmidtOrthonormalisation(nb::module_ m)
+{
+#ifndef PINOCCHIO_PYTHON_SKIP_CASADI_UNSUPPORTED
+  static const Scalar prec = Eigen::NumTraits<Scalar>::dummy_precision();
+
+  m.def(
+    "orthogonalization",
+    [](const MatrixXs & basis, Eigen::Ref<VectorXs> vec, const Scalar threshold) {
+      orthogonalization(basis, vec, threshold);
+    },
+    "basis"_a, "vec"_a, "threshold"_a = Scalar(0),
+    "Perform the Gram-Schmidt orthogonalization on the input/output vector for a given input "
+    "basis.");
+
+  m.def(
+    "orthonormalization",
+    [](MatrixXs & matrix, const Scalar threshold) { orthonormalization(matrix, threshold); },
+    "matrix"_a, "threshold"_a = Scalar(0),
+    "Perform the orthonormalization of the input matrix via the Gram-Schmidt procedure.");
+
+  m.def(
+    "isOrthonormal",
+    [](MatrixXs & matrix, const Scalar prec) { return isOrthonormal(matrix, prec); }, "matrix"_a,
+    "prec"_a = prec,
+    "Check whether the input matrix is orthonormal up to a given input precision.");
+#endif
+}
+
 void exposeMathUtil(nb::module_ m)
 {
 
   exposeLinalg(m);
   exposeLanczosDecomposition(m);
   exposeTridiagonalMatrix<Scalar, Options>(m);
+  exposeGramSchmidtOrthonormalisation(m);
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END
