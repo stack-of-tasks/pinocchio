@@ -42,6 +42,8 @@ set(PYWRAP_SOURCES
     algorithm/joints.cpp
     algorithm/energy.cpp
     algorithm/rnea.cpp
+    algorithm/kinematics.cpp
+    algorithm/kinematics-derivatives.cpp
     algorithm/cholesky.cpp
     algorithm/com.cpp
     algorithm/centroidal.cpp
