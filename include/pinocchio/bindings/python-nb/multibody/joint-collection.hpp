@@ -1,7 +1,6 @@
 // Copyright (c) 2026 INRIA
 
 #include "pinocchio/bindings/python-nb/utils/printable.hpp"
-
 #include "pinocchio/bindings/python-nb/multibody/joint-crtp-base.hpp"
 
 #include <boost/mpl/for_each.hpp>
@@ -43,15 +42,19 @@ struct data_callable
   }
 };
 
-// Expose all joints in the default collection
+// Expose all joints in the joint collection
+template<class JointCollection = JointCollectionDefault>
 void exposeJointCollection(nb::module_ m)
 {
+  using JointModelVariant = typename JointCollection::JointModelVariant;
+  using JointDataVariant = typename JointCollection::JointDataVariant;
+
   // loop over model derived types
-  using model_types = JointModelVariant::types;
+  using model_types = typename JointModelVariant::types;
   boost::mpl::for_each<model_types>(model_callable{m});
 
   // loop over data derived types
-  using data_types = JointDataVariant::types;
+  using data_types = typename JointDataVariant::types;
   boost::mpl::for_each<data_types>(data_callable{m});
 }
 
