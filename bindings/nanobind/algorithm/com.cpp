@@ -28,8 +28,7 @@ void exposeCOM(nb::module_ m)
     "Compute the total mass of the model, put it in data.mass[0] and return it.");
 
   m.def(
-    "computeSubtreeMasses",
-    [](const Model & model, Data & data) { pinocchio::computeSubtreeMasses(model, data); },
+    "computeSubtreeMasses", &computeSubtreeMasses<Scalar, Options, JointCollectionDefaultTpl>,
     "model"_a, "data"_a,
     "Compute the mass of each kinematic subtree and store it in the vector data.mass.");
 
