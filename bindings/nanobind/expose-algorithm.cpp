@@ -44,13 +44,27 @@ void exposeAlgorithms(nb::module_ m)
   exposeCentroidal(m);
   exposeRNEA(m);
   exposeCOM(m);
+  // exposeFramesAlgo(m);
   exposeEnergy(m);
+  exposeKinematics(m);
+  // exposeContactJacobian(m);
+  // exposeContactDynamics(m);
+  // exposeConstraintDynamics(m);
+  // exposeConstraintDynamicsDerivatives(m);
+  // exposeContactInverseDynamics(m);
   exposeDelassus(m);
   exposeCAT(m);
+  // exposeJacobian(m);
   exposeGeometryAlgo(m);
+  // exposeKinematicRegressor(m);
+  // exposeRegressor(m);
   exposeCholesky(m);
+  // exposeModelAlgo(m);
+  // exposeImpulseDynamics(m);
+
   exposeRNEADerivatives(m);
   exposeABADerivatives(m);
+  exposeKinematicsDerivatives(m);
   exposeCentroidalDerivatives(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
