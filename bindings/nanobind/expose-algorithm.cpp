@@ -44,7 +44,7 @@ void exposeAlgorithms(nb::module_ m)
   exposeCentroidal(m);
   exposeRNEA(m);
   exposeCOM(m);
-  // exposeFramesAlgo(m);
+  exposeFramesAlgo(m);
   exposeEnergy(m);
   exposeKinematics(m);
   // exposeContactJacobian(m);
