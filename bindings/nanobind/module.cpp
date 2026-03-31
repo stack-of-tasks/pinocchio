@@ -24,10 +24,17 @@ void exposeRpy(nb::module_ m);
 void exposeMultibody(nb::module_ m);
 // expose-algorithm.cpp
 void exposeAlgorithms(nb::module_ m);
-// algorithm/parallel.cpp
+
+#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_COLLISION_PYTHON_BINDINGS
+// expose-coal.cpp
+void exposeCoal(nb::module_ m);
+#endif
+
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
+// algorithm/parallel.cpp
 void exposeParallelAlgorithms(nb::module_ m);
 #endif
+
 // expose-parsers.cpp
 void exposeParsers(nb::module_ m);
 
@@ -107,6 +114,10 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
   exposeAlgorithms(m);
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
   exposeParallelAlgorithms(m);
+#endif
+
+#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_COLLISION_PYTHON_BINDINGS
+  exposeCoal(m);
 #endif
 
   // parsers
