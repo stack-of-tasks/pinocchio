@@ -43,6 +43,7 @@ set(PYWRAP_SOURCES
     algorithm/energy.cpp
     algorithm/rnea.cpp
     algorithm/kinematics.cpp
+    algorithm/jacobian.cpp
     algorithm/kinematics-derivatives.cpp
     algorithm/cholesky.cpp
     algorithm/com.cpp
