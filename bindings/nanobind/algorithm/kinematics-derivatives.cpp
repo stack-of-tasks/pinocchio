@@ -6,6 +6,7 @@
 #include "pinocchio/algorithm/center-of-mass-derivatives.hpp"
 
 #include <nanobind/eigen/dense.h>
+#include <nanobind/eigen/tensor.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 using namespace nb::literals;
@@ -183,6 +184,50 @@ void exposeKinematicsDerivatives(nb::module_ m)
     "model"_a, "data"_a, "q"_a,
     "Computes all the terms required to compute the second order derivatives of the placement "
     "information, also know as the kinematic Hessian.");
+
+  using Tensor3 = Eigen::Tensor<Scalar, 3, Options>;
+
+  m.def(
+    "getJointKinematicHessian",
+    [](const Model & model, const Data & data, JointIndex joint_id, ReferenceFrame rf) -> Tensor3 {
+      return getJointKinematicHessian(model, data, joint_id, rf);
+    },
+    "model"_a, "data"_a, "joint_id"_a, "reference_frame"_a,
+    "Retrieves the kinematic Hessian of a given joint according to the values already computed "
+    "by computeJointKinematicHessians and stored in data.\n"
+    "While the kinematic Jacobian of a given joint frame corresponds to the first order "
+    "derivative of the placement variation with respect to q, the kinematic Hessian "
+    "corresponds to the second order derivation of placement variation, which in turns also "
+    "corresponds to the first order derivative of the kinematic Jacobian.");
+
+  m.def(
+    "getFrameKinematicHessian",
+    [](const Model & model, const Data & data, FrameIndex frame_id, ReferenceFrame rf) -> Tensor3 {
+      return getFrameKinematicHessian(model, data, frame_id, rf);
+    },
+    "model"_a, "data"_a, "frame_id"_a, "reference_frame"_a,
+    "Retrieves the kinematic Hessian of a given frame according to the values already computed "
+    "by computeJointKinematicHessians and stored in data.\n"
+    "While the kinematic Jacobian of a given joint frame corresponds to the first order "
+    "derivative of the placement variation with respect to q, the kinematic Hessian "
+    "corresponds to the second order derivation of placement variation, which in turns also "
+    "corresponds to the first order derivative of the kinematic Jacobian.");
+
+  m.def(
+    "getFrameKinematicHessian",
+    [](
+      const Model & model, const Data & data, JointIndex joint_id, const SE3 & frame_placement,
+      ReferenceFrame rf) -> Tensor3 {
+      return getFrameKinematicHessian(model, data, joint_id, frame_placement, rf);
+    },
+    "model"_a, "data"_a, "joint_id"_a, "frame_placement"_a, "reference_frame"_a,
+    "Retrieves the kinematic Hessian of a given frame, given by the related joint_id and "
+    "frame_placement, leveraging to the values already computed "
+    "by computeJointKinematicHessians and stored in data.\n"
+    "While the kinematic Jacobian of a given joint frame corresponds to the first order "
+    "derivative of the placement variation with respect to q, the kinematic Hessian "
+    "corresponds to the second order derivation of placement variation, which in turns also "
+    "corresponds to the first order derivative of the kinematic Jacobian.");
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END
