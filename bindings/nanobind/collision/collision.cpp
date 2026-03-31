@@ -105,7 +105,7 @@ void exposeCollision(nb::module_ m)
     "computeDistance",
     [](const GeometryModel & geom_model, GeometryData & geom_data, const PairIndex pair_id)
       -> coal::DistanceResult & { return computeDistance(geom_model, geom_data, pair_id); },
-    "geometry_model"_a, "geometry_data"_a, "pair_index"_a, nb::rv_policy::reference_internal,
+    "geometry_model"_a, "geometry_data"_a, "pair_index"_a, nb::rv_policy::reference,
     "Compute the distance between the two geometry objects of a given collision pair for a "
     "GeometryModel and associated GeometryData.");
 
