@@ -45,6 +45,7 @@ set(PYWRAP_SOURCES
     algorithm/kinematics.cpp
     algorithm/frames.cpp
     algorithm/frames-derivatives.cpp
+    algorithm/model.cpp
     algorithm/kinematic-regressor.cpp
     algorithm/regressor.cpp
     algorithm/jacobian.cpp
