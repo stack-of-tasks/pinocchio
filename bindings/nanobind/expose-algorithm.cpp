@@ -65,6 +65,7 @@ void exposeAlgorithms(nb::module_ m)
   exposeRNEADerivatives(m);
   exposeABADerivatives(m);
   exposeKinematicsDerivatives(m);
+  exposeFramesDerivatives(m);
   exposeCentroidalDerivatives(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
