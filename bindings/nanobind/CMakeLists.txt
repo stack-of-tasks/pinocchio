@@ -56,6 +56,8 @@ set(PYWRAP_SOURCES
     algorithm/centroidal.cpp
     algorithm/centroidal-derivatives.cpp
     algorithm/rnea-derivatives.cpp
+    collision/broadphase.cpp
+    collision/broadphase-callbacks.cpp
     collision/collision.cpp
     multibody/liegroups.cpp
     multibody/sample-models.cpp
