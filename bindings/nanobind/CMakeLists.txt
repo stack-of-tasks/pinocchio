@@ -31,6 +31,7 @@ set(PYWRAP_SOURCES
     expose-math.cpp
     expose-multibody.cpp
     expose-algorithm.cpp
+    expose-coal.cpp
     expose-parsers.cpp
     expose-rpy.cpp
     algorithm/aba.cpp
@@ -55,6 +56,7 @@ set(PYWRAP_SOURCES
     algorithm/centroidal.cpp
     algorithm/centroidal-derivatives.cpp
     algorithm/rnea-derivatives.cpp
+    collision/collision.cpp
     multibody/liegroups.cpp
     multibody/sample-models.cpp
     spatial/skew.cpp
