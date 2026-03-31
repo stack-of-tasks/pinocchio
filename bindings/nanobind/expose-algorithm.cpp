@@ -59,7 +59,7 @@ void exposeAlgorithms(nb::module_ m)
   exposeKinematicRegressor(m);
   exposeRegressor(m);
   exposeCholesky(m);
-  // exposeModelAlgo(m);
+  exposeModelAlgo(m);
   // exposeImpulseDynamics(m);
 
   exposeRNEADerivatives(m);
