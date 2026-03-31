@@ -44,6 +44,7 @@ set(PYWRAP_SOURCES
     algorithm/rnea.cpp
     algorithm/kinematics.cpp
     algorithm/frames.cpp
+    algorithm/frames-derivatives.cpp
     algorithm/jacobian.cpp
     algorithm/kinematics-derivatives.cpp
     algorithm/cholesky.cpp
