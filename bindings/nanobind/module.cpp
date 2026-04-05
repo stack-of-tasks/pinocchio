@@ -35,6 +35,9 @@ void exposeCoal(nb::module_ m);
 void exposeParallelAlgorithms(nb::module_ m);
 #endif
 
+// expose-constraints.cpp
+void exposeConstraints(nb::module_ m);
+
 // expose-parsers.cpp
 void exposeParsers(nb::module_ m);
 
@@ -115,6 +118,9 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
   exposeParallelAlgorithms(m);
 #endif
+
+  // constraints
+  exposeConstraints(m);
 
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_COLLISION_PYTHON_BINDINGS
   exposeCoal(m);
