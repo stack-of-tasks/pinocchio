@@ -31,9 +31,6 @@ void exposeJointModel(nb::module_ m)
     m, "JointModelStdVec");
 }
 
-template<template<class> class BaseTpl, typename T>
-static constexpr bool is_tpl_base_of_v = std::is_base_of_v<BaseTpl<T>, T>;
-
 /// Expose generic JointData.
 template<class JointData>
 void exposeJointData(nb::module_ m)
