@@ -9,7 +9,7 @@ void exposeCollision(nb::module_ m);
 
 void exposeCoal(nb::module_ m)
 {
-  // exposeBroadphase(m);
+  exposeBroadphase(m);
   exposeBroadphaseCallbacks(m);
   exposeCollision(m);
 }
