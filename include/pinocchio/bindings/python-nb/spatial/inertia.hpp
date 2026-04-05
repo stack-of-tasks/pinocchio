@@ -55,10 +55,11 @@ void exposeInertia(nb::module_ m)
       "mass", [](const Self & self) { return self.mass(); },
       [](Self & self, Scalar mass) { self.mass() = mass; }, "Mass of the Spatial Inertia.")
     .def_prop_rw(
-      "lever", [](const Self & self) { return Vector3(self.lever()); },
+      "lever", [](Self & self) { return make_ref(self.lever()); },
       [](Self & self, const Vector3 & lever) { self.lever() = lever; },
       "Center of mass location of the Spatial Inertia. It corresponds to the location of the "
       "center of mass with respect to the frame where the Spatial Inertia is expressed.")
+    // TODO: surely should return a Symmetric3 object no?
     .def_prop_rw(
       "inertia", [](const Self & self) { return Matrix3(self.inertia().matrix()); },
       [](Self & self, const Matrix3 & symmetric_inertia) {
