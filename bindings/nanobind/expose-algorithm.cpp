@@ -32,10 +32,6 @@ void exposeFramesDerivatives(nb::module_ m);
 void exposeCentroidalDerivatives(nb::module_ m);
 void exposeImpulseDynamicsDerivatives(nb::module_ m);
 
-void exposeCones(nb::module_ m);
-
-void exposeConstraintSolvers(nb::module_ m);
-
 void exposeAlgorithms(nb::module_ m)
 {
   exposeJointsAlgo(m);
