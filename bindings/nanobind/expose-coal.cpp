@@ -10,7 +10,7 @@ void exposeCollision(nb::module_ m);
 void exposeCoal(nb::module_ m)
 {
   // exposeBroadphase(m);
-  // exposeBroadphaseCallbacks(m);
+  exposeBroadphaseCallbacks(m);
   exposeCollision(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
