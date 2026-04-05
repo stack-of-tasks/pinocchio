@@ -115,7 +115,7 @@ namespace details
   {
     using namespace nb::literals;
 
-    nb::class_<CollisionObject>(
+    nb::class_<CollisionObject, coal::CollisionObject>(
       m, "CollisionObject",
       "A Pinocchio collision object associating a coal::CollisionGeometry with a geometry "
       "object index.")
