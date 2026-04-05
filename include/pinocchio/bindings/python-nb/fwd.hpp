@@ -10,6 +10,9 @@
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 namespace nb = nanobind;
+
+template<template<class> class BaseTpl, typename T>
+static constexpr bool is_tpl_base_of_v = std::is_base_of_v<BaseTpl<T>, T>;
 PINOCCHIO_PYTHON_NAMESPACE_END
 
 /// On the model of NB_MAKE_OPAQUE, ensure std::vector of a given Pinocchio template class is opaque
