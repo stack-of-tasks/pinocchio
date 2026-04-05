@@ -27,6 +27,7 @@ set(PYWRAP ${PYWRAP} PARENT_SCOPE)
 
 set(PYWRAP_SOURCES
     module.cpp
+    expose-constraints.cpp
     expose-spatial.cpp
     expose-math.cpp
     expose-multibody.cpp
