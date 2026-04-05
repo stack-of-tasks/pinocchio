@@ -44,11 +44,11 @@ void exposeSE3(nb::module_ m)
     .def(nb::init<const Matrix4 &>(), "array"_a, "Initialize from a homogeneous matrix.")
     // Properties
     .def_prop_rw(
-      "rotation", [](Self & self) { return self.rotation(); },
+      "rotation", [](Self & self) { return make_ref(self.rotation()); },
       [](Self & self, const Matrix3 & R) { self.rotation(R); },
       "The rotation part of the transformation.")
     .def_prop_rw(
-      "translation", [](Self & self) { return self.translation(); },
+      "translation", [](Self & self) { return make_ref(self.translation()); },
       [](Self & self, const Vector3 & t) { self.translation(t); },
       "The translation part of the transformation.")
     .def_prop_ro(

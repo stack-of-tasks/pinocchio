@@ -25,6 +25,9 @@ void exposeMotion(nb::module_ m)
   using SE3 = SE3Tpl<Scalar, Self::Options>;
 
   static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
+  using mymot = MotionTpl<double>;
+  mymot mot;
+  auto r = mot.toVector();
 
   nb::class_<Motion>(
     m, "Motion",
@@ -41,22 +44,22 @@ void exposeMotion(nb::module_ m)
       "Init from a vector 6 [linear velocity, angular velocity].")
     // Properties
     .def_prop_rw(
-      "linear", [](Self & self) { return Vector3(self.linear()); },
+      "linear", [](Self & self) { return make_ref(self.linear()); },
       [](Self & self, const Vector3 & v) { self.linear(v); },
       "Linear part of the Motion object, corresponding to the linear velocity in case of a Spatial "
       "velocity.")
     .def_prop_rw(
-      "angular", [](Self & self) { return Vector3(self.angular()); },
+      "angular", [](Self & self) { return make_ref(self.angular()); },
       [](Self & self, const Vector3 & w) { self.angular(w); },
       "Angular part of the Motion object, corresponding to the angular velocity in case of a "
       "Spatial "
       "velocity.")
     .def_prop_rw(
-      "vector", [](const Self & self) { return Vector6(self.toVector()); },
+      "vector", [](const Self & self) { return make_ref(self.toVector()); },
       [](Self & self, const Vector6 & v) { self = v; },
       "Returns the components of this Motion as a 6d vector.")
     .def_prop_ro(
-      "np", [](const Self & self) { return Vector6(self.toVector()); },
+      "np", [](const Self & self) { return make_ref(self.toVector()); },
       "Returns the components of this Motion as a 6d vector.")
     .def_prop_ro(
       "action", [](const Self & self) { return self.toActionMatrix(); },
@@ -113,12 +116,12 @@ void exposeMotion(nb::module_ m)
       [](const Motion & self, const Motion & other, Scalar prec) {
         return self.isApprox(other, prec);
       },
-      "other"_a, nb::arg("prec") = dummy_precision,
+      "other"_a, "prec"_a = dummy_precision,
       "Returns true if this Motion is approximately equal to other, within the precision given by "
       "prec.")
     .def(
       "isZero", [](const Motion & self, Scalar prec) { return self.isZero(prec); },
-      nb::arg("prec") = dummy_precision,
+      "prec"_a = dummy_precision,
       "Returns true if this Motion is approximately equal to zero, within the precision "
       "given by prec.")
     .def(ComparableVisitor<Motion>())
