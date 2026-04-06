@@ -371,9 +371,10 @@ struct LieGroup_Jdifference
   }
 
   template<typename Scalar, int Options>
-  void specificTests(const CartesianProductOperation<
-                     VectorSpaceOperationTpl<3, Scalar, Options>,
-                     SpecialOrthogonalOperationTpl<3, Scalar, Options>>) const
+  void specificTests(
+    const CartesianProductOperation<
+      VectorSpaceOperationTpl<3, Scalar, Options>,
+      SpecialOrthogonalOperationTpl<3, Scalar, Options>>) const
   {
     typedef SE3Tpl<Scalar> SE3;
     typedef CartesianProductOperation<

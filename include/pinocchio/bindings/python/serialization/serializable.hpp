@@ -45,28 +45,27 @@ namespace pinocchio
             "Loads *this from a XML file.")
 
           .def(
-            "saveToBinary", (void(Derived::*)(const std::string &) const) & Derived::saveToBinary,
+            "saveToBinary", (void (Derived::*)(const std::string &) const) & Derived::saveToBinary,
             bp::args("self", "filename"), "Saves *this inside a binary file.")
           .def(
-            "loadFromBinary", (void(Derived::*)(const std::string &)) & Derived::loadFromBinary,
+            "loadFromBinary", (void (Derived::*)(const std::string &))&Derived::loadFromBinary,
             bp::args("self", "filename"), "Loads *this from a binary file.")
 
           .def(
             "saveToBinary",
-            (void(Derived::*)(boost::asio::streambuf &) const) & Derived::saveToBinary,
+            (void (Derived::*)(boost::asio::streambuf &) const) & Derived::saveToBinary,
             bp::args("self", "buffer"), "Saves *this inside a binary buffer.")
           .def(
-            "loadFromBinary",
-            (void(Derived::*)(boost::asio::streambuf &)) & Derived::loadFromBinary,
+            "loadFromBinary", (void (Derived::*)(boost::asio::streambuf &))&Derived::loadFromBinary,
             bp::args("self", "buffer"), "Loads *this from a binary buffer.")
 
           .def(
             "saveToBinary",
-            (void(Derived::*)(serialization::StaticBuffer &) const) & Derived::saveToBinary,
+            (void (Derived::*)(serialization::StaticBuffer &) const) & Derived::saveToBinary,
             bp::args("self", "buffer"), "Saves *this inside a static binary buffer.")
           .def(
             "loadFromBinary",
-            (void(Derived::*)(serialization::StaticBuffer &)) & Derived::loadFromBinary,
+            (void (Derived::*)(serialization::StaticBuffer &))&Derived::loadFromBinary,
             bp::args("self", "buffer"), "Loads *this from a static binary buffer.");
         serialize<Derived>();
 #else

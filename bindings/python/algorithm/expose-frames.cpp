@@ -233,7 +233,7 @@ namespace pinocchio
 
       bp::def(
         "computeFrameJacobian",
-        (context::Data::Matrix6x(*)(
+        (context::Data::Matrix6x (*)(
           const context::Model &, context::Data &, const context::VectorXs &,
           context::Data::FrameIndex, ReferenceFrame))&compute_frame_jacobian_proxy,
         bp::args("model", "data", "q", "frame_id", "reference_frame"),
@@ -242,7 +242,7 @@ namespace pinocchio
 
       bp::def(
         "computeFrameJacobian",
-        (context::Data::Matrix6x(*)(
+        (context::Data::Matrix6x (*)(
           const context::Model &, context::Data &, const context::VectorXs &,
           context::Data::FrameIndex))&compute_frame_jacobian_proxy,
         bp::args("model", "data", "q", "frame_id"),

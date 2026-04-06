@@ -111,9 +111,9 @@ namespace pinocchio
 
       proximal_metric = (x - x_previous).template lpNorm<Eigen::Infinity>();
       const Scalar x_norm_inf = x.template lpNorm<Eigen::Infinity>();
-      if (check_expression_if_real<Scalar, false>(
-            proximal_metric
-            <= this->relative_precision * math::max(x_norm_inf, x_previous_norm_inf)))
+      if (
+        check_expression_if_real<Scalar, false>(
+          proximal_metric <= this->relative_precision * math::max(x_norm_inf, x_previous_norm_inf)))
         rel_prec_reached = true;
       else
         rel_prec_reached = false;

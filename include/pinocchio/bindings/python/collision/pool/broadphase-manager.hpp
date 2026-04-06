@@ -68,8 +68,9 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass & cl) const
       {
-        cl.def(bp::init<const Model &, const GeometryModel &, bp::optional<size_t>>(
-                 bp::args("self", "model", "geometry_model", "size"), "Default constructor."))
+        cl.def(
+            bp::init<const Model &, const GeometryModel &, bp::optional<size_t>>(
+              bp::args("self", "model", "geometry_model", "size"), "Default constructor."))
           .def(
             bp::init<const BroadPhaseManagerPool &>(bp::args("self", "other"), "Copy constructor."))
 
@@ -88,7 +89,7 @@ namespace pinocchio
 
           .def(
             "update",
-            (void(BroadPhaseManagerPool::*)(const GeometryData &)) & BroadPhaseManagerPool::update,
+            (void (BroadPhaseManagerPool::*)(const GeometryData &))&BroadPhaseManagerPool::update,
             bp::args("self", "geometry_data"),
             "Update all the geometry datas with the input geometry data value.")
 

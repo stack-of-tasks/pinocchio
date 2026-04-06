@@ -49,12 +49,15 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
 
   bp::scope().attr("ScalarType") = getScalarType();
 
-  bp::scope().attr("XAxis") = bp::object(bp::handle<>(
-    eigenpy::EigenToPy<context::Vector3s>::convert(pinocchio::XAxis::vector<context::Scalar>())));
-  bp::scope().attr("YAxis") = bp::object(bp::handle<>(
-    eigenpy::EigenToPy<context::Vector3s>::convert(pinocchio::YAxis::vector<context::Scalar>())));
-  bp::scope().attr("ZAxis") = bp::object(bp::handle<>(
-    eigenpy::EigenToPy<context::Vector3s>::convert(pinocchio::ZAxis::vector<context::Scalar>())));
+  bp::scope().attr("XAxis") = bp::object(
+    bp::handle<>(
+      eigenpy::EigenToPy<context::Vector3s>::convert(pinocchio::XAxis::vector<context::Scalar>())));
+  bp::scope().attr("YAxis") = bp::object(
+    bp::handle<>(
+      eigenpy::EigenToPy<context::Vector3s>::convert(pinocchio::YAxis::vector<context::Scalar>())));
+  bp::scope().attr("ZAxis") = bp::object(
+    bp::handle<>(
+      eigenpy::EigenToPy<context::Vector3s>::convert(pinocchio::ZAxis::vector<context::Scalar>())));
 
   if (!register_symbolic_link_to_registered_type<::pinocchio::ReferenceFrame>())
   {

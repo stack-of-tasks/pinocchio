@@ -57,55 +57,58 @@ namespace pinocchio
       {
         static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
 
-        cl.def(bp::init<const Matrix3 &, const Vector3 &>(
-                 (bp::arg("self"), bp::arg("rotation"), bp::arg("translation")),
-                 "Initialize from a rotation matrix and a translation vector."))
-          .def(bp::init<const Quaternion &, const Vector3 &>(
-            (bp::arg("self"), bp::arg("quat"), bp::arg("translation")),
-            "Initialize from a quaternion and a translation vector."))
+        cl.def(
+            bp::init<const Matrix3 &, const Vector3 &>(
+              (bp::arg("self"), bp::arg("rotation"), bp::arg("translation")),
+              "Initialize from a rotation matrix and a translation vector."))
+          .def(
+            bp::init<const Quaternion &, const Vector3 &>(
+              (bp::arg("self"), bp::arg("quat"), bp::arg("translation")),
+              "Initialize from a quaternion and a translation vector."))
           .def(bp::init<int>((bp::arg("self"), bp::arg("int")), "Init to identity."))
-          .def(bp::init<const Matrix4 &>(
-            (bp::arg("self"), bp::arg("array")), "Initialize from an homogeneous matrix."))
+          .def(
+            bp::init<const Matrix4 &>(
+              (bp::arg("self"), bp::arg("array")), "Initialize from an homogeneous matrix."))
           .def(bp::init<const SE3 &>((bp::arg("self"), bp::arg("clone")), "Copy constructor"))
 
           .add_property(
             "rotation",
             bp::make_function(
-              (typename SE3::AngularRef(SE3::*)()) & SE3::rotation,
+              (typename SE3::AngularRef (SE3::*)())&SE3::rotation,
               bp::return_internal_reference<>()),
-            (void(SE3::*)(const Matrix3 &)) & SE3::rotation,
+            (void (SE3::*)(const Matrix3 &))&SE3::rotation,
             "The rotation part of the transformation.")
           .add_property(
             "translation",
             bp::make_function(
-              (typename SE3::LinearRef(SE3::*)()) & SE3::translation,
+              (typename SE3::LinearRef (SE3::*)())&SE3::translation,
               bp::return_internal_reference<>()),
-            (void(SE3::*)(const Vector3 &)) & SE3::translation,
+            (void (SE3::*)(const Vector3 &))&SE3::translation,
             "The translation part of the transformation.")
 
           .add_property(
             "homogeneous", &SE3::toHomogeneousMatrix,
             "Returns the equivalent homegeneous matrix (acting on SE3).")
           .add_property(
-            "action", (ActionMatrixType(SE3::*)() const)&SE3::toActionMatrix,
+            "action", (ActionMatrixType (SE3::*)() const) & SE3::toActionMatrix,
             "Returns the related action matrix (acting on Motion).")
           .def(
-            "toActionMatrix", (ActionMatrixType(SE3::*)() const)&SE3::toActionMatrix,
+            "toActionMatrix", (ActionMatrixType (SE3::*)() const) & SE3::toActionMatrix,
             bp::arg("self"), "Returns the related action matrix (acting on Motion).")
           .add_property(
-            "actionInverse", (ActionMatrixType(SE3::*)() const)&SE3::toActionMatrixInverse,
+            "actionInverse", (ActionMatrixType (SE3::*)() const) & SE3::toActionMatrixInverse,
             "Returns the inverse of the action matrix (acting on Motion).\n"
             "This is equivalent to do m.inverse().action")
           .def(
-            "toActionMatrixInverse", (ActionMatrixType(SE3::*)() const)&SE3::toActionMatrixInverse,
-            bp::arg("self"),
+            "toActionMatrixInverse",
+            (ActionMatrixType (SE3::*)() const) & SE3::toActionMatrixInverse, bp::arg("self"),
             "Returns the inverse of the action matrix (acting on Motion).\n"
             "This is equivalent to do m.inverse().toActionMatrix()")
           .add_property(
-            "dualAction", (ActionMatrixType(SE3::*)() const)&SE3::toDualActionMatrix,
+            "dualAction", (ActionMatrixType (SE3::*)() const) & SE3::toDualActionMatrix,
             "Returns the related dual action matrix (acting on Force).")
           .def(
-            "toDualActionMatrix", (ActionMatrixType(SE3::*)() const)&SE3::toDualActionMatrix,
+            "toDualActionMatrix", (ActionMatrixType (SE3::*)() const) & SE3::toDualActionMatrix,
             bp::arg("self"), "Returns the related dual action matrix (acting on Force).")
 
           .def(
@@ -118,39 +121,40 @@ namespace pinocchio
           .def("inverse", &SE3::inverse, bp::arg("self"), "Returns the inverse transform")
 
           .def(
-            "act", (Vector3(SE3::*)(const Vector3 &) const)&SE3::act, bp::args("self", "point"),
+            "act", (Vector3 (SE3::*)(const Vector3 &) const) & SE3::act, bp::args("self", "point"),
             "Returns a point which is the result of the entry point transforms by *this.")
           .def(
-            "actInv", (Vector3(SE3::*)(const Vector3 &) const)&SE3::actInv,
+            "actInv", (Vector3 (SE3::*)(const Vector3 &) const) & SE3::actInv,
             bp::args("self", "point"),
             "Returns a point which is the result of the entry point by the inverse of *this.")
 
           .def(
-            "act", (SE3(SE3::*)(const SE3 & other) const)&SE3::act, bp::args("self", "M"),
+            "act", (SE3 (SE3::*)(const SE3 & other) const) & SE3::act, bp::args("self", "M"),
             "Returns the result of *this * M.")
           .def(
-            "actInv", (SE3(SE3::*)(const SE3 & other) const)&SE3::actInv, bp::args("self", "M"),
+            "actInv", (SE3 (SE3::*)(const SE3 & other) const) & SE3::actInv, bp::args("self", "M"),
             "Returns the result of the inverse of *this times M.")
 
           .def(
-            "act", (Motion(SE3::*)(const Motion &) const)&SE3::act, bp::args("self", "motion"),
+            "act", (Motion (SE3::*)(const Motion &) const) & SE3::act, bp::args("self", "motion"),
             "Returns the result action of *this onto a Motion.")
           .def(
-            "actInv", (Motion(SE3::*)(const Motion &) const)&SE3::actInv,
+            "actInv", (Motion (SE3::*)(const Motion &) const) & SE3::actInv,
             bp::args("self", "motion"), "Returns the result of the inverse of *this onto a Motion.")
 
           .def(
-            "act", (Force(SE3::*)(const Force &) const)&SE3::act, bp::args("self", "force"),
+            "act", (Force (SE3::*)(const Force &) const) & SE3::act, bp::args("self", "force"),
             "Returns the result of *this onto a Force.")
           .def(
-            "actInv", (Force(SE3::*)(const Force &) const)&SE3::actInv, bp::args("self", "force"),
+            "actInv", (Force (SE3::*)(const Force &) const) & SE3::actInv,
+            bp::args("self", "force"),
             "Returns the result of the inverse of *this onto an Inertia.")
 
           .def(
-            "act", (Inertia(SE3::*)(const Inertia &) const)&SE3::act, bp::args("self", "inertia"),
-            "Returns the result of *this onto a Force.")
+            "act", (Inertia (SE3::*)(const Inertia &) const) & SE3::act,
+            bp::args("self", "inertia"), "Returns the result of *this onto a Force.")
           .def(
-            "actInv", (Inertia(SE3::*)(const Inertia &) const)&SE3::actInv,
+            "actInv", (Inertia (SE3::*)(const Inertia &) const) & SE3::actInv,
             bp::args("self", "inertia"),
             "Returns the result of the inverse of *this onto an Inertia.")
 

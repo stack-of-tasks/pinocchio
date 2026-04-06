@@ -162,8 +162,9 @@ namespace pinocchio
           ::sdf::init(sdfElement);
           if (!::sdf::readString(xmlString, sdfElement))
           {
-            throw std::invalid_argument("The xml string does not "
-                                        "contain a valid SDF model");
+            throw std::invalid_argument(
+              "The xml string does not "
+              "contain a valid SDF model");
           }
           parseGraph(sdfElement);
         }
@@ -190,8 +191,9 @@ namespace pinocchio
 
           if (!rootElement->HasElement("model"))
           {
-            throw std::invalid_argument("The sdf model does not "
-                                        "contain model element");
+            throw std::invalid_argument(
+              "The sdf model does not "
+              "contain model element");
           }
 
           const ::sdf::ElementPtr modelElement = rootElement->GetElement("model");

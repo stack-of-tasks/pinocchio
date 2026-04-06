@@ -113,7 +113,7 @@ namespace pinocchio
         " the tangent of SE(3) at Identity.");
 
       bp::def(
-        "log6", (context::Motion(*)(const context::SE3 &))&log6<context::Scalar, context::Options>,
+        "log6", (context::Motion (*)(const context::SE3 &))&log6<context::Scalar, context::Options>,
         bp::arg("M"),
         "Log: SE3 -> se3. Pseudo-inverse of exp from SE3"
         " -> { v,w in se3, ||w|| < 2pi }.");

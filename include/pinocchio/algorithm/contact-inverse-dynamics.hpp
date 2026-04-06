@@ -131,9 +131,10 @@ namespace pinocchio
       //   abs_prec_reached = false;
 
       const Scalar impulse_c_norm_inf = data.impulse_c.template lpNorm<Eigen::Infinity>();
-      if (check_expression_if_real<Scalar, false>(
-            settings.relative_residual
-            <= settings.relative_accuracy * math::max(impulse_c_norm_inf, impulse_c_prev_norm_inf)))
+      if (
+        check_expression_if_real<Scalar, false>(
+          settings.relative_residual
+          <= settings.relative_accuracy * math::max(impulse_c_norm_inf, impulse_c_prev_norm_inf)))
         rel_prec_reached = true;
       else
         rel_prec_reached = false;

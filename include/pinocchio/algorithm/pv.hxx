@@ -569,10 +569,11 @@ namespace pinocchio
         data.osim_llt.solveInPlace(data.lambdaA[0]);
         settings.absolute_residual =
           (data.lambda_c_prox - data.lambdaA[0]).template lpNorm<Eigen::Infinity>();
-        if (check_expression_if_real<Scalar, false>(
-              settings.absolute_residual
-              <= settings.absolute_accuracy)) // In the case where Scalar is not double, this will
-                                              // iterate for max_it.
+        if (
+          check_expression_if_real<Scalar, false>(
+            settings.absolute_residual
+            <= settings.absolute_accuracy)) // In the case where Scalar is not double, this will
+                                            // iterate for max_it.
           break;
         data.lambda_c_prox.noalias() = data.lambdaA[0];
       }
@@ -834,10 +835,11 @@ namespace pinocchio
         condim_counter[joint_id] += contact_model.size();
       }
       settings.absolute_residual = (data.lambda_c_prox).template lpNorm<Eigen::Infinity>();
-      if (check_expression_if_real<Scalar, false>(
-            settings.absolute_residual
-            <= settings.absolute_accuracy)) // In the case where Scalar is not double, this will
-                                            // iterate for max_it.
+      if (
+        check_expression_if_real<Scalar, false>(
+          settings.absolute_residual
+          <= settings.absolute_accuracy)) // In the case where Scalar is not double, this will
+                                          // iterate for max_it.
       {
         break;
       }

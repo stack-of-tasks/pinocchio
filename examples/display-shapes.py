@@ -49,8 +49,7 @@ try:
     viz.loadViewerModel("shapes")
 except AttributeError as error:
     print(
-        "Error while loading the viewer model. "
-        "It seems you should start gepetto-viewer"
+        "Error while loading the viewer model. It seems you should start gepetto-viewer"
     )
     print(error)
     sys.exit(0)

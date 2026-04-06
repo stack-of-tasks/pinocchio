@@ -298,9 +298,10 @@ namespace pinocchio
       ConfigOut_t & res = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t, qout).derived();
       for (int i = 0; i < nq(); ++i)
       {
-        if (check_expression_if_real<Scalar, false>(
-              lower_pos_limit[i] == -std::numeric_limits<typename ConfigL_t::Scalar>::infinity()
-              || upper_pos_limit[i] == std::numeric_limits<typename ConfigR_t::Scalar>::infinity()))
+        if (
+          check_expression_if_real<Scalar, false>(
+            lower_pos_limit[i] == -std::numeric_limits<typename ConfigL_t::Scalar>::infinity()
+            || upper_pos_limit[i] == std::numeric_limits<typename ConfigR_t::Scalar>::infinity()))
         {
           std::ostringstream error;
           error << "non bounded limit. Cannot uniformly sample joint at rank " << i;

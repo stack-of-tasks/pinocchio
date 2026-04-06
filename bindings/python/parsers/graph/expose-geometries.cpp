@@ -29,13 +29,15 @@ namespace pinocchio
         .def_readwrite("size", &Box::size, "Size of the box.");
 
       bp::class_<Cylinder>("Cylinder", "Represents a cylinder.", bp::init<>())
-        .def(bp::init<const Eigen::Vector2d &>(
-          (bp::arg("size")), "Constructor from 2D size vector (radius, height)."))
+        .def(
+          bp::init<const Eigen::Vector2d &>(
+            (bp::arg("size")), "Constructor from 2D size vector (radius, height)."))
         .def_readwrite("size", &Cylinder::size, "Size of the cylinder (radius, height).");
 
       bp::class_<Capsule>("Capsule", "Represents a capsule.", bp::init<>())
-        .def(bp::init<const Eigen::Vector2d &>(
-          (bp::arg("size")), "Constructor from 2D size vector (radius, length)."))
+        .def(
+          bp::init<const Eigen::Vector2d &>(
+            (bp::arg("size")), "Constructor from 2D size vector (radius, length)."))
         .def_readwrite("size", &Capsule::size, "Size of the capsule (radius, length).");
 
       bp::class_<Sphere>("Sphere", "Represents a sphere.", bp::init<>())
@@ -59,12 +61,13 @@ namespace pinocchio
       bp::class_<Geometry>(
         "Geometry", "Main geometry object containing all properties for the Model Graph.",
         bp::init<>())
-        .def(bp::init<
-             const std::string &, const pinocchio::SE3 &, const GeomType &, const Eigen::Vector3d &,
-             const Eigen::Vector4d &, const GeomVariant &>(
-          (bp::arg("name"), bp::arg("placement"), bp::arg("type"), bp::arg("scale"),
-           bp::arg("color"), bp::arg("geometry")),
-          "Full constructor for Geometry."))
+        .def(
+          bp::init<
+            const std::string &, const pinocchio::SE3 &, const GeomType &, const Eigen::Vector3d &,
+            const Eigen::Vector4d &, const GeomVariant &>(
+            (bp::arg("name"), bp::arg("placement"), bp::arg("type"), bp::arg("scale"),
+             bp::arg("color"), bp::arg("geometry")),
+            "Full constructor for Geometry."))
         .def_readwrite("name", &Geometry::name, "Name of the geometry object.")
         .def_readwrite("type", &Geometry::type, "Type of geometry (VISUAL, COLLISION, BOTH).")
         .def_readwrite("scale", &Geometry::scale, "Scaling factors.")

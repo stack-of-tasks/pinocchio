@@ -26,8 +26,9 @@ pinocchio::graph::ModelGraph buildReversableModelGraph(const pinocchio::graph::J
   //////////////////////////////////////// Bodies
   g.addFrame("body1", BodyFrame(pinocchio::Inertia::Identity()));
   g.addFrame(
-    "body2", BodyFrame(pinocchio::Inertia(
-               4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero())));
+    "body2", BodyFrame(
+               pinocchio::Inertia(
+                 4., pinocchio::Inertia::Vector3(0., 2., 0.), pinocchio::Symmetric3::Zero())));
 
   /////////////////////////////////////// Joints
   pinocchio::SE3 poseBody1 =

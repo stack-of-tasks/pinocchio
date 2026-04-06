@@ -29,13 +29,14 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass & cl) const
       {
-        cl
-          .def(bp::init<const Model *, const GeometryModel *, GeometryData *>(
-            bp::args("self", "model", "geometry_model", "geometry_data"), "Default constructor")
-                 [bp::with_custodian_and_ward<1, 2>(), bp::with_custodian_and_ward<1, 3>(),
-                  bp::with_custodian_and_ward<1, 4>()])
-          .def(bp::init<const Self &>(
-            bp::args("self", "other"), "Copy constructor")[bp::with_custodian_and_ward<1, 2>()])
+        cl.def(
+            bp::init<const Model *, const GeometryModel *, GeometryData *>(
+              bp::args("self", "model", "geometry_model", "geometry_data"), "Default constructor")
+              [bp::with_custodian_and_ward<1, 2>(), bp::with_custodian_and_ward<1, 3>(),
+               bp::with_custodian_and_ward<1, 4>()])
+          .def(
+            bp::init<const Self &>(
+              bp::args("self", "other"), "Copy constructor")[bp::with_custodian_and_ward<1, 2>()])
 
           .def(
             "getBroadPhaseManagers",

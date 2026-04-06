@@ -26,13 +26,15 @@ namespace pinocchio
       void visit(PyClass & cl) const
       {
         cl.def(bp::init<>("Default constructor.", bp::arg("self")))
-          .def(bp::init<const Scalar, const Scalar, int>(
-            (bp::arg("self"), bp::arg("accuracy"), bp::arg("mu"), bp::arg("max_iter")),
-            "Structure containing all the settings parameters for the proximal algorithms."))
-          .def(bp::init<const Scalar, const Scalar, const Scalar, int>(
-            (bp::arg("self"), bp::arg("absolute_accuracy"), bp::arg("relative_accuracy"),
-             bp::arg("mu"), bp::arg("max_iter")),
-            "Structure containing all the settings parameters for the proximal algorithms."))
+          .def(
+            bp::init<const Scalar, const Scalar, int>(
+              (bp::arg("self"), bp::arg("accuracy"), bp::arg("mu"), bp::arg("max_iter")),
+              "Structure containing all the settings parameters for the proximal algorithms."))
+          .def(
+            bp::init<const Scalar, const Scalar, const Scalar, int>(
+              (bp::arg("self"), bp::arg("absolute_accuracy"), bp::arg("relative_accuracy"),
+               bp::arg("mu"), bp::arg("max_iter")),
+              "Structure containing all the settings parameters for the proximal algorithms."))
 
           .add_property(
             "absolute_accuracy", &ProximalSettings::absolute_accuracy,

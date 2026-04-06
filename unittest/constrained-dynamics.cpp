@@ -1038,8 +1038,9 @@ BOOST_AUTO_TEST_CASE(test_correction_CONTACT_6D)
 
   BOOST_CHECK(contact_datas[0].oMc1.isApprox(data.oMi[ci_RF.joint1_id] * ci_RF.joint1_placement));
   BOOST_CHECK(contact_datas[0].oMc2.isApprox(data.oMi[ci_RF.joint2_id] * ci_RF.joint2_placement));
-  BOOST_CHECK(contact_datas[0].contact1_velocity.isApprox(
-    contact_datas[0].oMc1.actInv(data.ov[ci_RF.joint1_id])));
+  BOOST_CHECK(
+    contact_datas[0].contact1_velocity.isApprox(
+      contact_datas[0].oMc1.actInv(data.ov[ci_RF.joint1_id])));
   BOOST_CHECK(contact_datas[0].contact2_velocity.isZero());
 
   const double dt = 1e-8;
