@@ -23,6 +23,7 @@ void exposeKinematicRegressor(nb::module_ m);
 void exposeRegressor(nb::module_ m);
 void exposeCholesky(nb::module_ m);
 void exposeModelAlgo(nb::module_ m);
+// algorithm/impulse-dynamics.cpp
 void exposeImpulseDynamics(nb::module_ m);
 
 void exposeRNEADerivatives(nb::module_ m);
@@ -30,6 +31,7 @@ void exposeABADerivatives(nb::module_ m);
 void exposeKinematicsDerivatives(nb::module_ m);
 void exposeFramesDerivatives(nb::module_ m);
 void exposeCentroidalDerivatives(nb::module_ m);
+// algorithm/impulse-dynamics.cpp
 void exposeImpulseDynamicsDerivatives(nb::module_ m);
 
 void exposeAlgorithms(nb::module_ m)
@@ -55,7 +57,7 @@ void exposeAlgorithms(nb::module_ m)
   exposeRegressor(m);
   exposeCholesky(m);
   exposeModelAlgo(m);
-  // exposeImpulseDynamics(m);
+  exposeImpulseDynamics(m);
 
   exposeRNEADerivatives(m);
   exposeABADerivatives(m);
@@ -63,5 +65,6 @@ void exposeAlgorithms(nb::module_ m)
   exposeKinematicsDerivatives(m);
   exposeFramesDerivatives(m);
   exposeCentroidalDerivatives(m);
+  exposeImpulseDynamicsDerivatives(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
