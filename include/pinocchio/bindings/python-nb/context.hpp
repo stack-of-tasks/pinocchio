@@ -14,11 +14,12 @@
 
 // #include PINOCCHIO_PYTHON_CONTEXT_FILE
 
-#include "pinocchio/fwd.hpp"
+#include "pinocchio/algorithm/fwd.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/multibody/pool/fwd.hpp"
+#include "pinocchio/constraints/fwd.hpp"
 
 #include "./macros.hpp"
 
@@ -48,4 +49,29 @@ using GeometryPool = GeometryPoolTpl<Scalar, Options>;
 // Joints
 using JointModel = JointModelTpl<Scalar, Options>;
 using JointData = JointDataTpl<Scalar, Options>;
+
+// Constraints
+using BaumgarteCorrectorParameters = BaumgarteCorrectorParametersTpl<Scalar>;
+using RigidConstraintModel = RigidConstraintModelTpl<Scalar, Options>;
+using RigidConstraintData = RigidConstraintDataTpl<Scalar, Options>;
+using RigidConstraintModelVector = std::vector<RigidConstraintModel>;
+using RigidConstraintDataVector = std::vector<RigidConstraintData>;
+using PointContactConstraintModel = PointContactConstraintModelTpl<Scalar, Options>;
+using PointContactConstraintData = PointContactConstraintDataTpl<Scalar, Options>;
+using PointAnchorConstraintModel = PointAnchorConstraintModelTpl<Scalar, Options>;
+using PointAnchorConstraintData = PointAnchorConstraintDataTpl<Scalar, Options>;
+using FrameAnchorConstraintModel = FrameAnchorConstraintModelTpl<Scalar, Options>;
+using FrameAnchorConstraintData = FrameAnchorConstraintDataTpl<Scalar, Options>;
+using JointFrictionConstraintModel = JointFrictionConstraintModelTpl<Scalar, Options>;
+using JointFrictionConstraintData = JointFrictionConstraintDataTpl<Scalar, Options>;
+using JointLimitConstraintModel = JointLimitConstraintModelTpl<Scalar, Options>;
+using JointLimitConstraintData = JointLimitConstraintDataTpl<Scalar, Options>;
+using ConstraintModel = ConstraintModelTpl<Scalar, Options>;
+using ConstraintData = ConstraintDataTpl<Scalar, Options>;
+using ConstraintModelVector = std::vector<ConstraintModel>;
+using ConstraintDataVector = std::vector<ConstraintData>;
+
+// Algorithm
+using ProximalSettings = ProximalSettingsTpl<Scalar>;
+using ConstraintCholeskyDecomposition = ConstraintCholeskyDecompositionTpl<Scalar, Options>;
 PINOCCHIO_PYTHON_NAMESPACE_END
