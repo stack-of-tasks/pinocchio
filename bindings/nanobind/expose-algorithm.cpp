@@ -45,7 +45,7 @@ void exposeAlgorithms(nb::module_ m)
   exposeKinematics(m);
   // exposeContactJacobian(m);
   // exposeContactDynamics(m);
-  // exposeConstraintDynamics(m);
+  exposeConstraintDynamics(m);
   // exposeConstraintDynamicsDerivatives(m);
   // exposeContactInverseDynamics(m);
   exposeDelassus(m);

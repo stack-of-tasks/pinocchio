@@ -38,6 +38,7 @@ set(PYWRAP_SOURCES
     algorithm/aba.cpp
     algorithm/aba-derivatives.cpp
     algorithm/cat.cpp
+    algorithm/constrained-dynamics.cpp
     algorithm/crba.cpp
     algorithm/delassus.cpp
     algorithm/geometry.cpp
