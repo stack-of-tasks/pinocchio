@@ -188,6 +188,6 @@ void exposeInertia(nb::module_ m)
     // String representation
     .def(PrintableVisitor<Inertia>());
 
-  nb::bind_vector<std::vector<Inertia>, nb::rv_policy::reference_internal>(m, "InertiaStdVec");
+  nb::bind_vector<std::vector<Inertia>, nb::rv_policy::reference_internal>(m, "StdVec_Inertia");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

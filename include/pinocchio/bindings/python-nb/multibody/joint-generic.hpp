@@ -28,7 +28,7 @@ void exposeJointModel(nb::module_ m)
     .def(PrintableVisitor<JointModel>());
 
   nb::bind_vector<std::vector<JointModel>, nb::rv_policy::reference_internal>(
-    m, "JointModelStdVec");
+    m, "StdVec_JointModel");
 }
 
 /// Expose generic JointData.
@@ -42,6 +42,6 @@ void exposeJointData(nb::module_ m)
     .def("extract", [](JointData & self) -> JointDataVariant & { return self; })
     .def(PrintableVisitor<JointData>());
 
-  nb::bind_vector<std::vector<JointData>, nb::rv_policy::reference_internal>(m, "JointDataStdVec");
+  nb::bind_vector<std::vector<JointData>, nb::rv_policy::reference_internal>(m, "StdVec_JointData");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

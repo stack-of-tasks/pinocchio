@@ -43,6 +43,6 @@ void exposeFrame(nb::module_ m)
     .def(ComparableVisitor<Frame>())
     .def(PrintableVisitor<Frame>());
 
-  nb::bind_vector<std::vector<Frame>, nb::rv_policy::reference_internal>(m, "FrameStdVec");
+  nb::bind_vector<std::vector<Frame>, nb::rv_policy::reference_internal>(m, "StdVec_Frame");
 };
 PINOCCHIO_PYTHON_NAMESPACE_END

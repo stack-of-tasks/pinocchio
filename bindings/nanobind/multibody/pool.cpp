@@ -17,8 +17,8 @@ void exposePool(nb::module_ m)
   using ModelVector = ModelPool::ModelVector;
   using DataVector = ModelPool::DataVector;
 
-  nb::bind_vector<ModelVector, nb::rv_policy::reference_internal>(m, "ModelStdVec");
-  nb::bind_vector<DataVector, nb::rv_policy::reference_internal>(m, "DataStdVec");
+  nb::bind_vector<ModelVector, nb::rv_policy::reference_internal>(m, "StdVec_Model");
+  nb::bind_vector<DataVector, nb::rv_policy::reference_internal>(m, "StdVec_Data");
 
   nb::class_<ModelPool>(
     m, "ModelPool", "Pool containing a model and several datas for parallel computations.")

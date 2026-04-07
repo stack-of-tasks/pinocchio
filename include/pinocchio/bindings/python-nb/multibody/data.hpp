@@ -205,7 +205,7 @@ void exposeData(nb::module_ m)
     // --- operators
     .def(ComparableVisitor<Data>());
 
-  nb::bind_vector<std::vector<int>>(m, "IntStdVec");
+  nb::bind_vector<std::vector<int>>(m, "StdVec_Int");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
 

@@ -226,8 +226,8 @@ void exposeModel(nb::module_ m)
     .def(ComparableVisitor<Model>())
     .def(PrintableVisitor<Model>());
 
-  nb::bind_vector<std::vector<Index>>(m, "IndexStdVec");
+  nb::bind_vector<std::vector<Index>>(m, "StdVec_Index");
   nb::bind_vector<std::vector<IndexVector>, nb::rv_policy::reference_internal>(m, "IndexVecVec");
-  nb::bind_vector<std::vector<std::string>>(m, "StringStdVec");
+  nb::bind_vector<std::vector<std::string>>(m, "StdVec_String");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
