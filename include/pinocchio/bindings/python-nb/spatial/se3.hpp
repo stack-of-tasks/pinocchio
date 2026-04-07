@@ -12,6 +12,10 @@
 #include <nanobind/stl/bind_vector.h>
 #include <nanobind/stl/tuple.h>
 
+#ifdef PINOCCHIO_WITH_COLLISION
+  #include <coal/math/transform.h>
+#endif
+
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 template<class SE3>
 void exposeSE3(nb::module_ m)
@@ -42,6 +46,14 @@ void exposeSE3(nb::module_ m)
       "Initialize from a quaternion and a translation vector.")
     .def(nb::init<int>(), "int"_a, "Init to identity.")
     .def(nb::init<const Matrix4 &>(), "array"_a, "Initialize from a homogeneous matrix.")
+#ifdef PINOCCHIO_WITH_COLLISION
+    .def(
+      "__init__",
+      [](SE3 * self, const coal::Transform3s & t) {
+        new (self) SE3(t.getRotation(), t.getTranslation());
+      },
+      "transform"_a, "Initialize from a coal.Transform3s.")
+#endif
     // Properties
     .def_prop_rw(
       "rotation", [](Self & self) { return make_ref(self.rotation()); },
@@ -160,5 +172,9 @@ void exposeSE3(nb::module_ m)
     .def(PrintableVisitor<SE3>());
 
   nb::bind_vector<std::vector<SE3>, nb::rv_policy::reference_internal>(m, "StdVec_SE3");
+
+#ifdef PINOCCHIO_WITH_COLLISION
+  nb::implicitly_convertible<coal::Transform3s, SE3>();
+#endif
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
