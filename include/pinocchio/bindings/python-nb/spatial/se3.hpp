@@ -159,6 +159,6 @@ void exposeSE3(nb::module_ m)
     // String representation
     .def(PrintableVisitor<SE3>());
 
-  nb::bind_vector<std::vector<SE3>, nb::rv_policy::reference_internal>(m, "SE3StdVec");
+  nb::bind_vector<std::vector<SE3>, nb::rv_policy::reference_internal>(m, "StdVec_SE3");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

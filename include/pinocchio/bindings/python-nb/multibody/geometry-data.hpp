@@ -28,7 +28,7 @@ inline void exposeGeometryData(nb::module_ m)
     .def(PrintableVisitor<CollisionPair>());
 
   nb::bind_vector<std::vector<CollisionPair>, nb::rv_policy::reference_internal>(
-    m, "CollisionPairStdVec");
+    m, "StdVec_CollisionPair");
 
   nb::class_<GeometryData>(
     m, "GeometryData", "Geometry data linked to a GeometryModel and a Data struct.")
