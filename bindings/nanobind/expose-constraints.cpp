@@ -62,6 +62,9 @@ void exposeConstraints(nb::module_ m)
 
   exposeBaumgarteParameters(m);
 
+  // Expose constraint sets
+  exposeCones(m);
+
   // Expose constraint collection
   exposeConstraintCollection(m);
 
