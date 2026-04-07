@@ -65,6 +65,7 @@ set(PYWRAP_SOURCES
     collision/broadphase-callbacks.cpp
     collision/collision.cpp
     constraints/constraint-collection.cpp
+    constraints/cones.cpp
     multibody/liegroups.cpp
     multibody/sample-models.cpp
     spatial/skew.cpp
