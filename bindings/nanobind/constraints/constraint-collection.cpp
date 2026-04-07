@@ -1,14 +1,15 @@
 // Copyright (c) 2026 INRIA
 
-#include "pinocchio/bindings/python-nb/utils/comparable.hpp"
 #include "pinocchio/bindings/python-nb/utils/printable.hpp"
 #include "pinocchio/bindings/python-nb/constraints/constraint-crtp-base.hpp"
+#include "pinocchio/bindings/python-nb/constraints/constraint-inheritance.hpp"
 
 #include <boost/mpl/for_each.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/bind_vector.h>
+#include <nanobind/eigen/dense.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 
@@ -39,6 +40,7 @@ struct model_callable
     auto className = sanitizedClassname((Derived *)0);
     nb::class_<Derived>(m, className.c_str())
       .def(ConstraintModelBaseVisitor<Derived>())
+      .def(ConstraintModelInheritanceVisitor<Derived>())
       .def(PrintableVisitor<Derived>());
     auto vecName = "StdVec_" + className;
     nb::bind_vector<std::vector<Derived>, nb::rv_policy::reference_internal>(m, vecName.c_str());
@@ -57,6 +59,7 @@ struct data_callable
     auto className = sanitizedClassname((Derived *)0);
     nb::class_<Derived>(m, className.c_str())
       .def(ConstraintDataBaseVisitor<Derived>())
+      .def(ConstraintDataInheritanceVisitor<Derived>())
       .def(PrintableVisitor<Derived>());
     auto vecName = "StdVec_" + className;
     nb::bind_vector<std::vector<Derived>, nb::rv_policy::reference_internal>(m, vecName.c_str());
