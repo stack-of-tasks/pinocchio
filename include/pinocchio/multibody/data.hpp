@@ -138,6 +138,9 @@ namespace pinocchio
     /// \brief Vector of joint velocities expressed in the local frame of the joint.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) v;
 
+    /// \brief Vector of auxiliary joint velocities expressed in the local frame of the joint.
+    PINOCCHIO_ALIGNED_STD_VECTOR(Motion) v_r;
+
     /// \brief Vector of joint velocities expressed at the origin of the world.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) ov;
 
