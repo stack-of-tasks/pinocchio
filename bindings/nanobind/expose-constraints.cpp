@@ -15,8 +15,6 @@ using namespace nb::literals;
 
 // constraints/cones.cpp
 void exposeCones(nb::module_ m);
-// constraints/constraint-solvers.cpp
-void exposeConstraintSolvers(nb::module_ m);
 // constraints/constraint-collection.cpp
 void exposeConstraintCollection(nb::module_ m);
 
