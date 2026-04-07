@@ -99,10 +99,6 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
     .value("ARG4", pinocchio::ARG4)
     .export_values();
 
-  nb::enum_<pinocchio::ConstraintSelectionType>(m, "ConstraintSelectionType")
-    .value("CURRENT", pinocchio::ConstraintSelectionType::CURRENT)
-    .value("MAXIMAL", pinocchio::ConstraintSelectionType::MAXIMAL);
-
   // math
   exposeMathUtil(m);
 
