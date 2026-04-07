@@ -201,7 +201,7 @@ inline void exposeGeometryObject(nb::module_ m)
     .def(PrintableVisitor<Self>());
 
   nb::bind_vector<std::vector<GeometryObject>, nb::rv_policy::reference_internal>(
-    m, "GeometryObjectStdVec");
+    m, "StdVec_GeometryObject");
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END

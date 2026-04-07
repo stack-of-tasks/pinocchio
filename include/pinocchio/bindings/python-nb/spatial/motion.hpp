@@ -144,6 +144,6 @@ void exposeMotion(nb::module_ m)
     // String representation
     .def(PrintableVisitor<Motion>());
 
-  nb::bind_vector<std::vector<Motion>, nb::rv_policy::reference_internal>(m, "MotionStdVec");
+  nb::bind_vector<std::vector<Motion>, nb::rv_policy::reference_internal>(m, "StdVec_Motion");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
