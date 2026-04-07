@@ -39,6 +39,12 @@ struct ConeSetPythonVisitor : nb::def_visitor<ConeSetPythonVisitor>
   }
 };
 
+template<typename Trivial>
+void exposeTrivialCone(nb::module_ m, const char * name, const char * doc = 0)
+{
+  nb::class_<Trivial>(m, name, doc).def(SetPythonVisitor<VectorXs>()).def(ConeSetPythonVisitor());
+}
+
 void exposeCones(nb::module_ m)
 {
   nb::class_<CoulombFrictionCone>(m, "CoulombFrictionCone", "3D Coulomn friction cone.")
@@ -91,6 +97,11 @@ void exposeCones(nb::module_ m)
     .def_prop_ro(
       "ub", [](const BoxSet & self) { return make_ref(self.ub); },
       "Returns a copy of the vector of upper bounds.");
+
+  exposeTrivialCone<ZeroCone>(m, "ZeroCone", "A set which reduces to the zero vector in R^d.");
+  exposeTrivialCone<FullSpaceCone>(m, "FullSpaceCone", "Entire space R^d.");
+  exposeTrivialCone<NonNegativeOrthantCone>(
+    m, "NonNegativeOrthantCone", "Non-negative orthant R_+^d.");
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END
