@@ -50,7 +50,7 @@ void exposeAlgorithms(nb::module_ m)
   exposeContactJacobian(m);
   exposeContactDynamics(m);
   exposeConstraintDynamics(m);
-  // exposeContactInverseDynamics(m);
+  exposeContactInverseDynamics(m);
   exposeDelassus(m);
   exposeCAT(m);
   exposeJacobian(m);
