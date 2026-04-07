@@ -78,6 +78,19 @@ void exposeCones(nb::module_ m)
     .def(
       nb::init<const Scalar &>(), "mu"_a,
       "Constructor from a given friction coefficient (held by reference).");
+
+  nb::class_<BoxSet>(m, "BoxSet", "Box set defined by a lower and an upper bounds [lb; ub].")
+    .def(SetPythonVisitor<VectorXs>())
+    .def(nb::init<const BoxSet &>(), "other"_a, "Copy constructor.")
+    .def(
+      nb::init<const VectorXs &, const VectorXs &>(), "lb"_a, "ub"_a,
+      "Constructor from lower and upper bounds.")
+    .def_prop_ro(
+      "lb", [](const BoxSet & self) { return make_ref(self.lb); },
+      "Returns a copy of the vector of lower bounds.")
+    .def_prop_ro(
+      "ub", [](const BoxSet & self) { return make_ref(self.ub); },
+      "Returns a copy of the vector of upper bounds.");
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END
