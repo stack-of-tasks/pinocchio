@@ -31,7 +31,7 @@ void exposeABADerivatives(nb::module_ m);
 void exposeKinematicsDerivatives(nb::module_ m);
 void exposeFramesDerivatives(nb::module_ m);
 void exposeCentroidalDerivatives(nb::module_ m);
-// algorithm/impulse-dynamics.cpp
+// algorithm/impulse-dynamics-derivatives.cpp
 void exposeImpulseDynamicsDerivatives(nb::module_ m);
 
 void exposeConstraintSolvers(nb::module_ m);
