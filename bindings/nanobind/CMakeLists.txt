@@ -42,6 +42,7 @@ set(PYWRAP_SOURCES
     algorithm/constrained-dynamics-derivatives.cpp
     algorithm/impulse-dynamics.cpp
     algorithm/contact-dynamics.cpp
+    algorithm/contact-inverse-dynamics.cpp
     algorithm/contact-jacobian.cpp
     algorithm/crba.cpp
     algorithm/delassus.cpp
