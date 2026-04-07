@@ -4,6 +4,7 @@
 #include "pinocchio/bindings/python-nb/constraints/constraint-crtp-base.hpp"
 #include "pinocchio/bindings/python-nb/constraints/constraint-inheritance.hpp"
 #include "pinocchio/bindings/python-nb/constraints/constraint-derived-models.hpp"
+#include "pinocchio/bindings/python-nb/constraints/constraint-derived-datas.hpp"
 
 #include <boost/mpl/for_each.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -62,6 +63,7 @@ struct data_callable
     nb::class_<Derived>(m, className.c_str())
       .def(ConstraintDataBaseVisitor<Derived>())
       .def(ConstraintDataInheritanceVisitor<Derived>())
+      .def(ConstraintDataDerivedVisitor())
       .def(PrintableVisitor<Derived>());
     auto vecName = "StdVec_" + className;
     nb::bind_vector<std::vector<Derived>, nb::rv_policy::reference_internal>(m, vecName.c_str());
