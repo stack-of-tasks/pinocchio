@@ -60,6 +60,7 @@ set(PYWRAP_SOURCES
     algorithm/centroidal.cpp
     algorithm/centroidal-derivatives.cpp
     algorithm/rnea-derivatives.cpp
+    algorithm/constraint-solvers.cpp
     collision/broadphase.cpp
     collision/broadphase-callbacks.cpp
     collision/collision.cpp
