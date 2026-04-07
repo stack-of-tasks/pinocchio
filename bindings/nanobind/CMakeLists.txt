@@ -40,6 +40,7 @@ set(PYWRAP_SOURCES
     algorithm/cat.cpp
     algorithm/constrained-dynamics.cpp
     algorithm/constrained-dynamics-derivatives.cpp
+    algorithm/impulse-dynamics.cpp
     algorithm/crba.cpp
     algorithm/delassus.cpp
     algorithm/geometry.cpp
