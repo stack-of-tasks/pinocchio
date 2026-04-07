@@ -58,6 +58,10 @@ static void exposeConstraintGeneric(nb::module_ m)
 
 void exposeConstraints(nb::module_ m)
 {
+  nb::enum_<pinocchio::ConstraintSelectionType>(m, "ConstraintSelectionType")
+    .value("CURRENT", pinocchio::ConstraintSelectionType::CURRENT)
+    .value("MAXIMAL", pinocchio::ConstraintSelectionType::MAXIMAL);
+
   exposeBaumgarteParameters(m);
 
   // Expose constraint collection
