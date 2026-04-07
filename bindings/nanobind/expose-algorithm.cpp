@@ -34,6 +34,8 @@ void exposeCentroidalDerivatives(nb::module_ m);
 // algorithm/impulse-dynamics.cpp
 void exposeImpulseDynamicsDerivatives(nb::module_ m);
 
+void exposeConstraintSolvers(nb::module_ m);
+
 void exposeAlgorithms(nb::module_ m)
 {
   exposeJointsAlgo(m);
@@ -66,5 +68,7 @@ void exposeAlgorithms(nb::module_ m)
   exposeFramesDerivatives(m);
   exposeCentroidalDerivatives(m);
   exposeImpulseDynamicsDerivatives(m);
+
+  exposeConstraintSolvers(m);
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
