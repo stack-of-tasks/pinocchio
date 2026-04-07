@@ -26,7 +26,7 @@ void exposeConstraintDynamicsDerivatives(nb::module_ m)
         make_ref(data.dlambda_dv), //
         make_ref(data.dlambda_dtau));
     },
-    "model"_a, "data"_a, "contact_models"_a, "contact_datas"_a, "settings"_a = ProximalSettings{},
+    "model"_a, "data"_a, "contact_models"_a, "contact_datas"_a, "settings"_a = ProximalSettings(),
     "Computes the derivatives of the forward dynamics with kinematic constraints (given in the "
     "list of constraint models).\n"
     "Assumes that constraintDynamics has been called first. See constraintDynamics for more "
