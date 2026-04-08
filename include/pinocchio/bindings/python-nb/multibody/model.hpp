@@ -7,6 +7,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 #include "../utils/printable.hpp"
 
 #include <nanobind/stl/string.h>
@@ -224,6 +225,7 @@ void exposeModel(nb::module_ m)
       "Return the vector of children joints of the kinematic tree.")
     // --- operators
     .def(ComparableVisitor<Model>())
+    .def(CopyableVisitor<Model>())
     .def(PrintableVisitor<Model>());
 
   nb::bind_vector<std::vector<Index>>(m, "StdVec_Index");

@@ -6,6 +6,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 #include "../utils/deprecation.hpp"
 
 #include <nanobind/eigen/dense.h>
@@ -213,7 +214,8 @@ void exposeData(nb::module_ m)
     .NB_DATA_RW(kineticEnergyRegressor, "Kinetic energy regressor.")
     .NB_DATA_RW(potentialEnergyRegressor, "Potential energy regressor.")
     // --- operators
-    .def(ComparableVisitor<Data>());
+    .def(ComparableVisitor<Data>())
+    .def(CopyableVisitor<Data>());
 
   nb::bind_vector<std::vector<int>>(m, "StdVec_Int");
 }

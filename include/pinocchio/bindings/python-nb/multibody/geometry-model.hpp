@@ -4,6 +4,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/geometry.hpp"
@@ -81,6 +82,7 @@ inline void exposeGeometryModel(nb::module_ m)
       "Return the index of a collision pair.")
 
     .def(ComparableVisitor<GeometryModel>())
+    .def(CopyableVisitor<GeometryModel>())
     // Repr and str
     .def(PrintableVisitor<GeometryModel>());
 }

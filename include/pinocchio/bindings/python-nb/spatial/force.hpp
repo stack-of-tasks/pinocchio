@@ -4,6 +4,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/spatial.hpp"
@@ -100,6 +101,7 @@ void exposeForce(nb::module_ m)
       "Returns true if this Force is approximately equal to zero, within the precision "
       "given by prec.")
     .def(ComparableVisitor<Force>())
+    .def(CopyableVisitor<Force>())
     // Array interface
     .def("__array__", [](const Self & self) { return Vector6(self.toVector()); })
     // Repr and str

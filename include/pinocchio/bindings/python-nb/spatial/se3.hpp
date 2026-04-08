@@ -4,6 +4,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/spatial.hpp"
@@ -142,6 +143,7 @@ void exposeSE3(nb::module_ m)
       "Returns true if this SE3 is approximately equal to the identity placement, within the "
       "precision given by prec.")
     .def(ComparableVisitor<SE3>())
+    .def(CopyableVisitor<SE3>())
     // Static factory methods
     .def_static("Identity", &SE3::Identity, "Returns the identity transformation.")
     .def_static("Random", &SE3::Random, "Returns a random transformation.")

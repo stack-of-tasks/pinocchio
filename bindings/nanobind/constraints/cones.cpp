@@ -2,6 +2,7 @@
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 #include "pinocchio/bindings/python-nb/utils/comparable.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 #include "pinocchio/constraints.hpp"
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
@@ -42,7 +43,10 @@ struct ConeSetPythonVisitor : nb::def_visitor<ConeSetPythonVisitor>
 template<typename Trivial>
 void exposeTrivialCone(nb::module_ m, const char * name, const char * doc = 0)
 {
-  nb::class_<Trivial>(m, name, doc).def(SetPythonVisitor<VectorXs>()).def(ConeSetPythonVisitor());
+  nb::class_<Trivial>(m, name, doc)
+    .def(SetPythonVisitor<VectorXs>())
+    .def(ConeSetPythonVisitor())
+    .def(CopyableVisitor<Trivial>());
 }
 
 void exposeCones(nb::module_ m)
@@ -75,7 +79,8 @@ void exposeCones(nb::module_ m)
       [](const CoulombFrictionCone & self, const Vector3s & f) {
         return self.computeRadialProjection(f);
       },
-      "f"_a, "Compute the radial projection associted to the Coulomb friction cone.");
+      "f"_a, "Compute the radial projection associted to the Coulomb friction cone.")
+    .def(CopyableVisitor<CoulombFrictionCone>());
 
   nb::class_<DualCoulombFrictionCone>(
     m, "DualCoulombFrictionCone", "Dual cone of the 3D Coulomb friction cone")
@@ -83,7 +88,8 @@ void exposeCones(nb::module_ m)
     .def(ConeSetPythonVisitor())
     .def(
       nb::init<const Scalar &>(), "mu"_a,
-      "Constructor from a given friction coefficient (held by reference).");
+      "Constructor from a given friction coefficient (held by reference).")
+    .def(CopyableVisitor<DualCoulombFrictionCone>());
 
   nb::class_<BoxSet>(m, "BoxSet", "Box set defined by a lower and an upper bounds [lb; ub].")
     .def(SetPythonVisitor<VectorXs>())
@@ -96,7 +102,8 @@ void exposeCones(nb::module_ m)
       "Returns a copy of the vector of lower bounds.")
     .def_prop_ro(
       "ub", [](const BoxSet & self) { return make_ref(self.ub); },
-      "Returns a copy of the vector of upper bounds.");
+      "Returns a copy of the vector of upper bounds.")
+    .def(CopyableVisitor<BoxSet>());
 
   exposeTrivialCone<ZeroCone>(m, "ZeroCone", "A set which reduces to the zero vector in R^d.");
   exposeTrivialCone<FullSpaceCone>(m, "FullSpaceCone", "Entire space R^d.");

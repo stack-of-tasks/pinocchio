@@ -5,6 +5,7 @@
 #include "pinocchio/multibody.hpp"
 
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 #include "../utils/deprecation.hpp"
 #include "../utils/printable.hpp"
 
@@ -65,6 +66,7 @@ void exposeFrame(nb::module_ m)
     .def_rw("type", &Frame::type, "Type of the frame.")
     .def_rw("inertia", &Frame::inertia, "Inertia information attached to the frame.")
     .def(ComparableVisitor<Frame>())
+    .def(CopyableVisitor<Frame>())
     .def(PrintableVisitor<Frame>());
 
   nb::bind_vector<std::vector<Frame>, nb::rv_policy::reference_internal>(m, "StdVec_Frame");

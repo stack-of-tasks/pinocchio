@@ -4,6 +4,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/spatial.hpp"
@@ -125,6 +126,7 @@ void exposeMotion(nb::module_ m)
       "Returns true if this Motion is approximately equal to zero, within the precision "
       "given by prec.")
     .def(ComparableVisitor<Motion>())
+    .def(CopyableVisitor<Motion>())
     // Static factory methods
     .def_static("Zero", &Motion::Zero, "Returns a zero Motion.")
     .def_static("Random", &Motion::Random, "Returns a random Motion.")
