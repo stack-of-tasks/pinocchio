@@ -5,7 +5,6 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include <nanobind/eigen/dense.h>
-#include <nanobind/stl/vector.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 using namespace nb::literals;
