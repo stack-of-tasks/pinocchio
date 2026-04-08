@@ -40,8 +40,12 @@ void exposeParallelAlgorithms(nb::module_ m);
 // expose-parsers.cpp
 void exposeParsers(nb::module_ m);
 
+// utils/conversions.cpp
+void exposeConversions(nb::module_ m);
+
 // see after NB_MODULE() below
 static void exposeFeatures(nb::module_ m);
+
 PINOCCHIO_PYTHON_NAMESPACE_END
 
 // PINOCCHIO_PYTHON_MODULE_NAME is defined by the build system as the target name
@@ -125,6 +129,9 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
 
   // parsers
   exposeParsers(m);
+
+  // conversions (e.g. XYZQUAT)
+  exposeConversions(m);
 
   // feature flags
   exposeFeatures(m);
