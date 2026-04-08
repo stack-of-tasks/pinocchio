@@ -75,6 +75,7 @@ set(PYWRAP_SOURCES
     multibody/sample-models.cpp
     spatial/skew.cpp
     spatial/explog.cpp
+    parsers/srdf.cpp
     parsers/urdf/console-bridge.cpp
     parsers/urdf/model.cpp
     parsers/urdf/geometry.cpp
