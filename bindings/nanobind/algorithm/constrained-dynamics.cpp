@@ -2,17 +2,22 @@
 
 // Port of the following files:
 // - include/pinocchio/bindings/python/algorithm/contact-info.hpp
+// - include/pinocchio/bindings/python/algorithm/constraint-cholesky.hpp
 // - bindings/python/algorithm/expose-constrained-dynamics.cpp
 
 #include "pinocchio/bindings/python-nb/utils/comparable.hpp"
+#include "pinocchio/bindings/python-nb/algorithm/delassus-operator.hpp"
+#include "pinocchio/bindings/python-nb/utils/deprecation.hpp"
 
 #include "pinocchio/constraints.hpp"
 #include "pinocchio/algorithm/constrained-dynamics.hpp"
 #include "pinocchio/algorithm/constraint-cholesky.hpp"
+#include "pinocchio/algorithm/delassus-operator.hpp"
 
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/bind_vector.h>
 #include <nanobind/eigen/dense.h>
+#include <nanobind/eigen/sparse.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 
@@ -66,42 +71,53 @@ static void exposeProximalSettings(nb::module_ m)
 static void exposeConstraintCholesky(nb::module_ m)
 {
   using Self = ConstraintCholeskyDecomposition;
-  using Matrix = Self::Matrix;
-  using RowMatrix = Self::RowMatrix;
-  using Vector = Self::Vector;
+  using Matrix = MatrixXs;
+  using RowMatrix = RowMatrixXs;
+  using DelassusCholesky = typename Self::DelassusOperatorCholeskyExpression;
+  using DelassusOperatorDense = DelassusOperatorDenseTpl<Scalar, Options>;
+  using DelassusOperatorSparse = DelassusOperatorSparseTpl<Scalar, Options>;
 
+  static constexpr char kGetDelassusCholeskyMsg[] =
+    "Deprecated member. Use getDelassusOperatorCholeskyExpression instead.";
+
+  // --- ConstraintCholeskyDecomposition ---
   nb::class_<Self>(
     m, "ConstraintCholeskyDecomposition",
     "Contact information container for contact dynamic algorithms.")
     .def(nb::init<>(), "Default constructor.")
-    .def(nb::init<const Model &, const Data &>(), "model"_a, "data"_a, "Constructor from a model.")
+    .def(
+      nb::init<const Model &, const Data &>(), "model"_a, "data"_a,
+      "Constructor from a model and data.")
     .def(
       nb::init<
         const Model &, const Data &, const RigidConstraintModelVector &,
         const RigidConstraintDataVector &>(),
       "model"_a, "data"_a, "contact_models"_a, "contact_datas"_a,
-      "Constructor from a model and a collection of RigidConstraintModels.")
+      "Constructor from a model, data and a collection of RigidConstraintModels.")
     .def(
       nb::init<
         const Model &, const Data &, const ConstraintModelVector &, const ConstraintDataVector &>(),
       "model"_a, "data"_a, "constraint_models"_a, "constraint_datas"_a,
-      "Constructor from a model and a collection of ConstraintModels.")
+      "Constructor from a model, data and a collection of ConstraintModels.")
+
+    // Matrix views (reference into internal storage)
     .def_prop_ro(
       "U", [](const Self & self) -> Eigen::Ref<const RowMatrix> { return self.U; },
-      nb::rv_policy::reference_internal)
+      nb::rv_policy::reference_internal, "Upper triangular factor U of the decomposition.")
     .def_prop_ro(
-      "D", [](const Self & self) -> Eigen::Ref<const Vector> { return self.D; },
-      nb::rv_policy::reference_internal)
+      "D", [](const Self & self) -> Eigen::Ref<const VectorXs> { return self.D; },
+      nb::rv_policy::reference_internal, "Diagonal factor D of the decomposition.")
     .def_prop_ro(
-      "Dinv", [](const Self & self) -> Eigen::Ref<const Vector> { return self.Dinv; },
-      nb::rv_policy::reference_internal)
+      "Dinv", [](const Self & self) -> Eigen::Ref<const VectorXs> { return self.Dinv; },
+      nb::rv_policy::reference_internal, "Inverse of the diagonal factor D.")
+
+    // Size queries
     .def("size", &Self::size, "Size of the decomposition.")
     .def(
       "constraintDim", &Self::constraintDim,
-      "Returns the total dimension of the constraints contained in the Cholesky factorization.")
-    .def(
-      "matrix", (Matrix (Self::*)() const) & Self::matrix,
-      "Returns the matrix resulting from the decomposition.")
+      "Total dimension of the constraints in the Cholesky factorization.")
+
+    // Rebuild
     .def(
       "rebuild",
       [](
@@ -111,8 +127,7 @@ static void exposeConstraintCholesky(nb::module_ m)
         self.rebuild(model, data, contact_models, contact_datas);
       },
       "model"_a, "data"_a, "constraint_models"_a, "constraint_datas"_a,
-      "Rebuild the Cholesky decomposition internal memory according to the input "
-      "RigidConstraintModels.")
+      "Rebuild the Cholesky decomposition internal memory from a list of RigidConstraintModels.")
     .def(
       "rebuild",
       [](
@@ -122,7 +137,9 @@ static void exposeConstraintCholesky(nb::module_ m)
         self.rebuild(model, data, constraint_models, constraint_datas);
       },
       "model"_a, "data"_a, "constraint_models"_a, "constraint_datas"_a,
-      "Rebuild the Cholesky decomposition internal memory according to the input ConstraintModels.")
+      "Rebuild the Cholesky decomposition internal memory from a list of ConstraintModels.")
+
+    // Compute (scalar mu)
     .def(
       "compute",
       [](
@@ -132,17 +149,7 @@ static void exposeConstraintCholesky(nb::module_ m)
         Scalar mu) { self.compute(model, data, contact_models, contact_datas, mu); },
       "model"_a, "data"_a, "contact_models"_a, "contact_datas"_a, "mu"_a = Scalar(0),
       "Computes the Cholesky decomposition of the augmented KKT matrix for the given "
-      "RigidConstraintModels. The decomposition is regularized with a factor mu.")
-    .def(
-      "compute",
-      [](
-        Self & self, const Model & model, Data & data,
-        const RigidConstraintModelVector & contact_models,
-        RigidConstraintDataVector & contact_datas,
-        const Vector & mus) { self.compute(model, data, contact_models, contact_datas, mus); },
-      "model"_a, "data"_a, "contact_models"_a, "contact_datas"_a, "mus"_a,
-      "Computes the Cholesky decomposition of the augmented KKT matrix for the given "
-      "RigidConstraintModels. The decomposition is regularized with per-constraint factors mus.")
+      " RigidConstraintModels, regularized by scalar mu.")
     .def(
       "compute",
       [](
@@ -151,62 +158,147 @@ static void exposeConstraintCholesky(nb::module_ m)
         Scalar mu) { self.compute(model, data, constraint_models, constraint_datas, mu); },
       "model"_a, "data"_a, "constraint_models"_a, "constraint_datas"_a, "mu"_a = Scalar(0),
       "Computes the Cholesky decomposition of the augmented KKT matrix for the given "
-      "ConstraintModels. The decomposition is regularized with a factor mu.")
+      "ConstraintModels, regularized by scalar mu.")
+
+    // Compute (vector mus)
+    .def(
+      "compute",
+      [](
+        Self & self, const Model & model, Data & data,
+        const RigidConstraintModelVector & contact_models,
+        RigidConstraintDataVector & contact_datas,
+        const VectorXs & mus) { self.compute(model, data, contact_models, contact_datas, mus); },
+      "model"_a, "data"_a, "contact_models"_a, "contact_datas"_a, "mus"_a,
+      "Computes the Cholesky decomposition of the KKT matrix with RigidConstraints, "
+      "regularized by per-constraint vector mus.")
     .def(
       "compute",
       [](
         Self & self, const Model & model, Data & data,
         const ConstraintModelVector & constraint_models, ConstraintDataVector & constraint_datas,
-        const Vector & mus) {
+        const VectorXs & mus) {
         self.compute(model, data, constraint_models, constraint_datas, mus);
       },
       "model"_a, "data"_a, "constraint_models"_a, "constraint_datas"_a, "mus"_a,
-      "Computes the Cholesky decomposition of the augmented KKT matrix for the given "
-      "ConstraintModels. The decomposition is regularized with per-constraint factors mus.")
+      "Computes the Cholesky decomposition of the KKT matrix with ConstraintModels, "
+      "regularized by per-constraint vector mus.")
+
+    // Damping
     .def(
-      "updateDamping", (void (Self::*)(const Scalar &))&Self::updateDamping, "mu"_a,
-      "Update the damping term on the upper left block of the KKT matrix. The damping term "
-      "should be positive.")
+      "updateDamping", [](Self & self, Scalar mu) { self.updateDamping(mu); }, "mu"_a,
+      "Update the damping term on the upper-left block of the KKT matrix. Must be positive.")
     .def(
       "updateDamping",
-      [](Self & self, ConstVectorRef damping_vector) { self.updateDamping(damping_vector); },
-      // &Self::template updateDamping<Vector>,
-      "damping_vector"_a,
-      "Update the damping terms on the upper left block of the KKT matrix. The damping terms "
-      "should all be positive.")
+      [](Self & self, const VectorXs & mus) { self.template updateDamping<VectorXs>(mus); },
+      "mus"_a,
+      "Update the per-constraint damping terms on the upper-left block of the KKT matrix. "
+      "All must be positive.")
     .def(
       "getDamping", [](const Self & self) -> Matrix { return self.getDamping().matrix(); },
       "Returns the current damping as a dense matrix.")
+
+    // Matrix / solve / inverse
+    .def(
+      "matrix", [](const Self & self) -> Matrix { return self.matrix(); },
+      "Returns the dense matrix resulting from the decomposition.")
+    .def(
+      "solve", [](const Self & self, const Matrix & mat) -> Matrix { return self.solve(mat); },
+      "mat"_a, "Computes the solution x of A * x = mat where A is the decomposed matrix.")
+    .def(
+      "inverse", [](const Self & self) -> Matrix { return self.inverse(); },
+      "Returns the inverse matrix resulting from the decomposition.")
+
+    // Derived matrix accessors
     .def(
       "getInverseOperationalSpaceInertiaMatrix",
-      (Matrix (Self::*)(bool) const) & Self::getInverseOperationalSpaceInertiaMatrix,
-      "enforce_symmetry"_a = false,
-      "Returns the inverse of the Operational Space Inertia Matrix resulting from the "
-      "decomposition.")
+      [](const Self & self, bool enforce_symmetry) -> Matrix {
+        return self.getInverseOperationalSpaceInertiaMatrix(enforce_symmetry);
+      },
+      "enforce_symmetry"_a = false, "Returns the inverse of the Operational Space Inertia Matrix.")
     .def(
       "getOperationalSpaceInertiaMatrix",
-      (Matrix (Self::*)() const) & Self::getOperationalSpaceInertiaMatrix,
-      "Returns the Operational Space Inertia Matrix resulting from the decomposition.")
+      [](const Self & self) -> Matrix { return self.getOperationalSpaceInertiaMatrix(); },
+      "Returns the Operational Space Inertia Matrix.")
     .def(
-      "getInverseMassMatrix", (Matrix (Self::*)() const) & Self::getInverseMassMatrix,
-      "Returns the inverse of the Joint Space Inertia Matrix or \"mass matrix\".")
-    .def(
-      "solve", [](const Self & self, const MatrixXs & mat) -> Matrix { return self.solve(mat); },
-      "matrix"_a,
-      "Computes the solution of A x = b where this object corresponds to the Cholesky "
-      "decomposition of A.")
-    .def(
-      "inverse", (Matrix (Self::*)() const) & Self::inverse,
-      "Returns the inverse matrix resulting from the decomposition.")
+      "getInverseMassMatrix",
+      [](const Self & self) -> Matrix { return self.getInverseMassMatrix(); },
+      "Returns the inverse of the Joint Space Inertia Matrix (mass matrix).")
     .def(
       "getMassMatrixChoeslkyDecomposition",
       &Self::template getMassMatrixChoeslkyDecomposition<Scalar, 0, JointCollectionDefaultTpl>,
-      "Retrieves the Cholesky decomposition of the Mass Matrix contained in the current "
-      "decomposition.")
+      "Retrieves the Cholesky decomposition of the Mass Matrix.")
+
+    // Delassus operator accessors
+    .def(
+      "getDelassusOperatorCholeskyExpression",
+      [](Self & self) -> DelassusCholesky { return self.getDelassusOperatorCholeskyExpression(); },
+      nb::rv_policy::reference_internal,
+      "Returns the Cholesky expression associated to the underlying Delassus matrix.")
+    .def(
+      "getDelassusCholeskyExpression",
+      [](Self & self) -> DelassusCholesky {
+        deprecated_guard<kGetDelassusCholeskyMsg> guard;
+        (void)guard;
+        return self.getDelassusOperatorCholeskyExpression();
+      },
+      nb::rv_policy::reference_internal,
+      "Deprecated. Use getDelassusOperatorCholeskyExpression instead.")
     .def(ComparableVisitor<Self>());
 
-  // Alias kept for backward compatibility with Boost bindings
+  // Alias
   m.attr("ContactCholeskyDecomposition") = m.attr("ConstraintCholeskyDecomposition");
+
+  // --- DelassusOperatorCholeskyExpression ---
+  nb::class_<DelassusCholesky>(
+    m, "DelassusOperatorCholeskyExpression",
+    "Delassus Cholesky expression associated to a given ConstraintCholeskyDecomposition.")
+    .def(
+      nb::init<Self &>(), "cholesky_decomposition"_a,
+      "Build from a given ConstraintCholeskyDecomposition.")
+    .def(
+      "cholesky", [](DelassusCholesky & self) -> Self & { return self.cholesky(); },
+      nb::rv_policy::reference_internal,
+      "Returns the ConstraintCholeskyDecomposition associated to this expression.")
+    .def(DelassusOperatorBaseVisitor<DelassusCholesky>());
+
+  // Alias
+  m.attr("DelassusCholeskyExpression") = m.attr("DelassusOperatorCholeskyExpression");
+
+  // --- DelassusOperatorDense ---
+  nb::class_<DelassusOperatorDense>(
+    m, "DelassusOperatorDense", "Delassus dense operator built from a dense matrix.")
+    .def(
+      nb::init<const Eigen::Ref<const MatrixXs>>(), "matrix"_a, "Build from a given dense matrix.")
+    .def(DelassusOperatorBaseVisitor<DelassusOperatorDense>());
+
+  // --- DelassusOperatorSparse ---
+  {
+    using SparseMatrix = typename DelassusOperatorSparse::SparseMatrix;
+    nb::class_<DelassusOperatorSparse>(
+      m, "DelassusOperatorSparse", "Delassus sparse operator built from a sparse matrix.")
+      .def(nb::init<const SparseMatrix &>(), "matrix"_a, "Build from a given sparse matrix.")
+      .def(DelassusOperatorBaseVisitor<DelassusOperatorSparse>())
+      .def(
+        "matrix",
+        [](const DelassusOperatorSparse & self, bool enforce_symmetry) -> SparseMatrix {
+          return self.matrix(enforce_symmetry);
+        },
+        "enforce_symmetry"_a = false, "Returns the Delassus expression as a sparse matrix.");
+  }
+
+#ifdef PINOCCHIO_WITH_ACCELERATE_SUPPORT
+  {
+    using SparseMatrix = typename DelassusOperatorSparse::SparseMatrix;
+    using AccelerateCholesky = Eigen::AccelerateLLT<SparseMatrix>;
+    using DelassusOperatorSparseAccelerate =
+      DelassusOperatorSparseTpl<Scalar, Options, AccelerateCholesky>;
+    nb::class_<DelassusOperatorSparseAccelerate>(
+      m, "DelassusOperatorSparseAccelerate",
+      "Delassus sparse operator leveraging the Accelerate framework on Apple systems.")
+      .def(nb::init<const SparseMatrix &>(), "matrix"_a, "Build from a given sparse matrix.")
+      .def(DelassusOperatorBaseVisitor<DelassusOperatorSparseAccelerate>());
+  }
+#endif
 }
 
 static void exposeRigidConstraint(nb::module_ m)
