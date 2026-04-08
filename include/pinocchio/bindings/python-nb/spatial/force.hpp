@@ -6,6 +6,7 @@
 #include "../utils/comparable.hpp"
 #include "../utils/copyable.hpp"
 #include "../utils/printable.hpp"
+#include "../utils/to-numpy-array.hpp"
 
 #include "pinocchio/spatial.hpp"
 
@@ -104,9 +105,7 @@ void exposeForce(nb::module_ m)
       "given by prec.")
     .def(ComparableVisitor<Force>())
     .def(CopyableVisitor<Force>())
-    // Array interface
-    .def("__array__", [](const Self & self) { return Vector6(self.toVector()); })
-    // Repr and str
+    .def(ToNumpyArrayVisitor<Force>())
     .def(PrintableVisitor<Force>());
 
   nb::bind_vector<std::vector<Force>, nb::rv_policy::reference_internal>(m, "StdVec_Force");

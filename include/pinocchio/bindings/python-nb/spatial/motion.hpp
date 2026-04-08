@@ -6,6 +6,7 @@
 #include "../utils/comparable.hpp"
 #include "../utils/copyable.hpp"
 #include "../utils/printable.hpp"
+#include "../utils/to-numpy-array.hpp"
 
 #include "pinocchio/spatial.hpp"
 
@@ -143,7 +144,8 @@ void exposeMotion(nb::module_ m)
       [](Motion & self, std::tuple<Vector3, Vector3> t) {
         new (&self) Motion(std::get<0>(t), std::get<1>(t));
       })
-    // String representation
+    // Visitors
+    .def(ToNumpyArrayVisitor<Force>())
     .def(PrintableVisitor<Motion>());
 
   nb::bind_vector<std::vector<Motion>, nb::rv_policy::reference_internal>(m, "StdVec_Motion");
