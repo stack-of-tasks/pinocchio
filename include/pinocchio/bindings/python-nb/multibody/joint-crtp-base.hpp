@@ -51,6 +51,16 @@ struct JointModelBaseVisitor : nb::def_visitor<JointModelBaseVisitor<Derived>>
           Derived & self, const JointIndex id, const int idx_q, const int idx_v,
           const int idx_vExtended) { self.setIndexes(id, idx_q, idx_v, idx_vExtended); },
         "joint_id"_a, "idx_q"_a, "idx_v"_a, "idx_vExtended"_a)
+      // initially exposed in include/pinocchio/bindings/python/multibody/joint/joints-liegroup.hpp,
+      // but here we can just use a lambda to return the generic group.
+      .def(
+        "lieGroup",
+        [](const Derived & self) {
+          using GenericLieGroup =
+            CartesianProductOperationVariantTpl<Scalar, Options, LieGroupCollectionDefaultTpl>;
+          return GenericLieGroup(self.template lieGroup<LieGroupMap>());
+        })
+      //
       .def_static("classname", &Derived::classname)
       .def(
         "calc",
