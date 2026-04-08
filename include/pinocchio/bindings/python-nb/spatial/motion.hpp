@@ -90,6 +90,9 @@ void exposeMotion(nb::module_ m)
     .def(
       "cross", [](const Self & self, const Motion & m) { return Motion(self.cross(m)); }, "m"_a,
       "Action of this Motion onto another Motion m. Returns self ^ m.")
+    .def(
+      "cross", [](const Self & self, const Force & f) { return Force(self.cross(f)); }, "f"_a,
+      "Action of this Motion onto a Force f. Returns self ^ f.")
     // Arithmetic operators
     .def(
       "__add__", [](const Motion & a, const Motion & b) { return Motion(a + b); },
