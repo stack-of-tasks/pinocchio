@@ -22,6 +22,7 @@ auto makeRn(int n)
 
 void exposeLieGroups(nb::module_ m)
 {
+  // Generic Lie group = Cartesian product
   using LieGroup =
     CartesianProductOperationVariantTpl<Scalar, Options, LieGroupCollectionDefaultTpl>;
 
