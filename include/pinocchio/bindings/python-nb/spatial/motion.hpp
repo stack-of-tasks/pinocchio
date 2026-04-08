@@ -110,7 +110,10 @@ void exposeMotion(nb::module_ m)
     .def(
       "__truediv__", [](const Motion & m, Scalar s) { return Motion(m / s); }, nb::is_operator())
     .def(
-      "__xor__", [](const Motion & a, const Motion & b) { return Motion(a.cross(b)); },
+      "__xor__", [](const Motion & a, const Motion & b) -> Motion { return a.cross(b); },
+      nb::is_operator())
+    .def(
+      "__xor__", [](const Motion & a, const Force & f) -> Force { return a.cross(f); },
       nb::is_operator())
     // Comparison
     .def(
