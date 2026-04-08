@@ -23,6 +23,10 @@ inline void exposeGeometryModel(nb::module_ m)
     .def(nb::init<>())
     .def(nb::init<const Self &>(), "other"_a, "Copy constructor.")
     //
+    .def_ro(
+      "ngeoms", &GeometryModel::ngeoms, "Number of geometries contained in the GeometryModel.")
+    .def_ro("geometryObjects", &GeometryModel::geometryObjects, "Vector of geometry objects.")
+    //
     .def(
       "addGeometryObject",
       static_cast<Self::GeomIndex (Self::*)(const GeometryObject &)>(&Self::addGeometryObject),
