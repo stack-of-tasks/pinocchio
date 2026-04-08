@@ -82,6 +82,10 @@ set(PYWRAP_SOURCES
     parsers/urdf/geometry.cpp
 )
 
+if(BUILD_WITH_SDF_SUPPORT)
+    list(APPEND PYWRAP_SOURCES parsers/sdf/model.cpp parsers/sdf/geometry.cpp)
+endif()
+
 if(BUILD_WITH_OPENMP_SUPPORT)
     list(APPEND PYWRAP_SOURCES algorithm/parallel.cpp multibody/pool.cpp)
 endif()
