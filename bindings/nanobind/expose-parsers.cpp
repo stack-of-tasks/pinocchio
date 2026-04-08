@@ -8,6 +8,7 @@ void exposeConsoleBridge(nb::module_ m);
 void exposeURDFModel(nb::module_ m);
 void exposeURDFGeometry(nb::module_ m);
 void exposeSRDF(nb::module_ m);
+void exposeMJCF(nb::module_ m);
 
 void exposeParsers(nb::module_ m)
 {
@@ -19,6 +20,7 @@ void exposeParsers(nb::module_ m)
   }
 
   exposeSRDF(m);
+  exposeMJCF(m);
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END
