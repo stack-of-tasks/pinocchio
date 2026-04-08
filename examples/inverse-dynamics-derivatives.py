@@ -17,8 +17,8 @@ data = model.createData()
 
 # Set bounds (by default they are undefinded for a the Simple Humanoid model)
 
-model.lowerPositionLimit = -np.ones((model.nq, 1))
-model.upperPositionLimit = np.ones((model.nq, 1))
+model.lowerPositionLimit = -np.ones(model.nq)
+model.upperPositionLimit = np.ones(model.nq)
 
 q = pin.randomConfiguration(model)  # joint configuration
 v = np.random.rand(model.nv, 1)  # joint velocity
