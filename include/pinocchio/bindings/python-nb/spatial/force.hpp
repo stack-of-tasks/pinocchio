@@ -46,7 +46,9 @@ void exposeForce(nb::module_ m)
     .def_prop_rw(
       "angular", [](Self & self) -> Vector3Ref { return self.angular(); },
       [](Self & self, const Vector3 & v) { self.angular(v); }, "Angular part of the Force object.")
-    .def_prop_ro("vector", to_vector_, "Returns the components of the Force object as a 6D vector.")
+    .def_prop_rw(
+      "vector", to_vector_, [](Self & self, Eigen::Ref<const Vector6> f) { self.toVector() = f; },
+      "Returns the components of the Force object as a 6D vector.")
     .def("toVector", to_vector_, "Returns the components of the Force object as a 6D vector.")
     .def_prop_ro("np", to_vector_)
     // Factories
