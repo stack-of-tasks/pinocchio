@@ -4,8 +4,8 @@
 
 #include "pinocchio/multibody.hpp"
 
-#include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/deprecation.hpp"
 #include "../utils/printable.hpp"
 
 #include <nanobind/stl/bind_vector.h>
@@ -16,6 +16,8 @@ template<class Frame>
 void exposeFrame(nb::module_ m)
 {
   using namespace nb::literals;
+  static constexpr char kParentJointMsg[] = "Deprecated member. Use Frame.parentJoint instead.";
+  static constexpr char kParentFrameMsg[] = "Deprecated member. Use Frame.parentFrame instead.";
 
   nb::class_<Frame>(
     m, "Frame", "A Plucker coordinate frame related to a parent joint inside a kinematic tree.")
@@ -36,6 +38,28 @@ void exposeFrame(nb::module_ m)
     .def_rw("name", &Frame::name, "Name of the frame.")
     .def_rw("parentJoint", &Frame::parentJoint, "Index of the parent joint.")
     .def_rw("parentFrame", &Frame::parentFrame, "Index of the parent frame.")
+    .def_prop_rw(
+      "parent",
+      [](const Frame & self) {
+        deprecated_guard<kParentJointMsg> guard;
+        return self.parentJoint;
+      },
+      [](Frame & self, JointIndex index) {
+        deprecated_guard<kParentJointMsg> guard;
+        self.parentJoint = index;
+      },
+      "Deprecated. Use parentJoint instead.")
+    .def_prop_rw(
+      "previousFrame",
+      [](const Frame & self) {
+        deprecated_guard<kParentFrameMsg> guard;
+        return self.parentFrame;
+      },
+      [](Frame & self, FrameIndex index) {
+        deprecated_guard<kParentFrameMsg> guard;
+        self.parentFrame = index;
+      },
+      "Deprecated. Use parentFrame instead.")
     .def_rw(
       "placement", &Frame::placement, "Placement of the frame in the parent joint local frame.")
     .def_rw("type", &Frame::type, "Type of the frame.")
