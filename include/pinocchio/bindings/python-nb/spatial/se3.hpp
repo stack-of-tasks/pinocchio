@@ -121,6 +121,12 @@ void exposeSE3(nb::module_ m)
     .def(
       "actInv", [](const SE3 & self, const Inertia & I) { return self.actInv(I); }, "inertia"_a,
       "Returns the result of the inverse of this SE3 onto an Inertia.")
+    .def(
+      "act", [](const SE3 & self, const Force & f) { return self.act(f); }, "force"_a,
+      "Returns the result of the action of this SE3 onto a Force.")
+    .def(
+      "actInv", [](const SE3 & self, const Force & f) { return self.actInv(f); }, "force"_a,
+      "Returns the result of the inverse action of this SE3 onto a Force.")
     // Operators
     .def(
       "__mul__", [](const SE3 & self, const SE3 & other) { return self.act(other); },
