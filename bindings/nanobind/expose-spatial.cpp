@@ -14,11 +14,13 @@ void exposeExplog(nb::module_ m);
 
 void exposeSpatial(nb::module_ m)
 {
-  exposeMotion<pinocchio::Motion>(m);
-  exposeForce<pinocchio::Force>(m);
-  exposeSE3<pinocchio::SE3>(m);
-  exposeInertia<pinocchio::Inertia>(m);
-  exposeSymmetric3<pinocchio::Symmetric3>(m);
+  exposeMotion<Motion>(m);
+  exposeForce<Force>(m);
+  exposeSE3<SE3>(m);
+  exposePseudoInertia<PseudoInertia>(m);
+  exposeLogCholeskyParameters<LogCholeskyParameters>(m);
+  exposeInertia<Inertia>(m);
+  exposeSymmetric3<Symmetric3>(m);
   exposeSkew(m);
   exposeExplog(m);
 }

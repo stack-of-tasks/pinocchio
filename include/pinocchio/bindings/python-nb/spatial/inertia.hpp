@@ -29,8 +29,6 @@ void exposeInertia(nb::module_ m)
 
   static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
 
-  /// TODO: Add missing LogCholeskyParameters, PseudoInertia
-
   nb::class_<Inertia>(
     m, "Inertia",
     "Sparse representation of a Spatial Inertia, defined by its mass, center of mass location, "
@@ -185,11 +183,123 @@ void exposeInertia(nb::module_ m)
       "FromCapsule", &Inertia::FromCapsule, "mass"_a, "radius"_a, "height"_a,
       "Returns the Inertia of a capsule defined by its mass, radius and length along the Z axis. "
       "Assumes a uniform density.")
+    // Pseudo inertia
+    .def(
+      "toPseudoInertia", &Inertia::toPseudoInertia,
+      "Returns the pseudo inertia representation of this Inertia.")
+    .def_static(
+      "FromPseudoInertia", &Inertia::FromPseudoInertia, "pseudo_inertia"_a,
+      "Returns the Inertia created from a pseudo inertia object.")
+    .def_static(
+      "FromLogCholeskyParameters", &Inertia::FromLogCholeskyParameters, "log_cholesky_parameters"_a,
+      "Returns the Inertia created from log Cholesky parameters.")
     // Array interface
     .def("__array__", [](const Self & self) { return Matrix6(self.matrix()); })
     // String representation
     .def(PrintableVisitor<Inertia>());
 
   nb::bind_vector<std::vector<Inertia>, nb::rv_policy::reference_internal>(m, "StdVec_Inertia");
+}
+
+template<class PseudoInertia>
+void exposePseudoInertia(nb::module_ m)
+{
+  using namespace nb::literals;
+  using Self = PseudoInertia;
+  using Scalar = typename Self::Scalar;
+  using Vector3 = typename Self::Vector3;
+  using Matrix3 = typename Self::Matrix3;
+  using Matrix4 = typename Self::Matrix4;
+  using VectorXs = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
+
+  nb::class_<PseudoInertia>(
+    m, "PseudoInertia",
+    "Pseudo inertia matrix defined by its mass, vector part h, and 3x3 matrix part sigma.")
+    .def(
+      nb::init<const Scalar &, const Vector3 &, const Matrix3 &>(), "mass"_a, "h"_a, "sigma"_a,
+      "Initialize from mass, vector part and matrix part of the pseudo inertia.")
+    .def(nb::init<const PseudoInertia &>(), "other"_a, "Copy constructor.")
+    .def_prop_rw(
+      "mass", [](const Self & self) { return self.mass; },
+      [](Self & self, Scalar mass) { self.mass = mass; }, "Mass of the PseudoInertia.")
+    .def_prop_rw(
+      "h", [](Self & self) { return make_ref(self.h); },
+      [](Self & self, const Vector3 & h) { self.h = h; }, "Vector part of the PseudoInertia.")
+    .def_prop_rw(
+      "sigma", [](Self & self) { return make_ref(self.sigma); },
+      [](Self & self, const Matrix3 & sigma) { self.sigma = sigma; },
+      "3x3 matrix part of the PseudoInertia.")
+    .def("toMatrix", &PseudoInertia::toMatrix, "Returns the pseudo inertia as a 4x4 matrix.")
+    .def(
+      "toDynamicParameters", &PseudoInertia::toDynamicParameters,
+      "Returns the dynamic parameters representation.")
+    .def("toInertia", &PseudoInertia::toInertia, "Returns the Inertia representation.")
+    .def_static(
+      "FromDynamicParameters",
+      [](const VectorXs & params) {
+        if (params.rows() != 10 || params.cols() != 1)
+          throw std::invalid_argument(
+            "Wrong size: expected shape (10, 1), got (" + std::to_string(params.rows()) + ", "
+            + std::to_string(params.cols()) + ")");
+        return PseudoInertia::FromDynamicParameters(params);
+      },
+      "dynamic_parameters"_a,
+      "Builds a PseudoInertia from a vector of dynamic parameters.\n"
+      "The parameters are given as dynamic_parameters = [m, h_x, h_y, h_z, I_{xx}, "
+      "I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T.")
+    .def_static(
+      "FromMatrix", &PseudoInertia::FromMatrix, "pseudo_inertia_matrix"_a,
+      "Returns the PseudoInertia from a 4x4 pseudo inertia matrix.")
+    .def_static(
+      "FromInertia", &PseudoInertia::FromInertia, "inertia"_a,
+      "Returns the PseudoInertia from an Inertia object.")
+    .def("__array__", [](const Self & self) { return Matrix4(self.toMatrix()); })
+    .def(CopyableVisitor<PseudoInertia>())
+    .def(PrintableVisitor<PseudoInertia>());
+}
+
+template<class LogCholeskyParameters>
+void exposeLogCholeskyParameters(nb::module_ m)
+{
+  using namespace nb::literals;
+  using Self = LogCholeskyParameters;
+  using Scalar = typename Self::Scalar;
+  using Vector10 = typename Self::Vector10;
+  using VectorXs = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
+
+  nb::class_<LogCholeskyParameters>(
+    m, "LogCholeskyParameters",
+    "Log Cholesky parameterization of a rigid-body inertia.\n\n"
+    "Reference: Rucker, Caleb, and Patrick M. Wensing. \"Smooth parameterization of rigid-body "
+    "inertia.\" IEEE Robotics and Automation Letters 7.2 (2022): 2771-2778.")
+    .def(
+      "__init__",
+      [](LogCholeskyParameters * self, const VectorXs & params) {
+        if (params.rows() != 10 || params.cols() != 1)
+          throw std::invalid_argument(
+            "Wrong size: expected shape (10, 1), got (" + std::to_string(params.rows()) + ", "
+            + std::to_string(params.cols()) + ")");
+        new (self) LogCholeskyParameters(params);
+      },
+      "log_cholesky_parameters"_a,
+      "Initialize from a 10-dimensional vector of log Cholesky parameters.")
+    .def(nb::init<const LogCholeskyParameters &>(), "other"_a, "Copy constructor.")
+    .def_prop_rw(
+      "parameters", [](Self & self) { return make_ref(self.parameters); },
+      [](Self & self, const Vector10 & params) { self.parameters = params; },
+      "Log Cholesky parameters as a 10-dimensional vector.")
+    .def(
+      "toDynamicParameters", &LogCholeskyParameters::toDynamicParameters,
+      "Returns the dynamic parameters representation.")
+    .def(
+      "toPseudoInertia", &LogCholeskyParameters::toPseudoInertia,
+      "Returns the PseudoInertia representation.")
+    .def("toInertia", &LogCholeskyParameters::toInertia, "Returns the Inertia representation.")
+    .def(
+      "calculateJacobian", &LogCholeskyParameters::calculateJacobian,
+      "Calculates the Jacobian of the log Cholesky parameters.")
+    .def("__array__", [](const Self & self) { return Vector10(self.parameters); })
+    .def(CopyableVisitor<LogCholeskyParameters>())
+    .def(PrintableVisitor<LogCholeskyParameters>());
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
