@@ -2,6 +2,7 @@
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 #include "pinocchio/bindings/python-nb/utils/comparable.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 #include "pinocchio/bindings/python-nb/math/tridiagonal-matrix.hpp"
 
 #include "pinocchio/math.hpp"
@@ -79,7 +80,8 @@ static void exposeLanczosDecomposition(nb::module_ m)
       "decompositionSize", &LanczosDecomposition::decompositionSize,
       "Returns the size of the decomposition.")
     // comparison
-    .def(ComparableVisitor<LanczosDecomposition>());
+    .def(ComparableVisitor<LanczosDecomposition>())
+    .def(CopyableVisitor<LanczosDecomposition>());
 }
 
 static void exposeGramSchmidtOrthonormalisation(nb::module_ m)

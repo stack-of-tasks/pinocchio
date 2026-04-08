@@ -4,6 +4,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/geometry.hpp"
@@ -25,6 +26,7 @@ inline void exposeGeometryData(nb::module_ m)
     .def_rw("first", &CollisionPair::first)
     .def_rw("second", &CollisionPair::second)
     .def(ComparableVisitor<CollisionPair>())
+    .def(CopyableVisitor<CollisionPair>())
     .def(PrintableVisitor<CollisionPair>());
 
   nb::bind_vector<std::vector<CollisionPair>, nb::rv_policy::reference_internal>(
@@ -106,6 +108,7 @@ inline void exposeGeometryData(nb::module_ m)
       "values stored in the associative map.")
 #endif // PINOCCHIO_WITH_COLLISION
     .def(ComparableVisitor<GeometryData>())
+    .def(CopyableVisitor<GeometryData>())
     // Repr and str
     .def(PrintableVisitor<GeometryData>());
 }

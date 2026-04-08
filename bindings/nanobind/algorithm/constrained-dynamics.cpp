@@ -6,6 +6,7 @@
 // - bindings/python/algorithm/expose-constrained-dynamics.cpp
 
 #include "pinocchio/bindings/python-nb/utils/comparable.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 #include "pinocchio/bindings/python-nb/algorithm/delassus-operator.hpp"
 #include "pinocchio/bindings/python-nb/utils/deprecation.hpp"
 
@@ -243,7 +244,8 @@ static void exposeConstraintCholesky(nb::module_ m)
       },
       nb::rv_policy::reference_internal,
       "Deprecated. Use getDelassusOperatorCholeskyExpression instead.")
-    .def(ComparableVisitor<Self>());
+    .def(ComparableVisitor<Self>())
+    .def(CopyableVisitor<Self>());
 
   // Alias
   m.attr("ContactCholeskyDecomposition") = m.attr("ConstraintCholeskyDecomposition");

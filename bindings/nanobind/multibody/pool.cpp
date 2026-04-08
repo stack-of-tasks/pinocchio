@@ -1,6 +1,7 @@
 // Copyright (c) 2026 INRIA
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 
 #include "pinocchio/multibody/pool.hpp"
 
@@ -46,7 +47,8 @@ void exposePool(nb::module_ m)
 
     .def(
       "update", (void (ModelPool::*)(const Data &))&ModelPool::update, "data"_a,
-      "Update all the datas with the input data value.");
+      "Update all the datas with the input data value.")
+    .def(CopyableVisitor<ModelPool>());
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END
