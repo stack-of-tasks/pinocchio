@@ -7,12 +7,18 @@ PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 void exposeConsoleBridge(nb::module_ m);
 void exposeURDFModel(nb::module_ m);
 void exposeURDFGeometry(nb::module_ m);
+void exposeSRDF(nb::module_ m);
 
 void exposeParsers(nb::module_ m)
 {
-  exposeConsoleBridge(m);
-  exposeURDFModel(m);
-  exposeURDFGeometry(m);
+  // URDF
+  {
+    exposeConsoleBridge(m);
+    exposeURDFModel(m);
+    exposeURDFGeometry(m);
+  }
+
+  exposeSRDF(m);
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END
