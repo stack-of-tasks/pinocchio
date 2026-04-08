@@ -190,6 +190,7 @@ void exposeData(nb::module_ m)
     // --- contact dynamics
     .NB_DATA_RW(lambda_c, "Lagrange Multipliers linked to contact forces.")
     .NB_DATA_RW(impulse_c, "Lagrange Multipliers linked to contact impulses.")
+    .NB_DATA_RW(constraint_chol, "Contact Cholesky decomposition.")
     .def_prop_rw(
       "contact_chol",
       [](const Data & self) {
