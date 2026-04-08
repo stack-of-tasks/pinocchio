@@ -4,7 +4,6 @@
 
 #include "pinocchio/algorithm/model.hpp"
 
-#include <nanobind/stl/vector.h>
 #include <nanobind/stl/string.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
