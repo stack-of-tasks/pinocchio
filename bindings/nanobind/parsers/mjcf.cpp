@@ -1,6 +1,7 @@
 // Copyright (c) 2026 INRIA
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/utils/deprecation.hpp"
 
 #include "pinocchio/parsers/mjcf.hpp"
 
@@ -40,6 +41,25 @@ void exposeMJCF(nb::module_ m)
     },
     "mjcf_filename"_a, "root_joint"_a, "root_joint_name"_a = nb::str("root_joint"),
     "Parse the MJCF file and return a pinocchio Model with the given root joint.");
+
+  // buildModelFromMJCFAndRootJointDeprecated
+  m.def(
+    "buildModelFromMJCF",
+    [](
+      const std::filesystem::path & filename, const JointModel & root_joint,
+      const std::string & root_joint_name) -> nb::tuple {
+      static constexpr char msg[] =
+        "Deprecated function. Use buildModelAndLegacyConstraintsFromMJCF instead.";
+      deprecated_guard<msg> guard;
+      Model model;
+      std::vector<RigidConstraintModel> contact_models;
+      pinocchio::mjcf::buildModel(
+        filename.string(), root_joint, root_joint_name, model, contact_models);
+      return nb::make_tuple(model, contact_models);
+    },
+    "mjcf_filename"_a, "root_joint"_a, "root_joint_name"_a = nb::str("root_joint"),
+    "Parse the MJCF file and return a pinocchio Model with the given root Joint and its specified "
+    "name as well as a constraint list if some are present in the MJCF file.");
 
   // buildModelFromMJCFAndRootJoint - explicit name (alias for backwards comp)
   m.def(
