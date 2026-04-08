@@ -79,13 +79,26 @@ function(pinocchio_add_python_cpp_module name)
         ${target_name}
         PRIVATE EXT_MODULE_NAME=${module_name}
     )
+    message(
+        " > Adding unittest extension module ${target_name} (framework=${BINDINGS_FRAMEWORK})"
+    )
+    if(BINDINGS_FRAMEWORK STREQUAL Boost)
+        target_link_libraries(${target_name} PRIVATE eigenpy::eigenpy)
+        target_compile_definitions(${target_name} PRIVATE BINDINGS_USE_BOOST)
+    else()
+        target_link_libraries(${target_name} PRIVATE nanobind-static)
+        nanobind_opt_size(${target_name})
+        nanobind_set_visibility(${target_name})
+        nanobind_strip(${target_name})
+        nanobind_disable_stack_protector(${target_name})
+        nanobind_extension(${target_name})
+        nanobind_compile_options(${target_name})
+        nanobind_link_options(${target_name})
+    endif()
     target_link_libraries(
         ${target_name}
-        PRIVATE pinocchio::pinocchio_default eigenpy::eigenpy
+        PRIVATE pinocchio::pinocchio_default ${ARGS_PIN_TARGETS}
     )
-    foreach(_dep ${ARGS_PIN_TARGETS})
-        target_link_libraries(${target_name} PRIVATE ${_dep})
-    endforeach()
     set_target_properties(
         ${target_name}
         PROPERTIES
