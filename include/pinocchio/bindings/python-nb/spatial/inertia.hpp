@@ -194,7 +194,9 @@ void exposeInertia(nb::module_ m)
       "FromLogCholeskyParameters", &Inertia::FromLogCholeskyParameters, "log_cholesky_parameters"_a,
       "Returns the Inertia created from log Cholesky parameters.")
     // Array interface
-    .def("__array__", [](const Self & self) { return Matrix6(self.matrix()); })
+    .def(
+      "__array__", [](const Self & self, nb::object, nb::bool_) { return Matrix6(self.matrix()); },
+      "dtype"_a = nb::none(), nb::kw_only(), "copy"_a = nb::none())
     // String representation
     .def(PrintableVisitor<Inertia>());
 
@@ -253,7 +255,9 @@ void exposePseudoInertia(nb::module_ m)
     .def_static(
       "FromInertia", &PseudoInertia::FromInertia, "inertia"_a,
       "Returns the PseudoInertia from an Inertia object.")
-    .def("__array__", [](const Self & self) { return Matrix4(self.toMatrix()); })
+    .def(
+      "__array__", [](const Self & self, nb::object, nb::bool_) { return self.toMatrix(); },
+      "dtype"_a = nb::none(), nb::kw_only(), "copy"_a = nb::none())
     .def(CopyableVisitor<PseudoInertia>())
     .def(PrintableVisitor<PseudoInertia>());
 }
@@ -298,7 +302,15 @@ void exposeLogCholeskyParameters(nb::module_ m)
     .def(
       "calculateJacobian", &LogCholeskyParameters::calculateJacobian,
       "Calculates the Jacobian of the log Cholesky parameters.")
-    .def("__array__", [](const Self & self) { return Vector10(self.parameters); })
+    .def(
+      "__array__",
+      [](const Self & self, nb::object, nb::bool_ copy) {
+        if (copy)
+          return nb::cast(self.parameters);
+        else
+          return nb::cast(make_ref(self.parameters));
+      },
+      "dtype"_a = nb::none(), nb::kw_only(), "copy"_a = nb::none())
     .def(CopyableVisitor<LogCholeskyParameters>())
     .def(PrintableVisitor<LogCholeskyParameters>());
 }

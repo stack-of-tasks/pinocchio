@@ -164,7 +164,9 @@ void exposeSE3(nb::module_ m)
       "\tB: Target transformation\n"
       "\talpha: Interpolation factor")
     // Array interface
-    .def("__array__", [](const Self & self) { return self.toHomogeneousMatrix(); })
+    .def(
+      "__array__", [](const Self & self, nb::bool_) { return self.toHomogeneousMatrix(); },
+      nb::kw_only(), "copy"_a = nb::none())
     // Pickle
     .def(
       "__getstate__",
