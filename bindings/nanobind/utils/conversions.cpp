@@ -5,7 +5,6 @@
 #include "pinocchio/bindings/python-nb/spatial/se3.hpp"
 
 #include <nanobind/eigen/dense.h>
-#include <nanobind/stl/array.h>
 #include <nanobind/stl/tuple.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
@@ -46,8 +45,14 @@ static SE3 XYZQUATToSE3fromTuple(const Tuple7s & v)
   return SE3(q.matrix(), t);
 }
 
-static SE3 XYZQUATToSE3fromArray(const std::array<Scalar, 7> & v)
+static SE3 XYZQUATToSE3fromArray(const std::vector<Scalar> & v)
 {
+  if (v.size() != 7)
+  {
+    std::ostringstream msg;
+    msg << "Wrong size: v has size " << v.size() << ", expected 7.";
+    throw std::invalid_argument(msg.str());
+  }
   QuatConstMap q(v.data() + 3);
   return SE3(q.matrix(), Eigen::Map<const SE3::Vector3>(v.data()));
 }
