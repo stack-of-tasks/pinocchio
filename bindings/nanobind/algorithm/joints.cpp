@@ -66,6 +66,28 @@ void exposeJointsAlgo(nb::module_ m)
   m.def(
     "dIntegrateTransport",
     [](
+      const Model & model, ConstVectorRef q, ConstVectorRef v, ConstVectorRef vin,
+      ArgumentPosition arg) -> VectorXs {
+      VectorXs vout(VectorXs::Zero(vin.size()));
+      dIntegrateTransport(model, q, v, vin, vout, arg);
+      return vout;
+    },
+    "model"_a, "q"_a, "v"_a, "vin"_a, "argument_position"_a,
+    "Takes a vector expressed at q (+) v and uses parallel transport to express it in the "
+    "tangent space at q. "
+    "This operation does the product of the vector by the Jacobian of the integration "
+    "operation, but more efficiently.\n"
+    "Parameters:\n"
+    "\t model: model of the kinematic tree\n"
+    "\t q: the joint configuration vector (size model.nq)\n"
+    "\t v: the joint velocity vector (size model.nv)\n"
+    "\t vin: the input vector (size model.nv)\n"
+    "\t argument_position: either pinocchio.ArgumentPosition.ARG0 (q) or "
+    "pinocchio.ArgumentPosition.ARG1 (v), depending on the desired Jacobian value.");
+
+  m.def(
+    "dIntegrateTransport",
+    [](
       const Model & model, ConstVectorRef q, ConstVectorRef v, ConstMatrixRef Jin,
       ArgumentPosition arg) -> MatrixXs {
       MatrixXs Jout(MatrixXs::Zero(model.nv, Jin.cols()));
