@@ -228,6 +228,8 @@ void exposeModel(nb::module_ m)
     .def(CopyableVisitor<Model>())
     .def(PrintableVisitor<Model>());
 
+  nb::bind_vector<std::vector<Scalar>>(m, "StdVec_Scalar");
+  nb::bind_vector<std::vector<bool>>(m, "StdVec_Bool");
   nb::bind_vector<std::vector<Index>>(m, "StdVec_Index");
   nb::bind_vector<std::vector<IndexVector>, nb::rv_policy::reference_internal>(m, "IndexVecVec");
   nb::bind_vector<std::vector<std::string>>(m, "StdVec_String");
