@@ -13,14 +13,11 @@ using namespace nb::literals;
 using Vector3 = Eigen::Matrix<Scalar, 3, 1, Options>;
 using Matrix3 = Eigen::Matrix<Scalar, 3, 3, Options>;
 
-static Matrix3 rotate(const std::string & axis, const Scalar ang)
+static Matrix3 rotate(const char axis, const Scalar ang)
 {
-  if (axis.length() != 1U)
-    throw std::invalid_argument(std::string("Invalid axis: ").append(axis));
   Vector3 u;
   u.setZero();
-  const char axis_ = axis[0];
-  switch (axis_)
+  switch (axis)
   {
   case 'x':
     u[0] = Scalar(1);
@@ -32,7 +29,7 @@ static Matrix3 rotate(const std::string & axis, const Scalar ang)
     u[2] = Scalar(1);
     break;
   default:
-    throw std::invalid_argument(std::string("Invalid axis: ").append(1U, axis_));
+    throw std::invalid_argument(std::string("Invalid axis: ") + axis);
   }
   return Eigen::AngleAxis<Scalar>(ang, u).matrix();
 }
