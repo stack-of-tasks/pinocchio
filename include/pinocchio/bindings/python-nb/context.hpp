@@ -39,6 +39,8 @@ using SE3 = SE3Tpl<Scalar, Options>;
 using Motion = MotionTpl<Scalar, Options>;
 using Force = ForceTpl<Scalar, Options>;
 using Inertia = InertiaTpl<Scalar, Options>;
+using PseudoInertia = PseudoInertiaTpl<Scalar, Options>;
+using LogCholeskyParameters = LogCholeskyParametersTpl<Scalar, Options>;
 
 // Multibody
 using Model = ModelTpl<Scalar, Options>;
