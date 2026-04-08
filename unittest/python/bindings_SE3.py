@@ -6,10 +6,6 @@ import pinocchio as pin
 from pinocchio.utils import eye, rand, zero
 
 
-def ones(n):
-    return np.ones([n, 1] if isinstance(n, int) else n)
-
-
 class TestSE3Bindings(unittest.TestCase):
     def test_identity(self):
         transform = pin.SE3.Identity()
@@ -37,9 +33,9 @@ class TestSE3Bindings(unittest.TestCase):
 
     def test_set_translation(self):
         transform = pin.SE3.Identity()
-        transform.translation = ones(3)
+        transform.translation = np.ones(3)
         self.assertFalse(np.allclose(transform.translation, zero(3)))
-        self.assertTrue(np.allclose(transform.translation, ones(3)))
+        self.assertTrue(np.allclose(transform.translation, np.ones(3)))
 
     def test_set_rotation(self):
         transform = pin.SE3.Identity()
