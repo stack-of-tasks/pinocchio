@@ -68,10 +68,12 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
     "Checks if the current version of Pinocchio is at least"
     " the version provided by the input arguments.");
 
-  m.import_("nanoeigenpy");
 #if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_COLLISION_PYTHON_BINDINGS)
   m.import_("coal");
 #endif
+  auto m_nanoeigenpy = m.import_("nanoeigenpy");
+  m.attr("Quaternion") = m_nanoeigenpy.attr("Quaternion");
+  m.attr("AngleAxis") = m_nanoeigenpy.attr("AngleAxis");
 
   // enums
   nb::enum_<pinocchio::ReferenceFrame>(m, "ReferenceFrame")
