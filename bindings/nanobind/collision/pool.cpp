@@ -1,6 +1,7 @@
 // Copyright (c) 2026 INRIA
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 
 #include "pinocchio/multibody/pool.hpp"
 
@@ -53,7 +54,8 @@ static void exposeOneBroadPhasePool(nb::module_ m, const char * base_name, const
     .def(
       "update", (void (Pool::*)(const GeometryData &))&Pool::update, "geometry_data"_a,
       "Update all the geometry datas with the input geometry data value.")
-    .def("check", &Pool::check, "Check whether the current pool is valid.");
+    .def("check", &Pool::check, "Check whether the current pool is valid.")
+    .def(CopyableVisitor<Pool>());
 }
 
 void exposePoolCollision(nb::module_ m)
@@ -91,7 +93,8 @@ void exposePoolCollision(nb::module_ m)
       "geometry indexes.")
     .def(
       "update", (void (GeometryPool::*)(const GeometryData &))&GeometryPool::update,
-      "geometry_data"_a, "Update all the geometry datas with the input geometry data value.");
+      "geometry_data"_a, "Update all the geometry datas with the input geometry data value.")
+    .def(CopyableVisitor<GeometryPool>());
 
   exposeOneBroadPhasePool<BroadPhaseManagerPool, coal::DynamicAABBTreeCollisionManager>(
     m, "BroadPhaseManagerPool",

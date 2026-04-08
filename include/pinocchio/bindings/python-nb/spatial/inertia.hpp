@@ -4,6 +4,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/spatial.hpp"
@@ -28,7 +29,7 @@ void exposeInertia(nb::module_ m)
 
   static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
 
-  /// TODO: Add missing LogCholeskyParameters
+  /// TODO: Add missing LogCholeskyParameters, PseudoInertia
 
   nb::class_<Inertia>(
     m, "Inertia",
@@ -139,6 +140,7 @@ void exposeInertia(nb::module_ m)
       "Returns true if this Inertia object is approximately equal to the zero Inertia, within "
       "the precision given by prec.")
     .def(ComparableVisitor<Inertia>())
+    .def(CopyableVisitor<Inertia>())
     // Static factory methods
     .def_static("Identity", &Inertia::Identity, "Returns the identity Inertia.")
     .def_static("Zero", &Inertia::Zero, "Returns the zero Inertia.")

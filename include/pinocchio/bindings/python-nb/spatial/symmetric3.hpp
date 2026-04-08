@@ -4,6 +4,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 #include "../utils/printable.hpp"
 
 #include "pinocchio/spatial.hpp"
@@ -143,6 +144,7 @@ void exposeSymmetric3(nb::module_ m)
       "Returns true if this Symmetric3 is approximately equal to the zero matrix, within the "
       "precision given by prec.")
     .def(ComparableVisitor<Symmetric3>())
+    .def(CopyableVisitor<Symmetric3>())
     // Array interface
     .def("__array__", [](const Self & self) { return Matrix3(self.matrix()); })
     // String representation
