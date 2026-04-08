@@ -1,4 +1,6 @@
 // Copyright (c) 2026 INRIA
+//
+// This file is a port of: bindings/python/algorithm/expose-joints.cpp
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 
@@ -25,7 +27,7 @@ void exposeJointsAlgo(nb::module_ m)
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
     "\t q: the joint configuration vector (size model.nq)\n"
-    "\t v: the joint velocity vector (size model.nv)\n");
+    "\t v: the joint velocity vector (size model.nv)");
 
   m.def(
     "dIntegrate",
@@ -42,7 +44,7 @@ void exposeJointsAlgo(nb::module_ m)
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
     "\t q: the joint configuration vector (size model.nq)\n"
-    "\t v: the joint velocity vector (size model.nv)\n");
+    "\t v: the joint velocity vector (size model.nv)");
 
   m.def(
     "dIntegrate",
@@ -59,7 +61,7 @@ void exposeJointsAlgo(nb::module_ m)
     "\t q: the joint configuration vector (size model.nq)\n"
     "\t v: the joint velocity vector (size model.nv)\n"
     "\t argument_position: either pinocchio.ArgumentPosition.ARG0 or "
-    "pinocchio.ArgumentPosition.ARG1, depending on the desired Jacobian value.\n");
+    "pinocchio.ArgumentPosition.ARG1, depending on the desired Jacobian value.");
 
   m.def(
     "dIntegrateTransport",
@@ -81,7 +83,7 @@ void exposeJointsAlgo(nb::module_ m)
     "\t v: the joint velocity vector (size model.nv)\n"
     "\t Jin: the input matrix (row size model.nv)\n"
     "\t argument_position: either pinocchio.ArgumentPosition.ARG0 (q) or "
-    "pinocchio.ArgumentPosition.ARG1 (v), depending on the desired Jacobian value.\n");
+    "pinocchio.ArgumentPosition.ARG1 (v), depending on the desired Jacobian value.");
 
   m.def(
     "interpolate",
@@ -94,7 +96,7 @@ void exposeJointsAlgo(nb::module_ m)
     "\t model: model of the kinematic tree\n"
     "\t q1: the initial joint configuration vector (size model.nq)\n"
     "\t q2: the terminal joint configuration vector (size model.nq)\n"
-    "\t alpha: the interpolation coefficient in [0,1]\n");
+    "\t alpha: the interpolation coefficient in [0,1]");
 
   m.def(
     "difference",
@@ -107,7 +109,7 @@ void exposeJointsAlgo(nb::module_ m)
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
     "\t q1: the initial joint configuration vector (size model.nq)\n"
-    "\t q2: the terminal joint configuration vector (size model.nq)\n");
+    "\t q2: the terminal joint configuration vector (size model.nq)");
 
   m.def(
     "squaredDistance",
@@ -119,7 +121,7 @@ void exposeJointsAlgo(nb::module_ m)
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
     "\t q1: the initial joint configuration vector (size model.nq)\n"
-    "\t q2: the terminal joint configuration vector (size model.nq)\n");
+    "\t q2: the terminal joint configuration vector (size model.nq)");
 
   m.def(
     "distance",
@@ -131,7 +133,7 @@ void exposeJointsAlgo(nb::module_ m)
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
     "\t q1: the initial joint configuration vector (size model.nq)\n"
-    "\t q2: the terminal joint configuration vector (size model.nq)\n");
+    "\t q2: the terminal joint configuration vector (size model.nq)");
 
   m.def(
     "dDifference",
@@ -148,7 +150,7 @@ void exposeJointsAlgo(nb::module_ m)
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
     "\t q1: the initial joint configuration vector (size model.nq)\n"
-    "\t q2: the terminal joint configuration vector (size model.nq)\n");
+    "\t q2: the terminal joint configuration vector (size model.nq)");
 
   m.def(
     "dDifference",
@@ -166,7 +168,7 @@ void exposeJointsAlgo(nb::module_ m)
     "\t q1: the initial joint configuration vector (size model.nq)\n"
     "\t q2: the terminal joint configuration vector (size model.nq)\n"
     "\t argument_position: either pinocchio.ArgumentPosition.ARG0 or "
-    "pinocchio.ArgumentPosition.ARG1, depending on the desired Jacobian value.\n");
+    "pinocchio.ArgumentPosition.ARG1, depending on the desired Jacobian value.");
 
   m.def(
     "tangentMap",
@@ -180,7 +182,7 @@ void exposeJointsAlgo(nb::module_ m)
     "Lie algebra as a small variation in the parametric space.\n\n"
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
-    "\t q: the joint configuration vector (size model.nq)\n");
+    "\t q: the joint configuration vector (size model.nq)");
 
   m.def(
     "compactTangentMap",
@@ -198,7 +200,7 @@ void exposeJointsAlgo(nb::module_ m)
     "manner that can be exploited using getTangentToConfigurationSparsitySegment.\n\n"
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
-    "\t q: the joint configuration vector (size model.nq)\n");
+    "\t q: the joint configuration vector (size model.nq)");
 
   m.def(
     "tangentMapProduct",
@@ -212,7 +214,7 @@ void exposeJointsAlgo(nb::module_ m)
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
     "\t q: the joint configuration vector (size model.nq)\n"
-    "\t mat_in: a matrix (size model.nv, ncols)\n");
+    "\t mat_in: a matrix (size model.nv, ncols)");
 
   m.def(
     "tangentMapTransposeProduct",
@@ -226,7 +228,7 @@ void exposeJointsAlgo(nb::module_ m)
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
     "\t q: the joint configuration vector (size model.nq)\n"
-    "\t mat_in: a matrix (size model.nq, ncols)\n");
+    "\t mat_in: a matrix (size model.nq, ncols)");
 
   m.def(
     "randomConfiguration",
@@ -234,7 +236,7 @@ void exposeJointsAlgo(nb::module_ m)
     "Generate a random configuration in the bounds given by the lower and upper limits "
     "contained in the model.\n\n"
     "Parameters:\n"
-    "\t model: model of the kinematic tree\n");
+    "\t model: model of the kinematic tree");
 
   m.def(
     "randomConfiguration",
@@ -247,13 +249,13 @@ void exposeJointsAlgo(nb::module_ m)
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
     "\t lower_bound: the lower bound on the joint configuration vectors (size model.nq)\n"
-    "\t upper_bound: the upper bound on the joint configuration vectors (size model.nq)\n");
+    "\t upper_bound: the upper bound on the joint configuration vectors (size model.nq)");
 
   m.def(
     "neutral", [](const Model & model) -> VectorXs { return neutral(model); }, "model"_a,
     "Returns the neutral configuration vector associated to the model.\n\n"
     "Parameters:\n"
-    "\t model: model of the kinematic tree\n");
+    "\t model: model of the kinematic tree");
 
   m.def(
     "normalize",
@@ -268,7 +270,14 @@ void exposeJointsAlgo(nb::module_ m)
     "required to renormalize these components to keep orthonormal rotation values.\n\n"
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
-    "\t q: a joint configuration vector to normalize (size model.nq)\n");
+    "\t q: a joint configuration vector to normalize (size model.nq)");
+
+  m.def(
+    "lieGroup", [](const Model & model) -> auto { return lieGroup(model); }, "model"_a,
+    "Returns the Lie group associated to the model. It is the cartesian product of the lie "
+    "groups of all its joints.\n\n"
+    "Parameters:\n"
+    "\tmodel: model of the kinematic tree");
 
   m.def(
     "getTangentToConfigurationSparsitySegment",
@@ -285,7 +294,7 @@ void exposeJointsAlgo(nb::module_ m)
     "Returns two vectors that give for each q_i the associated idx_v and nv of the joint for "
     "which q_i is a configuration component.\n\n"
     "Parameters:\n"
-    "\t model: model of the kinematic tree\n");
+    "\t model: model of the kinematic tree");
 
   static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
 
@@ -300,7 +309,7 @@ void exposeJointsAlgo(nb::module_ m)
     "\t model: model of the kinematic tree\n"
     "\t q1: a joint configuration vector (size model.nq)\n"
     "\t q2: a joint configuration vector (size model.nq)\n"
-    "\t prec: requested accuracy for the comparison\n");
+    "\t prec: requested accuracy for the comparison");
 
   m.def(
     "isNormalized",
@@ -312,6 +321,6 @@ void exposeJointsAlgo(nb::module_ m)
     "Parameters:\n"
     "\t model: model of the kinematic tree\n"
     "\t q: a joint configuration vector (size model.nq)\n"
-    "\t prec: requested accuracy for the check\n");
+    "\t prec: requested accuracy for the check");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END;
