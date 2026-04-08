@@ -212,6 +212,9 @@ struct LieGroupWrapperTpl
   }
 };
 
+// Template function to expose specific Lie groups.
+// In main bindings, used only to expose the generic AKA Cartesian product Lie group.
+// Can be reused for finer-grained bindings.
 template<class LieGroupType>
 void exposeLieGroup(nb::module_ m, const char * name)
 {

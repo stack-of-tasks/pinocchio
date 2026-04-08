@@ -40,13 +40,14 @@ void exposeMultibody(nb::module_ m)
   exposeFrame<pinocchio::Frame>(m);
   exposeSampleModels(m);
 
+  // Lie groups
+  // before joints to ensure JointModel.lieGroup() works
+  exposeLieGroups(m);
+
   // Joints
   exposeJointModel<pinocchio::JointModel>(m);
   exposeJointData<pinocchio::JointData>(m);
   exposeJointCollection<pinocchio::JointCollectionDefault>(m);
-
-  // Lie groups
-  exposeLieGroups(m);
 
   // Pool
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
