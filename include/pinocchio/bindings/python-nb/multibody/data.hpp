@@ -6,7 +6,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
-#include "../utils/printable.hpp"
+#include "../utils/deprecation.hpp"
 
 #include <nanobind/eigen/dense.h>
 #include <nanobind/stl/bind_vector.h>
@@ -15,6 +15,7 @@
 #define NB_DATA_RO(NAME, DOC) def_ro(#NAME, &Data::NAME, DOC)
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
+constexpr char kContactCholDeprecateMsg[] = "Deprecated member. Use constraint_chol instead.";
 template<class Data>
 void exposeData(nb::module_ m)
 {
@@ -188,7 +189,16 @@ void exposeData(nb::module_ m)
     // --- contact dynamics
     .NB_DATA_RW(lambda_c, "Lagrange Multipliers linked to contact forces.")
     .NB_DATA_RW(impulse_c, "Lagrange Multipliers linked to contact impulses.")
-    .NB_DATA_RW(contact_chol, "Contact Cholesky decomposition.")
+    .def_prop_rw(
+      "contact_chol",
+      [](const Data & self) {
+        deprecated_guard<kContactCholDeprecateMsg> guard;
+        return self.contact_chol;
+      },
+      [](Data & self, const typename Data::ConstraintCholeskyDecomposition & constraint_chol) {
+        deprecated_guard<kContactCholDeprecateMsg> guard;
+        self.contact_chol = constraint_chol;
+      })
     .NB_DATA_RW(
       primal_dual_contact_solution,
       "Right hand side vector when solving the contact dynamics KKT problem.")
