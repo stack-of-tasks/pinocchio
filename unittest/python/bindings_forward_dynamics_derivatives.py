@@ -10,7 +10,7 @@ class TestDeriavtives(TestCase):
         self.model = pin.buildSampleModelHumanoidRandom()
         self.data = self.model.createData()
 
-        qmax = np.full((self.model.nq, 1), np.pi)
+        qmax = np.full(self.model.nq, np.pi)
         self.q = pin.randomConfiguration(self.model, -qmax, qmax)
         self.v = np.random.rand(self.model.nv)
         self.tau = np.random.rand(self.model.nv)
