@@ -137,8 +137,6 @@ void exposeMotion(nb::module_ m)
     // Static factory methods
     .def_static("Zero", &Motion::Zero, "Returns a zero Motion.")
     .def_static("Random", &Motion::Random, "Returns a random Motion.")
-    // Array interface
-    .def("__array__", [](const Self & self) { return Vector6(self.toVector()); })
     // Pickle
     .def(
       "__getstate__",
@@ -151,7 +149,7 @@ void exposeMotion(nb::module_ m)
         new (&self) Motion(std::get<0>(t), std::get<1>(t));
       })
     // Visitors
-    .def(ToNumpyArrayVisitor<Force>())
+    .def(ToNumpyArrayVisitor<Motion>())
     .def(PrintableVisitor<Motion>());
 
   nb::bind_vector<std::vector<Motion>, nb::rv_policy::reference_internal>(m, "StdVec_Motion");
