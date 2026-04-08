@@ -6,6 +6,7 @@
 #include "pinocchio/multibody/liegroup.hpp"
 
 #include <nanobind/stl/string.h>
+#include <nanobind/eigen/dense.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 
@@ -188,6 +189,19 @@ struct LieGroupWrapperTpl
     return Jout;
   }
 
+  // second proxy for numpy 1D arrays because nanobind is less permissive than eigenpy
+  static TangentVectorType dIntegrateTransport_proxy_vec(
+    const LieGroupType & lg,
+    const ConfigVectorType & q,
+    const TangentVectorType & v,
+    Eigen::Ref<const TangentVectorType> vin,
+    const ArgumentPosition arg)
+  {
+    TangentVectorType vout(vin.size());
+    lg.dIntegrateTransport(q, v, vin, vout, arg);
+    return vout;
+  }
+
   static JacobianMatrixType tangentMap(const LieGroupType & lg, const ConfigVectorType & q)
   {
     JacobianMatrixType TM(lg.nq(), lg.nv());
@@ -248,6 +262,9 @@ void exposeLieGroup(nb::module_ m, const char * name)
     .def(
       "dIntegrateTransport", &LGW::dIntegrateTransport_proxy, "q"_a, "v"_a, "J"_a, "arg"_a,
       "Transport a matrix J through the integrate operation.")
+    .def(
+      "dIntegrateTransport", &LGW::dIntegrateTransport_proxy_vec, "q"_a, "v"_a, "vin"_a, "arg"_a,
+      "Transport a vector v through the integrate operation.")
     .def(
       "difference", &LGW::difference, "q0"_a, "q1"_a, "Compute the difference between q0 and q1.")
     .def(

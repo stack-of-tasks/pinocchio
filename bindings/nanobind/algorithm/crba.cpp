@@ -4,6 +4,8 @@
 
 #include "pinocchio/algorithm/crba.hpp"
 
+#include <nanobind/eigen/dense.h>
+
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 
 void exposeCRBA(nb::module_ m)

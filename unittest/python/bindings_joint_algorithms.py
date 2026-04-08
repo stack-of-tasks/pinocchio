@@ -92,6 +92,18 @@ class TestJointsAlgo(TestCase):
         self.assertApprox(mat_transported_q, np.dot(Jq, mat))
         self.assertApprox(mat_transported_v, np.dot(Jv, mat))
 
+        vec = np.random.randn(model.nv)
+
+        vec_transported_q = pin.dIntegrateTransport(
+            model, self.q, self.v, vec, pin.ARG0
+        )
+        vec_transported_v = pin.dIntegrateTransport(
+            model, self.q, self.v, vec, pin.ARG1
+        )
+
+        self.assertApprox(vec_transported_q, np.dot(Jq, vec))
+        self.assertApprox(vec_transported_v, np.dot(Jv, vec))
+
 
 if __name__ == "__main__":
     unittest.main()
