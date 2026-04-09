@@ -25,7 +25,7 @@ void exposeParallelAlgorithms(nb::module_ m)
     [](
       const size_t num_threads, ModelPool & pool, const MatrixXs & q, const MatrixXs & v,
       const MatrixXs & tau,
-      Eigen::Ref<MatrixXs> a_out) { abaInParallel(num_threads, pool, q, v, tau, a_out); },
+      nb::DRef<MatrixXs> a_out) { abaInParallel(num_threads, pool, q, v, tau, a_out); },
     "num_threads"_a, "pool"_a, "qs"_a, "vs"_a, "taus"_a,
     "as_out"_a
     "Computes in parallel the ABA and returns the result.\n\n"
@@ -63,7 +63,7 @@ void exposeParallelAlgorithms(nb::module_ m)
     [](
       const size_t num_threads, ModelPool & pool, const MatrixXs & q, const MatrixXs & v,
       const MatrixXs & a,
-      Eigen::Ref<MatrixXs> tau_out) { rneaInParallel(num_threads, pool, q, v, a, tau_out); },
+      nb::DRef<MatrixXs> tau_out) { rneaInParallel(num_threads, pool, q, v, a, tau_out); },
     "num_threads"_a, "pool"_a, "qs"_a, "vs"_a, "a"_a, "taus_out"_a,
     "Computes in parallel the RNEA and returns the result.\n\n"
     "Parameters:\n"
