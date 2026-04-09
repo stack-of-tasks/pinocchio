@@ -25,7 +25,7 @@ struct mimic_not_supported_policy
     {
       static char msg[68];
       snprintf(
-        msg, sizeof(msg), "Argument in the specified location (%d) is not of type Model.",
+        msg, sizeof(msg), "Argument in the specified location (%lu) is not of type Model.",
         model_arg_idx);
       throw std::runtime_error(msg);
     }
