@@ -282,7 +282,7 @@ static void exposeConstraintCholesky(nb::module_ m)
       .def(DelassusOperatorBaseVisitor<DelassusOperatorSparse>())
       .def(
         "matrix",
-        [](const DelassusOperatorSparse & self, bool enforce_symmetry) -> SparseMatrix {
+        [](const DelassusOperatorSparse & self, bool enforce_symmetry) {
           return self.matrix(enforce_symmetry);
         },
         "enforce_symmetry"_a = false, "Returns the Delassus expression as a sparse matrix.");
