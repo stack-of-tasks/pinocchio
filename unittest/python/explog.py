@@ -3,6 +3,7 @@ import unittest
 
 import numpy as np
 import pinocchio as pin
+from pinocchio import Quaternion
 from pinocchio.explog import exp, log
 from pinocchio.utils import eye, rand, zero
 from test_case import PinocchioTestCase as TestCase
@@ -26,8 +27,6 @@ class TestExpLog(TestCase):
 
     def test_log3_quat(self):
         """Test log3 over the quaternions."""
-        from eigenpy import Quaternion
-
         quat_v = np.array([0.0, 0.0, 0.0, 1.0])
         quat = Quaternion(quat_v)
         v0 = pin.log3(quat)
