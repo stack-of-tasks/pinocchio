@@ -29,8 +29,8 @@ void exposeParsers(nb::module_ m)
 #ifdef PINOCCHIO_WITH_SDFORMAT
   // SDF
   {
-    // exposeSDFModel(m);
-    // exposeSDFGeometry(m);
+    exposeSDFModel(m);
+    exposeSDFGeometry(m);
   }
 #endif
 }
