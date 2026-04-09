@@ -1,6 +1,7 @@
 // Copyright (c) 2026 INRIA
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/utils/model-checker.hpp"
 
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 
@@ -18,7 +19,7 @@ void exposeRNEADerivatives(nb::module_ m)
       pinocchio::computeGeneralizedGravityDerivatives(model, data, q, res);
       return res;
     },
-    "model"_a, "data"_a, "q"_a,
+    "model"_a, "data"_a, "q"_a, nb::call_policy<mimic_not_supported_policy<0>>(),
     "Computes the partial derivative of the generalized gravity contribution\n"
     "with respect to the joint configuration.\n\n"
     "Parameters:\n"
@@ -53,9 +54,9 @@ void exposeRNEADerivatives(nb::module_ m)
       -> nb::tuple {
       pinocchio::computeRNEADerivatives(model, data, q, v, a);
       make_symmetric(data.M);
-      return nb::make_tuple<nb::rv_policy::reference_internal>(data.dtau_dq, data.dtau_dv, data.M);
+      return nb::make_tuple(make_ref(data.dtau_dq), make_ref(data.dtau_dv), make_ref(data.M));
     },
-    "model"_a, "data"_a, "q"_a, "v"_a, "a"_a,
+    "model"_a, "data"_a, "q"_a, "v"_a, "a"_a, nb::call_policy<mimic_not_supported_policy<0>>(),
     "Computes the RNEA partial derivatives, store the result in data.dtau_dq, data.dtau_dv and "
     "data.M (aka dtau_da)\n"
     "which correspond to the partial derivatives of the torque output with respect to the "
@@ -76,9 +77,10 @@ void exposeRNEADerivatives(nb::module_ m)
       const std::vector<Force> & fext) -> nb::tuple {
       pinocchio::computeRNEADerivatives(model, data, q, v, a, fext);
       make_symmetric(data.M);
-      return nb::make_tuple<nb::rv_policy::reference_internal>(data.dtau_dq, data.dtau_dv, data.M);
+      return nb::make_tuple(make_ref(data.dtau_dq), make_ref(data.dtau_dv), make_ref(data.M));
     },
     "model"_a, "data"_a, "q"_a, "v"_a, "a"_a, "fext"_a,
+    nb::call_policy<mimic_not_supported_policy<0>>(),
     "Computes the RNEA partial derivatives with external contact forces,\n"
     "store the result in data.dtau_dq, data.dtau_dv and data.M (aka dtau_da)\n"
     "which correspond to the partial derivatives of the torque output with respect to the "
