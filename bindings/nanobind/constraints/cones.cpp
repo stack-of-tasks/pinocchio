@@ -5,6 +5,8 @@
 #include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 #include "pinocchio/constraints.hpp"
 
+#include <nanobind/eigen/dense.h>
+
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 
 using namespace nb::literals;
