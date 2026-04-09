@@ -14,6 +14,11 @@ void exposeExplog(nb::module_ m);
 
 void exposeSpatial(nb::module_ m)
 {
+  // Axes. Originally in bindings/python/module.cpp
+  m.attr("XAxis") = pinocchio::XAxis::vector<Scalar>();
+  m.attr("YAxis") = pinocchio::YAxis::vector<Scalar>();
+  m.attr("ZAxis") = pinocchio::ZAxis::vector<Scalar>();
+
   exposeMotion<Motion>(m);
   exposeForce<Force>(m);
   exposeSE3<SE3>(m);
