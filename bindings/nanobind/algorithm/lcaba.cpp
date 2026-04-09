@@ -27,7 +27,8 @@ void exposeLcabaFor(nb::module_ m)
     "Parameters:\n"
     "\t model: Model of the kinematic tree\n"
     "\t data: Data related to the kinematic tree\n"
-    "\t constraint_models: vector of constraint models");
+    "\t constraint_models: vector of constraint models",
+    nb::call_policy<mimic_not_supported_policy<0>>());
 
   m.def(
     "lcaba",
