@@ -55,6 +55,10 @@ for module_info in submodules:
 sys.modules["pinocchio.rpy"] = rpy
 sys.modules["pinocchio.cholesky"] = cholesky
 
+XAxis = numpy.array([1.0, 0.0, 0.0])
+YAxis = numpy.array([0.0, 1.0, 0.0])
+ZAxis = numpy.array([0.0, 0.0, 1.0])
+
 if WITH_COLLISION:
     import coal
     from coal import (
