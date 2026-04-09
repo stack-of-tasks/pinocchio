@@ -206,6 +206,9 @@ static void exposeConstraintCholesky(nb::module_ m)
       "solve", [](const Self & self, const Matrix & mat) -> Matrix { return self.solve(mat); },
       "mat"_a, "Computes the solution x of A * x = mat where A is the decomposed matrix.")
     .def(
+      "solve", [](const Self & self, const VectorXs & vec) -> VectorXs { return self.solve(vec); },
+      "vec"_a, "Computes the solution x of A * x = vec where A is the decomposed matrix.")
+    .def(
       "inverse", [](const Self & self) -> Matrix { return self.inverse(); },
       "Returns the inverse matrix resulting from the decomposition.")
 
