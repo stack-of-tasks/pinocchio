@@ -2,51 +2,12 @@
 
 #ifdef PINOCCHIO_WITH_SDFORMAT
   #include "pinocchio/parsers/sdf.hpp"
-  #include <coal/mesh_loader/loader.h>
 #endif
 
-#include "pinocchio/bindings/python-nb/fwd.hpp"
-
-#include <nanobind/stl/string.h>
-#include <nanobind/stl/filesystem.h>
-#include <nanobind/stl/shared_ptr.h>
+#include "../conversion-util.hpp"
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 using namespace nb::literals;
-
-#ifdef PINOCCHIO_WITH_SDFORMAT
-
-static std::vector<std::string> pkgDirsFromObject(nb::object py_pkg_dirs)
-{
-  std::vector<std::string> pkg_dirs;
-  if (py_pkg_dirs.is_none())
-    return pkg_dirs;
-  if (nb::isinstance<nb::list>(py_pkg_dirs))
-  {
-    for (auto && item : nb::cast<nb::list>(py_pkg_dirs))
-      pkg_dirs.push_back(nb::cast<std::filesystem::path>(item).string());
-  }
-  else
-  {
-    pkg_dirs.push_back(nb::cast<std::filesystem::path>(py_pkg_dirs).string());
-  }
-  return pkg_dirs;
-}
-
-static ::coal::MeshLoaderPtr meshLoaderFromObject(nb::object py_mesh_loader)
-{
-  if (py_mesh_loader.is_none())
-    return nullptr;
-  #ifdef PINOCCHIO_WITH_COLLISION
-  return nb::cast<::coal::MeshLoaderPtr>(py_mesh_loader);
-  #else
-  PyErr_WarnEx(
-    PyExc_UserWarning, "Mesh loader is ignored because Pinocchio is not built with coal", 1);
-  return nullptr;
-  #endif
-}
-
-#endif // PINOCCHIO_WITH_SDFORMAT
 
 void exposeSDFGeometry(nb::module_ m)
 {
@@ -89,30 +50,31 @@ void exposeSDFGeometry(nb::module_ m)
     "buildGeomFromSdf",
     [](
       const Model & model, const std::filesystem::path & filename, const GeometryType type,
-      const std::string & root_link_name, nb::object package_dirs, nb::object mesh_loader) {
+      const std::string & root_link_name, const PyPkgDirArg & package_dirs,
+      nb::object mesh_loader) {
       GeometryModel geom_model;
       pinocchio::sdf::buildGeom(
-        model, filename.string(), type, geom_model, root_link_name,
-        pkgDirsFromObject(std::move(package_dirs)), meshLoaderFromObject(std::move(mesh_loader)));
+        model, filename.string(), type, geom_model, root_link_name, pkgDirsFromArg(package_dirs),
+        meshLoaderFromObject(std::move(mesh_loader)));
       return geom_model;
     },
     "model"_a, "sdf_filename"_a, "geom_type"_a, "root_link_name"_a = "",
-    "package_dirs"_a = nb::none(), "mesh_loader"_a = nb::none(), doc_new);
+    "package_dirs"_a = nb::list(), "mesh_loader"_a = nb::none(), doc_new);
 
   // buildGeomFromSdf - fills existing GeometryModel
   m.def(
     "buildGeomFromSdf",
     [](
       const Model & model, const std::filesystem::path & filename, const GeometryType type,
-      GeometryModel & geom_model, const std::string & root_link_name, nb::object package_dirs,
-      nb::object mesh_loader) -> GeometryModel & {
+      GeometryModel & geom_model, const std::string & root_link_name,
+      const PyPkgDirArg & package_dirs, nb::object mesh_loader) -> GeometryModel & {
       pinocchio::sdf::buildGeom(
-        model, filename.string(), type, geom_model, root_link_name,
-        pkgDirsFromObject(std::move(package_dirs)), meshLoaderFromObject(std::move(mesh_loader)));
+        model, filename.string(), type, geom_model, root_link_name, pkgDirsFromArg(package_dirs),
+        meshLoaderFromObject(std::move(mesh_loader)));
       return geom_model;
     },
     "model"_a, "sdf_filename"_a, "geom_type"_a, "geom_model"_a, "root_link_name"_a = "",
-    "package_dirs"_a = nb::none(), "mesh_loader"_a = nb::none(), doc_existing,
+    "package_dirs"_a = nb::list(), "mesh_loader"_a = nb::none(), doc_existing,
     nb::rv_policy::reference);
 #endif
   (void)m;
