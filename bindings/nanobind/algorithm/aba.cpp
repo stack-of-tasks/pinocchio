@@ -1,6 +1,7 @@
 // Copyright (c) 2026 INRIA
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/utils/model-checker.hpp"
 
 #include "pinocchio/algorithm/aba.hpp"
 
@@ -19,7 +20,7 @@ void exposeABA(nb::module_ m)
       make_symmetric(data.Minv);
       return data.Minv;
     },
-    "model"_a, "data"_a, "q"_a,
+    "model"_a, "data"_a, "q"_a, nb::call_policy<mimic_not_supported_policy<0>>(),
     "Computes the inverse of the joint space inertia matrix using an extension of the "
     "Articulated Body algorithm.\n"
     "The result is stored in data.Minv.\n"
@@ -35,7 +36,7 @@ void exposeABA(nb::module_ m)
       make_symmetric(data.Minv);
       return data.Minv;
     },
-    "model"_a, "data"_a,
+    "model"_a, "data"_a, nb::call_policy<mimic_not_supported_policy<0>>(),
     "Computes the inverse of the joint space inertia matrix using an extension of the "
     "Articulated Body algorithm.\n"
     "The result is stored in data.Minv.\n"
@@ -52,6 +53,7 @@ void exposeABA(nb::module_ m)
       return aba(model, data, q, v, tau, convention);
     },
     "model"_a, "data"_a, "q"_a, "v"_a, "tau"_a, "convention"_a = Convention::LOCAL,
+    nb::call_policy<mimic_not_supported_policy<0>>(),
     "Compute ABA, store the result in data.ddq and return it.\n"
     "Parameters:\n"
     "\t model: Model of the kinematic tree\n"
@@ -69,6 +71,7 @@ void exposeABA(nb::module_ m)
       return aba(model, data, q, v, tau, fext, convention);
     },
     "model"_a, "data"_a, "q"_a, "v"_a, "tau"_a, "fext"_a, "convention"_a = Convention::LOCAL,
+    nb::call_policy<mimic_not_supported_policy<0>>(),
     "Compute ABA with external forces, store the result in data.ddq and return it.\n"
     "Parameters:\n"
     "\t model: Model of the kinematic tree\n"
