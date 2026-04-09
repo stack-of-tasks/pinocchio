@@ -16,12 +16,13 @@ static constexpr bool is_tpl_base_of_v = std::is_base_of_v<BaseTpl<T>, T>;
 PINOCCHIO_PYTHON_NAMESPACE_END
 
 /// On the model of NB_MAKE_OPAQUE, ensure std::vector of a given Pinocchio template class is opaque
-/// e.g. excluded from the type_caster.
+/// i.e. excluded from the type_caster.
 #define PINOCCHIO_PYTHON_STD_VEC_OPAQUE_TPL(TplClass)                                              \
   namespace nanobind::detail                                                                       \
   {                                                                                                \
     template<typename... Ts>                                                                       \
-    class type_caster<TplClass<Ts...>> : public type_caster_base<TplClass<Ts...>>                  \
+    class type_caster<std::vector<TplClass<Ts...>>>                                                \
+    : public type_caster_base<std::vector<TplClass<Ts...>>>                                        \
     {                                                                                              \
     };                                                                                             \
   }
