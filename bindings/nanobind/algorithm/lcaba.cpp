@@ -1,6 +1,7 @@
 // Copyright (c) 2026 INRIA
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/utils/model-checker.hpp"
 
 #include "pinocchio/algorithm/loop-constrained-aba.hpp"
 
@@ -53,7 +54,8 @@ void exposeLcabaFor(nb::module_ m)
     "\t prox_settings: Proximal settings (mu, accuracy and maximal number of iterations)\n\n"
     "Note: A typical value for mu in proximal settings is 1e-6, and it must be positive.\n"
     "This function returns joint acceleration stored in data.ddq.\n"
-    "The constraint forces are stored in data.lambdaA[0].");
+    "The constraint forces are stored in data.lambdaA[0].",
+    nb::call_policy<mimic_not_supported_policy<0>>());
 }
 
 void exposeLcaba(nb::module_ m)
