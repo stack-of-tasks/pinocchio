@@ -39,7 +39,7 @@ class ContactSolverTestCase(PinocchioTestCase):
     def buildStackOfCubesModel(self, masses):
         model = pin.Model()
         n_cubes = len(masses)
-        box_dims = np.ones((3, 1))
+        box_dims = np.ones(3)
         for i in range(n_cubes):
             box_mass = masses[i]
             box_inertia = pin.Inertia.FromBox(

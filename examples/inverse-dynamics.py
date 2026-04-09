@@ -26,8 +26,8 @@ data = model.createData()
 
 # Sample a random joint configuration, joint velocities and accelerations
 q = pin.randomConfiguration(model)  # in rad for the UR5
-v = np.random.rand(model.nv, 1)  # in rad/s for the UR5
-a = np.random.rand(model.nv, 1)  # in rad/s² for the UR5
+v = np.random.rand(model.nv)  # in rad/s for the UR5
+a = np.random.rand(model.nv)  # in rad/s² for the UR5
 
 # Computes the inverse dynamics (RNEA) for all the joints of the robot
 tau = pin.rnea(model, data, q, v, a)
