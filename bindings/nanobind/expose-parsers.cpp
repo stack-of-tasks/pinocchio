@@ -2,6 +2,9 @@
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 
+#include <nanobind/stl/bind_vector.h>
+#include <nanobind/stl/filesystem.h>
+
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 
 void exposeConsoleBridge(nb::module_ m);
@@ -33,6 +36,8 @@ void exposeParsers(nb::module_ m)
     exposeSDFGeometry(m);
   }
 #endif
+
+  nb::bind_vector<std::vector<std::filesystem::path>>(m, "StdVec_Path");
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END
