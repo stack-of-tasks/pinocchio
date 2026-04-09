@@ -54,6 +54,22 @@ void exposeExplog(nb::module_ m)
 
   m.def(
     "log3",
+    [](const Matrix3 & R, Eigen::Ref<Eigen::Matrix<Scalar, 1, 1>> theta) -> Vector3 {
+      return pinocchio::log3(R, theta.coeffRef(0, 0));
+    },
+    "R"_a, "theta"_a,
+    "Log: SO3 -> so3 is the pseudo-inverse of Exp: so3 -> SO3. Log maps from SO3"
+    " -> { v in so3, ||v|| < 2pi }.\n"
+    "It also returns the angle of rotation theta around the rotation axis.");
+
+  m.def(
+    "log3", [](const Quaternion & quat) -> Vector3 { return pinocchio::quaternion::log3(quat); },
+    "quat"_a,
+    "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to "
+    "the unit quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.");
+
+  m.def(
+    "log3",
     [](const Vector4 & quat_vec) -> Vector3 {
       ConstQuaternionMap q(quat_vec.data());
       return pinocchio::quaternion::log3(q);
@@ -61,6 +77,17 @@ void exposeExplog(nb::module_ m)
     "quat"_a,
     "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to "
     "the unit quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.");
+
+  m.def(
+    "log3",
+    [](const Vector4 & quat_vec, Eigen::Ref<Eigen::Matrix<Scalar, 1, 1>> theta) -> Vector3 {
+      ConstQuaternionMap q(quat_vec.data());
+      return pinocchio::quaternion::log3(q, theta.coeffRef(0, 0));
+    },
+    "quat"_a, "theta"_a,
+    "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to "
+    "the unit quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.\n"
+    "It also returns the angle of rotation theta around the rotation axis.");
 
   m.def(
     "Jlog3",
