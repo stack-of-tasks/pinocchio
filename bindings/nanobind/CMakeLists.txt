@@ -52,6 +52,7 @@ set(PYWRAP_SOURCES
     algorithm/energy.cpp
     algorithm/rnea.cpp
     algorithm/kinematics.cpp
+    algorithm/lcaba.cpp
     algorithm/frames.cpp
     algorithm/frames-derivatives.cpp
     algorithm/model.cpp

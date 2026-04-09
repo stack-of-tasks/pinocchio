@@ -21,10 +21,12 @@ void exposeEnergy(nb::module_ m);
 void exposeKinematics(nb::module_ m);
 // algorithm/contact-jacobian.cpp
 void exposeContactJacobian(nb::module_ m);
-// algorithm/contact-dynamics.cpp
-void exposeContactDynamics(nb::module_ m);
 // algorithm/constrained-dynamics.cpp
 void exposeConstraintDynamics(nb::module_ m);
+// algorithm/contact-dynamics.cpp
+void exposeContactDynamics(nb::module_ m);
+// algorithm/lcaba.cpp
+void exposeLcaba(nb::module_ m);
 // algorithm/constrained-dynamics-derivatives.cpp
 void exposeConstraintDynamicsDerivatives(nb::module_ m);
 // algorithm/contact-inverse-dynamics.cpp
@@ -76,8 +78,9 @@ void exposeAlgorithms(nb::module_ m)
   exposeEnergy(m);
   exposeKinematics(m);
   exposeContactJacobian(m);
-  exposeContactDynamics(m);
   exposeConstraintDynamics(m);
+  exposeContactDynamics(m);
+  exposeLcaba(m);
   exposeContactInverseDynamics(m);
   exposeDelassus(m);
   exposeCAT(m);
