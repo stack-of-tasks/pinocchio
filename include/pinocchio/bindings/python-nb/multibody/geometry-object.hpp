@@ -169,6 +169,17 @@ inline void exposeGeometryObject(nb::module_ m)
       "mesh_color"_a = Vector4d::UnitW(), "mesh_texture_path"_a = "",
       "mesh_material"_a = GeometryNoMaterial(), "physics_material"_a = PhysicsMaterial(),
       "Full constructor of a GeometryObject.")
+    .def(
+      nb::init<
+        const std::string &, JointIndex, const SE3 &, CollisionGeometryPtr, const std::string &,
+        const Vector3d &, bool, const Vector4d &, const std::string &, GeometryMaterial,
+        PhysicsMaterial>(),
+      "name"_a, "parent_joint"_a, "placement"_a, "collision_geometry"_a, "mesh_path"_a = "",
+      "mesh_scale"_a = Vector3d::Ones().eval(), "override_material"_a = false,
+      "mesh_color"_a = Vector4d::UnitW(), "mesh_texture_path"_a = "",
+      "mesh_material"_a = GeometryNoMaterial(), "physics_material"_a = PhysicsMaterial(),
+      "Reduced constructor of a GeometryObject. Does not require specifying the parent frame "
+      "index.")
     .def(nb::init<const GeometryObject &>(), "other"_a, "Copy constructor.")
     //
     .def_rw("name", &Self::name, "Name of the GeometryObject.")
