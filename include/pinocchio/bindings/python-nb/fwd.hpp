@@ -13,6 +13,23 @@ namespace nb = nanobind;
 
 template<template<class> class BaseTpl, typename T>
 static constexpr bool is_tpl_base_of_v = std::is_base_of_v<BaseTpl<T>, T>;
+
+/// Check if type T has been registered already. If it has, add its binding to the module,
+/// eventually with an alias.
+template<typename T>
+inline bool check_registration_alias(nb::module_ m, const char * override = nullptr)
+{
+  if (nb::handle py_type = nb::type<T>(); py_type.is_valid())
+  {
+    if (!override)
+      m.attr(py_type.attr("__name__")) = py_type;
+    else
+      m.attr(override) = py_type;
+
+    return true;
+  }
+  return false;
+}
 PINOCCHIO_PYTHON_NAMESPACE_END
 
 /// On the model of NB_MAKE_OPAQUE, ensure std::vector of a given Pinocchio template class is opaque

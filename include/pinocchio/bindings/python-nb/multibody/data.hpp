@@ -220,7 +220,8 @@ void exposeData(nb::module_ m)
 
   using Vector3 = Eigen::Matrix<Scalar, 3, 1>;
   nb::bind_vector<std::vector<int>>(m, "StdVec_Int");
-  nb::bind_vector<std::vector<Vector3>>(m, "StdVec_Vector3");
+  if (!check_registration_alias<std::vector<Vector3>>(m, "StdVec_Vector3"))
+    nb::bind_vector<std::vector<Vector3>>(m, "StdVec_Vector3");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
 
