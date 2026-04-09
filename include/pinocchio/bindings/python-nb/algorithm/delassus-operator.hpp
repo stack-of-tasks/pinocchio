@@ -19,7 +19,6 @@ struct DelassusOperatorBaseVisitor : nb::def_visitor<DelassusOperatorBaseVisitor
 {
   using Self = DelassusOperator;
   using Scalar = typename Self::Scalar;
-  using Vector = typename Self::Vector;
 
   template<class PyClass, class... Extra>
   void execute(PyClass & cl, const Extra &...) const
