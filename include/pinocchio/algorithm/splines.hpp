@@ -33,7 +33,7 @@ namespace pinocchio
       const Eigen::MatrixBase<KnotsVector> & knots)
     {
       // Edge case: if q is at or beyond the end of the spline parameterization
-      if (q[0] >= 1.0)
+      if (q[0] >= knots(knots.size() - 1))
         return {
           static_cast<size_t>(nbCtrlFrames - (degree + 1)), static_cast<size_t>(nbCtrlFrames)};
 

@@ -225,7 +225,7 @@ namespace pinocchio
     void calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVector> & qs) const
     {
       assert(
-        check_expression_if_real<Scalar>(qs[0] >= 0.0 && qs[0] <= 1.0)
+        check_expression_if_real<Scalar>(qs[0] >= knots[0] && qs[0] <= knots(knots.size() - 1))
         && "Spline joint configuration (q) must be between 0 and 1. ");
 
       data.joint_q = qs.template segment<NQ>(idx_q());
@@ -264,7 +264,7 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVector> & vs) const
     {
       assert(
-        check_expression_if_real<Scalar>(qs[0] >= 0.0 && qs[0] <= 1.0)
+        check_expression_if_real<Scalar>(qs[0] >= knots[0] && qs[0] <= knots(knots.size() - 1))
         && "Spline joint configuration (q) must be between 0 and 1. ");
 
       data.joint_q = qs.template segment<NQ>(idx_q());
@@ -285,6 +285,7 @@ namespace pinocchio
 
       data.S.matrix().setZero();
       data.c.setZero();
+      data.v.setZero();
       data.M = ctrlFrames[indexes.start_idx];
       for (size_t i = indexes.start_idx + 1; i < indexes.end_idx; i++)
       {
@@ -313,11 +314,13 @@ namespace pinocchio
     {
       data.joint_v = vs.template segment<NV>(idx_v());
 
+      SpanIndexes indexes = FindSpan<Scalar, Options>::run(data.joint_q, degree, nbCtrlFrames, knots);
+
       // Basis functions and their derivatives
       data.N.setZero();
       data.N_der.setZero();
       data.N_der2.setZero();
-      for (int i = 0; i < nbCtrlFrames; ++i)
+      for (size_t i = indexes.start_idx; i < indexes.end_idx; i++)
       {
         data.N[i] = bsplineBasis(i, degree, data.joint_q[0]);
         data.N_der[i] = bsplineBasisDerivative(i, degree, data.joint_q[0]);
@@ -326,21 +329,25 @@ namespace pinocchio
 
       data.S.matrix().setZero();
       data.c.setZero();
-      for (int i = 0; i < nbCtrlFrames - 1; ++i)
+      data.v.setZero();
+      data.M = ctrlFrames[indexes.start_idx];
+      for (size_t i = indexes.start_idx + 1; i < indexes.end_idx; i++)
       {
-        const Scalar phi_i = data.N.tail(nbCtrlFrames - (i + 1)).sum();
-        const Scalar phi_dot_i = data.N_der.tail(nbCtrlFrames - (i + 1)).sum();
-        const Scalar phi_ddot_i = data.N_der2.tail(nbCtrlFrames - (i + 1)).sum();
+        const Scalar phi_i = data.N.segment(i, indexes.end_idx - i).sum();
+        const Scalar phi_dot_i = data.N_der.segment(i, indexes.end_idx - i).sum();
+        const Scalar phi_ddot_i = data.N_der2.segment(i, indexes.end_idx - i).sum();
 
-        const Transformation_t transformation_temp(exp6(relativeMotions[i] * phi_i));
+        const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
 
-        data.c = relativeMotions[i] * phi_ddot_i
+        data.M = data.M * transformation_temp;
+        // Compute dS/dq recursively
+        data.c = relativeMotions[i - 1] * phi_ddot_i
                  + transformation_temp.actInv(
-                   data.c + Motion(data.S.matrix()).cross(relativeMotions[i]) * phi_dot_i);
+                   data.c + Motion_t(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
         data.S.matrix() =
-          transformation_temp.actInv(data.S) + relativeMotions[i].toVector() * phi_dot_i;
+          transformation_temp.actInv(data.S) + relativeMotions[i - 1].toVector() * phi_dot_i;
       }
-
+      // C = Sdot * qdot = (dS/dq * qdot) * dot
       data.c = data.c * data.joint_v[0] * data.joint_v[0];
       data.v = data.S * data.joint_v;
     }
@@ -538,6 +545,7 @@ namespace pinocchio
     int degree;
     int nbCtrlFrames;
     Vector knots;
+    
     PINOCCHIO_ALIGNED_STD_VECTOR(Transformation_t) ctrlFrames;
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion_t) relativeMotions;
   }; // struct JointModelSplineTpl
