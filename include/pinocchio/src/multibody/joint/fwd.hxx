@@ -160,6 +160,14 @@ namespace pinocchio
   typedef JointDataTranslationTpl<context::Scalar> JointDataTranslation;
 
   template<typename Scalar, int Options = context::Options>
+  struct JointModelSplineTpl;
+  typedef JointModelSplineTpl<context::Scalar> JointModelSpline;
+
+  template<typename Scalar, int Options = context::Options>
+  struct JointDataSplineTpl;
+  typedef JointDataSplineTpl<context::Scalar> JointDataSpline;
+
+  template<typename Scalar, int Options = context::Options>
   struct JointCollectionDefaultTpl;
   typedef JointCollectionDefaultTpl<context::Scalar> JointCollectionDefault;
 
