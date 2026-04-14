@@ -1,14 +1,15 @@
 //
 // Copyright (c) 2025 INRIA
+// Copyright (c) 2025-2026 ISIR
 //
 
-#ifndef __pinocchio_multibody_joint_spline_hpp__
-#define __pinocchio_multibody_joint_spline_hpp__
+#pragma once
 
-#include "pinocchio/eigen-macros.hpp"
-#include "pinocchio/spatial/explog.hpp"
-#include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/joint-motion-subspace.hpp"
+#ifdef PINOCCHIO_LSP
+  #undef PINOCCHIO_LSP
+  #include "pinocchio/multibody/joint.hpp"
+#endif // PINOCCHIO_LSP
+
 #include "pinocchio/algorithm/splines.hpp"
 
 namespace pinocchio
@@ -265,7 +266,7 @@ namespace pinocchio
     {
       assert(
         check_expression_if_real<Scalar>(qs[0] >= knots[0] && qs[0] <= knots(knots.size() - 1))
-        && "Spline joint configuration (q) must be between 0 and 1. ");
+        && "Spline joint configuration (q) must be between min and max. ");
 
       data.joint_q = qs.template segment<NQ>(idx_q());
       data.joint_v = vs.template segment<NV>(idx_v());
@@ -581,4 +582,3 @@ namespace boost
   };
 } // namespace boost
 
-#endif // ifndef __pinocchio_multibody_joint_spline_hpp__
