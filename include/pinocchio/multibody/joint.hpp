@@ -79,6 +79,8 @@
 
 #include "pinocchio/src/multibody/joint/joint-mimic.hxx"
 
+#include "pinocchio/src/multibody/joint/joint-spline.hxx"
+
 #include "pinocchio/src/multibody/joint/joint-collection.hxx"
 
 #include "pinocchio/src/multibody/joint/joint-generic.hxx"

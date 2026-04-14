@@ -128,7 +128,6 @@ namespace pinocchio
 
     static ReturnType run()
     {
-      typedef typename JointModel::Vector3 Vector3;
       JointModel jmodel(XAxis::vector(), YAxis::vector());
 
       jmodel.setIndexes(0, 0, 0);
@@ -256,7 +255,7 @@ namespace pinocchio
 
     static ReturnType run()
     {
-      PINOCCHIO_ALIGNED_STD_VECTOR(pinocchio::SE3) ctrlFrames;
+      std::vector<pinocchio::SE3> ctrlFrames;
       for (int k = 0; k < 5; k++)
         ctrlFrames.push_back(SE3::Random());
 

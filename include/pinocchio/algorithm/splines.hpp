@@ -28,18 +28,18 @@ namespace pinocchio
     template<typename ConfigVector, typename KnotsVector>
     static SpanIndexes run(
       const Eigen::MatrixBase<ConfigVector> & q,
-      const int degree,
-      const int nbCtrlFrames,
+      const size_t degree,
+      const size_t nbCtrlFrames,
       const Eigen::MatrixBase<KnotsVector> & knots)
     {
       // Edge case: if q is at or beyond the end of the spline parameterization
       if (q[0] >= knots(knots.size() - 1))
         return {
-          static_cast<size_t>(nbCtrlFrames - (degree + 1)), static_cast<size_t>(nbCtrlFrames)};
+          nbCtrlFrames - (degree + 1), nbCtrlFrames};
 
-      int low = degree;
-      int high = nbCtrlFrames;
-      int mid;
+      size_t low = degree;
+      size_t high = nbCtrlFrames;
+      size_t mid;
 
       while (low < high)
       {
@@ -50,7 +50,7 @@ namespace pinocchio
           low = mid + 1;
       }
 
-      return {static_cast<size_t>(low - (degree + 1)), static_cast<size_t>(low)};
+      return {low - (degree + 1), low};
     }
   };
 } // namespace pinocchio

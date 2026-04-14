@@ -111,7 +111,7 @@ namespace pinocchio
     {
     }
 
-    JointDataSplineTpl(const int nbCtrlFrames)
+    JointDataSplineTpl(const size_t nbCtrlFrames)
     : joint_q(ConfigVector_t::Zero())
     , joint_v(TangentVector_t::Zero())
     , M(Transformation_t::Identity())
@@ -174,17 +174,7 @@ namespace pinocchio
     {
     }
 
-    JointModelSplineTpl(
-      const PINOCCHIO_ALIGNED_STD_VECTOR(Transformation_t) & controlFrames, const int degree = 3)
-    : degree(degree)
-    , ctrlFrames(controlFrames)
-    , nbCtrlFrames(controlFrames.size())
-    {
-      buildJoint();
-    }
-
-    /// TODO To remove in pinocchio 4
-    JointModelSplineTpl(const std::vector<Transformation_t> & controlFrames, const int degree = 3)
+    JointModelSplineTpl(const std::vector<Transformation_t> & controlFrames, const size_t degree = 3)
     : degree(degree)
     {
       setControlFrames(controlFrames);
@@ -363,7 +353,7 @@ namespace pinocchio
       data.U.noalias() = I * data.S.matrix();
       data.StU.noalias() = data.S.transpose() * data.U;
       data.StU.diagonal() += armature;
-      internal::PerformStYSInversion<Scalar>::run(data.StU, data.Dinv);
+      internal::matrix_inversion(data.StU, data.Dinv);
 
       data.UDinv.noalias() = data.U * data.Dinv;
 
@@ -402,7 +392,7 @@ namespace pinocchio
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument,
           "JointSpline - Number of control frames must be greater than degree of the spline.")
-      const int n_knots = nbCtrlFrames + degree + 1;
+      const size_t n_knots = nbCtrlFrames + degree + 1;
       knots.resize(n_knots);
       knots.head(degree + 1).setZero();
       const Scalar denominator = static_cast<Scalar>(nbCtrlFrames - degree + 1);
@@ -425,7 +415,7 @@ namespace pinocchio
       computeRelativeMotions();
     }
 
-    Scalar bsplineBasis(int i, int k, const Scalar x) const
+    Scalar bsplineBasis(size_t i, size_t k, const Scalar x) const
     {
       using internal::if_then_else;
       if (k == 0)
@@ -467,7 +457,7 @@ namespace pinocchio
 
       return left + right;
     }
-    Scalar bsplineBasisDerivative(int i, int k, const Scalar x) const
+    Scalar bsplineBasisDerivative(size_t i, size_t k, const Scalar x) const
     {
       using internal::if_then_else;
 
@@ -504,7 +494,7 @@ namespace pinocchio
       return term1 - term2;
     }
 
-    Scalar bsplineBasisDerivative2(int i, int k, const Scalar x) const
+    Scalar bsplineBasisDerivative2(size_t i, size_t k, const Scalar x) const
     {
       using internal::if_then_else;
 
@@ -543,12 +533,12 @@ namespace pinocchio
     }
 
     // attributes
-    int degree;
-    int nbCtrlFrames;
+    size_t degree;
+    size_t nbCtrlFrames;
     Vector knots;
     
-    PINOCCHIO_ALIGNED_STD_VECTOR(Transformation_t) ctrlFrames;
-    PINOCCHIO_ALIGNED_STD_VECTOR(Motion_t) relativeMotions;
+    std::vector<Transformation_t> ctrlFrames;
+    std::vector<Motion_t> relativeMotions;
   }; // struct JointModelSplineTpl
 
 } // namespace pinocchio

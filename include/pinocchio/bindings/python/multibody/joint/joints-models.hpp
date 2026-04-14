@@ -323,7 +323,7 @@ namespace pinocchio
         .def(bp::init<int>(
           bp::args("self", "degree"),
           "Init an empty joint Spline, with the degree of the future basis functions"))
-        .def(bp::init<const ::pinocchio::container::aligned_vector<context::SE3> &, int>(
+        .def(bp::init<const std::vector<context::SE3> &, int>(
           bp::args("self", "controlFrames", "degree"),
           "Init an empty joint Spline, with a list of controlFrames and the degree of the future "
           "basis functions"))
