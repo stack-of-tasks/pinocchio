@@ -1,9 +1,9 @@
 //
 // Copyright (c) 2025 INRIA
+// Copyright (c) 2026 ISIR
 //
 
-#ifndef __pinocchio_algorithm_splines_hpp__
-#define __pinocchio_algorithm_splines_hpp__
+#pragma once
 
 namespace pinocchio
 {
@@ -54,5 +54,3 @@ namespace pinocchio
     }
   };
 } // namespace pinocchio
-
-#endif // __pinocchio_algorithm_splines_hpp__
