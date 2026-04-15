@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_SUITE(JointSpline)
 /// @brief Test on the knot vector generation
 BOOST_AUTO_TEST_CASE(makeKnots)
 {
-  int degree = 3;
+  size_t degree = 3;
 
   std::vector<SE3> ctrlFrames;
   for (int k = 0; k < 3; k++)
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(makeKnots)
 /// @brief Test to make sure the relative motions are correct
 BOOST_AUTO_TEST_CASE(relativeMotions)
 {
-  int degree = 3;
+  size_t degree = 3;
 
   std::vector<SE3> ctrlFrames;
   ctrlFrames.push_back(SE3::Identity());
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(relativeMotions)
 /// @brief Test on the basisSpline function and its first derivative
 BOOST_AUTO_TEST_CASE(basisSplineFunctions)
 {
-  int degree = 3;
+  size_t degree = 3;
 
   std::vector<SE3> ctrlFrames;
   ctrlFrames.push_back(SE3::Identity());
@@ -189,12 +189,12 @@ BOOST_AUTO_TEST_CASE(basisSplineFunctions)
     double den1 = (jmodel.knots[i + degree] - jmodel.knots[i]);
     double left = 0;
     if (den1 > Eigen::NumTraits<double>::dummy_precision())
-      left = degree / den1 * jmodel.bsplineBasis(i, degree - 1, q[0]);
+      left = static_cast<double>(degree) / den1 * jmodel.bsplineBasis(i, degree - 1, q[0]);
 
     double den2 = (jmodel.knots[i + degree + 1] - jmodel.knots[i + 1]);
     double right = 0;
     if (den2 > Eigen::NumTraits<double>::dummy_precision())
-      right = degree / den2 * jmodel.bsplineBasis(i + 1, degree - 1, q[0]);
+      right = static_cast<double>(degree) / den2 * jmodel.bsplineBasis(i + 1, degree - 1, q[0]);
 
     BOOST_CHECK_CLOSE(left - right, jdata.N_der[i], 1e-5);
   }
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(basisSplineFunctions)
 /// @brief Test the spanning function
 BOOST_AUTO_TEST_CASE(findSpan)
 {
-  int degree = 2;
+  size_t degree = 2;
 
   std::vector<SE3> ctrlFrames;
   ctrlFrames.push_back(SE3::Identity());
@@ -237,8 +237,6 @@ BOOST_AUTO_TEST_CASE(findSpan)
 BOOST_AUTO_TEST_CASE(vsPrismaticZ)
 {
   using namespace pinocchio;
-  typedef SE3::Vector3 Vector3;
-  typedef SE3::Matrix3 Matrix3;
 
   // Spline Joint
   std::vector<SE3> ctrlFrames;
@@ -284,8 +282,6 @@ BOOST_AUTO_TEST_CASE(vsPrismaticZ)
 BOOST_AUTO_TEST_CASE(vsRevoluteX)
 {
   using namespace pinocchio;
-  typedef SE3::Vector3 Vector3;
-  typedef SE3::Matrix3 Matrix3;
 
   // Spline Joint
   Eigen::Matrix3d rotation;
