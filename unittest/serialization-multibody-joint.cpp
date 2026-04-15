@@ -150,6 +150,23 @@ struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
   }
 };
 
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelSplineTpl<Scalar, Options>>
+{
+  typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
+
+  static JointModel run()
+  {
+    std::vector<pinocchio::SE3> ctrlFrames;
+    for (int k = 0; k < 5; k++)
+      ctrlFrames.push_back(pinocchio::SE3::Random());
+
+    JointModel jmodel(ctrlFrames, 3);
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
 template<typename Scalar, int Options, template<typename, int> class JointCollection>
 struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
 {
