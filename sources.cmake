@@ -362,6 +362,7 @@ set(${PROJECT_NAME}_CORE_PRIVATE_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-translation.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-prismatic-unaligned.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-mimic.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-spline.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/fwd.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-free-flyer.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-common-operations.hxx
