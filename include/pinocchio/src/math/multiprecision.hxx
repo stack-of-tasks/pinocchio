@@ -119,6 +119,16 @@ namespace Eigen
     {
       return internal::default_max_digits10_impl<Real>::run();
     }
+
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static inline Real infinity()
+    {
+      return std::numeric_limits<Real>::infinity();
+    }
+
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static inline Real quiet_NaN()
+    {
+      return std::numeric_limits<Real>::quiet_NaN();
+    }
   #endif
   };
 
