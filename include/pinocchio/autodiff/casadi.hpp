@@ -143,6 +143,18 @@ namespace Eigen
     {
       return std::numeric_limits<double>::digits10;
     }
+
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static inline int digits()
+    {
+      return NumTraits<double>::digits();
+    }
+
+#if EIGEN_VERSION_AT_LEAST(3, 4, 90)
+    EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static inline int max_digits10()
+    {
+      return NumTraits<double>::max_digits10();
+    }
+#endif
   };
 } // namespace Eigen
 
