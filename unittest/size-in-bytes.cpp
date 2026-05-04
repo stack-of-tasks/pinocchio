@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(test_std_array)
 
 BOOST_AUTO_TEST_CASE(test_eigen_matrix)
 {
-  const Eigen::Matrix3d mat33;
+  const Eigen::Matrix3d mat33{};
   BOOST_CHECK(internal::sizeInBytes(mat33) == sizeof(mat33));
 
   const Eigen::MatrixXd mat(mat33);
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(test_eigen_matrix)
 
 BOOST_AUTO_TEST_CASE(test_eigen_map)
 {
-  const Eigen::Matrix3d mat;
+  const Eigen::Matrix3d mat{};
   const auto mat_map = make_default_map(mat);
   BOOST_CHECK(internal::sizeInBytes(mat_map) == internal::sizeInBytes(mat));
 }
