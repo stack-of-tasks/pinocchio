@@ -73,6 +73,22 @@ namespace Eigen
       }
     };
   } // namespace internal
+
+#if EIGEN_VERSION_AT_LEAST(3, 4, 90)
+  // The function Eigen::internal::gemv_dense_selector::run defined in
+  // Eigen/src/Core/GeneralProduct.h call at some point Eigen::numext::is_exactly_zero function.
+  // To avoid this issue we specialize this function for casadi.
+  namespace numext
+  {
+    template<>
+    EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC bool
+    is_exactly_zero(const ::casadi::Matrix<::casadi::SXElem> & x)
+    {
+      return x.is_zero();
+    }
+  } // namespace numext
+#endif // if EIGEN_VERSION_AT_LEAST(3, 4, 90)
+
 } // namespace Eigen
 
 namespace Eigen
