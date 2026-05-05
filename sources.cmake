@@ -47,6 +47,7 @@ set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/rnea-derivatives.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/rnea-second-order-derivatives.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/rnea.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/splines.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/solvers/admm-solver.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/solvers/anderson-acceleration.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/solvers/constraint-solver-base.hpp
