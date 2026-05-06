@@ -252,6 +252,8 @@ namespace pinocchio
     {
       std::vector<SE3> ctrlFrames;
       int degree = 3;
+      double min_q = 0.;
+      double max_q = 1.;
 
       static constexpr int nq = 1;
       static constexpr int nv = 1;
@@ -262,15 +264,19 @@ namespace pinocchio
       {
       }
 
-      JointSpline(const SE3 & ctrlFrame, const int degree = 3)
+      JointSpline(const SE3 & ctrlFrame, const int degree = 3, const double min_q = 0., const double max_q = 1.)
       : degree(degree)
+      , min_q(min_q)
+      , max_q(max_q)
       {
         ctrlFrames.push_back(ctrlFrame);
       }
 
-      JointSpline(const std::vector<SE3> & ctrlFrames, const int degree = 3)
+      JointSpline(const std::vector<SE3> & ctrlFrames, const int degree = 3, const double min_q = 0., const double max_q = 1.)
       : ctrlFrames(ctrlFrames)
       , degree(degree)
+      , min_q(min_q)
+      , max_q(max_q)
       {
       }
 
@@ -281,7 +287,7 @@ namespace pinocchio
 
       bool operator==(const JointSpline & other) const
       {
-        return degree == other.degree && ctrlFrames == other.ctrlFrames;
+        return degree == other.degree && ctrlFrames == other.ctrlFrames && min_q == other.min_q && max_q == other.max_q;
       }
     };
 
