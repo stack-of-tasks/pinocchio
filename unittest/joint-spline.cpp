@@ -104,6 +104,8 @@ BOOST_AUTO_TEST_SUITE(JointSpline)
 BOOST_AUTO_TEST_CASE(makeKnots)
 {
   size_t degree = 3;
+  double min_q = 10;
+  double max_q = 40;
 
   std::vector<SE3> ctrlFrames;
   for (int k = 0; k < 3; k++)
@@ -114,16 +116,17 @@ BOOST_AUTO_TEST_CASE(makeKnots)
   for (int k = 0; k < 3; k++)
     ctrlFrames.push_back(SE3::Random());
 
-  JointModelSpline jmodel(ctrlFrames, degree);
+  JointModelSpline jmodel(ctrlFrames, degree, min_q, max_q);
 
   // Check size
   BOOST_CHECK(jmodel.knots.size() == (degree + ctrlFrames.size() + 1));
 
   // Check Values
   Eigen::VectorXd knots_expected(degree + ctrlFrames.size() + 1);
-  knots_expected << 0., 0., 0., 0., 0.25, 0.5, 1., 1., 1., 1.;
-  BOOST_CHECK(jmodel.knots.isApprox(knots_expected));
+  knots_expected << 10., 10., 10., 10., 20., 30., 40., 40., 40., 40.;
+  BOOST_CHECK(jmodel.knots.isApprox(knots_expected, 1e-5));
 }
+
 
 /// @brief Test to make sure the relative motions are correct
 BOOST_AUTO_TEST_CASE(relativeMotions)
@@ -217,8 +220,8 @@ BOOST_AUTO_TEST_CASE(findSpan)
   SpanIndexes indexes =
     pinocchio::FindSpan<double, 0>::run(q, degree, ctrlFrames.size(), jmodel.knots);
 
-  BOOST_CHECK(indexes.start_idx == 5);
-  BOOST_CHECK(indexes.end_idx == 8);
+  BOOST_CHECK(indexes.start_idx == 4);
+  BOOST_CHECK(indexes.end_idx == 7);
 
   q[0] = 1;
   indexes = pinocchio::FindSpan<double, 0>::run(q, degree, ctrlFrames.size(), jmodel.knots);
