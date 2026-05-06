@@ -165,18 +165,28 @@ namespace pinocchio
     JointModelSplineTpl()
     : degree(3)
     , nbCtrlFrames(0)
-    {
-    }
-
-    JointModelSplineTpl(const int degree)
-    : degree(degree)
-    , nbCtrlFrames(0)
+    , min_q(Scalar(0))
+    , max_q(Scalar(1))
     {
     }
 
     JointModelSplineTpl(
-      const std::vector<Transformation_t> & controlFrames, const size_t degree = 3)
+      const size_t degree, const Scalar min_q = Scalar(0), const Scalar max_q = Scalar(1))
     : degree(degree)
+    , nbCtrlFrames(0)
+    , min_q(min_q)
+    , max_q(max_q)
+    {
+    }
+
+    JointModelSplineTpl(
+      const std::vector<Transformation_t> & controlFrames,
+      const size_t degree = 3,
+      const Scalar min_q = Scalar(0),
+      const Scalar max_q = Scalar(1))
+    : degree(degree)
+    , min_q(min_q)
+    , max_q(max_q)
     {
       setControlFrames(controlFrames);
     }
@@ -311,13 +321,14 @@ namespace pinocchio
           "JointSpline - Number of control frames must be greater than degree of the spline.")
       const size_t n_knots = nbCtrlFrames + degree + 1;
       knots.resize(n_knots);
-      knots.head(degree + 1).setZero();
-      const Scalar denominator = static_cast<Scalar>(nbCtrlFrames - degree + 1);
+      knots.head(degree + 1).setConstant(min_q);
+      const Scalar nInner = static_cast<Scalar>(nbCtrlFrames - degree - 1);
+      const Scalar denominator = static_cast<Scalar>(nInner + 1);
 
       for (size_t i = degree + 1; i < nbCtrlFrames; i++)
-        knots[i] = static_cast<Scalar>(i - degree) / denominator;
+        knots[i] = min_q + (max_q - min_q) * static_cast<Scalar>(i - degree) / denominator;
 
-      knots.tail(degree + 1).setOnes();
+      knots.tail(degree + 1).setConstant(max_q);
     }
 
     void computeRelativeMotions()
@@ -511,6 +522,8 @@ namespace pinocchio
     size_t degree;
     size_t nbCtrlFrames;
     Vector knots;
+    Scalar min_q;
+    Scalar max_q;
 
     std::vector<Transformation_t> ctrlFrames;
     std::vector<Motion_t> relativeMotions;
