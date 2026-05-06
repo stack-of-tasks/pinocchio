@@ -194,8 +194,7 @@ namespace pinocchio
     void setControlFrames(const std::vector<Transformation_t> & controlFrames)
     {
       nbCtrlFrames = controlFrames.size();
-      for (size_t i = 0; i < nbCtrlFrames; i++)
-        ctrlFrames.push_back(controlFrames[i]);
+      ctrlFrames = controlFrames;
 
       buildJoint();
     }
@@ -318,17 +317,22 @@ namespace pinocchio
       if (nbCtrlFrames <= degree)
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument,
-          "JointSpline - Number of control frames must be greater than degree of the spline.")
+          "JointSpline - Number of control frames must be greater than degree of the spline.");
       const size_t n_knots = nbCtrlFrames + degree + 1;
       knots.resize(n_knots);
-      knots.head(degree + 1).setConstant(min_q);
+      knots.head(degree + 1).setZero();
       const Scalar nInner = static_cast<Scalar>(nbCtrlFrames - degree - 1);
       const Scalar denominator = static_cast<Scalar>(nInner + 1);
 
       for (size_t i = degree + 1; i < nbCtrlFrames; i++)
-        knots[i] = min_q + (max_q - min_q) * static_cast<Scalar>(i - degree) / denominator;
+        knots[i] = static_cast<Scalar>(i - degree) / denominator;
 
-      knots.tail(degree + 1).setConstant(max_q);
+      knots.tail(degree + 1).setOnes();
+    }
+
+    void scaleKnots()
+    {
+      knots = min_q * Vector::Ones(knots.size()) + (max_q - min_q) * knots;
     }
 
     void computeRelativeMotions()
@@ -340,6 +344,7 @@ namespace pinocchio
     void buildJoint()
     {
       makeKnots();
+      scaleKnots();
       computeRelativeMotions();
     }
 
