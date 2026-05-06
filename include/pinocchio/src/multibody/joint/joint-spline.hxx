@@ -174,7 +174,8 @@ namespace pinocchio
     {
     }
 
-    JointModelSplineTpl(const std::vector<Transformation_t> & controlFrames, const size_t degree = 3)
+    JointModelSplineTpl(
+      const std::vector<Transformation_t> & controlFrames, const size_t degree = 3)
     : degree(degree)
     {
       setControlFrames(controlFrames);
@@ -223,29 +224,8 @@ namespace pinocchio
 
       SpanIndexes indexes = FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
 
-      // Basis functions and their derivatives
-      data.N.setZero();
-      data.N_der.setZero();
-      for (size_t i = indexes.start_idx; i < indexes.end_idx; i++)
-      {
-        data.N[i] = bsplineBasis(i, degree, data.joint_q[0]);
-        data.N_der[i] = bsplineBasisDerivative(i, degree, data.joint_q[0]);
-      }
-      // Compute joint transform M
-      data.M = ctrlFrames[indexes.start_idx];
-      // joint subspace S
-      data.S.matrix().setZero();
-      for (size_t i = indexes.start_idx + 1; i < indexes.end_idx; i++)
-      {
-        const Scalar phi_i = data.N.segment(i, indexes.end_idx - i).sum();
-        const Scalar phi_dot_i = data.N_der.segment(i, indexes.end_idx - i).sum();
-
-        const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
-
-        data.M = data.M * transformation_temp;
-        data.S.matrix() =
-          transformation_temp.actInv(data.S) + relativeMotions[i - 1].toVector() * phi_dot_i;
-      }
+      computeBasisFunctions(data, data.joint_q[0], indexes, false);
+      computeTransformations(data, indexes, false);
     }
 
     template<typename ConfigVector, typename TangentVector>
@@ -263,40 +243,8 @@ namespace pinocchio
 
       SpanIndexes indexes = FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
 
-      // Basis functions and their derivatives
-      data.N.setZero();
-      data.N_der.setZero();
-      data.N_der2.setZero();
-      for (size_t i = indexes.start_idx; i < indexes.end_idx; i++)
-      {
-        data.N[i] = bsplineBasis(i, degree, data.joint_q[0]);
-        data.N_der[i] = bsplineBasisDerivative(i, degree, data.joint_q[0]);
-        data.N_der2[i] = bsplineBasisDerivative2(i, degree, data.joint_q[0]);
-      }
-
-      data.S.matrix().setZero();
-      data.c.setZero();
-      data.v.setZero();
-      data.M = ctrlFrames[indexes.start_idx];
-      for (size_t i = indexes.start_idx + 1; i < indexes.end_idx; i++)
-      {
-        const Scalar phi_i = data.N.segment(i, indexes.end_idx - i).sum();
-        const Scalar phi_dot_i = data.N_der.segment(i, indexes.end_idx - i).sum();
-        const Scalar phi_ddot_i = data.N_der2.segment(i, indexes.end_idx - i).sum();
-
-        const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
-
-        data.M = data.M * transformation_temp;
-        // Compute dS/dq recursively
-        data.c = relativeMotions[i - 1] * phi_ddot_i
-                 + transformation_temp.actInv(
-                   data.c + Motion_t(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
-        data.S.matrix() =
-          transformation_temp.actInv(data.S) + relativeMotions[i - 1].toVector() * phi_dot_i;
-      }
-      // C = Sdot * qdot = (dS/dq * qdot) * dot
-      data.c = data.c * data.joint_v[0] * data.joint_v[0];
-      data.v = data.S * data.joint_v;
+      computeBasisFunctions(data, data.joint_q[0], indexes, true);
+      computeTransformations(data, indexes, true);
     }
 
     template<typename TangentVector>
@@ -305,42 +253,11 @@ namespace pinocchio
     {
       data.joint_v = vs.template segment<NV>(idx_v());
 
-      SpanIndexes indexes = FindSpan<Scalar, Options>::run(data.joint_q, degree, nbCtrlFrames, knots);
+      SpanIndexes indexes =
+        FindSpan<Scalar, Options>::run(data.joint_q, degree, nbCtrlFrames, knots);
 
-      // Basis functions and their derivatives
-      data.N.setZero();
-      data.N_der.setZero();
-      data.N_der2.setZero();
-      for (size_t i = indexes.start_idx; i < indexes.end_idx; i++)
-      {
-        data.N[i] = bsplineBasis(i, degree, data.joint_q[0]);
-        data.N_der[i] = bsplineBasisDerivative(i, degree, data.joint_q[0]);
-        data.N_der2[i] = bsplineBasisDerivative2(i, degree, data.joint_q[0]);
-      }
-
-      data.S.matrix().setZero();
-      data.c.setZero();
-      data.v.setZero();
-      data.M = ctrlFrames[indexes.start_idx];
-      for (size_t i = indexes.start_idx + 1; i < indexes.end_idx; i++)
-      {
-        const Scalar phi_i = data.N.segment(i, indexes.end_idx - i).sum();
-        const Scalar phi_dot_i = data.N_der.segment(i, indexes.end_idx - i).sum();
-        const Scalar phi_ddot_i = data.N_der2.segment(i, indexes.end_idx - i).sum();
-
-        const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
-
-        data.M = data.M * transformation_temp;
-        // Compute dS/dq recursively
-        data.c = relativeMotions[i - 1] * phi_ddot_i
-                 + transformation_temp.actInv(
-                   data.c + Motion_t(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
-        data.S.matrix() =
-          transformation_temp.actInv(data.S) + relativeMotions[i - 1].toVector() * phi_dot_i;
-      }
-      // C = Sdot * qdot = (dS/dq * qdot) * dot
-      data.c = data.c * data.joint_v[0] * data.joint_v[0];
-      data.v = data.S * data.joint_v;
+      computeBasisFunctions(data, data.joint_q[0], indexes, true);
+      computeTransformations(data, indexes, true);
     }
 
     template<typename VectorLike, typename Matrix6Like>
@@ -413,6 +330,64 @@ namespace pinocchio
     {
       makeKnots();
       computeRelativeMotions();
+    }
+
+    void computeBasisFunctions(
+      JointDataDerived & data,
+      const Scalar joint_q_val,
+      const SpanIndexes & indexes,
+      bool computeSecondDerivative = false) const
+    {
+      data.N.setZero();
+      data.N_der.setZero();
+      if (computeSecondDerivative)
+        data.N_der2.setZero();
+
+      for (size_t i = indexes.start_idx; i < indexes.end_idx; i++)
+      {
+        data.N[i] = bsplineBasis(i, degree, joint_q_val);
+        data.N_der[i] = bsplineBasisDerivative(i, degree, joint_q_val);
+        if (computeSecondDerivative)
+          data.N_der2[i] = bsplineBasisDerivative2(i, degree, joint_q_val);
+      }
+    }
+
+    void computeTransformations(
+      JointDataDerived & data, const SpanIndexes & indexes, bool computeVelocity = false) const
+    {
+      data.M = ctrlFrames[indexes.start_idx];
+      data.S.matrix().setZero();
+      if (computeVelocity)
+      {
+        data.c.setZero();
+        data.v.setZero();
+      }
+
+      for (size_t i = indexes.start_idx + 1; i < indexes.end_idx; i++)
+      {
+        const Scalar phi_i = data.N.segment(i, indexes.end_idx - i).sum();
+        const Scalar phi_dot_i = data.N_der.segment(i, indexes.end_idx - i).sum();
+
+        const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
+        data.M = data.M * transformation_temp;
+
+        if (computeVelocity)
+        {
+          const Scalar phi_ddot_i = data.N_der2.segment(i, indexes.end_idx - i).sum();
+          data.c = relativeMotions[i - 1] * phi_ddot_i
+                   + transformation_temp.actInv(
+                     data.c + Motion_t(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
+        }
+
+        data.S.matrix() =
+          transformation_temp.actInv(data.S) + relativeMotions[i - 1].toVector() * phi_dot_i;
+      }
+      if (computeVelocity)
+      {
+        // C = Sdot * qdot = (dS/dq * qdot) * dot
+        data.c = data.c * data.joint_v[0] * data.joint_v[0];
+        data.v = data.S * data.joint_v;
+      }
     }
 
     Scalar bsplineBasis(size_t i, size_t k, const Scalar x) const
@@ -536,7 +511,7 @@ namespace pinocchio
     size_t degree;
     size_t nbCtrlFrames;
     Vector knots;
-    
+
     std::vector<Transformation_t> ctrlFrames;
     std::vector<Motion_t> relativeMotions;
   }; // struct JointModelSplineTpl
@@ -571,4 +546,3 @@ namespace boost
   {
   };
 } // namespace boost
-
