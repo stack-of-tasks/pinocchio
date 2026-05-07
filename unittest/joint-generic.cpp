@@ -30,8 +30,8 @@ void test_joint_methods(
   Eigen::VectorXd armature =
     Eigen::VectorXd::Random(jdata.S().nv()) + Eigen::VectorXd::Ones(jdata.S().nv());
 
-  q1 = LieGroupType().random();
-  q2 = LieGroupType().random();
+  q1 = LieGroupType().randomConfiguration(lb, ub);
+  q2 = LieGroupType().randomConfiguration(lb, ub);
 
   Eigen::VectorXd v1(Eigen::VectorXd::Random(jdata.S().nv())),
     v2(Eigen::VectorXd::Random(jdata.S().nv()));
