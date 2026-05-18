@@ -1,0 +1,99 @@
+name: CI - macOS via Homebrew
+
+on:
+  push:
+    branches:
+      - devel
+    paths-ignore:
+      - doc/**
+      - .gitlab-ci.yml
+      - .gitignore
+      - "**.md"
+      - CITATION.*
+      - COPYING.LESSER
+      - colcon.pkg
+      - .pre-commit-config.yaml
+  pull_request:
+    paths-ignore:
+      - doc/**
+      - .gitlab-ci.yml
+      - .gitignore
+      - "**.md"
+      - CITATION.*
+      - COPYING.LESSER
+      - colcon.pkg
+      - .pre-commit-config.yaml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-homebrew-macos:
+    name: Homebrew - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, macos-15-intel]
+
+    env:
+      CCACHE_BASEDIR: ${{ github.workspace }}
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CCACHE_COMPRESS: true
+      CCACHE_COMPRESSLEVEL: 5
+            # Help ccache manage generated files and PCH (https://ccache.dev/manual/latest.html#_precompiled_headers)
+      CCACHE_SLOPPINESS: include_file_ctime,include_file_mtime,pch_defines,time_macros
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Setup ccache
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-macos-${{ matrix.os }}-${{ github.sha }}
+          restore-keys: ccache-macos-${{ matrix.os }}-
+
+      - name: Install Homebrew dependencies
+        run: |
+          brew update
+          brew install ccache doxygen graphviz boost boost-python3 coal console_bridge eigen eigenpy python numpy urdfdom octomap
+
+      - name: Configure
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+        run: |
+          cmake --log-level=DEBUG -G Ninja -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${GITHUB_WORKSPACE}/install" \
+            -DBUILD_UNIT_TESTS=ON \
+            -DBUILD_WITH_COLLISION_SUPPORT=ON \
+            -DPYTHON_EXECUTABLE="$(brew --prefix python)/bin/python3"
+
+      - name: Build
+        env:
+          CMAKE_BUILD_PARALLEL_LEVEL: 2
+        run: cmake --build build --verbose --config Release
+
+      - name: Install
+        run: cmake --install build
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
+
+  check:
+    if: always()
+    name: check-macos-homebrew
+    needs:
+      - build-homebrew-macos
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
