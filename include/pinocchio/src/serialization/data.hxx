@@ -145,6 +145,10 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar, data, d2tau_dvdv);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, d2tau_dqdv);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, d2tau_dadq);
+      PINOCCHIO_MAKE_DATA_NVP(ar, data, d2ddq_dqdq);
+      PINOCCHIO_MAKE_DATA_NVP(ar, data, d2ddq_dvdv);
+      PINOCCHIO_MAKE_DATA_NVP(ar, data, d2ddq_dqdv);
+      PINOCCHIO_MAKE_DATA_NVP(ar, data, d2ddq_dtaudq);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, kinematic_hessians);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, primal_dual_contact_solution);
 
