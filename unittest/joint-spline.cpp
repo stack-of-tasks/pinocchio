@@ -4,7 +4,6 @@
 
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/multibody/joint/joints.hpp"
-#include "pinocchio/algorithm/splines.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/crba.hpp"
@@ -126,7 +125,6 @@ BOOST_AUTO_TEST_CASE(makeKnots)
   knots_expected << 10., 10., 10., 10., 20., 30., 40., 40., 40., 40.;
   BOOST_CHECK(jmodel.knots.isApprox(knots_expected, 1e-5));
 }
-
 
 /// @brief Test to make sure the relative motions are correct
 BOOST_AUTO_TEST_CASE(relativeMotions)

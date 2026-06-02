@@ -5,6 +5,13 @@
 
 #pragma once
 
+// IWYU pragma: private, include "pinocchio/autodiff/casadi.hpp"
+
+#ifdef PINOCCHIO_LSP
+  #undef PINOCCHIO_LSP
+  #include "pinocchio/multibody/joint.hpp"
+#endif // PINOCCHIO_LSP
+
 namespace pinocchio
 {
   /// @brief Helper structure defining a range of indices.
@@ -34,8 +41,7 @@ namespace pinocchio
     {
       // Edge case: if q is at or beyond the end of the spline parameterization
       if (q[0] >= knots(knots.size() - 1))
-        return {
-          nbCtrlFrames - (degree + 1), nbCtrlFrames};
+        return {nbCtrlFrames - (degree + 1), nbCtrlFrames};
 
       size_t low = degree;
       size_t high = nbCtrlFrames;

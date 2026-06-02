@@ -47,7 +47,6 @@ set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/rnea-derivatives.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/rnea-second-order-derivatives.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/rnea.hpp
-    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/splines.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/solvers/admm-solver.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/solvers/anderson-acceleration.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/solvers/constraint-solver-base.hpp
@@ -375,6 +374,7 @@ set(${PROJECT_NAME}_CORE_PRIVATE_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-data-base.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-basic-visitors.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-model-base.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/spline-utils.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/constraints/constraint-data-base.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/constraints/kinematics-constraint-model-base.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/constraints/baumgarte-corrector-parameters.hxx
@@ -551,6 +551,7 @@ set(${PROJECT_NAME}_CASADI_PRIVATE_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/autodiff/casadi/math/triangular-matrix.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/autodiff/casadi/spatial/se3-tpl.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/autodiff/casadi/utils/static-if.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/src/autodiff/casadi/multibody/joint/spline-utils.hxx
 )
 
 # CPPAD

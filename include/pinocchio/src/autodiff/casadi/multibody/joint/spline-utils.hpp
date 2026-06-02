@@ -2,19 +2,17 @@
 // Copyright (c) 2025 INRIA
 //
 
-#ifndef __pinocchio_autodiff_casadi_splines_hpp__
-#define __pinocchio_autodiff_casadi_splines_hpp__
+#pragma once
 
-#include "pinocchio/algorithm/splines.hpp"
+// IWYU pragma: private, include "pinocchio/autodiff/casadi.hpp"
+
+#ifdef PINOCCHIO_LSP
+  #undef PINOCCHIO_LSP
+  #include "pinocchio/autodiff/casadi.hpp"
+#endif // PINOCCHIO_LSP
 
 namespace pinocchio
 {
-  // Fwd Declare
-  struct SpanIndexes;
-
-  template<typename Scalar, int Options>
-  struct FindSpan;
-
   template<int Options>
   struct FindSpan<::casadi::SX, Options>
   {
@@ -29,5 +27,3 @@ namespace pinocchio
     }
   };
 } // namespace pinocchio
-
-#endif // __pinocchio_autodiff_casadi_splines_hpp__

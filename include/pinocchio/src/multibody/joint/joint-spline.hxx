@@ -5,12 +5,12 @@
 
 #pragma once
 
+// IWYU pragma: private, include "pinocchio/multibody/joint.hpp"
+
 #ifdef PINOCCHIO_LSP
   #undef PINOCCHIO_LSP
   #include "pinocchio/multibody/joint.hpp"
 #endif // PINOCCHIO_LSP
-
-#include "pinocchio/algorithm/splines.hpp"
 
 namespace pinocchio
 {
