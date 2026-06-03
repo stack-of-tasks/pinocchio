@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Fix build issue with g++ 12 ([#2890](https://github.com/stack-of-tasks/pinocchio/pull/2890))
 - Fix useless memory allocation in Python checkers ([#2897](https://github.com/stack-of-tasks/pinocchio/pull/2897))
+- Fix mesh scaling in Viser visualizer ([#2903](https://github.com/stack-of-tasks/pinocchio/pull/2903))
 
 ### Changed
 

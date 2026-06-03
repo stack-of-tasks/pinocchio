@@ -201,12 +201,18 @@ class ViserVisualizer(BaseVisualizer):
             )
         elif isinstance(geom, MESH_TYPES):
             frame = self._add_mesh_from_path(
-                name, geometry_object.meshPath, color_override
+                name,
+                geometry_object.meshPath,
+                color_override,
+                geometry_object.meshScale,
             )
         elif isinstance(geom, coal.Convex):
             if len(geometry_object.meshPath) > 0:
                 frame = self._add_mesh_from_path(
-                    name, geometry_object.meshPath, color_override
+                    name,
+                    geometry_object.meshPath,
+                    color_override,
+                    geometry_object.meshScale,
                 )
             else:
                 frame = self._add_mesh_from_convex(name, geom, color_override)
@@ -215,16 +221,18 @@ class ViserVisualizer(BaseVisualizer):
 
         self.frames[name] = frame
 
-    def _add_mesh_from_path(self, name, mesh_path, color):
+    def _add_mesh_from_path(self, name, mesh_path, color, scale):
         """
         Load a mesh from a file.
         """
         extension = Path(mesh_path).suffix.lower()
         if extension == ".dae" or color is None:
             mesh = trimesh.load_scene(mesh_path)
+            mesh.apply_scale(scale)
             return self.viewer.scene.add_mesh_trimesh(name, mesh)
         else:
             mesh = trimesh.load_mesh(mesh_path)
+            mesh.apply_scale(scale)
             return self.viewer.scene.add_mesh_simple(
                 name,
                 mesh.vertices,
@@ -305,7 +313,7 @@ class ViserVisualizer(BaseVisualizer):
             # Update viewer configuration.
             frame_name = prefix + "/" + geometry_object.name
             frame = self.frames[frame_name]
-            frame.position = M.translation * geometry_object.meshScale
+            frame.position = M.translation
             frame.wxyz = pin.Quaternion(M.rotation).coeffs()[
                 [3, 0, 1, 2]
             ]  # Pinocchio uses xyzw
