@@ -217,4 +217,8 @@ namespace pinocchio
   template<typename Scalar, int Options = context::Options>
   struct FindSpan;
 
+  template<typename _Scalar, int _Options = context::Options>
+  struct JointModelSplineBuilderTpl;
+  typedef JointModelSplineBuilderTpl<context::Scalar> JointModelSplineBuilder;
+
 } // namespace pinocchio

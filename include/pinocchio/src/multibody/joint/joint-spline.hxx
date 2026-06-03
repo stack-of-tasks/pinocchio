@@ -171,32 +171,36 @@ namespace pinocchio
     }
 
     JointModelSplineTpl(
-      const size_t degree, const Scalar min_q = Scalar(0), const Scalar max_q = Scalar(1))
-    : degree(degree)
-    , nbCtrlFrames(0)
-    , min_q(min_q)
-    , max_q(max_q)
-    {
-    }
-
-    JointModelSplineTpl(
       const std::vector<Transformation_t> & controlFrames,
-      const size_t degree = 3,
-      const Scalar min_q = Scalar(0),
-      const Scalar max_q = Scalar(1))
+      const Vector & knotVector,
+      const size_t degree)
     : degree(degree)
-    , min_q(min_q)
-    , max_q(max_q)
     {
-      setControlFrames(controlFrames);
-    }
+      if (controlFrames.size() <= degree)
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument,
+          "JointSpline - Number of control frames must be greater than degree of spline.");
 
-    void setControlFrames(const std::vector<Transformation_t> & controlFrames)
-    {
       nbCtrlFrames = controlFrames.size();
-      ctrlFrames = controlFrames;
+      if (knotVector.size() != static_cast<Eigen::Index>(nbCtrlFrames + degree + 1))
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument,
+          "JointSpline - Size of knot vector should be nbControlFrames + degree + 1.");
 
-      buildJoint();
+      for (Eigen::Index i = 1; i < knotVector.size(); ++i)
+      {
+        if (knotVector[i] < knotVector[i - 1])
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument, "JointSpline - Knot vector must be non-decreasing (knots must "
+                                   "satisfy knots[i] <= knots[i+1]).");
+      }
+
+      min_q = knotVector[0];
+      max_q = knotVector[knots.size() - 1];
+      knots = knotVector;
+
+      ctrlFrames = controlFrames;
+      computeRelativeMotions();
     }
 
     JointDataDerived createData() const
@@ -307,45 +311,18 @@ namespace pinocchio
       for (size_t k = 0; k < ctrlFrames.size(); k++)
         res.ctrlFrames.push_back(ctrlFrames[k].template cast<NewScalar>());
 
-      res.buildJoint();
+      res.min_q = static_cast<NewScalar>(min_q);
+      res.max_q = static_cast<NewScalar>(max_q);
+      res.knots = knots.template cast<NewScalar>();
+
       res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
       return res;
-    }
-
-    void makeKnots()
-    {
-      if (nbCtrlFrames <= degree)
-        PINOCCHIO_THROW_PRETTY(
-          std::invalid_argument,
-          "JointSpline - Number of control frames must be greater than degree of the spline.");
-      const size_t n_knots = nbCtrlFrames + degree + 1;
-      knots.resize(n_knots);
-      knots.head(degree + 1).setZero();
-      const Scalar nInner = static_cast<Scalar>(nbCtrlFrames - degree - 1);
-      const Scalar denominator = static_cast<Scalar>(nInner + 1);
-
-      for (size_t i = degree + 1; i < nbCtrlFrames; i++)
-        knots[i] = static_cast<Scalar>(i - degree) / denominator;
-
-      knots.tail(degree + 1).setOnes();
-    }
-
-    void scaleKnots()
-    {
-      knots = min_q * Vector::Ones(knots.size()) + (max_q - min_q) * knots;
     }
 
     void computeRelativeMotions()
     {
       for (size_t i = 0; i < nbCtrlFrames - 1; i++)
         relativeMotions.push_back(log6(ctrlFrames[i].inverse() * ctrlFrames[i + 1]));
-    }
-
-    void buildJoint()
-    {
-      makeKnots();
-      scaleKnots();
-      computeRelativeMotions();
     }
 
     void computeBasisFunctions(
@@ -533,6 +510,160 @@ namespace pinocchio
     std::vector<Transformation_t> ctrlFrames;
     std::vector<Motion_t> relativeMotions;
   }; // struct JointModelSplineTpl
+
+  /// @brief Helper structure to specify attributes of a spline joint.
+  template<typename _Scalar, int _Options>
+  struct JointModelSplineBuilderTpl
+  {
+    using Scalar = _Scalar;
+    static constexpr int Options = _Options;
+
+    using JointModel_t = JointModelSplineTpl<Scalar, Options>;
+    using Transformation_t = typename JointModel_t::Transformation_t;
+    using Vector = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
+
+    enum class KnotPolicy
+    {
+      OpenUniform,
+      Uniform,
+      Custom
+    };
+
+    JointModelSplineBuilderTpl()
+    : degree_(3)
+    , min_q_(Scalar(0))
+    , max_q_(Scalar(1))
+    , knot_policy_(KnotPolicy::OpenUniform)
+    {
+    }
+
+    JointModelSplineBuilderTpl & addControlFrame(const Transformation_t & frame)
+    {
+      ctrlFrames_.push_back(frame);
+      return *this;
+    }
+
+    JointModelSplineBuilderTpl & withControlFrameVector(const std::vector<Transformation_t> & frames)
+    {
+      ctrlFrames_ = frames;
+      return *this;
+    }
+
+    JointModelSplineBuilderTpl & withDegree(size_t degree)
+    {
+      degree_ = degree;
+      return *this;
+    }
+
+    JointModelSplineBuilderTpl & withKnotVector(const Vector & knots)
+    {
+      knots_ = knots;
+      knot_policy_ = KnotPolicy::Custom;
+
+      return *this;
+    }
+
+    JointModelSplineBuilderTpl & withKnotVector(const std::vector<Scalar> & knots)
+    {
+      knots_.resize(knots.size());
+      for (size_t i = 0; i < knots.size(); ++i)
+        knots_[i] = knots[i];
+      knot_policy_ = KnotPolicy::Custom;
+
+      return *this;
+    }
+
+    JointModelSplineBuilderTpl & withRange(const Scalar min_q, const Scalar max_q)
+    {
+      min_q_ = min_q;
+      max_q_ = max_q;
+
+      return *this;
+    }
+
+    JointModelSplineBuilderTpl & withOpenUniformKnots()
+    {
+      knot_policy_ = KnotPolicy::OpenUniform;
+      return *this;
+    }
+
+    JointModelSplineBuilderTpl & withUniformKnots()
+    {
+      knot_policy_ = KnotPolicy::Uniform;
+      return *this;
+    }
+
+    JointModel_t build() const
+    {
+      Vector knots;
+
+      switch (knot_policy_)
+      {
+      case KnotPolicy::OpenUniform:
+        knots = generateOpenUniformKnots();
+        break;
+
+      case KnotPolicy::Uniform:
+        knots = generateUniformKnots();
+        break;
+
+      case KnotPolicy::Custom:
+        knots = knots_;
+        break;
+      default:
+        break;
+      }
+      return JointModel_t(ctrlFrames_, knots, degree_);
+    }
+
+  private:
+    Vector generateOpenUniformKnots() const
+    {
+      Vector knots;
+      const size_t nCtrl = ctrlFrames_.size();
+      const size_t n_knots = nCtrl + degree_ + 1;
+
+      knots.resize(n_knots);
+
+      const Scalar range = max_q_ - min_q_;
+
+      knots.head(degree_ + 1).setConstant(min_q_);
+      const Scalar nInner = static_cast<Scalar>(nCtrl - degree_ - 1);
+      const Scalar denominator = static_cast<Scalar>(nInner + 1);
+
+      for (size_t i = degree_ + 1; i < nCtrl; i++)
+        knots[i] = min_q_ + range * static_cast<Scalar>(i - degree_) / denominator;
+
+      knots.tail(degree_ + 1).setConstant(max_q_);
+      return knots;
+    }
+
+    Vector generateUniformKnots() const
+    {
+      Vector knots;
+      const size_t nCtrl = ctrlFrames_.size();
+      const size_t n_knots = nCtrl + degree_ + 1;
+
+      knots.resize(n_knots);
+
+      const Scalar step = (max_q_ - min_q_) / static_cast<Scalar>(n_knots - 1);
+
+      for (size_t i = 0; i < n_knots; ++i)
+        knots[i] = min_q_ + step * static_cast<Scalar>(i);
+      
+      return knots;
+    }
+
+    std::vector<Transformation_t> ctrlFrames_;
+
+    size_t degree_;
+
+    Scalar min_q_;
+    Scalar max_q_;
+
+    Vector knots_;
+    KnotPolicy knot_policy_;
+  }; // struct JointModelSplineBuilder
 
 } // namespace pinocchio
 
