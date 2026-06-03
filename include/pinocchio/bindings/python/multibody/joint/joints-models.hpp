@@ -296,35 +296,10 @@ namespace pinocchio
         .def(bp::init<>(
           bp::args("self"),
           "Init an empty joint Spline. Default degree of spline basis function is 3."))
-        .def(bp::init<int>(
-          bp::args("self", "degree"),
-          "Init an empty joint Spline, with the degree of the future basis functions"))
-        .def(bp::init<int, const context::Scalar, const context::Scalar>(
-          bp::args("self", "degree", "min_q", "max_q"),
-          "Init an empty joint Spline, with the degree of the future basis functions and with its "
-          "min and max q entry"))
-        .def(bp::init<const std::vector<context::SE3> &, int>(
-          bp::args("self", "controlFrames", "degree"),
-          "Init an empty joint Spline, with a list of controlFrames and the degree of the future "
+        .def(bp::init<const std::vector<context::SE3> &, context::VectorXs &, int>(
+          bp::args("self", "controlFrames", "knotVector", "degree"),
+          "Init a joint Spline, with a list of controlFrames, a knot vector and the degree of the future "
           "basis functions"))
-        .def(bp::init<
-             const std::vector<context::SE3> &, int, const context::Scalar, const context::Scalar>(
-          bp::args("self", "controlFrames", "degree"),
-          "Init an empty joint Spline, with a list of controlFrames and the degree of the future "
-          "and with its min and max q entry"
-          "basis functions"))
-        .def(
-          "setControlFrames", &context::JointModelSpline::setControlFrames, bp::arg("frames"),
-          "Add a vector of frames to the joint. It cannot be changed afterward and no frames can "
-          "be added afterwards either")
-        .def(
-          "makeKnots", &context::JointModelSpline::makeKnots,
-          "generate the knots vector for the spline. Call after all the control frame have been "
-          "added")
-        .def(
-          "computeRelativeMotion", &context::JointModelSpline::computeRelativeMotions,
-          "compute the relative motion between the control frames. Call after all the control "
-          "frames have been added")
         .def_readwrite(
           "degree", &context::JointModelSpline::degree, "Degree of the spline basis functions")
         .def_readwrite(
