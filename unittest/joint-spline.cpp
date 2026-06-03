@@ -110,20 +110,59 @@ BOOST_AUTO_TEST_CASE(makeKnots)
   for (int k = 0; k < 3; k++)
     ctrlFrames.push_back(SE3::Random());
 
-  BOOST_CHECK_THROW(JointModelSpline(ctrlFrames, degree), std::invalid_argument);
+  BOOST_CHECK_THROW(
+    JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(degree).build(),
+    std::invalid_argument);
 
   for (int k = 0; k < 3; k++)
     ctrlFrames.push_back(SE3::Random());
 
-  JointModelSpline jmodel(ctrlFrames, degree, min_q, max_q);
+  auto jmodel = JointModelSplineBuilder()
+                  .withControlFrameVector(ctrlFrames)
+                  .withDegree(degree)
+                  .withRange(min_q, max_q)
+                  .build();
 
   // Check size
-  BOOST_CHECK(jmodel.knots.size() == (degree + ctrlFrames.size() + 1));
+  BOOST_CHECK(jmodel.knots.size() == static_cast<Eigen::Index>(degree + ctrlFrames.size() + 1));
 
   // Check Values
   Eigen::VectorXd knots_expected(degree + ctrlFrames.size() + 1);
   knots_expected << 10., 10., 10., 10., 20., 30., 40., 40., 40., 40.;
   BOOST_CHECK(jmodel.knots.isApprox(knots_expected, 1e-5));
+}
+
+/// @brief Test bspline derivatives, with non uniform knot vector, ie value repeating itself could
+/// cause issues
+BOOST_AUTO_TEST_CASE(nonUniformKnots)
+{
+  size_t degree = 3;
+  std::vector<SE3> ctrlFrames;
+  for (int k = 0; k < 6; k++)
+    ctrlFrames.push_back(SE3::Random());
+
+  Eigen::VectorXd knots_non_uniform(degree + ctrlFrames.size() + 1);
+  knots_non_uniform << 0., 0.1, 0.15, 0.15, 0.15, 0.6, 0.8, 0.8, 1.;
+
+  auto jmodel = JointModelSplineBuilder()
+                  .withControlFrameVector(ctrlFrames)
+                  .withDegree(degree)
+                  .withKnotVector(knots_non_uniform)
+                  .build();
+  auto data = jmodel.createData();
+
+  for (double q = 0.0; q <= 1.0; q += 0.2)
+  {
+    Eigen::VectorXd qvec(1);
+    qvec[0] = q;
+
+    jmodel.calc(data, qvec);
+    for (int i = 0; i < data.N_der.size(); ++i)
+    {
+      BOOST_CHECK(std::isfinite(data.N[i]));
+      BOOST_CHECK(std::isfinite(data.N_der[i]));
+    }
+  }
 }
 
 /// @brief Test to make sure the relative motions are correct
@@ -141,8 +180,8 @@ BOOST_AUTO_TEST_CASE(relativeMotions)
     ctrlFrames.push_back(currentFrame * exp6(relativeMotions.back()));
   }
 
-  JointModelSpline jmodel(ctrlFrames, degree);
-
+  auto jmodel =
+    JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(degree).build();
   // Check size
   BOOST_CHECK(jmodel.relativeMotions.size() == (ctrlFrames.size() - 1));
 
@@ -162,7 +201,8 @@ BOOST_AUTO_TEST_CASE(basisSplineFunctions)
   ctrlFrames.push_back(SE3::Random());
   ctrlFrames.push_back(SE3::Random());
 
-  JointModelSpline jmodel(ctrlFrames, degree);
+  auto jmodel =
+    JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(degree).build();
   jmodel.setIndexes(0, 0, 0);
   JointDataSpline jdata = jmodel.createData();
 
@@ -211,8 +251,8 @@ BOOST_AUTO_TEST_CASE(findSpan)
   for (int k = 0; k < 10; k++)
     ctrlFrames.push_back(SE3::Random());
 
-  JointModelSpline jmodel(ctrlFrames, degree);
-
+  auto jmodel =
+    JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(degree).build();
   Eigen::VectorXd q(1);
   q << 0.5;
   SpanIndexes indexes =
@@ -244,7 +284,8 @@ BOOST_AUTO_TEST_CASE(vsPrismaticZ)
   ctrlFrames.push_back(SE3::Identity());
   ctrlFrames.push_back(SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)));
 
-  JointModelSpline jmodel(ctrlFrames, 1);
+  auto jmodel = JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(1).build();
+
   JointDataSpline jdata = jmodel.createData();
   jmodel.setIndexes(0, 0, 0);
 
@@ -292,7 +333,7 @@ BOOST_AUTO_TEST_CASE(vsRevoluteX)
   ctrlFrames.push_back(SE3::Identity());
   ctrlFrames.push_back(SE3(Rx.toRotationMatrix(), Eigen::Vector3d(0., 0., 0.)));
 
-  JointModelSpline jmodel(ctrlFrames, 1);
+  auto jmodel = JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(1).build();
   JointDataSpline jdata = jmodel.createData();
   jmodel.setIndexes(0, 0, 0);
 
@@ -339,7 +380,8 @@ BOOST_AUTO_TEST_CASE(abaVSrnea)
   std::vector<SE3> ctrlFrames;
   getTrajectory(ctrlFrames);
   addJointAndBody(
-    modelSpline, JointModelSpline(ctrlFrames), 0, SE3::Identity(), "kneeSpline", inertia);
+    modelSpline, JointModelSplineBuilder().withControlFrameVector(ctrlFrames).build(), 0,
+    SE3::Identity(), "kneeSpline", inertia);
   Data dataSplineRnea(modelSpline);
   Data dataSplineAba(modelSpline);
 
@@ -369,7 +411,7 @@ BOOST_AUTO_TEST_CASE(vsFiniteDifference)
   std::vector<SE3> ctrlFrames;
   getTrajectory(ctrlFrames);
 
-  JointModelSpline jmodel(ctrlFrames);
+  auto jmodel = JointModelSplineBuilder().withControlFrameVector(ctrlFrames).build();
   JointDataSpline jdata = jmodel.createData();
 
   jmodel.setIndexes(0, 0, 0);

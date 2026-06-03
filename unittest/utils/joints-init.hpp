@@ -259,7 +259,8 @@ namespace pinocchio
       for (int k = 0; k < 5; k++)
         ctrlFrames.push_back(SE3::Random());
 
-      JointModel jmodel(ctrlFrames, 3);
+      JointModel jmodel =
+        JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(degree).build();
       jmodel.setIndexes(0, 0, 0);
 
       typename JointModel::ConfigVector_t lb = JointModel::ConfigVector_t::Constant(jmodel.nq(), 0);
