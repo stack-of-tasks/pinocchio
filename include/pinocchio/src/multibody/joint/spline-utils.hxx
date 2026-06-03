@@ -5,7 +5,7 @@
 
 #pragma once
 
-// IWYU pragma: private, include "pinocchio/autodiff/casadi.hpp"
+// IWYU pragma: private, include "pinocchio/multibody/joint.hpp
 
 #ifdef PINOCCHIO_LSP
   #undef PINOCCHIO_LSP

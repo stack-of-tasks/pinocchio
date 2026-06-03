@@ -25,7 +25,7 @@
 #include "pinocchio/eigen-common.hpp"
 #include "pinocchio/math.hpp"
 #include "pinocchio/spatial.hpp"
-#include "pinocchio/src/multibody/joint/fwd.hxx"
+#include "pinocchio/src/multibody/joint/spline-utils.hxx"
 // IWYU pragma: end_keep
 
 namespace boost
@@ -350,5 +350,5 @@ namespace Eigen
 #include "pinocchio/src/autodiff/casadi/math/triangular-matrix.hxx"
 #include "pinocchio/src/autodiff/casadi/spatial/se3-tpl.hxx"
 #include "pinocchio/src/autodiff/casadi/utils/static-if.hxx"
-#include "pinocchio/autodiff/casadi/multibody/joint/spline-utils.hxx"
+#include "pinocchio/src/autodiff/casadi/multibody/joint/spline-utils.hxx"
 // IWYU pragma: end_exports
