@@ -112,7 +112,7 @@ namespace pinocchio
         "buildModelFromMJCF", pinocchio::python::buildModelFromMJCFAndRootJointDeprecated,
         bp::args("mjcf_filename", "root_joint", "root_joint_name"),
         eigenpy::deprecated_function<>(
-          "Deprecated function. Use buildModelAndLegacyConstraintsFromMjcf "
+          "Deprecated function. Use buildModelAndLegacyConstraintsFromMJCF "
           "instead."),
         "Parse the MJCF file and return a pinocchio Model with "
         "the given root Joint and its "

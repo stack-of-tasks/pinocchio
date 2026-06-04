@@ -13,6 +13,10 @@
 
 namespace pinocchio
 {
+  template<typename Scalar>
+  struct BaumgarteCorrectorParametersTpl;
+  typedef BaumgarteCorrectorParametersTpl<context::Scalar> BaumgarteCorrectorParameters;
+
   /// \brief Non-constant constraints possess a current selection.
   /// For example, joints too far from their limits can be removed from the current
   /// selection, leaving only joints about to hit their limits to be considered by

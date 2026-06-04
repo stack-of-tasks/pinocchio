@@ -184,6 +184,14 @@ cmake_dependent_option(
     BUILD_PYTHON_INTERFACE
     OFF
 )
+if(BUILD_PYTHON_INTERFACE)
+    set(BINDINGS_FRAMEWORK
+        "Boost"
+        CACHE STRING
+        "Python bindings framework to use."
+    )
+    set_property(CACHE BINDINGS_FRAMEWORK PROPERTY STRINGS "Boost" "Nanobind")
+endif()
 cmake_dependent_option(
     BUILD_WITH_LIBPYTHON
     "Build the library with Python format support"

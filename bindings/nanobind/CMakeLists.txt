@@ -1,0 +1,230 @@
+#
+# Copyright (c) 2026 INRIA
+#
+
+# Try cmake config first (system install), then fall back to Python module.
+find_package(nanobind CONFIG QUIET)
+if(NOT nanobind_FOUND)
+    execute_process(
+        COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE _NB_CMAKE_DIR
+        RESULT_VARIABLE _NB_RESULT
+    )
+    if(NOT _NB_RESULT EQUAL 0)
+        message(
+            FATAL_ERROR
+            "nanobind not found. Install it with: pip install nanobind"
+        )
+    endif()
+    list(APPEND CMAKE_PREFIX_PATH "${_NB_CMAKE_DIR}")
+    find_package(nanobind CONFIG REQUIRED)
+endif()
+
+# --- PYTHON TARGET --- #
+set(PYWRAP ${PROJECT_NAME}_pywrap)
+set(PYWRAP ${PYWRAP} PARENT_SCOPE)
+
+set(PYWRAP_SOURCES
+    module.cpp
+    expose-constraints.cpp
+    expose-spatial.cpp
+    expose-math.cpp
+    expose-multibody.cpp
+    expose-algorithm.cpp
+    expose-coal.cpp
+    expose-parsers.cpp
+    expose-rpy.cpp
+    algorithm/aba.cpp
+    algorithm/aba-derivatives.cpp
+    algorithm/cat.cpp
+    algorithm/constrained-dynamics.cpp
+    algorithm/constrained-dynamics-derivatives.cpp
+    algorithm/impulse-dynamics.cpp
+    algorithm/impulse-dynamics-derivatives.cpp
+    algorithm/contact-dynamics.cpp
+    algorithm/contact-inverse-dynamics.cpp
+    algorithm/contact-jacobian.cpp
+    algorithm/crba.cpp
+    algorithm/delassus.cpp
+    algorithm/geometry.cpp
+    algorithm/joints.cpp
+    algorithm/energy.cpp
+    algorithm/rnea.cpp
+    algorithm/kinematics.cpp
+    algorithm/lcaba.cpp
+    algorithm/frames.cpp
+    algorithm/frames-derivatives.cpp
+    algorithm/model.cpp
+    algorithm/kinematic-regressor.cpp
+    algorithm/regressor.cpp
+    algorithm/jacobian.cpp
+    algorithm/kinematics-derivatives.cpp
+    algorithm/cholesky.cpp
+    algorithm/com.cpp
+    algorithm/centroidal.cpp
+    algorithm/centroidal-derivatives.cpp
+    algorithm/rnea-derivatives.cpp
+    algorithm/constraint-solvers.cpp
+    collision/broadphase.cpp
+    collision/broadphase-callbacks.cpp
+    collision/collision.cpp
+    collision/pool.cpp
+    constraints/constraint-collection.cpp
+    constraints/cones.cpp
+    multibody/liegroups.cpp
+    multibody/sample-models.cpp
+    spatial/skew.cpp
+    spatial/explog.cpp
+    utils/conversions.cpp
+    parsers/mjcf.cpp
+    parsers/srdf.cpp
+    parsers/urdf/console-bridge.cpp
+    parsers/urdf/model.cpp
+    parsers/urdf/geometry.cpp
+)
+
+if(BUILD_WITH_SDF_SUPPORT)
+    list(APPEND PYWRAP_SOURCES parsers/sdf/model.cpp parsers/sdf/geometry.cpp)
+endif()
+
+if(BUILD_WITH_OPENMP_SUPPORT)
+    list(APPEND PYWRAP_SOURCES algorithm/parallel.cpp multibody/pool.cpp)
+endif()
+
+file(
+    GLOB_RECURSE PYWRAP_HEADERS
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python-nb/*.hpp
+)
+
+add_custom_target(${PROJECT_NAME}-python)
+set_target_properties(
+    ${PROJECT_NAME}-python
+    PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True
+)
+
+if(IS_ABSOLUTE ${PYTHON_SITELIB})
+    set(ABSOLUTE_PYTHON_SITELIB ${PYTHON_SITELIB})
+else()
+    set(ABSOLUTE_PYTHON_SITELIB ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITELIB})
+endif()
+set(PINOCCHIO_PYTHON_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})
+
+# --- BUILD MODULE --- #
+set(NB_MODULE_NAME ${PYWRAP}_default)
+
+nanobind_add_module(${NB_MODULE_NAME} NB_STATIC NB_SUPPRESS_WARNINGS ${PYWRAP_SOURCES}
+                    ${PYWRAP_HEADERS}
+)
+
+add_dependencies(${PROJECT_NAME}-python ${NB_MODULE_NAME})
+
+target_link_libraries(${NB_MODULE_NAME} PUBLIC ${PROJECT_NAME}::${PROJECT_NAME})
+
+if(BUILD_WITH_URDF_SUPPORT)
+    # Link directly against console_bridge since we bind some enums and call
+    # console_bridge::setLogLevel function.
+    target_link_libraries(
+        ${NB_MODULE_NAME}
+        PUBLIC console_bridge::console_bridge
+    )
+endif()
+
+if(BUILD_WITH_COLLISION_SUPPORT)
+    target_compile_definitions(
+        ${NB_MODULE_NAME}
+        PRIVATE PINOCCHIO_PYTHON_INTERFACE_WITH_COLLISION_PYTHON_BINDINGS
+    )
+endif()
+
+if(BUILD_WITH_OPENMP_SUPPORT)
+    # OpenMP is linked with pinocchio_parallel target
+    target_compile_definitions(
+        ${NB_MODULE_NAME}
+        PRIVATE PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
+    )
+endif()
+
+if(BUILD_WITH_ACCELERATE_SUPPORT)
+    # todo: probably use FindAccelerate instead?
+    target_link_libraries(${NB_MODULE_NAME} PRIVATE "-framework accelerate")
+endif()
+
+target_compile_definitions(
+    ${NB_MODULE_NAME}
+    PRIVATE PINOCCHIO_PYTHON_MODULE_NAME=${NB_MODULE_NAME}
+)
+
+set(_NB_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}")
+
+set_target_properties(
+    ${NB_MODULE_NAME}
+    PROPERTIES
+        OUTPUT_NAME "${NB_MODULE_NAME}"
+        LIBRARY_OUTPUT_DIRECTORY "${_NB_OUTPUT_DIRECTORY}"
+        # On Windows, shared libraries are treated as binaries
+        RUNTIME_OUTPUT_DIRECTORY "${_NB_OUTPUT_DIRECTORY}"
+        VERSION ${PROJECT_VERSION}
+)
+
+if(UNIX)
+    get_relative_rpath(${PINOCCHIO_PYTHON_INSTALL_DIR} _NB_INSTALL_RPATH)
+    set_target_properties(
+        ${NB_MODULE_NAME}
+        PROPERTIES INSTALL_RPATH "${_NB_INSTALL_RPATH}"
+    )
+endif()
+
+# --- INSTALL CORE MODULE SCRIPTS
+install_python_files(
+    FILES __init__.py
+          deprecated.py
+          utils.py
+          robot_wrapper.py
+          romeo_wrapper.py
+          explog.py
+          shortcuts.py
+          windows_dll_manager.py
+)
+
+# --- INSTALL VISUALIZE MODULE SCRIPTS
+install_python_files(
+    MODULE visualize
+    FILES __init__.py
+        base_visualizer.py
+        gepetto_visualizer.py
+        meshcat_visualizer.py
+        panda3d_visualizer.py
+        rviz_visualizer.py
+        viser_visualizer.py
+        visualizers.py
+)
+
+install(
+    TARGETS ${NB_MODULE_NAME}
+    EXPORT ${TARGETS_EXPORT_NAME}
+    DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}
+)
+
+# --- STUBS --- #
+if(GENERATE_PYTHON_STUBS)
+    nanobind_add_stub(
+        ${NB_MODULE_NAME}_stub
+        VERBOSE
+        RECURSIVE
+        MODULE ${NB_MODULE_NAME}
+        OUTPUT_PATH ${_NB_OUTPUT_DIRECTORY}
+        PYTHON_PATH ${_NB_OUTPUT_DIRECTORY}
+        MARKER_FILE ${_NB_OUTPUT_DIRECTORY}/py.typed
+        DEPENDS ${NB_MODULE_NAME}
+    )
+
+    install(
+        DIRECTORY "${_NB_OUTPUT_DIRECTORY}/${NB_MODULE_NAME}"
+        DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}
+    )
+    install(
+        FILES "${_NB_OUTPUT_DIRECTORY}/py.typed"
+        DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}
+    )
+endif(GENERATE_PYTHON_STUBS)
