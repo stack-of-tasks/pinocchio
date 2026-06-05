@@ -2,10 +2,9 @@
 // Copyright (c) 2025 INRIA
 //
 
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/algorithm/model.hpp"
-#include "pinocchio/multibody/sample-models.hpp"
-#include <iostream>
+#include <vector>
+
+#include "pinocchio/multibody/joint.hpp"
 
 namespace pinocchio
 {
@@ -259,8 +258,11 @@ namespace pinocchio
       for (int k = 0; k < 5; k++)
         ctrlFrames.push_back(SE3::Random());
 
-      JointModel jmodel =
-        JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(3).build();
+      JointModel jmodel = JointModelSplineBuilder()
+                            .withControlFrameVector(ctrlFrames)
+                            .withDegree(3)
+                            .withOpenUniformKnots(0., 1.)
+                            .build();
       jmodel.setIndexes(0, 0, 0);
 
       typename JointModel::ConfigVector_t lb = JointModel::ConfigVector_t::Constant(jmodel.nq(), 0);
