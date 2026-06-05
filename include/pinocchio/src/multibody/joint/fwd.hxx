@@ -213,12 +213,15 @@ namespace pinocchio
   struct JointDataTpl;
   typedef JointDataTpl<context::Scalar> JointData;
 
-  struct SpanIndexes;
-  template<typename Scalar, int Options = context::Options>
-  struct FindSpan;
-
   template<typename _Scalar, int _Options = context::Options>
   struct JointModelSplineBuilderTpl;
   typedef JointModelSplineBuilderTpl<context::Scalar> JointModelSplineBuilder;
+
+  namespace internal
+  {
+    struct SpanIndexes;
+    template<typename Scalar, int Options = context::Options>
+    struct FindSpan;
+  } // namespace
 
 } // namespace pinocchio

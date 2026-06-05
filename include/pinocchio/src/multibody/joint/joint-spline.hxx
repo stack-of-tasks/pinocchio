@@ -153,6 +153,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSplineTpl<_Scalar, _Options> JointDerived;
     typedef Eigen::Vector<_Scalar, Eigen::Dynamic> Vector;
+    typedef internal::SpanIndexes SpanIndexes;
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
 
     typedef JointModelBase<JointModelSplineTpl> Base;
@@ -175,6 +176,8 @@ namespace pinocchio
       const Vector & knotVector,
       const size_t degree)
     : degree(degree)
+    , ctrlFrames(controlFrames)
+    , knots(knotVector)
     {
       if (controlFrames.size() <= degree)
         PINOCCHIO_THROW_PRETTY(
@@ -197,9 +200,7 @@ namespace pinocchio
 
       min_q = knotVector[0];
       max_q = knotVector[knots.size() - 1];
-      knots = knotVector;
 
-      ctrlFrames = controlFrames;
       computeRelativeMotions();
     }
 
@@ -230,12 +231,13 @@ namespace pinocchio
     void calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVector> & qs) const
     {
       assert(
-        check_expression_if_real<Scalar>(qs[0] >= knots[0] && qs[0] <= knots(knots.size() - 1))
-        && "Spline joint configuration (q) must be between 0 and 1. ");
+        check_expression_if_real<Scalar>(qs[0] >= min_q && qs[0] <= max_q)
+        && "Spline joint configuration (q) must be between min_q and max_q. ");
 
       data.joint_q = qs.template segment<NQ>(idx_q());
 
-      SpanIndexes indexes = FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
+      SpanIndexes indexes =
+        internal::FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
 
       computeBasisFunctions(data, data.joint_q[0], indexes, false);
       computeTransformations(data, indexes, false);
@@ -248,13 +250,14 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVector> & vs) const
     {
       assert(
-        check_expression_if_real<Scalar>(qs[0] >= knots[0] && qs[0] <= knots(knots.size() - 1))
-        && "Spline joint configuration (q) must be between min and max. ");
+        check_expression_if_real<Scalar>(qs[0] >= min_q && qs[0] <= max_q)
+        && "Spline joint configuration (q) must be between min_q and max_q. ");
 
       data.joint_q = qs.template segment<NQ>(idx_q());
       data.joint_v = vs.template segment<NV>(idx_v());
 
-      SpanIndexes indexes = FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
+      SpanIndexes indexes =
+        internal::FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
 
       computeBasisFunctions(data, data.joint_q[0], indexes, true);
       computeTransformations(data, indexes, true);
@@ -267,7 +270,7 @@ namespace pinocchio
       data.joint_v = vs.template segment<NV>(idx_v());
 
       SpanIndexes indexes =
-        FindSpan<Scalar, Options>::run(data.joint_q, degree, nbCtrlFrames, knots);
+        internal::FindSpan<Scalar, Options>::run(data.joint_q, degree, nbCtrlFrames, knots);
 
       computeBasisFunctions(data, data.joint_q[0], indexes, true);
       computeTransformations(data, indexes, true);
@@ -319,6 +322,17 @@ namespace pinocchio
       return res;
     }
 
+    // attributes
+    size_t degree;
+    size_t nbCtrlFrames;
+    Vector knots;
+    Scalar min_q;
+    Scalar max_q;
+
+    std::vector<Transformation_t> ctrlFrames;
+    std::vector<Motion_t> relativeMotions;
+
+  private:
     void computeRelativeMotions()
     {
       for (size_t i = 0; i < nbCtrlFrames - 1; i++)
@@ -338,10 +352,10 @@ namespace pinocchio
 
       for (size_t i = indexes.start_idx; i < indexes.end_idx; i++)
       {
-        data.N[i] = bsplineBasis(i, degree, joint_q_val);
-        data.N_der[i] = bsplineBasisDerivative(i, degree, joint_q_val);
+        data.N[i] = internal::bsplineBasis(i, degree, joint_q_val, knots);
+        data.N_der[i] = internal::bsplineBasisDerivative(i, degree, joint_q_val, knots);
         if (computeSecondDerivative)
-          data.N_der2[i] = bsplineBasisDerivative2(i, degree, joint_q_val);
+          data.N_der2[i] = internal::bsplineBasisDerivative2(i, degree, joint_q_val, knots);
       }
     }
 
@@ -382,133 +396,6 @@ namespace pinocchio
         data.v = data.S * data.joint_v;
       }
     }
-
-    Scalar bsplineBasis(size_t i, size_t k, const Scalar x) const
-    {
-      using internal::if_then_else;
-      if (k == 0)
-      {
-        // clang-format off
-        // if(knots[i] <= x && x <= knots[i + 1])
-        //  return 1;
-        // else
-        //  return 0;
-        // clang-format on
-        return if_then_else(
-          internal::LE, knots[i], x,
-          if_then_else(internal::LE, x, knots[i + 1], Scalar(1), Scalar(0)), Scalar(0));
-      }
-
-      // Calculate the left term
-      // clang-format off
-      // if(den1 > dummy_precision)
-      //  left = (x - knots[i]) / den1 * bsplineBasis(i, k - 1, x)
-      // else
-      //  left = 0
-      // clang-format on
-      const Scalar den1 = knots[i + k] - knots[i];
-      const Scalar left = if_then_else(
-        internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (x - knots[i]) / den1 * bsplineBasis(i, k - 1, x), Scalar(0));
-
-      // Calculate the right term
-      // clang-format off
-      // if(den2 > dummy_precision)
-      //  right = (knots[i + k + 1] - x) / den2 * bsplineBasis(i + 1, k - 1, x)
-      // else
-      //  right = 0
-      // clang-format on
-      const Scalar den2 = knots[i + k + 1] - knots[i + 1];
-      const Scalar right = if_then_else(
-        internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (knots[i + k + 1] - x) / den2 * bsplineBasis(i + 1, k - 1, x), Scalar(0));
-
-      return left + right;
-    }
-    Scalar bsplineBasisDerivative(size_t i, size_t k, const Scalar x) const
-    {
-      using internal::if_then_else;
-
-      if (k == 0)
-      {
-        return Scalar(0);
-      }
-      const Scalar k_scalar = static_cast<Scalar>(k);
-
-      // Calculate the first term of the derivative
-      // clang-format off
-      // if(den1 > dummy_precision)
-      //  term1 = (k_scalar / den1) * bsplineBasis(i, k - 1, x)
-      // else
-      //  term1 = 0
-      // clang-format on
-      const Scalar den1 = knots[i + k] - knots[i];
-      const Scalar term1 = if_then_else(
-        internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (k_scalar / den1) * bsplineBasis(i, k - 1, x), Scalar(0));
-
-      // Calculate the second term of the derivative
-      // clang-format off
-      // if(den2 > dummy_precision)
-      //  term2 = (k_scalar / den2) * bsplineBasis(i + 1, k - 1, x)
-      // else
-      //  term2 = 0
-      // clang-format on
-      const Scalar den2 = knots[i + k + 1] - knots[i + 1];
-      const Scalar term2 = if_then_else(
-        internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (k_scalar / den2) * bsplineBasis(i + 1, k - 1, x), Scalar(0));
-
-      return term1 - term2;
-    }
-
-    Scalar bsplineBasisDerivative2(size_t i, size_t k, const Scalar x) const
-    {
-      using internal::if_then_else;
-
-      if (k < 2)
-      {
-        return Scalar(0);
-      }
-
-      const Scalar k_scalar = static_cast<Scalar>(k);
-
-      // Calculate the first term
-      // clang-format off
-      // if(den1 > dummy_precision)
-      //  term1 = (k_scalar / den1) * bsplineBasisDerivative(i, k - 1, x)
-      // else
-      //  term1 = 0
-      // clang-format on
-      const Scalar den1 = knots[i + k] - knots[i];
-      const Scalar term1 = if_then_else(
-        internal::GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (k_scalar / den1) * bsplineBasisDerivative(i, k - 1, x), Scalar(0));
-
-      // Calculate the second term
-      // clang-format off
-      // if(den2 > dummy_precision)
-      //  term2 = (k_scalar / den2) * bsplineBasisDerivative(i + 1, k - 1, x)
-      // else
-      //  term2 = 0
-      // clang-format on
-      const Scalar den2 = knots[i + k + 1] - knots[i + 1];
-      const Scalar term2 = if_then_else(
-        internal::GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (k_scalar / den2) * bsplineBasisDerivative(i + 1, k - 1, x), Scalar(0));
-
-      return term1 - term2;
-    }
-
-    // attributes
-    size_t degree;
-    size_t nbCtrlFrames;
-    Vector knots;
-    Scalar min_q;
-    Scalar max_q;
-
-    std::vector<Transformation_t> ctrlFrames;
-    std::vector<Motion_t> relativeMotions;
   }; // struct JointModelSplineTpl
 
   /// @brief Helper structure to specify attributes of a spline joint.
@@ -543,7 +430,8 @@ namespace pinocchio
       return *this;
     }
 
-    JointModelSplineBuilderTpl & withControlFrameVector(const std::vector<Transformation_t> & frames)
+    JointModelSplineBuilderTpl &
+    withControlFrameVector(const std::vector<Transformation_t> & frames)
     {
       ctrlFrames_ = frames;
       return *this;
@@ -573,23 +461,21 @@ namespace pinocchio
       return *this;
     }
 
-    JointModelSplineBuilderTpl & withRange(const Scalar min_q, const Scalar max_q)
+    JointModelSplineBuilderTpl & withOpenUniformKnots(const Scalar min_q, const Scalar max_q)
     {
+      knot_policy_ = KnotPolicy::OpenUniform;
       min_q_ = min_q;
       max_q_ = max_q;
 
       return *this;
     }
 
-    JointModelSplineBuilderTpl & withOpenUniformKnots()
-    {
-      knot_policy_ = KnotPolicy::OpenUniform;
-      return *this;
-    }
-
-    JointModelSplineBuilderTpl & withUniformKnots()
+    JointModelSplineBuilderTpl & withUniformKnots(const Scalar min_q, const Scalar max_q)
     {
       knot_policy_ = KnotPolicy::Uniform;
+      min_q_ = min_q;
+      max_q_ = max_q;
+
       return *this;
     }
 
@@ -597,14 +483,15 @@ namespace pinocchio
     {
       Vector knots;
 
+      const size_t nCtrl = ctrlFrames_.size();
       switch (knot_policy_)
       {
       case KnotPolicy::OpenUniform:
-        knots = generateOpenUniformKnots();
+        knots = internal::generateOpenUniformKnots(min_q_, max_q_, nCtrl, degree_);
         break;
 
       case KnotPolicy::Uniform:
-        knots = generateUniformKnots();
+        knots = internal::generateUniformKnots(min_q_, max_q_, nCtrl, degree_);
         break;
 
       case KnotPolicy::Custom:
@@ -617,43 +504,6 @@ namespace pinocchio
     }
 
   private:
-    Vector generateOpenUniformKnots() const
-    {
-      Vector knots;
-      const size_t nCtrl = ctrlFrames_.size();
-      const size_t n_knots = nCtrl + degree_ + 1;
-
-      knots.resize(n_knots);
-
-      const Scalar range = max_q_ - min_q_;
-
-      knots.head(degree_ + 1).setConstant(min_q_);
-      const Scalar nInner = static_cast<Scalar>(nCtrl - degree_ - 1);
-      const Scalar denominator = static_cast<Scalar>(nInner + 1);
-
-      for (size_t i = degree_ + 1; i < nCtrl; i++)
-        knots[i] = min_q_ + range * static_cast<Scalar>(i - degree_) / denominator;
-
-      knots.tail(degree_ + 1).setConstant(max_q_);
-      return knots;
-    }
-
-    Vector generateUniformKnots() const
-    {
-      Vector knots;
-      const size_t nCtrl = ctrlFrames_.size();
-      const size_t n_knots = nCtrl + degree_ + 1;
-
-      knots.resize(n_knots);
-
-      const Scalar step = (max_q_ - min_q_) / static_cast<Scalar>(n_knots - 1);
-
-      for (size_t i = 0; i < n_knots; ++i)
-        knots[i] = min_q_ + step * static_cast<Scalar>(i);
-      
-      return knots;
-    }
-
     std::vector<Transformation_t> ctrlFrames_;
 
     size_t degree_;
