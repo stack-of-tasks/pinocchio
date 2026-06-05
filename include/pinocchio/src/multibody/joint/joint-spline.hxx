@@ -311,8 +311,15 @@ namespace pinocchio
       res.degree = degree;
       res.nbCtrlFrames = nbCtrlFrames;
       res.ctrlFrames.reserve(ctrlFrames.size());
-      for (size_t k = 0; k < ctrlFrames.size(); k++)
-        res.ctrlFrames.push_back(ctrlFrames[k].template cast<NewScalar>());
+      res.relativeMotions.reserve(relativeMotions.size());
+      for (const auto & cf : ctrlFrames)
+      {
+        res.ctrlFrames.push_back(cf.template cast<NewScalar>());
+      }
+      for (const auto & rm : relativeMotions)
+      {
+        res.relativeMotions.push_back(rm.template cast<NewScalar>());
+      }
 
       res.min_q = static_cast<NewScalar>(min_q);
       res.max_q = static_cast<NewScalar>(max_q);
@@ -504,6 +511,43 @@ namespace pinocchio
     }
 
   private:
+    Vector generateOpenUniformKnots() const
+    {
+      Vector knots;
+      const size_t nCtrl = ctrlFrames_.size();
+      const size_t n_knots = nCtrl + degree_ + 1;
+
+      knots.resize(n_knots);
+
+      const Scalar range = max_q_ - min_q_;
+
+      knots.head(degree_ + 1).setConstant(min_q_);
+      const Scalar nInner = static_cast<Scalar>(nCtrl - degree_ - 1);
+      const Scalar denominator = static_cast<Scalar>(nInner + 1);
+
+      for (size_t i = degree_ + 1; i < nCtrl; i++)
+        knots[i] = min_q_ + range * static_cast<Scalar>(i - degree_) / denominator;
+
+      knots.tail(degree_ + 1).setConstant(max_q_);
+      return knots;
+    }
+
+    Vector generateUniformKnots() const
+    {
+      Vector knots;
+      const size_t nCtrl = ctrlFrames_.size();
+      const size_t n_knots = nCtrl + degree_ + 1;
+
+      knots.resize(n_knots);
+
+      const Scalar step = (max_q_ - min_q_) / static_cast<Scalar>(n_knots - 1);
+
+      for (size_t i = 0; i < n_knots; ++i)
+        knots[i] = min_q_ + step * static_cast<Scalar>(i);
+
+      return knots;
+    }
+
     std::vector<Transformation_t> ctrlFrames_;
 
     size_t degree_;

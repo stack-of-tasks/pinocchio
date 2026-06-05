@@ -261,7 +261,7 @@ namespace pinocchio
       JointModel jmodel = JointModelSplineBuilder()
                             .withControlFrameVector(ctrlFrames)
                             .withDegree(3)
-                            .withOpenUniformKnots(0., 1.)
+                            .withUniformKnots(0., 1.)
                             .build();
       jmodel.setIndexes(0, 0, 0);
 
