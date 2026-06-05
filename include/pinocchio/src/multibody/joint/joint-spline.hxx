@@ -321,8 +321,8 @@ namespace pinocchio
         res.relativeMotions.push_back(rm.template cast<NewScalar>());
       }
 
-      res.min_q = static_cast<NewScalar>(min_q);
-      res.max_q = static_cast<NewScalar>(max_q);
+      res.min_q = ScalarCast<NewScalar, Scalar>::cast(min_q);
+      res.max_q = ScalarCast<NewScalar, Scalar>::cast(max_q);
       res.knots = knots.template cast<NewScalar>();
 
       res.setIndexes(id(), idx_q(), idx_v(), idx_vExtended());
