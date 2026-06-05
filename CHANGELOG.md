@@ -36,6 +36,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Extended `ModelTpl::addJoint` overload to accept `min_acceleration`, `max_acceleration`, `min_jerk`, `max_jerk` parameters
 - Add `PINOCCHIO_BUILD_BINDING_WITH_PCH` CMake option to use PCH to build Python bindings (default OFF) ([#2886](https://github.com/stack-of-tasks/pinocchio/pull/2886))
 - Add PINOCCHIO_BUILD_VISUALIZERS option ([#2900](https://github.com/stack-of-tasks/pinocchio/pull/2900))
+- Add spline joint (JointModelSplineTpl) to default joint collection ([#2784](https://github.com/stack-of-tasks/pinocchio/pull/2784))
+  - [Python example here](./examples/spline-joint.py)
 
 ### Fixed
 
@@ -202,7 +204,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add color support for robot meshes in Viser ([#2793](https://github.com/stack-of-tasks/pinocchio/pull/2793))
 - Add Realtime Sanitizer (RTSan) uniittest and CI to track dynamic allocations in main API ([#2809](https://github.com/stack-of-tasks/pinocchio/pull/2809))
 - Add Ellipsoid Joint (3-DOF surface constraint), get ready for biomechanics ([#2797](https://github.com/stack-of-tasks/pinocchio/pull/2797))
-- Add a new spline joint to default joint collection ([#2784](https://github.com/stack-of-tasks/pinocchio/pull/2784))
 
 ### Changed
 - Python version update ([#2802](https://github.com/stack-of-tasks/pinocchio/pull/2802)):
