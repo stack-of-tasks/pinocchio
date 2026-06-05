@@ -90,7 +90,6 @@ struct FiniteDiffJoint
     CV q =
       LieGroupType().randomConfiguration(JointModelWithParameters.lb, JointModelWithParameters.ub);
 
-    // CV q = LieGroupType().random();
     jmodel.calc(jdata.derived(), q);
     SE3 M_ref(jdata.M());
 
