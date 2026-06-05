@@ -388,6 +388,8 @@ namespace pinocchio
           if (!edge.forward)
             PINOCCHIO_THROW_PRETTY(
               std::invalid_argument, "Graph - JointSpline cannot be reversed.");
+          // The spline joint cannot be reversed because it's not trivial to generate
+          // a spline that will generate the inverse transform of the forward spline
 
           addJointBetweenBodies(joint, b_f);
         }
