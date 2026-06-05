@@ -192,10 +192,12 @@ namespace pinocchio
 
       for (Eigen::Index i = 1; i < knotVector.size(); ++i)
       {
-        if (!check_expression_if_real<Scalar>(knotVector[i] >= knotVector[i - 1]))
+        if (check_expression_if_real<Scalar>(knotVector[i] < knotVector[i - 1]))
+        {
           PINOCCHIO_THROW_PRETTY(
             std::invalid_argument, "JointSpline - Knot vector must be non-decreasing (knots must "
                                    "satisfy knots[i] <= knots[i+1]).");
+        }
       }
 
       min_q = knotVector[0];
