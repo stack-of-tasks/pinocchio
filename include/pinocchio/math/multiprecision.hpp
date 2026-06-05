@@ -9,7 +9,6 @@
 
 #include <Eigen/Core>
 
-#include <boost/mpl/bool_fwd.hpp>
 #include <boost/multiprecision/number.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_convertible.hpp>
