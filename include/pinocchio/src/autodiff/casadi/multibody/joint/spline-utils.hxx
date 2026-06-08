@@ -13,17 +13,20 @@
 
 namespace pinocchio
 {
-  template<int Options>
-  struct FindSpan<::casadi::SX, Options>
+  namespace internal
   {
-    template<typename ConfigVector, typename KnotsVector>
-    static SpanIndexes run(
-      const Eigen::MatrixBase<ConfigVector> & /*q*/,
-      const int /*degree*/,
-      const int nbCtrlFrames,
-      const Eigen::MatrixBase<KnotsVector> & /*knots*/)
+    template<int Options>
+    struct FindSpan<::casadi::SX, Options>
     {
-      return {0, static_cast<size_t>(nbCtrlFrames)};
-    }
-  };
+      template<typename ConfigVector, typename KnotsVector>
+      static SpanIndexes run(
+        const Eigen::MatrixBase<ConfigVector> & /*q*/,
+        const int /*degree*/,
+        const int nbCtrlFrames,
+        const Eigen::MatrixBase<KnotsVector> & /*knots*/)
+      {
+        return {0, static_cast<size_t>(nbCtrlFrames)};
+      }
+    };
+  } // namespace internal
 } // namespace pinocchio
