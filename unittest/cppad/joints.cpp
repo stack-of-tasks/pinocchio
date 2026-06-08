@@ -191,12 +191,17 @@ struct TestADOnJoints
   {
     typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
     typedef pinocchio::SE3Tpl<Scalar> SE3;
+    typedef pinocchio::JointModelSplineBuilderTpl<Scalar, Options> JointModelSplineBuilder;
 
-    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) ctrlFrames;
+    std::vector<SE3> ctrlFrames;
     for (int k = 0; k < 5; k++)
       ctrlFrames.push_back(SE3::Random());
 
-    JointModel jmodel(ctrlFrames, 3);
+    JointModel jmodel = JointModelSplineBuilder()
+                          .withControlFrameVector(ctrlFrames)
+                          .withDegree(3)
+                          .withUniformKnots(0., 1.)
+                          .build();
     jmodel.setIndexes(0, 0, 0);
 
     test(jmodel);
@@ -241,7 +246,6 @@ struct TestADOnJoints
     typedef pinocchio::JointMotionSubspaceTpl<Eigen::Dynamic, double> JointMotionSubspaceXd;
 
     typedef Eigen::Matrix<AD_scalar, Eigen::Dynamic, 1> VectorXAD;
-    typedef Eigen::Matrix<AD_scalar, 6, 1> Vector6AD;
 
     typedef pinocchio::JointModelSplineTpl<Scalar, Options> JointModel;
     typedef typename pinocchio::CastType<AD_scalar, JointModel>::type JointModelAD;
