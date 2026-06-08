@@ -248,11 +248,7 @@ namespace pinocchio
         }
         ReturnType operator()(const JointSpline & joint) const
         {
-          return JointModelSplineBuilder()
-            .withControlFrameVector(joint.ctrlFrames)
-            .withDegree(joint.degree)
-            .withRange(joint.min_q, joint.max_q)
-            .build();
+          return JointModelSpline(joint.ctrlFrames, joint.knots, joint.degree);
         }
         ReturnType operator()(const JointComposite & joint) const
         {
