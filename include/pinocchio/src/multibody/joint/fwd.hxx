@@ -222,6 +222,6 @@ namespace pinocchio
     struct SpanIndexes;
     template<typename Scalar, int Options = context::Options>
     struct FindSpan;
-  } // namespace
+  } // namespace internal
 
 } // namespace pinocchio

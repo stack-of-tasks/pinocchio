@@ -61,7 +61,8 @@ struct TestJointTransform
     typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
     LieGroupType lg;
 
-    Eigen::VectorXd q_random = lg.randomConfiguration(JointModelWithParameters.lb, JointModelWithParameters.ub);
+    Eigen::VectorXd q_random =
+      lg.randomConfiguration(JointModelWithParameters.lb, JointModelWithParameters.ub);
 
     jmodel.calc(jdata, q_random);
     Transform & m = jdata_base.M();
@@ -115,7 +116,8 @@ struct TestJointMotion
     typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
     LieGroupType lg;
 
-    Eigen::VectorXd q_random = lg.randomConfiguration(JointModelWithParameters.lb, JointModelWithParameters.ub);
+    Eigen::VectorXd q_random =
+      lg.randomConfiguration(JointModelWithParameters.lb, JointModelWithParameters.ub);
     Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
 
     jmodel.calc(jdata, q_random, v_random);
@@ -167,7 +169,8 @@ struct TestJointData
     typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
     LieGroupType lg;
 
-    Eigen::VectorXd q_random = lg.randomConfiguration(JointModelWithParameters.lb, JointModelWithParameters.ub);
+    Eigen::VectorXd q_random =
+      lg.randomConfiguration(JointModelWithParameters.lb, JointModelWithParameters.ub);
     Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
 
     jmodel.calc(jdata, q_random, v_random);
