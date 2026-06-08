@@ -425,7 +425,12 @@ BOOST_AUTO_TEST_CASE(test_spline)
     .withSourcePose(pose_body1_joint1)
     .withTargetVertex("body2")
     .withTargetPose(pose_body2_joint1)
-    .withJointType(JointSpline(ctrlFrames, 1))
+    .withJointType(
+      JointSplineBuilder()
+        .withDegree(1)
+        .withControlFrameVector(ctrlFrames)
+        .withOpenUniformKnots(0., 1.)
+        .build())
     .build();
 
   pinocchio::SE3 pose_body1_universe = pinocchio::SE3::Identity();
