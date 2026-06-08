@@ -368,7 +368,7 @@ namespace pinocchio
           break;
         }
 
-        return JointSpline(ctrlFrames, knots, degree);
+        return JointSpline(ctrlFrames, joint_knots, degree);
       }
 
     private:
