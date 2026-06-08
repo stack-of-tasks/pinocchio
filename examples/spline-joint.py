@@ -1,6 +1,6 @@
 import time
 
-import hppfcl
+import coal
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
@@ -61,7 +61,7 @@ joint_id = model.addJoint(
 
 # Attach a simple visual geometry (a box) to the joint
 visual_model = pin.GeometryModel()
-box_shape = hppfcl.Box(0.1, 0.2, 0.3)
+box_shape = coal.Box(0.1, 0.2, 0.3)
 # The placement of the geometry with respect to the joint frame
 geom_placement = pin.SE3.Identity()
 geom_obj = pin.GeometryObject("box", joint_id, geom_placement, box_shape)
