@@ -319,7 +319,7 @@ namespace pinocchio
       JointSplineBuilder & withKnotVector(const std::vector<double> & p_knots)
       {
         knots.resize(p_knots.size());
-        for (int i = 0; i < knots.size(); ++i)
+        for (std::size_t i = 0; i < p_knots.size(); ++i)
         {
           knots[i] = p_knots[i];
         }

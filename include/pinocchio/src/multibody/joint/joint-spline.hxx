@@ -463,7 +463,7 @@ namespace pinocchio
     JointModelSplineBuilderTpl & withKnotVector(const std::vector<Scalar> & knots)
     {
       knots_.resize(knots.size());
-      for (int i = 0; i < knots.size(); ++i)
+      for (std::size_t i = 0; i < knots.size(); ++i)
       {
         knots_[i] = knots[i];
       }
