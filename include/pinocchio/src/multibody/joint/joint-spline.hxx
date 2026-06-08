@@ -176,8 +176,8 @@ namespace pinocchio
       const Vector & knotVector,
       const size_t degree)
     : degree(degree)
-    , ctrlFrames(controlFrames)
     , knots(knotVector)
+    , ctrlFrames(controlFrames)
     {
       if (controlFrames.size() <= degree)
         PINOCCHIO_THROW_PRETTY(
