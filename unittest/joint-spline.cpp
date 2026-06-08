@@ -103,6 +103,7 @@ BOOST_AUTO_TEST_SUITE(JointSpline)
 BOOST_AUTO_TEST_CASE(makeKnots)
 {
   size_t degree = 3;
+  size_t nbFrames = 6;
   double min_q = 10;
   double max_q = 40;
 
@@ -114,22 +115,16 @@ BOOST_AUTO_TEST_CASE(makeKnots)
     JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(degree).build(),
     std::invalid_argument);
 
-  for (int k = 0; k < 3; k++)
-    ctrlFrames.push_back(SE3::Random());
-
-  auto jmodel = JointModelSplineBuilder()
-                  .withControlFrameVector(ctrlFrames)
-                  .withDegree(degree)
-                  .withRange(min_q, max_q)
-                  .build();
+  Eigen::VectorXd generated_knots =
+    internal::generateOpenUniformKnots(min_q, max_q, nbFrames, degree);
 
   // Check size
-  BOOST_CHECK(jmodel.knots.size() == static_cast<Eigen::Index>(degree + ctrlFrames.size() + 1));
+  BOOST_CHECK(generated_knots.size() == static_cast<Eigen::Index>(degree + nbFrames + 1));
 
   // Check Values
-  Eigen::VectorXd knots_expected(degree + ctrlFrames.size() + 1);
+  Eigen::VectorXd knots_expected(degree + nbFrames + 1);
   knots_expected << 10., 10., 10., 10., 20., 30., 40., 40., 40., 40.;
-  BOOST_CHECK(jmodel.knots.isApprox(knots_expected, 1e-5));
+  BOOST_CHECK(generated_knots.isApprox(knots_expected, 1e-5));
 }
 
 /// @brief Test bspline derivatives, with non uniform knot vector, ie value repeating itself could
@@ -138,17 +133,19 @@ BOOST_AUTO_TEST_CASE(nonUniformKnots)
 {
   size_t degree = 3;
   std::vector<SE3> ctrlFrames;
-  for (int k = 0; k < 6; k++)
+  for (int k = 0; k < 5; k++)
     ctrlFrames.push_back(SE3::Random());
 
   Eigen::VectorXd knots_non_uniform(degree + ctrlFrames.size() + 1);
-  knots_non_uniform << 0., 0.1, 0.15, 0.15, 0.15, 0.6, 0.8, 0.8, 1.;
+  knots_non_uniform << 0., 0.1, 0.12, 0.15, 0.15, 0.3, 0.6, 0.6, 1.;
 
   auto jmodel = JointModelSplineBuilder()
                   .withControlFrameVector(ctrlFrames)
                   .withDegree(degree)
                   .withKnotVector(knots_non_uniform)
                   .build();
+  jmodel.setIndexes(0, 0, 0);
+
   auto data = jmodel.createData();
 
   for (double q = 0.0; q <= 1.0; q += 0.2)
@@ -157,6 +154,8 @@ BOOST_AUTO_TEST_CASE(nonUniformKnots)
     qvec[0] = q;
 
     jmodel.calc(data, qvec);
+    BOOST_CHECK_CLOSE(data.N.sum(), 1, 1e-8);
+
     for (int i = 0; i < data.N_der.size(); ++i)
     {
       BOOST_CHECK(std::isfinite(data.N[i]));
@@ -205,7 +204,6 @@ BOOST_AUTO_TEST_CASE(basisSplineFunctions)
     JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(degree).build();
   jmodel.setIndexes(0, 0, 0);
   JointDataSpline jdata = jmodel.createData();
-
   Eigen::VectorXd q(1);
   q << 0;
   jmodel.calc(jdata, q);
@@ -230,12 +228,14 @@ BOOST_AUTO_TEST_CASE(basisSplineFunctions)
     double den1 = (jmodel.knots[i + degree] - jmodel.knots[i]);
     double left = 0;
     if (den1 > Eigen::NumTraits<double>::dummy_precision())
-      left = static_cast<double>(degree) / den1 * jmodel.bsplineBasis(i, degree - 1, q[0]);
+      left = static_cast<double>(degree) / den1
+             * internal::bsplineBasis(i, degree - 1, q[0], jmodel.knots);
 
     double den2 = (jmodel.knots[i + degree + 1] - jmodel.knots[i + 1]);
     double right = 0;
     if (den2 > Eigen::NumTraits<double>::dummy_precision())
-      right = static_cast<double>(degree) / den2 * jmodel.bsplineBasis(i + 1, degree - 1, q[0]);
+      right = static_cast<double>(degree) / den2
+              * internal::bsplineBasis(i + 1, degree - 1, q[0], jmodel.knots);
 
     BOOST_CHECK_CLOSE(left - right, jdata.N_der[i], 1e-5);
   }
@@ -255,20 +255,20 @@ BOOST_AUTO_TEST_CASE(findSpan)
     JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(degree).build();
   Eigen::VectorXd q(1);
   q << 0.5;
-  SpanIndexes indexes =
-    pinocchio::FindSpan<double, 0>::run(q, degree, ctrlFrames.size(), jmodel.knots);
+  internal::SpanIndexes indexes =
+    internal::FindSpan<double, 0>::run(q, degree, ctrlFrames.size(), jmodel.knots);
 
   BOOST_CHECK(indexes.start_idx == 4);
   BOOST_CHECK(indexes.end_idx == 7);
 
   q[0] = 1;
-  indexes = pinocchio::FindSpan<double, 0>::run(q, degree, ctrlFrames.size(), jmodel.knots);
+  indexes = internal::FindSpan<double, 0>::run(q, degree, ctrlFrames.size(), jmodel.knots);
 
   BOOST_CHECK(indexes.start_idx == ctrlFrames.size() - (degree + 1));
   BOOST_CHECK(indexes.end_idx == ctrlFrames.size());
 
   q[0] = 0;
-  indexes = pinocchio::FindSpan<double, 0>::run(q, degree, ctrlFrames.size(), jmodel.knots);
+  indexes = internal::FindSpan<double, 0>::run(q, degree, ctrlFrames.size(), jmodel.knots);
   BOOST_CHECK(indexes.start_idx == 0);
   BOOST_CHECK(indexes.end_idx == degree + 1);
 }
