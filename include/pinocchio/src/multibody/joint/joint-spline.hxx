@@ -463,8 +463,10 @@ namespace pinocchio
     JointModelSplineBuilderTpl & withKnotVector(const std::vector<Scalar> & knots)
     {
       knots_.resize(knots.size());
-      for (size_t i = 0; i < knots.size(); ++i)
+      for (int i = 0; i < knots.size(); ++i)
+      {
         knots_[i] = knots[i];
+      }
       knot_policy_ = KnotPolicy::Custom;
 
       return *this;
@@ -513,43 +515,6 @@ namespace pinocchio
     }
 
   private:
-    Vector generateOpenUniformKnots() const
-    {
-      Vector knots;
-      const size_t nCtrl = ctrlFrames_.size();
-      const size_t n_knots = nCtrl + degree_ + 1;
-
-      knots.resize(n_knots);
-
-      const Scalar range = max_q_ - min_q_;
-
-      knots.head(degree_ + 1).setConstant(min_q_);
-      const Scalar nInner = static_cast<Scalar>(nCtrl - degree_ - 1);
-      const Scalar denominator = static_cast<Scalar>(nInner + 1);
-
-      for (size_t i = degree_ + 1; i < nCtrl; i++)
-        knots[i] = min_q_ + range * static_cast<Scalar>(i - degree_) / denominator;
-
-      knots.tail(degree_ + 1).setConstant(max_q_);
-      return knots;
-    }
-
-    Vector generateUniformKnots() const
-    {
-      Vector knots;
-      const size_t nCtrl = ctrlFrames_.size();
-      const size_t n_knots = nCtrl + degree_ + 1;
-
-      knots.resize(n_knots);
-
-      const Scalar step = (max_q_ - min_q_) / static_cast<Scalar>(n_knots - 1);
-
-      for (size_t i = 0; i < n_knots; ++i)
-        knots[i] = min_q_ + step * static_cast<Scalar>(i);
-
-      return knots;
-    }
-
     std::vector<Transformation_t> ctrlFrames_;
 
     size_t degree_;
