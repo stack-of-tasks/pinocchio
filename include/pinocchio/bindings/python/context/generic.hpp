@@ -136,6 +136,7 @@ namespace pinocchio
       typedef JointDataUniversalTpl<Scalar> JointDataUniversal;
 
       typedef JointModelSplineTpl<Scalar> JointModelSpline;
+      typedef JointModelSplineBuilderTpl<Scalar> JointModelSplineBuilder;
       typedef JointDataSplineTpl<Scalar> JointDataSpline;
 
       typedef JointModelTranslationTpl<Scalar> JointModelTranslation;
