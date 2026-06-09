@@ -72,13 +72,25 @@ namespace pinocchio
       if (k == 0)
       {
         // clang-format off
-        // if(knots[i] <= x && x <= knots[i + 1])
+        // if(knots[i] <= x && x < knots[i + 1])
         //  return 1;
         // else
         //  return 0;
         // clang-format on
-        return if_then_else(
-          LE, knots[i], x, if_then_else(LE, x, knots[i + 1], Scalar(1), Scalar(0)), Scalar(0));
+        Scalar is_in_standard_range = if_then_else(
+          LE, knots[i], x, if_then_else(LT, x, knots[i + 1], Scalar(1), Scalar(0)), Scalar(0));
+
+        // clang-format off
+        // if(x == knots.back() && x == knots[i + 1])
+        //  return 1;
+        // else
+        //  return 0;
+        // clang-format on
+        Scalar is_at_final_range = if_then_else(
+          EQ, x, knots[knots.size() - 1], if_then_else(EQ, x, knots[i + 1], Scalar(1), Scalar(0)),
+          Scalar(0));
+
+        return is_in_standard_range + is_at_final_range;
       }
 
       // Calculate the left term
