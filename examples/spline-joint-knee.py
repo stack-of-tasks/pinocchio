@@ -1,21 +1,19 @@
-"""Knee spline joint drives a planar knee joint by its flexion angle.
+"""Knee spline joint driven by its physical flexion angle.
 
 This example uses the SE(3) spline joint (``pin.JointModelSpline`` /
-``pin.JointModelSplineBuilder``) to reproduce experimental knee kinematics. The
-joint constrains its child frame to a cumulative B-spline on SE(3) defined by a
-list of control frames, a knot vector and a degree
-(Lee et al., "Spline Joints for Multibody Dynamics").
+``pin.JointModelSplineBuilder``) to reproduce experimental knee kinematics: the
+joint constrains its child (tibia) frame to a cumulative B-spline on SE(3)
+defined by a list of control frames, a knot vector and a degree (Lee et al.,
+"Spline Joints for Multibody Dynamics").
 
-The 8 control frames embedded below were produced offline by a Gauss-Newton
-regression that fits a ``degree=3, n_ctrl=8`` spline.
-The kinematics come from an OpenSim Model leg6dof9musc.osim
+The 8 control frames below were fit offline (Gauss-Newton, degree=3, n_ctrl=8)
+to a planar OpenSim knee, where the rotation about Z and the tx/ty translations
+are driven by ``knee_angle_r``. The knee angle spans [-120 deg, +120 deg] and
+the spline parameter q is its affine normalization, so the joint is driven
+directly by a physical angle (``q_from_knee_angle``).
 
-  * rotation about Z, driven linearly by ``knee_angle_r``;
-  * translations tx / ty, driven by SimmSplines.
-
-The knee angle domain is [-120 deg, +120 deg]. The spline parameter q is the
-affine normalization of the knee angle,
-q = (theta - theta_min) / (theta_max - theta_min).
+Running it opens Meshcat and flexes a femur + tibia, showing the tibia frame and
+the dotted trajectories of tibia points (e.g. the origin and the tibial plateau).
 """
 
 import time
@@ -27,22 +25,21 @@ import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
 
-THETA_MIN_DEG, THETA_MAX_DEG = -120.0, 120.0  # data domain of the fitted spline.
+# Knee-angle domain of the fitted spline (used by q_from_knee_angle).
+THETA_MIN_DEG, THETA_MAX_DEG = -120.0, 120.0
 
-# Displaying the knee at the center of the origin
-KNEE_FROM_HIP_OFFSET = np.array([-0.0046, -0.4644, 0.0])
-RECENTER = pin.SE3(np.eye(3), -KNEE_FROM_HIP_OFFSET)
+# Bones: mesh folder, OpenSim (subject-specific) scale factors and display color.
+MESH_DIR = Path(__file__).resolve().parent.parent / "models" / "biomechanics"
+FEMUR_SCALE, TIBIA_SCALE = 1.17378, 1.12373
+BONE_COLOR = np.array([0.96, 0.94, 0.86, 0.7])  # bone ivory, semi-transparent.
 
+# Recenter so the femoral condyle (knee) sits at the world origin instead of the
+# hip: the fixed femur and the spline joint are both lifted by the knee offset.
+KNEE_FROM_HIP = np.array([-0.0046, -0.4644, 0.0])
+RECENTER = pin.SE3(np.eye(3), -KNEE_FROM_HIP)
 
-def q_from_knee_angle(theta_deg):
-    """Affine map from knee flexion angle (degrees) to spline parameter q in [0, 1]."""
-    return (theta_deg - THETA_MIN_DEG) / (THETA_MAX_DEG - THETA_MIN_DEG)
-
-
-# Control frames from the 2D-knee Gauss-Newton OFFLINE regression (degree=3, n_ctrl=8).
-# Each is planar: a rotation about Z by ``yaw`` and a translation [tx, ty, 0].
-# (yaw [rad], tx [m], ty [m])
-_CONTROL_FRAMES_DATA = [
+# Control frames from the offline 2D-knee regression, as (yaw [rad], tx, ty [m]).
+CONTROL_FRAMES = [
     (-2.094400, -0.003842, -0.496205),
     (-1.815147, 0.001278, -0.489246),
     (-1.256640, 0.006243, -0.480186),
@@ -54,98 +51,93 @@ _CONTROL_FRAMES_DATA = [
 ]
 
 
-def _mesh_geometry_object(name, parent_joint, stl_path, scale, placement):
-    mesh_scale = scale * np.ones(3)
-    geom = coal.MeshLoader().load(str(stl_path), mesh_scale)
-    obj = pin.GeometryObject(
-        name, parent_joint, placement, geom, str(stl_path), mesh_scale
-    )
-    obj.meshColor = np.array([0.96, 0.94, 0.86, 0.7])  # bone ivory.
-    return obj
+def q_from_knee_angle(theta_deg):
+    """Affine map from knee flexion angle (degrees) to spline parameter q in [0, 1]."""
+    return (theta_deg - THETA_MIN_DEG) / (THETA_MAX_DEG - THETA_MIN_DEG)
 
 
-def draw_spline_curve(viz, model, joint_id, n_samples=200):
-    """Draw the spline path and its control polygon, expressed in the femur frame.
-
-    The spline describes the tibia's motion relative to the femur, so the curve
-    naturally lives in the femur frame. We strip the recenter offset to get the
-    raw spline X(q) (and raw control frames), then place the whole drawing under
-    one node carrying the femur's placement (``RECENTER``).
-    """
-    femur_Minv = RECENTER.inverse()  # world -> femur frame.
-
-    data = model.createData()
-    curve = np.empty((3, n_samples), dtype=np.float32)
-    for i, q in enumerate(np.linspace(0.0, 1.0, n_samples)):
-        pin.forwardKinematics(model, data, np.array([q]))
-        curve[:, i] = (femur_Minv * data.oMi[joint_id]).translation
-
-    # Control-frame origins (the control polygon), in the femur frame.
-    ctrl = np.array(
-        [
-            pin.SE3(
-                pin.rpy.rpyToMatrix(0.0, 0.0, yaw + np.pi/2), np.array([tx, ty, 0.0])
-            ).translation
-            for (yaw, tx, ty) in _CONTROL_FRAMES_DATA
-        ],
-        dtype=np.float32,
-    ).T
-
-    # The whole drawing is the femur frame, placed at RECENTER in the world.
-    node = viz.viewer["femur_frame/spline"]
-    node.set_transform(RECENTER.homogeneous)
-    node["curve"].set_object(
-        mg.Line(mg.PointsGeometry(curve), mg.LineBasicMaterial(color=0xFF3030))
-    )
-    node["control_points"].set_object(
-        mg.Points(
-            mg.PointsGeometry(ctrl), mg.PointsMaterial(size=0.001, color=0x3030FF)
-        )
-    )
-
-
-def main():
-    model = pin.Model()
-
-    knee_control_frames = [
+def build_model():
+    """Build a model with a single spline knee joint. Returns (model, joint_id)."""
+    control_frames = [
         pin.SE3(pin.rpy.rpyToMatrix(0.0, 0.0, yaw), np.array([tx, ty, 0.0]))
-        for (yaw, tx, ty) in _CONTROL_FRAMES_DATA
+        for (yaw, tx, ty) in CONTROL_FRAMES
     ]
-
     knee = (
         pin.JointModelSplineBuilder()
         .withDegree(3)
-        .withControlFrameVector(knee_control_frames)
+        .withControlFrameVector(control_frames)
         .withOpenUniformKnots(0.0, 1.0)
         .build()
     )
+    model = pin.Model()
     joint_id = model.addJoint(0, knee, RECENTER, "knee")
+    return model, joint_id
 
-    # Visualization
+
+def mesh_object(name, parent_joint, stl, scale, placement):
+    """Build a mesh GeometryObject fixed to ``parent_joint`` at ``placement``."""
+    mesh_scale = scale * np.ones(3)
+    geom = coal.MeshLoader().load(str(stl), mesh_scale)
+    obj = pin.GeometryObject(name, parent_joint, placement, geom, str(stl), mesh_scale)
+    obj.meshColor = BONE_COLOR
+    return obj
+
+
+def build_visual_model(joint_id):
+    """Femur fixed in the world (condyle at origin) and tibia on the knee joint."""
+    visual_model = pin.GeometryModel()
+    visual_model.addGeometryObject(
+        mesh_object("femur", 0, MESH_DIR / "femur_r.stl", FEMUR_SCALE, RECENTER)
+    )
+    visual_model.addGeometryObject(
+        mesh_object(
+            "tibia", joint_id, MESH_DIR / "tibia_r.stl", TIBIA_SCALE, pin.SE3.Identity()
+        )
+    )
+    return visual_model
+
+
+def tibia_landmarks(stl, scale):
+    """Return (plateau, ankle) points in the tibia frame, read from the mesh.
+
+    ``plateau`` is the top of the tibial plateau closest to the sagittal (xy)
+    plane; ``ankle`` is the most distal vertex.
+    """
+    mesh = coal.MeshLoader().load(str(stl), scale * np.ones(3))
+    V = np.asarray(mesh.vertices())
+    top = V[V[:, 1] >= V[:, 1].max() - 0.02]  # within 2 cm of the top.
+    plateau = top[np.argmin(np.abs(top[:, 2]))]  # closest to the xy plane.
+    ankle = V[np.argmin(V[:, 1])]  # most distal vertex.
+    return plateau, ankle
+
+
+class PointTracer:
+    """Trace a fixed tibia-frame point in Meshcat, keeping the dotted trail.
+
+    Each :meth:`add` appends one dot at the point's current world position;
+    nothing is erased. Dots ride with the femur (drawn under a node at
+    ``RECENTER``), so they sit exactly on the traced point.
+    """
+
+    def __init__(self, viz, name, point=None, color=0xFF3030, size=0.004):
+        self._world_to_femur = RECENTER.inverse()
+        self._point = np.zeros(3) if point is None else np.asarray(point, float)
+        self._material = mg.PointsMaterial(size=size, color=color)
+        self._trail = []
+        self._node = viz.viewer[f"tibia_traces/{name}"]
+        self._node.set_transform(RECENTER.homogeneous)
+
+    def add(self, tibia_pose):
+        self._trail.append(self._world_to_femur.act(tibia_pose.act(self._point)))
+        pts = np.asarray(self._trail, dtype=np.float32).T
+        self._node.set_object(mg.Points(mg.PointsGeometry(pts), self._material))
+
+
+def main():
+    model, joint_id = build_model()
+    visual_model = build_visual_model(joint_id)
+
     try:
-        # Femur + tibia meshes and their OpenSim (subject-specific) scale factors.
-        _MESH_DIR = Path(__file__).resolve().parent.parent / "models" / "biomechanics"
-        _FEMUR_SCALE = 1.17378
-        _TIBIA_SCALE = 1.12373
-
-        visual_model = pin.GeometryModel()
-        # Femur: fixed to the universe frame (parent joint 0); condyle at origin.
-        visual_model.addGeometryObject(
-            _mesh_geometry_object(
-                "femur", 0, _MESH_DIR / "femur_r.stl", _FEMUR_SCALE, RECENTER
-            )
-        )
-        # Tibia: rigidly attached to the spline knee joint's child frame
-        visual_model.addGeometryObject(
-            _mesh_geometry_object(
-                "tibia",
-                joint_id,
-                _MESH_DIR / "tibia_r.stl",
-                _TIBIA_SCALE,
-                pin.SE3.Identity(),
-            )
-        )
-
         viz = MeshcatVisualizer(model, visual_model, visual_model)
         viz.initViewer(open=True)
         viz.loadViewerModel()
@@ -154,20 +146,32 @@ def main():
         print(e)
         return
 
-    draw_spline_curve(viz, model, joint_id)
+    # Front sagittal view: look at the xy plane along -z (camera on +z), y up.
+    # Use the camera nodes directly (set_cam_pos/target need a newer meshcat).
+    viz._node_default_cam.set_transform(np.eye(4))  # target at the knee (origin).
+    viz._node_default_cam[viz._rot_cam_key].set_property("position", [0.0, 0.0, 1.6])
 
-    time.sleep(0.1)
+    # Trace tibia-frame points (origin glide, tibial plateau) and show the tibia
+    # frame itself as a triad, updated every step.
+    plateau, _ankle = tibia_landmarks(MESH_DIR / "tibia_r.stl", TIBIA_SCALE)
+    tracers = [
+        PointTracer(viz, "origin", color=0xFF3030),
+        PointTracer(viz, "plateau", plateau, color=0x3060FF),
+    ]
+    tibia_frame = viz.viewer["tibia_frame"]
+    tibia_frame.set_object(mg.triad(0.08))
 
-    # Drive the joint by physical knee flexion angle over the physiological
-    # range (slight hyperextension at +10 deg to deep flexion at -120 deg),
-    # sweeping forward and back.
-    sweep = np.linspace(10.0, -120.0, 120)
-    angles = np.concatenate([sweep, sweep[::-1]])
-    n_cycles = 3
-    for _ in range(n_cycles):
+    # Sweep the physical knee angle (+10 deg hyperextension to -120 deg flexion),
+    # back and forth, accumulating the traces.
+    angles = np.linspace(10.0, -120.0, 120)
+    angles = np.concatenate([angles, angles[::-1]])
+    for _ in range(5):
         for theta_deg in angles:
-            q = q_from_knee_angle(theta_deg)
-            viz.display(np.array([q]))
+            viz.display(np.array([q_from_knee_angle(theta_deg)]))
+            tibia_pose = viz.data.oMi[joint_id]
+            for tracer in tracers:
+                tracer.add(tibia_pose)
+            tibia_frame.set_transform(tibia_pose.homogeneous)
             time.sleep(0.015)
 
 
