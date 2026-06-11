@@ -42,26 +42,43 @@ namespace pinocchio
         const Eigen::MatrixBase<KnotsVector> & knots)
       {
         // Edge case: if q is at or beyond the end of the spline parameterization
+        // TODO is it useful ?
         if (q[0] >= knots(knots.size() - 1))
-          return {nbCtrlFrames - (degree + 1), nbCtrlFrames};
-
-        if (q[0] <= knots[0])
-          return {0, degree + 1};
-
-        size_t low = degree;
-        size_t high = nbCtrlFrames;
-        size_t mid;
-
-        while (low < high)
         {
-          mid = low + (high - low) / 2;
-          if (q[0] < knots[mid])
-            high = mid;
-          else
-            low = mid + 1;
+          return {nbCtrlFrames - 1, nbCtrlFrames};
         }
 
-        return {low - (degree + 1), low};
+        if (q[0] <= knots[0])
+        {
+          return {0, 1};
+        }
+
+        // TODO we can probably do better with std::lower
+        // and std::upper bounds.
+        size_t order = degree + 1;
+        // Search first control point knot range containing q.
+        size_t low = 0;
+        for (std::size_t i = 0; i < nbCtrlFrames; ++i)
+        {
+          if (knots[i] <= q[0] && q[0] < knots[i + order])
+          {
+            low = i;
+            break;
+          }
+        }
+
+        size_t high = low;
+        // Search last control point knot range containing q.
+        // If we are at the end of the range high == low.
+        for (std::size_t i = low + 1; i < nbCtrlFrames; ++i)
+        {
+          if (!(knots[i] <= q[0] && q[0] < knots[i + order]))
+          {
+            break;
+          }
+          high = i;
+        }
+        return {low, high + 1};
       }
     };
 
