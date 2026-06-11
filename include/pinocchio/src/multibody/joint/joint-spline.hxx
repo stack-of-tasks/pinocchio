@@ -381,15 +381,24 @@ namespace pinocchio
 
       for (size_t i = indexes.start_idx + 1; i < indexes.end_idx; i++)
       {
-        const Scalar phi_i = data.N.segment(i, indexes.end_idx - i).sum();
-        const Scalar phi_dot_i = data.N_der.segment(i, indexes.end_idx - i).sum();
+        const Scalar phi_i =
+          data.N
+            .segment(static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(indexes.end_idx - i))
+            .sum();
+        const Scalar phi_dot_i =
+          data.N_der
+            .segment(static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(indexes.end_idx - i))
+            .sum();
 
         const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
         data.M = data.M * transformation_temp;
 
         if (computeVelocity)
         {
-          const Scalar phi_ddot_i = data.N_der2.segment(i, indexes.end_idx - i).sum();
+          const Scalar phi_ddot_i =
+            data.N_der2
+              .segment(static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(indexes.end_idx - i))
+              .sum();
           data.c = relativeMotions[i - 1] * phi_ddot_i
                    + transformation_temp.actInv(
                      data.c + Motion_t(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);

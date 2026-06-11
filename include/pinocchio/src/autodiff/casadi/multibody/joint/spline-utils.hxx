@@ -21,8 +21,8 @@ namespace pinocchio
       template<typename ConfigVector, typename KnotsVector>
       static SpanIndexes run(
         const Eigen::MatrixBase<ConfigVector> & /*q*/,
-        const int /*degree*/,
-        const int nbCtrlFrames,
+        const size_t /*degree*/,
+        const size_t nbCtrlFrames,
         const Eigen::MatrixBase<KnotsVector> & /*knots*/)
       {
         return {0, static_cast<size_t>(nbCtrlFrames)};
