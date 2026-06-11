@@ -114,9 +114,7 @@ struct FiniteDiffJoint
       v[k] = 0.;
     }
 
-    BOOST_CHECK(S.isApprox(S_ref, eps * 1e1));
-    std::cout << "S_ref:\n" << S_ref << std::endl;
-    std::cout << "S:\n" << S << std::endl;
+    BOOST_CHECK(S.isApprox(S_ref, eps * 1e2));
   }
 };
 
