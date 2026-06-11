@@ -60,7 +60,9 @@ namespace pinocchio
         size_t low = 0;
         for (std::size_t i = 0; i < nbCtrlFrames; ++i)
         {
-          if (knots[i] <= q[0] && q[0] < knots[i + order])
+          if (
+            knots[static_cast<Eigen::Index>(i)] <= q[0]
+            && q[0] < knots[static_cast<Eigen::Index>(i + order)])
           {
             low = i;
             break;
@@ -72,7 +74,8 @@ namespace pinocchio
         // If we are at the end of the range high == low.
         for (std::size_t i = low + 1; i < nbCtrlFrames; ++i)
         {
-          if (!(knots[i] <= q[0] && q[0] < knots[i + order]))
+          if (!(knots[static_cast<Eigen::Index>(i)] <= q[0]
+                && q[0] < knots[static_cast<Eigen::Index>(i + order)]))
           {
             break;
           }
@@ -95,7 +98,9 @@ namespace pinocchio
         //  return 0;
         // clang-format on
         Scalar is_in_standard_range = if_then_else(
-          LE, knots[i], x, if_then_else(LT, x, knots[i + 1], Scalar(1), Scalar(0)), Scalar(0));
+          LE, knots[i], x,
+          if_then_else(LT, x, knots[static_cast<Eigen::Index>(i + 1)], Scalar(1), Scalar(0)),
+          Scalar(0));
 
         // clang-format off
         // if(x == knots.back() && x == knots[i + 1])
@@ -104,7 +109,8 @@ namespace pinocchio
         //  return 0;
         // clang-format on
         Scalar is_at_final_range = if_then_else(
-          EQ, x, knots[knots.size() - 1], if_then_else(EQ, x, knots[i + 1], Scalar(1), Scalar(0)),
+          EQ, x, knots[knots.size() - 1],
+          if_then_else(EQ, x, knots[static_cast<Eigen::Index>(i + 1)], Scalar(1), Scalar(0)),
           Scalar(0));
 
         return is_in_standard_range + is_at_final_range;
@@ -117,10 +123,12 @@ namespace pinocchio
       // else
       //  left = 0
       // clang-format on
-      const Scalar den1 = knots[i + k] - knots[i];
+      const Scalar den1 =
+        knots[static_cast<Eigen::Index>(i + k)] - knots[static_cast<Eigen::Index>(i)];
       const Scalar left = if_then_else(
         GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (x - knots[i]) / den1 * bsplineBasis(i, k - 1, x, knots), Scalar(0));
+        (x - knots[static_cast<Eigen::Index>(i)]) / den1 * bsplineBasis(i, k - 1, x, knots),
+        Scalar(0));
 
       // Calculate the right term
       // clang-format off
@@ -129,10 +137,13 @@ namespace pinocchio
       // else
       //  right = 0
       // clang-format on
-      const Scalar den2 = knots[i + k + 1] - knots[i + 1];
+      const Scalar den2 =
+        knots[static_cast<Eigen::Index>(i + k + 1)] - knots[static_cast<Eigen::Index>(i + 1)];
       const Scalar right = if_then_else(
         GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (knots[i + k + 1] - x) / den2 * bsplineBasis(i + 1, k - 1, x, knots), Scalar(0));
+        (knots[static_cast<Eigen::Index>(i + k + 1)] - x) / den2
+          * bsplineBasis(i + 1, k - 1, x, knots),
+        Scalar(0));
 
       return left + right;
     }
@@ -154,7 +165,8 @@ namespace pinocchio
       // else
       //  term1 = 0
       // clang-format on
-      const Scalar den1 = knots[i + k] - knots[i];
+      const Scalar den1 =
+        knots[static_cast<Eigen::Index>(i + k)] - knots[static_cast<Eigen::Index>(i)];
       const Scalar term1 = if_then_else(
         GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
         (k_scalar / den1) * bsplineBasis(i, k - 1, x, knots), Scalar(0));

@@ -2,16 +2,12 @@
 // Copyright (c) 2025 INRIA
 //
 
-#include "pinocchio/math/fwd.hpp"
+#include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody/joint/joints.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/aba.hpp"
-#include "pinocchio/algorithm/crba.hpp"
-#include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/compute-all-terms.hpp"
 
 #include <boost/test/unit_test.hpp>
-#include <iostream>
 
 using namespace pinocchio;
 
@@ -99,8 +95,7 @@ void getTrajectory(std::vector<SE3> & ctrlFrames)
 
 BOOST_AUTO_TEST_SUITE(JointSpline)
 
-/// @brief Check the joint builder and the guards
-/// @param
+/// @brief Check the joint builder and the guards.
 BOOST_AUTO_TEST_CASE(jointBuilder)
 {
   size_t degree = 3;
@@ -110,14 +105,19 @@ BOOST_AUTO_TEST_CASE(jointBuilder)
     ctrlFrames.push_back(SE3::Random());
 
   BOOST_CHECK_THROW(
-    JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(degree).build(),
+    JointModelSplineBuilder()
+      .withControlFrameVector(ctrlFrames)
+      .withDegree(degree)
+      .withOpenUniformKnots(0., 1.)
+      .build(),
     std::invalid_argument);
 
   for (int k = 0; k < 3; k++)
     ctrlFrames.push_back(SE3::Random());
 
+  // Knots vector value should not decrease (t_i <= t_{i+1})
   Eigen::VectorXd knots_non_uniform(degree + ctrlFrames.size() + 1);
-  knots_non_uniform << 0., 0.1, 0.08, 0.15, 0.15, 0.3, 0.6, 0.6, 1.;
+  knots_non_uniform << 0., 0.1, 0.08, 0.15, 0.15, 0.3, 0.6, 0.6, 0.7, 1.;
 
   BOOST_CHECK_THROW(
     JointModelSplineBuilder()
@@ -162,14 +162,15 @@ BOOST_AUTO_TEST_CASE(makeKnots)
 
 BOOST_AUTO_TEST_CASE(basisFunctionsOpenUniform)
 {
-  size_t degree = 3;
-  size_t nbCtrlFrames = 6;
+  Eigen::Index degree = 3;
+  Eigen::Index nbCtrlFrames = 6;
 
   double min_q = 0.0;
   double max_q = 1.;
 
-  auto knotVector = internal::generateOpenUniformKnots(min_q, max_q, nbCtrlFrames, degree);
-  size_t nKnot = knotVector.size();
+  auto knotVector = internal::generateOpenUniformKnots(
+    min_q, max_q, static_cast<size_t>(nbCtrlFrames), static_cast<size_t>(degree));
+  Eigen::Index nKnot = knotVector.size();
   Eigen::VectorXd N = Eigen::VectorXd::Zero(nbCtrlFrames);
   Eigen::VectorXd Nder = Eigen::VectorXd::Zero(nbCtrlFrames);
   Eigen::VectorXd Nder2 = Eigen::VectorXd::Zero(nbCtrlFrames);
@@ -177,9 +178,10 @@ BOOST_AUTO_TEST_CASE(basisFunctionsOpenUniform)
   // Index Interval for unite partition [degree; nKnot - 1 - degree]
   for (double q = knotVector[degree]; q <= knotVector[nKnot - 1 - degree]; q += 0.02)
   {
-    for (size_t i = 0; i < nbCtrlFrames; i++)
+    for (Eigen::Index i = 0; i < nbCtrlFrames; i++)
     {
-      N[i] = internal::bsplineBasis(i, degree, q, knotVector);
+      N[i] =
+        internal::bsplineBasis(static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
     }
     BOOST_CHECK_CLOSE(N.sum(), 1.0, 1e-8);
   }
@@ -187,14 +189,19 @@ BOOST_AUTO_TEST_CASE(basisFunctionsOpenUniform)
   double h = 1e-5;
   for (double q = min_q + h; q < max_q; q += 0.02)
   {
-    for (size_t i = 0; i < nbCtrlFrames; i++)
+    for (Eigen::Index i = 0; i < nbCtrlFrames; i++)
     {
-      N[i] = internal::bsplineBasis(i, degree, q, knotVector);
-      Nder[i] = internal::bsplineBasisDerivative(i, degree, q, knotVector);
-      Nder2[i] = internal::bsplineBasisDerivative2(i, degree, q, knotVector);
+      N[i] =
+        internal::bsplineBasis(static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
+      Nder[i] = internal::bsplineBasisDerivative(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
+      Nder2[i] = internal::bsplineBasisDerivative2(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
 
-      double n_plus = internal::bsplineBasis(i, degree, q + h, knotVector);
-      double n_minus = internal::bsplineBasis(i, degree, q - h, knotVector);
+      double n_plus = internal::bsplineBasis(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q + h, knotVector);
+      double n_minus = internal::bsplineBasis(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q - h, knotVector);
 
       // First Derivative Approximation
       double numerical_der = (n_plus - n_minus) / (2.0 * h);
@@ -210,13 +217,14 @@ BOOST_AUTO_TEST_CASE(basisFunctionsOpenUniform)
 
 BOOST_AUTO_TEST_CASE(basisFunctionsUniform)
 {
-  size_t degree = 3;
-  size_t nbCtrlFrames = 6;
+  Eigen::Index degree = 3;
+  Eigen::Index nbCtrlFrames = 6;
   double min_q = 0.0;
   double max_q = 1.;
 
-  auto knotVector = internal::generateUniformKnots(min_q, max_q, nbCtrlFrames, degree);
-  size_t nKnot = knotVector.size();
+  auto knotVector = internal::generateUniformKnots(
+    min_q, max_q, static_cast<size_t>(nbCtrlFrames), static_cast<size_t>(degree));
+  Eigen::Index nKnot = knotVector.size();
 
   Eigen::VectorXd N = Eigen::VectorXd::Zero(nbCtrlFrames);
   Eigen::VectorXd Nder = Eigen::VectorXd::Zero(nbCtrlFrames);
@@ -224,9 +232,10 @@ BOOST_AUTO_TEST_CASE(basisFunctionsUniform)
   // Index Interval for unite partition [degree; len(KnotVector) - degree]
   for (double q = knotVector[degree]; q <= knotVector[nKnot - 1 - degree]; q += 0.05)
   {
-    for (size_t i = 0; i < nbCtrlFrames; i++)
+    for (Eigen::Index i = 0; i < nbCtrlFrames; i++)
     {
-      N[i] = internal::bsplineBasis(i, degree, q, knotVector);
+      N[i] =
+        internal::bsplineBasis(static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
     }
     BOOST_CHECK_CLOSE(N.sum(), 1.0, 1e-8);
   }
@@ -235,14 +244,19 @@ BOOST_AUTO_TEST_CASE(basisFunctionsUniform)
   double h = 1e-5;
   for (double q = min_q + h; q < max_q; q += 0.02)
   {
-    for (size_t i = 0; i < nbCtrlFrames; i++)
+    for (Eigen::Index i = 0; i < nbCtrlFrames; i++)
     {
-      N[i] = internal::bsplineBasis(i, degree, q, knotVector);
-      Nder[i] = internal::bsplineBasisDerivative(i, degree, q, knotVector);
-      Nder2[i] = internal::bsplineBasisDerivative2(i, degree, q, knotVector);
+      N[i] =
+        internal::bsplineBasis(static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
+      Nder[i] = internal::bsplineBasisDerivative(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
+      Nder2[i] = internal::bsplineBasisDerivative2(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
 
-      double n_plus = internal::bsplineBasis(i, degree, q + h, knotVector);
-      double n_minus = internal::bsplineBasis(i, degree, q - h, knotVector);
+      double n_plus = internal::bsplineBasis(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q + h, knotVector);
+      double n_minus = internal::bsplineBasis(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q - h, knotVector);
 
       // First Derivative Approximation
       double numerical_der = (n_plus - n_minus) / (2.0 * h);
@@ -258,11 +272,11 @@ BOOST_AUTO_TEST_CASE(basisFunctionsUniform)
 
 BOOST_AUTO_TEST_CASE(basisFunctionsNonUniform)
 {
-  size_t degree = 3;
-  size_t nbCtrlFrames = 5;
+  Eigen::Index degree = 3;
+  Eigen::Index nbCtrlFrames = 5;
   double min_q = 0.;
   double max_q = 1.0;
-  size_t nKnot = degree + nbCtrlFrames + 1;
+  Eigen::Index nKnot = degree + nbCtrlFrames + 1;
   Eigen::VectorXd knotVector(nKnot);
   knotVector << min_q, 0.1, 0.12, 0.15, 0.15, 0.3, 0.6, 0.6, max_q;
 
@@ -273,9 +287,10 @@ BOOST_AUTO_TEST_CASE(basisFunctionsNonUniform)
   // Index Interval for unite partition [degree; len(KnotVector) -1 - degree]
   for (double q = knotVector[degree]; q <= knotVector[nKnot - 1 - degree]; q += 0.05)
   {
-    for (size_t i = 0; i < nbCtrlFrames; i++)
+    for (Eigen::Index i = 0; i < nbCtrlFrames; i++)
     {
-      N[i] = internal::bsplineBasis(i, degree, q, knotVector);
+      N[i] =
+        internal::bsplineBasis(static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
     }
     BOOST_CHECK_CLOSE(N.sum(), 1.0, 1e-8);
   }
@@ -284,14 +299,19 @@ BOOST_AUTO_TEST_CASE(basisFunctionsNonUniform)
   double h = 1e-5;
   for (double q = min_q + h; q < max_q; q += 0.02)
   {
-    for (size_t i = 0; i < nbCtrlFrames; i++)
+    for (Eigen::Index i = 0; i < nbCtrlFrames; i++)
     {
-      N[i] = internal::bsplineBasis(i, degree, q, knotVector);
-      Nder[i] = internal::bsplineBasisDerivative(i, degree, q, knotVector);
-      Nder2[i] = internal::bsplineBasisDerivative2(i, degree, q, knotVector);
+      N[i] =
+        internal::bsplineBasis(static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
+      Nder[i] = internal::bsplineBasisDerivative(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
+      Nder2[i] = internal::bsplineBasisDerivative2(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q, knotVector);
 
-      double n_plus = internal::bsplineBasis(i, degree, q + h, knotVector);
-      double n_minus = internal::bsplineBasis(i, degree, q - h, knotVector);
+      double n_plus = internal::bsplineBasis(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q + h, knotVector);
+      double n_minus = internal::bsplineBasis(
+        static_cast<size_t>(i), static_cast<size_t>(degree), q - h, knotVector);
 
       // First Derivative Approximation
       double numerical_der = (n_plus - n_minus) / (2.0 * h);
@@ -317,8 +337,11 @@ BOOST_AUTO_TEST_CASE(relativeMotions)
     ctrlFrames.push_back(currentFrame * exp6(relativeMotions.back()));
   }
 
-  auto jmodel =
-    JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(degree).build();
+  auto jmodel = JointModelSplineBuilder()
+                  .withControlFrameVector(ctrlFrames)
+                  .withDegree(degree)
+                  .withOpenUniformKnots(0., 1.)
+                  .build();
   // Check size
   BOOST_CHECK(jmodel.relativeMotions.size() == (ctrlFrames.size() - 1));
 
@@ -508,7 +531,11 @@ BOOST_AUTO_TEST_CASE(vsPrismaticZ)
   ctrlFrames.push_back(SE3::Identity());
   ctrlFrames.push_back(SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)));
 
-  auto jmodel = JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(1).build();
+  auto jmodel = JointModelSplineBuilder()
+                  .withControlFrameVector(ctrlFrames)
+                  .withDegree(1)
+                  .withOpenUniformKnots(0., 1.)
+                  .build();
 
   JointDataSpline jdata = jmodel.createData();
   jmodel.setIndexes(0, 0, 0);
@@ -557,7 +584,11 @@ BOOST_AUTO_TEST_CASE(vsRevoluteX)
   ctrlFrames.push_back(SE3::Identity());
   ctrlFrames.push_back(SE3(Rx.toRotationMatrix(), Eigen::Vector3d(0., 0., 0.)));
 
-  auto jmodel = JointModelSplineBuilder().withControlFrameVector(ctrlFrames).withDegree(1).build();
+  auto jmodel = JointModelSplineBuilder()
+                  .withControlFrameVector(ctrlFrames)
+                  .withDegree(1)
+                  .withOpenUniformKnots(0., 1.)
+                  .build();
   JointDataSpline jdata = jmodel.createData();
   jmodel.setIndexes(0, 0, 0);
 
@@ -604,8 +635,13 @@ BOOST_AUTO_TEST_CASE(abaVSrnea)
   std::vector<SE3> ctrlFrames;
   getTrajectory(ctrlFrames);
   addJointAndBody(
-    modelSpline, JointModelSplineBuilder().withControlFrameVector(ctrlFrames).build(), 0,
-    SE3::Identity(), "kneeSpline", inertia);
+    modelSpline,
+    JointModelSplineBuilder()
+      .withControlFrameVector(ctrlFrames)
+      .withDegree(3)
+      .withOpenUniformKnots(0., 1.)
+      .build(),
+    0, SE3::Identity(), "kneeSpline", inertia);
   Data dataSplineRnea(modelSpline);
   Data dataSplineAba(modelSpline);
 
@@ -635,7 +671,11 @@ BOOST_AUTO_TEST_CASE(vsFiniteDifference)
   std::vector<SE3> ctrlFrames;
   getTrajectory(ctrlFrames);
 
-  auto jmodel = JointModelSplineBuilder().withControlFrameVector(ctrlFrames).build();
+  auto jmodel = JointModelSplineBuilder()
+                  .withControlFrameVector(ctrlFrames)
+                  .withDegree(3)
+                  .withOpenUniformKnots(0., 1.)
+                  .build();
   JointDataSpline jdata = jmodel.createData();
 
   jmodel.setIndexes(0, 0, 0);
