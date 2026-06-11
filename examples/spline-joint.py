@@ -1,104 +1,107 @@
 import time
 
-import coal
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
+import meshcat.geometry as mg
 
 
-def generate_random_se3_trajectory(num_steps, radius, num_revolutions, height):
-    """
-    Generates a random trajectory in SE(3) with rotating orientation.
+class PointTracer:
+    """Trace a fixed point in Meshcat, keeping the dotted trail."""
+    def __init__(self, viz):
+        self._material = mg.PointsMaterial(size=0.004, color=0xFF3030)
+        self._trail = []
+        self._node = viz.viewer[f"solid_pose"]
 
-    Args:
-      num_keyframes: The number of random keyframes to generate.
-      num_steps_per_segment: The number of intermediate steps between each keyframe.
+    def add(self, solid_pose):
+        self._trail.append(solid_pose.translation.copy())
+        pts = np.asarray(self._trail, dtype=np.float32).T
 
-    Returns:
-      A list of pinocchio.SE3 objects representing the trajectory.
-    """
-    trajectory = []
-    for i in range(num_steps):
-        # 1. Parameter to track progress along the helix (from 0.0 to 1.0)
-        alpha = float(i) / num_steps
-
-        # 2. Define the translational part (the helical path)
-        # The angle determines the position on the XY plane
-        angle = alpha * num_revolutions * 2 * np.pi
-
-        # Calculate the x, y, z coordinates for the helix
-        translation = np.array(
-            [radius * np.cos(angle), radius * np.sin(angle), alpha * height]
+        line = mg.Line(
+            geometry=mg.PointsGeometry(pts),
+            material=mg.LineBasicMaterial(color=0xFF3030)
         )
+        self._node.set_object(geometry=line)
 
-        # 3. Define the rotational part (a new random orientation at each step)
-        # pin.SE3.Random().rotation generates a random 3x3 rotation matrix
-        random_rotation = pin.SE3.Random().rotation
+def main():
 
-        # 4. Combine the translation and random rotation into a single SE(3) pose
-        pose = pin.SE3(random_rotation, translation)
-        trajectory.append(pose)
+    PARABOLA_CONTROL_FRAMES = [
+        (-1.000000, 1.000000),
+        (-0.888889, 0.777778),
+        (-0.666667, 0.407407),
+        (-0.333333, 0.074074),
+        (0.000000, -0.037037),
+        (0.333333, 0.074074),
+        (0.666667, 0.407407),
+        (0.888889, 0.777778),
+        (1.000000, 1.000000),
+    ]
 
-    return trajectory
+    control_frames = [
+        pin.SE3(np.eye(3), np.array([0, ty, tz]))
+        for (ty, tz) in PARABOLA_CONTROL_FRAMES
+        ]
 
+    # Create a Pinocchio model with a single free-flyer joint
+    model = pin.Model()
+    spline_joint = (
+        pin.JointModelSplineBuilder()
+        .withDegree(3)
+        .withControlFrameVector(control_frames)
+        .withOpenUniformKnots(-1, 1)
+        .build()
+    )
+    joint_id = model.addJoint(0, spline_joint, pin.SE3.Identity(), "spline-joint")
 
-# --- Visualization Setup ---
+    # adding some inertia to drop the solid in the parabola
+    box_size = 1.0  # edge length of each cube [m]
+    box_mass = 1.0  # mass of each cube [kg]
+    box_inertia = pin.Inertia.FromBox(box_mass, box_size, box_size, box_size)
+    model.appendBodyToJoint(joint_id, box_inertia, pin.SE3.Identity())
 
-# Generate the random trajectory
-# Parameters for the helical trajectory
-num_steps = 30
-radius = 1.0
-num_revolutions = 3
-height = 2
+    # visual only code
+    try:
+        visual_model = pin.GeometryModel()
 
-trajectory = generate_random_se3_trajectory(num_steps, radius, num_revolutions, height)
+        viz = MeshcatVisualizer(model, None, visual_model)
+        viz.initViewer(open=True)
+        viz.loadViewerModel()
 
-# Create a Pinocchio model with a single free-flyer joint
-model = pin.Model()
-spline_joint = (
-    pin.JointModelSplineBuilder()
-    .withDegree(3)
-    .withControlFrameVector(trajectory)
-    .withOpenUniformKnots(0.0, 1.0)
-    .build()
-)
-joint_id = model.addJoint(
-    0,
-    spline_joint,
-    pin.SE3.Identity(),
-    "free_flyer",
-)
+    except ImportError as e:
+        print("Error while initializing the viewer.")
+        print(e)
+        return
 
-# Attach a simple visual geometry (a box) to the joint
-visual_model = pin.GeometryModel()
-box_shape = coal.Box(0.1, 0.2, 0.3)
-# The placement of the geometry with respect to the joint frame
-geom_placement = pin.SE3.Identity()
-geom_obj = pin.GeometryObject("box", joint_id, geom_placement, box_shape)
-# Assign a color to the geometry
-geom_obj.meshColor = np.array([1.0, 0.5, 0.5, 1.0])  # RGBA
-visual_model.addGeometryObject(geom_obj)
+    tracers = [PointTracer(viz)]
+    solid_frame = viz.viewer["solid_frame"]
+    solid_frame.set_object(mg.triad(0.2))
 
-# --- Main Execution ---
+    dt = 0.01
+    qs, _ = sim_loop(model, dt)
 
-# Initialize the MeshCat visualizer.
-try:
-    viz = MeshcatVisualizer(model, visual_model, visual_model)
-    viz.initViewer(open=True)
-    viz.loadViewerModel()
-except ImportError as e:
-    print("Error while initializing the viewer.")
-    print(e)
+    for theta in qs:
+        viz.display(np.array([theta]))
+        solid_pose = viz.data.oMi[joint_id]
+        for tracer in tracers:
+            tracer.add(solid_pose)
+        solid_frame.set_transform(solid_pose.homogeneous)
+        time.sleep(dt)
 
+def sim_loop(model, dt= 0.01, nsteps=800):
 
-time.sleep(0.1)
+    qs = [np.array([1.0])]
+    vs = [np.array([0])]
+    data = model.createData()
+    for i in range(nsteps):
+        q = qs[i]
+        v = vs[i]
+        tau = - 1 * v # a little bit of damping
+        a1 = pin.aba(model, data, q, v, tau)
+        vnext = v + dt * a1
+        qnext = pin.integrate(model, q, dt * vnext)
+        qs.append(qnext)
+        vs.append(vnext)
+    return qs, vs
 
-q = pin.neutral(model)
-
-q_vector = np.arange(0, 1, 0.05)
-for q in q_vector:
-    # Display the new configuration.
-    viz.display(np.array([q]))
-
-    # Delay for visualization
-    time.sleep(0.05)
+if __name__ == "__main__":
+    main()

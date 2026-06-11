@@ -101,7 +101,7 @@ def main():
         )
 
 
-        viz = MeshcatVisualizer(model, visual_model, visual_model)
+        viz = MeshcatVisualizer(model, None, visual_model)
         viz.initViewer(open=True)
         viz.loadViewerModel()
 
