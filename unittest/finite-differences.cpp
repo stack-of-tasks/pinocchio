@@ -114,7 +114,7 @@ struct FiniteDiffJoint
       v[k] = 0.;
     }
 
-    BOOST_CHECK(S.isApprox(S_ref, eps * 1e2));
+    BOOST_CHECK(S.isApprox(S_ref, eps * 1e1));
   }
 };
 
