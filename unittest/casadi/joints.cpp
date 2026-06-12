@@ -149,8 +149,6 @@ struct TestADOnJoints
   template<typename JointModel_>
   void operator()(const pinocchio::JointModelBase<JointModel_> &) const
   {
-    typedef typename JointModel_::ConfigVector_t ConfigVector;
-
     auto jmodelWithParams = pinocchio::init<JointModel_>::run();
 
     test(jmodelWithParams.jmodel, jmodelWithParams.lb, jmodelWithParams.ub);

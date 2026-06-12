@@ -123,8 +123,8 @@ namespace pinocchio
       // else
       //  left = 0
       // clang-format on
-      const Scalar den1 =
-        knots[static_cast<Eigen::Index>(i + k)] - knots[static_cast<Eigen::Index>(i)];
+      const Scalar den1(
+        knots[static_cast<Eigen::Index>(i + k)] - knots[static_cast<Eigen::Index>(i)]);
       const Scalar left = if_then_else(
         GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
         (x - knots[static_cast<Eigen::Index>(i)]) / den1 * bsplineBasis(i, k - 1, x, knots),
@@ -137,8 +137,8 @@ namespace pinocchio
       // else
       //  right = 0
       // clang-format on
-      const Scalar den2 =
-        knots[static_cast<Eigen::Index>(i + k + 1)] - knots[static_cast<Eigen::Index>(i + 1)];
+      const Scalar den2(
+        knots[static_cast<Eigen::Index>(i + k + 1)] - knots[static_cast<Eigen::Index>(i + 1)]);
       const Scalar right = if_then_else(
         GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
         (knots[static_cast<Eigen::Index>(i + k + 1)] - x) / den2
@@ -156,7 +156,7 @@ namespace pinocchio
       {
         return Scalar(0);
       }
-      const Scalar k_scalar = static_cast<Scalar>(k);
+      const Scalar k_scalar(static_cast<int>(k));
 
       // Calculate the first term of the derivative
       // clang-format off
@@ -165,8 +165,8 @@ namespace pinocchio
       // else
       //  term1 = 0
       // clang-format on
-      const Scalar den1 =
-        knots[static_cast<Eigen::Index>(i + k)] - knots[static_cast<Eigen::Index>(i)];
+      const Scalar den1(
+        knots[static_cast<Eigen::Index>(i + k)] - knots[static_cast<Eigen::Index>(i)]);
       const Scalar term1 = if_then_else(
         GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
         (k_scalar / den1) * bsplineBasis(i, k - 1, x, knots), Scalar(0));
@@ -178,8 +178,8 @@ namespace pinocchio
       // else
       //  term2 = 0
       // clang-format on
-      const Scalar den2 =
-        knots[static_cast<Eigen::Index>(i + k + 1)] - knots[static_cast<Eigen::Index>(i + 1)];
+      const Scalar den2(
+        knots[static_cast<Eigen::Index>(i + k + 1)] - knots[static_cast<Eigen::Index>(i + 1)]);
       const Scalar term2 = if_then_else(
         GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
         (k_scalar / den2) * bsplineBasis(i + 1, k - 1, x, knots), Scalar(0));
@@ -196,7 +196,7 @@ namespace pinocchio
         return Scalar(0);
       }
 
-      const Scalar k_scalar = static_cast<Scalar>(k);
+      const Scalar k_scalar(static_cast<int>(k));
 
       // Calculate the first term
       // clang-format off
@@ -205,8 +205,8 @@ namespace pinocchio
       // else
       //  term1 = 0
       // clang-format on
-      const Scalar den1 =
-        knots[static_cast<Eigen::Index>(i + k)] - knots[static_cast<Eigen::Index>(i)];
+      const Scalar den1(
+        knots[static_cast<Eigen::Index>(i + k)] - knots[static_cast<Eigen::Index>(i)]);
       const Scalar term1 = if_then_else(
         GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
         (k_scalar / den1) * bsplineBasisDerivative(i, k - 1, x, knots), Scalar(0));
@@ -218,8 +218,8 @@ namespace pinocchio
       // else
       //  term2 = 0
       // clang-format on
-      const Scalar den2 =
-        knots[static_cast<Eigen::Index>(i + k + 1)] - knots[static_cast<Eigen::Index>(i + 1)];
+      const Scalar den2(
+        knots[static_cast<Eigen::Index>(i + k + 1)] - knots[static_cast<Eigen::Index>(i + 1)]);
       const Scalar term2 = if_then_else(
         GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
         (k_scalar / den2) * bsplineBasisDerivative(i + 1, k - 1, x, knots), Scalar(0));
@@ -236,7 +236,7 @@ namespace pinocchio
       const size_t n_knots = nCtrl + degree + 1;
 
       Vector knots;
-      knots.resize(n_knots);
+      knots.resize(static_cast<Eigen::Index>(n_knots));
 
       const Scalar range = max_q - min_q;
 
@@ -260,7 +260,7 @@ namespace pinocchio
 
       const size_t n_knots = nCtrl + degree + 1;
       Vector knots;
-      knots.resize(n_knots);
+      knots.resize(static_cast<Eigen::Index>(n_knots));
 
       const Scalar step = (max_q - min_q) / static_cast<Scalar>(n_knots - 1);
 

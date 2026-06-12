@@ -258,7 +258,7 @@ namespace pinocchio
       static constexpr int nv = 1;
 
       JointSpline() = default;
-      JointSpline(const int degree)
+      JointSpline(std::size_t degree)
       : degree(degree)
       {
       }
@@ -318,10 +318,10 @@ namespace pinocchio
 
       JointSplineBuilder & withKnotVector(const std::vector<double> & p_knots)
       {
-        knots.resize(p_knots.size());
+        knots.resize(static_cast<Eigen::Index>(p_knots.size()));
         for (std::size_t i = 0; i < p_knots.size(); ++i)
         {
-          knots[i] = p_knots[i];
+          knots[static_cast<Eigen::Index>(i)] = p_knots[i];
         }
         knot_policy = KnotPolicy::Custom;
 

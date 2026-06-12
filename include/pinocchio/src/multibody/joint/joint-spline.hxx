@@ -121,9 +121,9 @@ namespace pinocchio
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Identity())
     , StU(D_t::Zero())
-    , N(Vector::Zero(nbCtrlFrames))
-    , N_der(Vector::Zero(nbCtrlFrames))
-    , N_der2(Vector::Zero(nbCtrlFrames))
+    , N(Vector::Zero(static_cast<Eigen::Index>(nbCtrlFrames)))
+    , N_der(Vector::Zero(static_cast<Eigen::Index>(nbCtrlFrames)))
+    , N_der2(Vector::Zero(static_cast<Eigen::Index>(nbCtrlFrames)))
     {
     }
 
@@ -361,10 +361,13 @@ namespace pinocchio
 
       for (size_t i = indexes.start_idx; i < indexes.end_idx; i++)
       {
-        data.N[i] = internal::bsplineBasis(i, degree, joint_q_val, knots);
-        data.N_der[i] = internal::bsplineBasisDerivative(i, degree, joint_q_val, knots);
+        data.N[static_cast<Eigen::Index>(i)] =
+          internal::bsplineBasis(i, degree, joint_q_val, knots);
+        data.N_der[static_cast<Eigen::Index>(i)] =
+          internal::bsplineBasisDerivative(i, degree, joint_q_val, knots);
         if (computeSecondDerivative)
-          data.N_der2[i] = internal::bsplineBasisDerivative2(i, degree, joint_q_val, knots);
+          data.N_der2[static_cast<Eigen::Index>(i)] =
+            internal::bsplineBasisDerivative2(i, degree, joint_q_val, knots);
       }
     }
 
