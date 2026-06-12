@@ -160,6 +160,27 @@ BOOST_AUTO_TEST_CASE(makeKnots)
   BOOST_CHECK(generated_knots.isApprox(uniform, 1e-5));
 }
 
+// Test bsplineBasis node limit.
+// We test the degree 0 case, because other degree bound depend of it.
+BOOST_AUTO_TEST_CASE(basisFunctionsEdge)
+{
+  size_t degree = 0;
+  size_t nbCtrlFrames = 5;
+
+  Eigen::VectorXd knotVector((degree + 1) + nbCtrlFrames);
+  knotVector << 0., 0.2, 0.4, 0.6, 0.8, 1.;
+  BOOST_CHECK_EQUAL(internal::bsplineBasis(0, degree, 0., knotVector), 1.);
+  BOOST_CHECK_EQUAL(internal::bsplineBasis(0, degree, 0.2, knotVector), 0.);
+  BOOST_CHECK_EQUAL(internal::bsplineBasis(1, degree, 0.2, knotVector), 1.);
+  BOOST_CHECK_EQUAL(internal::bsplineBasis(1, degree, 0.4, knotVector), 0.);
+  BOOST_CHECK_EQUAL(internal::bsplineBasis(2, degree, 0.4, knotVector), 1.);
+  BOOST_CHECK_EQUAL(internal::bsplineBasis(2, degree, 0.6, knotVector), 0.);
+  BOOST_CHECK_EQUAL(internal::bsplineBasis(3, degree, 0.6, knotVector), 1.);
+  BOOST_CHECK_EQUAL(internal::bsplineBasis(3, degree, 0.8, knotVector), 0.);
+  BOOST_CHECK_EQUAL(internal::bsplineBasis(4, degree, 0.8, knotVector), 1.);
+  BOOST_CHECK_EQUAL(internal::bsplineBasis(4, degree, 1., knotVector), 1.);
+}
+
 BOOST_AUTO_TEST_CASE(basisFunctionsOpenUniform)
 {
   Eigen::Index degree = 3;
