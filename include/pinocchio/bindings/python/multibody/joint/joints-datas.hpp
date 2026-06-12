@@ -82,5 +82,14 @@ namespace pinocchio
         .add_property("pjMi", &JointDataComposite::pjMi)
         .add_property("StU", &JointDataComposite::StU);
     }
+
+    template<>
+    inline bp::class_<JointDataSpline> &
+    expose_joint_data<JointDataSpline>(bp::class_<JointDataSpline> & cl)
+    {
+      return cl.add_property("N", &JointDataSpline::N)
+        .add_property("N_der", &JointDataSpline::N_der)
+        .add_property("N_der2", &JointDataSpline::N_der2);
+    }
   } // namespace python
 } // namespace pinocchio
