@@ -126,6 +126,18 @@ BOOST_AUTO_TEST_CASE(jointBuilder)
       .withKnotVector(knots_non_uniform)
       .build(),
     std::invalid_argument);
+
+  // Knot vector value should not be repeated more than degree + 1 times
+  Eigen::VectorXd knots_too_many_repeats(degree + ctrlFrames.size() + 1);
+  knots_too_many_repeats << 0., 0., 0., 0., 0., 0.3, 0.6, 0.6, 0.7, 1.;
+
+  BOOST_CHECK_THROW(
+    JointModelSplineBuilder()
+      .withControlFrameVector(ctrlFrames)
+      .withDegree(degree)
+      .withKnotVector(knots_too_many_repeats)
+      .build(),
+    std::invalid_argument);
 }
 
 /// @brief Test on the knot vector generation
