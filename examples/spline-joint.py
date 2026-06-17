@@ -1,17 +1,18 @@
 import time
 
+import meshcat.geometry as mg
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
-import meshcat.geometry as mg
 
 
 class PointTracer:
     """Trace a fixed point in Meshcat, keeping the dotted trail."""
+
     def __init__(self, viz):
         self._material = mg.PointsMaterial(size=0.004, color=0xFF3030)
         self._trail = []
-        self._node = viz.viewer[f"solid_pose"]
+        self._node = viz.viewer["solid_pose"]
 
     def add(self, solid_pose):
         self._trail.append(solid_pose.translation.copy())
@@ -19,9 +20,10 @@ class PointTracer:
 
         line = mg.Line(
             geometry=mg.PointsGeometry(pts),
-            material=mg.LineBasicMaterial(color=0xFF3030)
+            material=mg.LineBasicMaterial(color=0xFF3030),
         )
         self._node.set_object(geometry=line)
+
 
 def main():
 
@@ -40,7 +42,7 @@ def main():
     control_frames = [
         pin.SE3(np.eye(3), np.array([0, ty, tz]))
         for (ty, tz) in PARABOLA_CONTROL_FRAMES
-        ]
+    ]
 
     # Create a Pinocchio model with a single free-flyer joint
     model = pin.Model()
@@ -87,7 +89,8 @@ def main():
         solid_frame.set_transform(solid_pose.homogeneous)
         time.sleep(dt)
 
-def sim_loop(model, dt= 0.01, nsteps=800):
+
+def sim_loop(model, dt=0.01, nsteps=800):
 
     qs = [np.array([1.0])]
     vs = [np.array([0])]
@@ -95,13 +98,14 @@ def sim_loop(model, dt= 0.01, nsteps=800):
     for i in range(nsteps):
         q = qs[i]
         v = vs[i]
-        tau = - 1 * v # a little bit of damping
+        tau = -1 * v  # a little bit of damping
         a1 = pin.aba(model, data, q, v, tau)
         vnext = v + dt * a1
         qnext = pin.integrate(model, q, dt * vnext)
         qs.append(qnext)
         vs.append(vnext)
     return qs, vs
+
 
 if __name__ == "__main__":
     main()

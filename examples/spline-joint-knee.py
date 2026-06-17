@@ -9,8 +9,8 @@ source: Lee, S. H., & Terzopoulos, D. (2008).
 Spline joints for multibody dynamics. In ACM SIGGRAPH 2008 papers (pp. 1-8).
 
 The 8 control frames below were fit offline (Gauss-Newton, degree=3, n_ctrl=8)
-to a planar OpenSim knee, where the tx/ty translations the rotation about Z (knee flexion)
-are driven by knee flexion itself.
+to a planar OpenSim knee, where the tx/ty translations the rotation
+about Z (knee flexion) are driven by knee flexion itself.
 """
 
 import time
@@ -44,6 +44,7 @@ CONTROL_FRAMES = [
     (2.094400, -0.006285, -0.464416),
 ]
 
+
 def mesh_object(name, parent_joint, stl, scale, placement):
     """Build a mesh GeometryObject fixed to ``parent_joint`` at ``placement``."""
     mesh_scale = scale * np.ones(3)
@@ -52,8 +53,10 @@ def mesh_object(name, parent_joint, stl, scale, placement):
     obj.meshColor = BONE_COLOR
     return obj
 
+
 class PointTracer:
     """Trace a fixed point in Meshcat, keeping the dotted trail."""
+
     def __init__(self, viz, name, point=None, color=0xFF3030, size=0.004):
         self._world_to_femur = RECENTER.inverse()
         self._point = np.zeros(3) if point is None else np.asarray(point, float)
@@ -69,10 +72,10 @@ class PointTracer:
 
 
 def main():
-    
+
     control_frames = [
-    pin.SE3(pin.rpy.rpyToMatrix(0.0, 0.0, yaw), np.array([tx, ty, 0.0]))
-    for (yaw, tx, ty) in CONTROL_FRAMES
+        pin.SE3(pin.rpy.rpyToMatrix(0.0, 0.0, yaw), np.array([tx, ty, 0.0]))
+        for (yaw, tx, ty) in CONTROL_FRAMES
     ]
 
     # Knee-angle domain of the fitted spline (in degree).
@@ -80,9 +83,13 @@ def main():
 
     knee = (
         pin.JointModelSplineBuilder()
-        .withDegree(3) # degree of the splines, degree 3 means acceleration is continuous.
-        .withControlFrameVector(control_frames) # list of SE3 transforms
-        .withOpenUniformKnots(THETA_MIN_DEG, THETA_MAX_DEG) # Affine map from knee flexion angle (degrees) to spline parameter q in [0, 1].
+        .withDegree(
+            3
+        )  # degree of the splines, degree 3 means acceleration is continuous.
+        .withControlFrameVector(control_frames)  # list of SE3 transforms
+        .withOpenUniformKnots(
+            THETA_MIN_DEG, THETA_MAX_DEG
+        )  # Map knee flexion angle (degrees) to spline parameter q in [0, 1].
         .build()
     )
     model = pin.Model()
@@ -96,10 +103,13 @@ def main():
         )
         visual_model.addGeometryObject(
             mesh_object(
-                "tibia", joint_id, MESH_DIR / "tibia_r.stl", TIBIA_SCALE, pin.SE3.Identity()
+                "tibia",
+                joint_id,
+                MESH_DIR / "tibia_r.stl",
+                TIBIA_SCALE,
+                pin.SE3.Identity(),
             )
         )
-
 
         viz = MeshcatVisualizer(model, None, visual_model)
         viz.initViewer(open=True)
@@ -111,7 +121,7 @@ def main():
         return
 
     # Trace tibia-frame points and show the tibia frame as a triad, updated every step.
-    plateau =np.array([ 0.03100708, -0.03819558, -0.00347008])
+    plateau = np.array([0.03100708, -0.03819558, -0.00347008])
     tracers = [
         PointTracer(viz, "origin", color=0xFF3030),
         PointTracer(viz, "plateau", plateau, color=0x3060FF),
