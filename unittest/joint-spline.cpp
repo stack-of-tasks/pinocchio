@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE(basisFunctionsUniform)
   Eigen::Index degree = 3;
   Eigen::Index nbCtrlFrames = 6;
   double min_q = 0.0;
-  double max_q = 1.;
+  double max_q = 10.;
 
   auto knotVector = internal::generateUniformKnots(
     min_q, max_q, static_cast<size_t>(nbCtrlFrames), static_cast<size_t>(degree));
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE(basisFunctionsUniform)
 
       // First Derivative Approximation
       double numerical_der = (n_plus - n_minus) / (2.0 * h);
-      BOOST_CHECK_SMALL(Nder[i] - numerical_der, 1e-3);
+      BOOST_CHECK_SMALL(Nder[i] - numerical_der, 1e-5);
 
       // Second Derivative Approximation
       double n_mid = N[i];
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE(basisFunctionsNonUniform)
   double max_q = 1.0;
   Eigen::Index nKnot = degree + nbCtrlFrames + 1;
   Eigen::VectorXd knotVector(nKnot);
-  knotVector << min_q, 0.1, 0.12, 0.15, 0.15, 0.3, 0.6, 0.6, max_q;
+  knotVector << min_q, 0.1, 0.1, 0.25, 0.5, 0.5, 0.8, 0.8, max_q;
 
   Eigen::VectorXd N = Eigen::VectorXd::Zero(nbCtrlFrames);
   Eigen::VectorXd Nder = Eigen::VectorXd::Zero(nbCtrlFrames);
@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE(basisFunctionsNonUniform)
 
       // First Derivative Approximation
       double numerical_der = (n_plus - n_minus) / (2.0 * h);
-      BOOST_CHECK_SMALL(Nder[i] - numerical_der, 1e-2);
+      BOOST_CHECK_SMALL(Nder[i] - numerical_der, 1e-5);
 
       // Second Derivative is not checked because the knot vector is not C2 everywhere
     }
