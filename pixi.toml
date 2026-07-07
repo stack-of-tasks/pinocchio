@@ -12,6 +12,8 @@ preview = ["pixi-build"]
 ccache = ">=4.9.1"
 cxx-compiler = ">=1.7.0"
 cmake = ">=3.10"
+jrl-cmakemodules = ">=2.0.0"
+example-robot-data = ">=5.0.0"
 ninja = ">=1.11"
 pkg-config = ">=0.29.2"
 doxygen = ">=1.12.0"
