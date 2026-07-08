@@ -549,7 +549,7 @@ jrl_target_headers(pinocchio_headers PUBLIC
   BASE_DIRS include
 )
 
-# Target to link against all simple libraries
+# Target to link against all pinocchio libraries
 add_library(pinocchio INTERFACE)
 add_library(pinocchio::pinocchio ALIAS pinocchio)
 
@@ -601,13 +601,74 @@ if(BUILD_WITH_COLLISION_SUPPORT)
     target_link_libraries(pinocchio_collision
         PUBLIC pinocchio_default coal::coal)
 
-    target_compile_definitions(pinocchio_collision PUBLIC BUILD_WITH_COLLISION_SUPPORT)
+    target_compile_definitions(pinocchio_collision PUBLIC PINOCCHIO_WITH_COLLISION)
     # DEPRECATED: Setup back compatibility define
     target_compile_definitions(pinocchio_collision PUBLIC PINOCCHIO_WITH_HPP_FCL)
     jrl_target_set_default_compile_options(pinocchio_collision PRIVATE)
     jrl_target_enforce_msvc_conformance(pinocchio_collision PRIVATE)
+    jrl_target_generate_config_header(pinocchio_collision INTERFACE FILENAME pinocchio/collision/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_collision)
+
     target_link_libraries(pinocchio INTERFACE pinocchio_collision)
     list(APPEND EXPORTED_TARGETS pinocchio_collision)
+endif()
+
+if(ENABLE_TEMPLATE_INSTANTIATION)
+    add_library(pinocchio_template_instantiation_default SHARED)
+
+    target_sources(pinocchio_template_instantiation_default PRIVATE
+        src/algorithm/cholesky.cpp
+        src/algorithm/aba.cpp
+        src/algorithm/regressor.cpp
+        src/algorithm/contact-dynamics.cpp
+        src/algorithm/frames-derivatives.cpp
+        src/algorithm/impulse-dynamics.cpp
+        src/algorithm/model.cpp
+        src/algorithm/constrained-dynamics.cpp
+        src/algorithm/rnea-derivatives.cpp
+        src/algorithm/compute-all-terms.cpp
+        src/algorithm/jacobian.cpp
+        src/algorithm/energy.cpp
+        src/algorithm/centroidal-derivatives.cpp
+        src/algorithm/frames.cpp
+        src/algorithm/constrained-dynamics-derivatives.cpp
+        src/algorithm/center-of-mass.cpp
+        src/algorithm/geometry.cpp
+        src/algorithm/kinematics.cpp
+        src/algorithm/rnea.cpp
+        src/algorithm/centroidal.cpp
+        src/algorithm/aba-derivatives.cpp
+        src/algorithm/crba.cpp
+        src/algorithm/constraint-cholesky.cpp
+        src/algorithm/joint-configuration.cpp
+        src/algorithm/center-of-mass-derivatives.cpp
+        src/algorithm/solvers/admm-solver.cpp
+        src/algorithm/solvers/pgs-solver.cpp
+        src/algorithm/kinematics-derivatives.cpp
+        src/algorithm/constraints/utils.cpp
+        src/multibody/model.cpp
+        src/multibody/data.cpp
+        src/multibody/sample-models.cpp
+    )
+
+    target_link_libraries(
+        pinocchio_template_instantiation_default
+        PUBLIC pinocchio_headers)
+
+    target_compile_definitions(
+        pinocchio_template_instantiation_default
+        PUBLIC PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+    )
+
+    jrl_target_set_default_compile_options(pinocchio_template_instantiation_default PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_template_instantiation_default PRIVATE)
+
+    target_link_libraries(
+        pinocchio_default
+        INTERFACE pinocchio_template_instantiation_default
+    )
+
+    list(APPEND EXPORTED_TARGETS pinocchio_template_instantiation_default)
+
 endif()
 
 # ----------------------------------------------------
