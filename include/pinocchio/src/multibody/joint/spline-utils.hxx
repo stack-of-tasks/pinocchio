@@ -269,6 +269,50 @@ namespace pinocchio
 
       return knots;
     }
+
+    /** De Boor algorithm implementation.
+     * \p start_i Knot vector index that contains x
+     * \p degree Curve degree
+     * \p x Value to evaluate
+     * \p knots Knot vector of size m
+     * \p control_points control points of size m - degree - 1
+     * \p workspace of size degree + 1
+     * \return BSpline value at x
+     */
+    template<typename Scalar>
+    Scalar deBoorBasis(
+      size_t start_i,
+      size_t degree,
+      Scalar x,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & control_points,
+      Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & workspace)
+    {
+      assert(workspace.size() == degree + 1);
+      assert(knots.size() == control_points.size() + degree + 1);
+      assert(degree <= start_i);
+      assert(start_i < knots.size() - 1 - degree);
+      assert(knots[degree] <= x);
+      assert(x <= knots[knots.size() - 1 - degree]);
+
+      for (int i = 0; i < static_cast<int>(degree) + 1; ++i)
+      {
+        workspace[i] = control_points[i + start_i - degree];
+      }
+      for (int r = 1; r < static_cast<int>(degree) + 1; ++r)
+      {
+        const int current_degree = static_cast<int>(degree) - r;
+        for (int i = static_cast<int>(degree); i > r - 1; --i)
+        {
+          const int current_knot = i + static_cast<int>(start_i) - static_cast<int>(degree);
+          const int last_knot = current_knot + current_degree + 1;
+          Scalar alpha = (x - knots[current_knot]) / (knots[last_knot] - knots[current_knot]);
+          workspace[i] = (1. - alpha) * workspace[i - 1] + alpha * workspace[i];
+        }
+      }
+      return workspace[degree];
+    }
+
   } // namespace internal
 
 } // namespace pinocchio
