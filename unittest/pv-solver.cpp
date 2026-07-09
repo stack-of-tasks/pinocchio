@@ -3,6 +3,8 @@
 // Copyright (c) 2023 KU Leuven
 //
 
+#define BOOST_TEST_MODULE pv_solver
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/constraints.hpp"
@@ -15,10 +17,9 @@
 #include "pinocchio/algorithm/constraint-cholesky.hpp"
 
 #include <boost/test/tools/old/interface.hpp>
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 // TODO: add tests on J_ref*ddq - rhs and on the OSIM matrix for PV. Add tests for proxLTLs
 
@@ -454,5 +455,3 @@ BOOST_AUTO_TEST_CASE(test_forward_dynamics_repeating_6D_humanoid)
 // //   constrainedABA(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
 // //   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq, 1e-11));
 // // }
-
-BOOST_AUTO_TEST_SUITE_END()

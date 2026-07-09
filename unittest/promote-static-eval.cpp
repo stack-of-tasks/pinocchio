@@ -2,14 +2,15 @@
 // Copyright (c) 2025 INRIA
 //
 
+#define BOOST_TEST_MODULE promote_static_eval
+
 #include "pinocchio/utils/promote-static-eval.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(test_helpers)
 {
@@ -304,5 +305,3 @@ BOOST_AUTO_TEST_CASE(test_specitic_6x6_case)
     internal::promote_static_eval(res.noalias()).dispatch_type(matrix_product)
     == pinocchio::internal::DispatchType::STATIC);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

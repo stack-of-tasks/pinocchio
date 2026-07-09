@@ -3,6 +3,8 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
+#define BOOST_TEST_MODULE joint_translation
+
 #include "pinocchio/multibody/joint.hpp"
 
 #include "pinocchio/algorithm/rnea.hpp"
@@ -30,9 +32,7 @@ void addJointAndBody(
   model.appendBodyToJoint(idx, Y);
 }
 
-BOOST_AUTO_TEST_SUITE(JointTranslation)
-
-BOOST_AUTO_TEST_CASE(spatial)
+BOOST_AUTO_TEST_CASE(joint_translation_spatial)
 {
   typedef TransformTranslationTpl<double, 0> TransformTranslation;
   typedef SE3::Vector3 Vector3;
@@ -148,5 +148,3 @@ BOOST_AUTO_TEST_CASE(vsFreeFlyer)
   jacobian_expected << jacobian_ff.col(0), jacobian_ff.col(1), jacobian_ff.col(2);
   BOOST_CHECK(jacobian_translation.isApprox(jacobian_expected));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,14 +2,15 @@
 // Copyright (c) 2025 INRIA
 //
 
+#define BOOST_TEST_MODULE reference
+
 #include "pinocchio/utils/reference.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(test_get_ref)
 {
@@ -69,5 +70,3 @@ BOOST_AUTO_TEST_CASE(test_get_ref)
     BOOST_CHECK(const_v_const_uptr.get() == &get_ref(const_v_const_uptr));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

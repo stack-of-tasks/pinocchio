@@ -3,6 +3,8 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
+#define BOOST_TEST_MODULE joint_planar
+
 #include "pinocchio/multibody/joint.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/aba.hpp"
@@ -29,9 +31,7 @@ void addJointAndBody(
   model.appendBodyToJoint(idx, Y);
 }
 
-BOOST_AUTO_TEST_SUITE(JointPlanar)
-
-BOOST_AUTO_TEST_CASE(spatial)
+BOOST_AUTO_TEST_CASE(joint_planar_spatial)
 {
   SE3 M(SE3::Random());
   Motion v(Motion::Random());
@@ -139,5 +139,3 @@ BOOST_AUTO_TEST_CASE(vsFreeFlyer)
 
   BOOST_CHECK(jacobian_planar.isApprox(jacobian_expected));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

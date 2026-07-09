@@ -2,17 +2,18 @@
 // Copyright (c) 2015-2022 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE geometry_model
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/geometry.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
 #include <vector>
 #include <boost/filesystem.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(manage_collision_pairs)
 {
@@ -212,5 +213,3 @@ BOOST_AUTO_TEST_CASE(test_clone)
   BOOST_CHECK(geom_model_clone != geom_model);
   BOOST_CHECK(geom_model_copy == geom_model);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

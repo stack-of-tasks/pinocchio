@@ -2,14 +2,15 @@
 // Copyright (c) 2019-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE eigen_basic_op
+
 #include "pinocchio/utils/std-vector.hpp"
 
 #include "pinocchio/math.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_matrix_matrix_product)
 {
@@ -85,5 +86,3 @@ BOOST_AUTO_TEST_CASE(test_eigen_helpers_on_std_vector)
     BOOST_CHECK(val.isIdentity(0));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

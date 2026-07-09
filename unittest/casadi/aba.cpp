@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
+#define BOOST_TEST_MODULE aba
+
 #include "pinocchio/autodiff/casadi.hpp"
 #include "pinocchio/autodiff/casadi-algo.hpp"
 
@@ -14,10 +16,9 @@
 #include <casadi/casadi.hpp>
 
 #include <iostream>
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_aba)
 {
@@ -217,5 +218,3 @@ BOOST_AUTO_TEST_CASE(test_aba_casadi_algo)
   BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv));
   BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.Minv));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

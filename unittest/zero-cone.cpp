@@ -2,14 +2,15 @@
 // Copyright (c) 2025 INRIA
 //
 
+#define BOOST_TEST_MODULE zero_cone
+
 #include "pinocchio/constraints.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(test_proj)
 {
@@ -41,5 +42,3 @@ BOOST_AUTO_TEST_CASE(test_proj)
     BOOST_CHECK(fabs((x - proj_x).dot(proj_x)) <= 1e-12); // orthogonal projection
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

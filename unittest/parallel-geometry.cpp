@@ -2,6 +2,8 @@
 // Copyright (c) 2021-2023 INRIA
 //
 
+#define BOOST_TEST_MODULE parallel_geometry
+
 #include <iostream>
 
 #include "pinocchio/geometry.hpp"
@@ -20,11 +22,10 @@
 
 #include <vector>
 #include <boost/filesystem.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_geometry_pool)
 {
@@ -426,5 +427,3 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
     }
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

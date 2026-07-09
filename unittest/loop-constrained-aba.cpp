@@ -2,6 +2,8 @@
 // Copyright (c) 2024-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE loop_constrained_aba
+
 #include <iostream>
 
 #include "pinocchio/spatial.hpp"
@@ -11,10 +13,9 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/loop-constrained-aba.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace Eigen;
@@ -892,5 +893,3 @@ BOOST_AUTO_TEST_CASE(test_coupled_3D_6D_loops)
 
   BOOST_CHECK(data_ref.ddq.isApprox(data.ddq, 1e-10));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

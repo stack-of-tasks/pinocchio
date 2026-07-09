@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2021 INRIA
 //
 
+#define BOOST_TEST_MODULE algorithms
+
 #include "pinocchio/autodiff/casadi.hpp"
 
 #include "pinocchio/multibody.hpp"
@@ -17,12 +19,11 @@
 
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #include "casadi-utils.hpp"
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_jacobian)
 {
@@ -683,5 +684,3 @@ BOOST_AUTO_TEST_CASE(test_kinetic_energy)
   jac_fd = fd_hess_ambda(q2, q2);
   std::cout << jac_fd << '\n';
 }
-
-BOOST_AUTO_TEST_SUITE_END()

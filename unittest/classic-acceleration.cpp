@@ -2,16 +2,17 @@
 // Copyright(c) 2019 INRIA
 //
 
+#define BOOST_TEST_MODULE classic_acceleration
+
 #include "pinocchio/spatial.hpp"
 
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_classic_acceleration)
 {
@@ -138,5 +139,3 @@ BOOST_AUTO_TEST_CASE(test_classic_acceleration_with_placement)
     BOOST_CHECK(classic_acc_B_other_signature.isApprox(classic_acc_B));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

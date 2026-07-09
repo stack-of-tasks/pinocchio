@@ -2,6 +2,8 @@
 // Copyright (c) 2020 INRIA
 //
 
+#define BOOST_TEST_MODULE motion
+
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
@@ -10,8 +12,6 @@
 #include "pinocchio/algorithm/utils/motion.hpp"
 
 using namespace pinocchio;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_motion)
 {
@@ -60,5 +60,3 @@ BOOST_AUTO_TEST_CASE(test_motion)
       changeReferenceFrame(placement, m_sol_w, WORLD, LOCAL_WORLD_ALIGNED).isApprox(m_in));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

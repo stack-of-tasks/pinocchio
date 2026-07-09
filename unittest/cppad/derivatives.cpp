@@ -2,6 +2,8 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE derivatives
+
 #include "pinocchio/autodiff/cppad.hpp"
 
 #include "pinocchio/multibody.hpp"
@@ -14,10 +16,9 @@
 
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
 {
@@ -277,5 +278,3 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
     BOOST_CHECK(ddq_dtau_mat.isApprox(data.Minv));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

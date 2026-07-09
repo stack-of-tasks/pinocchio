@@ -2,6 +2,8 @@
 // Copyright (c) 2025 INRIA
 //
 
+#define BOOST_TEST_MODULE joint_ellipsoid
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/multibody/joint.hpp"
@@ -221,8 +223,6 @@ SE3::Vector3 computeTranslationAccelerations(
     * (-c0 * c1 * vs(0) * vs(0) + s0 * s1 * vs(0) * vs(1) - s0 * c1 * as(0) + s0 * s1 * vs(1) * vs(0) - c0 * c1 * vs(1) * vs(1) - c0 * s1 * as(1));
   return a;
 }
-
-BOOST_AUTO_TEST_SUITE(JointEllipsoid)
 
 /// @brief Test the rotationnal equivalence between JointModelEllipsoid and JointModelSphericalZYX
 BOOST_AUTO_TEST_CASE(vsSphericalZYX)
@@ -555,5 +555,3 @@ BOOST_AUTO_TEST_CASE(testBiaisVsSdotTimesVelocity)
 
   BOOST_CHECK(jdata.c.toVector().isApprox(Sdot * v, 1e-12));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

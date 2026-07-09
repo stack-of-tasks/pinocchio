@@ -2,6 +2,8 @@
 // Copyright (c) 2016-2022 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE algo_check
+
 #include <boost/fusion/container/generation/make_list.hpp>
 #include <pinocchio/multibody.hpp>
 #include "pinocchio/multibody/sample-models.hpp"
@@ -12,8 +14,9 @@
 
 using namespace pinocchio;
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 // Dummy checker.
 struct Check1 : public AlgorithmCheckerBase<Check1>
@@ -23,8 +26,6 @@ struct Check1 : public AlgorithmCheckerBase<Check1>
     return true;
   }
 };
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_check)
 {
@@ -56,5 +57,3 @@ BOOST_AUTO_TEST_CASE(test_check)
   BOOST_CHECK(!model_mimic.check(MimicChecker()));
   BOOST_CHECK(model_mimic.check(data_mimic));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

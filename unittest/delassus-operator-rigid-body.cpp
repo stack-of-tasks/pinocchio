@@ -2,6 +2,8 @@
 // Copyright (c) 2024-2026 INRIA
 //
 
+#define BOOST_TEST_MODULE delassus_operator_rigid_body
+
 #include <memory>
 #include <algorithm>
 
@@ -18,8 +20,9 @@
 
 #include "utils/model-generator.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace Eigen;
@@ -39,8 +42,6 @@ const DelassusAccessor<Delassus> & access(const Delassus & delassus)
 {
   return static_cast<const DelassusAccessor<Delassus> &>(delassus);
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(default_constructor_shared_ptr)
 {
@@ -1633,5 +1634,3 @@ BOOST_AUTO_TEST_CASE(test_copy)
   delassus.updateCompliance(compliance_value);
   BOOST_CHECK(access(delassus_assigned).m_compliance.isConstant(new_compliance_value, 0));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

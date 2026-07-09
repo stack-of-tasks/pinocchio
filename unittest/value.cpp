@@ -15,6 +15,8 @@
  *
  */
 
+#define BOOST_TEST_MODULE value
+
 #include <iostream>
 #include <iomanip>
 
@@ -23,8 +25,6 @@
 #include "pinocchio/algorithm/rnea.hpp"
 
 #include <boost/test/unit_test.hpp>
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_000)
 {
@@ -175,5 +175,3 @@ BOOST_AUTO_TEST_CASE(test_QVA)
   rnea(model, data, q, v, a);
   BOOST_CHECK(expected.isApprox(data.tau, 1e-7));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

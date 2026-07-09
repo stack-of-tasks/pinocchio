@@ -2,13 +2,13 @@
 // Copyright (c) 2025 INRIA
 //
 
+#define BOOST_TEST_MODULE preconditioner
+
 #include "pinocchio/algorithm/diagonal-preconditioner.hpp"
 
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(diagonal_preconditioner)
 {
@@ -37,5 +37,3 @@ BOOST_AUTO_TEST_CASE(diagonal_preconditioner)
   x_unscaled_true = x.array() * (precond_vec.array() * precond_vec.array());
   BOOST_CHECK(x_unscaled.isApprox(x_unscaled_true));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

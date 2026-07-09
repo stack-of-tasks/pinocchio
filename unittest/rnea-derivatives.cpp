@@ -2,6 +2,8 @@
 // Copyright (c) 2017-2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE rnea_derivatives
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
@@ -12,10 +14,9 @@
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_generalized_gravity_derivatives)
 {
@@ -524,5 +525,3 @@ BOOST_AUTO_TEST_CASE(test_get_coriolis)
 
   BOOST_CHECK(data.C.isApprox(data_ref.C));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

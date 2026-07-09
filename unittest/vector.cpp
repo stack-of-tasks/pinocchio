@@ -2,12 +2,13 @@
 // Copyright (c) 2020 INRIA
 //
 
+#define BOOST_TEST_MODULE vector
+
 #include <pinocchio/math.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_isNormalized)
 {
@@ -36,5 +37,3 @@ BOOST_AUTO_TEST_CASE(test_isNormalized)
     BOOST_CHECK(!isNormalized(Vector(Vector::Zero(size))));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

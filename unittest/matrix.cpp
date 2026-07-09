@@ -2,13 +2,13 @@
 // Copyright (c) 2024-2026 INRIA
 //
 
+#define BOOST_TEST_MODULE matrix
+
 #include <pinocchio/math.hpp>
 
 #include <Eigen/Core>
 
 #include <boost/test/unit_test.hpp>
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 using namespace pinocchio;
 
@@ -102,5 +102,3 @@ BOOST_AUTO_TEST_CASE(test_remap)
     BOOST_CHECK(re_mapped == input_map);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
+#define BOOST_TEST_MODULE basic
+
 #include <pinocchio/autodiff/casadi.hpp>
 #include <pinocchio/math.hpp>
 
@@ -9,13 +11,11 @@
 
 #include <casadi/casadi.hpp>
 
-#include <boost/test/unit_test.hpp>
-
 #include <iostream>
 #include <string>
 #include <vector>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_basic)
 {
@@ -158,5 +158,3 @@ BOOST_AUTO_TEST_CASE(test_max)
   casadi::SX max_x_0 = pinocchio::math::max(x, 0.);
   casadi::SX max_0_y = pinocchio::math::max(0., y);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

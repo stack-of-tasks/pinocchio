@@ -2,6 +2,8 @@
 // Copyright (c) 2016-2024 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE frames
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
@@ -14,18 +16,17 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #include "utils/model-generator.hpp"
+
+#include <boost/test/unit_test.hpp>
 
 template<typename Derived>
 inline bool isFinite(const Eigen::MatrixBase<Derived> & x)
 {
   return ((x - x).array() == (x - x).array()).all();
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(frame_basic)
 {
@@ -52,7 +53,7 @@ BOOST_AUTO_TEST_CASE(frame_basic)
   BOOST_CHECK(frame1 == frame2);
 }
 
-BOOST_AUTO_TEST_CASE(cast)
+BOOST_AUTO_TEST_CASE(frames_cast)
 {
   using namespace pinocchio;
   Frame frame("toto", 0, 0, SE3::Random(), OP_FRAME);
@@ -718,4 +719,3 @@ BOOST_AUTO_TEST_CASE(test_supported_inertia_and_force)
   Force force_free(data_free.f[joint_id]);
   BOOST_CHECK(force_fix.isApprox(force_free));
 }
-BOOST_AUTO_TEST_SUITE_END()

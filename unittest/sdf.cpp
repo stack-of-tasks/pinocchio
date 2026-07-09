@@ -2,14 +2,14 @@
 // Copyright (c) 2015-2021 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE sdf
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/parsers/sdf.hpp"
 
 #include <boost/test/unit_test.hpp>
 
 using PointAnchorConstraintModelVector = std::vector<pinocchio::PointAnchorConstraintModel>;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(build_model)
 {
@@ -412,5 +412,3 @@ BOOST_AUTO_TEST_CASE(compare_model_in_version_1_6)
   BOOST_CHECK(constraint_models[0].joint2_id == 2);
   BOOST_CHECK(constraint_models[0].joint2_placement == placement_center_link_A);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

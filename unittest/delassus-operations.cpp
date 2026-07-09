@@ -2,11 +2,12 @@
 // Copyright (c) 2026 INRIA
 //
 
+#define BOOST_TEST_MODULE delassus_operations
+
 #include <pinocchio/fwd.hpp>
 
 #include <boost/variant.hpp> // to avoid C99 warnings
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #include <pinocchio/algorithm/delassus-operator.hpp>
@@ -14,7 +15,7 @@
 
 #include "utils.hpp"
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace pinocchio::unittest;
@@ -833,5 +834,3 @@ BOOST_AUTO_TEST_CASE(delassus_cholesky_expression_unsafe)
   expected_mat += compliance.asDiagonal();
   BOOST_CHECK(res.isApprox(expected_mat * rhs, 1e-6));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

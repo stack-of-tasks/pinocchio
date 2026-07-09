@@ -2,6 +2,8 @@
 // Copyright (c) 2015-2021 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE compute_all_terms
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
@@ -15,8 +17,6 @@
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 void run_test(const Model & model, const Eigen::VectorXd & q, const Eigen::VectorXd & v)
 {
@@ -95,5 +95,3 @@ BOOST_AUTO_TEST_CASE(test_against_algo)
 
   run_test(model, q, v);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

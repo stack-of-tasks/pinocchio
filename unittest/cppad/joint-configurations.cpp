@@ -2,18 +2,19 @@
 // Copyright (c) 2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE joint_configurations
+
 #include "pinocchio/autodiff/cppad.hpp"
 
 #include "pinocchio/multibody.hpp"
 
 #include "../utils/model-generator.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(test_joint_configuration)
 {
@@ -144,5 +145,3 @@ BOOST_AUTO_TEST_CASE(test_joint_configuration)
     BOOST_CHECK(results_J1[0].isIdentity());
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -4,16 +4,182 @@
 //
 
 #include "utils/joints-init.hpp"
+#define BOOST_TEST_MODULE all_joints
 
 #include "pinocchio/multibody/joint.hpp"
 #include "pinocchio/multibody/liegroup.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <iostream>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
-BOOST_AUTO_TEST_SUITE(joint_model_base_test)
+template<typename JointModel_>
+struct init;
+
+template<typename JointModel_>
+struct init
+{
+  static JointModel_ run()
+  {
+    JointModel_ jmodel;
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options>>
+{
+  typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> JointModel;
+
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options>>
+{
+  typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> JointModel;
+
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options>>
+{
+  typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> JointModel;
+
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, template<typename, int> class JointCollection>
+struct init<pinocchio::JointModelTpl<Scalar, Options, JointCollection>>
+{
+  typedef pinocchio::JointModelTpl<Scalar, Options, JointCollection> JointModel;
+
+  static JointModel run()
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
+    JointModel jmodel((JointModelRX()));
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, template<typename, int> class JointCollection>
+struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
+{
+  typedef pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> JointModel;
+
+  static JointModel run()
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 1> JointModelRY;
+    JointModel jmodel((JointModelRX()));
+    jmodel.addJoint(JointModelRY());
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, template<typename, int> class JointCollection>
+struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
+{
+  typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModel;
+
+  static JointModel run()
+  {
+
+    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
+    JointModelRX jmodel_ref = init<JointModelRX>::run();
+
+    JointModel jmodel(jmodel_ref, 1., 0.);
+    jmodel.setIndexes(1, 0, 0, 0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
+{
+  typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointModel;
+
+  static JointModel run()
+  {
+    JointModel jmodel(XAxis::vector(), YAxis::vector());
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, int axis>
+struct init<pinocchio::JointModelHelicalTpl<Scalar, Options, axis>>
+{
+  typedef pinocchio::JointModelHelicalTpl<Scalar, Options, axis> JointModel;
+
+  static JointModel run()
+  {
+    JointModel jmodel(static_cast<Scalar>(0.5));
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelEllipsoidTpl<Scalar, Options>>
+{
+  typedef pinocchio::JointModelEllipsoidTpl<Scalar, Options> JointModel;
+
+  static JointModel run()
+  {
+    JointModel jmodel(
+      static_cast<Scalar>(0.01), static_cast<Scalar>(0.02), static_cast<Scalar>(0.03));
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options>>
+{
+  typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> JointModel;
+
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
 
 template<typename TestDerived>
 struct TestJointModel
@@ -54,7 +220,7 @@ struct TestJointModelTransform : TestJointModel<TestJointModelTransform>
   }
 };
 
-BOOST_AUTO_TEST_CASE(isEqual)
+BOOST_AUTO_TEST_CASE(all_joints_isEqual)
 {
   typedef JointCollectionDefault::JointModelVariant JointModelVariant;
   boost::mpl::for_each<JointModelVariant::types>(TestJointModelIsEqual());
@@ -109,7 +275,7 @@ struct TestJointModelCast : TestJointModel<TestJointModelCast>
   }
 };
 
-BOOST_AUTO_TEST_CASE(cast)
+BOOST_AUTO_TEST_CASE(all_joints_cast)
 {
   typedef JointCollectionDefault::JointModelVariant JointModelVariant;
   boost::mpl::for_each<JointModelVariant::types>(TestJointModelCast());
@@ -143,5 +309,3 @@ BOOST_AUTO_TEST_CASE(test_disp)
 
   TestJointModelDisp()(JointModel());
 }
-
-BOOST_AUTO_TEST_SUITE_END()

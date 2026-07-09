@@ -3,15 +3,15 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
+#define BOOST_TEST_MODULE joint_free_flyer
+
 #include "pinocchio/multibody/joint.hpp"
 
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
-BOOST_AUTO_TEST_SUITE(JointFreeFlyer)
-
-BOOST_AUTO_TEST_CASE(spatial)
+BOOST_AUTO_TEST_CASE(joint_free_flyer_spatial)
 {
   Motion v(Motion::Random());
 
@@ -20,5 +20,3 @@ BOOST_AUTO_TEST_CASE(spatial)
 
   BOOST_CHECK(Sv == v);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

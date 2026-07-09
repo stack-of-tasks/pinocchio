@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2023 INRIA
 //
 
+#define BOOST_TEST_MODULE constrained_dynamics
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/constraints.hpp"
@@ -20,8 +22,9 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 #define KP 0
 #define KD 0
@@ -75,8 +78,6 @@ pinocchio::Motion computeAcceleration(
 
   return res;
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 // BOOST_AUTO_TEST_CASE(contact_models)
 // {
@@ -1849,5 +1850,3 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_3D)
 
   BOOST_CHECK(prox_settings2.iter == 0);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

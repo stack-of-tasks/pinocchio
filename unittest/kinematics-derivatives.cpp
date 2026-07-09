@@ -3,6 +3,8 @@
 // Copyright (c) 2018-2026 INRIA
 //
 
+#define BOOST_TEST_MODULE kinematics_derivatives
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/frames.hpp"
@@ -10,8 +12,9 @@
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 template<typename Scalar, int Options>
 bool isZero(
@@ -31,8 +34,6 @@ bool isZero(
 
   return is_zero;
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_all)
 {
@@ -1247,5 +1248,3 @@ BOOST_AUTO_TEST_CASE(test_kinematics_hessians_no_tensors_allocation)
   BOOST_CHECK_THROW(
     getJointKinematicHessian(model, data_no_tensors, idx, WORLD), std::invalid_argument);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

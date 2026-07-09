@@ -2,6 +2,8 @@
 // Copyright (c) 2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE joint_configurations
+
 #include "pinocchio/codegen/cppadcg.hpp"
 #include "pinocchio/codegen/cppadcg-algo.hpp"
 
@@ -9,14 +11,13 @@
 
 #include "../utils/model-generator.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
 bool DELETE_CODEGEN_LIBS_AFTER_TEST = false;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
 {
@@ -90,5 +91,3 @@ BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
     std::remove("cg_dDifference_eval_.dylib");
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

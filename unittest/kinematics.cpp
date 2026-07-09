@@ -2,17 +2,18 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE kinematics
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #include "utils/model-generator.hpp"
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_kinematics_constant_vector_input)
 {
@@ -365,5 +366,3 @@ BOOST_AUTO_TEST_CASE(test_kinematics_mimic)
     }
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

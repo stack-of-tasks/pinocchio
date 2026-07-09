@@ -2,6 +2,8 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE algorithms
+
 #include "pinocchio/codegen/cppadcg.hpp"
 
 #include "pinocchio/multibody.hpp"
@@ -12,10 +14,9 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_crba_code_generation)
 {
@@ -238,5 +239,3 @@ BOOST_AUTO_TEST_CASE(test_crba_code_generation_pointer)
     BOOST_CHECK(jac.middleCols(nq + nv, nv).isApprox(data.M));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

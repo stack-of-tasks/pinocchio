@@ -2,14 +2,15 @@
 // Copyright (c) 2024 INRIA
 //
 
+#define BOOST_TEST_MODULE orthant_cone
+
 #include "pinocchio/constraints.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(test_orthant)
 {
@@ -48,5 +49,3 @@ BOOST_AUTO_TEST_CASE(test_orthant)
     BOOST_CHECK((x_proj.array() >= 0).all());
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

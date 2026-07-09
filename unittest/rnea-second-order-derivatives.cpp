@@ -2,16 +2,17 @@
 // Copyright (c) 2017-2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE rnea_second_order_derivatives
+
 #include "pinocchio/multibody.hpp"
 
 #include "pinocchio/algorithm/rnea-second-order-derivatives.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO)
 {
@@ -247,5 +248,3 @@ BOOST_AUTO_TEST_CASE(test_rnea_second_order_derivatives_no_tensors_allocation)
   BOOST_CHECK_THROW(
     ComputeRNEASecondOrderDerivatives(model, data_no_tensors, q, v, a), std::invalid_argument);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,6 +2,8 @@
 // Copyright (c) 2026 INRIA
 //
 
+#define BOOST_TEST_MODULE serialization_multibody_joint
+
 #include <iostream>
 
 #include "pinocchio/multibody.hpp"
@@ -13,12 +15,15 @@
 #include "pinocchio/serialization.hpp"
 #include "serialization.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+<<<<<<< HEAD
 #include "utils/joints-init.hpp"
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+=======
+#include <boost/test/unit_test.hpp>
+>>>>>>> e12b7013d (cmake:Port unit test)
 
 struct TestJointModel
 {
@@ -274,4 +279,14 @@ BOOST_AUTO_TEST_CASE(test_throw_extension)
   }
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_CASE(test_data_serialization)
+{
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model);
+
+  Data data(model);
+
+  generic_test(data, TEST_SERIALIZATION_FOLDER "/Data", "Data");
+}

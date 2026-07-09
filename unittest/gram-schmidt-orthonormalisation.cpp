@@ -2,16 +2,17 @@
 // Copyright (c) 2024-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE gram_schmidt_orthonormalisation
+
 #include <pinocchio/math.hpp>
 
 #include <Eigen/QR>
 
 #include <boost/variant.hpp> // to avoid C99 warnings
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -54,5 +55,3 @@ BOOST_AUTO_TEST_CASE(test_orthonormalization)
     BOOST_CHECK(isOrthonormal(mat, prec));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

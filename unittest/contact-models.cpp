@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2024 INRIA
 //
 
+#define BOOST_TEST_MODULE contact_models
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/constraints.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
@@ -10,8 +12,9 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace Eigen;
@@ -40,8 +43,6 @@ bool within(const typename Matrix::Scalar & elt, const Eigen::MatrixBase<Matrix>
 
   return false;
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(contact_models)
 {
@@ -500,5 +501,3 @@ BOOST_AUTO_TEST_CASE(contact_models_sparsity_and_jacobians)
     BOOST_CHECK(J_clm_LWA.isApprox(J_clm_LWA_sparse));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

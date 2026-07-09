@@ -2,12 +2,15 @@
 // Copyright (c) 2024 INRIA
 //
 
+#define BOOST_TEST_MODULE openmp_exception
+
 #include <sstream>
 
 #include "pinocchio/utils/openmp.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -36,8 +39,6 @@ void run_parallel_loop(const int n, OpenMPException & openmp_exception, Paramete
   openmp_exception.rethrowException();
 }
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
-
 BOOST_AUTO_TEST_CASE(test_openmp_exception_catch)
 {
 
@@ -63,5 +64,3 @@ BOOST_AUTO_TEST_CASE(test_openmp_exception_catch)
     BOOST_CHECK_NO_THROW(run_parallel_loop(10000, openmp_exception, 10001));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

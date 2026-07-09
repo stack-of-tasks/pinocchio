@@ -3,15 +3,15 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
+#define BOOST_TEST_MODULE explog
+
 #include "pinocchio/spatial.hpp"
 
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
-
-BOOST_AUTO_TEST_CASE(exp)
+BOOST_AUTO_TEST_CASE(explog_exp)
 {
   SE3 M(SE3::Random());
   Motion v(Motion::Random());
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(renorm_rotation)
   }
 }
 
-BOOST_AUTO_TEST_CASE(log)
+BOOST_AUTO_TEST_CASE(explog_log)
 {
   SE3 M(SE3::Identity());
   Motion v(Motion::Random());
@@ -634,5 +634,3 @@ BOOST_AUTO_TEST_CASE(test_Jlog6_robustness)
     BOOST_CHECK(res.isIdentity());
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

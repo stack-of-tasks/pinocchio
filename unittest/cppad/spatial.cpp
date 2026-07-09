@@ -2,14 +2,15 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE spatial
+
 #include "pinocchio/autodiff/cppad.hpp"
 
 #include "pinocchio/spatial.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 template<typename Vector3Like>
 Eigen::Matrix<typename Vector3Like::Scalar, 3, 3, 0>
@@ -277,5 +278,3 @@ BOOST_AUTO_TEST_CASE(test_explog)
   BOOST_CHECK(Jlog6.isApprox(Jlog6_analytic));
   BOOST_CHECK(Jlog6_fd.isApprox(Jlog6, pinocchio::math::sqrt(eps)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

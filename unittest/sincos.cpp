@@ -2,6 +2,8 @@
 // Copyright (c) 2018-2019 INRIA
 //
 
+#define BOOST_TEST_MODULE sincos
+
 #include "pinocchio/math.hpp"
 
 #include <boost/test/unit_test.hpp>
@@ -48,8 +50,6 @@ void testSINCOS(int n)
   }
 }
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
-
 BOOST_AUTO_TEST_CASE(test_sincos)
 {
 #ifndef NDEBUG
@@ -61,5 +61,3 @@ BOOST_AUTO_TEST_CASE(test_sincos)
   testSINCOS<double>(n);
   testSINCOS<long double>(n);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

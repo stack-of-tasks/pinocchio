@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE serialization
+
 #include <iostream>
 
 #include "pinocchio/multibody.hpp"
@@ -17,8 +19,9 @@
 #include "pinocchio/serialization.hpp"
 #include "serialization.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 // template<>
 // struct empty_contructor_algo<pinocchio::DelassusOperatorDense>
@@ -38,8 +41,6 @@ struct empty_contructor_algo<pinocchio::internal::MatrixStackTpl<MatrixLike, Ali
     return new Self(0);
   }
 };
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_static_buffer)
 {
@@ -108,5 +109,3 @@ BOOST_AUTO_TEST_CASE(test_spatial_serialization)
   Inertia I(Inertia::Random());
   generic_test(I, TEST_SERIALIZATION_FOLDER "/Inertia", "Inertia");
 }
-
-BOOST_AUTO_TEST_SUITE_END()

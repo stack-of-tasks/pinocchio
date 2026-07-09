@@ -2,6 +2,8 @@
 // Copyright (c) 2015-2022 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE urdf
+
 #include <cstddef>
 #include <fstream>
 
@@ -13,11 +15,10 @@
 #endif // PINOCCHIO_WITH_COLLISION
 
 #include <boost/filesystem.hpp>
-#include <boost/test/unit_test.hpp>
 
 #include <urdf_parser/urdf_parser.h>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(build_model)
 {
@@ -773,5 +774,3 @@ BOOST_AUTO_TEST_CASE(test_urdf_v10_accel_jerk_floating)
   }
 }
 #endif // PINOCCHIO_URDFDOM_HEADERS_VERSION_AT_LEAST(3, 0, 0)
-
-BOOST_AUTO_TEST_SUITE_END()

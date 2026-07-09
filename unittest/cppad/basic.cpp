@@ -2,13 +2,14 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE basic
+
 #include "pinocchio/autodiff/cppad.hpp"
 #include <cppad/speed/det_by_minor.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_example1_cppad)
 {
@@ -251,5 +252,3 @@ BOOST_AUTO_TEST_CASE(test_atan2)
 
   pinocchio::math::atan2(y, x);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

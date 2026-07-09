@@ -2,6 +2,8 @@
 // Copyright (c) 2016-2023 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE reachable_workspace
+
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/geometry.hpp"
 
@@ -9,12 +11,13 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #ifdef PINOCCHIO_WITH_COLLISION
   #include <coal/collision_object.h>
 #endif // PINOCCHIO_WITH_COLLISION
+
+#include <boost/test/unit_test.hpp>
 
 /// @brief Create a spherical joint with a stick of length l attached to it
 /// @param length length of the stick
@@ -107,7 +110,6 @@ addObstacle(pinocchio::GeometryModel & geom_model, const double distance, const 
   geom_model.addGeometryObject(geometry_object);
 }
 #endif
-BOOST_AUTO_TEST_SUITE(ReachableWorkspace)
 
 /// @brief test generation combination function and compare to the output of the python function
 /// `itertools.combinations`
@@ -337,5 +339,3 @@ BOOST_AUTO_TEST_CASE(test_spherical)
   BOOST_CHECK(res.vertex.cols() > 0);
   BOOST_CHECK(res.faces.rows() > 0);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

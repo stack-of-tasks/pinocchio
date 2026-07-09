@@ -2,15 +2,16 @@
 // Copyright (c) 2025 INRIA
 //
 
+#define BOOST_TEST_MODULE double_entry_container
+
 #include "pinocchio/container/double-entry-container.hpp"
 #include "pinocchio/container/matrix-stack.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(test_all_std_vector)
 {
@@ -147,5 +148,3 @@ BOOST_AUTO_TEST_CASE(test_all_matrix_stack)
     BOOST_CHECK(container.values()[size_t(id)].isConstant(double(id), double(0)));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

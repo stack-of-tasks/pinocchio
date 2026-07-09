@@ -2,6 +2,8 @@
 // Copyright (c) 2021 INRIA
 //
 
+#define BOOST_TEST_MODULE explog
+
 #include "pinocchio/autodiff/casadi.hpp"
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -11,10 +13,9 @@
 #include <casadi/casadi.hpp>
 
 #include <iostream>
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_squaredDistance)
 {
@@ -182,5 +183,3 @@ BOOST_AUTO_TEST_CASE(test_Jlog6)
   std::cout << hess_cdM_eval(DMVector{M0_dm, M1_dm})[0];
   std::cout << hess_cdM_eval(DMVector{M2_dm, M2_dm})[0];
 }
-
-BOOST_AUTO_TEST_SUITE_END()

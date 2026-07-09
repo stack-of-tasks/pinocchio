@@ -2,6 +2,8 @@
 // Copyright (c) 2024-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE pgs_solver
+
 #include "pinocchio/algorithm/constraint-cholesky.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/constraints.hpp"
@@ -9,8 +11,9 @@
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -123,8 +126,6 @@ struct TestBoxTpl
   bool has_converged;
   std::size_t n_iter;
 };
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(ball)
 {
@@ -1451,5 +1452,3 @@ BOOST_AUTO_TEST_CASE(test_copy_result)
   result_copy.x.setZero();
   BOOST_CHECK(result_assigned.x.isApprox(expected_x));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

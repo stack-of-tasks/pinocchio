@@ -2,6 +2,8 @@
 // Copyright (c) 2018-2022 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE algorithms
+
 #include "pinocchio/autodiff/cppad.hpp"
 
 #include "pinocchio/multibody.hpp"
@@ -16,16 +18,15 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 #ifdef _WIN32
   #define DLL_EXT ".dll"
 #else
   #define DLL_EXT ".so"
 #endif
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_mass_matrix)
 {
@@ -409,5 +410,3 @@ BOOST_AUTO_TEST_CASE(test_JSIM_jit)
     BOOST_CHECK(M.isApprox(data.M));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,15 +2,16 @@
 // Copyright (c) 2025 INRIA
 //
 
+#define BOOST_TEST_MODULE matrix_inverse
+
 #include <iostream>
 
 #include <pinocchio/math.hpp>
 #include <Eigen/LU>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -117,5 +118,3 @@ BOOST_AUTO_TEST_CASE(test_matrix_inverse_on_dynamic_matrix)
   test_matrix_inverse_on_dynamic_matrix_impl<11>();
   test_matrix_inverse_on_dynamic_matrix_impl<12>();
 }
-
-BOOST_AUTO_TEST_SUITE_END()

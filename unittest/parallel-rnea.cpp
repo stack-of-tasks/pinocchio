@@ -2,18 +2,19 @@
 // Copyright (c) 2021-2022 INRIA
 //
 
+#define BOOST_TEST_MODULE parallel_rnea
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/algorithm/parallel/rnea.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(test_parallel_rnea)
 {
@@ -50,5 +51,3 @@ BOOST_AUTO_TEST_CASE(test_parallel_rnea)
 
   BOOST_CHECK(tau == tau_ref);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

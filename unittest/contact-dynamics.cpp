@@ -2,6 +2,8 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE contact_dynamics
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
@@ -11,10 +13,9 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_FD)
 {
@@ -371,5 +372,3 @@ BOOST_AUTO_TEST_CASE(timings_fd_llt)
   }
   timer.toc(std::cout, NBT);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

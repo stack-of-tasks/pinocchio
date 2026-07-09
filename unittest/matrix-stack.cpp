@@ -2,11 +2,14 @@
 // Copyright (c) 202-2026 INRIA
 //
 
+#define BOOST_TEST_MODULE matrix_stack
+
 #include <iostream>
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #include "pinocchio/container/matrix-stack.hpp"
+
+#include <boost/test/unit_test.hpp>
 
 // #define ALIGNMENT_VALUE 128
 #define ALIGNMENT_VALUE 8
@@ -31,8 +34,6 @@ const T & as_const(T & value)
 {
   return value;
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(print_info)
 {
@@ -451,5 +452,3 @@ BOOST_AUTO_TEST_CASE(matrix_stack_empty_matrix)
   BOOST_CHECK(matrix_stack[2].rows() == 4);
   BOOST_CHECK(matrix_stack[2].cols() == 3);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

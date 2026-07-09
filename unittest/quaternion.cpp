@@ -2,12 +2,12 @@
 // Copyright (c) 2019-2020 INRIA CNRS
 //
 
+#define BOOST_TEST_MODULE quaternion
+
 #include <pinocchio/math.hpp>
 #include <pinocchio/spatial.hpp>
 
 #include <boost/test/unit_test.hpp>
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_assignQuaternion)
 {
@@ -67,5 +67,3 @@ BOOST_AUTO_TEST_CASE(test_isNormalized)
   // Specific check for the Zero vector
   BOOST_CHECK(!quaternion::isNormalized(Quaternion(Vector4::Zero())));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

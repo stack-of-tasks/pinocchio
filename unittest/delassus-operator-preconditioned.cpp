@@ -1,10 +1,11 @@
+#define BOOST_TEST_MODULE delassus_operator_preconditioned
+
 #include <pinocchio/algorithm/delassus-operator.hpp>
 #include <pinocchio/math.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -86,5 +87,3 @@ BOOST_AUTO_TEST_CASE(delassus_dense_preconditioned)
   Eigen::VectorXd res_apply2 = damped_preconditioned_compliant_matrix * rhs;
   BOOST_CHECK(res.isApprox(res_apply2));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

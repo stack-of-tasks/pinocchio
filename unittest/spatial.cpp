@@ -2,13 +2,13 @@
 // Copyright (c) 2015-2021 CNRS INRIA
 //
 
-#include "pinocchio/spatial.hpp"
+#define BOOST_TEST_MODULE spatial
 
-#include <boost/test/unit_test.hpp>
+#include "pinocchio/spatial.hpp"
 
 #include <Eigen/Eigenvalues>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_SE3)
 {
@@ -1216,5 +1216,3 @@ BOOST_AUTO_TEST_CASE(test_spatial_axis)
 
   BOOST_CHECK(Sxf.isApprox(Sxf_ref));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

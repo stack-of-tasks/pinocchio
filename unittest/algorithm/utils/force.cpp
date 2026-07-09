@@ -2,14 +2,14 @@
 // Copyright (c) 2020 INRIA
 //
 
+#define BOOST_TEST_MODULE force
+
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #include "pinocchio/algorithm/utils/force.hpp"
 
 using namespace pinocchio;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_force)
 {
@@ -58,5 +58,3 @@ BOOST_AUTO_TEST_CASE(test_force)
       changeReferenceFrame(placement, f_sol_w, WORLD, LOCAL_WORLD_ALIGNED).isApprox(f_in));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

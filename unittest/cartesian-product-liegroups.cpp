@@ -2,12 +2,15 @@
 // Copyright (c) 2020 INRIA
 //
 
+#define BOOST_TEST_MODULE cartesian_product_liegroups
+
 #include "pinocchio/multibody/liegroup.hpp"
 
 #include <iostream>
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 #include <boost/algorithm/string.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -129,8 +132,6 @@ struct TestCartesianProduct
   }
 };
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
-
 BOOST_AUTO_TEST_CASE(test_cartesian_product_with_liegroup_variant)
 {
   boost::mpl::for_each<LieGroupCollectionDefault::LieGroupVariant::types>(
@@ -162,5 +163,3 @@ BOOST_AUTO_TEST_CASE(test_cartesian_product_vs_cartesian_product_variant)
   TestCartesianProduct<double, 0, LieGroupCollectionDefaultTpl>::test(
     cartesian_product_ref, cartesian_product);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,6 +2,8 @@
 // Copyright (c) 2026 INRIA
 //
 
+#define BOOST_TEST_MODULE serialization_algorithm
+
 #include <iostream>
 
 #include "pinocchio/multibody.hpp"
@@ -17,10 +19,9 @@
 #include "pinocchio/serialization.hpp"
 #include "serialization.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_delassus_operator_dense_serialization)
 {
@@ -94,5 +95,3 @@ BOOST_AUTO_TEST_CASE(test_delassus_operator_dense_serialization)
     delassus_operator_dense, TEST_SERIALIZATION_FOLDER "/DelassusOperatorDense",
     "DelassusOperatorDense");
 }
-
-BOOST_AUTO_TEST_SUITE_END()

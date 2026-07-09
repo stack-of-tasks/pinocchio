@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
+#define BOOST_TEST_MODULE rnea_derivatives
+
 #include "pinocchio/autodiff/casadi.hpp"
 
 #include "pinocchio/algorithm/rnea.hpp"
@@ -12,10 +14,9 @@
 
 #include <casadi/casadi.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
 {
@@ -176,5 +177,3 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
     static_cast<std::vector<double>>(dtau_da_res_direct).data(), model.nv, model.nv);
   BOOST_CHECK(dtau_da_ref.isApprox(dtau_da_res_direct_map));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

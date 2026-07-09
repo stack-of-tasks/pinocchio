@@ -9,6 +9,8 @@
  *
  */
 
+#define BOOST_TEST_MODULE cholesky
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/algorithm/crba.hpp"
@@ -19,10 +21,9 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_cholesky)
 {
@@ -278,5 +279,3 @@ BOOST_AUTO_TEST_CASE(test_Minv_from_cholesky)
   cholesky::computeMinv(model, data_bis);
   BOOST_CHECK(data_bis.Minv.isApprox(Minv_ref));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

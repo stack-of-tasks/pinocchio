@@ -2,7 +2,7 @@
 // Copyright (c) 2025 INRIA
 //
 
-#include <boost/test/unit_test.hpp>
+#define BOOST_TEST_MODULE model_configuration_converter
 
 #include "pinocchio/multibody.hpp"
 
@@ -11,7 +11,7 @@
 
 #include "pinocchio/parsers/graph.hpp"
 
-BOOST_AUTO_TEST_SUITE(ModelConfigurationConverter)
+#include <boost/test/unit_test.hpp>
 
 // TODO: factorize
 /// function isApprox better to avoid problem with zero precision
@@ -652,5 +652,3 @@ BOOST_AUTO_TEST_CASE(test_convert_tangent)
     }
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

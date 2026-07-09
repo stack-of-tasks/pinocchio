@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
+#define BOOST_TEST_MODULE constraint_dynamics_derivatives
+
 #include "pinocchio/autodiff/casadi.hpp"
 #include "pinocchio/autodiff/casadi-algo.hpp"
 
@@ -11,10 +13,9 @@
 
 #include <casadi/casadi.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_constraintDynamicsDerivatives_casadi_algo)
 {
@@ -74,5 +75,3 @@ BOOST_AUTO_TEST_CASE(test_constraintDynamicsDerivatives_casadi_algo)
   BOOST_CHECK(ad_casadi.dlambda_dv.isApprox(data.dlambda_dv, 1e1 * prec));
   BOOST_CHECK(ad_casadi.dlambda_dtau.isApprox(data.dlambda_dtau, 1e1 * prec));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,14 +2,15 @@
 // Copyright (c) 2024 INRIA
 //
 
+#define BOOST_TEST_MODULE tridiagonal_matrix
+
 #include <pinocchio/math.hpp>
 
 #include <Eigen/Eigenvalues>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -220,5 +221,3 @@ BOOST_AUTO_TEST_CASE(test_eigenvalues)
     BOOST_CHECK(math::fabs(lowest_eigenvalue - spectrum_ref[first_index]) <= eps);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

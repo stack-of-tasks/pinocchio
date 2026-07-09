@@ -2,15 +2,16 @@
 // Copyright (c) 2019 INRIA
 //
 
+#define BOOST_TEST_MODULE joint_mimic
+
 #include "pinocchio/multibody/joint.hpp"
 #include "pinocchio/multibody/liegroup.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 typedef Eigen::Matrix<double, 6, Eigen::Dynamic> Matrix6x;
 
@@ -279,4 +280,3 @@ BOOST_AUTO_TEST_CASE(test_joint_generic_cast)
 
   BOOST_CHECK(jmodel_generic.id() == jmodel.id());
 }
-BOOST_AUTO_TEST_SUITE_END()

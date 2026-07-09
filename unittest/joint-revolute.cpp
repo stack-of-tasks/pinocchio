@@ -3,6 +3,8 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
+#define BOOST_TEST_MODULE joint_revolute
+
 #include "pinocchio/math.hpp"
 #include "pinocchio/multibody/joint.hpp"
 

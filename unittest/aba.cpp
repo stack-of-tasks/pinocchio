@@ -2,6 +2,8 @@
 // Copyright (c) 2016-2021 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE aba
+
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -12,10 +14,9 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 template<typename JointModel>
 void test_joint_methods(const pinocchio::JointModelBase<JointModel> & jmodel)
@@ -381,5 +382,3 @@ BOOST_AUTO_TEST_CASE(test_roto_inertia_effects)
 
   BOOST_CHECK((data.Minv * data_ref.M).isIdentity());
 }
-
-BOOST_AUTO_TEST_SUITE_END()

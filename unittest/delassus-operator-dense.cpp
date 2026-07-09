@@ -2,16 +2,17 @@
 // Copyright (c) 2024-2026 INRIA
 //
 
+#define BOOST_TEST_MODULE delassus_operator_dense
+
 #include <pinocchio/multibody/sample-models.hpp>
 #include <pinocchio/constraints.hpp>
 
 #include <pinocchio/algorithm/crba.hpp>
 #include <pinocchio/algorithm/delassus-operator.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -228,5 +229,3 @@ BOOST_AUTO_TEST_CASE(test_copy)
   delassus.updateCompliance(compliance);
   BOOST_CHECK(!delassus_assigned.getCompliance().isApprox(compliance));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

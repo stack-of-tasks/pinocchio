@@ -2,10 +2,13 @@
 // Copyright (c) 2021-2024 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE macros
+
 #include "pinocchio/macros.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 std::string expected_msg;
 
@@ -14,8 +17,6 @@ bool check_exception_msg(const std::exception & exception)
   BOOST_CHECK_EQUAL(expected_msg, exception.what());
   return expected_msg == exception.what();
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 void function_1(std::vector<int> v, size_t size)
 {
@@ -61,5 +62,3 @@ BOOST_AUTO_TEST_CASE(test_check_arguments)
     }
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

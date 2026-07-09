@@ -2,19 +2,20 @@
 // Copyright (c) 2024-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE constraint_jacobian
+
 #include "pinocchio/constraints.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace Eigen;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(constraint_jacobian_operations)
 {
@@ -116,5 +117,3 @@ BOOST_AUTO_TEST_CASE(constraint_jacobian_operations)
     }
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

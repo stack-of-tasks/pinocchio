@@ -17,6 +17,8 @@
  * - Pinocchio: 6us
  */
 
+#define BOOST_TEST_MODULE symmetric
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/utils/timer.hpp"
 
@@ -24,7 +26,6 @@
 #include <Eigen/Geometry>
 
 #include <boost/random.hpp>
-#include <boost/test/unit_test.hpp>
 
 void timeSym3(
   const pinocchio::Symmetric3 & S,
@@ -52,14 +53,14 @@ void timeLTI(
 
 #endif
 
+#include <boost/test/unit_test.hpp>
+
 void timeSelfAdj(const Eigen::Matrix3d & A, const Eigen::Matrix3d & Sdense, Eigen::Matrix3d & ASA)
 {
   typedef Eigen::SelfAdjointView<const Eigen::Matrix3d, Eigen::Upper> Sym3;
   Sym3 S(Sdense);
   ASA.triangularView<Eigen::Upper>() = A * S * A.transpose();
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 /* --- PINOCCHIO ------------------------------------------------------------ */
 /* --- PINOCCHIO ------------------------------------------------------------ */
@@ -335,7 +336,7 @@ BOOST_AUTO_TEST_CASE(comparison)
   BOOST_CHECK(sym1 == sym1);
 }
 
-BOOST_AUTO_TEST_CASE(cast)
+BOOST_AUTO_TEST_CASE(csymmetric_ast)
 {
   using namespace pinocchio;
   Symmetric3 sym(Symmetric3::Random());
@@ -343,4 +344,3 @@ BOOST_AUTO_TEST_CASE(cast)
   BOOST_CHECK(sym.cast<double>() == sym);
   BOOST_CHECK(sym.cast<long double>().cast<double>() == sym);
 }
-BOOST_AUTO_TEST_SUITE_END()

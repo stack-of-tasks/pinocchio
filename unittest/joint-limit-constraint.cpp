@@ -2,6 +2,8 @@
 // Copyright (c) 2024-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE joint_limit_constraint
+
 #include "pinocchio/constraints.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -13,15 +15,14 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 // TODO: refacto
 using namespace pinocchio;
 typedef JointLimitConstraintModel::EigenIndexVector EigenIndexVector;
 typedef JointLimitConstraintModel::BooleanVector BooleanVector;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(constraint_empty_constructor)
 {
@@ -146,7 +147,7 @@ BOOST_AUTO_TEST_CASE(constraint_constructor)
   }
 }
 
-BOOST_AUTO_TEST_CASE(cast)
+BOOST_AUTO_TEST_CASE(joint_limit_constraint_cast)
 {
   Model model;
   buildModelWithAllJoints(model);
@@ -653,5 +654,3 @@ BOOST_AUTO_TEST_CASE(compliance)
     BOOST_CHECK(compliance.size() < compliance_full_ref.size());
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()
