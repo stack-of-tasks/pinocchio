@@ -280,7 +280,7 @@ namespace pinocchio
      * \return BSpline value at x
      */
     template<typename Scalar>
-    Scalar deBoorBasis(
+    Scalar deBoor(
       size_t start_i,
       size_t degree,
       Scalar x,
