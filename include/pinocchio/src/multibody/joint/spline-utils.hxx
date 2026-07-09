@@ -288,8 +288,8 @@ namespace pinocchio
       const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & control_points,
       Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & workspace)
     {
-      assert(workspace.size() == degree + 1);
-      assert(knots.size() == control_points.size() + degree + 1);
+      assert(workspace.size() == static_cast<int>(degree) + 1);
+      assert(knots.size() == control_points.size() + static_cast<int>(degree) + 1);
       assert(degree <= start_i);
       assert(start_i < knots.size() - 1 - degree);
       assert(knots[degree] <= x);
