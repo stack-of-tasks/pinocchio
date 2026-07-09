@@ -903,4 +903,75 @@ BOOST_AUTO_TEST_CASE(deBoorBasis_degree3)
     1e-8);
 }
 
+// test deBoorCumBasisSparse with degree 3 against manual cumulative
+// basis computed with deBoorBasis
+BOOST_AUTO_TEST_CASE(deBoorCumBasisSparse_degree3)
+{
+  using pinocchio::internal::deBoorBasis;
+  using pinocchio::internal::deBoorCumBasisSparse;
+
+  const size_t degree = 3;
+  Eigen::VectorXd knots(8);
+  knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10.;
+  Eigen::VectorXd control_points(4);
+  Eigen::VectorXd workspace_deboor(4);
+  Eigen::MatrixXd workspace_deboor_cum(4, 4);
+
+  control_points << 1., 1., 1., 1.;
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5., knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5., 0, knots, workspace_deboor_cum),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5.2, knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5.2, 0, knots, workspace_deboor_cum),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5.5, knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5.5, 0, knots, workspace_deboor_cum),
+    1e-8);
+
+  control_points << 0., 1., 1., 1.;
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5., knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5., 1, knots, workspace_deboor_cum),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5.2, knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5.2, 1, knots, workspace_deboor_cum),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5.5, knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5.5, 1, knots, workspace_deboor_cum),
+    1e-8);
+
+  control_points << 0., 0., 1., 1.;
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5., knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5., 2, knots, workspace_deboor_cum),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5.2, knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5.2, 2, knots, workspace_deboor_cum),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5.5, knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5.5, 2, knots, workspace_deboor_cum),
+    1e-8);
+
+  control_points << 0., 0., 0., 1.;
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5., knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5., 3, knots, workspace_deboor_cum),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5.2, knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5.2, 3, knots, workspace_deboor_cum),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    deBoorBasis(3, degree, 5.5, knots, control_points, workspace_deboor)
+      - deBoorCumBasisSparse(3, degree, 5.5, 3, knots, workspace_deboor_cum),
+    1e-8);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

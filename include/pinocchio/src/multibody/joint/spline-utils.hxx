@@ -313,6 +313,71 @@ namespace pinocchio
       return workspace[degree];
     }
 
+    /** De Boor algorithm modification to compute cumulative basis.
+     * \p start_i Knot vector index that contains x
+     * \p degree Curve degree
+     * \p x Value to evaluate
+     * \p ignore Ignore first ignore basis when computing the sum
+     * \p knots Knot vector of size m
+     * \p workspace of size (degree + 1, degree + 1)
+     * \return BSpline value at x
+     */
+    template<typename Scalar>
+    Scalar deBoorCumBasisSparse(
+      size_t start_i,
+      size_t degree,
+      Scalar x,
+      size_t ignore,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
+      Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & workspace)
+    {
+      // TODO linearize
+      assert(workspace.rows() == static_cast<int>(degree) + 1);
+      assert(workspace.cols() == static_cast<int>(degree) + 1);
+      assert(degree <= start_i);
+      assert(start_i < knots.size() - 1 - degree);
+      assert(knots[degree] <= x);
+      assert(x <= knots[knots.size() - 1 - degree]);
+
+      workspace.setZero();
+      workspace.row(0).setOnes();
+      if (ignore > 0)
+      {
+        workspace(0, ignore - 1) = Scalar(0.);
+      }
+      int first_pass_start_knot =
+        static_cast<int>(start_i) - static_cast<int>(degree) + static_cast<int>(ignore);
+      assert(first_pass_start_knot >= 0);
+      // Evaluate basis function with only non zero right coefficient
+      for (int r = 0; r < static_cast<int>(ignore); ++r)
+      {
+        int current_degree = static_cast<int>(degree) - (r + 1);
+        assert(current_degree >= 0);
+        int last_knot = first_pass_start_knot + current_degree + 1;
+        assert(last_knot >= 0);
+        Scalar alpha =
+          (x - knots[first_pass_start_knot]) / (knots[last_knot] - knots[first_pass_start_knot]);
+        workspace(r + 1, ignore - (r + 1)) = alpha * workspace(r, ignore - r);
+      }
+
+      // Iterate over all degree
+      for (int r = 0; r < static_cast<int>(degree); ++r)
+      {
+        int current_degree = static_cast<int>(degree) - (r + 1);
+        int start = std::max(0, static_cast<int>(ignore) - r);
+        for (int j = start; j < current_degree + 1; ++j)
+        {
+          int current_knot = static_cast<int>(start_i) - current_degree + j;
+          assert(current_knot >= 0);
+          int last_knot = current_knot + current_degree + 1;
+          assert(last_knot >= 0);
+          Scalar alpha = (x - knots[current_knot]) / (knots[last_knot] - knots[current_knot]);
+          workspace(r + 1, j) = (1.0 - alpha) * workspace(r, j) + alpha * workspace(r, j + 1);
+        }
+      }
+      return workspace(workspace.rows() - 1, 0);
+    }
+
   } // namespace internal
 
 } // namespace pinocchio
