@@ -36,7 +36,7 @@ jrl_option(BUILD_WITH_COLLISION_SUPPORT "Build the library with the collision su
 jrl_option(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differentiation support (via CppAD)" OFF)
 jrl_option( BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
 # cppadcodgen don't build well with CL
-jrl_option(BUILD_WITH_CODEGEN_SUPPORT 
+jrl_option(BUILD_WITH_CODEGEN_SUPPORT
     "Build the library with the support of code generation (via CppADCodeGen)"
     OFF
     CONDITION WIN32
@@ -44,23 +44,24 @@ jrl_option(BUILD_WITH_CODEGEN_SUPPORT
 )
 jrl_option(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
 jrl_option(BUILD_PYTHON_INTERFACE "Build the Python bindings" ON)
-jrl_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT 
+jrl_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT
     "Build the Python interface with Boost.Multiprecision MPFR support"
     OFF
     CONDITION BUILD_PYTHON_INTERFACE
     FALLBACK OFF
 )
-jrl_option(BUILD_WITH_LIBPYTHON 
+jrl_option(BUILD_WITH_LIBPYTHON
     "Build the library with Python format support"
     ON
     CONDITION BUILD_PYTHON_INTERFACE
     FALLBACK OFF
 )
-jrl_option(BUILD_WITH_ACCELERATE_SUPPORT 
-    "Build Pinocchio with the Accelerate support" 
+jrl_option(BUILD_WITH_ACCELERATE_SUPPORT
+    "Build Pinocchio with the Accelerate support"
     OFF
     CONDITION APPLE
-    FALLBACK OFF)
+    FALLBACK OFF
+)
 jrl_option(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 jrl_option(ASSERT_ON_EXCEPTION "Turns Pinocchio excpetions into asserts for debug purposes" OFF)
 jrl_option(ENABLE_TEMPLATE_INSTANTIATION "Template instantiation of the main library" ON)
@@ -92,6 +93,11 @@ if(BUILD_TESTING)
     jrl_find_package(Boost CONFIG REQUIRED COMPONENTS unit_test_framework
       EXPECTED_TARGETS Boost::unit_test_framework
     )
+endif()
+
+if(BUILD_WITH_URDF_SUPPORT)
+    jrl_find_package(urdfdom_headers REQUIRED)
+    jrl_find_package(urdfdom REQUIRED)
 endif()
 
 set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
@@ -602,7 +608,8 @@ if(BUILD_WITH_COLLISION_SUPPORT)
     target_compile_definitions(
         pinocchio_collision
         PUBLIC PINOCCHIO_WITH_COLLISION
-        PUBLIC PINOCCHIO_WITH_HPP_FCL     # DEPRECATED: Setup back compatibility define
+        PUBLIC
+            PINOCCHIO_WITH_HPP_FCL # DEPRECATED: Setup back compatibility define
     )
 
     jrl_target_set_default_compile_options(pinocchio_collision PRIVATE)
@@ -672,6 +679,141 @@ if(ENABLE_TEMPLATE_INSTANTIATION)
     )
 
     list(APPEND EXPORTED_TARGETS pinocchio_template_instantiation_default)
+endif()
+
+# handle parsers
+
+if(BUILD_WITH_URDF_SUPPORT OR BUILD_WITH_SDF_SUPPORT)
+    set(BUILD_WITH_PARSERS_SUPPORT TRUE)
+else()
+    set(BUILD_WITH_PARSERS_SUPPORT FALSE)
+endif()
+
+if(BUILD_WITH_PARSERS_SUPPORT)
+    add_library(pinocchio_parsers SHARED)
+
+    target_sources(
+        pinocchio_parsers
+        PRIVATE
+            src/parsers/utils/file-explorer.cpp
+            src/parsers/mjcf/mjcf-graph.cpp
+            src/parsers/mjcf/mjcf-graph-geom.cpp
+            src/parsers/graph/model-graph.cpp
+            src/parsers/graph/model-graph-algo.cpp
+    )
+
+    jrl_target_headers(pinocchio_parsers PUBLIC
+        HEADERS
+            include/pinocchio/parsers/graph/fwd.hpp
+            include/pinocchio/parsers/graph.hpp
+            include/pinocchio/parsers/mjcf.hpp
+            include/pinocchio/parsers/srdf.hpp
+            include/pinocchio/parsers/utils.hpp
+        BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_parsers PUBLIC
+        HEADERS
+            include/pinocchio/src/parsers/graph/frames.hxx
+            include/pinocchio/src/parsers/graph/fwd.hxx
+            include/pinocchio/src/parsers/graph/geometries.hxx
+            include/pinocchio/src/parsers/graph/graph-visitor.hxx
+            include/pinocchio/src/parsers/graph/joints.hxx
+            include/pinocchio/src/parsers/graph/model-configuration-converter.hxx
+            include/pinocchio/src/parsers/graph/model-graph-algo-geometry.hxx
+            include/pinocchio/src/parsers/graph/model-graph-algo.hxx
+            include/pinocchio/src/parsers/graph/model-graph.hxx
+            include/pinocchio/src/parsers/meshloader-fwd.hxx
+            include/pinocchio/src/parsers/mjcf/geometry.hxx
+            include/pinocchio/src/parsers/mjcf/mjcf-graph.hxx
+            include/pinocchio/src/parsers/mjcf/mjcf.hxx
+            include/pinocchio/src/parsers/mjcf/model.hxx
+            include/pinocchio/src/parsers/scalar-model.hxx
+            include/pinocchio/src/parsers/srdf/srdf.hxx
+            include/pinocchio/src/parsers/utils/utils.hxx
+            include/pinocchio/src/parsers/utils/file-explorer.hxx
+        BASE_DIRS include
+    )
+
+    if(BUILD_WITH_URDF_SUPPORT)
+        target_sources(
+            pinocchio_parsers
+            PRIVATE
+                src/parsers/urdf/model.cpp
+                src/parsers/urdf/geometry.cpp
+                src/parsers/urdf/utils.cpp
+        )
+
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/parsers/urdf.hpp
+            BASE_DIRS include
+        )
+
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/src/parsers/urdf/geometry.hxx
+                include/pinocchio/src/parsers/urdf/model.hxx
+                include/pinocchio/src/parsers/urdf/urdf.hxx
+                include/pinocchio/src/parsers/urdf/utils.hxx
+            BASE_DIRS include
+        )
+        target_link_libraries(pinocchio_parsers PUBLIC urdfdom::urdf_parser)
+        # Expose urdfdom_headers version
+        string(REPLACE "." ";" _URDFDOM_H_VER "${urdfdom_headers_VERSION}")
+        list(GET _URDFDOM_H_VER 0 _URDFDOM_H_MAJOR)
+        list(GET _URDFDOM_H_VER 1 _URDFDOM_H_MINOR)
+        list(GET _URDFDOM_H_VER 2 _URDFDOM_H_PATCH)
+
+        target_compile_definitions(
+            pinocchio_parsers
+            PUBLIC
+                PINOCCHIO_WITH_URDFDOM
+                PINOCCHIO_URDFDOM_HEADERS_MAJOR_VERSION=${_URDFDOM_H_MAJOR}
+                PINOCCHIO_URDFDOM_HEADERS_MINOR_VERSION=${_URDFDOM_H_MINOR}
+                PINOCCHIO_URDFDOM_HEADERS_PATCH_VERSION=${_URDFDOM_H_PATCH}
+        )
+    endif()
+
+    if(BUILD_WITH_SDF_SUPPORT)
+        target_sources(
+            pinocchio_parsers
+            PRIVATE src/parsers/sdf/model.cpp src/parsers/sdf/geometry.cpp
+        )
+
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/parsers/sdf.hpp
+            BASE_DIRS include
+        )
+
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/src/parsers/sdf/geometry.hxx
+                include/pinocchio/src/parsers/sdf/model.hxx
+                include/pinocchio/src/parsers/sdf/urdf.hxx
+            BASE_DIRS include
+        )
+
+        target_link_libraries(pinocchio_parsers PUBLIC ${SDFormat_LIBRARIES})
+
+        target_compile_definitions(
+            pinocchio_parsers
+            PUBLIC PINOCCHIO_WITH_SDFORMAT
+        )
+    endif()
+
+    target_link_libraries(
+        pinocchio_parsers
+        PUBLIC pinocchio_default Boost::filesystem
+    )
+
+    jrl_target_set_default_compile_options(pinocchio_parsers PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_parsers PRIVATE)
+    jrl_target_generate_config_header(pinocchio_parsers INTERFACE FILENAME pinocchio/parsers/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_parsers)
+
+    target_link_libraries(pinocchio INTERFACE pinocchio_parsers)
+    list(APPEND EXPORTED_TARGETS pinocchio_parsers)
 endif()
 
 # ----------------------------------------------------
