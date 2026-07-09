@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.22)
 
 project(
     pinocchio
-    VERSION 0.1.0
+    VERSION 4.1.0
     DESCRIPTION
         "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives"
     HOMEPAGE_URL "http://github.com/stack-of-tasks/pinocchio"
@@ -22,25 +22,12 @@ jrl_configure_defaults()
 # ----------------------------------------------------
 
 jrl_option(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
-jrl_option(PINOCCHIO_DOXYGEN_USE_MATHJAX "Avoid latex at build time" OFF)
-#TODO : remove intermediate option
-if(PINOCCHIO_DOXYGEN_USE_MATHJAX)
-    set(DOXYGEN_USE_MATHJAX YES)
-endif()
 jrl_option(BUILD_BENCHMARK "Build the benchmarks" OFF)
 jrl_option(BUILD_EXAMPLES "Build the examples" ON)
 jrl_option(BUILD_UTILS "Build the utils" OFF)
 jrl_option(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF)
 jrl_option(BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
-# TODO : remove ? deprecated
-jrl_option(BUILD_UNIT_TESTS "BUILD_UNIT_TESTS is deprecated. Use BUILD_TESTING instead.\
-    If you are manually building Pinocchio from source in an existing build folder,\
-    we suggest that you delete your build folder and make a new one." ON
-)
 jrl_option(BUILD_TESTING "build the tests" ON)
-if(BUILD_UNIT_TESTS)
-    set(BUILD_TESTING ${BUILD_UNIT_TESTS})
-endif()
 jrl_option(BUILD_ADVANCED_TESTING "Build the advanced tests (multiprecision, etc.) of Pinocchio" OFF)
 jrl_option(PINOCCHIO_BUILD_MPFR_TESTING "Build MPFR dependent tests" OFF)
 jrl_option(BUILD_WITH_URDF_SUPPORT "Build the library with the URDF format support" ON)
@@ -49,27 +36,31 @@ jrl_option(BUILD_WITH_COLLISION_SUPPORT "Build the library with the collision su
 jrl_option(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differentiation support (via CppAD)" OFF)
 jrl_option( BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
 # cppadcodgen don't build well with CL
-if(NOT WIN32)
-    jrl_option(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
-endif()
+jrl_option(BUILD_WITH_CODEGEN_SUPPORT 
+    "Build the library with the support of code generation (via CppADCodeGen)"
+    OFF
+    CONDITION WIN32
+    FALLBACK OFF
+)
 jrl_option(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
-# TODO : why not present with jrl v1
 jrl_option(BUILD_PYTHON_INTERFACE "Build the Python bindings" ON)
-jrl_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT "Build the Python interface with Boost.Multiprecision MPFR support"
+jrl_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT 
+    "Build the Python interface with Boost.Multiprecision MPFR support"
     OFF
     CONDITION BUILD_PYTHON_INTERFACE
     FALLBACK OFF
 )
-jrl_option(BUILD_WITH_LIBPYTHON "Build the library with Python format support"
+jrl_option(BUILD_WITH_LIBPYTHON 
+    "Build the library with Python format support"
     ON
     CONDITION BUILD_PYTHON_INTERFACE
     FALLBACK OFF
 )
-if(APPLE)
-    jrl_option(BUILD_WITH_ACCELERATE_SUPPORT "Build Pinocchio with the Accelerate support" OFF)
-else(APPLE)
-    set(BUILD_WITH_ACCELERATE_SUPPORT FALSE)
-endif()
+jrl_option(BUILD_WITH_ACCELERATE_SUPPORT 
+    "Build Pinocchio with the Accelerate support" 
+    OFF
+    CONDITION APPLE
+    FALLBACK OFF)
 jrl_option(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 jrl_option(ASSERT_ON_EXCEPTION "Turns Pinocchio excpetions into asserts for debug purposes" OFF)
 jrl_option(ENABLE_TEMPLATE_INSTANTIATION "Template instantiation of the main library" ON)
@@ -80,6 +71,7 @@ jrl_option(PINOCCHIO_INSTALL_DEPRECATED_HEADERS "Use and install deprecated head
 # PCH use by default
 jrl_option(PINOCCHIO_BUILD_BINDING_WITH_PCH "Use PCH to accelerate binding build" OFF)
 jrl_option(PINOCCHIO_BUILD_VISUALIZERS "Build the pinocchio visualizers library" ON)
+jrl_option(BUILD_WITH_EXTRA_SUPPORT "Build with extra support" ON)
 
 # ----------------------------------------------------
 # --- DEPENDENCIES -----------------------------------
@@ -93,7 +85,7 @@ jrl_find_package(Boost CONFIG REQUIRED COMPONENTS serialization filesystem
 )
 
 if(BUILD_WITH_COLLISION_SUPPORT)
-    jrl_find_package(coal REQUIRED)
+    jrl_find_package(coal CONFIG REQUIRED)
 endif()
 
 if(BUILD_TESTING)
@@ -118,18 +110,13 @@ jrl_target_generate_tracy_header(pinocchio_headers INTERFACE FILENAME pinocchio/
 
 target_compile_definitions(
     pinocchio_headers
-    INTERFACE $<$<BOOL:${INITIALIZE_WITH_NAN}>:EIGEN_INITIALIZE_MATRICES_BY_NAN>
-)
-
-target_compile_definitions(
-    pinocchio_headers
-    INTERFACE
     INTERFACE
         BOOST_MPL_LIMIT_LIST_SIZE=30
         BOOST_MPL_LIMIT_VECTOR_SIZE=30
         BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
         BOOST_FUSION_INVOKE_MAX_ARITY=12
         $<BUILD_INTERFACE:PINOCCHIO_DISABLE_UNSUPPORTED_WARNINGS>
+        $<$<BOOL:${INITIALIZE_WITH_NAN}>:EIGEN_INITIALIZE_MATRICES_BY_NAN>
 )
 
 target_link_libraries(
@@ -615,12 +602,9 @@ if(BUILD_WITH_COLLISION_SUPPORT)
     target_compile_definitions(
         pinocchio_collision
         PUBLIC PINOCCHIO_WITH_COLLISION
+        PUBLIC PINOCCHIO_WITH_HPP_FCL     # DEPRECATED: Setup back compatibility define
     )
-    # DEPRECATED: Setup back compatibility define
-    target_compile_definitions(
-        pinocchio_collision
-        PUBLIC PINOCCHIO_WITH_HPP_FCL
-    )
+
     jrl_target_set_default_compile_options(pinocchio_collision PRIVATE)
     jrl_target_enforce_msvc_conformance(pinocchio_collision PRIVATE)
     jrl_target_generate_config_header(pinocchio_collision INTERFACE FILENAME pinocchio/collision/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_collision)

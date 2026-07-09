@@ -20,10 +20,6 @@ add_custom_target(pinocchio-tests)
 # --- MACROS  ----------------------------------------
 # ----------------------------------------------------
 
-set(PINOCCHIO_UNIT_TEST_HEADERS
-    ${PROJECT_SOURCE_DIR}/unittest/constraints/init_constraints.hpp
-    ${PROJECT_SOURCE_DIR}/unittest/constraints/jacobians-checker.hpp
-)
 # TODO rename in pinocchio_add_test
 function(add_pinocchio_unit_test name)
     set(test_name "pinocchio-test-cpp-${name}")
@@ -290,7 +286,8 @@ endif()
 
 if(BUILD_WITH_RTSAN)
     add_pinocchio_unit_test(dynamic-allocations)
-    get_cpp_test_name(dynamic-allocations ${CMAKE_CURRENT_SOURCE_DIR} test_name)
+    #TODO remove following line when BUILD_WITH_RTSAN is handled
+    #get_cpp_test_name(dynamic-allocations ${CMAKE_CURRENT_SOURCE_DIR} test_name)
     target_compile_options(${test_name} PRIVATE -fsanitize=realtime)
     target_link_options(${test_name} PRIVATE -fsanitize=realtime)
     # On osx-arm64 mutex are called to initialize some static variables.

@@ -79,6 +79,8 @@ extra-args = [
 
 [package.build-dependencies]
 pkg-config = ">=0.29.2"
+jrl-cmakemodules = ">=2.0.0"
+example-robot-data = ">=5.0.0"
 
 [package.host-dependencies]
 libboost-devel = ">=1.80.0"
