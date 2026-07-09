@@ -2,6 +2,8 @@
 // Copyright (c) 2022 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE joint_helical
+
 #include "pinocchio/multibody/joint.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/aba.hpp"

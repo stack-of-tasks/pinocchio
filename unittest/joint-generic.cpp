@@ -2,13 +2,16 @@
 // Copyright (c) 2016-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE joint_generic
+
 #include "pinocchio/multibody/joint.hpp"
 #include "pinocchio/multibody/liegroup.hpp"
 #include "pinocchio/multibody.hpp"
 
 #include <iostream>
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -385,8 +388,6 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
-
 BOOST_AUTO_TEST_CASE(test_joint_from_joint_composite)
 {
   typedef JointCollectionDefault JointCollection;
@@ -428,7 +429,7 @@ BOOST_AUTO_TEST_CASE(test_empty_model)
   BOOST_CHECK(jmodel.idx_v() == -1);
 }
 
-BOOST_AUTO_TEST_CASE(isEqual)
+BOOST_AUTO_TEST_CASE(joint_generic_isEqual)
 {
   JointModelRX joint_revolutex;
   JointModelRY joint_revolutey;
@@ -448,7 +449,7 @@ BOOST_AUTO_TEST_CASE(isEqual)
   BOOST_CHECK(jmodely != jmodelx);
 }
 
-BOOST_AUTO_TEST_CASE(cast)
+BOOST_AUTO_TEST_CASE(joint_generic_cast)
 {
   JointModelRX joint_revolutex;
 
@@ -508,5 +509,3 @@ BOOST_AUTO_TEST_CASE(test_operator_equal)
 {
   boost::mpl::for_each<JointModelVariant::types>(TestJointOperatorEqual());
 }
-
-BOOST_AUTO_TEST_SUITE_END()

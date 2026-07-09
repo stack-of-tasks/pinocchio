@@ -2,6 +2,8 @@
 // Copyright (c) 2024-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE joint_friction_constraint
+
 #include "pinocchio/constraints.hpp"
 
 #include "pinocchio/algorithm/jacobian.hpp"
@@ -11,14 +13,13 @@
 // Helpers
 #include "constraints/jacobians-checker.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 typedef JointFrictionConstraintModel::EigenIndexVector EigenIndexVector;
 typedef JointFrictionConstraintModel::BooleanVector BooleanVector;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(constraint_empty_constructor)
 {
@@ -90,7 +91,7 @@ BOOST_AUTO_TEST_CASE(constraint_constructor)
   }
 }
 
-BOOST_AUTO_TEST_CASE(cast)
+BOOST_AUTO_TEST_CASE(joint_friction_constraint_cast)
 {
   pinocchio::Model model;
   pinocchio::buildModels::humanoidRandom(model, true);
@@ -318,5 +319,3 @@ BOOST_AUTO_TEST_CASE(compliance)
     BOOST_CHECK(compliance == compliance_ref);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

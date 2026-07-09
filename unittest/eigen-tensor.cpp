@@ -2,12 +2,13 @@
 // Copyright (c) 2019 INRIA
 //
 
+#define BOOST_TEST_MODULE eigen_tensor
+
 #include "pinocchio/math.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_emulate_tensors)
 {
@@ -53,5 +54,3 @@ BOOST_AUTO_TEST_CASE(test_emulate_tensors)
   for (std::size_t i = 0; i < rank; ++i)
     BOOST_CHECK(tensor1.dimension(i) == new_dims[i]);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

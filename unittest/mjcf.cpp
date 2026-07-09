@@ -2,6 +2,8 @@
 // Copyright (c) 2015-2024 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE mjcf
+
 #include <iostream>
 
 #include <boost/filesystem.hpp>
@@ -17,8 +19,9 @@
 
 #include "pinocchio/multibody/joint.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/filesystem/fstream.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 typedef ::pinocchio::mjcf::details::MjcfVisitor MjcfVisitor;
 
@@ -95,8 +98,6 @@ static bool comparePropertyTrees(
 
   return true;
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 // /// @brief Test for the inertia conversion from mjcf to pinocchio inertia
 // /// @param
@@ -1730,5 +1731,3 @@ BOOST_AUTO_TEST_CASE(test_site_attached_to_fixed_body)
   BOOST_CHECK(site_2.placement.rotation().isIdentity());
   BOOST_CHECK(site_2.placement.translation().isApprox(Eigen::Vector3d(0, 0, -1.)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

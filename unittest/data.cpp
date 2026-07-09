@@ -2,19 +2,20 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
+#define BOOST_TEST_MODULE data
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
 #include "pinocchio/algorithm/check.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #include "utils/model-generator.hpp"
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(test_empty_model)
 {
@@ -188,5 +189,3 @@ BOOST_AUTO_TEST_CASE(test_mimic_subtree)
   Data data_man_mimic(man_mimic);
   BOOST_CHECK(data_man_mimic.mimic_subtree_joint[0] == 0);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

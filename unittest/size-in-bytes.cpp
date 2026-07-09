@@ -2,13 +2,16 @@
 // Copyright (c) 2025-2026 INRIA
 //
 
+#define BOOST_TEST_MODULE size_in_bytes
+
 #include "pinocchio/utils/size-in-bytes.hpp"
 #include "pinocchio/math.hpp"
 
 #include <cstddef>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -28,8 +31,6 @@ struct SimpleStruct
 typedef SimpleStruct<1> SimpleStruct1;
 typedef SimpleStruct<10> SimpleStruct10;
 typedef SimpleStruct<100> SimpleStruct100;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_simple_struct)
 {
@@ -80,5 +81,3 @@ BOOST_AUTO_TEST_CASE(test_fundamental_types)
   BOOST_CHECK(internal::sizeInBytes(double(1)) == sizeof(double));
   BOOST_CHECK(internal::sizeInBytes((long double)(1)) == sizeof(long double));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

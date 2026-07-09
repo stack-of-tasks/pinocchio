@@ -2,6 +2,8 @@
 // Copyright (c) 2015-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE centroidal
+
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -11,10 +13,11 @@
 
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #include "utils/model-generator.hpp"
+
+#include <boost/test/unit_test.hpp>
 
 template<typename JointModel>
 static void addJointAndBody(
@@ -44,8 +47,6 @@ static void addJointAndBody(
   model.appendBodyToJoint(idx, Inertia::Random(), SE3::Identity());
   model.addBodyFrame(name + "_body", idx);
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_ccrba)
 {
@@ -436,5 +437,3 @@ BOOST_AUTO_TEST_CASE(test_computeCentroidalMomentum_computeCentroidalMomentumTim
 
   BOOST_CHECK(data.dhg.isApprox(dhg_ref, sqrt(eps)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,11 +2,12 @@
 // Copyright (c) 2020 INRIA
 //
 
+#define BOOST_TEST_MODULE multiprecision_mpfr
+
 #include "pinocchio/math/multiprecision-mpfr.hpp"
 
 #include <boost/math/special_functions/gamma.hpp>
 #include <boost/multiprecision/cpp_dec_float.hpp>
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 #include <iostream>
 
@@ -18,7 +19,7 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_basic)
 {
@@ -159,5 +160,3 @@ BOOST_AUTO_TEST_CASE(test_mutliprecision)
 
   BOOST_CHECK_IS_APPROX(data.M, data_multi.M, double);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

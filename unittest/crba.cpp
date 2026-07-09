@@ -10,6 +10,8 @@
  *
  */
 
+#define BOOST_TEST_MODULE crba
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -21,10 +23,11 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #include "utils/model-generator.hpp"
+
+#include <boost/test/unit_test.hpp>
 
 template<typename JointModel>
 static void addJointAndBody(
@@ -54,8 +57,6 @@ static void addJointAndBody(
   model.appendBodyToJoint(idx, Inertia::Random(), SE3::Identity());
   model.addBodyFrame(name + "_body", idx);
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_crba)
 {
@@ -244,5 +245,3 @@ BOOST_AUTO_TEST_CASE(test_crba_malloc)
 }
 
 #endif
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,6 +2,8 @@
 // Copyright (c) 2018-2021 INRIA
 //
 
+#define BOOST_TEST_MODULE centroidal_derivatives
+
 #include "pinocchio/multibody/sample-models.hpp"
 
 #include "pinocchio/algorithm/rnea.hpp"
@@ -11,8 +13,9 @@
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 template<typename JointModel>
 static void addJointAndBody(
@@ -42,8 +45,6 @@ static void addJointAndBody(
   model.appendBodyToJoint(idx, Inertia::Random(), SE3::Identity());
   model.addBodyFrame(name + "_body", idx);
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
 {
@@ -275,5 +276,3 @@ BOOST_AUTO_TEST_CASE(test_retrieve_centroidal_derivatives_fromABA)
   BOOST_CHECK(dhdot_dv.isApprox(dhdot_dv_ref));
   BOOST_CHECK(dhdot_da.isApprox(dhdot_da_ref));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

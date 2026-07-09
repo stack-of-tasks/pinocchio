@@ -2,13 +2,16 @@
 // Copyright (c) 2015-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE visitor
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 namespace bf = boost::fusion;
 
@@ -161,8 +164,6 @@ struct SimpleBinaryVisitor4 : public pinocchio::fusion::JointBinaryVisitorBase<S
     std::cout << "jdata2 name: " << jdata2.classname() << std::endl;
   }
 };
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 template<typename JointModel_>
 struct init;
@@ -352,5 +353,3 @@ BOOST_AUTO_TEST_CASE(test_run_over_all_joints_binary_visitor)
     SimpleBinaryVisitor4::run(model.joints[i], model.joints[i], data.joints[i], data.joints[i]);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,6 +2,8 @@
 // Copyright (c) 2018-2024 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE regressor
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/algorithm/regressor.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -10,10 +12,9 @@
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_kinematic_regressor_joint)
 {
@@ -423,5 +424,3 @@ BOOST_AUTO_TEST_CASE(test_potential_energy_regressor)
 
   BOOST_CHECK_CLOSE(potential_energy_regressor, target_energy, 1e-12);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

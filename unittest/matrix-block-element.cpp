@@ -2,13 +2,14 @@
 // Copyright (c) 2026 INRIA
 //
 
+#define BOOST_TEST_MODULE matrix_block_element
+
 #include <limits>
 #include <pinocchio/math.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 typedef Eigen::Matrix<double, 1, 1> M11;
@@ -421,5 +422,3 @@ BOOST_AUTO_TEST_CASE(test_nested_block_diagonal_block_element)
     }
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

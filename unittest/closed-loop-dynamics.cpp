@@ -2,6 +2,8 @@
 // Copyright (c) 2020-2022 INRIA
 //
 
+#define BOOST_TEST_MODULE closed_loop_dynamics
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/constraints.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
@@ -11,10 +13,9 @@
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace Eigen;
@@ -141,5 +142,3 @@ BOOST_AUTO_TEST_CASE(closed_loop_constraint_6D_LOCAL)
   BOOST_CHECK(
     constraint_acceleration_error_ref.isApprox(constraint_acceleration_error_fd, math::sqrt(dt)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

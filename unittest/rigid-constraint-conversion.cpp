@@ -2,6 +2,8 @@
 // Copyright (c) 2026 INRIA
 //
 
+#define BOOST_TEST_MODULE rigid_constraint_conversion
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/constraints.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
@@ -10,13 +12,12 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace Eigen;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 /// Verify that a PointAnchorConstraintModel converts to a CONTACT_3D RigidConstraintModel
 /// and that the kinematic structure (joint IDs, placements, reference frame) is preserved.
@@ -318,5 +319,3 @@ BOOST_AUTO_TEST_CASE(convert_frame_anchor_jacobian_at_zero_error)
 
   BOOST_CHECK(J_rigid.isApprox(-J_frame));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

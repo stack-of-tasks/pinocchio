@@ -3,6 +3,8 @@
 // Copyright (c) 2018-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE model
+
 #include "pinocchio/multibody.hpp"
 
 #include "pinocchio/algorithm/check.hpp"
@@ -15,12 +17,11 @@
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(test_model_subtree)
 {
@@ -151,7 +152,7 @@ BOOST_AUTO_TEST_CASE(comparison)
   BOOST_CHECK(model == model);
 }
 
-BOOST_AUTO_TEST_CASE(cast)
+BOOST_AUTO_TEST_CASE(model_cast)
 {
   Model model;
   buildModels::humanoidRandom(model);
@@ -1292,5 +1293,3 @@ BOOST_AUTO_TEST_CASE(test_colwise_sparsity_pattern_and_span_indexes)
       BOOST_CHECK(pattern[idx]);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

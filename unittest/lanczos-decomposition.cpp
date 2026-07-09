@@ -2,6 +2,8 @@
 // Copyright (c) 2024-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE lanczos_decomposition
+
 #include "pinocchio/math.hpp"
 #include "pinocchio/constraints.hpp"
 
@@ -10,10 +12,9 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/diagonal-preconditioner.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -318,5 +319,3 @@ BOOST_AUTO_TEST_CASE(test_delassus_preconditioned)
     checkDecomposition(lanczos_decomposition, matrix_preconditioned);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

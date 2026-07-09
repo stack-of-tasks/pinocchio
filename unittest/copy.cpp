@@ -2,16 +2,17 @@
 // Copyright(c) 2018-2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE copy
+
 #include "pinocchio/algorithm/copy.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_data_copy)
 {
@@ -59,5 +60,3 @@ BOOST_AUTO_TEST_CASE(test_data_copy)
     BOOST_CHECK(data.a_gf[i] == data_ref.a_gf[i]);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

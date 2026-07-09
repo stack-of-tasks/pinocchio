@@ -2,13 +2,14 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
+#define BOOST_TEST_MODULE rpy
+
 #include <pinocchio/math.hpp>
 #include <pinocchio/spatial.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_rpyToMatrix)
 {
@@ -264,5 +265,3 @@ BOOST_AUTO_TEST_CASE(test_computeRpyJacobianTimeDerivative)
   Eigen::Matrix3d djWf = djWdr * rpydot[0] + djWdp * rpydot[1] + djWdy * rpydot[2];
   BOOST_CHECK(djW.isApprox(djWf, tol));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

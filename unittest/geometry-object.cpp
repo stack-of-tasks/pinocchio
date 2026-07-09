@@ -2,6 +2,8 @@
 // Copyright (c) 2022 INRIA
 //
 
+#define BOOST_TEST_MODULE geometry_object
+
 #include "pinocchio/geometry.hpp"
 
 #include <coal/shape/geometric_shapes.h>
@@ -9,8 +11,6 @@
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_clone)
 {
@@ -24,5 +24,3 @@ BOOST_AUTO_TEST_CASE(test_clone)
   sphere_ptr->radius = 1.;
   BOOST_CHECK(geom_obj_clone != geom_obj);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

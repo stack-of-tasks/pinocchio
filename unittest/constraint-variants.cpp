@@ -2,19 +2,20 @@
 // Copyright (c) 2023-2024 INRIA
 //
 
+#define BOOST_TEST_MODULE constraint_variants
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/constraints.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
 #include "constraints/init_constraints.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace Eigen;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(constraint_variants)
 {
@@ -145,5 +146,3 @@ BOOST_AUTO_TEST_CASE(constraint_visitors)
     BOOST_CHECK(output_matrix2 == output_matrix_ref);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

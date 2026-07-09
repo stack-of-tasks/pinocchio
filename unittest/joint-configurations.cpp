@@ -2,17 +2,18 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE joint_configurations
+
 #include "utils/model-generator.hpp"
 #include "pinocchio/math.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(integration_test)
 {
@@ -549,5 +550,3 @@ BOOST_AUTO_TEST_CASE(integrateCoeffWiseJacobian_test)
   }
   BOOST_CHECK(jac.isApprox(jac_fd, sqrt(eps)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

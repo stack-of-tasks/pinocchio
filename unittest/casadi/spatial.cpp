@@ -2,6 +2,8 @@
 // Copyright (c) 2019 INRIA
 //
 
+#define BOOST_TEST_MODULE spatial
+
 #include <pinocchio/autodiff/casadi.hpp>
 
 #include <pinocchio/math.hpp>
@@ -11,12 +13,10 @@
 
 #include <Eigen/Core>
 
-#include <boost/test/unit_test.hpp>
-
 #include <string>
 #include <vector>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_se3)
 {
@@ -152,5 +152,3 @@ BOOST_AUTO_TEST_CASE(test_log3_firstorder_derivatives)
 
   BOOST_CHECK(grad0 == grad0);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

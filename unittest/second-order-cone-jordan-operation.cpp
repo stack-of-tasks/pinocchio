@@ -2,9 +2,9 @@
 // Copyright (c) 2025 INRIA
 //
 
-#include "pinocchio/constraints.hpp"
+#define BOOST_TEST_MODULE second_order_cone_jordan_operation
 
-#include <boost/test/unit_test.hpp>
+#include "pinocchio/constraints.hpp"
 
 #ifndef NDEBUG
   #include <iostream>
@@ -29,7 +29,7 @@
     } while (0)
 #endif
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -241,5 +241,3 @@ BOOST_AUTO_TEST_CASE(jordan_scaling_matrix)
     BOOST_CHECK(W2_expected.isApprox(W2));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

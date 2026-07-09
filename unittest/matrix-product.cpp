@@ -2,12 +2,13 @@
 // Copyright (c) 2025 INRIA
 //
 
+#define BOOST_TEST_MODULE matrix_product
+
 #include <pinocchio/math.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -73,5 +74,3 @@ BOOST_AUTO_TEST_CASE(test_col_major_small)
   test<Matrix, Eigen::internal::add_assign_op>(rows, cols, inner_dim);
   test<Matrix, Eigen::internal::sub_assign_op>(rows, cols, inner_dim);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

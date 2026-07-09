@@ -2,14 +2,17 @@
 // Copyright (c) 2024-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE model_graph
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/frames.hpp"
 
 #include "pinocchio/parsers/graph.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <stdexcept>
+
+#include <boost/test/unit_test.hpp>
 
 pinocchio::graph::ModelGraph buildReversableModelGraph(const pinocchio::graph::JointVariant & joint)
 {
@@ -50,8 +53,6 @@ bool SE3isApprox(
   return s1.rotation().isApprox(s2.rotation())
          && (s1.translation() - s2.translation()).isZero(prec);
 }
-
-BOOST_AUTO_TEST_SUITE(ModelGraphTest)
 
 /// @brief test if vertex are added to the graph
 BOOST_AUTO_TEST_CASE(test_add_vertex)
@@ -1620,4 +1621,3 @@ BOOST_AUTO_TEST_CASE(test_build_geometry_model)
   BOOST_CHECK(cap2->radius == 3);
 }
 #endif
-BOOST_AUTO_TEST_SUITE_END()

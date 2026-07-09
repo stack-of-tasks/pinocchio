@@ -2,6 +2,8 @@
 // Copyright (c) 2026 INRIA
 //
 
+#define BOOST_TEST_MODULE serialization_multibody
+
 #include <iostream>
 
 #include "pinocchio/multibody.hpp"
@@ -17,8 +19,9 @@
 #include "pinocchio/serialization.hpp"
 #include "serialization.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 template<>
 struct empty_contructor_algo<pinocchio::GeometryObject>
@@ -28,8 +31,6 @@ struct empty_contructor_algo<pinocchio::GeometryObject>
     return new pinocchio::GeometryObject("", 0, 0, pinocchio::SE3::Identity(), nullptr);
   }
 };
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_multibody_serialization)
 {
@@ -136,5 +137,3 @@ BOOST_AUTO_TEST_CASE(test_geometry_model_and_data_serialization)
   }
 #endif // PINOCCHIO_WITH_COLLISION
 }
-
-BOOST_AUTO_TEST_SUITE_END()

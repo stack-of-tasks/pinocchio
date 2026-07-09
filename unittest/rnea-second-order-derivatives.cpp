@@ -2,16 +2,17 @@
 // Copyright (c) 2017-2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE rnea_second_order_derivatives
+
 #include "pinocchio/multibody.hpp"
 
 #include "pinocchio/algorithm/rnea-second-order-derivatives.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO)
 {
@@ -227,5 +228,3 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO)
   BOOST_CHECK(mqv.isApprox(mqv2, sqrt(alpha)));
   BOOST_CHECK(maq.isApprox(maq2, sqrt(alpha)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

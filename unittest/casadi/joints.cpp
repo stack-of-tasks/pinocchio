@@ -2,16 +2,17 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
+#define BOOST_TEST_MODULE joints
+
 #include "pinocchio/autodiff/casadi.hpp"
 
 #include "pinocchio/multibody/joint.hpp"
 #include "pinocchio/multibody/liegroup.hpp"
 
 #include <iostream>
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
 {
@@ -535,5 +536,3 @@ BOOST_AUTO_TEST_CASE(test_all_joints)
 
   TestADOnJoints()(pinocchio::JointModel());
 }
-
-BOOST_AUTO_TEST_SUITE_END()

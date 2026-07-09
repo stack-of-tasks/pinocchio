@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
+#define BOOST_TEST_MODULE integrate_derivatives
+
 #include "pinocchio/autodiff/casadi.hpp"
 
 #include "pinocchio/algorithm/rnea.hpp"
@@ -11,10 +13,9 @@
 
 #include <casadi/casadi.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_integrate)
 {
@@ -75,5 +76,3 @@ BOOST_AUTO_TEST_CASE(test_integrate)
 
   BOOST_CHECK(q_plus.isApprox(q_int_vec));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,14 +2,15 @@
 // Copyright (c) 2025 INRIA
 //
 
+#define BOOST_TEST_MODULE promote_static_op
+
 #include "pinocchio/utils/promote-static-eval.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(test_helpers)
 {
@@ -214,5 +215,3 @@ BOOST_AUTO_TEST_CASE(test_partial_static_matrix)
   BOOST_CHECK(res_noaliasing != res_aliasing);
   BOOST_CHECK(C == res_noaliasing);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

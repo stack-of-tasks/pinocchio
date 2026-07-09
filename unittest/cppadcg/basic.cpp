@@ -2,6 +2,8 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE basic
+
 #include "pinocchio/codegen/cppadcg.hpp"
 
 #include "pinocchio/multibody.hpp"
@@ -9,10 +11,9 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_simple_cppadcg)
 {
@@ -227,5 +228,3 @@ BOOST_AUTO_TEST_CASE(test_dynamic_link)
   BOOST_CHECK(
     Eigen::Map<Eigen::Vector2d>(jac.data()).isApprox(Eigen::Map<Eigen::Vector2d>(jac_ref.data())));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,17 +2,18 @@
 // Copyright (c) 2022 INRIA
 //
 
+#define BOOST_TEST_MODULE eigenvalues
+
 #include <iostream>
 
 #include <pinocchio/math.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #include <Eigen/Eigenvalues>
 #include <algorithm>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -76,5 +77,3 @@ BOOST_AUTO_TEST_CASE(test_random_matrix)
     BOOST_CHECK(test_eigen_vec);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

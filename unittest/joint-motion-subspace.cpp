@@ -2,15 +2,16 @@
 // Copyright (c) 2015-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE joint_motion_subspace
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-using namespace pinocchio;
+#include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+using namespace pinocchio;
 
 BOOST_AUTO_TEST_CASE(test_ForceSet)
 {
@@ -427,5 +428,3 @@ BOOST_AUTO_TEST_CASE(test_joint_constraint_operations)
   typedef JointCollectionDefault::JointModelVariant Variant;
   boost::mpl::for_each<Variant::types>(TestJointConstraint());
 }
-
-BOOST_AUTO_TEST_SUITE_END()

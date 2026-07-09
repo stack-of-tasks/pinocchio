@@ -2,6 +2,8 @@
 // Copyright (c) 2020 INRIA
 //
 
+#define BOOST_TEST_MODULE multiprecision
+
 #include "pinocchio/math/multiprecision.hpp"
 
 #include "pinocchio/multibody/sample-models.hpp"
@@ -18,10 +20,9 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_basic)
 {
@@ -137,5 +138,3 @@ BOOST_AUTO_TEST_CASE(test_mutliprecision)
 
   BOOST_CHECK_IS_APPROX(data.M, data_multi.M, double);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

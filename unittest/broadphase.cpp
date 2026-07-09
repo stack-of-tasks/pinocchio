@@ -2,6 +2,8 @@
 // Copyright (c) 2022 INRIA
 //
 
+#define BOOST_TEST_MODULE broadphase
+
 #include <iostream>
 
 #include "pinocchio/algorithm/geometry.hpp"
@@ -16,11 +18,10 @@
 
 #include <vector>
 #include <boost/filesystem.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_broadphase_with_empty_models)
 {
@@ -170,5 +171,3 @@ BOOST_AUTO_TEST_CASE(test_collisions)
       == computeCollisions(model, data, geom_model, geom_data, q_rand));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

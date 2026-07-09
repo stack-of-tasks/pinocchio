@@ -2,13 +2,13 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
+#define BOOST_TEST_MODULE rotation
+
 #include <pinocchio/math.hpp>
 
 #include <Eigen/Geometry>
 
 #include <boost/test/unit_test.hpp>
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_toRotationMatrix)
 {
@@ -71,5 +71,3 @@ BOOST_AUTO_TEST_CASE(test_orthogonal_projection)
     BOOST_CHECK(fabs(rot_proj.determinant() - 1.) <= Eigen::NumTraits<double>::dummy_precision());
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

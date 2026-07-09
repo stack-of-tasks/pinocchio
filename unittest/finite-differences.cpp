@@ -2,6 +2,8 @@
 // Copyright (c) 2016-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE finite_differences
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
@@ -9,8 +11,9 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 
 #include <iostream>
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace Eigen;
@@ -279,8 +282,6 @@ struct FiniteDiffJoint
   }
 };
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
-
 BOOST_AUTO_TEST_CASE(test_S_finit_diff)
 {
   boost::mpl::for_each<JointModelVariant::types>(FiniteDiffJoint());
@@ -309,5 +310,3 @@ BOOST_AUTO_TEST_CASE(test_jacobian_vs_finit_diff)
   Jrh_finite_diff = finiteDiffJacobian<true>(model, data, q, idx);
   BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh, sqrt(1e-8)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

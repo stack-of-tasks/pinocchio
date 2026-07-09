@@ -2,14 +2,17 @@
 // Copyright (c) 2026 INRIA
 //
 
+#define BOOST_TEST_MODULE serialization_math
+
 #include "pinocchio/serialization.hpp"
 
 #include "pinocchio/spatial.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #include "serialization.hpp"
+
+#include <boost/test/unit_test.hpp>
 
 template<typename MatrixLike, std::size_t Alignment>
 struct empty_contructor_algo<pinocchio::internal::MatrixStackTpl<MatrixLike, Alignment>>
@@ -20,8 +23,6 @@ struct empty_contructor_algo<pinocchio::internal::MatrixStackTpl<MatrixLike, Ali
     return new Self(0);
   }
 };
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(matrix_stack)
 {
@@ -152,5 +153,3 @@ BOOST_AUTO_TEST_CASE(block_diagonal_matrix_nested)
   generic_test(
     block_diagonal_matrix, TEST_SERIALIZATION_FOLDER "/Container", "block_diagonal_matrix_nested");
 }
-
-BOOST_AUTO_TEST_SUITE_END()

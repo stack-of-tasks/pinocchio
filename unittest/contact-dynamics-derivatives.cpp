@@ -2,6 +2,8 @@
 // Copyright (c) 2020-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE contact_dynamics_derivatives
+
 #include "pinocchio/spatial.hpp"
 
 #include "pinocchio/algorithm/frames.hpp"
@@ -17,7 +19,6 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 #ifdef PINOCCHIO_WITH_SDFORMAT
@@ -26,10 +27,10 @@
 
 #endif // PINOCCHIO_WITH_SDFORMAT
 
+#include <boost/test/unit_test.hpp>
+
 #define KP 10.
 #define KD 2 * math::sqrt(KP)
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 using namespace Eigen;
 using namespace pinocchio;
@@ -2643,5 +2644,3 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
 }
 
 #endif // PINOCCHIO_WITH_SDFORMAT
-
-BOOST_AUTO_TEST_SUITE_END()

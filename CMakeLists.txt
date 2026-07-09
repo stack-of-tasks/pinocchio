@@ -7,7 +7,8 @@ cmake_minimum_required(VERSION 3.22)
 project(
     pinocchio
     VERSION 0.1.0
-    DESCRIPTION "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives"
+    DESCRIPTION
+        "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives"
     HOMEPAGE_URL "http://github.com/stack-of-tasks/pinocchio"
     LANGUAGES CXX
 )
@@ -34,10 +35,11 @@ jrl_option(BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit
 # TODO : remove ? deprecated
 jrl_option(BUILD_UNIT_TESTS "BUILD_UNIT_TESTS is deprecated. Use BUILD_TESTING instead.\
     If you are manually building Pinocchio from source in an existing build folder,\
-    we suggest that you delete your build folder and make a new one." ON )
+    we suggest that you delete your build folder and make a new one." ON
+)
 jrl_option(BUILD_TESTING "build the tests" ON)
-if (BUILD_UNIT_TESTS)
-    set(BUILD_TESTING  ${BUILD_UNIT_TESTS})
+if(BUILD_UNIT_TESTS)
+    set(BUILD_TESTING ${BUILD_UNIT_TESTS})
 endif()
 jrl_option(BUILD_ADVANCED_TESTING "Build the advanced tests (multiprecision, etc.) of Pinocchio" OFF)
 jrl_option(PINOCCHIO_BUILD_MPFR_TESTING "Build MPFR dependent tests" OFF)
@@ -51,9 +53,9 @@ if(NOT WIN32)
     jrl_option(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
 endif()
 jrl_option(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
-# TODO : why not present with jrl v1 
+# TODO : why not present with jrl v1
 jrl_option(BUILD_PYTHON_INTERFACE "Build the Python bindings" ON)
-jrl_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT "Build the Python interface with Boost.Multiprecision MPFR support" 
+jrl_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT "Build the Python interface with Boost.Multiprecision MPFR support"
     OFF
     CONDITION BUILD_PYTHON_INTERFACE
     FALLBACK OFF
@@ -82,18 +84,27 @@ jrl_option(PINOCCHIO_BUILD_VISUALIZERS "Build the pinocchio visualizers library"
 # ----------------------------------------------------
 # --- DEPENDENCIES -----------------------------------
 # ----------------------------------------------------
+# TODO why not neccessary in Simple
+set(Boost_USE_DEBUG_RUNTIME OFF)
 
 jrl_find_package(Eigen3 CONFIG REQUIRED EXPECTED_TARGETS Eigen3::Eigen)
 jrl_find_package(Boost CONFIG REQUIRED COMPONENTS serialization filesystem
  EXPECTED_TARGETS Boost::boost Boost::serialization Boost::filesystem
 )
 
-set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
-jrl_find_package(example-robot-data CONFIG REQUIRED EXPECTED_TARGETS example-robot-data::example-robot-data)
-
 if(BUILD_WITH_COLLISION_SUPPORT)
     jrl_find_package(coal REQUIRED)
 endif()
+
+if(BUILD_TESTING)
+    jrl_find_package(Boost CONFIG REQUIRED COMPONENTS unit_test_framework
+      EXPECTED_TARGETS Boost::unit_test_framework
+    )
+endif()
+
+set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
+jrl_find_package(example-robot-data CONFIG REQUIRED EXPECTED_TARGETS example-robot-data::example-robot-data)
+
 # ----------------------------------------------------
 # --- MAIN LIBRARY -----------------------------------
 # ----------------------------------------------------
@@ -105,11 +116,14 @@ jrl_target_generate_warning_header(pinocchio_headers INTERFACE FILENAME pinocchi
 jrl_target_generate_deprecated_header(pinocchio_headers INTERFACE FILENAME pinocchio/deprecated.hpp LIBRARY_NAME pinocchio)
 jrl_target_generate_tracy_header(pinocchio_headers INTERFACE FILENAME pinocchio/tracy.hpp  LIBRARY_NAME pinocchio)
 
-target_compile_definitions(pinocchio_headers INTERFACE
-    $<$<BOOL:${INITIALIZE_WITH_NAN}>:EIGEN_INITIALIZE_MATRICES_BY_NAN>
+target_compile_definitions(
+    pinocchio_headers
+    INTERFACE $<$<BOOL:${INITIALIZE_WITH_NAN}>:EIGEN_INITIALIZE_MATRICES_BY_NAN>
 )
 
-target_compile_definitions(pinocchio_headers INTERFACE
+target_compile_definitions(
+    pinocchio_headers
+    INTERFACE
     INTERFACE
         BOOST_MPL_LIMIT_LIST_SIZE=30
         BOOST_MPL_LIMIT_VECTOR_SIZE=30
@@ -120,10 +134,7 @@ target_compile_definitions(pinocchio_headers INTERFACE
 
 target_link_libraries(
     pinocchio_headers
-    INTERFACE
-        Eigen3::Eigen 
-        Boost::boost
-        Boost::serialization  
+    INTERFACE Eigen3::Eigen Boost::boost Boost::serialization
 )
 
 target_include_directories(
@@ -136,7 +147,7 @@ target_include_directories(
 # Dependency free headers
 # Root, algorithm, common, containers, math, multibody, serialization, spatial, utils
 jrl_target_headers(pinocchio_headers PUBLIC
-    HEADERS 
+    HEADERS
     include/pinocchio/algorithm/aba-derivatives.hpp
     include/pinocchio/algorithm/aba.hpp
     include/pinocchio/algorithm/center-of-mass-derivatives.hpp
@@ -246,7 +257,7 @@ jrl_target_headers(pinocchio_headers PUBLIC
 )
 
 jrl_target_headers(pinocchio_headers PUBLIC
-    HEADERS 
+    HEADERS
     include/pinocchio/src/visualizers/base-visualizer.hxx
     include/pinocchio/src/common/fwd.hxx
     include/pinocchio/src/common/model-entity.hxx
@@ -565,13 +576,11 @@ if(BUILD_WITH_COLLISION_SUPPORT)
 
     target_sources(
         pinocchio_collision
-        PRIVATE
-            src/collision/collision.cpp
-            src/collision/distance.cpp
+        PRIVATE src/collision/collision.cpp src/collision/distance.cpp
     )
 
-    jrl_target_headers(pinocchio_collision PUBLIC 
-      HEADERS 
+    jrl_target_headers(pinocchio_collision PUBLIC
+      HEADERS
         include/pinocchio/collision/broadphase-callbacks.hpp
         include/pinocchio/collision/broadphase-manager-base.hpp
         include/pinocchio/collision/broadphase-manager.hpp
@@ -598,12 +607,20 @@ if(BUILD_WITH_COLLISION_SUPPORT)
         BASE_DIRS include
     )
 
-    target_link_libraries(pinocchio_collision
-        PUBLIC pinocchio_default coal::coal)
+    target_link_libraries(
+        pinocchio_collision
+        PUBLIC pinocchio_default coal::coal
+    )
 
-    target_compile_definitions(pinocchio_collision PUBLIC PINOCCHIO_WITH_COLLISION)
+    target_compile_definitions(
+        pinocchio_collision
+        PUBLIC PINOCCHIO_WITH_COLLISION
+    )
     # DEPRECATED: Setup back compatibility define
-    target_compile_definitions(pinocchio_collision PUBLIC PINOCCHIO_WITH_HPP_FCL)
+    target_compile_definitions(
+        pinocchio_collision
+        PUBLIC PINOCCHIO_WITH_HPP_FCL
+    )
     jrl_target_set_default_compile_options(pinocchio_collision PRIVATE)
     jrl_target_enforce_msvc_conformance(pinocchio_collision PRIVATE)
     jrl_target_generate_config_header(pinocchio_collision INTERFACE FILENAME pinocchio/collision/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_collision)
@@ -615,44 +632,47 @@ endif()
 if(ENABLE_TEMPLATE_INSTANTIATION)
     add_library(pinocchio_template_instantiation_default SHARED)
 
-    target_sources(pinocchio_template_instantiation_default PRIVATE
-        src/algorithm/cholesky.cpp
-        src/algorithm/aba.cpp
-        src/algorithm/regressor.cpp
-        src/algorithm/contact-dynamics.cpp
-        src/algorithm/frames-derivatives.cpp
-        src/algorithm/impulse-dynamics.cpp
-        src/algorithm/model.cpp
-        src/algorithm/constrained-dynamics.cpp
-        src/algorithm/rnea-derivatives.cpp
-        src/algorithm/compute-all-terms.cpp
-        src/algorithm/jacobian.cpp
-        src/algorithm/energy.cpp
-        src/algorithm/centroidal-derivatives.cpp
-        src/algorithm/frames.cpp
-        src/algorithm/constrained-dynamics-derivatives.cpp
-        src/algorithm/center-of-mass.cpp
-        src/algorithm/geometry.cpp
-        src/algorithm/kinematics.cpp
-        src/algorithm/rnea.cpp
-        src/algorithm/centroidal.cpp
-        src/algorithm/aba-derivatives.cpp
-        src/algorithm/crba.cpp
-        src/algorithm/constraint-cholesky.cpp
-        src/algorithm/joint-configuration.cpp
-        src/algorithm/center-of-mass-derivatives.cpp
-        src/algorithm/solvers/admm-solver.cpp
-        src/algorithm/solvers/pgs-solver.cpp
-        src/algorithm/kinematics-derivatives.cpp
-        src/algorithm/constraints/utils.cpp
-        src/multibody/model.cpp
-        src/multibody/data.cpp
-        src/multibody/sample-models.cpp
+    target_sources(
+        pinocchio_template_instantiation_default
+        PRIVATE
+            src/algorithm/cholesky.cpp
+            src/algorithm/aba.cpp
+            src/algorithm/regressor.cpp
+            src/algorithm/contact-dynamics.cpp
+            src/algorithm/frames-derivatives.cpp
+            src/algorithm/impulse-dynamics.cpp
+            src/algorithm/model.cpp
+            src/algorithm/constrained-dynamics.cpp
+            src/algorithm/rnea-derivatives.cpp
+            src/algorithm/compute-all-terms.cpp
+            src/algorithm/jacobian.cpp
+            src/algorithm/energy.cpp
+            src/algorithm/centroidal-derivatives.cpp
+            src/algorithm/frames.cpp
+            src/algorithm/constrained-dynamics-derivatives.cpp
+            src/algorithm/center-of-mass.cpp
+            src/algorithm/geometry.cpp
+            src/algorithm/kinematics.cpp
+            src/algorithm/rnea.cpp
+            src/algorithm/centroidal.cpp
+            src/algorithm/aba-derivatives.cpp
+            src/algorithm/crba.cpp
+            src/algorithm/constraint-cholesky.cpp
+            src/algorithm/joint-configuration.cpp
+            src/algorithm/center-of-mass-derivatives.cpp
+            src/algorithm/solvers/admm-solver.cpp
+            src/algorithm/solvers/pgs-solver.cpp
+            src/algorithm/kinematics-derivatives.cpp
+            src/algorithm/constraints/utils.cpp
+            src/multibody/model.cpp
+            src/multibody/data.cpp
+            src/multibody/sample-models.cpp
     )
 
     target_link_libraries(
         pinocchio_template_instantiation_default
-        PUBLIC pinocchio_headers)
+        PUBLIC pinocchio_headers
+    )
 
     target_compile_definitions(
         pinocchio_template_instantiation_default
@@ -668,7 +688,14 @@ if(ENABLE_TEMPLATE_INSTANTIATION)
     )
 
     list(APPEND EXPORTED_TARGETS pinocchio_template_instantiation_default)
+endif()
 
+# ----------------------------------------------------
+# --- UNIT TESTS ---------------------------------------
+# ----------------------------------------------------
+if(BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(unittest)
 endif()
 
 # ----------------------------------------------------

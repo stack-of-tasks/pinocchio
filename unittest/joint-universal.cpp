@@ -2,6 +2,8 @@
 // Copyright (c) 2023 INRIA
 //
 
+#define BOOST_TEST_MODULE joint_universal
+
 #include "pinocchio/multibody/joint.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/aba.hpp"
@@ -28,8 +30,6 @@ void addJointAndBody(
   idx = model.addJoint(parent_id, jmodel, joint_placement, joint_name);
   model.appendBodyToJoint(idx, Y);
 }
-
-BOOST_AUTO_TEST_SUITE(JointUniversal)
 
 BOOST_AUTO_TEST_CASE(vsRXRY)
 {
@@ -207,5 +207,3 @@ BOOST_AUTO_TEST_CASE(vsRandomAxis)
 
   BOOST_CHECK(jacobianUniversal.isApprox(jacobianRandomAxis));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

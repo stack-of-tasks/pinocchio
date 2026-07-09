@@ -2,15 +2,16 @@
 // Copyright (c) 2024 INRIA
 //
 
+#define BOOST_TEST_MODULE alloca
+
 #include <Eigen/Core>
 
 #include "pinocchio/eigen-common.hpp"
 #include "pinocchio/utils/alloca.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 template<typename MatrixLikeInput>
 typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixLikeInput)
@@ -51,5 +52,3 @@ BOOST_AUTO_TEST_CASE(macro)
   BOOST_CHECK(map.cols() == cols);
   BOOST_CHECK(map.isZero(0.));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

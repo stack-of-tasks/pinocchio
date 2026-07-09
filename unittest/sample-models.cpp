@@ -2,6 +2,8 @@
 // Copyright (c) 2015-2018 CNRS
 //
 
+#define BOOST_TEST_MODULE sample_models
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
@@ -10,8 +12,9 @@
 #include <pinocchio/algorithm/rnea.hpp>
 #include <pinocchio/algorithm/crba.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/variant.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 // Helper functions to map reduced to full model
 Eigen::VectorXd
@@ -30,8 +33,6 @@ Eigen::MatrixXd create_G(const pinocchio::Model & model, const pinocchio::Model 
 
   return G;
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(build_model_sample_humanoid_random)
 {
@@ -103,5 +104,3 @@ BOOST_AUTO_TEST_CASE(build_model_sample_humanoid)
   /* We might want to check here the joint namings, and validate the
    * direct geometry with respect to reference values. */
 }
-
-BOOST_AUTO_TEST_SUITE_END()

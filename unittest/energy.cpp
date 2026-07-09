@@ -2,6 +2,8 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE energy
+
 #include "pinocchio/algorithm/energy.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -11,11 +13,10 @@
 #include "pinocchio/multibody/sample-models.hpp"
 
 #include <iostream>
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_kinetic_energy)
 {
@@ -189,5 +190,3 @@ BOOST_AUTO_TEST_CASE(test_against_rnea)
 
   BOOST_CHECK(tau_fd.isApprox(tau_ref, sqrt(eps)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

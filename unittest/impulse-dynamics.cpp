@@ -2,6 +2,8 @@
 // Copyright (c) 2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE impulse_dynamics
+
 #include "pinocchio/constraints.hpp"
 #include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
@@ -12,10 +14,9 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_empty)
 {
@@ -456,5 +457,3 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_3D)
     constraint_id += cmodel.residualSize();
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

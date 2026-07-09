@@ -2,18 +2,19 @@
 // Copyright (c) 2024 INRIA
 //
 
+#define BOOST_TEST_MODULE eigen_storage
+
 #include "pinocchio/container/eigen-storage.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 typedef internal::EigenStorageTpl<Eigen::MatrixXd> EigenStorageMatrix;
 typedef internal::EigenStorageTpl<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Eigen::MatrixXd)>
   EigenStorageRowMatrix;
 typedef internal::EigenStorageTpl<Eigen::VectorXd> EigenStorageVector;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(eigen_storage_default)
 {
@@ -66,7 +67,7 @@ BOOST_AUTO_TEST_CASE(eigen_storage_matrix)
   BOOST_CHECK(storage.const_map().topLeftCorner(rows, cols).isOnes(0.));
 }
 
-BOOST_AUTO_TEST_CASE(cast)
+BOOST_AUTO_TEST_CASE(eigen_storage_cast)
 {
   const Eigen::Index rows = 10, cols = 20;
 
@@ -154,5 +155,3 @@ BOOST_AUTO_TEST_CASE(eigen_storage_vector)
 
   //  storage.conservativeResize(1,new_size); // will not pass
 }
-
-BOOST_AUTO_TEST_SUITE_END()

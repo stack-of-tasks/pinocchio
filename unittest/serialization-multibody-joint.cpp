@@ -2,6 +2,8 @@
 // Copyright (c) 2026 INRIA
 //
 
+#define BOOST_TEST_MODULE serialization_multibody_joint
+
 #include <iostream>
 
 #include "pinocchio/multibody.hpp"
@@ -13,10 +15,9 @@
 #include "pinocchio/serialization.hpp"
 #include "serialization.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 template<typename JointModel_>
 struct init;
@@ -461,5 +462,3 @@ BOOST_AUTO_TEST_CASE(test_data_serialization)
 
   generic_test(data, TEST_SERIALIZATION_FOLDER "/Data", "Data");
 }
-
-BOOST_AUTO_TEST_SUITE_END()

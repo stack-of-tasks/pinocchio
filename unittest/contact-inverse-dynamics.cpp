@@ -2,6 +2,8 @@
 // Copyright (c) 2024-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE contact_inverse_dynamics
+
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/constraints.hpp"
 
@@ -70,8 +72,6 @@ void makeIsotropic(
     row_id += csize;
   }
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_contact_inverse_dynamics_3D)
 {
@@ -178,5 +178,3 @@ BOOST_AUTO_TEST_CASE(test_contact_inverse_dynamics_3D)
     BOOST_CHECK(std::abs(constraint_velocity_projected.dot(x_sol)) <= 1e-10);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

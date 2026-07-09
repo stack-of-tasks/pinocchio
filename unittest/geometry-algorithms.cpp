@@ -2,6 +2,8 @@
 // Copyright (c) 2015-2022 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE geometry_algorithms
+
 #include <iostream>
 
 #include "pinocchio/multibody.hpp"
@@ -15,6 +17,7 @@
 
 #include <vector>
 #include <boost/filesystem.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
@@ -29,8 +32,6 @@ GeometryPositionsMap_t fillPinocchioGeometryPositions(
   const pinocchio::GeometryModel & geomModel, const pinocchio::GeometryData & geomData);
 
 std::vector<std::string> getBodiesList();
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_simple_boxes)
 {
@@ -346,5 +347,3 @@ BOOST_AUTO_TEST_CASE(test_compute_body_radius)
     BOOST_CHECK(radius >= 0.);
 }
 #endif // if defined(PINOCCHIO_WITH_URDFDOM)
-
-BOOST_AUTO_TEST_SUITE_END()

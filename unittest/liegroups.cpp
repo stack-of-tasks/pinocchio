@@ -2,16 +2,19 @@
 // Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
 //
 
+#define BOOST_TEST_MODULE liegroups
+
 #include <iostream>
 
 #include "pinocchio/multibody/liegroup.hpp"
 
 #include "pinocchio/multibody/joint.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/mpl/vector.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 #define EIGEN_VECTOR_IS_APPROX(Va, Vb, precision)                                                  \
   BOOST_CHECK_MESSAGE(                                                                             \
@@ -658,8 +661,6 @@ struct LieGroup_TangentMap
   }
 };
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
-
 BOOST_AUTO_TEST_CASE(test_all)
 {
   typedef boost::variant<
@@ -697,7 +698,7 @@ BOOST_AUTO_TEST_CASE(Jdifference)
     boost::mpl::for_each<Types>(LieGroup_Jdifference());
 }
 
-BOOST_AUTO_TEST_CASE(dIntegrateTransport)
+BOOST_AUTO_TEST_CASE(liegroups_dIntegrateTransport)
 {
   typedef double Scalar;
   static constexpr int Options = 0;
@@ -801,7 +802,7 @@ BOOST_AUTO_TEST_CASE(JintegrateCoeffWise)
   }
 }
 
-BOOST_AUTO_TEST_CASE(tangentMap)
+BOOST_AUTO_TEST_CASE(liegroups_tangentMap)
 {
   typedef double Scalar;
   static constexpr int Options = 0;
@@ -1033,5 +1034,3 @@ BOOST_AUTO_TEST_CASE(test_liegroup_variant_comparison)
   test_liegroup_variant_not_equal(
     VectorSpaceOperationTpl<1, double>(), VectorSpaceOperationTpl<Eigen::Dynamic, double>(2));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

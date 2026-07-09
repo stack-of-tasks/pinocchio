@@ -2,12 +2,15 @@
 // Copyright (c) 2016 CNRS
 //
 
+#define BOOST_TEST_MODULE joint_composite
+
 #include "pinocchio/multibody/joint.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 
 #include <iostream>
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace Eigen;
@@ -206,8 +209,6 @@ struct TestJointComposite
   }
 };
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
-
 BOOST_AUTO_TEST_CASE(test_basic)
 {
   typedef boost::variant<
@@ -354,5 +355,3 @@ BOOST_AUTO_TEST_CASE(checkJointNames)
   BOOST_CHECK(jmodel_composite.getJointId("penultinum_joint") == 1);
   BOOST_CHECK_THROW(jmodel_composite.getJointId("wrong_name"), std::invalid_argument);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

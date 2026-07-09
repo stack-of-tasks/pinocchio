@@ -2,6 +2,8 @@
 // Copyright (c) 2024 INRIA
 //
 
+#define BOOST_TEST_MODULE frame_anchor_constraint
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/constraints.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
@@ -18,8 +20,9 @@
 
 #include <iostream>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace Eigen;
@@ -48,8 +51,6 @@ bool within(const typename Matrix::Scalar & elt, const Eigen::MatrixBase<Matrix>
 
   return false;
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(basic_constructor)
 {
@@ -546,7 +547,7 @@ BOOST_AUTO_TEST_CASE(contact_models_sparsity_and_jacobians)
   }
 }
 
-BOOST_AUTO_TEST_CASE(cast)
+BOOST_AUTO_TEST_CASE(frame_anchor_constraint_cast)
 {
   pinocchio::Model model;
   pinocchio::buildModels::humanoidRandom(model, true);
@@ -789,5 +790,3 @@ BOOST_AUTO_TEST_CASE(compliance)
     BOOST_CHECK(compliance == compliance_ref);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

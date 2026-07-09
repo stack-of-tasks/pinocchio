@@ -2,6 +2,8 @@
 // Copyright (c) 2018-2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE aba_derivatives
+
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
@@ -11,10 +13,9 @@
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_aba_derivatives)
 {
@@ -535,5 +536,3 @@ BOOST_AUTO_TEST_CASE(test_optimized_aba_derivatives_fext)
     BOOST_CHECK(aba_partial_dtau.isApprox(aba_partial_dtau_ref));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

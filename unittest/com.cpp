@@ -2,6 +2,8 @@
 // Copyright (c) 2015-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE com
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -10,10 +12,9 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_com)
 {
@@ -283,5 +284,3 @@ BOOST_AUTO_TEST_CASE(test_subtree_com_jacobian)
 
   BOOST_CHECK(Jcom3.isApprox(Jcom1));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

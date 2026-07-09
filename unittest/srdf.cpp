@@ -2,17 +2,18 @@
 // Copyright (c) 2016-2018 CNRS
 //
 
+#define BOOST_TEST_MODULE srdf
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/srdf.hpp"
 
 #include <boost/filesystem.hpp>
+
 #include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 using namespace std;
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_removeCollisionPairs)
 {
@@ -138,5 +139,3 @@ BOOST_AUTO_TEST_CASE(readRotorParams)
   BOOST_CHECK(model.rotorInertia(model.joints[model.getJointId("WAIST_P")].idx_v()) == 1.0);
   BOOST_CHECK(model.rotorGearRatio(model.joints[model.getJointId("WAIST_R")].idx_v()) == 1.0);
 }
-
-BOOST_AUTO_TEST_SUITE_END()

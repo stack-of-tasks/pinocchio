@@ -2,6 +2,8 @@
 // Copyright (c) 2015-2020 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE joint_jacobian
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
@@ -13,9 +15,10 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 #include "utils/model-generator.hpp"
+
+#include <boost/test/unit_test.hpp>
 
 template<typename Derived>
 inline bool isFinite(const Eigen::MatrixBase<Derived> & x)
@@ -71,8 +74,6 @@ void test_jacobian_impl(const pinocchio::Model & model, pinocchio::JointIndex jo
 
   BOOST_CHECK(data_fk.J.isApprox(data.J));
 }
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_jacobian)
 {
@@ -345,5 +346,3 @@ BOOST_AUTO_TEST_CASE(test_timings)
     timer.toc(std::cout, NBT);
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

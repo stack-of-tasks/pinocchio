@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2021 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE center_of_mass_derivatives
+
 #include "pinocchio/multibody/sample-models.hpp"
 
 #include "pinocchio/algorithm/center-of-mass.hpp"
@@ -9,10 +11,9 @@
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/center-of-mass-derivatives.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_vcom)
 {
@@ -67,5 +68,3 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_vcom)
     BOOST_CHECK(dvcom_dq.isApprox(dvcom_dqn, sqrt(alpha)));
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

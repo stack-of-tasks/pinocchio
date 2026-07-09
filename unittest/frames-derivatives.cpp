@@ -2,6 +2,8 @@
 // Copyright (c) 2020 INRIA
 //
 
+#define BOOST_TEST_MODULE frames_derivatives
+
 #include "pinocchio/multibody/sample-models.hpp"
 
 #include "pinocchio/algorithm/jacobian.hpp"
@@ -11,10 +13,9 @@
 #include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/frames-derivatives.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_frames_derivatives_velocity)
 {
@@ -466,5 +467,3 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   BOOST_CHECK(a_partial_dv_local_other.isApprox(a_partial_dv_local));
   BOOST_CHECK(a_partial_da_local_other.isApprox(a_partial_da_local));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

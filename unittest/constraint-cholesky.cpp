@@ -2,6 +2,8 @@
 // Copyright (c) 2019-2025 INRIA
 //
 
+#define BOOST_TEST_MODULE constraint_cholesky
+
 #include "pinocchio/math.hpp"
 #include "pinocchio/constraints.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
@@ -13,8 +15,9 @@
 #include "pinocchio/algorithm/constraint-cholesky.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 namespace pinocchio
 {
@@ -106,8 +109,6 @@ namespace pinocchio
       ConstraintCholeskyDecompositionAccessor;
   } // namespace cholesky
 } // namespace pinocchio
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(UDUt_solver)
 {
@@ -2163,5 +2164,3 @@ BOOST_AUTO_TEST_CASE(constraint_cholesky_check_resize)
     }
   }
 }
-
-BOOST_AUTO_TEST_SUITE_END()

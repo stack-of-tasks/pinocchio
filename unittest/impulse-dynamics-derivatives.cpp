@@ -2,6 +2,8 @@
 // Copyright (c) 2020-2021 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE impulse_dynamics_derivatives
+
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/constraints.hpp"
 
@@ -10,10 +12,9 @@
 #include "pinocchio/algorithm/impulse-dynamics-derivatives.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 using namespace Eigen;
 using namespace pinocchio;
@@ -351,5 +352,3 @@ BOOST_AUTO_TEST_CASE(test_impulse_dynamics_derivatives_LOCAL_WORLD_ALIGNED_fd)
     Eigen::MatrixXd::Identity(model.nv, model.nv) + data.ddq_dv, sqrt(alpha)));
   BOOST_CHECK(impulse_partial_dv_fd.isApprox(data.dlambda_dv, sqrt(alpha)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

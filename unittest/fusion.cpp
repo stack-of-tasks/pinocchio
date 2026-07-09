@@ -7,11 +7,12 @@
 // #include "pinocchio/multibody/joint.hpp"
 // #include "pinocchio/multibody/model.hpp"
 
+#define BOOST_TEST_MODULE fusion
+
 #include <iostream>
 
 #include "pinocchio/tools/timer.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 struct TestObj
@@ -137,6 +138,8 @@ typedef boost::variant<CRTPDerived, CRTPDerived2> CRTPVariant;
 #include <boost/fusion/algorithm.hpp>
 #include <boost/fusion/container.hpp>
 
+#include <boost/test/unit_test.hpp>
+
 namespace bf = boost::fusion;
 
 struct Launcher : public boost::static_visitor<int>
@@ -208,8 +211,6 @@ namespace boost
   } // namespace fusion
 } // namespace boost
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
-
 BOOST_AUTO_TEST_CASE(test_fusion)
 {
   CRTPDerived d;
@@ -235,5 +236,3 @@ BOOST_AUTO_TEST_CASE(test_fusion)
   bf::vector<int &, double &, int &> arg2 = bf::append2(boost::ref(i), boost::ref(k), arg);
   // bf::push_front(bf::push_front(arg1,boost::ref(k)),boost::ref(j));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

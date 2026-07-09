@@ -3,6 +3,8 @@
 // Copyright (c) 2023 KU Leuven
 //
 
+#define BOOST_TEST_MODULE delassus
+
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/constraints.hpp"
 
@@ -12,8 +14,9 @@
 #include "pinocchio/algorithm/delassus.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include <boost/test/unit_test.hpp>
 
 namespace pinocchio
 {
@@ -55,7 +58,6 @@ namespace pinocchio
 using namespace pinocchio;
 
 double mu = 1e-4;
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(contact_6D)
 {
@@ -870,5 +872,3 @@ BOOST_AUTO_TEST_CASE(contact_3D_6D_ancestor_6D4)
     -H_inverse.topLeftCorner(constraint_chol.constraintDim(), constraint_chol.constraintDim()),
     1e-7));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

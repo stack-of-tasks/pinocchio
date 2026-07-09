@@ -2,13 +2,14 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
+#define BOOST_TEST_MODULE version
+
 #include <pinocchio/fwd.hpp>
 #include <pinocchio/utils/version.hpp>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_version)
 {
@@ -29,5 +30,3 @@ BOOST_AUTO_TEST_CASE(test_version)
     PINOCCHIO_MAJOR_VERSION, PINOCCHIO_MINOR_VERSION, PINOCCHIO_PATCH_VERSION + 1));
   BOOST_CHECK(!checkVersionAtLeast(99, 0, 0));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -2,6 +2,8 @@
 // Copyright (c) 2025 INRIA
 //
 
+#define BOOST_TEST_MODULE dynamic_allocations
+
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody/sample-models.hpp"
 #include "pinocchio/constraints.hpp"
@@ -30,15 +32,14 @@
 #include "pinocchio/algorithm/impulse-dynamics-derivatives.hpp"
 #include "pinocchio/algorithm/regressor.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-using namespace pinocchio;
 
 #include <boost/test/unit_test.hpp>
+
+using namespace pinocchio;
 
 #if !(defined(__has_feature) && __has_feature(realtime_sanitizer))
   #error "rtsan not enabled. Please enable rtsan with -fsanitize=realtime"
 #endif
-
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 bool hasMimicJoints(const Model & model)
 {
@@ -577,5 +578,3 @@ BOOST_AUTO_TEST_CASE(dynamic_allocations_spatial_operations)
     log6(M);
   }();
 }
-
-BOOST_AUTO_TEST_SUITE_END()

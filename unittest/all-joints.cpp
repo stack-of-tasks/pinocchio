@@ -3,11 +3,14 @@
 // Copyright(c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
+#define BOOST_TEST_MODULE all_joints
+
 #include "pinocchio/multibody/joint.hpp"
 #include "pinocchio/multibody/liegroup.hpp"
 
-#include <boost/test/unit_test.hpp>
 #include <iostream>
+
+#include <boost/test/unit_test.hpp>
 
 using namespace pinocchio;
 
@@ -177,8 +180,6 @@ struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options>>
   }
 };
 
-BOOST_AUTO_TEST_SUITE(joint_model_base_test)
-
 template<typename TestDerived>
 struct TestJointModel
 {
@@ -218,7 +219,7 @@ struct TestJointModelTransform : TestJointModel<TestJointModelTransform>
   }
 };
 
-BOOST_AUTO_TEST_CASE(isEqual)
+BOOST_AUTO_TEST_CASE(all_joints_isEqual)
 {
   typedef JointCollectionDefault::JointModelVariant JointModelVariant;
   boost::mpl::for_each<JointModelVariant::types>(TestJointModelIsEqual());
@@ -276,7 +277,7 @@ struct TestJointModelCast : TestJointModel<TestJointModelCast>
   }
 };
 
-BOOST_AUTO_TEST_CASE(cast)
+BOOST_AUTO_TEST_CASE(all_joints_cast)
 {
   typedef JointCollectionDefault::JointModelVariant JointModelVariant;
   boost::mpl::for_each<JointModelVariant::types>(TestJointModelCast());
@@ -310,5 +311,3 @@ BOOST_AUTO_TEST_CASE(test_disp)
 
   TestJointModelDisp()(JointModel());
 }
-
-BOOST_AUTO_TEST_SUITE_END()
