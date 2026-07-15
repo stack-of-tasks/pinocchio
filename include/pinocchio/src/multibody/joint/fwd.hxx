@@ -220,7 +220,7 @@ namespace pinocchio
   namespace internal
   {
     struct SpanIndexes;
-    template<typename Scalar, int Options = context::Options>
+    template<typename Scalar>
     struct FindSpan;
   } // namespace internal
 

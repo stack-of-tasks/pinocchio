@@ -71,7 +71,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSplineTpl<_Scalar, _Options> JointDerived;
-    typedef Eigen::Vector<_Scalar, Eigen::Dynamic> Vector;
+    typedef Eigen::Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
 
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
@@ -91,9 +91,7 @@ namespace pinocchio
     D_t StU;
 
     // Bspline values
-    Vector N;
-    Vector N_der;
-    Vector N_der2;
+    Matrix N;
 
     JointDataSplineTpl()
     : joint_q(ConfigVector_t::Zero())
@@ -105,12 +103,11 @@ namespace pinocchio
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Identity())
     , StU(D_t::Zero())
-    , N(Vector::Zero(1))
-    , N_der(Vector::Zero(1))
-    , N_der2(Vector::Zero(1))
+    , N(Matrix::Zero(1, 1))
     {
     }
 
+    // TODO use a better parameter
     JointDataSplineTpl(const size_t nbCtrlFrames)
     : joint_q(ConfigVector_t::Zero())
     , joint_v(TangentVector_t::Zero())
@@ -121,9 +118,8 @@ namespace pinocchio
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Identity())
     , StU(D_t::Zero())
-    , N(Vector::Zero(static_cast<Eigen::Index>(nbCtrlFrames)))
-    , N_der(Vector::Zero(static_cast<Eigen::Index>(nbCtrlFrames)))
-    , N_der2(Vector::Zero(static_cast<Eigen::Index>(nbCtrlFrames)))
+    , N(Matrix::Zero(
+        static_cast<Eigen::Index>(nbCtrlFrames), static_cast<Eigen::Index>(nbCtrlFrames)))
     {
     }
 
@@ -254,10 +250,9 @@ namespace pinocchio
 
       data.joint_q = qs.template segment<NQ>(idx_q());
 
-      SpanIndexes indexes =
-        internal::FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
+      SpanIndexes indexes = internal::FindSpan<Scalar>::run(qs[0], degree, knots);
 
-      computeBasisFunctions(data, data.joint_q[0], indexes, false);
+      computeBasisFunctions(data, data.joint_q[0], indexes);
       computeTransformations(data, indexes, false);
     }
 
@@ -274,10 +269,9 @@ namespace pinocchio
       data.joint_q = qs.template segment<NQ>(idx_q());
       data.joint_v = vs.template segment<NV>(idx_v());
 
-      SpanIndexes indexes =
-        internal::FindSpan<Scalar, Options>::run(qs, degree, nbCtrlFrames, knots);
+      SpanIndexes indexes = internal::FindSpan<Scalar>::run(qs[0], degree, knots);
 
-      computeBasisFunctions(data, data.joint_q[0], indexes, true);
+      computeBasisFunctions(data, data.joint_q[0], indexes);
       computeTransformations(data, indexes, true);
     }
 
@@ -287,10 +281,9 @@ namespace pinocchio
     {
       data.joint_v = vs.template segment<NV>(idx_v());
 
-      SpanIndexes indexes =
-        internal::FindSpan<Scalar, Options>::run(data.joint_q, degree, nbCtrlFrames, knots);
+      SpanIndexes indexes = internal::FindSpan<Scalar>::run(data.joint_q[0], degree, knots);
 
-      computeBasisFunctions(data, data.joint_q[0], indexes, true);
+      computeBasisFunctions(data, data.joint_q[0], indexes);
       computeTransformations(data, indexes, true);
     }
 
@@ -365,32 +358,17 @@ namespace pinocchio
     }
 
     void computeBasisFunctions(
-      JointDataDerived & data,
-      const Scalar joint_q_val,
-      const SpanIndexes & indexes,
-      bool computeSecondDerivative = false) const
+      JointDataDerived & data, const Scalar joint_q_val, const SpanIndexes & indexes) const
     {
-      data.N.setZero();
-      data.N_der.setZero();
-      if (computeSecondDerivative)
-        data.N_der2.setZero();
-
-      for (size_t i = indexes.start_idx; i < indexes.end_idx; i++)
-      {
-        data.N[static_cast<Eigen::Index>(i)] =
-          internal::bsplineBasis(i, degree, joint_q_val, knots);
-        data.N_der[static_cast<Eigen::Index>(i)] =
-          internal::bsplineBasisDerivative(i, degree, joint_q_val, knots);
-        if (computeSecondDerivative)
-          data.N_der2[static_cast<Eigen::Index>(i)] =
-            internal::bsplineBasisDerivative2(i, degree, joint_q_val, knots);
-      }
+      // TODO support stop_idx for casadi support
+      internal::deBoorBasis(degree, knots, indexes.start_idx, joint_q_val, data.N);
     }
 
     void computeTransformations(
       JointDataDerived & data, const SpanIndexes & indexes, bool computeVelocity = false) const
     {
-      data.M = ctrlFrames[indexes.start_idx];
+      const int start_basis = indexes.start_idx - degree;
+      data.M = ctrlFrames[start_basis];
       data.S.matrix().setZero();
       if (computeVelocity)
       {
@@ -398,33 +376,44 @@ namespace pinocchio
         data.v.setZero();
       }
 
-      for (size_t i = indexes.start_idx + 1; i < indexes.end_idx; i++)
+      for (int i = 1; i < degree + 1; i++)
       {
-        const Scalar phi_i =
-          data.N
-            .segment(static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(indexes.end_idx - i))
-            .sum();
-        const Scalar phi_dot_i =
-          data.N_der
-            .segment(static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(indexes.end_idx - i))
-            .sum();
+        const int current_basis = start_basis + i;
 
-        const Transformation_t transformation_temp(exp6(relativeMotions[i - 1] * phi_i));
+        const Scalar phi_i = data.N.row(degree).segment(i, degree + 1 - i).sum();
+
+        const Scalar alpha = degree / (knots[current_basis + degree] - knots[current_basis]);
+        const Scalar phi_dot_i = alpha * data.N.row(degree - 1)[i - 1];
+
+        const Transformation_t transformation_temp(
+          exp6(relativeMotions[current_basis - 1] * phi_i));
         data.M = data.M * transformation_temp;
 
         if (computeVelocity)
         {
-          const Scalar phi_ddot_i =
-            data.N_der2
-              .segment(static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(indexes.end_idx - i))
-              .sum();
-          data.c = relativeMotions[i - 1] * phi_ddot_i
-                   + transformation_temp.actInv(
-                     data.c + Motion_t(data.S.matrix()).cross(relativeMotions[i - 1]) * phi_dot_i);
+          Scalar phi_ddot_i_sum = Scalar(0);
+          if (i > 1)
+          {
+            const Scalar left_side_den = knots[current_basis + degree] - knots[current_basis];
+            phi_ddot_i_sum = data.N.row(degree - 2)[i - 2] / left_side_den;
+          }
+          if (i < degree)
+          {
+            const Scalar right_side_den =
+              knots[current_basis + degree + 1] - knots[current_basis + 1];
+            phi_ddot_i_sum -= data.N.row(degree - 2)[i - 1] / right_side_den;
+          }
+          const Scalar phi_ddot_i = alpha * degree * phi_ddot_i_sum;
+
+          data.c =
+            relativeMotions[current_basis - 1] * phi_ddot_i
+            + transformation_temp.actInv(
+              data.c
+              + Motion_t(data.S.matrix()).cross(relativeMotions[current_basis - 1]) * phi_dot_i);
         }
 
-        data.S.matrix() =
-          transformation_temp.actInv(data.S) + relativeMotions[i - 1].toVector() * phi_dot_i;
+        data.S.matrix() = transformation_temp.actInv(data.S)
+                          + relativeMotions[current_basis - 1].toVector() * phi_dot_i;
       }
       if (computeVelocity)
       {

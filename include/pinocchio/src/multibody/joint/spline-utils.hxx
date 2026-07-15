@@ -16,72 +16,38 @@ namespace pinocchio
 {
   namespace internal
   {
-    /// @brief Helper structure defining a range of indices.
+    /// @brief Define a Knot span [start_idx; end_idx[.
     /// @details This struct identifies the subset of control frames in a spline that are active
     /// (i.e., have non-zero basis functions) for a specific spline parameter value.
-    /// Using this local support property allows for efficient computation of the joint
-    /// transformation, S, and bias c.
     struct SpanIndexes
     {
       size_t start_idx;
       size_t end_idx;
     };
 
-    /// @brief Algorithm to locate the span for a given B-spline parameter, q.
-    /// @details This struct implements a binary search (FindSpan) to determine which knot span
-    /// a given parameter value falls into. In B-spline curves, a parameter value $u$ implies that
-    /// only $(p+1)$ control points affect the curve at that location (where $p$ is the degree).
-    template<typename Scalar, int Options>
+    /// @brief Compute SpanIndexes for a knot vector and a parameter q.
+    template<typename Scalar>
     struct FindSpan
     {
-      template<typename ConfigVector, typename KnotsVector>
-      static SpanIndexes run(
-        const Eigen::MatrixBase<ConfigVector> & q,
-        const size_t degree,
-        const size_t nbCtrlFrames,
-        const Eigen::MatrixBase<KnotsVector> & knots)
+      template<typename KnotsVector>
+      static SpanIndexes
+      run(const Scalar q, const int degree, const Eigen::MatrixBase<KnotsVector> & knots)
       {
-        // Edge case: if q is at or beyond the end of the spline parameterization
-        // TODO is it useful ?
-        if (q[0] >= knots(knots.size() - 1))
-        {
-          return {nbCtrlFrames - 1, nbCtrlFrames};
-        }
+        assert(degree >= 0);
+        assert(knots.size() > degree + 1);
+        assert(knots[degree] <= q);
+        assert(q <= knots[knots.size() - 1 - degree]);
 
-        if (q[0] <= knots[0])
+        int low = degree;
+        for (; low < knots.size() - 1 - degree; ++low)
         {
-          return {0, 1};
-        }
-
-        // TODO we can probably do better with std::lower
-        // and std::upper bounds.
-        size_t order = degree + 1;
-        // Search first control point knot range containing q.
-        size_t low = 0;
-        for (std::size_t i = 0; i < nbCtrlFrames; ++i)
-        {
-          if (
-            knots[static_cast<Eigen::Index>(i)] <= q[0]
-            && q[0] < knots[static_cast<Eigen::Index>(i + order)])
+          if (knots[low] <= q && q < knots[low + 1])
           {
-            low = i;
-            break;
+            return {static_cast<size_t>(low), static_cast<size_t>(low + 1)};
           }
         }
 
-        size_t high = low;
-        // Search last control point knot range containing q.
-        // If we are at the end of the range high == low.
-        for (std::size_t i = low + 1; i < nbCtrlFrames; ++i)
-        {
-          if (!(knots[static_cast<Eigen::Index>(i)] <= q[0]
-                && q[0] < knots[static_cast<Eigen::Index>(i + order)]))
-          {
-            break;
-          }
-          high = i;
-        }
-        return {low, high + 1};
+        return {static_cast<size_t>(low - 1), static_cast<size_t>(low)};
       }
     };
 
@@ -286,17 +252,17 @@ namespace pinocchio
       int degree,
       const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
       int root_basis,
-      Scalar x,
+      Scalar q,
       Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
     {
       assert(degree >= 0);
-      assert(basis.rows() == static_cast<int>(degree) + 1);
-      assert(basis.cols() == static_cast<int>(degree) + 1);
+      assert(basis.rows() >= static_cast<int>(degree) + 1);
+      assert(basis.cols() >= static_cast<int>(degree) + 1);
       assert(knots.size() > degree + 1);
       assert(degree <= root_basis);
       assert(root_basis < knots.size() - 1 - degree);
-      assert(knots[degree] <= x);
-      assert(x <= knots[knots.size() - 1 - degree]);
+      assert(knots[root_basis] <= q);
+      assert(q <= knots[root_basis + 1]);
 
       /*
        * N_{i,j} is a basis function where i and j are respectively the index and the degree.
@@ -326,7 +292,7 @@ namespace pinocchio
         const int left_most_basis_start_knot = left_most_basis + 1;
         const int left_most_basis_end_knot = left_most_basis_start_knot + current_degree;
         const Scalar left_most_basis_alpha =
-          (knots[left_most_basis_end_knot] - x)
+          (knots[left_most_basis_end_knot] - q)
           / (knots[left_most_basis_end_knot] - knots[left_most_basis_start_knot]);
         basis(current_degree, 0) = left_most_basis_alpha * basis(previous_degree, 0);
 
@@ -334,7 +300,7 @@ namespace pinocchio
         const int right_most_basis_start_knot = right_most_basis;
         const int right_most_basis_end_knot = right_most_basis_start_knot + current_degree;
         const Scalar right_most_basis_alpha =
-          (x - knots[right_most_basis_start_knot])
+          (q - knots[right_most_basis_start_knot])
           / (knots[right_most_basis_end_knot] - knots[right_most_basis_start_knot]);
         basis(current_degree, current_degree) =
           (right_most_basis_alpha * basis(previous_degree, previous_degree));
@@ -352,13 +318,13 @@ namespace pinocchio
           const int left_side_start_knot = current_basis;
           const int left_side_end_knot = current_basis + current_degree;
           const Scalar left_side_alpha =
-            (x - knots[left_side_start_knot])
+            (q - knots[left_side_start_knot])
             / (knots[left_side_end_knot] - knots[left_side_start_knot]);
 
           const int right_side_start_knot = left_side_start_knot + 1;
           const int right_side_end_knot = left_side_end_knot + 1;
           const Scalar right_side_alpha =
-            (knots[right_side_end_knot] - x)
+            (knots[right_side_end_knot] - q)
             / (knots[right_side_end_knot] - knots[right_side_start_knot]);
 
           basis(current_degree, i) = left_side_alpha * basis(previous_degree, i - 1)

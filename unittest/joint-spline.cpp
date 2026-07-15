@@ -383,174 +383,90 @@ BOOST_AUTO_TEST_CASE(relativeMotions)
     BOOST_CHECK(jmodel.relativeMotions[i].isApprox(relativeMotions[i]));
 }
 
-/// @brief Test the spanning function
+/// @brief Test FindSpan on the simplest case (no redundant knot vector).
 BOOST_AUTO_TEST_CASE(findSpan_degree_0)
 {
-  size_t degree = 0;
-  size_t nbCtrlFrames = 5;
-
-  Eigen::VectorXd knotVector((degree + 1) + nbCtrlFrames);
+  const int degree = 0;
+  Eigen::VectorXd knotVector(6);
   knotVector << 0., 0.2, 0.4, 0.6, 0.8, 1.;
-  Eigen::VectorXd q(1);
   internal::SpanIndexes indexes;
 
-  // N_{i, k}, with i the control point and k the order (degree + 1)
-  // Evaluate:
-  //  - N_{0, 1}: [t_0(0),   t_1(0.2))
-  //  - N_{1, 1}: [t_1(0.2), t_2(0.4))
-  //  - N_{2, 1}: [t_2(0.4), t_3(0.6))
-  //  - N_{3, 1}: [t_3(0.6), t_4(0.8))
-  //  - N_{4, 1}: [t_4(0.8), t_5(1))
-  q << 0.1;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  // Evaluate N_{0, 1}
-  // t_0(0) <= t < t_1(0.2)
+  indexes = internal::FindSpan<double>::run(0., degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 0);
   BOOST_CHECK(indexes.end_idx == 1);
 
-  q << 0.2;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  // Evaluate N_{1, 1}
-  // t_1(0.2) <= t < t_2(0.4)
+  indexes = internal::FindSpan<double>::run(0.1, degree, knotVector);
+  BOOST_CHECK(indexes.start_idx == 0);
+  BOOST_CHECK(indexes.end_idx == 1);
+
+  indexes = internal::FindSpan<double>::run(0.2, degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 1);
   BOOST_CHECK(indexes.end_idx == 2);
 
-  q << 0.5;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  // Evaluate N_{2, 1}
-  // t_2(0.4) <= t < t_3(0.6)
+  indexes = internal::FindSpan<double>::run(0.5, degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 2);
   BOOST_CHECK(indexes.end_idx == 3);
 
-  q << 0.7;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  // Evaluate N_{3, 1}
-  // t_3(0.6) <= t < t_4(0.8)
+  indexes = internal::FindSpan<double>::run(0.7, degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 3);
   BOOST_CHECK(indexes.end_idx == 4);
 
-  q << 0.8;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  // Evaluate N_{4, 1}
-  // t_4(0.8) <= t < t_5(1)
+  indexes = internal::FindSpan<double>::run(0.8, degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 4);
   BOOST_CHECK(indexes.end_idx == 5);
 
-  q << 0.9;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  // Evaluate N_{4, 1}
-  // t_4(0.8) <= t < t_5(1)
+  indexes = internal::FindSpan<double>::run(0.9, degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 4);
   BOOST_CHECK(indexes.end_idx == 5);
 
-  q << 0.0;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  // 0 edge case
-  BOOST_CHECK(indexes.start_idx == 0);
-  BOOST_CHECK(indexes.end_idx == 1);
-
-  q << 1.0;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  // 1 edge case
+  indexes = internal::FindSpan<double>::run(1., degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 4);
   BOOST_CHECK(indexes.end_idx == 5);
 }
 
+/// @brief Test FindSpan with redundant knot vector values.
 BOOST_AUTO_TEST_CASE(findSpan_degree_1)
 {
-  size_t degree = 1;
-  size_t nbCtrlFrames = 4;
-
-  Eigen::VectorXd knotVector((degree + 1) + nbCtrlFrames);
-  knotVector << 0., 0.2, 0.4, 0.6, 0.8, 1.;
-  Eigen::VectorXd q(1);
+  const int degree = 1;
+  Eigen::VectorXd knotVector(8);
+  knotVector << 0., 0., 0.2, 0.6, 0.6, 0.8, 1., 1.;
   internal::SpanIndexes indexes;
 
-  // N_{i, k}, with i the control point and k the order (degree + 1)
-  // Evaluate:
-  //  - N_{0, 2}: [(t_0(0),   t_2(0.4))
-  //  - N_{1, 2}: [(t_1(0.2), t_3(0.6))
-  //  - N_{2, 2}: [(t_2(0.4), t_4(0.8))
-  //  - N_{3, 2}: [(t_3(0.6), t_5(1))
-  q << 0.1;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  BOOST_CHECK(indexes.start_idx == 0);
-  BOOST_CHECK(indexes.end_idx == 1);
-
-  q << 0.2;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  BOOST_CHECK(indexes.start_idx == 0);
+  indexes = internal::FindSpan<double>::run(0., degree, knotVector);
+  BOOST_CHECK(indexes.start_idx == 1);
   BOOST_CHECK(indexes.end_idx == 2);
 
-  q << 0.5;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
+  indexes = internal::FindSpan<double>::run(0.1, degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 1);
-  BOOST_CHECK(indexes.end_idx == 3);
+  BOOST_CHECK(indexes.end_idx == 2);
 
-  q << 0.7;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
+  indexes = internal::FindSpan<double>::run(0.2, degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 2);
-  BOOST_CHECK(indexes.end_idx == 4);
-
-  q << 0.8;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  BOOST_CHECK(indexes.start_idx == 3);
-  BOOST_CHECK(indexes.end_idx == 4);
-
-  q << 0.9;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  BOOST_CHECK(indexes.start_idx == 3);
-  BOOST_CHECK(indexes.end_idx == 4);
-}
-
-BOOST_AUTO_TEST_CASE(findSpan_degree_1_open_non_uniform)
-{
-  size_t degree = 1;
-  size_t nbCtrlFrames = 7;
-
-  Eigen::VectorXd knotVector((degree + 1) + nbCtrlFrames);
-  knotVector << 0., 0., 0.2, 0.4, 0.4, 0.6, 0.8, 1., 1.;
-  Eigen::VectorXd q(1);
-  internal::SpanIndexes indexes;
-
-  // N_{i, k}, with i the control point and k the order (degree + 1)
-  // Evaluate:
-  //  - N_{0, 2}: [(t_0(0),   t_2(0.2))
-  //  - N_{1, 2}: [(t_1(0),   t_3(0.4))
-  //  - N_{2, 2}: [(t_2(0.2), t_4(0.4))
-  //  - N_{3, 2}: [(t_3(0.4), t_5(0.6))
-  //  - N_{4, 2}: [(t_4(0.4), t_6(0.8))
-  //  - N_{5, 2}: [(t_5(0.6), t_7(1))
-  //  - N_{6, 2}: [(t_6(0.8), t_8(1))
-  q << 0.1;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  BOOST_CHECK(indexes.start_idx == 0);
-  BOOST_CHECK(indexes.end_idx == 2);
-
-  q << 0.2;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  BOOST_CHECK(indexes.start_idx == 1);
   BOOST_CHECK(indexes.end_idx == 3);
 
-  q << 0.5;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
-  BOOST_CHECK(indexes.start_idx == 3);
+  indexes = internal::FindSpan<double>::run(0.5, degree, knotVector);
+  BOOST_CHECK(indexes.start_idx == 2);
+  BOOST_CHECK(indexes.end_idx == 3);
+
+  indexes = internal::FindSpan<double>::run(0.6, degree, knotVector);
+  BOOST_CHECK(indexes.start_idx == 4);
   BOOST_CHECK(indexes.end_idx == 5);
 
-  q << 0.7;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
+  indexes = internal::FindSpan<double>::run(0.7, degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 4);
+  BOOST_CHECK(indexes.end_idx == 5);
+
+  indexes = internal::FindSpan<double>::run(0.8, degree, knotVector);
+  BOOST_CHECK(indexes.start_idx == 5);
   BOOST_CHECK(indexes.end_idx == 6);
 
-  q << 0.8;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
+  indexes = internal::FindSpan<double>::run(0.9, degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 5);
-  BOOST_CHECK(indexes.end_idx == 7);
+  BOOST_CHECK(indexes.end_idx == 6);
 
-  q << 0.9;
-  indexes = internal::FindSpan<double, 0>::run(q, degree, nbCtrlFrames, knotVector);
+  indexes = internal::FindSpan<double>::run(1., degree, knotVector);
   BOOST_CHECK(indexes.start_idx == 5);
-  BOOST_CHECK(indexes.end_idx == 7);
+  BOOST_CHECK(indexes.end_idx == 6);
 }
 
 /// @brief Comparing a simple spline joint with a PZ
