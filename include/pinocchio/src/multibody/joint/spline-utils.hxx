@@ -298,7 +298,26 @@ namespace pinocchio
       assert(knots[degree] <= x);
       assert(x <= knots[knots.size() - 1 - degree]);
 
-      // Compute left most and right most basis functions
+      /*
+       * N_{i,j} is a basis function where i and j are respectively the index and the degree.
+       * Here N_{i,2} computation scheme:
+       *
+       *  N_{0,2}       N_{1,2}       N_{2,2}
+       *   (1,3)\  (1,3)/ (2,4)\ (2,4)/
+       *         N_{1,1}       N_{2,1}
+       *        /  (2,3)\ (2,3)/     \
+       *  N_{1,0}       N_{2,0}       N_{3,0}
+       * [u1, u2[      [u2, u3[      [u3, u4[
+       *
+       * When u is in [u2, u3[ range N_{1,0} and N_{3,0} basis function value to 0.
+       * This simplify the computation scheme by allowing to only compute
+       * N_{1,1}, N_{2,1}, N_{0,2}, N_{1,2} and N_{2,2}.
+       * N_{1,1}, N_{0,2}, N_{2,1} and N_{2,2} can be computed only with one alpha value.
+       * We do it in the first pass where we compute left most and right most basis functions.
+       * Only N_{1,2} will need both alpha to be computed. We do that in the second pass.
+       */
+
+      // Compute left most and right most basis functions (first pass).
       basis(0, 0) = Scalar(1);
       for (int previous_degree = 0; previous_degree < degree; ++previous_degree)
       {
@@ -321,7 +340,7 @@ namespace pinocchio
           (right_most_basis_alpha * basis(previous_degree, previous_degree));
       }
 
-      // Compute central basis functions
+      // Compute central basis functions (second pass).
       for (int previous_degree = 1; previous_degree < degree; ++previous_degree)
       {
         const int current_degree = previous_degree + 1;
