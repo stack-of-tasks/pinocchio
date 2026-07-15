@@ -378,6 +378,84 @@ namespace pinocchio
       return workspace(workspace.rows() - 1, 0);
     }
 
+    /** De Boor algorithm modification to compute all basis involved to compute one
+     * point of the curve.
+     * \param degree Curve degree
+     * \param knots Knot vector at least of size \p degree + 1.
+     * \param root_basis Degree 0 basis function index where knot vector contains \p x.
+     * This is the only degree 0 basis function != 0.
+     * \param x Value to evaluate
+     * \param basis of size (degree + 1, degree + 1).
+     * Each element i, j of this array will hold a basis function N_{i,j} where i and j
+     * are respectively the basis function index and degree.
+     */
+    template<typename Scalar>
+    void deBoorBasis(
+      int degree,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
+      int root_basis,
+      Scalar x,
+      Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
+    {
+      assert(degree >= 0);
+      assert(basis.rows() == static_cast<int>(degree) + 1);
+      assert(basis.cols() == static_cast<int>(degree) + 1);
+      assert(knots.size() > degree + 1);
+      assert(degree <= root_basis);
+      assert(root_basis < knots.size() - 1 - degree);
+      assert(knots[degree] <= x);
+      assert(x <= knots[knots.size() - 1 - degree]);
+
+      // Compute left most and right most basis functions
+      basis(0, 0) = Scalar(1);
+      for (int previous_degree = 0; previous_degree < degree; ++previous_degree)
+      {
+        const int current_degree = previous_degree + 1;
+        const int left_most_basis = root_basis - current_degree;
+        const int left_most_basis_start_knot = left_most_basis + 1;
+        const int left_most_basis_end_knot = left_most_basis_start_knot + current_degree;
+        const Scalar left_most_basis_alpha =
+          (knots[left_most_basis_end_knot] - x)
+          / (knots[left_most_basis_end_knot] - knots[left_most_basis_start_knot]);
+        basis(current_degree, 0) = left_most_basis_alpha * basis(previous_degree, 0);
+
+        const int right_most_basis = root_basis;
+        const int right_most_basis_start_knot = right_most_basis;
+        const int right_most_basis_end_knot = right_most_basis_start_knot + current_degree;
+        const Scalar right_most_basis_alpha =
+          (x - knots[right_most_basis_start_knot])
+          / (knots[right_most_basis_end_knot] - knots[right_most_basis_start_knot]);
+        basis(current_degree, current_degree) =
+          (right_most_basis_alpha * basis(previous_degree, previous_degree));
+      }
+
+      // Compute central basis functions
+      for (int previous_degree = 1; previous_degree < degree; ++previous_degree)
+      {
+        const int current_degree = previous_degree + 1;
+        const int left_most_basis = root_basis - current_degree;
+        const int basis_numbers = current_degree + 1;
+        for (int i = 1; i < basis_numbers - 1; ++i)
+        {
+          const int current_basis = left_most_basis + i;
+          const int left_side_start_knot = current_basis;
+          const int left_side_end_knot = current_basis + current_degree;
+          const Scalar left_side_alpha =
+            (x - knots[left_side_start_knot])
+            / (knots[left_side_end_knot] - knots[left_side_start_knot]);
+
+          const int right_side_start_knot = left_side_start_knot + 1;
+          const int right_side_end_knot = left_side_end_knot + 1;
+          const Scalar right_side_alpha =
+            (knots[right_side_end_knot] - x)
+            / (knots[right_side_end_knot] - knots[right_side_start_knot]);
+
+          basis(current_degree, i) = left_side_alpha * basis(previous_degree, i - 1)
+                                     + right_side_alpha * basis(previous_degree, i);
+        }
+      }
+    }
+
   } // namespace internal
 
 } // namespace pinocchio

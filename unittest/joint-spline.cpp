@@ -758,137 +758,115 @@ BOOST_AUTO_TEST_CASE(vsFiniteDifference)
   }
 }
 
-// Test deBoorBasis with degree 0.
+// Test degree 0 deBoorBasis.
 BOOST_AUTO_TEST_CASE(deBoorBasis_degree0)
 {
-  using pinocchio::internal::deBoor;
+  using pinocchio::internal::deBoorBasis;
 
-  const size_t degree = 0;
+  const int degree = 0;
   Eigen::VectorXd knots(3);
   knots << 0., 2., 3.;
-  Eigen::VectorXd control_points(2);
-  control_points << 5., 0.;
-  Eigen::VectorXd workspace(1);
+  Eigen::MatrixXd basis(1, 1);
 
-  BOOST_CHECK_SMALL(deBoor(0, degree, 0., knots, control_points, workspace) - 5., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(0, degree, 1., knots, control_points, workspace) - 5., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(0, degree, 1.5, knots, control_points, workspace) - 5., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(1, degree, 2., knots, control_points, workspace) - 0., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(1, degree, 2.5, knots, control_points, workspace) - 0., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(1, degree, 3., knots, control_points, workspace) - 0., 1e-8);
-
-  control_points << 0., 7.;
-  BOOST_CHECK_SMALL(deBoor(0, degree, 0., knots, control_points, workspace) - 0., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(0, degree, 1., knots, control_points, workspace) - 0., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(0, degree, 1.5, knots, control_points, workspace) - 0., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(1, degree, 2., knots, control_points, workspace) - 7., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(1, degree, 2.5, knots, control_points, workspace) - 7., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(1, degree, 3., knots, control_points, workspace) - 7., 1e-8);
+  deBoorBasis(degree, knots, 0, 0., basis);
+  BOOST_CHECK_SMALL(basis(0, 0) - 1., 1e-8);
+  deBoorBasis(degree, knots, 0, 1., basis);
+  BOOST_CHECK_SMALL(basis(0, 0) - 1., 1e-8);
+  deBoorBasis(degree, knots, 0, 1.5, basis);
+  BOOST_CHECK_SMALL(basis(0, 0) - 1., 1e-8);
+  deBoorBasis(degree, knots, 1, 2., basis);
+  BOOST_CHECK_SMALL(basis(0, 0) - 1., 1e-8);
+  deBoorBasis(degree, knots, 1, 2.5, basis);
+  BOOST_CHECK_SMALL(basis(0, 0) - 1., 1e-8);
+  deBoorBasis(degree, knots, 1, 3., basis);
+  BOOST_CHECK_SMALL(basis(0, 0) - 1., 1e-8);
 }
 
-// Test deBoorBasis with degree 1.
+// Test degree 1 deBoorBasis.
 BOOST_AUTO_TEST_CASE(deBoorBasis_degree1)
 {
-  using pinocchio::internal::deBoor;
+  using pinocchio::internal::deBoorBasis;
 
-  const size_t degree = 1;
+  const int degree = 1;
   Eigen::VectorXd knots(5);
   knots << 0., 2., 3., 5., 5.5;
-  Eigen::VectorXd control_points(3);
-  control_points << 2., 0., 0.;
-  Eigen::VectorXd workspace(2);
+  Eigen::MatrixXd basis(2, 2);
 
-  BOOST_CHECK_SMALL(
-    deBoor(1, degree, 2., knots, control_points, workspace) - (1. * 2. + 0. * 0.), 1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(1, degree, 2.5, knots, control_points, workspace) - (0.5 * 2. + 0.5 * 0.), 1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(1, degree, 3., knots, control_points, workspace) - (0. * 2. + 1. * 0.), 1e-8);
-  BOOST_CHECK_SMALL(deBoor(2, degree, 3.5, knots, control_points, workspace) - 0., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(2, degree, 4., knots, control_points, workspace) - 0., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(2, degree, 5., knots, control_points, workspace) - 0., 1e-8);
+  // Evaluate between 2 and 3
+  deBoorBasis(degree, knots, 1, 2., basis);
+  BOOST_CHECK_SMALL(basis(1, 0) - 1., 1e-8);
+  BOOST_CHECK_SMALL(basis(1, 1) - 0., 1e-8);
+  deBoorBasis(degree, knots, 1, 2.5, basis);
+  BOOST_CHECK_SMALL(basis(1, 0) - 0.5, 1e-8);
+  BOOST_CHECK_SMALL(basis(1, 1) - 0.5, 1e-8);
+  deBoorBasis(degree, knots, 1, 3., basis);
+  BOOST_CHECK_SMALL(basis(1, 0) - 0., 1e-8);
+  BOOST_CHECK_SMALL(basis(1, 1) - 1., 1e-8);
 
-  control_points << 0., 3., 0.;
-  BOOST_CHECK_SMALL(
-    deBoor(1, degree, 2., knots, control_points, workspace) - (1. * 0. + 0. * 3.), 1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(1, degree, 2.5, knots, control_points, workspace) - (0.5 * 0. + 0.5 * 3.), 1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(1, degree, 3., knots, control_points, workspace) - (0. * 0. + 1. * 3.), 1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(2, degree, 3.5, knots, control_points, workspace) - (0.75 * 3. + 0.25 * 0.), 1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(2, degree, 4., knots, control_points, workspace) - (0.5 * 3. + .5 * 0.), 1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(2, degree, 5., knots, control_points, workspace) - (0. * 3. + 1. * 0.), 1e-8);
-
-  control_points << 0., 0., 4.;
-  BOOST_CHECK_SMALL(deBoor(1, degree, 2., knots, control_points, workspace) - 0., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(1, degree, 2.5, knots, control_points, workspace) - 0., 1e-8);
-  BOOST_CHECK_SMALL(deBoor(1, degree, 3., knots, control_points, workspace) - 0., 1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(2, degree, 3.5, knots, control_points, workspace) - (0.75 * 0. + 0.25 * 4.), 1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(2, degree, 4., knots, control_points, workspace) - (0.5 * 0. + .5 * 4.), 1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(2, degree, 5., knots, control_points, workspace) - (0. * 0. + 1. * 4.), 1e-8);
+  // Evaluate between 3 and 5
+  deBoorBasis(degree, knots, 2, 3., basis);
+  BOOST_CHECK_SMALL(basis(1, 0) - 1., 1e-8);
+  BOOST_CHECK_SMALL(basis(1, 1) - 0., 1e-8);
+  deBoorBasis(degree, knots, 2, 4., basis);
+  BOOST_CHECK_SMALL(basis(1, 0) - 0.5, 1e-8);
+  BOOST_CHECK_SMALL(basis(1, 1) - 0.5, 1e-8);
+  deBoorBasis(degree, knots, 2, 5., basis);
+  BOOST_CHECK_SMALL(basis(1, 0) - 0., 1e-8);
+  BOOST_CHECK_SMALL(basis(1, 1) - 1., 1e-8);
 }
 
-// test deBoorBasis with degree 3 against bsplineBasis.
+// Test degree 3 deBoorBasis against bsplineBasis.
 BOOST_AUTO_TEST_CASE(deBoorBasis_degree3)
 {
   using pinocchio::internal::bsplineBasis;
-  using pinocchio::internal::deBoor;
+  using pinocchio::internal::deBoorBasis;
 
-  const size_t degree = 3;
-  Eigen::VectorXd knots(8);
-  knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10.;
-  Eigen::VectorXd control_points(4);
-  control_points << 1., 0., 0., 0.;
-  Eigen::VectorXd workspace(4);
+  const int degree = 3;
+  Eigen::VectorXd knots(9);
+  knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10., 11.5;
+  Eigen::MatrixXd basis(4, 4);
 
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5., knots, control_points, workspace) - bsplineBasis(0, degree, 5., knots),
-    1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5.3, knots, control_points, workspace) - bsplineBasis(0, degree, 5.3, knots),
-    1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5.5, knots, control_points, workspace) - bsplineBasis(0, degree, 5.5, knots),
-    1e-8);
+  deBoorBasis(degree, knots, 3, 5., basis);
+  BOOST_CHECK_SMALL(basis(3, 0) - bsplineBasis(0, degree, 5., knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 1) - bsplineBasis(1, degree, 5., knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 2) - bsplineBasis(2, degree, 5., knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 3) - bsplineBasis(3, degree, 5., knots), 1e-8);
 
-  control_points << 0., 1., 0., 0.;
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5., knots, control_points, workspace) - bsplineBasis(1, degree, 5., knots),
-    1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5.3, knots, control_points, workspace) - bsplineBasis(1, degree, 5.3, knots),
-    1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5.5, knots, control_points, workspace) - bsplineBasis(1, degree, 5.5, knots),
-    1e-8);
+  deBoorBasis(degree, knots, 3, 5.3, basis);
+  BOOST_CHECK_SMALL(basis(3, 0) - bsplineBasis(0, degree, 5.3, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 1) - bsplineBasis(1, degree, 5.3, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 2) - bsplineBasis(2, degree, 5.3, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 3) - bsplineBasis(3, degree, 5.3, knots), 1e-8);
 
-  control_points << 0., 0., 1., 0.;
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5., knots, control_points, workspace) - bsplineBasis(2, degree, 5., knots),
-    1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5.3, knots, control_points, workspace) - bsplineBasis(2, degree, 5.3, knots),
-    1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5.5, knots, control_points, workspace) - bsplineBasis(2, degree, 5.5, knots),
-    1e-8);
+  deBoorBasis(degree, knots, 3, 5.5, basis);
+  BOOST_CHECK_SMALL(basis(3, 0) - bsplineBasis(0, degree, 5.5, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 1) - bsplineBasis(1, degree, 5.5, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 2) - bsplineBasis(2, degree, 5.5, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 3) - bsplineBasis(3, degree, 5.5, knots), 1e-8);
 
-  control_points << 0., 0., 0., 1.;
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5., knots, control_points, workspace) - bsplineBasis(3, degree, 5., knots),
-    1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5.3, knots, control_points, workspace) - bsplineBasis(3, degree, 5.3, knots),
-    1e-8);
-  BOOST_CHECK_SMALL(
-    deBoor(3, degree, 5.5, knots, control_points, workspace) - bsplineBasis(3, degree, 5.5, knots),
-    1e-8);
+  deBoorBasis(degree, knots, 4, 5.5, basis);
+  BOOST_CHECK_SMALL(basis(3, 0) - bsplineBasis(1, degree, 5.5, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 1) - bsplineBasis(2, degree, 5.5, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 2) - bsplineBasis(3, degree, 5.5, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 3) - bsplineBasis(4, degree, 5.5, knots), 1e-8);
+
+  deBoorBasis(degree, knots, 4, 6., basis);
+  BOOST_CHECK_SMALL(basis(3, 0) - bsplineBasis(1, degree, 6., knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 1) - bsplineBasis(2, degree, 6., knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 2) - bsplineBasis(3, degree, 6., knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 3) - bsplineBasis(4, degree, 6., knots), 1e-8);
+
+  deBoorBasis(degree, knots, 4, 7.3, basis);
+  BOOST_CHECK_SMALL(basis(3, 0) - bsplineBasis(1, degree, 7.3, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 1) - bsplineBasis(2, degree, 7.3, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 2) - bsplineBasis(3, degree, 7.3, knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 3) - bsplineBasis(4, degree, 7.3, knots), 1e-8);
+
+  deBoorBasis(degree, knots, 4, 8., basis);
+  BOOST_CHECK_SMALL(basis(3, 0) - bsplineBasis(1, degree, 8., knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 1) - bsplineBasis(2, degree, 8., knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 2) - bsplineBasis(3, degree, 8., knots), 1e-8);
+  BOOST_CHECK_SMALL(basis(3, 3) - bsplineBasis(4, degree, 8., knots), 1e-8);
 }
 
 // test deBoorCumBasisSparse with degree 3 against manual cumulative
