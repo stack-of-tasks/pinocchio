@@ -292,8 +292,6 @@ namespace boost
       const unsigned int version)
     {
       ar & make_nvp("N", joint.N);
-      ar & make_nvp("N_der", joint.N_der);
-      ar & make_nvp("N_der2", joint.N_der2);
 
       typedef pinocchio::JointDataSplineTpl<Scalar, Options> JointType;
       fix::serialize(ar, static_cast<pinocchio::JointDataBase<JointType> &>(joint), version);
