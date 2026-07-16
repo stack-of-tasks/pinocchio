@@ -52,148 +52,6 @@ namespace pinocchio
     };
 
     template<typename Scalar>
-    Scalar bsplineBasis(
-      size_t i, size_t k, const Scalar x, const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots)
-    {
-      if (k == 0)
-      {
-        // clang-format off
-        // if(knots[i] <= x && x < knots[i + 1])
-        //  return 1;
-        // else
-        //  return 0;
-        // clang-format on
-        Scalar is_in_standard_range = if_then_else(
-          LE, knots[static_cast<Eigen::Index>(i)], x,
-          if_then_else(LT, x, knots[static_cast<Eigen::Index>(i + 1)], Scalar(1), Scalar(0)),
-          Scalar(0));
-
-        // clang-format off
-        // if(x == knots.back() && x == knots[i + 1])
-        //  return 1;
-        // else
-        //  return 0;
-        // clang-format on
-        Scalar is_at_final_range = if_then_else(
-          EQ, x, knots[static_cast<Eigen::Index>(knots.size() - 1)],
-          if_then_else(EQ, x, knots[static_cast<Eigen::Index>(i + 1)], Scalar(1), Scalar(0)),
-          Scalar(0));
-
-        return is_in_standard_range + is_at_final_range;
-      }
-
-      // Calculate the left term
-      // clang-format off
-      // if(den1 > dummy_precision)
-      //  left = (x - knots[i]) / den1 * bsplineBasis(i, k - 1, x)
-      // else
-      //  left = 0
-      // clang-format on
-      const Scalar den1(
-        knots[static_cast<Eigen::Index>(i + k)] - knots[static_cast<Eigen::Index>(i)]);
-      const Scalar left = if_then_else(
-        GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (x - knots[static_cast<Eigen::Index>(i)]) / den1 * bsplineBasis(i, k - 1, x, knots),
-        Scalar(0));
-
-      // Calculate the right term
-      // clang-format off
-      // if(den2 > dummy_precision)
-      //  right = (knots[i + k + 1] - x) / den2 * bsplineBasis(i + 1, k - 1, x)
-      // else
-      //  right = 0
-      // clang-format on
-      const Scalar den2(
-        knots[static_cast<Eigen::Index>(i + k + 1)] - knots[static_cast<Eigen::Index>(i + 1)]);
-      const Scalar right = if_then_else(
-        GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (knots[static_cast<Eigen::Index>(i + k + 1)] - x) / den2
-          * bsplineBasis(i + 1, k - 1, x, knots),
-        Scalar(0));
-
-      return left + right;
-    }
-
-    template<typename Scalar>
-    Scalar bsplineBasisDerivative(
-      size_t i, size_t k, const Scalar x, const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots)
-    {
-      if (k == 0)
-      {
-        return Scalar(0);
-      }
-      const Scalar k_scalar(static_cast<int>(k));
-
-      // Calculate the first term of the derivative
-      // clang-format off
-      // if(den1 > dummy_precision)
-      //  term1 = (k_scalar / den1) * bsplineBasis(i, k - 1, x)
-      // else
-      //  term1 = 0
-      // clang-format on
-      const Scalar den1(
-        knots[static_cast<Eigen::Index>(i + k)] - knots[static_cast<Eigen::Index>(i)]);
-      const Scalar term1 = if_then_else(
-        GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (k_scalar / den1) * bsplineBasis(i, k - 1, x, knots), Scalar(0));
-
-      // Calculate the second term of the derivative
-      // clang-format off
-      // if(den2 > dummy_precision)
-      //  term2 = (k_scalar / den2) * bsplineBasis(i + 1, k - 1, x)
-      // else
-      //  term2 = 0
-      // clang-format on
-      const Scalar den2(
-        knots[static_cast<Eigen::Index>(i + k + 1)] - knots[static_cast<Eigen::Index>(i + 1)]);
-      const Scalar term2 = if_then_else(
-        GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (k_scalar / den2) * bsplineBasis(i + 1, k - 1, x, knots), Scalar(0));
-
-      return term1 - term2;
-    }
-
-    template<typename Scalar>
-    Scalar bsplineBasisDerivative2(
-      size_t i, size_t k, const Scalar x, const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots)
-    {
-      if (k < 2)
-      {
-        return Scalar(0);
-      }
-
-      const Scalar k_scalar(static_cast<int>(k));
-
-      // Calculate the first term
-      // clang-format off
-      // if(den1 > dummy_precision)
-      //  term1 = (k_scalar / den1) * bsplineBasisDerivative(i, k - 1, x)
-      // else
-      //  term1 = 0
-      // clang-format on
-      const Scalar den1(
-        knots[static_cast<Eigen::Index>(i + k)] - knots[static_cast<Eigen::Index>(i)]);
-      const Scalar term1 = if_then_else(
-        GT, den1, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (k_scalar / den1) * bsplineBasisDerivative(i, k - 1, x, knots), Scalar(0));
-
-      // Calculate the second term
-      // clang-format off
-      // if(den2 > dummy_precision)
-      //  term2 = (k_scalar / den2) * bsplineBasisDerivative(i + 1, k - 1, x)
-      // else
-      //  term2 = 0
-      // clang-format on
-      const Scalar den2(
-        knots[static_cast<Eigen::Index>(i + k + 1)] - knots[static_cast<Eigen::Index>(i + 1)]);
-      const Scalar term2 = if_then_else(
-        GT, den2, Eigen::NumTraits<Scalar>::dummy_precision(),
-        (k_scalar / den2) * bsplineBasisDerivative(i + 1, k - 1, x, knots), Scalar(0));
-
-      return term1 - term2;
-    }
-
-    template<typename Scalar>
     Eigen::Matrix<Scalar, Eigen::Dynamic, 1>
     generateOpenUniformKnots(const Scalar min_q, const Scalar max_q, size_t nCtrl, size_t degree)
     {
@@ -399,25 +257,27 @@ namespace pinocchio
       assert(0 <= degree);
       assert(index + degree + 1 < knots.size());
 
-      const int derivative_degree = degree - 2;
-      const Scalar index_knot_diff = knots[index + degree] - knots[index];
+      const int derivative1_degree = degree - 1;
+      const int derivative2_degree = degree - 2;
+      const Scalar derivative1_den = knots[index + degree] - knots[index];
       Scalar phi_ddot_i_sum = Scalar(0);
       // basis only contains non zero basis function.
       // This condition prevent get an out of bound basis function on the left.
-      if (index >= root_basis - derivative_degree)
+      if (index >= root_basis - derivative2_degree)
       {
+        const Scalar left_side_den = knots[index + derivative1_degree] - knots[index];
         phi_ddot_i_sum =
-          getAbsoluteBasis(root_basis, basis, index, derivative_degree) / index_knot_diff;
+          getAbsoluteBasis(root_basis, basis, index, derivative2_degree) / left_side_den;
       }
       // basis only contains non zero basis function.
       // This condition prevent get an out of bound basis function on the right.
       if (index + 1 < root_basis + 1)
       {
-        const Scalar right_side_den = knots[index + degree + 1] - knots[index + 1];
+        const Scalar right_side_den = knots[index + derivative1_degree + 1] - knots[index + 1];
         phi_ddot_i_sum -=
-          getAbsoluteBasis(root_basis, basis, index + 1, derivative_degree) / right_side_den;
+          getAbsoluteBasis(root_basis, basis, index + 1, derivative2_degree) / right_side_den;
       }
-      return ((degree * degree) / index_knot_diff) * phi_ddot_i_sum;
+      return ((degree * derivative1_degree) / derivative1_den) * phi_ddot_i_sum;
     }
 
   } // namespace internal
