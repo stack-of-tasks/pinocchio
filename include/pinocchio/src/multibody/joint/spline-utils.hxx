@@ -238,11 +238,11 @@ namespace pinocchio
 
     /** De Boor algorithm modification to compute all basis involved to compute one
      * point of the curve.
-     * \param degree Curve degree
+     * \param degree Curve degree.
      * \param knots Knot vector at least of size \p degree + 1.
      * \param root_basis Degree 0 basis function index where knot vector contains \p x.
      * This is the only degree 0 basis function != 0.
-     * \param x Value to evaluate
+     * \param q Value to evaluate.
      * \param basis of size (degree + 1, degree + 1).
      * Each element i, j of this array will hold a basis function N_{i,j} where i and j
      * are respectively the basis function index and degree.
@@ -331,6 +331,93 @@ namespace pinocchio
                                      + right_side_alpha * basis(previous_degree, i);
         }
       }
+    }
+
+    /** Return basis function value N_{index,degree} from basis matrix computed by \p deBoorBasis.
+     * \param root_basis Argument provided to \p deBoorBasis function.
+     * \param basis Basis matrix computed by \p deBoorBasis.
+     * \param index Index of the basis function.
+     * \param degree Degree of the basis function.
+     */
+    template<typename Scalar>
+    const Scalar & getAbsoluteBasis(
+      int root_basis,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis,
+      int index,
+      int degree)
+    {
+      assert(0 <= root_basis);
+      assert(0 <= index);
+      assert(0 <= degree);
+      assert(degree < basis.rows());
+
+      const int offset = root_basis - degree;
+      assert(offset <= index);
+
+      return basis(degree, index - offset);
+    }
+
+    /** Compute cumulative basis first derivative for N_{index,degree}.
+     * \param root_basis Argument provided to \p deBoorBasis function.
+     * \param knots Knot vector at least of size \p degree + 1.
+     * \param basis Basis matrix computed by \p deBoorBasis.
+     * \param index Index of the basis function.
+     * \param degree Degree of the basis function.
+     */
+    template<typename Scalar>
+    Scalar cumulativeBasisDerivative(
+      int root_basis,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis,
+      int index,
+      int degree)
+    {
+      assert(0 <= index);
+      assert(0 <= degree);
+      assert(index + degree < knots.size());
+
+      const Scalar alpha = degree / (knots[index + degree] - knots[index]);
+      return alpha * getAbsoluteBasis(root_basis, basis, index, degree - 1);
+    }
+
+    /** Compute cumulative basis second derivative for N_{index,degree}.
+     * \param root_basis Argument provided to \p deBoorBasis function.
+     * \param knots Knot vector at least of size \p degree + 1.
+     * \param basis Basis matrix computed by \p deBoorBasis.
+     * \param index Index of the basis function.
+     * \param degree Degree of the basis function.
+     */
+    template<typename Scalar>
+    Scalar cumulativeBasisDerivative2(
+      int root_basis,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis,
+      int index,
+      int degree)
+    {
+      assert(0 <= index);
+      assert(0 <= degree);
+      assert(index + degree + 1 < knots.size());
+
+      const int derivative_degree = degree - 2;
+      const Scalar index_knot_diff = knots[index + degree] - knots[index];
+      Scalar phi_ddot_i_sum = Scalar(0);
+      // basis only contains non zero basis function.
+      // This condition prevent get an out of bound basis function on the left.
+      if (index >= root_basis - derivative_degree)
+      {
+        phi_ddot_i_sum =
+          getAbsoluteBasis(root_basis, basis, index, derivative_degree) / index_knot_diff;
+      }
+      // basis only contains non zero basis function.
+      // This condition prevent get an out of bound basis function on the right.
+      if (index + 1 < root_basis + 1)
+      {
+        const Scalar right_side_den = knots[index + degree + 1] - knots[index + 1];
+        phi_ddot_i_sum -=
+          getAbsoluteBasis(root_basis, basis, index + 1, derivative_degree) / right_side_den;
+      }
+      return ((degree * degree) / index_knot_diff) * phi_ddot_i_sum;
     }
 
   } // namespace internal

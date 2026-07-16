@@ -382,8 +382,8 @@ namespace pinocchio
 
         const Scalar phi_i = data.N.row(degree).segment(i, degree + 1 - i).sum();
 
-        const Scalar alpha = degree / (knots[current_basis + degree] - knots[current_basis]);
-        const Scalar phi_dot_i = alpha * data.N.row(degree - 1)[i - 1];
+        const Scalar phi_dot_i = internal::cumulativeBasisDerivative(
+          indexes.start_idx, knots, data.N, current_basis, degree);
 
         const Transformation_t transformation_temp(
           exp6(relativeMotions[current_basis - 1] * phi_i));
@@ -391,19 +391,8 @@ namespace pinocchio
 
         if (computeVelocity)
         {
-          Scalar phi_ddot_i_sum = Scalar(0);
-          if (i > 1)
-          {
-            const Scalar left_side_den = knots[current_basis + degree] - knots[current_basis];
-            phi_ddot_i_sum = data.N.row(degree - 2)[i - 2] / left_side_den;
-          }
-          if (i < degree)
-          {
-            const Scalar right_side_den =
-              knots[current_basis + degree + 1] - knots[current_basis + 1];
-            phi_ddot_i_sum -= data.N.row(degree - 2)[i - 1] / right_side_den;
-          }
-          const Scalar phi_ddot_i = alpha * degree * phi_ddot_i_sum;
+          const Scalar phi_ddot_i = internal::cumulativeBasisDerivative2(
+            indexes.start_idx, knots, data.N, current_basis, degree);
 
           data.c =
             relativeMotions[current_basis - 1] * phi_ddot_i
