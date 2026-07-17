@@ -208,9 +208,10 @@ namespace pinocchio
         GT, den, Eigen::NumTraits<Scalar>::dummy_precision(), (num / den), Scalar(0));
     }
 
-    /** De Boor algorithm modification to compute all basis in the spline valid span.
-     * This function will compute a lot of zeros and it's implemented for Casadi scalar support.
-     * Use deBoorBasis instead.
+    /** De Boor algorithm modification to compute all basis in the spline
+     * valid span ([knots[degree], knots[m - degree - 1]].
+     * This function will compute a lot of zeros and it's implemented for
+     * Casadi scalar support. Use deBoorBasis instead.
      * \param degree Curve degree.
      * \param knots Knot vector of size m (at least of size \p degree + 1)
      * \param q Value to evaluate.
@@ -235,6 +236,7 @@ namespace pinocchio
       const int last_degree0_basis = knots.size() - degree - 2;
       const int nb_degree0_basis = last_degree0_basis + 1 - first_degree0_basis;
 
+      // Compute degree 0 basis function values
       for (int i = 0; i < nb_degree0_basis; ++i)
       {
         int current_basis = first_degree0_basis + i;
