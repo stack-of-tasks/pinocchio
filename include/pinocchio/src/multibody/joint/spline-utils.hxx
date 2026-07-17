@@ -570,6 +570,68 @@ namespace pinocchio
       }
     }
 
+    template<typename Scalar, int Options>
+    void computeSplineKinematicsFull(
+      int degree,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
+      const std::vector<SE3Tpl<Scalar, Options>> & ctrlFrames,
+      const std::vector<MotionTpl<Scalar, Options>> & relativeMotions,
+      Scalar q,
+      const Eigen::Matrix<Scalar, 1, 1, Options> & joint_v,
+      bool computeVelocity,
+      SE3Tpl<Scalar, Options> & M,
+      MotionTpl<Scalar, Options> & v,
+      MotionTpl<Scalar, Options> & c,
+      JointMotionSubspaceTpl<1, Scalar, Options, 1> & S,
+      Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
+    {
+      deBoorBasisFull(degree, knots, q, basis);
+
+      M = ctrlFrames[0];
+      S.matrix().setZero();
+      if (computeVelocity)
+      {
+        v.setZero();
+        c.setZero();
+      }
+
+      const int nb_basis = ctrlFrames.size();
+      for (int i = 1; i < nb_basis; i++)
+      {
+        const int current_basis = i;
+
+        const Scalar phi_i = basis.row(degree).tail(nb_basis - i).sum();
+
+        const Scalar phi_dot_i =
+          internal::cumulativeBasisDerivativeFull(degree, knots, basis, current_basis, degree);
+
+        const SE3Tpl<Scalar, Options> transformation_temp(
+          exp6(relativeMotions[current_basis - 1] * phi_i));
+        M = M * transformation_temp;
+
+        if (computeVelocity)
+        {
+          const Scalar phi_ddot_i =
+            internal::cumulativeBasisDerivative2Full(degree, knots, basis, current_basis, degree);
+
+          c = relativeMotions[current_basis - 1] * phi_ddot_i
+              + transformation_temp.actInv(
+                c
+                + MotionTpl<Scalar, Options>(S.matrix()).cross(relativeMotions[current_basis - 1])
+                    * phi_dot_i);
+        }
+
+        S.matrix() =
+          transformation_temp.actInv(S) + relativeMotions[current_basis - 1].toVector() * phi_dot_i;
+      }
+      if (computeVelocity)
+      {
+        // C = Sdot * qdot = (dS/dq * qdot) * dot
+        c = c * joint_v[0] * joint_v[0];
+        v = S * joint_v;
+      }
+    }
+
   } // namespace internal
 
 } // namespace pinocchio
