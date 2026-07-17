@@ -866,6 +866,254 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivative2)
     derivative2_ref.tail(1).sum() - cumulativeBasisDerivative2(4, knots, basis, 4, degree), 1e-8);
 }
 
+// Test cumulativeBasisDerivativeFull against bsplineBasisDerivative.
+// This test is similar to cumulativeBasisDerivative.
+BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull)
+{
+  using pinocchio::internal::cumulativeBasisDerivativeFull;
+  using pinocchio::internal::deBoorFullBasis;
+
+  const int degree = 3;
+  Eigen::VectorXd knots(9);
+  knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10., 11.5;
+  Eigen::MatrixXd basis(Eigen::MatrixXd::Zero(4, 5));
+
+  auto computeDerivative = [knots](double q) {
+    Eigen::VectorXd res(5);
+    for (int i = 0; i < 5; ++i)
+    {
+      res(i) = bsplineBasisDerivative(i, degree, q, knots);
+    }
+    return res;
+  };
+
+  auto derivative_ref = computeDerivative(5.);
+  deBoorFullBasis(degree, knots, 5., basis);
+  BOOST_CHECK_SMALL(
+    derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(4).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(3).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(2).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(1).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 4, degree),
+    1e-8);
+
+  derivative_ref = computeDerivative(5.3);
+  deBoorFullBasis(degree, knots, 5.3, basis);
+  BOOST_CHECK_SMALL(
+    derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(4).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(3).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(2).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(1).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 4, degree),
+    1e-8);
+
+  derivative_ref = computeDerivative(5.5);
+  deBoorFullBasis(degree, knots, 5.5, basis);
+  BOOST_CHECK_SMALL(
+    derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(4).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(3).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(2).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(1).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 4, degree),
+    1e-8);
+
+  derivative_ref = computeDerivative(6.);
+  deBoorFullBasis(degree, knots, 6., basis);
+  BOOST_CHECK_SMALL(
+    derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(4).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(3).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(2).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(1).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 4, degree),
+    1e-8);
+
+  derivative_ref = computeDerivative(7.3);
+  deBoorFullBasis(degree, knots, 7.3, basis);
+  BOOST_CHECK_SMALL(
+    derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(4).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(3).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(2).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(1).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 4, degree),
+    1e-8);
+
+  derivative_ref = computeDerivative(8.);
+  deBoorFullBasis(degree, knots, 8., basis);
+  BOOST_CHECK_SMALL(
+    derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(4).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(3).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(2).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative_ref.tail(1).sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 4, degree),
+    1e-8);
+}
+
+// Test cumulativeBasisDerivative2Full against bsplineBasisDerivative2
+// This test is similar to cumulativeBasisDerivative2.
+BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull2)
+{
+  using pinocchio::internal::cumulativeBasisDerivative2Full;
+  using pinocchio::internal::deBoorFullBasis;
+
+  const int degree = 3;
+  Eigen::VectorXd knots(9);
+  knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10., 11.5;
+  Eigen::MatrixXd basis(Eigen::MatrixXd::Zero(4, 5));
+
+  auto computeDerivative2 = [knots](double q) {
+    Eigen::VectorXd res(5);
+    for (int i = 0; i < 5; ++i)
+    {
+      res(i) = bsplineBasisDerivative2(i, degree, q, knots);
+    }
+    return res;
+  };
+
+  auto derivative2_ref = computeDerivative2(5.);
+  deBoorFullBasis(degree, knots, 5., basis);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(4).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(3).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(2).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(1).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 4, degree),
+    1e-8);
+
+  derivative2_ref = computeDerivative2(5.3);
+  deBoorFullBasis(degree, knots, 5.3, basis);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(4).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(3).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(2).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(1).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 4, degree),
+    1e-8);
+
+  derivative2_ref = computeDerivative2(5.5);
+  deBoorFullBasis(degree, knots, 5.5, basis);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(4).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(3).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(2).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(1).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 4, degree),
+    1e-8);
+
+  derivative2_ref = computeDerivative2(6.);
+  deBoorFullBasis(degree, knots, 6., basis);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(4).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(3).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(2).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(1).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 4, degree),
+    1e-8);
+
+  derivative2_ref = computeDerivative2(7.3);
+  deBoorFullBasis(degree, knots, 7.3, basis);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(4).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(3).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(2).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(1).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 4, degree),
+    1e-8);
+
+  derivative2_ref = computeDerivative2(8.);
+  deBoorFullBasis(degree, knots, 8., basis);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(4).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 1, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(3).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 2, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(2).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 3, degree),
+    1e-8);
+  BOOST_CHECK_SMALL(
+    derivative2_ref.tail(1).sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 4, degree),
+    1e-8);
+}
+
 /// @brief Test to make sure the relative motions are correct
 BOOST_AUTO_TEST_CASE(relativeMotions)
 {

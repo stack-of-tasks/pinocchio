@@ -209,7 +209,7 @@ namespace pinocchio
     }
 
     /** De Boor algorithm modification to compute all basis in the spline
-     * valid span ([knots[degree], knots[m - degree - 1]].
+     * valid span (knots[degree: m - degree]).
      * This function will compute a lot of zeros and it's implemented for
      * Casadi scalar support. Use deBoorBasis instead.
      * \param degree Curve degree.
@@ -340,6 +340,32 @@ namespace pinocchio
       return basis(degree, index - offset);
     }
 
+    /** Return basis function value N_{index,degree} from basis matrix computed by \p
+     * deBoorBasisFull.
+     * \param spline_degree Spline degree provided to \p deBoorBasis function.
+     * \param basis Basis matrix computed by \p deBoorBasis.
+     * \param index Index of the basis function.
+     * \param degree Degree of the basis function.
+     */
+    template<typename Scalar>
+    const Scalar & getAbsoluteBasisFull(
+      int spline_degree,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis,
+      int index,
+      int degree)
+    {
+      assert(0 <= spline_degree);
+      assert(0 <= index);
+      assert(0 <= degree);
+      assert(degree <= spline_degree);
+      assert(degree < basis.rows());
+
+      const int offset = spline_degree - degree;
+      assert(offset <= index);
+
+      return basis(degree, index - offset);
+    }
+
     /** Compute cumulative basis first derivative for N_{index,degree}.
      * \param root_basis Argument provided to \p deBoorBasis function.
      * \param knots Knot vector at least of size \p degree + 1.
@@ -361,6 +387,42 @@ namespace pinocchio
 
       const Scalar alpha = degree / (knots[index + degree] - knots[index]);
       return alpha * getAbsoluteBasis(root_basis, basis, index, degree - 1);
+    }
+
+    /** Compute cumulative basis first derivative for N_{index,degree} on nodal vector computed by
+     * \p deBoorBasisFull.
+     * This method is safe to call even on basis function that span on a knot vector with same
+     * values.
+     * \param spline_degree Spline degree provided to \p deBoorBasis function.
+     * \param knots Knot vector at least of size \p degree + 1.
+     * \param basis Basis matrix computed by \p deBoorBasis.
+     * \param index Index of the basis function.
+     * \param degree Degree of the basis function.
+     */
+    template<typename Scalar>
+    Scalar cumulativeBasisDerivativeFull(
+      int spline_degree,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis,
+      int index,
+      int degree)
+    {
+      assert(0 <= index);
+      assert(0 <= degree);
+      assert(index + degree < knots.size());
+
+      // deBoorBasisFull only compute basis function in the spline valide span
+      // (knots[degree:m-degree]). We return zero if we try to access basis function
+      // outside of this span.
+      if (index > spline_degree - degree)
+      {
+        return safeAlpha(static_cast<Scalar>(degree), knots[index + degree] - knots[index])
+               * getAbsoluteBasisFull(spline_degree, basis, index, degree - 1);
+      }
+      else
+      {
+        return Scalar(0);
+      }
     }
 
     /** Compute cumulative basis second derivative for N_{index,degree}.
@@ -403,6 +465,60 @@ namespace pinocchio
           getAbsoluteBasis(root_basis, basis, index + 1, derivative2_degree) / right_side_den;
       }
       return ((degree * derivative1_degree) / derivative1_den) * phi_ddot_i_sum;
+    }
+
+    /** Compute cumulative basis second derivative for N_{index,degree}
+     * on nodal vector computed by \p deBoorBasisFull.
+     * This method is safe to call even on basis function that span on a knot vector with same
+     * values.
+     * \param spline_degree Spline degree provided to \p deBoorBasis function.
+     * \param knots Knot vector at least of size \p degree + 1.
+     * \param basis Basis matrix computed by \p deBoorBasis.
+     * \param index Index of the basis function.
+     * \param degree Degree of the basis function.
+     */
+    template<typename Scalar>
+    Scalar cumulativeBasisDerivative2Full(
+      int spline_degree,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis,
+      int index,
+      int degree)
+    {
+      assert(0 <= index);
+      assert(0 <= degree);
+      assert(index + degree + 1 < knots.size());
+
+      // deBoorBasisFull only compute basis function in the spline valide span
+      // (knots[degree:m-degree]). We return zero if we try to access basis function
+      // outside of this span.
+      if (index <= spline_degree - degree)
+      {
+        return Scalar(0);
+      }
+
+      const int derivative1_degree = degree - 1;
+      const int derivative2_degree = degree - 2;
+      const Scalar derivative1_den = knots[index + degree] - knots[index];
+      Scalar phi_ddot_i_sum = Scalar(0);
+      // Like first guard, we set this part of the computation to zero if basis function
+      // needed to compute the second derivative is outside of the spline valide span.
+      if (index >= spline_degree - derivative2_degree)
+      {
+        const Scalar left_side_den = knots[index + derivative1_degree] - knots[index];
+        phi_ddot_i_sum = getAbsoluteBasisFull(spline_degree, basis, index, derivative2_degree)
+                         * safeAlpha(Scalar(1), left_side_den);
+      }
+      // All last valid basis have the same index
+      const int last_degree0_basis = knots.size() - degree - 2;
+      if (index + 1 <= last_degree0_basis)
+      {
+        const Scalar right_side_den = knots[index + derivative1_degree + 1] - knots[index + 1];
+        phi_ddot_i_sum -= getAbsoluteBasisFull(spline_degree, basis, index + 1, derivative2_degree)
+                          * safeAlpha(Scalar(1), right_side_den);
+      }
+      return ((degree * derivative1_degree) * safeAlpha(Scalar(1), derivative1_den))
+             * phi_ddot_i_sum;
     }
 
   } // namespace internal
