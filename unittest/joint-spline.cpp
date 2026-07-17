@@ -452,7 +452,7 @@ BOOST_AUTO_TEST_CASE(deBoorBasis_degree0)
   const int degree = 0;
   Eigen::VectorXd knots(3);
   knots << 0., 2., 3.;
-  Eigen::MatrixXd basis(1, 1);
+  Eigen::MatrixXd basis(Eigen::MatrixXd::Zero(1, 1));
 
   deBoorBasis(degree, knots, 0, 0., basis);
   BOOST_CHECK_SMALL(basis(0, 0) - 1., 1e-8);
@@ -476,7 +476,7 @@ BOOST_AUTO_TEST_CASE(deBoorBasis_degree1)
   const int degree = 1;
   Eigen::VectorXd knots(5);
   knots << 0., 2., 3., 5., 5.5;
-  Eigen::MatrixXd basis(2, 2);
+  Eigen::MatrixXd basis(Eigen::MatrixXd::Zero(2, 2));
 
   // Evaluate between 2 and 3
   deBoorBasis(degree, knots, 1, 2., basis);
@@ -510,7 +510,7 @@ BOOST_AUTO_TEST_CASE(deBoorBasis_degree3)
   const int degree = 3;
   Eigen::VectorXd knots(9);
   knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10., 11.5;
-  Eigen::MatrixXd basis(4, 4);
+  Eigen::MatrixXd basis(Eigen::MatrixXd::Zero(4, 4));
 
   deBoorBasis(degree, knots, 3, 5., basis);
   BOOST_CHECK_SMALL(
@@ -583,6 +583,127 @@ BOOST_AUTO_TEST_CASE(deBoorBasis_degree3)
     getAbsoluteBasis(4, basis, 4, degree) - bsplineBasis(4, degree, 8., knots), 1e-8);
 }
 
+// Test deBoorBasisFull with a knot vector only defined
+// on one span.
+// This should give the same result than deBoorBasis function.
+BOOST_AUTO_TEST_CASE(deBoorBasisFull_degree2_minimal_knot)
+{
+  using pinocchio::internal::deBoorBasis;
+  using pinocchio::internal::deBoorFullBasis;
+
+  const int degree = 2;
+  Eigen::VectorXd knots(6);
+  // Defined between 3 and 5
+  knots << 0., 2., 3., 5., 5.5, 8.3;
+  Eigen::MatrixXd basis_ref(Eigen::MatrixXd::Zero(3, 3));
+  Eigen::MatrixXd basis(3, 3);
+
+  deBoorBasis(degree, knots, 2, 3., basis_ref);
+  deBoorFullBasis(degree, knots, 3., basis);
+  BOOST_CHECK(basis_ref.isApprox(basis));
+
+  deBoorBasis(degree, knots, 2, 4., basis_ref);
+  deBoorFullBasis(degree, knots, 4., basis);
+  BOOST_CHECK(basis_ref.isApprox(basis));
+
+  deBoorBasis(degree, knots, 2, 5., basis_ref);
+  deBoorFullBasis(degree, knots, 5., basis);
+  BOOST_CHECK(basis_ref.isApprox(basis));
+}
+
+// Test deBoorBasisFull with a knot vector allowing to compute
+// more basis function than deBoorBasis.
+// We compare it to deBoorBasis called on the right span.
+BOOST_AUTO_TEST_CASE(deBoorBasisFull_degree3_nominal_knot)
+{
+  using pinocchio::internal::deBoorBasis;
+  using pinocchio::internal::deBoorFullBasis;
+
+  const int degree = 2;
+  Eigen::VectorXd knots(8);
+  // Defined between 3 and 8.3
+  knots << 0., 2., 3., 5., 5.5, 8.3, 9., 11.3;
+  Eigen::MatrixXd basis_ref(Eigen::MatrixXd::Zero(3, 3));
+  Eigen::MatrixXd basis(3, 5);
+
+  deBoorFullBasis(degree, knots, 3., basis);
+  deBoorBasis(degree, knots, 2, 3., basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 0)));
+  BOOST_CHECK((basis.block<3, 2>(0, 3).isZero()));
+
+  deBoorFullBasis(degree, knots, 4., basis);
+  deBoorBasis(degree, knots, 2, 4., basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 0)));
+  BOOST_CHECK((basis.block<3, 2>(0, 3).isZero()));
+
+  deBoorFullBasis(degree, knots, 5., basis);
+  deBoorBasis(degree, knots, 3, 5., basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 1)));
+  BOOST_CHECK((basis.col(0).isZero()));
+  BOOST_CHECK((basis.col(4).isZero()));
+
+  deBoorFullBasis(degree, knots, 5.3, basis);
+  deBoorBasis(degree, knots, 3, 5.3, basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 1)));
+  BOOST_CHECK((basis.col(0).isZero()));
+  BOOST_CHECK((basis.col(4).isZero()));
+
+  deBoorFullBasis(degree, knots, 5.5, basis);
+  deBoorBasis(degree, knots, 4, 5.5, basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 2)));
+  BOOST_CHECK((basis.block<3, 2>(0, 0).isZero()));
+
+  deBoorFullBasis(degree, knots, 8., basis);
+  deBoorBasis(degree, knots, 4, 8., basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 2)));
+  BOOST_CHECK((basis.block<3, 2>(0, 0).isZero()));
+
+  deBoorFullBasis(degree, knots, 8.3, basis);
+  deBoorBasis(degree, knots, 4, 8.3, basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 2)));
+  BOOST_CHECK((basis.block<3, 2>(0, 0).isZero()));
+}
+
+// Test deBoorBasisFull with a knot vector with element of multiplicity 3.
+// This should create division by 0 issue managed by the algorithm.
+BOOST_AUTO_TEST_CASE(deBoorBasisFull_degree3_multiplicity_knot)
+{
+  using pinocchio::internal::deBoorBasis;
+  using pinocchio::internal::deBoorFullBasis;
+
+  const int degree = 2;
+  Eigen::VectorXd knots(9);
+  // Defined between 0 and 2
+  knots << 0., 0., 0., 1., 1., 1., 2., 2., 2.;
+  Eigen::MatrixXd basis_ref(Eigen::MatrixXd::Zero(3, 3));
+  Eigen::MatrixXd basis(3, 6);
+
+  deBoorFullBasis(degree, knots, 0., basis);
+  deBoorBasis(degree, knots, 2, 0., basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 0)));
+  BOOST_CHECK((basis.block<3, 3>(0, 3).isZero()));
+
+  deBoorFullBasis(degree, knots, 0.5, basis);
+  deBoorBasis(degree, knots, 2, 0.5, basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 0)));
+  BOOST_CHECK((basis.block<3, 3>(0, 3).isZero()));
+
+  deBoorFullBasis(degree, knots, 1., basis);
+  deBoorBasis(degree, knots, 5, 1., basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 3)));
+  BOOST_CHECK((basis.block<3, 3>(0, 0).isZero()));
+
+  deBoorFullBasis(degree, knots, 1.5, basis);
+  deBoorBasis(degree, knots, 5, 1.5, basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 3)));
+  BOOST_CHECK((basis.block<3, 3>(0, 0).isZero()));
+
+  deBoorFullBasis(degree, knots, 2., basis);
+  deBoorBasis(degree, knots, 5, 2., basis_ref);
+  BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 3)));
+  BOOST_CHECK((basis.block<3, 3>(0, 0).isZero()));
+}
+
 // Test cumulativeBasisDerivative against bsplineBasisDerivative
 BOOST_AUTO_TEST_CASE(cumulativeBasisDerivative)
 {
@@ -592,7 +713,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivative)
   const int degree = 3;
   Eigen::VectorXd knots(9);
   knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10., 11.5;
-  Eigen::MatrixXd basis(4, 4);
+  Eigen::MatrixXd basis(Eigen::MatrixXd::Zero(4, 4));
 
   auto computeDerivative = [knots](int start, double q) {
     Eigen::VectorXd res(4);
@@ -673,7 +794,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivative2)
   const int degree = 3;
   Eigen::VectorXd knots(9);
   knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10., 11.5;
-  Eigen::MatrixXd basis(4, 4);
+  Eigen::MatrixXd basis(Eigen::MatrixXd::Zero(4, 4));
 
   auto computeDerivative2 = [knots](int start, double q) {
     Eigen::VectorXd res(4);

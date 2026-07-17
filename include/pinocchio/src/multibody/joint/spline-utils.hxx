@@ -114,8 +114,8 @@ namespace pinocchio
       Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
     {
       assert(degree >= 0);
-      assert(basis.rows() >= static_cast<int>(degree) + 1);
-      assert(basis.cols() >= static_cast<int>(degree) + 1);
+      assert(basis.rows() >= degree + 1);
+      assert(basis.cols() >= degree + 1);
       assert(knots.size() > degree + 1);
       assert(degree <= root_basis);
       assert(root_basis < knots.size() - 1 - degree);
@@ -187,6 +187,129 @@ namespace pinocchio
 
           basis(current_degree, i) = left_side_alpha * basis(previous_degree, i - 1)
                                      + right_side_alpha * basis(previous_degree, i);
+        }
+      }
+    }
+
+    /** Return num / den if den != 0 and 0 in the other case.
+     * This function help support Casadi scalar type that doesn't support
+     * comparison.
+     */
+    template<typename Scalar>
+    Scalar safeAlpha(Scalar num, Scalar den)
+    {
+      // clang-format off
+      // if(den > dummy_precision)
+      //  return (num / den)
+      // else
+      //  return 0
+      // clang-format on
+      return if_then_else(
+        GT, den, Eigen::NumTraits<Scalar>::dummy_precision(), (num / den), Scalar(0));
+    }
+
+    /** De Boor algorithm modification to compute all basis in the spline valid span.
+     * This function will compute a lot of zeros and it's implemented for Casadi scalar support.
+     * Use deBoorBasis instead.
+     * \param degree Curve degree.
+     * \param knots Knot vector of size m (at least of size \p degree + 1)
+     * \param q Value to evaluate.
+     * \param basis of size (degree + 1, m - degree - 1).
+     * Each element i, j of this array will hold a basis function N_{i,j} where i and j
+     * are respectively the basis function index and degree.
+     */
+    template<typename Scalar>
+    void deBoorFullBasis(
+      int degree,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
+      Scalar q,
+      Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
+    {
+      assert(degree >= 0);
+      assert(basis.rows() >= degree + 1);
+      // Number of max degree basis functions
+      assert(basis.cols() >= knots.size() - degree - 1);
+      assert(knots.size() > degree + 1);
+      basis.setZero();
+      const int first_degree0_basis = degree;
+      const int last_degree0_basis = knots.size() - degree - 2;
+      const int nb_degree0_basis = last_degree0_basis + 1 - first_degree0_basis;
+
+      for (int i = 0; i < nb_degree0_basis; ++i)
+      {
+        int current_basis = first_degree0_basis + i;
+        // clang-format off
+        // if(knots[i] <= x && x < knots[i + 1])
+        //  return 1;
+        // else
+        //  return 0;
+        // clang-format on
+        Scalar is_in_standard_range = if_then_else(
+          LE, knots[current_basis], q,
+          if_then_else(LT, q, knots[current_basis + 1], Scalar(1), Scalar(0)), Scalar(0));
+
+        // clang-format off
+        // if(x == knots.back() && x == knots[i + 1])
+        //  return 1;
+        // else
+        //  return 0;
+        // clang-format on
+        Scalar is_at_final_range = if_then_else(
+          EQ, q, knots[knots.size() - degree - 1],
+          if_then_else(EQ, q, knots[current_basis + 1], Scalar(1), Scalar(0)), Scalar(0));
+
+        basis(0, i) = is_in_standard_range + is_at_final_range;
+      }
+
+      // Compute left most and right most basis functions (first pass).
+      for (int previous_degree = 0; previous_degree < degree; ++previous_degree)
+      {
+        const int current_degree = previous_degree + 1;
+        const int basis_numbers = nb_degree0_basis + current_degree;
+        const int left_most_basis = first_degree0_basis - current_degree;
+        const int left_most_basis_start_knot = left_most_basis + 1;
+        const int left_most_basis_end_knot = left_most_basis_start_knot + current_degree;
+        const Scalar left_most_basis_alpha_num = knots[left_most_basis_end_knot] - q;
+        const Scalar left_most_basis_alpha_den =
+          knots[left_most_basis_end_knot] - knots[left_most_basis_start_knot];
+        basis(current_degree, 0) = safeAlpha(left_most_basis_alpha_num, left_most_basis_alpha_den)
+                                   * basis(previous_degree, 0);
+
+        const int right_most_basis = last_degree0_basis;
+        const int right_most_basis_start_knot = right_most_basis;
+        const int right_most_basis_end_knot = right_most_basis_start_knot + current_degree;
+        const Scalar right_most_basis_alpha_num = q - knots[right_most_basis_start_knot];
+        const Scalar right_most_basis_alpha_den =
+          knots[right_most_basis_end_knot] - knots[right_most_basis_start_knot];
+        basis(current_degree, basis_numbers - 1) =
+          safeAlpha(right_most_basis_alpha_num, right_most_basis_alpha_den)
+          * basis(previous_degree, basis_numbers - 2);
+      }
+
+      // Compute central basis functions (second pass).
+      for (int previous_degree = 0; previous_degree < degree; ++previous_degree)
+      {
+        const int current_degree = previous_degree + 1;
+        const int left_most_basis = first_degree0_basis - current_degree;
+        const int basis_numbers = nb_degree0_basis + current_degree;
+        for (int i = 1; i < basis_numbers - 1; ++i)
+        {
+          const int current_basis = left_most_basis + i;
+          const int left_side_start_knot = current_basis;
+          const int left_side_end_knot = current_basis + current_degree;
+          const Scalar left_side_alpha_num = (q - knots[left_side_start_knot]);
+          const Scalar left_side_alpha_den =
+            (knots[left_side_end_knot] - knots[left_side_start_knot]);
+
+          const int right_side_start_knot = left_side_start_knot + 1;
+          const int right_side_end_knot = left_side_end_knot + 1;
+          const Scalar right_side_alpha_num = (knots[right_side_end_knot] - q);
+          const Scalar right_side_alpha_den =
+            (knots[right_side_end_knot] - knots[right_side_start_knot]);
+
+          basis(current_degree, i) =
+            safeAlpha(left_side_alpha_num, left_side_alpha_den) * basis(previous_degree, i - 1)
+            + safeAlpha(right_side_alpha_num, right_side_alpha_den) * basis(previous_degree, i);
         }
       }
     }
