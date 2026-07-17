@@ -1142,90 +1142,41 @@ BOOST_AUTO_TEST_CASE(relativeMotions)
     BOOST_CHECK(jmodel.relativeMotions[i].isApprox(relativeMotions[i]));
 }
 
-/// @brief Test FindSpan on the simplest case (no redundant knot vector).
+/// @brief Test findSpan on the simplest case (no redundant knot vector).
 BOOST_AUTO_TEST_CASE(findSpan_degree_0)
 {
+  using pinocchio::internal::findSpan;
   const int degree = 0;
   Eigen::VectorXd knotVector(6);
   knotVector << 0., 0.2, 0.4, 0.6, 0.8, 1.;
-  internal::SpanIndexes indexes;
 
-  indexes = internal::FindSpan<double>::run(0., degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 0);
-  BOOST_CHECK(indexes.end_idx == 1);
-
-  indexes = internal::FindSpan<double>::run(0.1, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 0);
-  BOOST_CHECK(indexes.end_idx == 1);
-
-  indexes = internal::FindSpan<double>::run(0.2, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 1);
-  BOOST_CHECK(indexes.end_idx == 2);
-
-  indexes = internal::FindSpan<double>::run(0.5, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 2);
-  BOOST_CHECK(indexes.end_idx == 3);
-
-  indexes = internal::FindSpan<double>::run(0.7, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 3);
-  BOOST_CHECK(indexes.end_idx == 4);
-
-  indexes = internal::FindSpan<double>::run(0.8, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 4);
-  BOOST_CHECK(indexes.end_idx == 5);
-
-  indexes = internal::FindSpan<double>::run(0.9, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 4);
-  BOOST_CHECK(indexes.end_idx == 5);
-
-  indexes = internal::FindSpan<double>::run(1., degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 4);
-  BOOST_CHECK(indexes.end_idx == 5);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.), 0);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.1), 0);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.2), 1);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.5), 2);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.7), 3);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.8), 4);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.9), 4);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 1.), 4);
 }
 
-/// @brief Test FindSpan with redundant knot vector values.
+/// @brief Test findSpan with redundant knot vector values.
 BOOST_AUTO_TEST_CASE(findSpan_degree_1)
 {
+  using pinocchio::internal::findSpan;
   const int degree = 1;
   Eigen::VectorXd knotVector(8);
   knotVector << 0., 0., 0.2, 0.6, 0.6, 0.8, 1., 1.;
-  internal::SpanIndexes indexes;
 
-  indexes = internal::FindSpan<double>::run(0., degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 1);
-  BOOST_CHECK(indexes.end_idx == 2);
-
-  indexes = internal::FindSpan<double>::run(0.1, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 1);
-  BOOST_CHECK(indexes.end_idx == 2);
-
-  indexes = internal::FindSpan<double>::run(0.2, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 2);
-  BOOST_CHECK(indexes.end_idx == 3);
-
-  indexes = internal::FindSpan<double>::run(0.5, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 2);
-  BOOST_CHECK(indexes.end_idx == 3);
-
-  indexes = internal::FindSpan<double>::run(0.6, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 4);
-  BOOST_CHECK(indexes.end_idx == 5);
-
-  indexes = internal::FindSpan<double>::run(0.7, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 4);
-  BOOST_CHECK(indexes.end_idx == 5);
-
-  indexes = internal::FindSpan<double>::run(0.8, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 5);
-  BOOST_CHECK(indexes.end_idx == 6);
-
-  indexes = internal::FindSpan<double>::run(0.9, degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 5);
-  BOOST_CHECK(indexes.end_idx == 6);
-
-  indexes = internal::FindSpan<double>::run(1., degree, knotVector);
-  BOOST_CHECK(indexes.start_idx == 5);
-  BOOST_CHECK(indexes.end_idx == 6);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.), 1);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.1), 1);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.2), 2);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.5), 2);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.6), 4);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.7), 4);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.8), 5);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 0.9), 5);
+  BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 1.), 5);
 }
 
 /// @brief Comparing a simple spline joint with a PZ

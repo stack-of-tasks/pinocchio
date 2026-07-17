@@ -16,40 +16,26 @@ namespace pinocchio
 {
   namespace internal
   {
-    /// @brief Define a Knot span [start_idx; end_idx[.
-    /// @details This struct identifies the subset of control frames in a spline that are active
-    /// (i.e., have non-zero basis functions) for a specific spline parameter value.
-    struct SpanIndexes
-    {
-      size_t start_idx;
-      size_t end_idx;
-    };
-
-    /// @brief Compute SpanIndexes for a knot vector and a parameter q.
+    // Compute the only positive degree 0 basis function index.
     template<typename Scalar>
-    struct FindSpan
+    int findSpan(int degree, const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots, Scalar q)
     {
-      template<typename KnotsVector>
-      static SpanIndexes
-      run(const Scalar q, const int degree, const Eigen::MatrixBase<KnotsVector> & knots)
+      assert(degree >= 0);
+      assert(knots.size() > degree + 1);
+      assert(knots[degree] <= q);
+      assert(q <= knots[knots.size() - 1 - degree]);
+
+      int low = degree;
+      for (; low < knots.size() - 1 - degree; ++low)
       {
-        assert(degree >= 0);
-        assert(knots.size() > degree + 1);
-        assert(knots[degree] <= q);
-        assert(q <= knots[knots.size() - 1 - degree]);
-
-        int low = degree;
-        for (; low < knots.size() - 1 - degree; ++low)
+        if (knots[low] <= q && q < knots[low + 1])
         {
-          if (knots[low] <= q && q < knots[low + 1])
-          {
-            return {static_cast<size_t>(low), static_cast<size_t>(low + 1)};
-          }
+          return low;
         }
-
-        return {static_cast<size_t>(low - 1), static_cast<size_t>(low)};
       }
-    };
+
+      return low - 1;
+    }
 
     template<typename Scalar>
     Eigen::Matrix<Scalar, Eigen::Dynamic, 1>
@@ -99,7 +85,7 @@ namespace pinocchio
      * \param degree Curve degree.
      * \param knots Knot vector at least of size \p degree + 1.
      * \param root_basis Degree 0 basis function index where knot vector contains \p x.
-     * This is the only degree 0 basis function != 0.
+     * This is the only degree 0 basis function != 0 and can be computed by \p findSpan.
      * \param q Value to evaluate.
      * \param basis of size (degree + 1, degree + 1).
      * Each element i, j of this array will hold a basis function N_{i,j} where i and j
@@ -519,6 +505,69 @@ namespace pinocchio
       }
       return ((degree * derivative1_degree) * safeAlpha(Scalar(1), derivative1_den))
              * phi_ddot_i_sum;
+    }
+
+    template<typename Scalar, int Options>
+    void computeSplineKinematics(
+      int degree,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
+      const std::vector<SE3Tpl<Scalar, Options>> & ctrlFrames,
+      const std::vector<MotionTpl<Scalar, Options>> & relativeMotions,
+      Scalar q,
+      const Eigen::Matrix<Scalar, 1, 1, Options> & joint_v,
+      bool computeVelocity,
+      SE3Tpl<Scalar, Options> & M,
+      MotionTpl<Scalar, Options> & v,
+      MotionTpl<Scalar, Options> & c,
+      JointMotionSubspaceTpl<1, Scalar, Options, 1> & S,
+      Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
+    {
+      int root_basis_degree0 = findSpan(degree, knots, q);
+      int root_basis = root_basis_degree0 - degree;
+      deBoorBasis(degree, knots, root_basis_degree0, q, basis);
+
+      M = ctrlFrames[root_basis];
+      S.matrix().setZero();
+      if (computeVelocity)
+      {
+        v.setZero();
+        c.setZero();
+      }
+
+      for (int i = 1; i < degree + 1; i++)
+      {
+        const int current_basis = root_basis + i;
+
+        const Scalar phi_i = basis.row(degree).segment(i, degree + 1 - i).sum();
+
+        const Scalar phi_dot_i = internal::cumulativeBasisDerivative(
+          root_basis_degree0, knots, basis, current_basis, degree);
+
+        const SE3Tpl<Scalar, Options> transformation_temp(
+          exp6(relativeMotions[current_basis - 1] * phi_i));
+        M = M * transformation_temp;
+
+        if (computeVelocity)
+        {
+          const Scalar phi_ddot_i = internal::cumulativeBasisDerivative2(
+            root_basis_degree0, knots, basis, current_basis, degree);
+
+          c = relativeMotions[current_basis - 1] * phi_ddot_i
+              + transformation_temp.actInv(
+                c
+                + MotionTpl<Scalar, Options>(S.matrix()).cross(relativeMotions[current_basis - 1])
+                    * phi_dot_i);
+        }
+
+        S.matrix() =
+          transformation_temp.actInv(S) + relativeMotions[current_basis - 1].toVector() * phi_dot_i;
+      }
+      if (computeVelocity)
+      {
+        // C = Sdot * qdot = (dS/dq * qdot) * dot
+        c = c * joint_v[0] * joint_v[0];
+        v = S * joint_v;
+      }
     }
 
   } // namespace internal

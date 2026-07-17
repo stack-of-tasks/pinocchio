@@ -149,7 +149,6 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSplineTpl<_Scalar, _Options> JointDerived;
     typedef Eigen::Vector<_Scalar, Eigen::Dynamic> Vector;
-    typedef internal::SpanIndexes SpanIndexes;
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
 
     typedef JointModelBase<JointModelSplineTpl> Base;
@@ -250,10 +249,9 @@ namespace pinocchio
 
       data.joint_q = qs.template segment<NQ>(idx_q());
 
-      SpanIndexes indexes = internal::FindSpan<Scalar>::run(qs[0], degree, knots);
-
-      computeBasisFunctions(data, data.joint_q[0], indexes);
-      computeTransformations(data, indexes, false);
+      internal::computeSplineKinematics(
+        degree, knots, ctrlFrames, relativeMotions, data.joint_q[0], data.joint_v, false, data.M,
+        data.v, data.c, data.S, data.N);
     }
 
     template<typename ConfigVector, typename TangentVector>
@@ -269,10 +267,9 @@ namespace pinocchio
       data.joint_q = qs.template segment<NQ>(idx_q());
       data.joint_v = vs.template segment<NV>(idx_v());
 
-      SpanIndexes indexes = internal::FindSpan<Scalar>::run(qs[0], degree, knots);
-
-      computeBasisFunctions(data, data.joint_q[0], indexes);
-      computeTransformations(data, indexes, true);
+      internal::computeSplineKinematics(
+        degree, knots, ctrlFrames, relativeMotions, data.joint_q[0], data.joint_v, true, data.M,
+        data.v, data.c, data.S, data.N);
     }
 
     template<typename TangentVector>
@@ -281,10 +278,9 @@ namespace pinocchio
     {
       data.joint_v = vs.template segment<NV>(idx_v());
 
-      SpanIndexes indexes = internal::FindSpan<Scalar>::run(data.joint_q[0], degree, knots);
-
-      computeBasisFunctions(data, data.joint_q[0], indexes);
-      computeTransformations(data, indexes, true);
+      internal::computeSplineKinematics(
+        degree, knots, ctrlFrames, relativeMotions, data.joint_q[0], data.joint_v, true, data.M,
+        data.v, data.c, data.S, data.N);
     }
 
     template<typename VectorLike, typename Matrix6Like>
@@ -357,60 +353,6 @@ namespace pinocchio
         relativeMotions.push_back(log6(ctrlFrames[i].inverse() * ctrlFrames[i + 1]));
     }
 
-    void computeBasisFunctions(
-      JointDataDerived & data, const Scalar joint_q_val, const SpanIndexes & indexes) const
-    {
-      // TODO support stop_idx for casadi support
-      internal::deBoorBasis(degree, knots, indexes.start_idx, joint_q_val, data.N);
-    }
-
-    void computeTransformations(
-      JointDataDerived & data, const SpanIndexes & indexes, bool computeVelocity = false) const
-    {
-      const int start_basis = indexes.start_idx - degree;
-      data.M = ctrlFrames[start_basis];
-      data.S.matrix().setZero();
-      if (computeVelocity)
-      {
-        data.c.setZero();
-        data.v.setZero();
-      }
-
-      for (int i = 1; i < degree + 1; i++)
-      {
-        const int current_basis = start_basis + i;
-
-        const Scalar phi_i = data.N.row(degree).segment(i, degree + 1 - i).sum();
-
-        const Scalar phi_dot_i = internal::cumulativeBasisDerivative(
-          indexes.start_idx, knots, data.N, current_basis, degree);
-
-        const Transformation_t transformation_temp(
-          exp6(relativeMotions[current_basis - 1] * phi_i));
-        data.M = data.M * transformation_temp;
-
-        if (computeVelocity)
-        {
-          const Scalar phi_ddot_i = internal::cumulativeBasisDerivative2(
-            indexes.start_idx, knots, data.N, current_basis, degree);
-
-          data.c =
-            relativeMotions[current_basis - 1] * phi_ddot_i
-            + transformation_temp.actInv(
-              data.c
-              + Motion_t(data.S.matrix()).cross(relativeMotions[current_basis - 1]) * phi_dot_i);
-        }
-
-        data.S.matrix() = transformation_temp.actInv(data.S)
-                          + relativeMotions[current_basis - 1].toVector() * phi_dot_i;
-      }
-      if (computeVelocity)
-      {
-        // C = Sdot * qdot = (dS/dq * qdot) * dot
-        data.c = data.c * data.joint_v[0] * data.joint_v[0];
-        data.v = data.S * data.joint_v;
-      }
-    }
   }; // struct JointModelSplineTpl
 
   /// @brief Helper structure to specify attributes of a spline joint.

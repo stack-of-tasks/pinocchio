@@ -217,11 +217,4 @@ namespace pinocchio
   struct JointModelSplineBuilderTpl;
   typedef JointModelSplineBuilderTpl<context::Scalar> JointModelSplineBuilder;
 
-  namespace internal
-  {
-    struct SpanIndexes;
-    template<typename Scalar>
-    struct FindSpan;
-  } // namespace internal
-
 } // namespace pinocchio
