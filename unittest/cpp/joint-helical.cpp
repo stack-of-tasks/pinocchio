@@ -30,7 +30,6 @@ void addJointAndBody(
   model.appendBodyToJoint(idx, Y);
 }
 
-BOOST_AUTO_TEST_SUITE(JointHelical)
 
 BOOST_AUTO_TEST_CASE(vsPXRX)
 {
@@ -129,7 +128,7 @@ BOOST_AUTO_TEST_CASE(vsPXRX)
   BOOST_CHECK(v_body_hx.isApprox(v_body_PXRX));
 }
 
-BOOST_AUTO_TEST_CASE(spatial)
+BOOST_AUTO_TEST_CASE(helical_spatial)
 {
   typedef TransformHelicalTpl<double, 0, 0> TransformX;
   typedef TransformHelicalTpl<double, 0, 1> TransformY;
@@ -190,9 +189,7 @@ BOOST_AUTO_TEST_CASE(spatial)
 
   BOOST_CHECK(v.cross(mh_z).isApprox(v.cross(mh_dense_z)));
 }
-BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(JointHelicalUnaligned)
 
 BOOST_AUTO_TEST_CASE(vsHX)
 {
@@ -274,4 +271,3 @@ BOOST_AUTO_TEST_CASE(vsHX)
   BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
 }
 
-BOOST_AUTO_TEST_SUITE_END()

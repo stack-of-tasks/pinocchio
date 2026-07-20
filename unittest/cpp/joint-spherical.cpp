@@ -31,9 +31,7 @@ void addJointAndBody(
   model.appendBodyToJoint(idx, Y);
 }
 
-BOOST_AUTO_TEST_SUITE(JointSpherical)
-
-BOOST_AUTO_TEST_CASE(spatial)
+BOOST_AUTO_TEST_CASE(spherical_spatial)
 {
   SE3 M(SE3::Random());
   Motion v(Motion::Random());
@@ -47,7 +45,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   BOOST_CHECK(v.cross(mp).isApprox(v.cross(mp_dense)));
 }
 
-BOOST_AUTO_TEST_CASE(vsFreeFlyer)
+BOOST_AUTO_TEST_CASE(spherical_vsFreeFlyer)
 {
   using namespace pinocchio;
   typedef SE3::Vector3 Vector3;
@@ -139,11 +137,8 @@ BOOST_AUTO_TEST_CASE(vsFreeFlyer)
 
   BOOST_CHECK(jacobian_planar.isApprox(jacobian_expected));
 }
-BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(JointSphericalZYX)
-
-BOOST_AUTO_TEST_CASE(spatial)
+BOOST_AUTO_TEST_CASE(spherical_zyx_spatial)
 {
   SE3 M(SE3::Random());
   Motion v(Motion::Random());
@@ -157,7 +152,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   BOOST_CHECK(v.cross(mp).isApprox(v.cross(mp_dense)));
 }
 
-BOOST_AUTO_TEST_CASE(vsFreeFlyer)
+BOOST_AUTO_TEST_CASE(spherical_zyx_vsFreeFlyer)
 {
   // WARNIG : Dynamic algorithm's results cannot be compared to FreeFlyer's ones because
   // of the representation of the rotation and the ConstraintSubspace difference.
@@ -293,5 +288,3 @@ BOOST_AUTO_TEST_CASE(test_crba)
 
   BOOST_CHECK(M_expected.isApprox(data.M, 1e-10));
 }
-
-BOOST_AUTO_TEST_SUITE_END()

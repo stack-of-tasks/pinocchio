@@ -33,9 +33,7 @@ void addJointAndBody(
   model.appendBodyToJoint(idx, Y);
 }
 
-BOOST_AUTO_TEST_SUITE(JointRevoluteUnaligned)
-
-BOOST_AUTO_TEST_CASE(vsRX)
+BOOST_AUTO_TEST_CASE(revolute_unaligned_vsRX)
 {
   using namespace pinocchio;
   typedef SE3::Vector3 Vector3;
@@ -114,9 +112,6 @@ BOOST_AUTO_TEST_CASE(vsRX)
 
   BOOST_CHECK(jacobianRX.isApprox(jacobianRevoluteUnaligned));
 }
-BOOST_AUTO_TEST_SUITE_END()
-
-BOOST_AUTO_TEST_SUITE(JointRevoluteUnboundedUnaligned)
 
 BOOST_AUTO_TEST_CASE(vsRUX)
 {
@@ -205,11 +200,7 @@ BOOST_AUTO_TEST_CASE(vsRUX)
   BOOST_CHECK(jacobianRUX.isApprox(jacobianRevoluteUnboundedUnaligned));
 }
 
-BOOST_AUTO_TEST_SUITE_END()
-
-BOOST_AUTO_TEST_SUITE(JointRevoluteUnbounded)
-
-BOOST_AUTO_TEST_CASE(spatial)
+BOOST_AUTO_TEST_CASE(revolute_unbounded_spatial)
 {
   SE3 M(SE3::Random());
   Motion v(Motion::Random());
@@ -239,7 +230,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   BOOST_CHECK(v.cross(mp_z).isApprox(v.cross(mp_dense_z)));
 }
 
-BOOST_AUTO_TEST_CASE(vsRX)
+BOOST_AUTO_TEST_CASE(revolute_unbounded_vsRX)
 {
   typedef SE3::Vector3 Vector3;
   typedef SE3::Matrix3 Matrix3;
@@ -338,11 +329,8 @@ BOOST_AUTO_TEST_CASE(tangent_map)
   BOOST_CHECK(mat_block2.rows() == 1);
   BOOST_CHECK(mat_block2.cols() == 1);
 }
-BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(JointRevolute)
-
-BOOST_AUTO_TEST_CASE(spatial)
+BOOST_AUTO_TEST_CASE(revolute_spatial)
 {
   typedef TransformRevoluteTpl<double, 0, 0> TransformX;
   typedef TransformRevoluteTpl<double, 0, 1> TransformY;
@@ -404,11 +392,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   BOOST_CHECK(v.cross(mp_z).isApprox(v.cross(mp_dense_z)));
 }
 
-BOOST_AUTO_TEST_SUITE_END()
-
-BOOST_AUTO_TEST_SUITE(JointRevoluteUnaligned)
-
-BOOST_AUTO_TEST_CASE(spatial)
+BOOST_AUTO_TEST_CASE(revolute_unaligned_spatial)
 {
   SE3 M(SE3::Random());
   Motion v(Motion::Random());
@@ -421,5 +405,3 @@ BOOST_AUTO_TEST_CASE(spatial)
 
   BOOST_CHECK(v.cross(mp).isApprox(v.cross(mp_dense)));
 }
-
-BOOST_AUTO_TEST_SUITE_END()
