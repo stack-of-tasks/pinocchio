@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Add `DataTpl::lastChild` deprecation notice in Python binding ([#2928](https://github.com/stack-of-tasks/pinocchio/pull/2927))
+- Add spline joint (JointModelSplineTpl) to default joint collection ([#2784](https://github.com/stack-of-tasks/pinocchio/pull/2784))
+  - [Python example here](./examples/spline-joint.py)
 
 ### Fixed
 - Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM ([#2929](https://github.com/stack-of-tasks/pinocchio/pull/2929))
@@ -36,8 +38,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Extended `ModelTpl::addJoint` overload to accept `min_acceleration`, `max_acceleration`, `min_jerk`, `max_jerk` parameters
 - Add `PINOCCHIO_BUILD_BINDING_WITH_PCH` CMake option to use PCH to build Python bindings (default OFF) ([#2886](https://github.com/stack-of-tasks/pinocchio/pull/2886))
 - Add PINOCCHIO_BUILD_VISUALIZERS option ([#2900](https://github.com/stack-of-tasks/pinocchio/pull/2900))
-- Add spline joint (JointModelSplineTpl) to default joint collection ([#2784](https://github.com/stack-of-tasks/pinocchio/pull/2784))
-  - [Python example here](./examples/spline-joint.py)
 
 ### Fixed
 
