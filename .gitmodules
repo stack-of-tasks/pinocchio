@@ -1,3 +1,0 @@
-[submodule "models/example-robot-data"]
-	path = models/example-robot-data
-	url = https://github.com/Gepetto/example-robot-data.git
