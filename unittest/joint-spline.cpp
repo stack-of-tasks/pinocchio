@@ -1179,8 +1179,11 @@ BOOST_AUTO_TEST_CASE(findSpan_degree_1)
   BOOST_CHECK_EQUAL(findSpan(degree, knotVector, 1.), 5);
 }
 
-/// @brief Comparing a simple spline joint with a PZ
-/// Make sure pose and joint subspace are the same
+/// @brief Comparing a simple spline joint with a PZ.
+/// Make sure pose and joint subspace are the same.
+/// This test the internal::computeSplineKinematics function and
+/// we use this output to validate internal::computeSplineKinematicsFull
+/// at the same time.
 BOOST_AUTO_TEST_CASE(vsPrismaticZ)
 {
   using namespace pinocchio;
@@ -1188,11 +1191,13 @@ BOOST_AUTO_TEST_CASE(vsPrismaticZ)
   // Spline Joint
   std::vector<SE3> ctrlFrames;
   ctrlFrames.push_back(SE3::Identity());
+  ctrlFrames.push_back(SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1. / 3.)));
+  ctrlFrames.push_back(SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 2. / 3)));
   ctrlFrames.push_back(SE3(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 0., 1.)));
 
   auto jmodel = JointModelSplineBuilder()
                   .withControlFrameVector(ctrlFrames)
-                  .withDegree(1)
+                  .withDegree(3)
                   .withOpenUniformKnots(0., 1.)
                   .build();
 
@@ -1204,33 +1209,56 @@ BOOST_AUTO_TEST_CASE(vsPrismaticZ)
   JointDataPZ jdataPz = jmodelPz.createData();
   jmodelPz.setIndexes(0, 0, 0);
 
-  Eigen::VectorXd q(Eigen::VectorXd::Zero(1));
+  // Data for computeSplineKinematicsFull
+  Eigen::MatrixXd basis_full(
+    Eigen::MatrixXd::Zero(jmodel.degree + 1, jmodel.knots.size() - jmodel.degree - 1));
+  SE3 M_full;
+  Motion v_full;
+  Motion c_full;
+  JointMotionSubspaceTpl<1, double, 0, 1> S_full;
+
+  Eigen::Matrix<double, 1, 1> q(Eigen::VectorXd::Zero(1));
+  Eigen::Matrix<double, 1, 1> q_dot(Eigen::VectorXd::Zero(1));
 
   // -------
   q << 0.2;
 
   jmodel.calc(jdata, q);
   jmodelPz.calc(jdataPz, q);
+  internal::computeSplineKinematicsFull(
+    jmodel.degree, jmodel.knots, jmodel.ctrlFrames, jmodel.relativeMotions, q[0], q_dot, false,
+    M_full, v_full, c_full, S_full, basis_full);
 
   BOOST_CHECK(jdata.M.isApprox(jdataPz.M, 1e-12));
   BOOST_CHECK(jdata.S.matrix().isApprox(jdataPz.S.matrix(), 1e-12));
+  BOOST_CHECK(M_full.isApprox(jdataPz.M, 1e-12));
+  BOOST_CHECK(S_full.matrix().isApprox(jdataPz.S.matrix(), 1e-12));
 
   // -------
-  Eigen::VectorXd q_dot(Eigen::VectorXd::Zero(1));
   q << 0.3;
   q_dot << 0.4;
 
   jmodel.calc(jdata, q, q_dot);
   jmodelPz.calc(jdataPz, q, q_dot);
+  internal::computeSplineKinematicsFull(
+    jmodel.degree, jmodel.knots, jmodel.ctrlFrames, jmodel.relativeMotions, q[0], q_dot, true,
+    M_full, v_full, c_full, S_full, basis_full);
 
   BOOST_CHECK(jdata.M.isApprox(jdataPz.M, 1e-12));
   BOOST_CHECK(jdata.S.matrix().isApprox(jdataPz.S.matrix(), 1e-12));
   BOOST_CHECK(jdata.v.isApprox(jdataPz.v, 1e-12));
   BOOST_CHECK(jdata.c.isApprox(jdataPz.c, 1e-12));
+  BOOST_CHECK(M_full.isApprox(jdataPz.M, 1e-12));
+  BOOST_CHECK(S_full.matrix().isApprox(jdataPz.S.matrix(), 1e-12));
+  BOOST_CHECK(v_full.isApprox(jdataPz.v, 1e-12));
+  BOOST_CHECK(c_full.isApprox(jdataPz.c, 1e-12));
 }
 
-/// @brief Comparing a simple spline joint with a RX
-/// Make sure pose and joint subspace are the same
+/// @brief Comparing a simple spline joint with a RX.
+/// Make sure pose and joint subspace are the same.
+/// This test the internal::computeSplineKinematics function and
+/// we use this output to validate internal::computeSplineKinematicsFull
+/// at the same time.
 BOOST_AUTO_TEST_CASE(vsRevoluteX)
 {
   using namespace pinocchio;
@@ -1238,14 +1266,18 @@ BOOST_AUTO_TEST_CASE(vsRevoluteX)
   // Spline Joint
   Eigen::Matrix3d rotation;
   std::vector<SE3> ctrlFrames;
-  Eigen::AngleAxisd Rx(1, Eigen::Vector3d::UnitX());
+  Eigen::AngleAxisd Rx1(1. / 3., Eigen::Vector3d::UnitX());
+  Eigen::AngleAxisd Rx2(2. / 3., Eigen::Vector3d::UnitX());
+  Eigen::AngleAxisd Rx3(1., Eigen::Vector3d::UnitX());
 
   ctrlFrames.push_back(SE3::Identity());
-  ctrlFrames.push_back(SE3(Rx.toRotationMatrix(), Eigen::Vector3d(0., 0., 0.)));
+  ctrlFrames.push_back(SE3(Rx1.toRotationMatrix(), Eigen::Vector3d(0., 0., 0.)));
+  ctrlFrames.push_back(SE3(Rx2.toRotationMatrix(), Eigen::Vector3d(0., 0., 0.)));
+  ctrlFrames.push_back(SE3(Rx3.toRotationMatrix(), Eigen::Vector3d(0., 0., 0.)));
 
   auto jmodel = JointModelSplineBuilder()
                   .withControlFrameVector(ctrlFrames)
-                  .withDegree(1)
+                  .withDegree(3)
                   .withOpenUniformKnots(0., 1.)
                   .build();
   JointDataSpline jdata = jmodel.createData();
@@ -1256,29 +1288,49 @@ BOOST_AUTO_TEST_CASE(vsRevoluteX)
   JointDataRX jdataRx = jmodelRx.createData();
   jmodelRx.setIndexes(0, 0, 0);
 
-  Eigen::VectorXd q(Eigen::VectorXd::Zero(1));
+  // Data for computeSplineKinematicsFull
+  Eigen::MatrixXd basis_full(
+    Eigen::MatrixXd::Zero(jmodel.degree + 1, jmodel.knots.size() - jmodel.degree - 1));
+  SE3 M_full;
+  Motion v_full;
+  Motion c_full;
+  JointMotionSubspaceTpl<1, double, 0, 1> S_full;
+
+  Eigen::Matrix<double, 1, 1> q(Eigen::VectorXd::Zero(1));
+  Eigen::Matrix<double, 1, 1> q_dot(Eigen::VectorXd::Zero(1));
 
   // -------
   q << 0.2;
 
   jmodel.calc(jdata, q);
   jmodelRx.calc(jdataRx, q);
+  internal::computeSplineKinematicsFull(
+    jmodel.degree, jmodel.knots, jmodel.ctrlFrames, jmodel.relativeMotions, q[0], q_dot, false,
+    M_full, v_full, c_full, S_full, basis_full);
 
   BOOST_CHECK(jdata.M.isApprox(jdataRx.M, 1e-12));
   BOOST_CHECK(jdata.S.matrix().isApprox(jdataRx.S.matrix(), 1e-12));
+  BOOST_CHECK(M_full.isApprox(jdataRx.M, 1e-12));
+  BOOST_CHECK(S_full.matrix().isApprox(jdataRx.S.matrix(), 1e-12));
 
   // -------
-  Eigen::VectorXd q_dot(Eigen::VectorXd::Zero(1));
   q << 0.3;
   q_dot << 0.4;
 
   jmodel.calc(jdata, q, q_dot);
   jmodelRx.calc(jdataRx, q, q_dot);
+  internal::computeSplineKinematicsFull(
+    jmodel.degree, jmodel.knots, jmodel.ctrlFrames, jmodel.relativeMotions, q[0], q_dot, true,
+    M_full, v_full, c_full, S_full, basis_full);
 
   BOOST_CHECK(jdata.M.isApprox(jdataRx.M, 1e-12));
   BOOST_CHECK(jdata.S.matrix().isApprox(jdataRx.S.matrix(), 1e-12));
   BOOST_CHECK(jdata.v.isApprox(jdataRx.v, 1e-12));
   BOOST_CHECK(jdata.c.isApprox(jdataRx.c, 1e-12));
+  BOOST_CHECK(M_full.isApprox(jdataRx.M, 1e-12));
+  BOOST_CHECK(S_full.matrix().isApprox(jdataRx.S.matrix(), 1e-12));
+  BOOST_CHECK(v_full.isApprox(jdataRx.v, 1e-12));
+  BOOST_CHECK(c_full.isApprox(jdataRx.c, 1e-12));
 }
 
 /// @brief Test out rnea vs aba
@@ -1318,7 +1370,10 @@ BOOST_AUTO_TEST_CASE(abaVSrnea)
   BOOST_CHECK(aq.isApprox(aAba));
 }
 
-/// @brief Test S and bias c computation via finite differences
+/// @brief Test S and bias c computation via finite differences.
+/// This test the internal::computeSplineKinematics function and
+/// we use this output to validate internal::computeSplineKinematicsFull
+/// at the same time.
 BOOST_AUTO_TEST_CASE(vsFiniteDifference)
 {
   using namespace pinocchio;
@@ -1339,7 +1394,15 @@ BOOST_AUTO_TEST_CASE(vsFiniteDifference)
 
   jmodel.setIndexes(0, 0, 0);
 
-  double eps = 1e-8;
+  // Data for computeSplineKinematicsFull
+  Eigen::MatrixXd basis_full(
+    Eigen::MatrixXd::Zero(jmodel.degree + 1, jmodel.knots.size() - jmodel.degree - 1));
+  SE3 M_full;
+  Motion v_full;
+  Motion c_full;
+  JointMotionSubspaceTpl<1, double, 0, 1> S_full;
+
+  const double eps = 1e-8;
   CV q_ref(1);
   q_ref[0] = 0.6;
   CV q(q_ref);
@@ -1356,9 +1419,14 @@ BOOST_AUTO_TEST_CASE(vsFiniteDifference)
   // Check S
   {
     jmodel.calc(jdata, q_ref);
+    internal::computeSplineKinematicsFull(
+      jmodel.degree, jmodel.knots, jmodel.ctrlFrames, jmodel.relativeMotions, q_ref[0], q_dot_ref,
+      false, M_full, v_full, c_full, S_full, basis_full);
+
     SE3 M_ref(jdata.M);
-    Eigen::Matrix<double, 6, JointModelSpline::NV> S(6, JointModelSpline::NV),
-      S_ref(jdata.S.matrix());
+    Eigen::VectorXd S(6, JointModelSpline::NV);
+    Eigen::VectorXd S_ref(jdata.S.matrix());
+    Eigen::VectorXd S_ref_full(S_full.matrix());
 
     jmodel.calc(jdata, q);
     SE3 M_ = jdata.M;
@@ -1367,20 +1435,25 @@ BOOST_AUTO_TEST_CASE(vsFiniteDifference)
     S.col(0) /= eps;
 
     BOOST_CHECK(S.isApprox(S_ref, 1e-6));
+    BOOST_CHECK(S.isApprox(S_ref_full, 1e-6));
   }
   // Check bias
   {
     jmodel.calc(jdata, q_ref, q_dot_ref);
+    internal::computeSplineKinematicsFull(
+      jmodel.degree, jmodel.knots, jmodel.ctrlFrames, jmodel.relativeMotions, q_ref[0], q_dot_ref,
+      true, M_full, v_full, c_full, S_full, basis_full);
     const Motion & c_ref = jdata.c;
-    Eigen::Matrix<double, 6, JointModelSpline::NV> S_ref(jdata.S.matrix());
+    Eigen::VectorXd S_ref(jdata.S.matrix());
 
     jmodel.calc(jdata, q);
-    Eigen::Matrix<double, 6, JointModelSpline::NV> S_(jdata.S.matrix());
+    Eigen::VectorXd S_(jdata.S.matrix());
 
     Motion dSdq_fd((S_ - S_ref) / eps);
     Motion c_fd = dSdq_fd * q_dot_ref[0] * q_dot_ref[0];
 
     BOOST_CHECK(c_ref.isApprox(c_fd, 1e-6));
+    BOOST_CHECK(c_full.isApprox(c_fd, 1e-6));
   }
 }
 

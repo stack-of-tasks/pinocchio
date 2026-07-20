@@ -585,7 +585,7 @@ namespace pinocchio
       JointMotionSubspaceTpl<1, Scalar, Options, 1> & S,
       Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
     {
-      deBoorBasisFull(degree, knots, q, basis);
+      deBoorFullBasis(degree, knots, q, basis);
 
       M = ctrlFrames[0];
       S.matrix().setZero();
