@@ -107,8 +107,7 @@ namespace pinocchio
     {
     }
 
-    // TODO use a better parameter
-    JointDataSplineTpl(const size_t nbCtrlFrames)
+    JointDataSplineTpl(int degree, int knot_size)
     : joint_q(ConfigVector_t::Zero())
     , joint_v(TangentVector_t::Zero())
     , M(Transformation_t::Identity())
@@ -118,8 +117,7 @@ namespace pinocchio
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Identity())
     , StU(D_t::Zero())
-    , N(Matrix::Zero(
-        static_cast<Eigen::Index>(nbCtrlFrames), static_cast<Eigen::Index>(nbCtrlFrames)))
+    , N(internal::SplineKinematics<_Scalar, _Options>::allocateBasis(degree, knot_size))
     {
     }
 
@@ -219,7 +217,7 @@ namespace pinocchio
 
     JointDataDerived createData() const
     {
-      return JointDataDerived(nbCtrlFrames);
+      return JointDataDerived(degree, knots.size());
     }
 
     const std::vector<bool> hasConfigurationLimit() const
@@ -249,7 +247,7 @@ namespace pinocchio
 
       data.joint_q = qs.template segment<NQ>(idx_q());
 
-      internal::computeSplineKinematics(
+      internal::SplineKinematics<_Scalar, _Options>::compute(
         degree, knots, ctrlFrames, relativeMotions, data.joint_q[0], data.joint_v, false, data.M,
         data.v, data.c, data.S, data.N);
     }
@@ -267,7 +265,7 @@ namespace pinocchio
       data.joint_q = qs.template segment<NQ>(idx_q());
       data.joint_v = vs.template segment<NV>(idx_v());
 
-      internal::computeSplineKinematics(
+      internal::SplineKinematics<_Scalar, _Options>::compute(
         degree, knots, ctrlFrames, relativeMotions, data.joint_q[0], data.joint_v, true, data.M,
         data.v, data.c, data.S, data.N);
     }
@@ -278,7 +276,7 @@ namespace pinocchio
     {
       data.joint_v = vs.template segment<NV>(idx_v());
 
-      internal::computeSplineKinematics(
+      internal::SplineKinematics<_Scalar, _Options>::compute(
         degree, knots, ctrlFrames, relativeMotions, data.joint_q[0], data.joint_v, true, data.M,
         data.v, data.c, data.S, data.N);
     }

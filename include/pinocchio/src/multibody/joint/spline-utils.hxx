@@ -507,6 +507,8 @@ namespace pinocchio
              * phi_ddot_i_sum;
     }
 
+    /** Compute spline joint kinematics data.
+     */
     template<typename Scalar, int Options>
     void computeSplineKinematics(
       int degree,
@@ -570,6 +572,9 @@ namespace pinocchio
       }
     }
 
+    /** Compute spline joint kinematics data on nodal vector computed by \p deBoorBasisFull.
+     * This version is less efficient than computeSplineKinematics and is dedicated to Casadi.
+     */
     template<typename Scalar, int Options>
     void computeSplineKinematicsFull(
       int degree,
@@ -631,6 +636,41 @@ namespace pinocchio
         v = S * joint_v;
       }
     }
+
+    /** This structure allow with partial template specialization to
+     * use the right basis matrix allocation and computeSplineKinematics method for scalar type.
+     */
+    template<typename Scalar, int Options>
+    struct SplineKinematics
+    {
+      /// \return Basis vector stored in JointDataSplineTpl.
+      static Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>
+      allocateBasis(int degree, int knot_size)
+      {
+        PINOCCHIO_UNUSED_VARIABLE(knot_size);
+        return Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(degree + 1, degree + 1);
+      }
+
+      /// Compute the spline kinematics.
+      static void compute(
+        int degree,
+        const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
+        const std::vector<SE3Tpl<Scalar, Options>> & ctrlFrames,
+        const std::vector<MotionTpl<Scalar, Options>> & relativeMotions,
+        Scalar q,
+        const Eigen::Matrix<Scalar, 1, 1, Options> & joint_v,
+        bool computeVelocity,
+        SE3Tpl<Scalar, Options> & M,
+        MotionTpl<Scalar, Options> & v,
+        MotionTpl<Scalar, Options> & c,
+        JointMotionSubspaceTpl<1, Scalar, Options, 1> & S,
+        Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
+      {
+        return computeSplineKinematics(
+          degree, knots, ctrlFrames, relativeMotions, q, joint_v, computeVelocity, M, v, c, S,
+          basis);
+      }
+    };
 
   } // namespace internal
 
