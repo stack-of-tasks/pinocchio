@@ -715,7 +715,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivative)
   knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10., 11.5;
   Eigen::MatrixXd basis(Eigen::MatrixXd::Zero(4, 4));
 
-  auto computeDerivative = [knots](int start, double q) {
+  auto computeDerivative = [&](int start, double q) {
     Eigen::VectorXd res(4);
     for (int i = 0; i < 4; ++i)
     {
@@ -796,7 +796,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivative2)
   knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10., 11.5;
   Eigen::MatrixXd basis(Eigen::MatrixXd::Zero(4, 4));
 
-  auto computeDerivative2 = [knots](int start, double q) {
+  auto computeDerivative2 = [&](int start, double q) {
     Eigen::VectorXd res(4);
     for (int i = 0; i < 4; ++i)
     {
@@ -878,7 +878,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull)
   knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10., 11.5;
   Eigen::MatrixXd basis(Eigen::MatrixXd::Zero(4, 5));
 
-  auto computeDerivative = [knots](double q) {
+  auto computeDerivative = [&](double q) {
     Eigen::VectorXd res(5);
     for (int i = 0; i < 5; ++i)
     {
@@ -1002,7 +1002,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull2)
   knots << 0., 2., 3., 5., 5.5, 8., 8.5, 10., 11.5;
   Eigen::MatrixXd basis(Eigen::MatrixXd::Zero(4, 5));
 
-  auto computeDerivative2 = [knots](double q) {
+  auto computeDerivative2 = [&](double q) {
     Eigen::VectorXd res(5);
     for (int i = 0; i < 5; ++i)
     {
