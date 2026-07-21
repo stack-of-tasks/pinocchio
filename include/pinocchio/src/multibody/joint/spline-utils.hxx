@@ -39,14 +39,14 @@ namespace pinocchio
 
     template<typename Scalar>
     Eigen::Matrix<Scalar, Eigen::Dynamic, 1>
-    generateOpenUniformKnots(const Scalar min_q, const Scalar max_q, size_t nCtrl, size_t degree)
+    generateOpenUniformKnots(const Scalar min_q, const Scalar max_q, int nCtrl, int degree)
     {
       using Vector = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
 
-      const size_t n_knots = nCtrl + degree + 1;
+      const int n_knots = nCtrl + degree + 1;
 
       Vector knots;
-      knots.resize(static_cast<Eigen::Index>(n_knots));
+      knots.resize(n_knots);
 
       const Scalar range = max_q - min_q;
 
@@ -54,9 +54,10 @@ namespace pinocchio
       const Scalar nInner = static_cast<Scalar>(nCtrl - degree - 1);
       const Scalar denominator = static_cast<Scalar>(nInner + 1);
 
-      for (size_t i = degree + 1; i < nCtrl; i++)
-        knots[static_cast<Eigen::Index>(i)] =
-          min_q + range * static_cast<Scalar>(i - degree) / denominator;
+      for (int i = degree + 1; i < nCtrl; i++)
+      {
+        knots[i] = min_q + range * static_cast<Scalar>(i - degree) / denominator;
+      }
 
       knots.tail(degree + 1).setConstant(max_q);
       return knots;
@@ -64,18 +65,20 @@ namespace pinocchio
 
     template<typename Scalar>
     Eigen::Matrix<Scalar, Eigen::Dynamic, 1>
-    generateUniformKnots(const Scalar min_q, const Scalar max_q, size_t nCtrl, size_t degree)
+    generateUniformKnots(const Scalar min_q, const Scalar max_q, int nCtrl, int degree)
     {
       using Vector = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
 
-      const size_t n_knots = nCtrl + degree + 1;
+      const int n_knots = nCtrl + degree + 1;
       Vector knots;
       knots.resize(static_cast<Eigen::Index>(n_knots));
 
       const Scalar step = (max_q - min_q) / static_cast<Scalar>(n_knots - 1);
 
-      for (size_t i = 0; i < n_knots; ++i)
-        knots[static_cast<Eigen::Index>(i)] = min_q + step * static_cast<Scalar>(i);
+      for (int i = 0; i < n_knots; ++i)
+      {
+        knots[i] = min_q + step * static_cast<Scalar>(i);
+      }
 
       return knots;
     }
@@ -219,7 +222,7 @@ namespace pinocchio
       assert(knots.size() > degree + 1);
       basis.setZero();
       const int first_degree0_basis = degree;
-      const int last_degree0_basis = knots.size() - degree - 2;
+      const int last_degree0_basis = static_cast<int>(knots.size()) - degree - 2;
       const int nb_degree0_basis = last_degree0_basis + 1 - first_degree0_basis;
 
       // Compute degree 0 basis function values
@@ -496,7 +499,7 @@ namespace pinocchio
                          * safeAlpha(Scalar(1), left_side_den);
       }
       // All last valid basis have the same index
-      const int last_degree0_basis = knots.size() - degree - 2;
+      const int last_degree0_basis = static_cast<int>(knots.size()) - degree - 2;
       if (index + 1 <= last_degree0_basis)
       {
         const Scalar right_side_den = knots[index + derivative1_degree + 1] - knots[index + 1];
@@ -528,7 +531,7 @@ namespace pinocchio
       int root_basis = root_basis_degree0 - degree;
       deBoorBasis(degree, knots, root_basis_degree0, q, basis);
 
-      M = ctrlFrames[root_basis];
+      M = ctrlFrames[static_cast<std::size_t>(root_basis)];
       S.matrix().setZero();
       if (computeVelocity)
       {
@@ -546,7 +549,7 @@ namespace pinocchio
           root_basis_degree0, knots, basis, current_basis, degree);
 
         const SE3Tpl<Scalar, Options> transformation_temp(
-          exp6(relativeMotions[current_basis - 1] * phi_i));
+          exp6(relativeMotions[static_cast<std::size_t>(current_basis - 1)] * phi_i));
         M = M * transformation_temp;
 
         if (computeVelocity)
@@ -554,15 +557,17 @@ namespace pinocchio
           const Scalar phi_ddot_i = internal::cumulativeBasisDerivative2(
             root_basis_degree0, knots, basis, current_basis, degree);
 
-          c = relativeMotions[current_basis - 1] * phi_ddot_i
+          c = relativeMotions[static_cast<std::size_t>(current_basis - 1)] * phi_ddot_i
               + transformation_temp.actInv(
                 c
-                + MotionTpl<Scalar, Options>(S.matrix()).cross(relativeMotions[current_basis - 1])
+                + MotionTpl<Scalar, Options>(S.matrix())
+                      .cross(relativeMotions[static_cast<size_t>(current_basis - 1)])
                     * phi_dot_i);
         }
 
         S.matrix() =
-          transformation_temp.actInv(S) + relativeMotions[current_basis - 1].toVector() * phi_dot_i;
+          transformation_temp.actInv(S)
+          + relativeMotions[static_cast<size_t>(current_basis - 1)].toVector() * phi_dot_i;
       }
       if (computeVelocity)
       {
@@ -600,7 +605,7 @@ namespace pinocchio
         c.setZero();
       }
 
-      const int nb_basis = ctrlFrames.size();
+      const int nb_basis = static_cast<int>(ctrlFrames.size());
       for (int i = 1; i < nb_basis; i++)
       {
         const int current_basis = i;
@@ -611,7 +616,7 @@ namespace pinocchio
           internal::cumulativeBasisDerivativeFull(degree, knots, basis, current_basis, degree);
 
         const SE3Tpl<Scalar, Options> transformation_temp(
-          exp6(relativeMotions[current_basis - 1] * phi_i));
+          exp6(relativeMotions[static_cast<std::size_t>(current_basis - 1)] * phi_i));
         M = M * transformation_temp;
 
         if (computeVelocity)
@@ -619,15 +624,17 @@ namespace pinocchio
           const Scalar phi_ddot_i =
             internal::cumulativeBasisDerivative2Full(degree, knots, basis, current_basis, degree);
 
-          c = relativeMotions[current_basis - 1] * phi_ddot_i
+          c = relativeMotions[static_cast<std::size_t>(current_basis - 1)] * phi_ddot_i
               + transformation_temp.actInv(
                 c
-                + MotionTpl<Scalar, Options>(S.matrix()).cross(relativeMotions[current_basis - 1])
+                + MotionTpl<Scalar, Options>(S.matrix())
+                      .cross(relativeMotions[static_cast<std::size_t>(current_basis - 1)])
                     * phi_dot_i);
         }
 
         S.matrix() =
-          transformation_temp.actInv(S) + relativeMotions[current_basis - 1].toVector() * phi_dot_i;
+          transformation_temp.actInv(S)
+          + relativeMotions[static_cast<std::size_t>(current_basis - 1)].toVector() * phi_dot_i;
       }
       if (computeVelocity)
       {

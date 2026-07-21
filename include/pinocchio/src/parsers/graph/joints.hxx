@@ -252,19 +252,18 @@ namespace pinocchio
     {
       std::vector<SE3> ctrlFrames;
       Eigen::VectorXd knots;
-      std::size_t degree = 3;
+      int degree = 3;
 
       static constexpr int nq = 1;
       static constexpr int nv = 1;
 
       JointSpline() = default;
-      JointSpline(std::size_t degree)
+      JointSpline(int degree)
       : degree(degree)
       {
       }
 
-      JointSpline(
-        const std::vector<SE3> & ctrlFrames, const Eigen::VectorXd & knots, std::size_t degree)
+      JointSpline(const std::vector<SE3> & ctrlFrames, const Eigen::VectorXd & knots, int degree)
       : ctrlFrames(ctrlFrames)
       , knots(knots)
       , degree(degree)
@@ -302,7 +301,7 @@ namespace pinocchio
         return *this;
       }
 
-      JointSplineBuilder & withDegree(size_t p_degree)
+      JointSplineBuilder & withDegree(int p_degree)
       {
         degree = p_degree;
         return *this;
@@ -350,7 +349,7 @@ namespace pinocchio
       {
         Eigen::VectorXd joint_knots;
 
-        const size_t nCtrl = ctrlFrames.size();
+        const int nCtrl = static_cast<int>(ctrlFrames.size());
         switch (knot_policy)
         {
         case KnotPolicy::OpenUniform:
@@ -374,7 +373,7 @@ namespace pinocchio
     private:
       std::vector<SE3> ctrlFrames;
 
-      size_t degree;
+      int degree;
 
       double min_q;
       double max_q;

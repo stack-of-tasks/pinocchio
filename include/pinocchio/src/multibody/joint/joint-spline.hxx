@@ -167,23 +167,23 @@ namespace pinocchio
     JointModelSplineTpl(
       const std::vector<Transformation_t> & controlFrames,
       const Vector & knotVector,
-      const size_t degree)
+      const int degree)
     : degree(degree)
+    , nbCtrlFrames(static_cast<int>(controlFrames.size()))
     , knots(knotVector)
     , ctrlFrames(controlFrames)
     {
-      if (controlFrames.size() <= degree)
+      if (controlFrames.size() <= static_cast<std::size_t>(degree))
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument,
           "JointSpline - Number of control frames must be greater than degree of spline.");
 
-      nbCtrlFrames = controlFrames.size();
       if (knotVector.size() != static_cast<Eigen::Index>(nbCtrlFrames + degree + 1))
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument,
           "JointSpline - Size of knot vector should be nbControlFrames + degree + 1.");
 
-      size_t knot_multiplicity = 1;
+      int knot_multiplicity = 1;
       for (Eigen::Index i = 1; i < knotVector.size(); ++i)
       {
         if (check_expression_if_real<Scalar>(knotVector[i] < knotVector[i - 1]))
@@ -217,7 +217,7 @@ namespace pinocchio
 
     JointDataDerived createData() const
     {
-      return JointDataDerived(degree, knots.size());
+      return JointDataDerived(degree, static_cast<int>(knots.size()));
     }
 
     const std::vector<bool> hasConfigurationLimit() const
@@ -335,8 +335,8 @@ namespace pinocchio
     }
 
     // attributes
-    size_t degree;
-    size_t nbCtrlFrames;
+    int degree;
+    int nbCtrlFrames;
     Vector knots;
     Scalar min_q;
     Scalar max_q;
@@ -347,8 +347,10 @@ namespace pinocchio
   private:
     void computeRelativeMotions()
     {
-      for (size_t i = 0; i < nbCtrlFrames - 1; i++)
+      for (std::size_t i = 0; i < static_cast<std::size_t>(nbCtrlFrames - 1); i++)
+      {
         relativeMotions.push_back(log6(ctrlFrames[i].inverse() * ctrlFrames[i + 1]));
+      }
     }
 
   }; // struct JointModelSplineTpl
@@ -392,7 +394,7 @@ namespace pinocchio
       return *this;
     }
 
-    JointModelSplineBuilderTpl & withDegree(size_t degree)
+    JointModelSplineBuilderTpl & withDegree(int degree)
     {
       degree_ = degree;
       return *this;
@@ -411,7 +413,7 @@ namespace pinocchio
       knots_.resize(knots.size());
       for (std::size_t i = 0; i < knots.size(); ++i)
       {
-        knots_[i] = knots[i];
+        knots_[static_cast<Eigen::Index>(i)] = knots[i];
       }
       knot_policy_ = KnotPolicy::Custom;
 
@@ -440,7 +442,7 @@ namespace pinocchio
     {
       Vector knots;
 
-      const size_t nCtrl = ctrlFrames_.size();
+      const int nCtrl = static_cast<int>(ctrlFrames_.size());
       switch (knot_policy_)
       {
       case KnotPolicy::OpenUniform:
@@ -463,7 +465,7 @@ namespace pinocchio
   private:
     std::vector<Transformation_t> ctrlFrames_;
 
-    size_t degree_;
+    int degree_;
 
     Scalar min_q_;
     Scalar max_q_;

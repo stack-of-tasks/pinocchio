@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_SUITE(JointSpline)
 /// @brief Check the joint builder and the guards.
 BOOST_AUTO_TEST_CASE(jointBuilder)
 {
-  size_t degree = 3;
+  int degree = 3;
 
   std::vector<SE3> ctrlFrames;
   for (int k = 0; k < 3; k++)
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE(jointBuilder)
     ctrlFrames.push_back(SE3::Random());
 
   // Knots vector value should not decrease (t_i <= t_{i+1})
-  Eigen::VectorXd knots_non_uniform(degree + ctrlFrames.size() + 1);
+  Eigen::VectorXd knots_non_uniform(degree + static_cast<int>(ctrlFrames.size()) + 1);
   knots_non_uniform << 0., 0.1, 0.08, 0.15, 0.15, 0.3, 0.6, 0.6, 0.7, 1.;
 
   BOOST_CHECK_THROW(
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(jointBuilder)
     std::invalid_argument);
 
   // Knot vector value should not be repeated more than degree + 1 times
-  Eigen::VectorXd knots_too_many_repeats(degree + ctrlFrames.size() + 1);
+  Eigen::VectorXd knots_too_many_repeats(degree + static_cast<int>(ctrlFrames.size()) + 1);
   knots_too_many_repeats << 0., 0., 0., 0., 0., 0.3, 0.6, 0.6, 0.7, 1.;
 
   BOOST_CHECK_THROW(
@@ -236,8 +236,8 @@ BOOST_AUTO_TEST_CASE(jointBuilder)
 /// @brief Test on the knot vector generation
 BOOST_AUTO_TEST_CASE(makeKnots)
 {
-  size_t degree = 3;
-  size_t nbFrames = 6;
+  int degree = 3;
+  int nbFrames = 6;
   double min_q = 10;
   double max_q = 40;
 
@@ -300,8 +300,7 @@ BOOST_AUTO_TEST_CASE(basisFunctionsOpenUniform)
   double min_q = 0.0;
   double max_q = 1.;
 
-  auto knotVector = internal::generateOpenUniformKnots(
-    min_q, max_q, static_cast<size_t>(nbCtrlFrames), static_cast<size_t>(degree));
+  auto knotVector = internal::generateOpenUniformKnots(min_q, max_q, nbCtrlFrames, degree);
   Eigen::Index nKnot = knotVector.size();
   Eigen::VectorXd N = Eigen::VectorXd::Zero(nbCtrlFrames);
   Eigen::VectorXd Nder = Eigen::VectorXd::Zero(nbCtrlFrames);
@@ -353,8 +352,7 @@ BOOST_AUTO_TEST_CASE(basisFunctionsUniform)
   double min_q = 0.0;
   double max_q = 10.;
 
-  auto knotVector = internal::generateUniformKnots(
-    min_q, max_q, static_cast<size_t>(nbCtrlFrames), static_cast<size_t>(degree));
+  auto knotVector = internal::generateUniformKnots(min_q, max_q, nbCtrlFrames, degree);
   Eigen::Index nKnot = knotVector.size();
 
   Eigen::VectorXd N = Eigen::VectorXd::Zero(nbCtrlFrames);
@@ -1117,7 +1115,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull2)
 /// @brief Test to make sure the relative motions are correct
 BOOST_AUTO_TEST_CASE(relativeMotions)
 {
-  size_t degree = 3;
+  int degree = 3;
 
   std::vector<SE3> ctrlFrames;
   ctrlFrames.push_back(SE3::Identity());
@@ -1264,7 +1262,6 @@ BOOST_AUTO_TEST_CASE(vsRevoluteX)
   using namespace pinocchio;
 
   // Spline Joint
-  Eigen::Matrix3d rotation;
   std::vector<SE3> ctrlFrames;
   Eigen::AngleAxisd Rx1(1. / 3., Eigen::Vector3d::UnitX());
   Eigen::AngleAxisd Rx2(2. / 3., Eigen::Vector3d::UnitX());
