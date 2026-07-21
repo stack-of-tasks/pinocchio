@@ -296,7 +296,7 @@ In addition to the core dev team, the following people have also been involved i
 -   [François Keith](https://scholar.google.fr/citations?user=cxSxXiQAAAAJ&hl=en) (CEA): Windows support
 -   [Sarah El Kazdadi](https://github.com/sarah-ek) (Inria): multi-precision arithmetic support
 -   [Nicolas Torres Alberto](https://scholar.google.com/citations?user=gYNLhEIAAAAJ&hl=en) (Inria): features extension
--   [Shubham Singh](https://github.com/shubhamsingh91) (UT Austin): second-order inverse dynamics derivatives
+-   [Shubham Singh](https://github.com/shubhamsingh91) (UT Austin): second-order inverse and forward dynamics derivatives
 -   [Sebastian Castro](https://roboticseabass.com): Viser visualizer and MeshCat visualizer feature extension
 -   [Lev Kozlov](https://github.com/lvjonok): Kinetic and potential energy regressors
 -   [Simeon Nedelchev](https://github.com/simeon-ned): Pseudo inertia and Log-Cholesky parametrization

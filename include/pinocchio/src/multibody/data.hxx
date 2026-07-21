@@ -574,6 +574,22 @@ namespace pinocchio
     /// configuration.
     Tensor3x d2tau_dadq;
 
+    /// \brief SO Partial derivative of the joint acceleration vector with
+    /// respect to the joint configuration.
+    Tensor3x d2ddq_dqdq;
+
+    /// \brief SO Partial derivative of the joint acceleration vector with
+    /// respect to the joint velocity.
+    Tensor3x d2ddq_dvdv;
+
+    /// \brief SO Cross-Partial derivative of the joint acceleration vector
+    /// with respect to the joint configuration/velocity.
+    Tensor3x d2ddq_dqdv;
+
+    /// \brief SO Cross-Partial derivative of the joint acceleration vector
+    /// with respect to the joint torque/configuration.
+    Tensor3x d2ddq_dtaudq;
+
 #if defined(_MSC_VER)
   #pragma warning(default : 4554) // C4554 enabled after tensor definition
 #endif
@@ -775,6 +791,10 @@ namespace pinocchio
   , d2tau_dvdv(model.nv, model.nv, model.nv)
   , d2tau_dqdv(model.nv, model.nv, model.nv)
   , d2tau_dadq(model.nv, model.nv, model.nv)
+  , d2ddq_dqdq(model.nv, model.nv, model.nv)
+  , d2ddq_dvdv(model.nv, model.nv, model.nv)
+  , d2ddq_dqdv(model.nv, model.nv, model.nv)
+  , d2ddq_dtaudq(model.nv, model.nv, model.nv)
   , extended_motion_propagator((std::size_t)model.njoints, Matrix6::Zero())
   , extended_motion_propagator2((std::size_t)model.njoints, Matrix6::Zero())
   , spatial_inv_inertia((std::size_t)model.njoints, Matrix6::Zero())
@@ -826,6 +846,10 @@ namespace pinocchio
     d2tau_dvdv.setZero();
     d2tau_dqdv.setZero();
     d2tau_dadq.setZero();
+    d2ddq_dqdq.setZero();
+    d2ddq_dvdv.setZero();
+    d2ddq_dqdv.setZero();
+    d2ddq_dtaudq.setZero();
   }
   PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
@@ -1059,7 +1083,11 @@ namespace pinocchio
              && Tensor<bool, 0>((data1.d2tau_dqdq == data2.d2tau_dqdq).all())(0)
              && Tensor<bool, 0>((data1.d2tau_dvdv == data2.d2tau_dvdv).all())(0)
              && Tensor<bool, 0>((data1.d2tau_dqdv == data2.d2tau_dqdv).all())(0)
-             && Tensor<bool, 0>((data1.d2tau_dadq == data2.d2tau_dadq).all())(0);
+             && Tensor<bool, 0>((data1.d2tau_dadq == data2.d2tau_dadq).all())(0)
+             && Tensor<bool, 0>((data1.d2ddq_dqdq == data2.d2ddq_dqdq).all())(0)
+             && Tensor<bool, 0>((data1.d2ddq_dvdv == data2.d2ddq_dvdv).all())(0)
+             && Tensor<bool, 0>((data1.d2ddq_dqdv == data2.d2ddq_dqdv).all())(0)
+             && Tensor<bool, 0>((data1.d2ddq_dtaudq == data2.d2ddq_dtaudq).all())(0);
 
     return value;
   }

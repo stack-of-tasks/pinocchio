@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Add second-order partial derivatives of the Articulated Body Algorithm (forward dynamics) with respect to joint configuration, velocity and torque ([#2891](https://github.com/stack-of-tasks/pinocchio/pull/2891))
+
 ## [4.1.0] - 2026-07-07
 
 ### Added
