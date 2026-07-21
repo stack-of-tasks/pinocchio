@@ -1,6 +1,13 @@
 import time
 
-import meshcat.geometry as mg
+try:
+    import meshcat.geometry as mg
+except ImportError as err:
+    import sys
+
+    print("Error while importing meshcat. It seems you should install Python meshcat")
+    print(err)
+    sys.exit(0)
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
@@ -26,7 +33,6 @@ class PointTracer:
 
 
 def main():
-
     PARABOLA_CONTROL_FRAMES = [
         (-1.000000, 1.000000),
         (-0.888889, 0.777778),
@@ -91,7 +97,6 @@ def main():
 
 
 def sim_loop(model, dt=0.01, nsteps=800):
-
     qs = [np.array([1.0])]
     vs = [np.array([0])]
     data = model.createData()

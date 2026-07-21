@@ -17,7 +17,15 @@ import time
 from pathlib import Path
 
 import coal
-import meshcat.geometry as mg
+
+try:
+    import meshcat.geometry as mg
+except ImportError as err:
+    import sys
+
+    print("Error while importing meshcat. It seems you should install Python meshcat")
+    print(err)
+    sys.exit(0)
 import numpy as np
 import pinocchio as pin
 from pinocchio.visualize import MeshcatVisualizer
@@ -72,7 +80,6 @@ class PointTracer:
 
 
 def main():
-
     control_frames = [
         pin.SE3(pin.rpy.rpyToMatrix(0.0, 0.0, yaw), np.array([tx, ty, 0.0]))
         for (yaw, tx, ty) in CONTROL_FRAMES
