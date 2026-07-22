@@ -185,14 +185,14 @@ namespace pinocchio
       int knot_multiplicity = 1;
       for (Eigen::Index i = 1; i < knotVector.size(); ++i)
       {
-        if (check_expression_if_real<Scalar>(knotVector[i] < knotVector[i - 1]))
+        if (check_expression_if_real<Scalar, false>(knotVector[i] < knotVector[i - 1]))
         {
           PINOCCHIO_THROW_PRETTY(
             std::invalid_argument, "JointSpline - Knot vector must be non-decreasing (knots must "
                                    "satisfy knots[i] <= knots[i+1]).");
         }
 
-        if (check_expression_if_real<Scalar>(knotVector[i] == knotVector[i - 1]))
+        if (check_expression_if_real<Scalar, false>(knotVector[i] == knotVector[i - 1]))
         {
           knot_multiplicity++;
           if (knot_multiplicity > degree + 1)
@@ -240,7 +240,7 @@ namespace pinocchio
     template<typename ConfigVector>
     void calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      if (check_expression_if_real<Scalar>(qs[0] < min_q || qs[0] > max_q))
+      if (check_expression_if_real<Scalar, false>(qs[0] < min_q || qs[0] > max_q))
       {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "Spline joint configuration (q) must be between min_q and max_q.");
@@ -259,7 +259,7 @@ namespace pinocchio
       const Eigen::MatrixBase<ConfigVector> & qs,
       const Eigen::MatrixBase<TangentVector> & vs) const
     {
-      if (check_expression_if_real<Scalar>(qs[0] < min_q || qs[0] > max_q))
+      if (check_expression_if_real<Scalar, false>(qs[0] < min_q || qs[0] > max_q))
       {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "Spline joint configuration (q) must be between min_q and max_q.");
