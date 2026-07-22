@@ -210,8 +210,8 @@ namespace pinocchio
         }
       }
 
-      min_q = knotVector[0];
-      max_q = knotVector[knots.size() - 1];
+      min_q = knotVector[degree];
+      max_q = knotVector[knots.size() - 1 - degree];
 
       computeRelativeMotions();
     }
@@ -242,9 +242,11 @@ namespace pinocchio
     template<typename ConfigVector>
     void calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      assert(
-        check_expression_if_real<Scalar>(qs[0] >= min_q && qs[0] <= max_q)
-        && "Spline joint configuration (q) must be between min_q and max_q. ");
+      if (check_expression_if_real<Scalar>(qs[0] < min_q || qs[0] > max_q))
+      {
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument, "Spline joint configuration (q) must be between min_q and max_q.");
+      }
 
       data.joint_q = qs.template segment<NQ>(idx_q());
 
@@ -259,9 +261,11 @@ namespace pinocchio
       const Eigen::MatrixBase<ConfigVector> & qs,
       const Eigen::MatrixBase<TangentVector> & vs) const
     {
-      assert(
-        check_expression_if_real<Scalar>(qs[0] >= min_q && qs[0] <= max_q)
-        && "Spline joint configuration (q) must be between min_q and max_q. ");
+      if (check_expression_if_real<Scalar>(qs[0] < min_q || qs[0] > max_q))
+      {
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument, "Spline joint configuration (q) must be between min_q and max_q.");
+      }
 
       data.joint_q = qs.template segment<NQ>(idx_q());
       data.joint_v = vs.template segment<NV>(idx_v());

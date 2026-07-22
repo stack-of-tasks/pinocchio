@@ -73,11 +73,12 @@ namespace pinocchio
       Vector knots;
       knots.resize(static_cast<Eigen::Index>(n_knots));
 
-      const Scalar step = (max_q - min_q) / static_cast<Scalar>(n_knots - 1);
+      const Scalar step = (max_q - min_q) / degree;
+      const Scalar begin = min_q - step * degree;
 
       for (int i = 0; i < n_knots; ++i)
       {
-        knots[i] = min_q + step * static_cast<Scalar>(i);
+        knots[i] = begin + step * static_cast<Scalar>(i);
       }
 
       return knots;

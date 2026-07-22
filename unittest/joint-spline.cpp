@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(makeKnots)
 
   // Check Values
   Eigen::VectorXd uniform(degree + nbFrames + 1);
-  uniform << 10., 13.3333, 16.6667, 20.0, 23.3333, 26.6667, 30., 33.3333, 36.6667, 40.;
+  uniform << -20., -10., 0., min_q, 20., 30., max_q, 50., 60., 70.;
   BOOST_CHECK(generated_knots.isApprox(uniform, 1e-5));
 }
 
@@ -1274,6 +1274,16 @@ BOOST_AUTO_TEST_CASE(vsPrismaticZ)
   BOOST_CHECK(S_full.matrix().isApprox(jdataPz.S.matrix(), 1e-12));
   BOOST_CHECK(v_full.isApprox(jdataPz.v, 1e-12));
   BOOST_CHECK(c_full.isApprox(jdataPz.c, 1e-12));
+
+  // Test argument bound argument
+  q << -0.1;
+  BOOST_CHECK_THROW(jmodel.calc(jdata, q, q_dot), std::invalid_argument);
+  q << 1.1;
+  BOOST_CHECK_THROW(jmodel.calc(jdata, q, q_dot), std::invalid_argument);
+  q << 0.;
+  BOOST_CHECK_NO_THROW(jmodel.calc(jdata, q, q_dot));
+  q << 1.;
+  BOOST_CHECK_NO_THROW(jmodel.calc(jdata, q, q_dot));
 }
 
 /// @brief Comparing a simple spline joint with a RX.
