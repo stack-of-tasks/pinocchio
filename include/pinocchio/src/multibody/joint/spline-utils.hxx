@@ -83,6 +83,58 @@ namespace pinocchio
       return knots;
     }
 
+    /** Allocate dense basis vector for \p deBoorBasis algorithm.
+     * This storage doesn't store zeros.
+     */
+    template<typename Scalar>
+    Eigen::Matrix<Scalar, Eigen::Dynamic, 1> allocateDenseDeBoorBasis(int degree)
+    {
+      assert(degree >= 0);
+      return Eigen::Matrix<Scalar, Eigen::Dynamic, 1>(((degree + 1) * (degree + 2)) / 2);
+    }
+
+    /** Get basis function value from a dense basis vector allocated by \p allocateDenseDeBoorBasis.
+     * \param basis Dense basis vector.
+     * \param index Relative basis function index to get.
+     * \param degree Basis function degree to get.
+     */
+    template<typename Scalar>
+    const Scalar & getDenseDeBoorBasis(
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & basis, int index, int degree)
+    {
+      assert(0 <= degree);
+      assert(0 <= index);
+      assert(index < degree + 1);
+      const int left_most_basis_index = (((degree) * (degree + 1)) / 2);
+      return basis(left_most_basis_index + index);
+    }
+
+    /// Non const version of \p getDensDeBoorBasis
+    template<typename Scalar>
+    Scalar &
+    getDenseDeBoorBasis(Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & basis, int index, int degree)
+    {
+      assert(0 <= degree);
+      assert(0 <= index);
+      assert(index < degree + 1);
+      const int left_most_basis_index = (((degree) * (degree + 1)) / 2);
+      return basis(left_most_basis_index + index);
+    }
+
+    /** Get all basis function for a specific degree from a dense basis vector allocated by \p
+     * allocateDenseDeBoorBasis.
+     * \param basis Dense basis vector.
+     * \param degree Basis function degree to get.
+     */
+    template<typename Scalar>
+    auto
+    getDenseDeBoorBasisDegree(const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & basis, int degree)
+    {
+      assert(0 <= degree);
+      const int left_most_basis_index = (((degree) * (degree + 1)) / 2);
+      return basis.segment(left_most_basis_index, degree + 1);
+    }
+
     /** De Boor algorithm modification to compute all basis involved to compute one
      * point of the curve.
      * \param degree Curve degree.
@@ -100,11 +152,10 @@ namespace pinocchio
       const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
       int root_basis,
       Scalar q,
-      Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
+      Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & basis)
     {
       assert(degree >= 0);
-      assert(basis.rows() >= degree + 1);
-      assert(basis.cols() >= degree + 1);
+      assert(basis.size() >= ((degree + 1) * (degree + 2)) / 2);
       assert(knots.size() > degree + 1);
       assert(degree <= root_basis);
       assert(root_basis < knots.size() - 1 - degree);
@@ -131,7 +182,7 @@ namespace pinocchio
        */
 
       // Compute left most and right most basis functions (first pass).
-      basis(0, 0) = Scalar(1);
+      getDenseDeBoorBasis(basis, 0, 0) = Scalar(1);
       for (int previous_degree = 0; previous_degree < degree; ++previous_degree)
       {
         const int current_degree = previous_degree + 1;
@@ -141,7 +192,8 @@ namespace pinocchio
         const Scalar left_most_basis_alpha =
           (knots[left_most_basis_end_knot] - q)
           / (knots[left_most_basis_end_knot] - knots[left_most_basis_start_knot]);
-        basis(current_degree, 0) = left_most_basis_alpha * basis(previous_degree, 0);
+        getDenseDeBoorBasis(basis, 0, current_degree) =
+          left_most_basis_alpha * getDenseDeBoorBasis(basis, 0, previous_degree);
 
         const int right_most_basis = root_basis;
         const int right_most_basis_start_knot = right_most_basis;
@@ -149,8 +201,8 @@ namespace pinocchio
         const Scalar right_most_basis_alpha =
           (q - knots[right_most_basis_start_knot])
           / (knots[right_most_basis_end_knot] - knots[right_most_basis_start_knot]);
-        basis(current_degree, current_degree) =
-          (right_most_basis_alpha * basis(previous_degree, previous_degree));
+        getDenseDeBoorBasis(basis, current_degree, current_degree) =
+          (right_most_basis_alpha * getDenseDeBoorBasis(basis, previous_degree, previous_degree));
       }
 
       // Compute central basis functions (second pass).
@@ -174,8 +226,9 @@ namespace pinocchio
             (knots[right_side_end_knot] - q)
             / (knots[right_side_end_knot] - knots[right_side_start_knot]);
 
-          basis(current_degree, i) = left_side_alpha * basis(previous_degree, i - 1)
-                                     + right_side_alpha * basis(previous_degree, i);
+          getDenseDeBoorBasis(basis, i, current_degree) =
+            left_side_alpha * getDenseDeBoorBasis(basis, i - 1, previous_degree)
+            + right_side_alpha * getDenseDeBoorBasis(basis, i, previous_degree);
         }
       }
     }
@@ -313,20 +366,16 @@ namespace pinocchio
      */
     template<typename Scalar>
     const Scalar & getAbsoluteBasis(
-      int root_basis,
-      const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis,
-      int index,
-      int degree)
+      int root_basis, const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & basis, int index, int degree)
     {
       assert(0 <= root_basis);
       assert(0 <= index);
       assert(0 <= degree);
-      assert(degree < basis.rows());
 
       const int offset = root_basis - degree;
       assert(offset <= index);
 
-      return basis(degree, index - offset);
+      return getDenseDeBoorBasis(basis, index - offset, degree);
     }
 
     /** Return basis function value N_{index,degree} from basis matrix computed by \p
@@ -366,7 +415,7 @@ namespace pinocchio
     Scalar cumulativeBasisDerivative(
       int root_basis,
       const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
-      const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & basis,
       int index,
       int degree)
     {
@@ -425,7 +474,7 @@ namespace pinocchio
     Scalar cumulativeBasisDerivative2(
       int root_basis,
       const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
-      const Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis,
+      const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & basis,
       int index,
       int degree)
     {
@@ -525,7 +574,7 @@ namespace pinocchio
       MotionTpl<Scalar, Options> & v,
       MotionTpl<Scalar, Options> & c,
       JointMotionSubspaceTpl<1, Scalar, Options, 1> & S,
-      Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
+      Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & basis)
     {
       assert(knots.size() == static_cast<int>(ctrlFrames.size()) + degree + 1);
       assert(ctrlFrames.size() == relativeMotions.size() + 1);
@@ -546,7 +595,8 @@ namespace pinocchio
       {
         const int current_basis = root_basis + i;
 
-        const Scalar phi_i = basis.row(degree).segment(i, degree + 1 - i).sum();
+        const Scalar phi_i =
+          getDenseDeBoorBasisDegree(basis, degree).segment(i, degree + 1 - i).sum();
 
         const Scalar phi_dot_i = internal::cumulativeBasisDerivative(
           root_basis_degree0, knots, basis, current_basis, degree);
@@ -656,12 +706,13 @@ namespace pinocchio
     template<typename Scalar, int Options>
     struct SplineKinematics
     {
+      typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> BasisVectorType;
+
       /// \return Basis vector stored in JointDataSplineTpl.
-      static Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>
-      allocateBasis(int degree, int knot_size)
+      static BasisVectorType allocateBasis(int degree, int knot_size)
       {
         PINOCCHIO_UNUSED_VARIABLE(knot_size);
-        return Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>::Zero(degree + 1, degree + 1);
+        return allocateDenseDeBoorBasis<Scalar>(degree);
       }
 
       /// Compute the spline kinematics.
@@ -677,7 +728,7 @@ namespace pinocchio
         MotionTpl<Scalar, Options> & v,
         MotionTpl<Scalar, Options> & c,
         JointMotionSubspaceTpl<1, Scalar, Options, 1> & S,
-        Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
+        BasisVectorType & basis)
       {
         return computeSplineKinematics(
           degree, knots, ctrlFrames, relativeMotions, q, joint_v, computeVelocity, M, v, c, S,

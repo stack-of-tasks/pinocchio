@@ -19,6 +19,7 @@ namespace pinocchio
     struct SplineKinematics<::casadi::Matrix<_Scalar>, Options>
     {
       using Scalar = ::casadi::Matrix<_Scalar>;
+      typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> BasisVectorType;
 
       static Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>
       allocateBasis(int degree, int knot_size)

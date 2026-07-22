@@ -71,7 +71,8 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSplineTpl<_Scalar, _Options> JointDerived;
-    typedef Eigen::Matrix<_Scalar, Eigen::Dynamic, Eigen::Dynamic> Matrix;
+    typedef internal::SplineKinematics<_Scalar, _Options> SplineKinematics;
+    typedef typename SplineKinematics::BasisVectorType BasisVectorType;
 
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
@@ -91,7 +92,7 @@ namespace pinocchio
     D_t StU;
 
     // Bspline values
-    Matrix N;
+    BasisVectorType N;
 
     JointDataSplineTpl()
     : joint_q(ConfigVector_t::Zero())
@@ -103,7 +104,7 @@ namespace pinocchio
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Identity())
     , StU(D_t::Zero())
-    , N(Matrix::Zero(1, 1))
+    , N(BasisVectorType::Zero(1, 1))
     {
     }
 
@@ -117,7 +118,7 @@ namespace pinocchio
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Identity())
     , StU(D_t::Zero())
-    , N(internal::SplineKinematics<_Scalar, _Options>::allocateBasis(degree, knot_size))
+    , N(SplineKinematics::allocateBasis(degree, knot_size))
     {
     }
 
