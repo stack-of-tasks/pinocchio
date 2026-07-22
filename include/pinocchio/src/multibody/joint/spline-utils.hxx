@@ -209,7 +209,7 @@ namespace pinocchio
      * are respectively the basis function index and degree.
      */
     template<typename Scalar>
-    void deBoorFullBasis(
+    void deBoorBasisFull(
       int degree,
       const Eigen::Matrix<Scalar, Eigen::Dynamic, 1> & knots,
       Scalar q,
@@ -331,8 +331,8 @@ namespace pinocchio
 
     /** Return basis function value N_{index,degree} from basis matrix computed by \p
      * deBoorBasisFull.
-     * \param spline_degree Spline degree provided to \p deBoorBasis function.
-     * \param basis Basis matrix computed by \p deBoorBasis.
+     * \param spline_degree Spline degree provided to \p deBoorBasisFull function.
+     * \param basis Basis matrix computed by \p deBoorBasisFull.
      * \param index Index of the basis function.
      * \param degree Degree of the basis function.
      */
@@ -382,9 +382,9 @@ namespace pinocchio
      * \p deBoorBasisFull.
      * This method is safe to call even on basis function that span on a knot vector with same
      * values.
-     * \param spline_degree Spline degree provided to \p deBoorBasis function.
+     * \param spline_degree Spline degree provided to \p deBoorBasisFull function.
      * \param knots Knot vector at least of size \p degree + 1.
-     * \param basis Basis matrix computed by \p deBoorBasis.
+     * \param basis Basis matrix computed by \p deBoorBasisFull.
      * \param index Index of the basis function.
      * \param degree Degree of the basis function.
      */
@@ -460,9 +460,9 @@ namespace pinocchio
      * on nodal vector computed by \p deBoorBasisFull.
      * This method is safe to call even on basis function that span on a knot vector with same
      * values.
-     * \param spline_degree Spline degree provided to \p deBoorBasis function.
+     * \param spline_degree Spline degree provided to \p deBoorBasisFull function.
      * \param knots Knot vector at least of size \p degree + 1.
-     * \param basis Basis matrix computed by \p deBoorBasis.
+     * \param basis Basis matrix computed by \p deBoorBasisFull.
      * \param index Index of the basis function.
      * \param degree Degree of the basis function.
      */
@@ -601,7 +601,7 @@ namespace pinocchio
       assert(knots.size() == static_cast<int>(ctrlFrames.size()) + degree + 1);
       assert(ctrlFrames.size() == relativeMotions.size() + 1);
 
-      deBoorFullBasis(degree, knots, q, basis);
+      deBoorBasisFull(degree, knots, q, basis);
 
       M = ctrlFrames[0];
       S.matrix().setZero();

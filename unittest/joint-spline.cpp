@@ -587,7 +587,7 @@ BOOST_AUTO_TEST_CASE(deBoorBasis_degree3)
 BOOST_AUTO_TEST_CASE(deBoorBasisFull_degree2_minimal_knot)
 {
   using pinocchio::internal::deBoorBasis;
-  using pinocchio::internal::deBoorFullBasis;
+  using pinocchio::internal::deBoorBasisFull;
 
   const int degree = 2;
   Eigen::VectorXd knots(6);
@@ -597,15 +597,15 @@ BOOST_AUTO_TEST_CASE(deBoorBasisFull_degree2_minimal_knot)
   Eigen::MatrixXd basis(3, 3);
 
   deBoorBasis(degree, knots, 2, 3., basis_ref);
-  deBoorFullBasis(degree, knots, 3., basis);
+  deBoorBasisFull(degree, knots, 3., basis);
   BOOST_CHECK(basis_ref.isApprox(basis));
 
   deBoorBasis(degree, knots, 2, 4., basis_ref);
-  deBoorFullBasis(degree, knots, 4., basis);
+  deBoorBasisFull(degree, knots, 4., basis);
   BOOST_CHECK(basis_ref.isApprox(basis));
 
   deBoorBasis(degree, knots, 2, 5., basis_ref);
-  deBoorFullBasis(degree, knots, 5., basis);
+  deBoorBasisFull(degree, knots, 5., basis);
   BOOST_CHECK(basis_ref.isApprox(basis));
 }
 
@@ -615,7 +615,7 @@ BOOST_AUTO_TEST_CASE(deBoorBasisFull_degree2_minimal_knot)
 BOOST_AUTO_TEST_CASE(deBoorBasisFull_degree3_nominal_knot)
 {
   using pinocchio::internal::deBoorBasis;
-  using pinocchio::internal::deBoorFullBasis;
+  using pinocchio::internal::deBoorBasisFull;
 
   const int degree = 2;
   Eigen::VectorXd knots(8);
@@ -624,39 +624,39 @@ BOOST_AUTO_TEST_CASE(deBoorBasisFull_degree3_nominal_knot)
   Eigen::MatrixXd basis_ref(Eigen::MatrixXd::Zero(3, 3));
   Eigen::MatrixXd basis(3, 5);
 
-  deBoorFullBasis(degree, knots, 3., basis);
+  deBoorBasisFull(degree, knots, 3., basis);
   deBoorBasis(degree, knots, 2, 3., basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 0)));
   BOOST_CHECK((basis.block<3, 2>(0, 3).isZero()));
 
-  deBoorFullBasis(degree, knots, 4., basis);
+  deBoorBasisFull(degree, knots, 4., basis);
   deBoorBasis(degree, knots, 2, 4., basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 0)));
   BOOST_CHECK((basis.block<3, 2>(0, 3).isZero()));
 
-  deBoorFullBasis(degree, knots, 5., basis);
+  deBoorBasisFull(degree, knots, 5., basis);
   deBoorBasis(degree, knots, 3, 5., basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 1)));
   BOOST_CHECK((basis.col(0).isZero()));
   BOOST_CHECK((basis.col(4).isZero()));
 
-  deBoorFullBasis(degree, knots, 5.3, basis);
+  deBoorBasisFull(degree, knots, 5.3, basis);
   deBoorBasis(degree, knots, 3, 5.3, basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 1)));
   BOOST_CHECK((basis.col(0).isZero()));
   BOOST_CHECK((basis.col(4).isZero()));
 
-  deBoorFullBasis(degree, knots, 5.5, basis);
+  deBoorBasisFull(degree, knots, 5.5, basis);
   deBoorBasis(degree, knots, 4, 5.5, basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 2)));
   BOOST_CHECK((basis.block<3, 2>(0, 0).isZero()));
 
-  deBoorFullBasis(degree, knots, 8., basis);
+  deBoorBasisFull(degree, knots, 8., basis);
   deBoorBasis(degree, knots, 4, 8., basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 2)));
   BOOST_CHECK((basis.block<3, 2>(0, 0).isZero()));
 
-  deBoorFullBasis(degree, knots, 8.3, basis);
+  deBoorBasisFull(degree, knots, 8.3, basis);
   deBoorBasis(degree, knots, 4, 8.3, basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 2)));
   BOOST_CHECK((basis.block<3, 2>(0, 0).isZero()));
@@ -667,7 +667,7 @@ BOOST_AUTO_TEST_CASE(deBoorBasisFull_degree3_nominal_knot)
 BOOST_AUTO_TEST_CASE(deBoorBasisFull_degree3_multiplicity_knot)
 {
   using pinocchio::internal::deBoorBasis;
-  using pinocchio::internal::deBoorFullBasis;
+  using pinocchio::internal::deBoorBasisFull;
 
   const int degree = 2;
   Eigen::VectorXd knots(9);
@@ -676,27 +676,27 @@ BOOST_AUTO_TEST_CASE(deBoorBasisFull_degree3_multiplicity_knot)
   Eigen::MatrixXd basis_ref(Eigen::MatrixXd::Zero(3, 3));
   Eigen::MatrixXd basis(3, 6);
 
-  deBoorFullBasis(degree, knots, 0., basis);
+  deBoorBasisFull(degree, knots, 0., basis);
   deBoorBasis(degree, knots, 2, 0., basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 0)));
   BOOST_CHECK((basis.block<3, 3>(0, 3).isZero()));
 
-  deBoorFullBasis(degree, knots, 0.5, basis);
+  deBoorBasisFull(degree, knots, 0.5, basis);
   deBoorBasis(degree, knots, 2, 0.5, basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 0)));
   BOOST_CHECK((basis.block<3, 3>(0, 3).isZero()));
 
-  deBoorFullBasis(degree, knots, 1., basis);
+  deBoorBasisFull(degree, knots, 1., basis);
   deBoorBasis(degree, knots, 5, 1., basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 3)));
   BOOST_CHECK((basis.block<3, 3>(0, 0).isZero()));
 
-  deBoorFullBasis(degree, knots, 1.5, basis);
+  deBoorBasisFull(degree, knots, 1.5, basis);
   deBoorBasis(degree, knots, 5, 1.5, basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 3)));
   BOOST_CHECK((basis.block<3, 3>(0, 0).isZero()));
 
-  deBoorFullBasis(degree, knots, 2., basis);
+  deBoorBasisFull(degree, knots, 2., basis);
   deBoorBasis(degree, knots, 5, 2., basis_ref);
   BOOST_CHECK(basis_ref.isApprox(basis.block<3, 3>(0, 3)));
   BOOST_CHECK((basis.block<3, 3>(0, 0).isZero()));
@@ -869,7 +869,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivative2)
 BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull)
 {
   using pinocchio::internal::cumulativeBasisDerivativeFull;
-  using pinocchio::internal::deBoorFullBasis;
+  using pinocchio::internal::deBoorBasisFull;
 
   const int degree = 3;
   Eigen::VectorXd knots(9);
@@ -886,7 +886,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull)
   };
 
   auto derivative_ref = computeDerivative(5.);
-  deBoorFullBasis(degree, knots, 5., basis);
+  deBoorBasisFull(degree, knots, 5., basis);
   BOOST_CHECK_SMALL(
     derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
@@ -903,7 +903,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull)
     1e-8);
 
   derivative_ref = computeDerivative(5.3);
-  deBoorFullBasis(degree, knots, 5.3, basis);
+  deBoorBasisFull(degree, knots, 5.3, basis);
   BOOST_CHECK_SMALL(
     derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
@@ -920,7 +920,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull)
     1e-8);
 
   derivative_ref = computeDerivative(5.5);
-  deBoorFullBasis(degree, knots, 5.5, basis);
+  deBoorBasisFull(degree, knots, 5.5, basis);
   BOOST_CHECK_SMALL(
     derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
@@ -937,7 +937,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull)
     1e-8);
 
   derivative_ref = computeDerivative(6.);
-  deBoorFullBasis(degree, knots, 6., basis);
+  deBoorBasisFull(degree, knots, 6., basis);
   BOOST_CHECK_SMALL(
     derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
@@ -954,7 +954,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull)
     1e-8);
 
   derivative_ref = computeDerivative(7.3);
-  deBoorFullBasis(degree, knots, 7.3, basis);
+  deBoorBasisFull(degree, knots, 7.3, basis);
   BOOST_CHECK_SMALL(
     derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
@@ -971,7 +971,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull)
     1e-8);
 
   derivative_ref = computeDerivative(8.);
-  deBoorFullBasis(degree, knots, 8., basis);
+  deBoorBasisFull(degree, knots, 8., basis);
   BOOST_CHECK_SMALL(
     derivative_ref.sum() - cumulativeBasisDerivativeFull(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
@@ -993,7 +993,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull)
 BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull2)
 {
   using pinocchio::internal::cumulativeBasisDerivative2Full;
-  using pinocchio::internal::deBoorFullBasis;
+  using pinocchio::internal::deBoorBasisFull;
 
   const int degree = 3;
   Eigen::VectorXd knots(9);
@@ -1010,7 +1010,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull2)
   };
 
   auto derivative2_ref = computeDerivative2(5.);
-  deBoorFullBasis(degree, knots, 5., basis);
+  deBoorBasisFull(degree, knots, 5., basis);
   BOOST_CHECK_SMALL(
     derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
@@ -1027,7 +1027,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull2)
     1e-8);
 
   derivative2_ref = computeDerivative2(5.3);
-  deBoorFullBasis(degree, knots, 5.3, basis);
+  deBoorBasisFull(degree, knots, 5.3, basis);
   BOOST_CHECK_SMALL(
     derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
@@ -1044,7 +1044,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull2)
     1e-8);
 
   derivative2_ref = computeDerivative2(5.5);
-  deBoorFullBasis(degree, knots, 5.5, basis);
+  deBoorBasisFull(degree, knots, 5.5, basis);
   BOOST_CHECK_SMALL(
     derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
@@ -1061,7 +1061,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull2)
     1e-8);
 
   derivative2_ref = computeDerivative2(6.);
-  deBoorFullBasis(degree, knots, 6., basis);
+  deBoorBasisFull(degree, knots, 6., basis);
   BOOST_CHECK_SMALL(
     derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
@@ -1078,7 +1078,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull2)
     1e-8);
 
   derivative2_ref = computeDerivative2(7.3);
-  deBoorFullBasis(degree, knots, 7.3, basis);
+  deBoorBasisFull(degree, knots, 7.3, basis);
   BOOST_CHECK_SMALL(
     derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
@@ -1095,7 +1095,7 @@ BOOST_AUTO_TEST_CASE(cumulativeBasisDerivativeFull2)
     1e-8);
 
   derivative2_ref = computeDerivative2(8.);
-  deBoorFullBasis(degree, knots, 8., basis);
+  deBoorBasisFull(degree, knots, 8., basis);
   BOOST_CHECK_SMALL(
     derivative2_ref.sum() - cumulativeBasisDerivative2Full(degree, knots, basis, 0, degree), 1e-8);
   BOOST_CHECK_SMALL(
