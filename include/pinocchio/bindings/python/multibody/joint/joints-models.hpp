@@ -359,8 +359,15 @@ namespace pinocchio
             "basis functions"))
         .def_readwrite(
           "degree", &context::JointModelSpline::degree, "Degree of the spline basis functions")
-        .def_readwrite("min_q", &context::JointModelSpline::min_q, "Minimum of the q entry")
-        .def_readwrite("max_q", &context::JointModelSpline::max_q, "Maximum of the q entry");
+        .def_readwrite(
+          "nbCtrlFrames", &context::JointModelSpline::nbCtrlFrames, "Number of control points")
+        .def_readwrite("knots", &context::JointModelSpline::knots, "Knot vector")
+        .def_readwrite("min_q", &context::JointModelSpline::min_q, "Minimum allowed q value")
+        .def_readwrite("max_q", &context::JointModelSpline::max_q, "Maximum allowed q value")
+        .def_readwrite("ctrlFrames", &context::JointModelSpline::ctrlFrames, "Control frames")
+        .def_readwrite(
+          "relativeMotions", &context::JointModelSpline::relativeMotions,
+          "Relative motion between frames");
     }
 
     // specialization for JointModelComposite
