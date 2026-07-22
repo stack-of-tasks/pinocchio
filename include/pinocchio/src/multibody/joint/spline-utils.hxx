@@ -371,7 +371,7 @@ namespace pinocchio
       int degree)
     {
       assert(0 <= index);
-      assert(0 <= degree);
+      assert(1 <= degree);
       assert(index + degree < knots.size());
 
       const Scalar alpha = degree / (knots[index + degree] - knots[index]);
@@ -397,7 +397,7 @@ namespace pinocchio
       int degree)
     {
       assert(0 <= index);
-      assert(0 <= degree);
+      assert(1 <= degree);
       assert(index + degree < knots.size());
 
       // deBoorBasisFull only compute basis function in the spline valide span
@@ -430,7 +430,7 @@ namespace pinocchio
       int degree)
     {
       assert(0 <= index);
-      assert(0 <= degree);
+      assert(2 <= degree);
       assert(index + degree + 1 < knots.size());
 
       const int derivative1_degree = degree - 1;
@@ -475,7 +475,7 @@ namespace pinocchio
       int degree)
     {
       assert(0 <= index);
-      assert(0 <= degree);
+      assert(2 <= degree);
       assert(index + degree + 1 < knots.size());
 
       // deBoorBasisFull only compute basis function in the spline valide span
@@ -527,6 +527,9 @@ namespace pinocchio
       JointMotionSubspaceTpl<1, Scalar, Options, 1> & S,
       Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
     {
+      assert(knots.size() == static_cast<int>(ctrlFrames.size()) + degree + 1);
+      assert(ctrlFrames.size() == relativeMotions.size() + 1);
+
       int root_basis_degree0 = findSpan(degree, knots, q);
       int root_basis = root_basis_degree0 - degree;
       deBoorBasis(degree, knots, root_basis_degree0, q, basis);
@@ -595,6 +598,9 @@ namespace pinocchio
       JointMotionSubspaceTpl<1, Scalar, Options, 1> & S,
       Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> & basis)
     {
+      assert(knots.size() == static_cast<int>(ctrlFrames.size()) + degree + 1);
+      assert(ctrlFrames.size() == relativeMotions.size() + 1);
+
       deBoorFullBasis(degree, knots, q, basis);
 
       M = ctrlFrames[0];
