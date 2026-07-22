@@ -69,7 +69,6 @@ namespace pinocchio
   template<typename _Scalar, int _Options>
   struct JointDataSplineTpl : public JointDataBase<JointDataSplineTpl<_Scalar, _Options>>
   {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSplineTpl<_Scalar, _Options> JointDerived;
     typedef internal::SplineKinematics<_Scalar, _Options> SplineKinematics;
     typedef typename SplineKinematics::BasisVectorType BasisVectorType;
@@ -145,7 +144,6 @@ namespace pinocchio
   template<typename _Scalar, int _Options>
   struct JointModelSplineTpl : public JointModelBase<JointModelSplineTpl<_Scalar, _Options>>
   {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSplineTpl<_Scalar, _Options> JointDerived;
     typedef Eigen::Vector<_Scalar, Eigen::Dynamic> Vector;
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
