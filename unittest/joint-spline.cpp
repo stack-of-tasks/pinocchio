@@ -202,6 +202,53 @@ namespace
 
 BOOST_AUTO_TEST_SUITE(JointSpline)
 
+/// Check constructor guards
+/// - Right degree vs control points vector size vs knots vector size
+/// - No decreasing
+/// - Bounded multiplicity
+BOOST_AUTO_TEST_CASE(jointConstructor)
+{
+  std::vector<SE3> controlFramesOkDegree3(6, SE3::Identity());
+  std::vector<SE3> controlFramesNOkDegree3(3, SE3::Identity());
+  Eigen::VectorXd knotVectorOkDegree3(10);
+  knotVectorOkDegree3 << 0., 1., 2., 3., 4., 5., 6., 7., 8., 9.;
+  Eigen::VectorXd knotVectorNOkDegree3(9);
+  knotVectorNOkDegree3 << 0., 1., 2., 3., 4., 5., 6., 7., 8.;
+  Eigen::VectorXd knotVectorNOkDecreasing1(10);
+  knotVectorNOkDecreasing1 << 0., -1., 2., 3., 4., 5., 6., 7., 8., 9.;
+  Eigen::VectorXd knotVectorNOkDecreasing2(10);
+  knotVectorNOkDecreasing2 << 0., 1., 2., 3., -4., 5., 6., 7., 8., 9.;
+  Eigen::VectorXd knotVectorNOkDecreasing3(10);
+  knotVectorNOkDecreasing3 << 0., 1., 2., 3., 4., 5., 6., 7., 8., -9.;
+  Eigen::VectorXd knotVectorOkMultiplicity(10);
+  knotVectorOkMultiplicity << 0., 0., 0., 0., 4., 5., 6., 7., 8., 9.;
+  Eigen::VectorXd knotVectorNOkMultiplicity1(10);
+  knotVectorNOkMultiplicity1 << 0., 0., 0., 0., 0., 5., 6., 7., 8., 9.;
+  Eigen::VectorXd knotVectorNOkMultiplicity2(10);
+  knotVectorNOkMultiplicity1 << 0., 1., 2., 3., 3., 3., 3., 3., 8., 9.;
+  Eigen::VectorXd knotVectorNOkMultiplicity3(10);
+  knotVectorNOkMultiplicity3 << 0., 1., 2., 3., 4., 9., 9., 9., 9., 9.;
+
+  BOOST_CHECK_NO_THROW(JointModelSpline(controlFramesOkDegree3, knotVectorOkDegree3, 3));
+  BOOST_CHECK_THROW(
+    JointModelSpline(controlFramesNOkDegree3, knotVectorOkDegree3, 3), std::invalid_argument);
+  BOOST_CHECK_THROW(
+    JointModelSpline(controlFramesOkDegree3, knotVectorNOkDegree3, 3), std::invalid_argument);
+  BOOST_CHECK_THROW(
+    JointModelSpline(controlFramesOkDegree3, knotVectorNOkDecreasing1, 3), std::invalid_argument);
+  BOOST_CHECK_THROW(
+    JointModelSpline(controlFramesOkDegree3, knotVectorNOkDecreasing2, 3), std::invalid_argument);
+  BOOST_CHECK_THROW(
+    JointModelSpline(controlFramesOkDegree3, knotVectorNOkDecreasing3, 3), std::invalid_argument);
+  BOOST_CHECK_NO_THROW(JointModelSpline(controlFramesOkDegree3, knotVectorOkMultiplicity, 3));
+  BOOST_CHECK_THROW(
+    JointModelSpline(controlFramesOkDegree3, knotVectorNOkMultiplicity1, 3), std::invalid_argument);
+  BOOST_CHECK_THROW(
+    JointModelSpline(controlFramesOkDegree3, knotVectorNOkMultiplicity2, 3), std::invalid_argument);
+  BOOST_CHECK_THROW(
+    JointModelSpline(controlFramesOkDegree3, knotVectorNOkMultiplicity3, 3), std::invalid_argument);
+}
+
 /// @brief Check the joint builder and the guards.
 BOOST_AUTO_TEST_CASE(jointBuilder)
 {
