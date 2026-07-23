@@ -414,9 +414,12 @@ BOOST_AUTO_TEST_CASE(test_spline)
   pinocchio::SE3 pose_body1_joint1(Eigen::Matrix3d::Identity(), Eigen::Vector3d(2., 0., 0.));
   pinocchio::SE3 pose_body2_joint1(Eigen::Matrix3d::Identity(), Eigen::Vector3d(0., 4., 0.));
 
-  pinocchio::SE3 finalPose(pinocchio::SE3::Random());
   std::vector<pinocchio::SE3> ctrlFrames;
+  pinocchio::Motion motion(pinocchio::Motion::Random());
+  pinocchio::SE3 finalPose(pinocchio::exp6(motion));
   ctrlFrames.push_back(pinocchio::SE3::Identity());
+  ctrlFrames.push_back(pinocchio::exp6(motion * (1. / 3.)));
+  ctrlFrames.push_back(pinocchio::exp6(motion * (2. / 3.)));
   ctrlFrames.push_back(finalPose);
 
   g.edgeBuilder()
@@ -427,7 +430,7 @@ BOOST_AUTO_TEST_CASE(test_spline)
     .withTargetPose(pose_body2_joint1)
     .withJointType(
       JointSplineBuilder()
-        .withDegree(1)
+        .withDegree(3)
         .withControlFrameVector(ctrlFrames)
         .withOpenUniformKnots(0., 1.)
         .build())
