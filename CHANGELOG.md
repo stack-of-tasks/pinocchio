@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Add `DataTpl::lastChild` deprecation notice in Python binding ([#2928](https://github.com/stack-of-tasks/pinocchio/pull/2927))
 - Add spline joint (JointModelSplineTpl) to default joint collection ([#2784](https://github.com/stack-of-tasks/pinocchio/pull/2784))
-  - [Python example here](./examples/spline-joint.py)
+  - Python example [here](./examples/spline-joint.py) and [here](./examples/spline-joint-knee.py)
 
 ### Fixed
 - Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM ([#2929](https://github.com/stack-of-tasks/pinocchio/pull/2929))
