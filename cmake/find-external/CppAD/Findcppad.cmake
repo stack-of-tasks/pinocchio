@@ -36,5 +36,6 @@ if(cppad_FOUND AND NOT TARGET cppad::cppad)
             IMPORTED_LOCATION ${cppad_LIBRARY}
             VERSION ${cppad_VERSION}
             INCLUDE_DIRECTORIES ${cppad_INCLUDE_DIR}
+            INTERFACE_LINK_LIBRARIES ${CMAKE_DL_LIBS}
     )
 endif()
