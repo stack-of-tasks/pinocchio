@@ -231,9 +231,9 @@ endif()
 
 if(BUILD_WITH_AUTODIFF_SUPPORT)
     macro(ADD_CPPAD_UNIT_TEST name)
-        include_directories(SYSTEM ${cppad_INCLUDE_DIR})
         add_pinocchio_unit_test(${name})
-        add_dependencies(pinocchio-test-cpp-cppad ${NAME})
+        add_dependencies(pinocchio-test-cpp-cppad pinocchio-test-cpp-${name})
+        target_link_libraries(pinocchio-test-cpp-${name} PRIVATE pinocchio_cppad_headers)
     endmacro()
 
     if(BUILD_WITH_AUTODIFF_SUPPORT AND NOT BUILD_STANDALONE_PYTHON_INTERFACE)
@@ -241,42 +241,37 @@ if(BUILD_WITH_AUTODIFF_SUPPORT)
         set_target_properties(pinocchio-test-cpp-cppad
             PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True
         )
-
-        add_cppad_unit_test(basic)
-        add_cppad_unit_test(spatial)
-        add_cppad_unit_test(joints)
-        add_cppad_unit_test(algorithms)
-        add_cppad_unit_test(derivatives)
-        add_cppad_unit_test(joint-configurations)
+        add_cppad_unit_test(cppad-basic)
+        add_cppad_unit_test(cppad-spatial)
+        add_cppad_unit_test(cppad-joints)
+        add_cppad_unit_test(cppad-algorithms)
+        add_cppad_unit_test(cppad-derivatives)
+        add_cppad_unit_test(cppad-joint-configurations)
     endif()
 endif()
 
 if(BUILD_WITH_CODEGEN_SUPPORT)
     macro(ADD_CPPADCG_UNIT_TEST name)
-        include_directories(SYSTEM ${cppad_INCLUDE_DIR})
-        include_directories(SYSTEM ${cppadcodegen_INCLUDE_DIR})
-        add_pinocchio_unit_test(${name} PACKAGES ${cppad_LIBRARY} ${CMAKE_DL_LIBS})
-        add_dependencies(pinocchio-test-cpp-cppadcg ${NAME})
+        add_pinocchio_unit_test(${name})
+        add_dependencies(pinocchio-test-cpp-cppadcg pinocchio-test-cpp-${name})
         target_compile_definitions(
-            ${NAME}
+            pinocchio-test-cpp-${name}
             PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\"
         )
+        target_link_libraries(pinocchio-test-cpp-${name} PRIVATE pinocchio_cppadcg_headers)
     endmacro()
 
-    if(BUILD_WITH_AUTODIFF_SUPPORT AND NOT BUILD_STANDALONE_PYTHON_INTERFACE)
-        if(BUILD_WITH_CODEGEN_SUPPORT)
-            add_custom_target(pinocchio-test-cpp-cppadcg)
-            set_target_properties(
-                pinocchio-test-cpp-cppadcg
-                PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True
-            )
-
-            add_cppadcg_unit_test(basic)
-            if(BUILD_ADVANCED_TESTING)
-                add_cppadcg_unit_test(algorithms)
-                add_cppadcg_unit_test(joint-configurations)
-                add_cppadcg_unit_test(contact-dynamics)
-            endif()
+    if( NOT BUILD_STANDALONE_PYTHON_INTERFACE)
+        add_custom_target(pinocchio-test-cpp-cppadcg)
+        set_target_properties(
+            pinocchio-test-cpp-cppadcg
+            PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True
+        )
+        add_cppadcg_unit_test(cppadcg-basic)
+        if(BUILD_ADVANCED_TESTING)
+            add_cppadcg_unit_test(cppadcg-algorithms)
+            add_cppadcg_unit_test(cppadcg-joint-configurations)
+            add_cppadcg_unit_test(cppadcg-contact-dynamics)
         endif()
     endif()
 endif()
@@ -284,8 +279,8 @@ endif()
 if(BUILD_WITH_CASADI_SUPPORT)
     macro(ADD_CASADI_UNIT_TEST name)
         add_pinocchio_unit_test(${name} PACKAGES casadi::casadi)
-        set_tests_properties(${NAME} PROPERTIES TIMEOUT 3000)
-        add_dependencies(pinocchio-test-casadi ${NAME})
+        set_tests_properties(${name} PROPERTIES TIMEOUT 3000)
+        add_dependencies(pinocchio-test-casadi ${name})
     endmacro()
 
     if(BUILD_WITH_CASADI_SUPPORT AND NOT BUILD_STANDALONE_PYTHON_INTERFACE)

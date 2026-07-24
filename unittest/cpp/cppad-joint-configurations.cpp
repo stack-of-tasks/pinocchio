@@ -8,7 +8,7 @@
 
 #include "pinocchio/multibody.hpp"
 
-#include "../utils/model-generator.hpp"
+#include "utils/model-generator.hpp"
 
 #include <boost/utility/binary.hpp>
 
