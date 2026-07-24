@@ -1,36 +1,26 @@
-#
-# Copyright 2020 CNRS INRIA
-#
-# Author: Guilhem Saurel
-#
-
-# Try to find cppadcg in standard prefixes and in ${cppadcg_PREFIX} Once done
-# this will define cppadcg_FOUND - System has cppadcg cppadcg_INCLUDE_DIR - The
-# cppadcg include directories cppadcg_VERSION - Version of cppadcg found
+# Copyright 2026 Inria
 
 find_path(
   cppadcg_INCLUDE_DIR
   NAMES cppad/cg.hpp
-  PATHS ${cppadcg_PREFIX}
-  PATH_SUFFIXES include
 )
 
-if(
-  cppadcg_INCLUDE_DIR
-  AND EXISTS "${cppadcg_INCLUDE_DIR}/cppad/cg/configure.hpp"
-)
+mark_as_advanced(cppadcg_INCLUDE_DIR)
+
+if(cppadcg_INCLUDE_DIR AND NOT TARGET cppadcg::cppadcg)
   file(
-    STRINGS "${cppadcg_INCLUDE_DIR}/cppad/cg/configure.hpp"
-    cppadcg_version_str
-    REGEX "^#define[\t ]+CPPAD_CG_VERSION[\t ]+\"cppadcg-.*\""
+    READ "${cppadcg_INCLUDE_DIR}/cppad/cg/configure.hpp"
+    cppadcg_configure_hpp
   )
+  # Version is stored on the following line:
+  # `#define CPPAD_CG_VERSION "cppadcg-2.5.0"`
   string(
-    REGEX REPLACE
-    "^#define[\t ]+CPPAD_CG_VERSION[\t ]+\"cppadcg-([^\"]*)\".*"
-    "\\1"
-    cppadcg_VERSION
-    "${cppadcg_version_str}"
+    REGEX MATCH
+    "#define[\t ]+CPPAD_CG_VERSION[\t ]+\"cppadcg-([0-9\.]*)\""
+    _
+    ${cppadcg_configure_hpp}
   )
+  set(cppadcg_VERSION ${CMAKE_MATCH_1})
 endif()
 
 include(FindPackageHandleStandardArgs)
@@ -39,4 +29,13 @@ find_package_handle_standard_args(
   REQUIRED_VARS cppadcg_INCLUDE_DIR
   VERSION_VAR cppadcg_VERSION
 )
-mark_as_advanced(cppadcg_INCLUDE_DIR)
+
+if(cppadcg_FOUND AND NOT TARGET cppadcg::cppadcg)
+    add_library(cppadcg::cppadcg INTERFACE IMPORTED)
+    set_target_properties(
+        cppadcg::cppadcg
+        PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES ${cppadcg_INCLUDE_DIR}
+            INTERFACE_VERSION ${cppadcg_VERSION}
+    )
+endif()
