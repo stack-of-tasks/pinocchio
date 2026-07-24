@@ -30,8 +30,8 @@ find_package_handle_standard_args(
   VERSION_VAR cppadcg_VERSION
 )
 
-include(CMakeFindDependencyMacro)
-find_dependency(cppad REQUIRED)
+# cppadcg depend of cppad
+find_package(cppad REQUIRED)
 
 if(cppadcg_FOUND AND NOT TARGET cppadcg::cppadcg)
     add_library(cppadcg::cppadcg INTERFACE IMPORTED)
