@@ -30,6 +30,9 @@ find_package_handle_standard_args(
   VERSION_VAR cppadcg_VERSION
 )
 
+include(CMakeFindDependencyMacro)
+find_dependency(cppad REQUIRED)
+
 if(cppadcg_FOUND AND NOT TARGET cppadcg::cppadcg)
     add_library(cppadcg::cppadcg INTERFACE IMPORTED)
     set_target_properties(
@@ -37,5 +40,6 @@ if(cppadcg_FOUND AND NOT TARGET cppadcg::cppadcg)
         PROPERTIES
             INTERFACE_INCLUDE_DIRECTORIES ${cppadcg_INCLUDE_DIR}
             INTERFACE_VERSION ${cppadcg_VERSION}
+            INTERFACE_LINK_LIBRARIES cppad::cppad
     )
 endif()
