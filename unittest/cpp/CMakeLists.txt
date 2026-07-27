@@ -278,14 +278,14 @@ endif()
 
 if(BUILD_WITH_CASADI_SUPPORT)
     macro(ADD_CASADI_UNIT_TEST name)
-        add_pinocchio_unit_test(${name} PACKAGES casadi::casadi)
-        set_tests_properties(${name} PROPERTIES TIMEOUT 3000)
-        add_dependencies(pinocchio-test-casadi ${name})
+        add_pinocchio_unit_test(${name})
+        add_dependencies(pinocchio-test-cpp-casadi pinocchio-test-cpp-${name})
+        target_link_libraries(pinocchio-test-cpp-${name} PRIVATE pinocchio_casadi_headers)
     endmacro()
 
     if(BUILD_WITH_CASADI_SUPPORT AND NOT BUILD_STANDALONE_PYTHON_INTERFACE)
-        add_custom_target(pinocchio-test-casadi)
-        set_target_properties( pinocchio-test-casadi
+        add_custom_target(pinocchio-test-cpp-casadi)
+        set_target_properties( pinocchio-test-cpp-casadi
             PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True
         )
 

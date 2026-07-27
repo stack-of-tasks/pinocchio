@@ -118,18 +118,105 @@ endif()
 set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
 jrl_find_package(example-robot-data CONFIG REQUIRED EXPECTED_TARGETS example-robot-data::example-robot-data)
 
+if(BUILD_WITH_CASADI_SUPPORT)
+    jrl_find_package(casadi REQUIRED)
+    # TODO remove ?
+    # if(NOT TARGET casadi::casadi AND TARGET casadi)
+    #     add_library(casadi::casadi ALIAS casadi)
+    # endif()
+endif()
+
+# ----------------------------------------------------
+# --- FUNCTIONS  -------------------------------------
+# ----------------------------------------------------
+macro(add_header_and_template_instantiation_targets name)
+    add_library(${name}_headers INTERFACE)
+
+    add_library(${name} INTERFACE)
+    target_link_libraries(${name} INTERFACE ${name}_headers)
+            list(APPEND EXPORTED_TARGETS ${name} ${name}_headers)
+
+    if(ENABLE_TEMPLATE_INSTANTIATION)
+        add_library(${name}_template_instantiation SHARED)
+        target_sources(
+            ${name}_template_instantiation
+            PRIVATE ${PINOCCHIO_CORE_INSTANTIATION_SOURCES}
+        )
+
+        target_link_libraries(
+            ${name}_template_instantiation
+            PUBLIC ${name}_headers
+        )
+
+        target_compile_definitions(
+            ${name}_template_instantiation
+            PUBLIC PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+        )
+        # By default DEFINE_SYMBOL add -D${LIB_NAME}_EXPORTS. Don't use ${LIB_NAME}_EXPORTS define since
+        # pinocchio/config.hpp use pinocchio_EXPORTS. This allow to use the same DLLAPI define for all
+        # template instantiation libraries.
+        set_target_properties(${name}_template_instantiation PROPERTIES DEFINE_SYMBOL "pinocchio_EXPORTS")
+        jrl_target_set_default_compile_options(${name}_template_instantiation PRIVATE)
+        jrl_target_enforce_msvc_conformance(${name}_template_instantiation PRIVATE)
+        target_link_libraries(${name} INTERFACE ${name}_template_instantiation)
+
+        list(APPEND EXPORTED_TARGETS ${name}_template_instantiation)
+    endif()
+endmacro()
+
+set(PINOCCHIO_CORE_INSTANTIATION_SOURCES
+        src/algorithm/cholesky.cpp
+        src/algorithm/aba.cpp
+        src/algorithm/regressor.cpp
+        src/algorithm/contact-dynamics.cpp
+        src/algorithm/frames-derivatives.cpp
+        src/algorithm/impulse-dynamics.cpp
+        src/algorithm/model.cpp
+        src/algorithm/constrained-dynamics.cpp
+        src/algorithm/rnea-derivatives.cpp
+        src/algorithm/compute-all-terms.cpp
+        src/algorithm/jacobian.cpp
+        src/algorithm/energy.cpp
+        src/algorithm/centroidal-derivatives.cpp
+        src/algorithm/frames.cpp
+        src/algorithm/constrained-dynamics-derivatives.cpp
+        src/algorithm/center-of-mass.cpp
+        src/algorithm/geometry.cpp
+        src/algorithm/kinematics.cpp
+        src/algorithm/rnea.cpp
+        src/algorithm/centroidal.cpp
+        src/algorithm/aba-derivatives.cpp
+        src/algorithm/crba.cpp
+        src/algorithm/constraint-cholesky.cpp
+        src/algorithm/joint-configuration.cpp
+        src/algorithm/center-of-mass-derivatives.cpp
+        src/algorithm/solvers/admm-solver.cpp
+        src/algorithm/solvers/pgs-solver.cpp
+        src/algorithm/kinematics-derivatives.cpp
+        src/algorithm/constraints/utils.cpp
+        src/multibody/model.cpp
+        src/multibody/data.cpp
+        src/multibody/sample-models.cpp
+)
+
 # ----------------------------------------------------
 # --- MAIN LIBRARY -----------------------------------
 # ----------------------------------------------------
-add_library(pinocchio_headers INTERFACE)
-target_compile_features(pinocchio_headers INTERFACE cxx_std_17)
-jrl_target_generate_config_header(pinocchio_headers INTERFACE FILENAME pinocchio/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio)
-jrl_target_generate_warning_header(pinocchio_headers INTERFACE FILENAME pinocchio/warning.hpp LIBRARY_NAME pinocchio)
-jrl_target_generate_deprecated_header(pinocchio_headers INTERFACE FILENAME pinocchio/deprecated.hpp LIBRARY_NAME pinocchio)
-jrl_target_generate_tracy_header(pinocchio_headers INTERFACE FILENAME pinocchio/tracy.hpp  LIBRARY_NAME pinocchio)
+# Target to link against all pinocchio libraries
+add_library(pinocchio INTERFACE)
+add_library(pinocchio::pinocchio ALIAS pinocchio)
+set(EXPORTED_TARGETS pinocchio)
+
+add_header_and_template_instantiation_targets(pinocchio_default)
+
+target_compile_features(pinocchio_default_headers INTERFACE cxx_std_17)
+jrl_target_generate_config_header(pinocchio_default_headers INTERFACE FILENAME pinocchio/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio)
+jrl_target_generate_warning_header(pinocchio_default_headers INTERFACE FILENAME pinocchio/warning.hpp LIBRARY_NAME pinocchio)
+jrl_target_generate_deprecated_header(pinocchio_default_headers INTERFACE FILENAME pinocchio/deprecated.hpp LIBRARY_NAME pinocchio)
+jrl_target_generate_tracy_header(pinocchio_default_headers INTERFACE FILENAME pinocchio/tracy.hpp  LIBRARY_NAME pinocchio)
 
 target_compile_definitions(
-    pinocchio_headers
+    pinocchio_default_headers
     INTERFACE
         BOOST_MPL_LIMIT_LIST_SIZE=30
         BOOST_MPL_LIMIT_VECTOR_SIZE=30
@@ -140,12 +227,12 @@ target_compile_definitions(
 )
 
 target_link_libraries(
-    pinocchio_headers
+    pinocchio_default_headers
     INTERFACE Eigen3::Eigen Boost::boost Boost::serialization
 )
 
 target_include_directories(
-    pinocchio_headers
+    pinocchio_default_headers
     INTERFACE
         $<INSTALL_INTERFACE:include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -153,7 +240,7 @@ target_include_directories(
 
 # Dependency free headers
 # Root, algorithm, common, containers, math, multibody, serialization, spatial, utils
-jrl_target_headers(pinocchio_headers PUBLIC
+jrl_target_headers(pinocchio_default_headers PUBLIC
     HEADERS
     include/pinocchio/algorithm/aba-derivatives.hpp
     include/pinocchio/algorithm/aba.hpp
@@ -263,7 +350,7 @@ jrl_target_headers(pinocchio_headers PUBLIC
     BASE_DIRS include
 )
 
-jrl_target_headers(pinocchio_headers PUBLIC
+jrl_target_headers(pinocchio_default_headers PUBLIC
     HEADERS
     include/pinocchio/src/visualizers/base-visualizer.hxx
     include/pinocchio/src/common/fwd.hxx
@@ -271,10 +358,7 @@ jrl_target_headers(pinocchio_headers PUBLIC
     include/pinocchio/src/common/data-entity.hxx
     include/pinocchio/src/eigen-macros.hxx
     include/pinocchio/src/context/generic.hxx
-    include/pinocchio/src/context/casadi.hxx
-    include/pinocchio/src/context/cppad.hxx
     include/pinocchio/src/context/default.hxx
-    include/pinocchio/src/context/cppadcg.hxx
     include/pinocchio/src/multibody/data.hxx
     include/pinocchio/src/multibody/model-item.hxx
     include/pinocchio/src/multibody/joint-motion-subspace-base.hxx
@@ -567,16 +651,8 @@ jrl_target_headers(pinocchio_headers PUBLIC
   BASE_DIRS include
 )
 
-# Target to link against all pinocchio libraries
-add_library(pinocchio INTERFACE)
-add_library(pinocchio::pinocchio ALIAS pinocchio)
-
-add_library(pinocchio_default INTERFACE)
-target_link_libraries(pinocchio_default INTERFACE pinocchio_headers)
 target_link_libraries(pinocchio INTERFACE pinocchio_default)
 
-# List of exported targets
-set(EXPORTED_TARGETS pinocchio pinocchio_default pinocchio_headers)
 
 if(BUILD_WITH_COLLISION_SUPPORT)
     add_library(pinocchio_collision SHARED)
@@ -632,70 +708,6 @@ if(BUILD_WITH_COLLISION_SUPPORT)
 
     target_link_libraries(pinocchio INTERFACE pinocchio_collision)
     list(APPEND EXPORTED_TARGETS pinocchio_collision)
-endif()
-
-
-set(PINOCCHIO_CORE_INSTANTIATION_SOURCES
-        src/algorithm/cholesky.cpp
-        src/algorithm/aba.cpp
-        src/algorithm/regressor.cpp
-        src/algorithm/contact-dynamics.cpp
-        src/algorithm/frames-derivatives.cpp
-        src/algorithm/impulse-dynamics.cpp
-        src/algorithm/model.cpp
-        src/algorithm/constrained-dynamics.cpp
-        src/algorithm/rnea-derivatives.cpp
-        src/algorithm/compute-all-terms.cpp
-        src/algorithm/jacobian.cpp
-        src/algorithm/energy.cpp
-        src/algorithm/centroidal-derivatives.cpp
-        src/algorithm/frames.cpp
-        src/algorithm/constrained-dynamics-derivatives.cpp
-        src/algorithm/center-of-mass.cpp
-        src/algorithm/geometry.cpp
-        src/algorithm/kinematics.cpp
-        src/algorithm/rnea.cpp
-        src/algorithm/centroidal.cpp
-        src/algorithm/aba-derivatives.cpp
-        src/algorithm/crba.cpp
-        src/algorithm/constraint-cholesky.cpp
-        src/algorithm/joint-configuration.cpp
-        src/algorithm/center-of-mass-derivatives.cpp
-        src/algorithm/solvers/admm-solver.cpp
-        src/algorithm/solvers/pgs-solver.cpp
-        src/algorithm/kinematics-derivatives.cpp
-        src/algorithm/constraints/utils.cpp
-        src/multibody/model.cpp
-        src/multibody/data.cpp
-        src/multibody/sample-models.cpp
-    )
-
-if(ENABLE_TEMPLATE_INSTANTIATION)
-    add_library(pinocchio_template_instantiation_default SHARED)
-
-    target_sources(
-        pinocchio_template_instantiation_default
-        PRIVATE ${PINOCCHIO_CORE_INSTANTIATION_SOURCES}
-    )
-
-    target_link_libraries(
-        pinocchio_template_instantiation_default
-        PUBLIC pinocchio_headers
-    )
-
-    target_compile_definitions(
-        pinocchio_template_instantiation_default
-        PUBLIC PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
-    )
-
-    set_target_properties(pinocchio_template_instantiation_default PROPERTIES DEFINE_SYMBOL "pinocchio_EXPORTS")
-
-    jrl_target_set_default_compile_options(pinocchio_template_instantiation_default PRIVATE)
-    jrl_target_enforce_msvc_conformance(pinocchio_template_instantiation_default PRIVATE)
-
-    target_link_libraries(pinocchio_default INTERFACE pinocchio_template_instantiation_default)
-
-    list(APPEND EXPORTED_TARGETS pinocchio_template_instantiation_default)
 endif()
 
 # handle parsers
@@ -865,16 +877,13 @@ endif()
 
 # handle special scalars
 if (BUILD_WITH_AUTODIFF_SUPPORT)
-    add_library(pinocchio_cppad_headers INTERFACE)
+    add_header_and_template_instantiation_targets(pinocchio_cppad)
 
-    # hpp
     jrl_target_headers(pinocchio_cppad_headers PUBLIC
         HEADERS
             include/pinocchio/autodiff/cppad.hpp
         BASE_DIRS include
     )
-
-    # hxx
     jrl_target_headers(pinocchio_cppad_headers PUBLIC
         HEADERS
             include/pinocchio/src/autodiff/cppad/algorithm/aba.hxx
@@ -888,7 +897,7 @@ if (BUILD_WITH_AUTODIFF_SUPPORT)
 
      target_link_libraries(
         pinocchio_cppad_headers
-        INTERFACE pinocchio_headers ${cppad_LIBRARY}
+        INTERFACE pinocchio_default_headers ${cppad_LIBRARY}
     )
 
     target_include_directories(
@@ -901,53 +910,24 @@ if (BUILD_WITH_AUTODIFF_SUPPORT)
          INTERFACE CPPAD_DEBUG_AND_RELEASE
     )
 
-    add_library(pinocchio_cppad INTERFACE)
-    target_link_libraries(pinocchio_cppad INTERFACE pinocchio_cppad_headers)
     target_compile_definitions(
          pinocchio_cppad
          INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppad.hxx"
     )
-    list(APPEND EXPORTED_TARGETS pinocchio_cppad pinocchio_cppad_headers)
 
     if(ENABLE_TEMPLATE_INSTANTIATION)
-        add_library(pinocchio_template_instantiation_cppad SHARED)
-
-        target_sources(
-              pinocchio_template_instantiation_cppad
-              PRIVATE ${PINOCCHIO_CORE_INSTANTIATION_SOURCES}
-        )
-
-        target_link_libraries(
-            pinocchio_template_instantiation_cppad
-            PUBLIC pinocchio_cppad_headers
-        )
-
         target_compile_definitions(
-            pinocchio_template_instantiation_cppad
-            PUBLIC PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+            pinocchio_cppad_template_instantiation
             PRIVATE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppad.hxx"
 
         )
-
-        # By default DEFINE_SYMBOL add -D${LIB_NAME}_EXPORTS. Don't use ${LIB_NAME}_EXPORTS define since
-        # pinocchio/config.hpp use pinocchio_EXPORTS. This allow to use the same DLLAPI define for all
-        # template instantiation libraries.
-        set_target_properties(pinocchio_template_instantiation_cppad PROPERTIES DEFINE_SYMBOL "pinocchio_EXPORTS")
-
-        jrl_target_set_default_compile_options(pinocchio_template_instantiation_cppad PRIVATE)
-        jrl_target_enforce_msvc_conformance(pinocchio_template_instantiation_cppad PRIVATE)
-
-        target_link_libraries(pinocchio_cppad INTERFACE pinocchio_template_instantiation_cppad)
-        list(APPEND EXPORTED_TARGETS pinocchio_template_instantiation_cppad)
-
     endif()
 
 endif()
 
 if(BUILD_WITH_CODEGEN_SUPPORT)
-    add_library(pinocchio_cppadcg_headers INTERFACE)
+    add_header_and_template_instantiation_targets(pinocchio_cppadcg)
 
-    # hpp
     jrl_target_headers(pinocchio_cppadcg_headers PUBLIC
         HEADERS
             include/pinocchio/codegen/cppadcg-algo.hpp
@@ -955,7 +935,6 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
         BASE_DIRS include
     )
 
-    # hxx
     jrl_target_headers(pinocchio_cppadcg_headers PUBLIC
         HEADERS
             include/pinocchio/src/codegen/cppadcg/algorithm/code-generator-algo.hxx
@@ -968,7 +947,7 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
     target_link_libraries(
         pinocchio_cppadcg_headers
         INTERFACE
-            pinocchio_headers
+            pinocchio_default_headers
             ${cppadcg_LIBRARY}
             ${cppad_LIBRARY}
             ${CMAKE_DL_LIBS}
@@ -985,45 +964,59 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
          pinocchio_cppadcg_headers
          INTERFACE CPPAD_DEBUG_AND_RELEASE)
 
-    add_library(pinocchio_cppadcg INTERFACE)
-    target_link_libraries(pinocchio_cppadcg INTERFACE pinocchio_cppadcg_headers)
-
     target_compile_definitions(
          pinocchio_cppadcg
          INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppadcg.hxx")
 
-    list(APPEND EXPORTED_TARGETS pinocchio_cppadcg pinocchio_cppadcg_headers)
-
     if(ENABLE_TEMPLATE_INSTANTIATION)
-        add_library(pinocchio_template_instantiation_cppadcg SHARED)
-
-        target_sources(
-              pinocchio_template_instantiation_cppadcg
-              PRIVATE ${PINOCCHIO_CORE_INSTANTIATION_SOURCES}
-        )
-
-        target_link_libraries(
-            pinocchio_template_instantiation_cppadcg
-            PUBLIC pinocchio_cppadcg_headers
-        )
-
         target_compile_definitions(
-            pinocchio_template_instantiation_cppadcg
-            PUBLIC PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION      
+            pinocchio_cppadcg_template_instantiation
             PRIVATE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppadcg.hxx"
-
         )
-
-        set_target_properties(pinocchio_template_instantiation_cppadcg PROPERTIES DEFINE_SYMBOL "pinocchio_EXPORTS")
-
-        jrl_target_set_default_compile_options(pinocchio_template_instantiation_cppadcg PRIVATE)
-        jrl_target_enforce_msvc_conformance(pinocchio_template_instantiation_cppadcg PRIVATE)
-
-        target_link_libraries(pinocchio_cppadcg INTERFACE pinocchio_template_instantiation_cppadcg)
-        list(APPEND EXPORTED_TARGETS pinocchio_template_instantiation_cppadcg)
-
     endif()
 endif()
+
+if (BUILD_WITH_CASADI_SUPPORT)
+    add_header_and_template_instantiation_targets(pinocchio_casadi)
+
+    jrl_target_headers(pinocchio_cppadcg_headers PUBLIC
+        HEADERS
+            include/pinocchio/autodiff/casadi-algo.hpp
+            include/pinocchio/autodiff/casadi.hpp
+        BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_cppadcg_headers PUBLIC
+        HEADERS
+            include/pinocchio/src/autodiff/casadi/algorithm/algo.hxx
+            include/pinocchio/src/autodiff/casadi/math/alias.hxx
+            include/pinocchio/src/autodiff/casadi/math/matrix.hxx
+            include/pinocchio/src/autodiff/casadi/math/quaternion.hxx
+            include/pinocchio/src/autodiff/casadi/math/taylor-series-expansion.hxx
+            include/pinocchio/src/autodiff/casadi/math/triangular-matrix.hxx
+            include/pinocchio/src/autodiff/casadi/spatial/se3-tpl.hxx
+            include/pinocchio/src/autodiff/casadi/utils/static-if.hxx
+      BASE_DIRS include
+    )
+
+    target_link_libraries(
+        pinocchio_casadi_headers
+        INTERFACE
+            pinocchio_default_headers
+            casadi::casadi
+    )
+    target_compile_definitions(
+         pinocchio_casadi
+         INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/casadi.hxx")
+
+    if(ENABLE_TEMPLATE_INSTANTIATION)
+        target_compile_definitions(
+            pinocchio_casadi_template_instantiation
+            PRIVATE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/casadi.hxx"
+        )
+    endif()
+endif()
+
 
 
 
