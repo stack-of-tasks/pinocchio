@@ -225,7 +225,7 @@ add_pinocchio_unit_test(algorithm-utils-force)
 if(BUILD_ADVANCED_TESTING)
     add_pinocchio_unit_test(multiprecision)
     if(PINOCCHIO_BUILD_MPFR_TESTING)
-        add_pinocchio_unit_test(multiprecision-mpfr PACKAGES mpfr gmp)
+        add_pinocchio_unit_test(multiprecision-mpfr)
     endif()
 endif()
 

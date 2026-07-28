@@ -130,6 +130,17 @@ if(BUILD_WITH_EXTRA_SUPPORT)
     jrl_find_package(Qhull COMPONENTS qhullcpp qhull_r REQUIRED)
 endif()
 
+if(
+    PINOCCHIO_BUILD_MPFR_TESTING
+    OR BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT
+)
+    list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find-external/GMP")
+    list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find-external/MPFR")
+    
+    find_package(GMP REQUIRED 6.0.0)
+    find_package(MPFR REQUIRED 4.0.0)
+endif()
+
 # ----------------------------------------------------
 # --- FUNCTIONS  -------------------------------------
 # ----------------------------------------------------
@@ -657,7 +668,6 @@ jrl_target_headers(pinocchio_default_headers PUBLIC
 
 target_link_libraries(pinocchio INTERFACE pinocchio_default)
 
-
 if(BUILD_WITH_COLLISION_SUPPORT)
     add_library(pinocchio_collision SHARED)
 
@@ -1059,6 +1069,182 @@ if(BUILD_WITH_EXTRA_SUPPORT)
     list(APPEND EXPORTED_TARGETS pinocchio_extra)
 endif()
 
+
+# Header only part + deprecated
+if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
+    target_include_directories(
+        ${PROJECT_NAME}_default_headers
+        INTERFACE
+            $<INSTALL_INTERFACE:include/pinocchio/deprecated>
+            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/pinocchio/deprecated>
+    )
+    jrl_target_headers(pinocchio_default_headers PUBLIC
+        HEADERS
+            include/pinocchio/deprecated/pinocchio/math/gram-schmidt-orthonormalisation.hpp
+            include/pinocchio/deprecated/pinocchio/math/comparison-operators.hpp
+            include/pinocchio/deprecated/pinocchio/math/matrix-inverse-code-generated.hpp
+            include/pinocchio/deprecated/pinocchio/container/boost-container-limits.hpp
+            include/pinocchio/deprecated/pinocchio/container/aligned-vector.hpp
+            include/pinocchio/deprecated/pinocchio/math/tridiagonal-matrix.hpp
+            include/pinocchio/deprecated/pinocchio/math/matrix-product.hpp
+            include/pinocchio/deprecated/pinocchio/math/quaternion.hpp
+            include/pinocchio/deprecated/pinocchio/math/alias.hpp
+            include/pinocchio/deprecated/pinocchio/math/rotation.hpp
+            include/pinocchio/deprecated/pinocchio/math/sincos.hpp
+            include/pinocchio/deprecated/pinocchio/math/sign.hpp
+            include/pinocchio/deprecated/pinocchio/math/lanczos-decomposition.hpp
+            include/pinocchio/deprecated/pinocchio/math/matrix.hpp
+            include/pinocchio/deprecated/pinocchio/math/matrix-block.hpp
+            include/pinocchio/deprecated/pinocchio/math/taylor-expansion.hpp
+            include/pinocchio/deprecated/pinocchio/math/matrix-inverse.hpp
+            include/pinocchio/deprecated/pinocchio/math/rpy.hpp
+            include/pinocchio/deprecated/pinocchio/math/eigenvalues.hpp
+            include/pinocchio/deprecated/pinocchio/math/eigenvalues-tridiagonal-matrix.hpp
+            include/pinocchio/deprecated/pinocchio/math/triangular-matrix.hpp
+            include/pinocchio/deprecated/pinocchio/math/tensor.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/model-item.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/fcl.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/geometry-object.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/geometry-object-filter.hpp
+            include/pinocchio/deprecated/pinocchio/utils/file-explorer.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/se3.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/se3.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/aligned-vector.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/inertia.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/inertia.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/force.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/csv.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/skew.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/motion.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/force.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/cartesian-axis.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints-transform.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/act-on-set.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/spatial.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/symmetric3.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints-data.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/classic-acceleration.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/spatial-axis.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/explog.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/contact-cholesky.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/contact-info.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/contact-jacobian.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/constraints-set.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/motion.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/model.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints-motion.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/block-diagonal-matrix.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/delassus.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints-motion-subspace.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/constraints-model.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/geometry.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/constraints-data.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/coal.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/fcl.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/matrix-block-element.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/symmetric3.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/frame.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints-model.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/static-buffer.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/vector.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/data.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/frame.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/data.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/coal.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/geometry.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/model.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/instance-filter.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/constraints/constraint-model-base.hp
+            include/pinocchio/deprecated/pinocchio/multibody/pool/geometry.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/force-set.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/pool/model.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/visitor/fusion.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/constraints/constraint-model-generic
+            include/pinocchio/deprecated/pinocchio/algorithm/constraints/constraint-data-generic.
+            include/pinocchio/deprecated/pinocchio/algorithm/constraints/constraint-data-base.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/constraints/coulomb-friction-cone.hp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-base.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-algo.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-variant-visitors.h
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/vector-space.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-collection.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/cartesian-product.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-generic.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/special-orthogonal.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-joint.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/cartesian-product-variant.h
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/special-euclidean.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-basic-visitors.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-planar.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-spherical.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-revolute-unaligned.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-universal.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-common-operations.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-helical-unaligned.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-free-flyer.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-spherical-ZYX.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-prismatic.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-ellipsoid.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-composite.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-translation.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-mimic.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-base.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-revolute-unbounded.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-revolute.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-prismatic-unaligned.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joints.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-generic.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-revolute-unbounded-unali
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-collection.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-helical.hpp
+        BASE_DIRS include
+    )
+
+    if (BUILD_WITH_COLLISION_SUPPORT)
+        jrl_target_headers(pinocchio_collision PUBLIC
+            HEADERS
+                include/pinocchio/deprecated/pinocchio/collision/fcl-pinocchio-conversions.hpp
+            BASE_DIRS include
+        ) 
+    endif()
+
+    if (BUILD_WITH_CODEGEN_SUPPORT)
+        jrl_target_headers(pinocchio_cppadcg_headers PUBLIC
+            HEADERS
+                include/pinocchio/deprecated/pinocchio/codegen/code-generator-algo.hpp
+            BASE_DIRS include
+        ) 
+    endif()
+
+    if (BUILD_WITH_PARSERS_SUPPORT)
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/deprecated/pinocchio/parsers/graph/joints.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/model-graph.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/model-configuration-converter.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/graph-visitor.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/model-graph-algo-geometry.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/model-graph-algo.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/frames.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/geometries.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/mjcf/mjcf-graph.hpp
+            BASE_DIRS include
+        ) 
+    endif()
+    if (BUILD_WITH_URDF_SUPPORT)
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/deprecated/pinocchio/parsers/urdf/utils.hpp
+            BASE_DIRS include
+        ) 
+    endif()
+
+    if(BUILD_WITH_OPENMP_SUPPORT)
+    # TODO
+    endif()
+endif()
 
 # ----------------------------------------------------
 # --- UNIT TESTS ---------------------------------------
