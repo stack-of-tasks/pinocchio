@@ -1069,6 +1069,45 @@ if(BUILD_WITH_EXTRA_SUPPORT)
     list(APPEND EXPORTED_TARGETS pinocchio_extra)
 endif()
 
+# Define the visualizers target
+if(PINOCCHIO_BUILD_VISUALIZERS)
+
+    add_library(pinocchio_visualizers)
+       target_sources(
+        pinocchio_visualizers
+        PRIVATE src/visualizers/base-visualizer.cpp
+    )
+
+    jrl_target_headers(pinocchio_visualizers PUBLIC
+      HEADERS
+        include/pinocchio/visualizers/base-visualizer.hpp
+      BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_visualizers PUBLIC
+        HEADERS
+            include/pinocchio/src/visualizers/base-visualizer.hxx
+        BASE_DIRS include
+    )
+
+    target_link_libraries(
+        pinocchio_visualizers
+        PUBLIC pinocchio_default
+    )
+
+    jrl_target_set_default_compile_options(pinocchio_visualizers PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_visualizers PRIVATE)
+    jrl_target_generate_config_header(pinocchio_visualizers INTERFACE FILENAME pinocchio/visualizers/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_visualizers)
+
+    target_link_libraries(pinocchio INTERFACE pinocchio_visualizers)
+    list(APPEND EXPORTED_TARGETS pinocchio_visualizers)
+    if(BUILD_WITH_COLLISION_SUPPORT)
+        target_compile_definitions(pinocchio_visualizers
+            PUBLIC PINOCCHIO_WITH_COLLISION
+        )
+        target_link_libraries(pinocchio_visualizers PUBLIC coal::coal)
+    endif()
+endif()
 
 # Header only part + deprecated
 if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
