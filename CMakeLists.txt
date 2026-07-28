@@ -126,6 +126,10 @@ if(BUILD_WITH_CASADI_SUPPORT)
     # endif()
 endif()
 
+if(BUILD_WITH_EXTRA_SUPPORT)
+    jrl_find_package(Qhull COMPONENTS qhullcpp qhull_r REQUIRED)
+endif()
+
 # ----------------------------------------------------
 # --- FUNCTIONS  -------------------------------------
 # ----------------------------------------------------
@@ -1017,7 +1021,43 @@ if (BUILD_WITH_CASADI_SUPPORT)
     endif()
 endif()
 
+if(BUILD_WITH_EXTRA_SUPPORT)
+  add_library(pinocchio_extra SHARED)
 
+    target_sources(
+        pinocchio_extra
+        PRIVATE src/extra/reachable-workspace.cpp
+    )
+
+    jrl_target_headers(pinocchio_extra PUBLIC
+      HEADERS
+        include/pinocchio/extra/reachable-workspace.hpp
+      BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_extra PUBLIC
+        HEADERS
+            include/pinocchio/src/extra/reachable-workspace.hxx
+        BASE_DIRS include
+    )
+
+    target_link_libraries(
+        pinocchio_extra
+        PUBLIC pinocchio_default Qhull::qhullcpp Qhull::qhull_r
+    )
+
+    target_compile_definitions(
+        pinocchio_extra
+        PUBLIC PINOCCHIO_WITH_EXTRA_SUPPORT
+    )
+
+    jrl_target_set_default_compile_options(pinocchio_extra PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_extra PRIVATE)
+    jrl_target_generate_config_header(pinocchio_extra INTERFACE FILENAME pinocchio/extra/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_extra)
+
+    target_link_libraries(pinocchio INTERFACE pinocchio_extra)
+    list(APPEND EXPORTED_TARGETS pinocchio_extra)
+endif()
 
 
 # ----------------------------------------------------
