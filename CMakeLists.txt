@@ -121,9 +121,9 @@ jrl_find_package(example-robot-data CONFIG REQUIRED EXPECTED_TARGETS example-rob
 if(BUILD_WITH_CASADI_SUPPORT)
     jrl_find_package(casadi REQUIRED)
     # TODO remove ?
-    # if(NOT TARGET casadi::casadi AND TARGET casadi)
-    #     add_library(casadi::casadi ALIAS casadi)
-    # endif()
+    if(NOT TARGET casadi::casadi AND TARGET casadi)
+         add_library(casadi::casadi ALIAS casadi)
+    endif()
 endif()
 
 if(BUILD_WITH_EXTRA_SUPPORT)
@@ -137,8 +137,21 @@ if(
     list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find-external/GMP")
     list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find-external/MPFR")
     
-    find_package(GMP REQUIRED 6.0.0)
-    find_package(MPFR REQUIRED 4.0.0)
+    jrl_find_package(GMP REQUIRED)
+    jrl_find_package(MPFR REQUIRED)
+endif()
+
+if(PINOCCHIO_BUILD_WITH_TRACY)
+    # assume it is installed somewhere
+    jrl_find_package(Tracy REQUIRED)
+    set_target_properties(
+        Tracy::TracyClient
+        PROPERTIES POSITION_INDEPENDENT_CODE True
+    )
+endif(PINOCCHIO_BUILD_WITH_TRACY)
+
+if(BUILD_WITH_OPENMP_SUPPORT)
+    jrl_find_package(OpenMP REQUIRED)
 endif()
 
 # ----------------------------------------------------
@@ -743,6 +756,13 @@ if(BUILD_WITH_PARSERS_SUPPORT)
             src/parsers/graph/model-graph.cpp
             src/parsers/graph/model-graph-algo.cpp
     )
+    if(BUILD_WITH_COLLISION_SUPPORT)
+        target_sources(
+            pinocchio_parsers
+            PRIVATE
+                src/parsers/graph/model-graph-algo-geometry.cpp
+        )
+    endif()
 
     jrl_target_headers(pinocchio_parsers PUBLIC
         HEADERS
@@ -993,14 +1013,14 @@ endif()
 if (BUILD_WITH_CASADI_SUPPORT)
     add_header_and_template_instantiation_targets(pinocchio_casadi)
 
-    jrl_target_headers(pinocchio_cppadcg_headers PUBLIC
+    jrl_target_headers(pinocchio_casadi_headers PUBLIC
         HEADERS
             include/pinocchio/autodiff/casadi-algo.hpp
             include/pinocchio/autodiff/casadi.hpp
         BASE_DIRS include
     )
 
-    jrl_target_headers(pinocchio_cppadcg_headers PUBLIC
+    jrl_target_headers(pinocchio_casadi_headers PUBLIC
         HEADERS
             include/pinocchio/src/autodiff/casadi/algorithm/algo.hxx
             include/pinocchio/src/autodiff/casadi/math/alias.hxx
@@ -1072,7 +1092,7 @@ endif()
 # Define the visualizers target
 if(PINOCCHIO_BUILD_VISUALIZERS)
 
-    add_library(pinocchio_visualizers)
+    add_library(pinocchio_visualizers SHARED)
        target_sources(
         pinocchio_visualizers
         PRIVATE src/visualizers/base-visualizer.cpp
@@ -1109,10 +1129,77 @@ if(PINOCCHIO_BUILD_VISUALIZERS)
     endif()
 endif()
 
+if(PINOCCHIO_BUILD_WITH_TRACY)
+    add_library(pinocchio_tracy INTERFACE)
+    target_link_libraries(pinocchio_tracy INTERFACE Tracy::TracyClient)
+    target_link_libraries(pinocchio_default INTERFACE pinocchio_tracy)
+    list(APPEND EXPORTED_TARGETS pinocchio_tracy)
+endif(PINOCCHIO_BUILD_WITH_TRACY)
+
+# Define the parallel target
+if(BUILD_WITH_OPENMP_SUPPORT)
+
+    add_library(pinocchio_parallel INTERFACE)
+
+    jrl_target_headers(pinocchio_parallel PUBLIC
+      HEADERS
+        include/pinocchio/algorithm/parallel/aba.hpp
+        include/pinocchio/algorithm/parallel/rnea.hpp
+      BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_parallel PUBLIC
+        HEADERS
+            include/pinocchio/src/algorithm/parallel/aba.hxx
+            include/pinocchio/src/algorithm/parallel/rnea.hxx
+        BASE_DIRS include
+    )
+
+    target_link_libraries(
+        pinocchio_parallel
+        INTERFACE pinocchio_default OpenMP::OpenMP_CXX
+    )
+
+    jrl_target_set_default_compile_options(pinocchio_parallel INTERFACE)
+    jrl_target_enforce_msvc_conformance(pinocchio_parallel INTERFACE)
+
+    target_link_libraries(pinocchio INTERFACE pinocchio_parallel)
+    list(APPEND EXPORTED_TARGETS pinocchio_parallel)
+    if(BUILD_WITH_COLLISION_SUPPORT)
+
+        add_library(pinocchio_collision_parallel INTERFACE)
+
+        jrl_target_headers(pinocchio_parallel PUBLIC
+            HEADERS
+                include/pinocchio/collision/parallel/broadphase.hpp
+                include/pinocchio/collision/parallel/geometry.hpp
+            BASE_DIRS include
+        )
+
+        jrl_target_headers(pinocchio_parallel PUBLIC
+            HEADERS
+                include/pinocchio/src/collision/parallel/broadphase.hxx
+                include/pinocchio/src/collision/parallel/geometry.hxx
+            BASE_DIRS include
+        )
+
+        target_compile_definitions(pinocchio_collision_parallel
+            INTERFACE PINOCCHIO_WITH_COLLISION
+        )
+
+        target_link_libraries(pinocchio_collision_parallel INTERFACE pinocchio_collision OpenMP::OpenMP_CXX)
+        target_link_libraries(pinocchio INTERFACE pinocchio_collision_parallel)
+        list(APPEND EXPORTED_TARGETS pinocchio_collision_parallel)
+
+
+    endif()
+endif()
+
+
 # Header only part + deprecated
 if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
     target_include_directories(
-        ${PROJECT_NAME}_default_headers
+        pinocchio_default_headers
         INTERFACE
             $<INSTALL_INTERFACE:include/pinocchio/deprecated>
             $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/pinocchio/deprecated>
@@ -1281,7 +1368,11 @@ if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
     endif()
 
     if(BUILD_WITH_OPENMP_SUPPORT)
-    # TODO
+        jrl_target_headers(pinocchio_parallel PUBLIC
+            HEADERS
+                include/pinocchio/deprecated/pinocchio/algorithm/parallel/omp.hpp
+            BASE_DIRS include
+        )
     endif()
 endif()
 

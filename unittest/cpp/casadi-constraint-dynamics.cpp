@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(test_constraintDynamics_casadi_algo)
   pinocchio::computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
   pinocchio::casadi::AutoDiffConstraintDynamics<Scalar> ad_casadi(model, contact_models);
   ad_casadi.initLib();
-  ad_casadi.loadLib();
+  ad_casadi.loadLib(true, PINOCCHIO_CXX_COMPILER);
 
   ad_casadi.evalFunction(q, v, tau);
   BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq, 1e2 * prec));
