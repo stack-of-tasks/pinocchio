@@ -35,12 +35,7 @@ add_pinocchio_unit_test(aba-derivatives)
 add_pinocchio_unit_test(centroidal-derivatives)
 add_pinocchio_unit_test(center-of-mass-derivatives)
 add_pinocchio_unit_test(constrained-dynamics-derivatives)
-
-# if(BUILD_WITH_SDF_SUPPORT)
-#   add_pinocchio_unit_test(contact-dynamics-derivatives PARSERS)
-# else()
 add_pinocchio_unit_test(contact-dynamics-derivatives)
-# endif()
 add_pinocchio_unit_test(impulse-dynamics-derivatives)
 add_pinocchio_unit_test(rnea-second-order-derivatives)
 
@@ -48,11 +43,7 @@ add_pinocchio_unit_test(rnea-second-order-derivatives)
 add_pinocchio_unit_test(spatial)
 add_pinocchio_unit_test(symmetric)
 add_pinocchio_unit_test(aba)
-# TODO handle paralle
-#add_pinocchio_parallel_unit_test(parallel-aba)
 add_pinocchio_unit_test(rnea)
-# TODO handle paralle
-#add_pinocchio_parallel_unit_test(parallel-rnea)
 add_pinocchio_unit_test(crba)
 add_pinocchio_unit_test(centroidal)
 add_pinocchio_unit_test(com)
@@ -73,8 +64,7 @@ add_pinocchio_unit_test(contact-inverse-dynamics)
 add_pinocchio_unit_test(closed-loop-dynamics)
 add_pinocchio_unit_test(loop-constrained-aba)
 add_pinocchio_unit_test(impulse-dynamics)
-# TODO handle collision
-#add_pinocchio_unit_test(sample-models COLLISION_OPTIONAL)
+add_pinocchio_unit_test(sample-models)
 add_pinocchio_unit_test(kinematics)
 add_pinocchio_unit_test(delassus)
 add_pinocchio_unit_test(delassus-operations)
@@ -85,13 +75,11 @@ add_pinocchio_unit_test(delassus-operator-rigid-body)
 add_pinocchio_unit_test(preconditioner)
 add_pinocchio_unit_test(pv-solver)
 
-# TODO handle parallel ut
-# add_pinocchio_parallel_unit_test(openmp-exception)
 
+
+# parsers
 if(BUILD_WITH_URDF_SUPPORT)
-    add_pinocchio_unit_test(
-      urdf
-    )
+    add_pinocchio_unit_test(urdf)
 
     add_pinocchio_unit_test(value)
     if(BUILD_WITH_COLLISION_SUPPORT)
@@ -108,8 +96,6 @@ if(BUILD_WITH_URDF_SUPPORT)
         add_pinocchio_unit_test(
           tree-broadphase
         )
-        # TODO handle parallel
-        #add_pinocchio_parallel_unit_test(parallel-geometry)
         add_pinocchio_unit_test(
           srdf
         )
@@ -119,12 +105,11 @@ endif()
 if(BUILD_WITH_SDF_SUPPORT)
     add_pinocchio_unit_test(sdf)
 endif()
-# TODO handle parsers ut
-# add_pinocchio_unit_test(
-#   mjcf
-#   PARSERS
-#   COLLISION_OPTIONAL
-# )
+if(BUILD_WITH_PARSERS_SUPPORT)
+    add_pinocchio_unit_test(mjcf)
+    add_pinocchio_unit_test(model-graph)
+    add_pinocchio_unit_test(model-configuration-converter)
+endif()
 
 if(BUILD_WITH_EXTRA_SUPPORT)
     add_pinocchio_unit_test(
@@ -133,7 +118,7 @@ if(BUILD_WITH_EXTRA_SUPPORT)
 endif()
 
 if(PINOCCHIO_BUILD_VISUALIZERS)
-    add_pinocchio_unit_test(visualizer VISUALIZERS)
+    add_pinocchio_unit_test(visualizer)
 endif()
 
 if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
@@ -161,8 +146,7 @@ add_pinocchio_unit_test(joint-universal)
 add_pinocchio_unit_test(joint-visitors)
 
 # Main corpus
-# TODO : Collision check
-#add_pinocchio_unit_test(model)
+add_pinocchio_unit_test(model)
 add_pinocchio_unit_test(data)
 add_pinocchio_unit_test(joint-motion-subspace)
 add_pinocchio_unit_test(compute-all-terms)
@@ -175,9 +159,7 @@ add_pinocchio_unit_test(explog)
 add_pinocchio_unit_test(finite-differences)
 add_pinocchio_unit_test(visitor)
 add_pinocchio_unit_test(algo-check)
-# TODO : parsers
-#add_pinocchio_unit_test(model-graph)
-#add_pinocchio_unit_test(model-configuration-converter)
+
 
 # Warning ignore with pragma doesn't work for a part of this test, so we ignore two warning globally
 add_pinocchio_unit_test(liegroups)
@@ -226,9 +208,15 @@ if(BUILD_ADVANCED_TESTING)
     add_pinocchio_unit_test(multiprecision)
     if(PINOCCHIO_BUILD_MPFR_TESTING)
         add_pinocchio_unit_test(multiprecision-mpfr)
+        target_link_libraries(
+            pinocchio-test-cpp-multiprecision-mpfr
+            PRIVATE mpfr gmp
+        )
+
     endif()
 endif()
 
+# special scalars
 if(BUILD_WITH_AUTODIFF_SUPPORT)
     macro(ADD_CPPAD_UNIT_TEST name)
         add_pinocchio_unit_test(${name})
@@ -280,6 +268,10 @@ if(BUILD_WITH_CASADI_SUPPORT)
     macro(ADD_CASADI_UNIT_TEST name)
         add_pinocchio_unit_test(${name})
         add_dependencies(pinocchio-test-cpp-casadi pinocchio-test-cpp-${name})
+        target_compile_definitions(
+            pinocchio-test-cpp-${name}
+            PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\"
+        )
         target_link_libraries(pinocchio-test-cpp-${name} PRIVATE pinocchio_casadi_headers)
     endmacro()
 
@@ -305,6 +297,7 @@ if(BUILD_WITH_CASADI_SUPPORT)
     endif()
 endif()
 
+# rtsan
 if(BUILD_WITH_RTSAN)
     add_pinocchio_unit_test(dynamic-allocations)
     target_compile_options(pinocchio-test-cpp-dynamic-allocations PRIVATE -fsanitize=realtime)
@@ -318,5 +311,20 @@ if(BUILD_WITH_RTSAN)
                 ENVIRONMENT_MODIFICATION
                     "RTSAN_OPTIONS=path_list_append:suppressions=${CMAKE_CURRENT_SOURCE_DIR}/dynamic-allocations-osx-arm64.supp"
         )
+    endif()
+endif()
+
+if (BUILD_WITH_OPENMP_SUPPORT)
+    macro(add_pinocchio_parallel_unit_test name)
+        add_pinocchio_unit_test(${name})
+        target_link_libraries(pinocchio-test-cpp-${name} PUBLIC pinocchio_parallel)
+    endmacro()
+
+    add_pinocchio_parallel_unit_test(parallel-aba)
+    add_pinocchio_parallel_unit_test(openmp-exception)
+    add_pinocchio_parallel_unit_test(parallel-rnea)
+    
+    if(BUILD_WITH_URDF_SUPPORT AND BUILD_WITH_COLLISION_SUPPORT)
+        add_pinocchio_parallel_unit_test(parallel-geometry)
     endif()
 endif()

@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_casadi_algo)
 
   pinocchio::casadi::AutoDiffABADerivatives<Scalar> ad_casadi(model);
   ad_casadi.initLib();
-  ad_casadi.loadLib();
+  ad_casadi.loadLib(true, PINOCCHIO_CXX_COMPILER);
 
   ad_casadi.evalFunction(q, v, tau);
 

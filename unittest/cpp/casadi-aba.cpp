@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE(test_aba_casadi_algo)
             << "\n";
   std::cout << "Number of operations in the ABA derivs function = "
             << ad_casadi.getFunDerivsOperationCount() << "\n";
-  ad_casadi.loadLib();
+  ad_casadi.loadLib(true, PINOCCHIO_CXX_COMPILER);
 
   ad_casadi.evalFunction(q, v, tau);
   ad_casadi.evalJacobian(q, v, tau);

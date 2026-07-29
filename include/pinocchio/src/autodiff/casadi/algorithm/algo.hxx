@@ -86,17 +86,18 @@ namespace pinocchio
         return file.good();
       }
 
-      void compileLib()
+      void compileLib(
+        const std::string & compiler_path = "/user/bin/gcc",
+        const std::string & compile_options = "-Ofast")
       {
-        std::string compile_command =
-          "clang -fPIC -shared -Ofast -DNDEBUG " + filename + ".c -o " + libname + ".so";
+        std::string compile_command = compiler_path + " -x c -fPIC -shared -DNDEBUG " + filename
+                                      + ".c -o " + libname + ".so " + compile_options;
 
 #ifdef __APPLE__
         compile_command += " -isysroot "
                            "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/"
                            "Developer/SDKs/MacOSX.sdk";
 #endif
-
         const int flag = system(compile_command.c_str());
         if (flag != 0)
         {
@@ -104,10 +105,14 @@ namespace pinocchio
         }
       }
 
-      void loadLib(const bool generate_if_not_exist = true)
+      void loadLib(
+        const bool generate_if_not_exist = true,
+        const std::string & compiler_path = "/usr/bin/gcc",
+        const std::string & compile_options = "-Ofast")
+
       {
         if (!existLib() && generate_if_not_exist)
-          compileLib();
+          compileLib(compiler_path, compile_options);
 
         fun = ::casadi::external(fun_name, "./" + libname + ".so");
         if (build_jacobian)
