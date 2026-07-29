@@ -31,7 +31,6 @@ void addJointAndBody(
   model.appendBodyToJoint(idx, Y);
 }
 
-
 BOOST_AUTO_TEST_CASE(prismatic_spatial)
 {
   typedef TransformPrismaticTpl<double, 0, 0> TransformX;
@@ -214,8 +213,6 @@ BOOST_AUTO_TEST_CASE(test_crba)
   BOOST_CHECK(M_expected.isApprox(data.M, 1e-10));
 }
 
-
-
 BOOST_AUTO_TEST_CASE(prismatic_unaligned_spatial)
 {
   SE3 M(SE3::Random());
@@ -310,4 +307,3 @@ BOOST_AUTO_TEST_CASE(vsPX)
 
   BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
 }
-

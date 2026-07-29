@@ -75,12 +75,9 @@ add_pinocchio_unit_test(delassus-operator-rigid-body)
 add_pinocchio_unit_test(preconditioner)
 add_pinocchio_unit_test(pv-solver)
 
-
-
 # parsers
 if(BUILD_WITH_URDF_SUPPORT)
     add_pinocchio_unit_test(urdf)
-
     add_pinocchio_unit_test(value)
     if(BUILD_WITH_COLLISION_SUPPORT)
         add_pinocchio_unit_test(geometry-object)
@@ -105,6 +102,7 @@ endif()
 if(BUILD_WITH_SDF_SUPPORT)
     add_pinocchio_unit_test(sdf)
 endif()
+
 if(BUILD_WITH_PARSERS_SUPPORT)
     add_pinocchio_unit_test(mjcf)
     add_pinocchio_unit_test(model-graph)
@@ -123,10 +121,6 @@ endif()
 
 if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
     add_pinocchio_unit_test(python_parser PYTHON_PARSER)
-endif()
-
-if(BUILD_PYTHON_INTERFACE)
-    add_subdirectory(python)
 endif()
 
 # Test over the joints
@@ -159,7 +153,6 @@ add_pinocchio_unit_test(explog)
 add_pinocchio_unit_test(finite-differences)
 add_pinocchio_unit_test(visitor)
 add_pinocchio_unit_test(algo-check)
-
 
 # Warning ignore with pragma doesn't work for a part of this test, so we ignore two warning globally
 add_pinocchio_unit_test(liegroups)
@@ -212,7 +205,6 @@ if(BUILD_ADVANCED_TESTING)
             pinocchio-test-cpp-multiprecision-mpfr
             PRIVATE mpfr gmp
         )
-
     endif()
 endif()
 
@@ -221,12 +213,16 @@ if(BUILD_WITH_AUTODIFF_SUPPORT)
     macro(ADD_CPPAD_UNIT_TEST name)
         add_pinocchio_unit_test(${name})
         add_dependencies(pinocchio-test-cpp-cppad pinocchio-test-cpp-${name})
-        target_link_libraries(pinocchio-test-cpp-${name} PRIVATE pinocchio_cppad_headers)
+        target_link_libraries(
+            pinocchio-test-cpp-${name}
+            PRIVATE pinocchio_cppad_headers
+        )
     endmacro()
 
     if(BUILD_WITH_AUTODIFF_SUPPORT AND NOT BUILD_STANDALONE_PYTHON_INTERFACE)
         add_custom_target(pinocchio-test-cpp-cppad)
-        set_target_properties(pinocchio-test-cpp-cppad
+        set_target_properties(
+            pinocchio-test-cpp-cppad
             PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True
         )
         add_cppad_unit_test(cppad-basic)
@@ -246,10 +242,13 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
             pinocchio-test-cpp-${name}
             PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\"
         )
-        target_link_libraries(pinocchio-test-cpp-${name} PRIVATE pinocchio_cppadcg_headers)
+        target_link_libraries(
+            pinocchio-test-cpp-${name}
+            PRIVATE pinocchio_cppadcg_headers
+        )
     endmacro()
 
-    if( NOT BUILD_STANDALONE_PYTHON_INTERFACE)
+    if(NOT BUILD_STANDALONE_PYTHON_INTERFACE)
         add_custom_target(pinocchio-test-cpp-cppadcg)
         set_target_properties(
             pinocchio-test-cpp-cppadcg
@@ -272,12 +271,16 @@ if(BUILD_WITH_CASADI_SUPPORT)
             pinocchio-test-cpp-${name}
             PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\"
         )
-        target_link_libraries(pinocchio-test-cpp-${name} PRIVATE pinocchio_casadi_headers)
+        target_link_libraries(
+            pinocchio-test-cpp-${name}
+            PRIVATE pinocchio_casadi_headers
+        )
     endmacro()
 
     if(BUILD_WITH_CASADI_SUPPORT AND NOT BUILD_STANDALONE_PYTHON_INTERFACE)
         add_custom_target(pinocchio-test-cpp-casadi)
-        set_target_properties( pinocchio-test-cpp-casadi
+        set_target_properties(
+            pinocchio-test-cpp-casadi
             PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True
         )
 
@@ -300,8 +303,14 @@ endif()
 # rtsan
 if(BUILD_WITH_RTSAN)
     add_pinocchio_unit_test(dynamic-allocations)
-    target_compile_options(pinocchio-test-cpp-dynamic-allocations PRIVATE -fsanitize=realtime)
-    target_link_options(pinocchio-test-cpp-dynamic-allocations PRIVATE -fsanitize=realtime)
+    target_compile_options(
+        pinocchio-test-cpp-dynamic-allocations
+        PRIVATE -fsanitize=realtime
+    )
+    target_link_options(
+        pinocchio-test-cpp-dynamic-allocations
+        PRIVATE -fsanitize=realtime
+    )
     # On osx-arm64 mutex are called to initialize some static variables.
     # We use a suppression file to make this test pass.
     if(APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
@@ -314,16 +323,19 @@ if(BUILD_WITH_RTSAN)
     endif()
 endif()
 
-if (BUILD_WITH_OPENMP_SUPPORT)
+if(BUILD_WITH_OPENMP_SUPPORT)
     macro(add_pinocchio_parallel_unit_test name)
         add_pinocchio_unit_test(${name})
-        target_link_libraries(pinocchio-test-cpp-${name} PUBLIC pinocchio_parallel)
+        target_link_libraries(
+            pinocchio-test-cpp-${name}
+            PUBLIC pinocchio_parallel
+        )
     endmacro()
 
     add_pinocchio_parallel_unit_test(parallel-aba)
     add_pinocchio_parallel_unit_test(openmp-exception)
     add_pinocchio_parallel_unit_test(parallel-rnea)
-    
+
     if(BUILD_WITH_URDF_SUPPORT AND BUILD_WITH_COLLISION_SUPPORT)
         add_pinocchio_parallel_unit_test(parallel-geometry)
     endif()

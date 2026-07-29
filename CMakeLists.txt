@@ -101,18 +101,22 @@ if(BUILD_WITH_URDF_SUPPORT)
 endif()
 
 if(BUILD_WITH_CODEGEN_SUPPORT)
-    list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find-external/CppAD")
+    list(
+        APPEND CMAKE_MODULE_PATH
+        "${PROJECT_SOURCE_DIR}/cmake/find-external/CppAD"
+    )
     jrl_find_package(cppadcg REQUIRED)
     set(BUILD_WITH_CPPAD_CODEGEN_SUPPORT TRUE)
     set(BUILD_WITH_AUTODIFF_SUPPORT TRUE)
 endif(BUILD_WITH_CODEGEN_SUPPORT)
 
-
 if(BUILD_WITH_AUTODIFF_SUPPORT)
-# TODO remove when jrl v2 provide findcppad in find modules
-    list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find-external/CppAD")
+    # TODO remove when jrl v2 provide findcppad in find modules
+    list(
+        APPEND CMAKE_MODULE_PATH
+        "${PROJECT_SOURCE_DIR}/cmake/find-external/CppAD"
+    )
     jrl_find_package(cppad REQUIRED)
-
 endif()
 
 set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
@@ -120,9 +124,8 @@ jrl_find_package(example-robot-data CONFIG REQUIRED EXPECTED_TARGETS example-rob
 
 if(BUILD_WITH_CASADI_SUPPORT)
     jrl_find_package(casadi REQUIRED)
-    # TODO remove ?
     if(NOT TARGET casadi::casadi AND TARGET casadi)
-         add_library(casadi::casadi ALIAS casadi)
+        add_library(casadi::casadi ALIAS casadi)
     endif()
 endif()
 
@@ -134,9 +137,15 @@ if(
     PINOCCHIO_BUILD_MPFR_TESTING
     OR BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT
 )
-    list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find-external/GMP")
-    list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/find-external/MPFR")
-    
+    list(
+        APPEND CMAKE_MODULE_PATH
+        "${PROJECT_SOURCE_DIR}/cmake/find-external/GMP"
+    )
+    list(
+        APPEND CMAKE_MODULE_PATH
+        "${PROJECT_SOURCE_DIR}/cmake/find-external/MPFR"
+    )
+
     jrl_find_package(GMP REQUIRED)
     jrl_find_package(MPFR REQUIRED)
 endif()
@@ -154,6 +163,12 @@ if(BUILD_WITH_OPENMP_SUPPORT)
     jrl_find_package(OpenMP REQUIRED)
 endif()
 
+if(BUILD_PYTHON_INTERFACE)
+    jrl_find_python(3.10 REQUIRED COMPONENTS Interpreter Development.Module)
+    jrl_find_package(Boost CONFIG REQUIRED COMPONENTS python EXPECTED_TARGETS Boost::python)
+    jrl_find_package(eigenpy CONFIG REQUIRED EXPECTED_TARGETS eigenpy::eigenpy)
+endif()
+
 # ----------------------------------------------------
 # --- FUNCTIONS  -------------------------------------
 # ----------------------------------------------------
@@ -162,7 +177,7 @@ macro(add_header_and_template_instantiation_targets name)
 
     add_library(${name} INTERFACE)
     target_link_libraries(${name} INTERFACE ${name}_headers)
-            list(APPEND EXPORTED_TARGETS ${name} ${name}_headers)
+    list(APPEND EXPORTED_TARGETS ${name} ${name}_headers)
 
     if(ENABLE_TEMPLATE_INSTANTIATION)
         add_library(${name}_template_instantiation SHARED)
@@ -183,7 +198,10 @@ macro(add_header_and_template_instantiation_targets name)
         # By default DEFINE_SYMBOL add -D${LIB_NAME}_EXPORTS. Don't use ${LIB_NAME}_EXPORTS define since
         # pinocchio/config.hpp use pinocchio_EXPORTS. This allow to use the same DLLAPI define for all
         # template instantiation libraries.
-        set_target_properties(${name}_template_instantiation PROPERTIES DEFINE_SYMBOL "pinocchio_EXPORTS")
+        set_target_properties(
+            ${name}_template_instantiation
+            PROPERTIES DEFINE_SYMBOL "pinocchio_EXPORTS"
+        )
         jrl_target_set_default_compile_options(${name}_template_instantiation PRIVATE)
         jrl_target_enforce_msvc_conformance(${name}_template_instantiation PRIVATE)
         target_link_libraries(${name} INTERFACE ${name}_template_instantiation)
@@ -193,38 +211,38 @@ macro(add_header_and_template_instantiation_targets name)
 endmacro()
 
 set(PINOCCHIO_CORE_INSTANTIATION_SOURCES
-        src/algorithm/cholesky.cpp
-        src/algorithm/aba.cpp
-        src/algorithm/regressor.cpp
-        src/algorithm/contact-dynamics.cpp
-        src/algorithm/frames-derivatives.cpp
-        src/algorithm/impulse-dynamics.cpp
-        src/algorithm/model.cpp
-        src/algorithm/constrained-dynamics.cpp
-        src/algorithm/rnea-derivatives.cpp
-        src/algorithm/compute-all-terms.cpp
-        src/algorithm/jacobian.cpp
-        src/algorithm/energy.cpp
-        src/algorithm/centroidal-derivatives.cpp
-        src/algorithm/frames.cpp
-        src/algorithm/constrained-dynamics-derivatives.cpp
-        src/algorithm/center-of-mass.cpp
-        src/algorithm/geometry.cpp
-        src/algorithm/kinematics.cpp
-        src/algorithm/rnea.cpp
-        src/algorithm/centroidal.cpp
-        src/algorithm/aba-derivatives.cpp
-        src/algorithm/crba.cpp
-        src/algorithm/constraint-cholesky.cpp
-        src/algorithm/joint-configuration.cpp
-        src/algorithm/center-of-mass-derivatives.cpp
-        src/algorithm/solvers/admm-solver.cpp
-        src/algorithm/solvers/pgs-solver.cpp
-        src/algorithm/kinematics-derivatives.cpp
-        src/algorithm/constraints/utils.cpp
-        src/multibody/model.cpp
-        src/multibody/data.cpp
-        src/multibody/sample-models.cpp
+    src/algorithm/cholesky.cpp
+    src/algorithm/aba.cpp
+    src/algorithm/regressor.cpp
+    src/algorithm/contact-dynamics.cpp
+    src/algorithm/frames-derivatives.cpp
+    src/algorithm/impulse-dynamics.cpp
+    src/algorithm/model.cpp
+    src/algorithm/constrained-dynamics.cpp
+    src/algorithm/rnea-derivatives.cpp
+    src/algorithm/compute-all-terms.cpp
+    src/algorithm/jacobian.cpp
+    src/algorithm/energy.cpp
+    src/algorithm/centroidal-derivatives.cpp
+    src/algorithm/frames.cpp
+    src/algorithm/constrained-dynamics-derivatives.cpp
+    src/algorithm/center-of-mass.cpp
+    src/algorithm/geometry.cpp
+    src/algorithm/kinematics.cpp
+    src/algorithm/rnea.cpp
+    src/algorithm/centroidal.cpp
+    src/algorithm/aba-derivatives.cpp
+    src/algorithm/crba.cpp
+    src/algorithm/constraint-cholesky.cpp
+    src/algorithm/joint-configuration.cpp
+    src/algorithm/center-of-mass-derivatives.cpp
+    src/algorithm/solvers/admm-solver.cpp
+    src/algorithm/solvers/pgs-solver.cpp
+    src/algorithm/kinematics-derivatives.cpp
+    src/algorithm/constraints/utils.cpp
+    src/multibody/model.cpp
+    src/multibody/data.cpp
+    src/multibody/sample-models.cpp
 )
 
 # ----------------------------------------------------
@@ -759,8 +777,7 @@ if(BUILD_WITH_PARSERS_SUPPORT)
     if(BUILD_WITH_COLLISION_SUPPORT)
         target_sources(
             pinocchio_parsers
-            PRIVATE
-                src/parsers/graph/model-graph-algo-geometry.cpp
+            PRIVATE src/parsers/graph/model-graph-algo-geometry.cpp
         )
     endif()
 
@@ -858,27 +875,25 @@ if(BUILD_WITH_PARSERS_SUPPORT)
         )
 
         # the following lines allows to link to SDFormat, indeed SDFormat has its version number in its target until version ==16
-        set(
-          SDF_VERSIONS
-          "15"
-          "13"
-          "12"
-        )
+        set(SDF_VERSIONS "15" "13" "12")
         list(APPEND SDF_VERSIONS "")
         foreach(version IN LISTS SDF_VERSIONS)
-          find_package(SDFormat${version} QUIET)
-          if(SDFormat${version}_FOUND)
-            set(SDFormat_FOUND True)
-            jrl_find_package(SDFormat${version} CONFIG)
-            message(STATUS "SDFormat${version} Found")
-            add_library(pinocchio_sdformat ALIAS sdformat${version}::sdformat${version})
-            break()
-          endif()
+            find_package(SDFormat${version} QUIET)
+            if(SDFormat${version}_FOUND)
+                set(SDFormat_FOUND True)
+                jrl_find_package(SDFormat${version} CONFIG)
+                message(STATUS "SDFormat${version} Found")
+                add_library(
+                    pinocchio_sdformat
+                    ALIAS sdformat${version}::sdformat${version}
+                )
+                break()
+            endif()
         endforeach(version)
         if(NOT SDFormat_FOUND)
             message(
-              FATAL_ERROR
-              "SDFormat  not found. Accepted versions: ${SDF_VERSIONS}"
+                FATAL_ERROR
+                "SDFormat  not found. Accepted versions: ${SDF_VERSIONS}"
             )
         endif()
 
@@ -888,9 +903,7 @@ if(BUILD_WITH_PARSERS_SUPPORT)
             pinocchio_parsers
             PUBLIC PINOCCHIO_WITH_SDFORMAT
         )
-
     endif()
-
 
     target_link_libraries(
         pinocchio_parsers
@@ -910,7 +923,7 @@ if(BUILD_WITH_PARSERS_SUPPORT)
 endif()
 
 # handle special scalars
-if (BUILD_WITH_AUTODIFF_SUPPORT)
+if(BUILD_WITH_AUTODIFF_SUPPORT)
     add_header_and_template_instantiation_targets(pinocchio_cppad)
 
     jrl_target_headers(pinocchio_cppad_headers PUBLIC
@@ -929,34 +942,33 @@ if (BUILD_WITH_AUTODIFF_SUPPORT)
         BASE_DIRS include
     )
 
-     target_link_libraries(
+    target_link_libraries(
         pinocchio_cppad_headers
         INTERFACE pinocchio_default_headers ${cppad_LIBRARY}
     )
 
     target_include_directories(
-      pinocchio_cppad_headers SYSTEM
-      INTERFACE $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>
+        pinocchio_cppad_headers
+        SYSTEM
+        INTERFACE $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>
     )
 
     target_compile_definitions(
-         pinocchio_cppad_headers
-         INTERFACE CPPAD_DEBUG_AND_RELEASE
+        pinocchio_cppad_headers
+        INTERFACE CPPAD_DEBUG_AND_RELEASE
     )
 
     target_compile_definitions(
-         pinocchio_cppad
-         INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppad.hxx"
+        pinocchio_cppad
+        INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppad.hxx"
     )
 
     if(ENABLE_TEMPLATE_INSTANTIATION)
         target_compile_definitions(
             pinocchio_cppad_template_instantiation
             PRIVATE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppad.hxx"
-
         )
     endif()
-
 endif()
 
 if(BUILD_WITH_CODEGEN_SUPPORT)
@@ -988,19 +1000,22 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
     )
 
     target_include_directories(
-      pinocchio_cppadcg_headers SYSTEM
-      INTERFACE 
-      $<BUILD_INTERFACE:${cppadcg_INCLUDE_DIR}>
-      $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>
+        pinocchio_cppadcg_headers
+        SYSTEM
+        INTERFACE
+            $<BUILD_INTERFACE:${cppadcg_INCLUDE_DIR}>
+            $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>
     )
 
     target_compile_definitions(
-         pinocchio_cppadcg_headers
-         INTERFACE CPPAD_DEBUG_AND_RELEASE)
+        pinocchio_cppadcg_headers
+        INTERFACE CPPAD_DEBUG_AND_RELEASE
+    )
 
     target_compile_definitions(
-         pinocchio_cppadcg
-         INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppadcg.hxx")
+        pinocchio_cppadcg
+        INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppadcg.hxx"
+    )
 
     if(ENABLE_TEMPLATE_INSTANTIATION)
         target_compile_definitions(
@@ -1010,7 +1025,7 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
     endif()
 endif()
 
-if (BUILD_WITH_CASADI_SUPPORT)
+if(BUILD_WITH_CASADI_SUPPORT)
     add_header_and_template_instantiation_targets(pinocchio_casadi)
 
     jrl_target_headers(pinocchio_casadi_headers PUBLIC
@@ -1035,13 +1050,13 @@ if (BUILD_WITH_CASADI_SUPPORT)
 
     target_link_libraries(
         pinocchio_casadi_headers
-        INTERFACE
-            pinocchio_default_headers
-            casadi::casadi
+        INTERFACE pinocchio_default_headers casadi::casadi
     )
+
     target_compile_definitions(
-         pinocchio_casadi
-         INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/casadi.hxx")
+        pinocchio_casadi
+        INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/casadi.hxx"
+    )
 
     if(ENABLE_TEMPLATE_INSTANTIATION)
         target_compile_definitions(
@@ -1052,12 +1067,9 @@ if (BUILD_WITH_CASADI_SUPPORT)
 endif()
 
 if(BUILD_WITH_EXTRA_SUPPORT)
-  add_library(pinocchio_extra SHARED)
+    add_library(pinocchio_extra SHARED)
 
-    target_sources(
-        pinocchio_extra
-        PRIVATE src/extra/reachable-workspace.cpp
-    )
+    target_sources(pinocchio_extra PRIVATE src/extra/reachable-workspace.cpp)
 
     jrl_target_headers(pinocchio_extra PUBLIC
       HEADERS
@@ -1091,9 +1103,8 @@ endif()
 
 # Define the visualizers target
 if(PINOCCHIO_BUILD_VISUALIZERS)
-
     add_library(pinocchio_visualizers SHARED)
-       target_sources(
+    target_sources(
         pinocchio_visualizers
         PRIVATE src/visualizers/base-visualizer.cpp
     )
@@ -1110,10 +1121,7 @@ if(PINOCCHIO_BUILD_VISUALIZERS)
         BASE_DIRS include
     )
 
-    target_link_libraries(
-        pinocchio_visualizers
-        PUBLIC pinocchio_default
-    )
+    target_link_libraries(pinocchio_visualizers PUBLIC pinocchio_default)
 
     jrl_target_set_default_compile_options(pinocchio_visualizers PRIVATE)
     jrl_target_enforce_msvc_conformance(pinocchio_visualizers PRIVATE)
@@ -1122,7 +1130,8 @@ if(PINOCCHIO_BUILD_VISUALIZERS)
     target_link_libraries(pinocchio INTERFACE pinocchio_visualizers)
     list(APPEND EXPORTED_TARGETS pinocchio_visualizers)
     if(BUILD_WITH_COLLISION_SUPPORT)
-        target_compile_definitions(pinocchio_visualizers
+        target_compile_definitions(
+            pinocchio_visualizers
             PUBLIC PINOCCHIO_WITH_COLLISION
         )
         target_link_libraries(pinocchio_visualizers PUBLIC coal::coal)
@@ -1138,7 +1147,6 @@ endif(PINOCCHIO_BUILD_WITH_TRACY)
 
 # Define the parallel target
 if(BUILD_WITH_OPENMP_SUPPORT)
-
     add_library(pinocchio_parallel INTERFACE)
 
     jrl_target_headers(pinocchio_parallel PUBLIC
@@ -1165,8 +1173,8 @@ if(BUILD_WITH_OPENMP_SUPPORT)
 
     target_link_libraries(pinocchio INTERFACE pinocchio_parallel)
     list(APPEND EXPORTED_TARGETS pinocchio_parallel)
-    if(BUILD_WITH_COLLISION_SUPPORT)
 
+    if(BUILD_WITH_COLLISION_SUPPORT)
         add_library(pinocchio_collision_parallel INTERFACE)
 
         jrl_target_headers(pinocchio_parallel PUBLIC
@@ -1183,18 +1191,19 @@ if(BUILD_WITH_OPENMP_SUPPORT)
             BASE_DIRS include
         )
 
-        target_compile_definitions(pinocchio_collision_parallel
+        target_compile_definitions(
+            pinocchio_collision_parallel
             INTERFACE PINOCCHIO_WITH_COLLISION
         )
 
-        target_link_libraries(pinocchio_collision_parallel INTERFACE pinocchio_collision OpenMP::OpenMP_CXX)
+        target_link_libraries(
+            pinocchio_collision_parallel
+            INTERFACE pinocchio_collision OpenMP::OpenMP_CXX
+        )
         target_link_libraries(pinocchio INTERFACE pinocchio_collision_parallel)
         list(APPEND EXPORTED_TARGETS pinocchio_collision_parallel)
-
-
     endif()
 endif()
-
 
 # Header only part + deprecated
 if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
@@ -1328,23 +1337,23 @@ if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
         BASE_DIRS include
     )
 
-    if (BUILD_WITH_COLLISION_SUPPORT)
+    if(BUILD_WITH_COLLISION_SUPPORT)
         jrl_target_headers(pinocchio_collision PUBLIC
             HEADERS
                 include/pinocchio/deprecated/pinocchio/collision/fcl-pinocchio-conversions.hpp
             BASE_DIRS include
-        ) 
+        )
     endif()
 
-    if (BUILD_WITH_CODEGEN_SUPPORT)
+    if(BUILD_WITH_CODEGEN_SUPPORT)
         jrl_target_headers(pinocchio_cppadcg_headers PUBLIC
             HEADERS
                 include/pinocchio/deprecated/pinocchio/codegen/code-generator-algo.hpp
             BASE_DIRS include
-        ) 
+        )
     endif()
 
-    if (BUILD_WITH_PARSERS_SUPPORT)
+    if(BUILD_WITH_PARSERS_SUPPORT)
         jrl_target_headers(pinocchio_parsers PUBLIC
             HEADERS
                 include/pinocchio/deprecated/pinocchio/parsers/graph/joints.hpp
@@ -1357,14 +1366,15 @@ if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
                 include/pinocchio/deprecated/pinocchio/parsers/graph/geometries.hpp
                 include/pinocchio/deprecated/pinocchio/parsers/mjcf/mjcf-graph.hpp
             BASE_DIRS include
-        ) 
+        )
     endif()
-    if (BUILD_WITH_URDF_SUPPORT)
+
+    if(BUILD_WITH_URDF_SUPPORT)
         jrl_target_headers(pinocchio_parsers PUBLIC
             HEADERS
                 include/pinocchio/deprecated/pinocchio/parsers/urdf/utils.hpp
             BASE_DIRS include
-        ) 
+        )
     endif()
 
     if(BUILD_WITH_OPENMP_SUPPORT)
@@ -1382,6 +1392,14 @@ endif()
 if(BUILD_TESTING)
     enable_testing()
     add_subdirectory(unittest)
+endif()
+
+# ----------------------------------------------------
+# --- BINDINGS ---------------------------------------
+# ----------------------------------------------------
+if(BUILD_PYTHON_INTERFACE)
+    add_subdirectory(bindings)
+    list(APPEND EXPORTED_TARGETS pinocchio_pywrap_headers)
 endif()
 
 # ----------------------------------------------------

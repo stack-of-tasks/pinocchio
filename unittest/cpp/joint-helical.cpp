@@ -30,7 +30,6 @@ void addJointAndBody(
   model.appendBodyToJoint(idx, Y);
 }
 
-
 BOOST_AUTO_TEST_CASE(vsPXRX)
 {
   typedef SE3::Vector3 Vector3;
@@ -190,7 +189,6 @@ BOOST_AUTO_TEST_CASE(helical_spatial)
   BOOST_CHECK(v.cross(mh_z).isApprox(v.cross(mh_dense_z)));
 }
 
-
 BOOST_AUTO_TEST_CASE(vsHX)
 {
   using namespace pinocchio;
@@ -270,4 +268,3 @@ BOOST_AUTO_TEST_CASE(vsHX)
 
   BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
 }
-
