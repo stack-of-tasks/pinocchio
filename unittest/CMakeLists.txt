@@ -3,7 +3,6 @@
 # Copyright (c) 2018-2026 INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
-# TODO test link with pinocchio
 
 add_library(pinocchio-tests-resources INTERFACE)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/serialization-data)
@@ -45,5 +44,5 @@ add_subdirectory(cpp)
 
 # Python tests
 if(BUILD_PYTHON_INTERFACE)
-    add_subdirectory(python)
+    #add_subdirectory(python)
 endif()

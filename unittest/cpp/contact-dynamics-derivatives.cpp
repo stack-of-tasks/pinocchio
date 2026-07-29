@@ -26,7 +26,6 @@
   #include "pinocchio/parsers/sdf.hpp"
   #include "pinocchio/parsers/srdf.hpp"
 
-
 #endif // PINOCCHIO_WITH_SDFORMAT
 
 #include <boost/test/unit_test.hpp>
