@@ -2,7 +2,7 @@
 // Copyright (c) 2020 INRIA
 //
 
-#define BOOST_TEST_MODULE motion
+#define BOOST_TEST_MODULE algorithm_utils_motion
 
 #include <iostream>
 

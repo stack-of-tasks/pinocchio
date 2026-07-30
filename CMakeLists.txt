@@ -1,7 +1,5 @@
 # Copyright (c) 2015-2025 CNRS INRIA
 
-# TODO: keep Wandercraft copyright ?
-# Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 cmake_minimum_required(VERSION 3.22)
 
 project(
@@ -97,7 +95,7 @@ endif()
 
 if(BUILD_WITH_URDF_SUPPORT)
     jrl_find_package(urdfdom_headers REQUIRED)
-    jrl_find_package(urdfdom REQUIRED)
+    jrl_find_package(urdfdom REQUIRED EXPECTED_TARGETS urdfdom::urdf_parser)
     jrl_find_package(console_bridge CONFIG REQUIRED EXPECTED_TARGETS console_bridge::console_bridge)
 endif()
 
@@ -106,8 +104,7 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
         APPEND CMAKE_MODULE_PATH
         "${PROJECT_SOURCE_DIR}/cmake/find-external/CppAD"
     )
-    jrl_find_package(cppadcg REQUIRED)
-    set(BUILD_WITH_CPPAD_CODEGEN_SUPPORT TRUE)
+    jrl_find_package(cppadcg REQUIRED EXPECTED_TARGETS cppadcg::cppadcg)
     set(BUILD_WITH_AUTODIFF_SUPPORT TRUE)
 endif(BUILD_WITH_CODEGEN_SUPPORT)
 
@@ -117,7 +114,7 @@ if(BUILD_WITH_AUTODIFF_SUPPORT)
         APPEND CMAKE_MODULE_PATH
         "${PROJECT_SOURCE_DIR}/cmake/find-external/CppAD"
     )
-    jrl_find_package(cppad REQUIRED)
+    jrl_find_package(cppad REQUIRED EXPECTED_TARGETS cppad::cppad)
 endif()
 
 set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
@@ -143,13 +140,15 @@ string(
 
 if(BUILD_WITH_CASADI_SUPPORT)
     jrl_find_package(casadi REQUIRED)
+    # Normalize CasADi link target across versions. 
+    #Prefer imported target (casadi::casadi), then legacy target (casadi)    
     if(NOT TARGET casadi::casadi AND TARGET casadi)
         add_library(casadi::casadi ALIAS casadi)
     endif()
 endif()
 
 if(BUILD_WITH_EXTRA_SUPPORT)
-    jrl_find_package(Qhull COMPONENTS qhullcpp qhull_r REQUIRED)
+    jrl_find_package(Qhull COMPONENTS qhullcpp qhull_r REQUIRED EXPECTED_TARGETS Qhull::qhullcpp Qhull::qhull_r)
 endif()
 
 if(
@@ -165,21 +164,21 @@ if(
         "${PROJECT_SOURCE_DIR}/cmake/find-external/MPFR"
     )
 
-    jrl_find_package(GMP REQUIRED)
-    jrl_find_package(MPFR REQUIRED)
+    jrl_find_package(GMP REQUIRED EXPECTED_TARGETS gmp)
+    jrl_find_package(MPFR REQUIRED EXPECTED_TARGETS mpfr)
 endif()
 
 if(PINOCCHIO_BUILD_WITH_TRACY)
     # assume it is installed somewhere
-    jrl_find_package(Tracy REQUIRED)
+    jrl_find_package(Tracy REQUIRED EXPECTED_TARGETS Tracy::TracyClient)
     set_target_properties(
         Tracy::TracyClient
         PROPERTIES POSITION_INDEPENDENT_CODE True
     )
-endif(PINOCCHIO_BUILD_WITH_TRACY)
+endif()
 
 if(BUILD_WITH_OPENMP_SUPPORT)
-    jrl_find_package(OpenMP REQUIRED)
+    jrl_find_package(OpenMP REQUIRED EXPECTED_TARGETS OpenMP::OpenMP_CXX)
 endif()
 
 if(BUILD_PYTHON_INTERFACE)
@@ -222,7 +221,7 @@ macro(add_header_and_template_instantiation_targets name)
             PROPERTIES DEFINE_SYMBOL "pinocchio_EXPORTS"
         )
         jrl_target_set_default_compile_options(${name}_template_instantiation PRIVATE)
-        jrl_target_enforce_msvc_conformance(${name}_template_instantiation PRIVATE)
+        jrl_target_enforce_msvc_conformance(${name}_template_instantiation PUBLIC)
         target_link_libraries(${name} INTERFACE ${name}_template_instantiation)
 
         list(APPEND EXPORTED_TARGETS ${name}_template_instantiation)
@@ -767,7 +766,7 @@ if(BUILD_WITH_COLLISION_SUPPORT)
     )
 
     jrl_target_set_default_compile_options(pinocchio_collision PRIVATE)
-    jrl_target_enforce_msvc_conformance(pinocchio_collision PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_collision PUBLIC)
     jrl_target_generate_config_header(pinocchio_collision INTERFACE FILENAME pinocchio/collision/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_collision)
 
     target_link_libraries(pinocchio INTERFACE pinocchio_collision)
@@ -934,7 +933,7 @@ if(BUILD_WITH_PARSERS_SUPPORT)
     endif()
 
     jrl_target_set_default_compile_options(pinocchio_parsers PRIVATE)
-    jrl_target_enforce_msvc_conformance(pinocchio_parsers PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_parsers PUBLIC)
     jrl_target_generate_config_header(pinocchio_parsers INTERFACE FILENAME pinocchio/parsers/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_parsers)
 
     target_link_libraries(pinocchio INTERFACE pinocchio_parsers)
@@ -963,13 +962,7 @@ if(BUILD_WITH_AUTODIFF_SUPPORT)
 
     target_link_libraries(
         pinocchio_cppad_headers
-        INTERFACE pinocchio_default_headers ${cppad_LIBRARY}
-    )
-
-    target_include_directories(
-        pinocchio_cppad_headers
-        SYSTEM
-        INTERFACE $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>
+        INTERFACE pinocchio_default_headers cppad::cppad
     )
 
     target_compile_definitions(
@@ -1012,19 +1005,7 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
     target_link_libraries(
         pinocchio_cppadcg_headers
         INTERFACE
-            pinocchio_default_headers
-            ${cppadcg_LIBRARY}
-            ${cppad_LIBRARY}
-            ${CMAKE_DL_LIBS}
-    )
-
-    target_include_directories(
-        pinocchio_cppadcg_headers
-        SYSTEM
-        INTERFACE
-            $<BUILD_INTERFACE:${cppadcg_INCLUDE_DIR}>
-            $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>
-    )
+            pinocchio_default_headers cppadcg::cppadcg)
 
     target_compile_definitions(
         pinocchio_cppadcg_headers
@@ -1113,7 +1094,7 @@ if(BUILD_WITH_EXTRA_SUPPORT)
     )
 
     jrl_target_set_default_compile_options(pinocchio_extra PRIVATE)
-    jrl_target_enforce_msvc_conformance(pinocchio_extra PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_extra PUBLIC)
     jrl_target_generate_config_header(pinocchio_extra INTERFACE FILENAME pinocchio/extra/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_extra)
 
     target_link_libraries(pinocchio INTERFACE pinocchio_extra)
@@ -1143,7 +1124,7 @@ if(PINOCCHIO_BUILD_VISUALIZERS)
     target_link_libraries(pinocchio_visualizers PUBLIC pinocchio_default)
 
     jrl_target_set_default_compile_options(pinocchio_visualizers PRIVATE)
-    jrl_target_enforce_msvc_conformance(pinocchio_visualizers PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_visualizers PUBLIC)
     jrl_target_generate_config_header(pinocchio_visualizers INTERFACE FILENAME pinocchio/visualizers/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_visualizers)
 
     target_link_libraries(pinocchio INTERFACE pinocchio_visualizers)
@@ -1187,32 +1168,24 @@ if(BUILD_WITH_OPENMP_SUPPORT)
         INTERFACE pinocchio_default OpenMP::OpenMP_CXX
     )
 
-    jrl_target_set_default_compile_options(pinocchio_parallel INTERFACE)
-    jrl_target_enforce_msvc_conformance(pinocchio_parallel INTERFACE)
-
     target_link_libraries(pinocchio INTERFACE pinocchio_parallel)
     list(APPEND EXPORTED_TARGETS pinocchio_parallel)
 
     if(BUILD_WITH_COLLISION_SUPPORT)
         add_library(pinocchio_collision_parallel INTERFACE)
 
-        jrl_target_headers(pinocchio_parallel PUBLIC
+        jrl_target_headers(pinocchio_collision_parallel PUBLIC
             HEADERS
                 include/pinocchio/collision/parallel/broadphase.hpp
                 include/pinocchio/collision/parallel/geometry.hpp
             BASE_DIRS include
         )
 
-        jrl_target_headers(pinocchio_parallel PUBLIC
+        jrl_target_headers(pinocchio_collision_parallel PUBLIC
             HEADERS
                 include/pinocchio/src/collision/parallel/broadphase.hxx
                 include/pinocchio/src/collision/parallel/geometry.hxx
             BASE_DIRS include
-        )
-
-        target_compile_definitions(
-            pinocchio_collision_parallel
-            INTERFACE PINOCCHIO_WITH_COLLISION
         )
 
         target_link_libraries(

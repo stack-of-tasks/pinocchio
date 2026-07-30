@@ -203,7 +203,7 @@ if(BUILD_ADVANCED_TESTING)
         add_pinocchio_unit_test(multiprecision-mpfr)
         target_link_libraries(
             pinocchio-test-cpp-multiprecision-mpfr
-            PRIVATE mpfr gmp
+            PRIVATE mpfr::mpfr
         )
     endif()
 endif()

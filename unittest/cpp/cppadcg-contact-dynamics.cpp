@@ -2,7 +2,7 @@
 // Copyright (c) 2021 INRIA
 //
 
-#define BOOST_TEST_MODULE contact_dynamics
+#define BOOST_TEST_MODULE cppadcg_contact_dynamics
 
 #include "pinocchio/codegen/cppadcg.hpp"
 #include "pinocchio/codegen/cppadcg-algo.hpp"

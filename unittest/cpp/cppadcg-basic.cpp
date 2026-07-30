@@ -2,7 +2,7 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
-#define BOOST_TEST_MODULE basic
+#define BOOST_TEST_MODULE cppadcg_basic
 
 #include "pinocchio/codegen/cppadcg.hpp"
 

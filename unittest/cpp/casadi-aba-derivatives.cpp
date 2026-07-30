@@ -2,7 +2,7 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
-#define BOOST_TEST_MODULE aba_derivatives
+#define BOOST_TEST_MODULE casadi_aba_derivatives
 
 #include "pinocchio/autodiff/casadi.hpp"
 #include "pinocchio/autodiff/casadi-algo.hpp"

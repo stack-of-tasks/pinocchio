@@ -2,7 +2,7 @@
 // Copyright (c) 2020 INRIA
 //
 
-#define BOOST_TEST_MODULE force
+#define BOOST_TEST_MODULE algorithm_utils_force
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
