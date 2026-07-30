@@ -2,7 +2,7 @@
 // Copyright (c) 2021 INRIA
 //
 
-#define BOOST_TEST_MODULE explog
+#define BOOST_TEST_MODULE casadi_explog
 
 #include "pinocchio/autodiff/casadi.hpp"
 

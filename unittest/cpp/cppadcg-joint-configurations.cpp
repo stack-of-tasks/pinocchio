@@ -2,7 +2,7 @@
 // Copyright (c) 2020 CNRS INRIA
 //
 
-#define BOOST_TEST_MODULE joint_configurations
+#define BOOST_TEST_MODULE cppadcg_joint_configurations
 
 #include "pinocchio/codegen/cppadcg.hpp"
 #include "pinocchio/codegen/cppadcg-algo.hpp"

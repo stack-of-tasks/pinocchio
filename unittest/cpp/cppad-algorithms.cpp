@@ -2,7 +2,7 @@
 // Copyright (c) 2018-2022 CNRS INRIA
 //
 
-#define BOOST_TEST_MODULE algorithms
+#define BOOST_TEST_MODULE cppad_algorithms
 
 #include "pinocchio/autodiff/cppad.hpp"
 

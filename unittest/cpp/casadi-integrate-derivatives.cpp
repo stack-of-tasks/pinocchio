@@ -2,7 +2,7 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
-#define BOOST_TEST_MODULE integrate_derivatives
+#define BOOST_TEST_MODULE casadi_integrate_derivatives
 
 #include "pinocchio/autodiff/casadi.hpp"
 

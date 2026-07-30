@@ -2,7 +2,7 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
-#define BOOST_TEST_MODULE spatial
+#define BOOST_TEST_MODULE cppad_spatial
 
 #include "pinocchio/autodiff/cppad.hpp"
 

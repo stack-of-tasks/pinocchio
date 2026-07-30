@@ -2,7 +2,7 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
-#define BOOST_TEST_MODULE constraint_dynamics
+#define BOOST_TEST_MODULE casadi_constraint_dynamics
 
 #include "pinocchio/autodiff/casadi.hpp"
 #include "pinocchio/autodiff/casadi-algo.hpp"

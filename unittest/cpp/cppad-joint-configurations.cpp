@@ -2,7 +2,7 @@
 // Copyright (c) 2020 CNRS INRIA
 //
 
-#define BOOST_TEST_MODULE joint_configurations
+#define BOOST_TEST_MODULE cppad_joint_configurations
 
 #include "pinocchio/autodiff/cppad.hpp"
 

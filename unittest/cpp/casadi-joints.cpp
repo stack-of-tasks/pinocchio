@@ -2,7 +2,7 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
-#define BOOST_TEST_MODULE joints
+#define BOOST_TEST_MODULE casadi_joints
 
 #include "pinocchio/autodiff/casadi.hpp"
 

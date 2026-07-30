@@ -2,7 +2,7 @@
 // Copyright (c) 2019 INRIA
 //
 
-#define BOOST_TEST_MODULE spatial
+#define BOOST_TEST_MODULE casadi_spatial
 
 #include <pinocchio/autodiff/casadi.hpp>
 

@@ -2,7 +2,7 @@
 // Copyright (c) 2019-2021 INRIA
 //
 
-#define BOOST_TEST_MODULE algorithms
+#define BOOST_TEST_MODULE casadi_algorithms
 
 #include "pinocchio/autodiff/casadi.hpp"
 
