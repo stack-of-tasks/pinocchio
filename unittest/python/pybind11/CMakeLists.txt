@@ -17,19 +17,23 @@ endif()
 #
 # BUG: might not work out of the box on OSX with conda:
 # https://github.com/pybind/pybind11/issues/3081
-if(NOT BUILD_TESTING)
-    add_library(cpp2pybind11 MODULE EXCLUDE_FROM_ALL cpp2pybind11.cpp)
+if(BUILD_TESTING)
+    set(_exclude)
 else()
-    add_library(cpp2pybind11 MODULE cpp2pybind11.cpp)
+    set(_exclude EXCLUDE_FROM_ALL)
 endif()
-add_dependencies(build_tests cpp2pybind11)
+
+python_add_library(cpp2pybind11 MODULE ${_exclude} WITH_SOABI cpp2pybind11.cpp)
+add_dependencies(pinocchio-tests cpp2pybind11)
+add_dependencies(cpp2pybind11 pinocchio_pywrap_default)
 target_link_libraries(
     cpp2pybind11
-    PRIVATE pinocchio_pywrap_default pybind11::module Eigen3::Eigen
-)
-set_target_properties(
-    cpp2pybind11
-    PROPERTIES PREFIX "" SUFFIX ${PYTHON_EXT_SUFFIX}
+    PRIVATE
+        pinocchio_pywrap_headers
+        eigenpy::eigenpy
+        Boost::python
+        pybind11::module
+        Eigen3::Eigen
 )
 
 if(CMAKE_CXX_STANDARD LESS 14)
@@ -44,6 +48,10 @@ if(WIN32)
     target_compile_definitions(cpp2pybind11 PRIVATE -DNOMINMAX)
 endif(WIN32)
 
-add_python_unit_test("test-py-cpp2pybind11" "unittest/python/pybind11/test-cpp2pybind11.py"
-                     "bindings/python" "unittest/python/pybind11"
+pinocchio_python_add_test(test-cpp2pybind11)
+set_tests_properties(
+    "pinocchio-test-py-test-cpp2pybind11"
+    PROPERTIES
+        ENVIRONMENT_MODIFICATION
+            "PYTHONPATH=path_list_prepend:$<TARGET_FILE_DIR:cpp2pybind11>"
 )

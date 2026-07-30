@@ -1,409 +1,438 @@
 #
 # Copyright (c) 2015-2023 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
-#
 
-include(${JRL_CMAKE_MODULES}/python-helpers.cmake)
-include(${JRL_CMAKE_MODULES}/stubs.cmake)
-
-# --- PYTHON TARGET --- #
-set(PYWRAP ${PROJECT_NAME}_pywrap)
-set(PYWRAP ${PYWRAP} PARENT_SCOPE)
-
-# --- COMPILE WRAPPER
-make_directory("${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
-set(${PYWRAP}_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES})
-set(${PYWRAP}_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS})
-
-function(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
-    set(scalar_name "${scalar_name}")
-    set(PYTHON_LIB_NAME "${PYWRAP}_${scalar_name}")
-
-    string(TOUPPER ${scalar_name} upper_scalar_name)
-    set(EXTRA_SOURCES
-        ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_SOURCES}
+function(pinocchio_add_python_binding scalar_name)
+    set(target_name pinocchio_pywrap_${scalar_name})
+    jrl_boostpy_add_module(${target_name} ${ARGN})
+    jrl_target_enforce_msvc_conformance(${target_name} PRIVATE)
+    jrl_check_python_module_name(${target_name})
+    target_link_libraries(
+        ${target_name}
+        PRIVATE eigenpy::eigenpy pinocchio_pywrap_headers
     )
-    set(EXTRA_HEADERS
-        ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_PUBLIC_HEADERS}
-    )
+    jrl_target_set_default_compile_options(${target_name} PRIVATE)
+    jrl_target_set_output_directory(${target_name} OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/site-packages/pinocchio)
 
-    set(${PYTHON_LIB_NAME}_SOURCES ${${PYWRAP}_SOURCES} ${EXTRA_SOURCES})
-    set(${PYTHON_LIB_NAME}_HEADERS ${${PYWRAP}_HEADERS} ${EXTRA_HEADERS})
-
-    add_library(
-        ${PYTHON_LIB_NAME}
-        SHARED
-        ${${PYTHON_LIB_NAME}_SOURCES}
-        ${${PYTHON_LIB_NAME}_HEADERS}
+    target_compile_definitions(
+        ${target_name}
+        PRIVATE
+            PINOCCHIO_PYTHON_CONTEXT_FILE="pinocchio/bindings/python/context/${scalar_name}.hpp"
+            PINOCCHIO_PYTHON_MODULE_NAME=${target_name}
     )
 
     # Links against accelerate
     if(BUILD_WITH_ACCELERATE_SUPPORT)
-        # modernize_target_link_libraries(${PYTHON_LIB_NAME} SCOPE PUBLIC TARGETS Accelerate)
-        target_link_libraries(
-            ${PYTHON_LIB_NAME}
-            PRIVATE "-framework accelerate"
-        )
-    endif(BUILD_WITH_ACCELERATE_SUPPORT)
+        target_link_libraries(${target_name} PRIVATE "-framework accelerate")
+    endif()
 
     if(BUILD_WITH_OPENMP_SUPPORT)
         # OpenMP is linked with pinocchio_parallel target
         target_compile_definitions(
-            ${PYTHON_LIB_NAME}
+            ${target_name}
             PRIVATE -DPINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
         )
     endif()
-    add_dependencies(${PROJECT_NAME}-python ${PYTHON_LIB_NAME})
-
-    # Remove lib prefix for the target and use the right define for DLLAPI definition.
-    #
-    # Set inlined function visibility to hidden by default. This avoid bug on OSX where two symbol
-    # from two different binding (`pinocchio::python::exposeSpecificTypeFeatures`) can be wrongly
-    # loaded (see https://github.com/stack-of-tasks/pinocchio/issues/2462).
-    set_target_properties(
-        ${PYTHON_LIB_NAME}
-        PROPERTIES
-            PREFIX ""
-            DEFINE_SYMBOL "${PYWRAP}_EXPORTS"
-            CXX_VISIBILITY_PRESET hidden
-            VISIBILITY_INLINES_HIDDEN ON
-    )
-
-    # Do not report:
-    #
-    # * -Wconversion as the BOOST_PYTHON_FUNCTION_OVERLOADS implicitly converts.
-    # * -Wcomment as latex equations have multi-line comments.
-    # * -Wself-assign-overloaded as bp::self operations trigger this (Clang only).
-    # * -Xclang=-fno-pch-timestamp to allow ccache to use pch
-    #   (https://ccache.dev/manual/latest.html#_precompiled_headers).
-    cxx_flags_by_compiler_frontend(
-      GNU -Wno-conversion -Wno-comment -Wno-self-assign-overloaded -Xclang=-fno-pch-timestamp
-      MSVC -Xclang=-fno-pch-timestamp
-      OUTPUT PRIVATE_OPTIONS
-      FILTER
-    )
-    target_compile_options(${PYTHON_LIB_NAME} PRIVATE ${PRIVATE_OPTIONS})
-
-    set(PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE
-        "pinocchio/bindings/python/context/${scalar_name}.hpp"
-    )
-    target_compile_definitions(
-        ${PYTHON_LIB_NAME}
-        PRIVATE
-            PINOCCHIO_PYTHON_CONTEXT_FILE="${PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE}"
-            PINOCCHIO_PYTHON_MODULE_NAME=${PYTHON_LIB_NAME}
-    )
-
-    set_target_properties(
-        ${PYTHON_LIB_NAME}
-        PROPERTIES VERSION ${PROJECT_VERSION}
-    )
-    if(BUILD_WITH_COMMIT_VERSION)
-        tag_library_version(${PYTHON_LIB_NAME})
-    endif(BUILD_WITH_COMMIT_VERSION)
-    add_header_group(${PYTHON_LIB_NAME}_HEADERS)
-    add_source_group(${PYTHON_LIB_NAME}_SOURCES)
-
-    modernize_target_link_libraries(
-      ${PYTHON_LIB_NAME}
-      SCOPE PUBLIC
-      TARGETS eigenpy::eigenpy
-    )
-    target_link_libraries(
-        ${PYTHON_LIB_NAME}
-        PUBLIC ${PROJECT_NAME}::${PROJECT_NAME}
-    )
 
     if(BUILD_WITH_URDF_SUPPORT)
         # Link directly against console_bridge since we bind some enums and call
         # console_bridge::setLogLevel function.
-        modernize_target_link_libraries(
-          ${PYTHON_LIB_NAME}
-          SCOPE PUBLIC
-          TARGETS console_bridge::console_bridge
-          LIBRARIES ${console_bridge_LIBRARIES}
-          INCLUDE_DIRS ${console_bridge_INCLUDE_DIRS}
+        target_link_libraries(
+            ${target_name}
+            PUBLIC console_bridge::console_bridge
         )
     endif()
+
     if(BUILD_WITH_COLLISION_SUPPORT)
         target_compile_definitions(
-            ${PYTHON_LIB_NAME}
+            ${target_name}
             PRIVATE PINOCCHIO_PYTHON_INTERFACE_WITH_COLLISION_PYTHON_BINDINGS
         )
     endif()
-    if(WIN32)
-        target_link_libraries(${PYTHON_LIB_NAME} PUBLIC ${PYTHON_LIBRARY})
-    endif()
 
-    set(${PYWRAP}_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})
-
-    set_target_properties(
-        ${PYTHON_LIB_NAME}
-        PROPERTIES
-            PREFIX ""
-            SUFFIX ${PYTHON_EXT_SUFFIX}
-            OUTPUT_NAME "${PYTHON_LIB_NAME}"
-            LIBRARY_OUTPUT_DIRECTORY
-                "${PROJECT_BINARY_DIR}/bindings/python/${PROJECT_NAME}"
-            # On Windows, shared library are treat as binary
-            RUNTIME_OUTPUT_DIRECTORY
-                "${PROJECT_BINARY_DIR}/bindings/python/${PROJECT_NAME}"
-    )
-
-    if(UNIX)
-        get_relative_rpath(${${PYWRAP}_INSTALL_DIR} ${PYWRAP}_INSTALL_RPATH)
-        set_target_properties(
-            ${PYTHON_LIB_NAME}
-            PROPERTIES INSTALL_RPATH "${${PYWRAP}_INSTALL_RPATH}"
-        )
-    endif()
-
-    install(
-        TARGETS ${PYTHON_LIB_NAME}
-        EXPORT ${TARGETS_EXPORT_NAME}
-        DESTINATION ${PINOCCHIO_PYTHON_INSTALL_DIR}
-    )
-endfunction()
-
-function(INSTALL_PYTHON_FILES)
-    set(options)
-    set(oneValueArgs MODULE)
-    set(multiValueArgs FILES)
-    cmake_parse_arguments(
-        ARGS
-        "${options}"
-        "${oneValueArgs}"
-        "${multiValueArgs}"
-        ${ARGN}
-    )
-
-    set(SOURCE_PATH ${PROJECT_NAME})
-    set(INSTALL_PATH ${PINOCCHIO_PYTHON_INSTALL_DIR})
-    if(ARGS_MODULE)
-        set(SOURCE_PATH ${SOURCE_PATH}/${ARGS_MODULE})
-        set(INSTALL_PATH ${INSTALL_PATH}/${ARGS_MODULE})
-    endif()
-
-    foreach(f ${ARGS_FILES})
-        python_build(${SOURCE_PATH} ${f})
-        install(FILES ${SOURCE_PATH}/${f} DESTINATION ${INSTALL_PATH})
-    endforeach()
-endfunction()
-
-if(BUILD_PYTHON_INTERFACE)
-    add_custom_target(${PROJECT_NAME}-python)
-    set_target_properties(
-        ${PROJECT_NAME}-python
-        PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True
-    )
-
-    python_build_get_target(python_build_target)
-    add_dependencies(${PROJECT_NAME}-python ${python_build_target})
-
-    if(IS_ABSOLUTE ${PYTHON_SITELIB})
-        set(ABSOLUTE_PYTHON_SITELIB ${PYTHON_SITELIB})
-    else()
-        set(ABSOLUTE_PYTHON_SITELIB ${CMAKE_INSTALL_PREFIX}/${PYTHON_SITELIB})
-    endif()
-    set(PINOCCHIO_PYTHON_INSTALL_DIR ${ABSOLUTE_PYTHON_SITELIB}/${PROJECT_NAME})
-
-    pinocchio_python_bindings_specific_type(default)
     # Precompiled headers are used to speed up compilation of the Python bindings. We have also tested
     # precompiling headers for the main library's `pinocchio_default` target, but the time gain there
     # was negligible compared to the time gained in the Python bindings. We also precompile headers
     # for other scalar types as well.
     if(PINOCCHIO_BUILD_BINDING_WITH_PCH)
         target_precompile_headers(
-            ${PYWRAP}_default
+            ${target_name}
             PRIVATE
                 ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
         )
     endif()
-    set(PYTHON_LIB_NAME "${PYWRAP}_default")
-    set(STUBGEN_DEPENDENCIES "${PYWRAP}_default")
+endfunction()
 
-    if(BUILD_WITH_AUTODIFF_SUPPORT)
-        pinocchio_python_bindings_specific_type(cppad cppad)
-        # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
-        # This can happen when Pinocchio is build in Debug mode and pycppad is build in Release mode.
-        # See
-        # https://coin-or.github.io/CppAD/doc/preprocessor.htm#Documented%20Here.CPPAD_DEBUG_AND_RELEASE.
-        target_compile_definitions(
-            ${PYWRAP}_cppad
-            PRIVATE
-                PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
-                CPPAD_DEBUG_AND_RELEASE
-        )
-        target_include_directories(
-            ${PYWRAP}_cppad
-            SYSTEM
-            PUBLIC $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>
-        )
-        target_link_libraries(${PYWRAP}_cppad PUBLIC ${cppad_LIBRARY})
-        list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppad")
+# Define header interface
+add_library(pinocchio_pywrap_headers INTERFACE)
+add_library(pinocchio::pinocchio_pywrap_headers ALIAS pinocchio_pywrap_headers)
+target_link_libraries(pinocchio_pywrap_headers INTERFACE pinocchio)
+target_include_directories(
+    pinocchio_pywrap_headers
+    INTERFACE
+        $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+)
 
-        if(PINOCCHIO_BUILD_BINDING_WITH_PCH)
-            target_precompile_headers(
-                ${PYWRAP}_cppad
-                PRIVATE
-                    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
-                    <cppad/cppad.hpp>
-                    <boost/mpl/int.hpp>
-            )
-        endif()
+jrl_target_headers(pinocchio_pywrap_headers INTERFACE
+  HEADERS
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/explog.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/classic-acceleration.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/symmetric3.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/motion.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/force.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/inertia.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/spatial/se3.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/contact-info.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraint-cholesky.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraint-solver-base.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/delassus-operator.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/proximal.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/algorithms.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/baumgarte-corrector-param
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/constraint-data-base.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/constraint-data.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/constraint-data-inheritan
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/constraint-model-base.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/constraint-model.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/constraint-model-inherita
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/constraints-datas.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/constraints-models.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/constraints-variant.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/set-base.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/set-box-set.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/set-coulomb-friction-cone
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/algorithm/constraints/set-trivial-cones.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pybind11-all.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pybind11.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/constant.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/version.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/pickle-vector.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/macros.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/path.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/std-vector.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/printable.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/dependencies.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/conversions.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/address.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/copyable.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/registration.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/pickle.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/pickle-map.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/list.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/eigen.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/comparable.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/std-map.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/cast.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/deprecation.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/keep-alive.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/model-checker.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/namespace.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/utils/std-aligned-vector.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/cppadcg.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/cppad.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/casadi.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/default.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/mpfr.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/generic.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/fwd.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/serialization/serialization.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/serialization/serializable.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/math/tridiagonal-matrix.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/math/lanczos-decomposition.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/broadphase-manager-base.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/geometry-functors.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/tree-broadphase-manager.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/data.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/frame.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/geometry-model.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joint.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/model.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joint-model.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joint-derived.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joints-models.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joints-variant.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joints-liegroup.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joints-datas.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/joint/joint-data.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/liegroups.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/geometry-data.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/geometry-object.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/urdf.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/sdf.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/mjcf.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/srdf.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/model-graph.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/parsers/graph/model-configuration-converter.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/extra/extras.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/visualizers/visualizer-visitor.hpp
+  BASE_DIRS include
+)
 
-        # --- INSTALL SCRIPTS
-        install_python_files(MODULE cppad FILES __init__.py)
-    endif(BUILD_WITH_AUTODIFF_SUPPORT)
+set(COMMON_SOURCES
+    spatial/expose-symmetric3.cpp
+    spatial/expose-force.cpp
+    spatial/expose-inertia.cpp
+    spatial/expose-SE3.cpp
+    spatial/expose-motion.cpp
+    spatial/expose-explog.cpp
+    spatial/expose-skew.cpp
+    algorithm/expose-impulse-dynamics.cpp
+    algorithm/expose-model.cpp
+    algorithm/expose-centroidal.cpp
+    algorithm/expose-aba.cpp
+    algorithm/expose-algorithms.cpp
+    algorithm/expose-com.cpp
+    algorithm/expose-frames.cpp
+    algorithm/expose-energy.cpp
+    algorithm/expose-contact-dynamics.cpp
+    algorithm/expose-constrained-dynamics-derivatives.cpp
+    algorithm/expose-rnea-derivatives.cpp
+    algorithm/expose-kinematics.cpp
+    algorithm/expose-geometry.cpp
+    algorithm/expose-aba-derivatives.cpp
+    algorithm/expose-constraint-solvers.cpp
+    algorithm/expose-contact-inverse-dynamics.cpp
+    algorithm/expose-joints.cpp
+    algorithm/expose-constrained-dynamics.cpp
+    algorithm/expose-loop-constrained-aba.cpp
+    algorithm/expose-rnea.cpp
+    algorithm/expose-contact-jacobian.cpp
+    algorithm/constraints/expose-cones.cpp
+    algorithm/constraints/expose-constraints.cpp
+    algorithm/expose-cholesky.cpp
+    algorithm/expose-regressor.cpp
+    algorithm/expose-kinematics-derivatives.cpp
+    algorithm/expose-cat.cpp
+    algorithm/expose-frames-derivatives.cpp
+    algorithm/expose-centroidal-derivatives.cpp
+    algorithm/expose-jacobian.cpp
+    algorithm/expose-delassus.cpp
+    algorithm/expose-impulse-dynamics-derivatives.cpp
+    algorithm/expose-kinematic-regressor.cpp
+    algorithm/expose-crba.cpp
+    algorithm/solvers/expose-admm-solver.cpp
+    algorithm/solvers/expose-pgs-solver.cpp
+    utils/version.cpp
+    utils/dependencies.cpp
+    utils/conversions.cpp
+    utils/path.cpp
+    math/expose-linalg.cpp
+    math/expose-tridiagonal-matrix.cpp
+    math/expose-lanczos-decomposition.cpp
+    math/expose-gram-schmidt-orthonormalisation.cpp
+    math/expose-rpy.cpp
+    math/expose-eigen-types.cpp
+    serialization/serialization.cpp
+    multibody/expose-model.cpp
+    multibody/expose-liegroups.cpp
+    multibody/expose-geometry.cpp
+    multibody/expose-frame.cpp
+    multibody/expose-data.cpp
+    multibody/joint/expose-joints.cpp
+    multibody/sample-models.cpp
+    parsers/sdf/model.cpp
+    parsers/sdf/geometry.cpp
+    parsers/expose-parsers.cpp
+    parsers/urdf/console-bridge.cpp
+    parsers/urdf/model.cpp
+    parsers/urdf/geometry.cpp
+    parsers/srdf.cpp
+    parsers/mjcf/model.cpp
+    parsers/mjcf/geometry.cpp
+    parsers/graph/expose-edges.cpp
+    parsers/graph/expose-frames.cpp
+    parsers/graph/expose-geometries.cpp
+    parsers/graph/expose-model-graph-algo.cpp
+    parsers/graph/expose-model-graph.cpp
+    parsers/graph/expose-model-configuration-converter.cpp
+    parsers/graph/expose-model-graph-algo-geometry.cpp
+    extra/expose-extras.cpp
+    module.cpp
+)
 
-    if(BUILD_WITH_CODEGEN_SUPPORT)
-        pinocchio_python_bindings_specific_type(cppadcg cppadcg)
-
-        # On osx, use default visiblitiy because of an issue with thread_local storage defined in
-        # cppad/cg/cg.hpp header (see
-        # https://github.com/stack-of-tasks/pinocchio/pull/2469#issuecomment-2461845127)
-        if(APPLE)
-            set_target_properties(
-                ${PYWRAP}_cppadcg
-                PROPERTIES CXX_VISIBILITY_PRESET default
-            )
-        endif()
-
-        # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
-        target_compile_definitions(
-            ${PYWRAP}_cppadcg
-            PRIVATE
-                PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
-                CPPAD_DEBUG_AND_RELEASE
-        )
-        target_include_directories(
-            ${PYWRAP}_cppadcg
-            SYSTEM
-            PUBLIC $<BUILD_INTERFACE:${cppadcg_INCLUDE_DIR}>
-        )
-        target_link_libraries(
-            ${PYWRAP}_cppadcg
-            PUBLIC ${cppadcg_LIBRARY} ${cppad_LIBRARY}
-        )
-        list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_cppadcg")
-
-        if(PINOCCHIO_BUILD_BINDING_WITH_PCH)
-            target_precompile_headers(
-                ${PYWRAP}_cppadcg
-                PRIVATE
-                    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
-                    <cmath>
-                    <boost/mpl/int.hpp>
-                    <cppad/cg/support/cppadcg_eigen.hpp>
-            )
-        endif()
-
-        # --- INSTALL SCRIPTS
-        install_python_files(MODULE cppadcg FILES __init__.py)
-    endif(BUILD_WITH_CODEGEN_SUPPORT)
-
-    if(BUILD_WITH_CASADI_SUPPORT)
-        pinocchio_python_bindings_specific_type(casadi)
-        target_link_libraries(${PYWRAP}_casadi PUBLIC casadi::casadi)
-        list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_casadi")
-
-        if(PINOCCHIO_BUILD_BINDING_WITH_PCH)
-            target_precompile_headers(
-                ${PYWRAP}_casadi
-                PRIVATE
-                    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
-                    <casadi/casadi.hpp>
-                    <casadi/core/casadi_types.hpp>
-                    <casadi/core/code_generator.hpp>
-            )
-        endif()
-
-        # --- INSTALL SCRIPTS
-        install_python_files(MODULE casadi FILES __init__.py)
-    endif(BUILD_WITH_CASADI_SUPPORT)
-
-    if(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
-        pinocchio_python_bindings_specific_type(mpfr)
-
-        target_link_libraries(${PYWRAP}_mpfr PRIVATE gmp mpfr)
-        list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_mpfr")
-
-        if(PINOCCHIO_BUILD_BINDING_WITH_PCH)
-            target_precompile_headers(
-                ${PYWRAP}_mpfr
-                PRIVATE
-                    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
-                    <boost/multiprecision/mpfr.hpp>
-            )
-        endif()
-
-        # --- INSTALL SCRIPTS
-        install_python_files(MODULE mpfr FILES __init__.py)
-    endif()
-
-    # --- INSTALL SCRIPTS
-    install_python_files(
-      FILES __init__.py
-            deprecated.py
-            deprecation.py
-            utils.py
-            robot_wrapper.py
-            romeo_wrapper.py
-            explog.py
-            shortcuts.py
-            windows_dll_manager.py
+if(BUILD_WITH_COLLISION_SUPPORT)
+    jrl_target_headers(pinocchio_pywrap_headers INTERFACE
+        HEADERS
+            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/coal/transform.hpp
+            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/fcl/transform.hpp
+            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/broadphase-manager.hpp
+            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/collision.hpp
+        BASE_DIRS include
     )
-
-    # --- INSTALL DERIVATIVE SCRIPTS
-    install_python_files(MODULE derivative FILES xm.py dcrba.py lambdas.py)
-
-    # --- INSTALL VISUALIZATION SCRIPTS
-    install_python_files(
-      MODULE visualize
-      FILES __init__.py
-            base_visualizer.py
-            gepetto_visualizer.py
-            meshcat_visualizer.py
-            panda3d_visualizer.py
-            rviz_visualizer.py
-            viser_visualizer.py
-            visualizers.py
+    list(
+        APPEND COMMON_SOURCES
+        collision/expose-broadphase.cpp
+        collision/expose-broadphase-callbacks.cpp
+        collision/expose-collision.cpp
+        collision/expose-coal.cpp
     )
+endif()
 
-    # --- STUBS --- #
-    if(GENERATE_PYTHON_STUBS)
-        python_build_get_target(python_build_target_name)
-        load_stubgen()
-        # Set PYWRAP and PROJECT_NAME as stubs dependencies.
-        #
-        # PROJECT_NAME is mandatory (even if it's a PYWRAP dependency) to find PROJECT_NAME name DLL on
-        # windows.
-        generate_stubs(
-          ${CMAKE_CURRENT_BINARY_DIR}
-          ${PROJECT_NAME}
-          ${ABSOLUTE_PYTHON_SITELIB}
-          ${PYWRAP}_default
-          ${PROJECT_NAME}::${PROJECT_NAME}_default
-          ${STUBGEN_DEPENDENCIES}
-          ${python_build_target_name}
+if(BUILD_WITH_OPENMP_SUPPORT)
+    jrl_target_headers(pinocchio_pywrap_headers INTERFACE
+        HEADERS
+            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/pool/model.hpp
+        BASE_DIRS include
+    )
+    list(
+        APPEND COMMON_SOURCES
+        multibody/pool/expose-pool.cpp
+        algorithm/parallel/aba.cpp
+        algorithm/parallel/expose-parallel.cpp
+        algorithm/parallel/rnea.cpp
+    )
+    if(BUILD_WITH_COLLISION_SUPPORT)
+        jrl_target_headers(pinocchio_pywrap_headers INTERFACE
+            HEADERS
+                ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/pool/geometry.hpp
+                ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/pool/broadphase-manager.hpp
+            BASE_DIRS include
         )
-    endif(GENERATE_PYTHON_STUBS)
-
-    # --- PACKAGING --- #
-
-    if(DOXYGEN_FOUND AND DOXYGEN_VERSION VERSION_GREATER 1.8.17)
-        set(DOXYGEN_GENERATE_HTML YES)
-        set(DOXYGEN_GENERATE_LATEX NO)
-        set(DOXYGEN_PROJECT_NAME "Pinocchio PyBind11 helpers.")
-        set(_source_headers_root
-            "../../include/${PROJECT_NAME}/bindings/python"
-        )
-        doxygen_add_docs(
-            doc_pybind11
-            ${_source_headers_root}/pybind11.hpp
-            ${_source_headers_root}/pybind11-all.hpp
-            USE_STAMP_FILE
-            COMMENT "Generating documentation of the PyBind11 helpers."
+        list(
+            APPEND COMMON_SOURCES
+            collision/parallel/expose-parallel.cpp
+            collision/parallel/geometry.cpp
+            collision/parallel/broadphase.cpp
+            collision/pool/expose-pool.cpp
         )
     endif()
-endif(BUILD_PYTHON_INTERFACE)
+endif()
+
+if(BUILD_WITH_EXTRA_SUPPORT)
+    list(
+        APPEND COMMON_SOURCES
+        ${PROJECT_SOURCE_DIR}/bindings/python/extra/expose-reachable-workspace.cpp
+    )
+endif()
+
+# default scalar
+pinocchio_add_python_binding(default ${COMMON_SOURCES})
+add_library(pinocchio_pywrap ALIAS pinocchio_pywrap_default)
+
+if(GENERATE_PYTHON_STUBS)
+    set(STUBGEN_DEPENDENCIES)
+endif()
+
+if(BUILD_WITH_AUTODIFF_SUPPORT)
+    pinocchio_add_python_binding(cppad ${COMMON_SOURCES})
+    # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
+    # This can happen when Pinocchio is build in Debug mode and pycppad is build in Release mode.
+    # See
+    # https://coin-or.github.io/CppAD/doc/preprocessor.htm#Documented%20Here.CPPAD_DEBUG_AND_RELEASE.
+    target_compile_definitions(
+        pinocchio_pywrap_cppad
+        PRIVATE
+            PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
+            CPPAD_DEBUG_AND_RELEASE
+    )
+    target_include_directories(
+        pinocchio_pywrap_cppad
+        SYSTEM
+        PUBLIC $<BUILD_INTERFACE:${cppad_INCLUDE_DIR}>
+    )
+    target_link_libraries(pinocchio_pywrap_cppad PUBLIC ${cppad_LIBRARY})
+    list(APPEND STUBGEN_DEPENDENCIES "pinocchio_pywrap_cppad")
+endif()
+
+if(BUILD_WITH_CODEGEN_SUPPORT)
+    pinocchio_add_python_binding(cppadcg ${COMMON_SOURCES})
+    # On osx, use default visiblitiy because of an issue with thread_local storage defined in
+    # cppad/cg/cg.hpp header (see
+    # https://github.com/stack-of-tasks/pinocchio/pull/2469#issuecomment-2461845127)
+    if(APPLE)
+        set_target_properties(
+            pinocchio_pywrap_cppadcg
+            PROPERTIES CXX_VISIBILITY_PRESET default
+        )
+    endif()
+    # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.
+    target_compile_definitions(
+        pinocchio_pywrap_cppadcg
+        PRIVATE
+            PYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION
+            CPPAD_DEBUG_AND_RELEASE
+    )
+    target_include_directories(
+        pinocchio_pywrap_cppadcg
+        SYSTEM
+        PUBLIC $<BUILD_INTERFACE:${cppadcg_INCLUDE_DIR}>
+    )
+    target_link_libraries(
+        pinocchio_pywrap_cppadcg
+        PUBLIC ${cppadcg_LIBRARY} ${cppad_LIBRARY}
+    )
+    list(APPEND STUBGEN_DEPENDENCIES "pinocchio_pywrap_cppadcg")
+endif()
+
+if(BUILD_WITH_CASADI_SUPPORT)
+    pinocchio_add_python_binding(casadi ${COMMON_SOURCES})
+    target_link_libraries(pinocchio_pywrap_casadi PUBLIC casadi::casadi)
+    list(APPEND STUBGEN_DEPENDENCIES "pinocchio_pywrap_casadi")
+endif()
+
+if(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
+    jrl_target_headers(pinocchio_pywrap_headers INTERFACE
+        HEADERS
+        ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/math/multiprecision/boost/number.hpp
+        BASE_DIRS include
+    )
+    pinocchio_add_python_binding(mpfr ${COMMON_SOURCES} ${PROJECT_SOURCE_DIR}/bindings/python/extra/mpfr/boost_number.cpp)
+    target_link_libraries(pinocchio_pywrap_mpfr PRIVATE gmp mpfr)
+    list(APPEND STUBGEN_DEPENDENCIES "pinocchio_pywrap_mpfr")
+endif()
+
+# --- PACKAGING --- #
+if(DOXYGEN_FOUND AND DOXYGEN_VERSION VERSION_GREATER 1.8.17)
+    set(DOXYGEN_GENERATE_HTML YES)
+    set(DOXYGEN_GENERATE_LATEX NO)
+    set(DOXYGEN_PROJECT_NAME "Pinocchio PyBind11 helpers.")
+    set(_source_headers_root "../../include/${PROJECT_NAME}/bindings/python")
+    doxygen_add_docs(
+        doc_pybind11
+        ${_source_headers_root}/pybind11.hpp
+        ${_source_headers_root}/pybind11-all.hpp
+        USE_STAMP_FILE
+        COMMENT "Generating documentation of the PyBind11 helpers."
+    )
+endif()
+
+# Generate python stubs
+if(GENERATE_PYTHON_STUBS)
+    jrl_boostpy_add_stubs(
+        pinocchio_pywrap_stubs
+        MODULE pinocchio.pinocchio_pywrap_default
+        OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib/site-packages
+        PYTHON_PATH ${CMAKE_BINARY_DIR}/lib/site-packages
+        DEPENDS pinocchio_pywrap
+        VERBOSE
+    )
+    if(STUBGEN_DEPENDENCIES)
+        add_dependencies(pinocchio_pywrap_stubs ${STUBGEN_DEPENDENCIES})
+    endif()
+endif()
+
+# Compile and move in build directory all .py file
+file(COPY pinocchio DESTINATION ${CMAKE_BINARY_DIR}/lib/site-packages)
+
+jrl_python_compile_all(DIRECTORY
+    ${CMAKE_BINARY_DIR}/lib/site-packages/pinocchio
+    VERBOSE
+)
+
+# Install binding in the right location
+jrl_python_compute_install_dir(python_install_dir)
+install(
+    DIRECTORY
+        ${CMAKE_BINARY_DIR}/lib/site-packages/pinocchio
+        ${CMAKE_CURRENT_SOURCE_DIR}/pinocchio
+    DESTINATION ${python_install_dir}
+    FILES_MATCHING
+    PATTERN "*.py"
+    PATTERN "*.pyc"
+    PATTERN "*.pyi"
+    PATTERN "*.typed"
+    PATTERN "*.so"
+    PATTERN "*.pyd"
+)

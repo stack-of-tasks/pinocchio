@@ -1,856 +1,1408 @@
-#
 # Copyright (c) 2015-2025 CNRS INRIA
-# Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
-#
 
 cmake_minimum_required(VERSION 3.22)
 
-set(PROJECT_NAME pinocchio)
-set(PROJECT_DESCRIPTION
-    "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives"
+project(
+    pinocchio
+    VERSION 4.1.0
+    DESCRIPTION
+        "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives"
+    HOMEPAGE_URL "http://github.com/stack-of-tasks/pinocchio"
+    LANGUAGES CXX
 )
-set(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
-set(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
-if(NOT BUILD_STANDALONE_PYTHON_INTERFACE)
-    set(PROJECT_USE_CMAKE_EXPORT TRUE)
-endif()
-set(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
-set(PROJECT_COMPATIBILITY_VERSION AnyNewerVersion)
-set(PINOCCHIO_PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
-# To enable jrl-cmakemodules compatibility with workspace we must define the two following lines
-set(PROJECT_AUTO_RUN_FINALIZE FALSE)
-set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-# Disable -Werror on Unix for now.
-set(CXX_DISABLE_WERROR True)
-set(CMAKE_VERBOSE_MAKEFILE True)
+include(cmake/get-jrl-cmakemodules.cmake)
+
+jrl_configure_defaults()
 
 # ----------------------------------------------------
 # --- OPTIONS  ---------------------------------------
-# Need to be set before including base.cmake
 # ----------------------------------------------------
-option(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
-option(PINOCCHIO_DOXYGEN_USE_MATHJAX "Avoid latex at build time" OFF)
 
-# Check if the submodule cmake have been initialized
-set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
-if(EXISTS "${JRL_CMAKE_MODULES}/base.cmake")
-    message(STATUS "JRL cmakemodules found in 'cmake/' git submodule")
-else()
-    find_package(jrl-cmakemodules QUIET CONFIG)
-    if(jrl-cmakemodules_FOUND)
-        get_property(
-            JRL_CMAKE_MODULES
-            TARGET jrl-cmakemodules::jrl-cmakemodules
-            PROPERTY INTERFACE_INCLUDE_DIRECTORIES
-        )
-        message(
-            STATUS
-            "JRL cmakemodules found on system at ${JRL_CMAKE_MODULES}"
-        )
-    else()
-        message(STATUS "JRL cmakemodules not found. Let's fetch it.")
-        include(FetchContent)
-        FetchContent_Declare(
-            "jrl-cmakemodules"
-            GIT_REPOSITORY "https://github.com/jrl-umi3218/jrl-cmakemodules.git"
-        )
-        FetchContent_MakeAvailable("jrl-cmakemodules")
-        FetchContent_GetProperties(
-            "jrl-cmakemodules"
-            SOURCE_DIR JRL_CMAKE_MODULES
-        )
-    endif()
-endif()
-
-if(PINOCCHIO_DOXYGEN_USE_MATHJAX)
-    set(DOXYGEN_USE_MATHJAX YES)
-endif()
-
-# ----------------------------------------------------
-# --- Policy -----------------------------------------
-# CMake Policy setup
-# ----------------------------------------------------
-# Policy can be removed when cmake_minimum_required is updated.
-
-# We also set CMAKE_POLICY_DEFAULT_CMPXXXX because CMake modules can reset policy and redefine some
-# macros like `find_dependency` that will not use our policy.
-
-# Use BoostConfig module distributed by boost library instead of using FindBoost module distributed
-# by CMake (to remove in 3.30). This policy is not working when using clang-cl.
-if(NOT WIN32 OR NOT ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-    if(POLICY CMP0167)
-        cmake_policy(SET CMP0167 NEW)
-        set(CMAKE_POLICY_DEFAULT_CMP0167 NEW)
-    endif()
-endif()
-# install() DESTINATION paths are normalized (to remove in 3.31).
-if(POLICY CMP0177)
-    cmake_policy(SET CMP0177 NEW)
-    set(CMAKE_POLICY_DEFAULT_CMP0177 NEW)
-endif()
-include("${JRL_CMAKE_MODULES}/base.cmake")
-
-compute_project_args(PROJECT_ARGS LANGUAGES CXX)
-project(${PROJECT_NAME} ${PROJECT_ARGS})
-
-set(INSTALL_PKG_CONFIG_FILE OFF CACHE BOOL "" FORCE)
-
-include("${JRL_CMAKE_MODULES}/tracy.cmake")
-include("${JRL_CMAKE_MODULES}/python.cmake")
-include("${JRL_CMAKE_MODULES}/boost.cmake")
-include("${JRL_CMAKE_MODULES}/ide.cmake")
-include("${JRL_CMAKE_MODULES}/apple.cmake")
-include(CMakeDependentOption)
-
-# If needed, set CMake policy for APPLE systems
-apply_default_apple_configuration()
-
-# Force C++ standard to be C++17 at least
-check_minimal_cxx_standard(17 ENFORCE)
-
-# --- OPTIONS ----------------------------------------
-option(BUILD_BENCHMARK "Build the benchmarks" OFF)
-option(BUILD_EXAMPLES "Build the examples" ON)
-option(BUILD_UTILS "Build the utils" OFF)
-option(
-    GENERATE_PYTHON_STUBS
-    "Generate the Python stubs associated to the Python library"
-    OFF
-)
-option(
-    BUILD_WITH_COMMIT_VERSION
-    "Build libraries by setting specific commit version"
-    OFF
-)
-
-if(DEFINED BUILD_UNIT_TESTS)
-    message(
-        AUTHOR_WARNING
-        "BUILD_UNIT_TESTS is deprecated. Use BUILD_TESTING instead.\
-    If you are manually building Pinocchio from source in an existing build folder,\
-    we suggest that you delete your build folder and make a new one."
-    )
-    set(BUILD_TESTING ${BUILD_UNIT_TESTS})
-endif(DEFINED BUILD_UNIT_TESTS)
-
-option(
-    BUILD_ADVANCED_TESTING
-    "Build the advanced tests (multiprecision, etc.) of Pinocchio"
-    OFF
-)
-option(PINOCCHIO_BUILD_MPFR_TESTING "Build MPFR dependent tests" OFF)
-
-# --- OPTIONAL DEPENDENCIES -------------------------
-option(
-    BUILD_WITH_URDF_SUPPORT
-    "Build the library with the URDF format support"
-    ON
-)
-option(
-    BUILD_WITH_SDF_SUPPORT
-    "Build the library with the SDF format support"
-    OFF
-)
-option(
-    BUILD_WITH_COLLISION_SUPPORT
-    "Build the library with the collision support (required coal)"
-    OFF
-)
-option(
-    BUILD_WITH_AUTODIFF_SUPPORT
-    "Build the library with the automatic differentiation support (via CppAD)"
-    OFF
-)
-option(
-    BUILD_WITH_CASADI_SUPPORT
-    "Build the library with the support of CASADI"
-    OFF
-)
+jrl_option(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+jrl_option(BUILD_BENCHMARK "Build the benchmarks" OFF)
+jrl_option(BUILD_EXAMPLES "Build the examples" ON)
+jrl_option(BUILD_UTILS "Build the utils" OFF)
+jrl_option(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF)
+jrl_option(BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
+jrl_option(BUILD_TESTING "build the tests" ON)
+jrl_option(BUILD_ADVANCED_TESTING "Build the advanced tests (multiprecision, etc.) of Pinocchio" OFF)
+jrl_option(PINOCCHIO_BUILD_MPFR_TESTING "Build MPFR dependent tests" OFF)
+jrl_option(BUILD_WITH_URDF_SUPPORT "Build the library with the URDF format support" ON)
+jrl_option(BUILD_WITH_SDF_SUPPORT "Build the library with the SDF format support" OFF)
+jrl_option(BUILD_WITH_COLLISION_SUPPORT "Build the library with the collision support (required coal)" OFF)
+jrl_option(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differentiation support (via CppAD)" OFF)
+jrl_option( BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
 # cppadcodgen don't build well with CL
-if(NOT WIN32)
-    option(
-        BUILD_WITH_CODEGEN_SUPPORT
-        "Build the library with the support of code generation (via CppADCodeGen)"
-        OFF
-    )
-endif()
-option(
-    BUILD_WITH_OPENMP_SUPPORT
-    "Build the library with the OpenMP support"
+jrl_option(BUILD_WITH_CODEGEN_SUPPORT
+    "Build the library with the support of code generation (via CppADCodeGen)"
     OFF
+    CONDITION "NOT WIN32"
+    FALLBACK OFF
 )
-cmake_dependent_option(
-    BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT
+jrl_option(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
+jrl_option(BUILD_PYTHON_INTERFACE "Build the Python bindings" ON)
+jrl_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT
     "Build the Python interface with Boost.Multiprecision MPFR support"
     OFF
-    BUILD_PYTHON_INTERFACE
-    OFF
+    CONDITION BUILD_PYTHON_INTERFACE
+    FALLBACK OFF
 )
-cmake_dependent_option(
-    BUILD_WITH_LIBPYTHON
+jrl_option(BUILD_WITH_LIBPYTHON
     "Build the library with Python format support"
     ON
-    "BUILD_PYTHON_INTERFACE"
+    CONDITION BUILD_PYTHON_INTERFACE
+    FALLBACK OFF
+)
+jrl_option(BUILD_WITH_ACCELERATE_SUPPORT
+    "Build Pinocchio with the Accelerate support"
     OFF
+    CONDITION APPLE
+    FALLBACK OFF
 )
-if(APPLE)
-    option(
-        BUILD_WITH_ACCELERATE_SUPPORT
-        "Build Pinocchio with the Accelerate support"
-        OFF
-    )
-else(APPLE)
-    set(BUILD_WITH_ACCELERATE_SUPPORT FALSE)
-endif(APPLE)
-
-option(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
-option(
-    ASSERT_ON_EXCEPTION
-    "Turns Pinocchio excpetions into asserts for debug purposes"
-    OFF
-)
-
-option(
-    ENABLE_TEMPLATE_INSTANTIATION
-    "Template instantiation of the main library"
-    ON
-)
-
-option(
-    PINOCCHIO_BUILD_WITH_TRACY
-    "Build with tracy profiler for performance analysis"
-    OFF
-)
-
-option(
-    BUILD_WITH_RTSAN
-    "Build with the Realtime Sanitizer (clang >=20, linux/mac only)"
-    OFF
-)
-
-option(
-    PINOCCHIO_INSTALL_DEPRECATED_HEADERS
-    "Use and install deprecated headers"
-    ON
-)
-
+jrl_option(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
+jrl_option(ASSERT_ON_EXCEPTION "Turns Pinocchio excpetions into asserts for debug purposes" OFF)
+jrl_option(ENABLE_TEMPLATE_INSTANTIATION "Template instantiation of the main library" ON)
+jrl_option(PINOCCHIO_BUILD_WITH_TRACY "Build with tracy profiler for performance analysis" OFF)
+jrl_option( BUILD_WITH_RTSAN "Build with the Realtime Sanitizer (clang >=20, linux/mac only)" OFF)
+jrl_option(PINOCCHIO_INSTALL_DEPRECATED_HEADERS "Use and install deprecated headers" ON)
 # PCH and ccache doesn't play well together so we deactivate
 # PCH use by default
-option(
-    PINOCCHIO_BUILD_BINDING_WITH_PCH
-    "Use PCH to accelerate binding build"
-    OFF
-)
-option(PINOCCHIO_BUILD_VISUALIZERS "Build the pinocchio visualizers library" ON)
-
-set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
-if(BUILD_BENCHMARK OR BUILD_EXAMPLES OR BUILD_TESTING)
-    # example-robot-data is required
-    if(EXAMPLE_ROBOT_DATA_MODEL_DIR)
-        file(
-            REAL_PATH "${EXAMPLE_ROBOT_DATA_MODEL_DIR}"
-            EXAMPLE_ROBOT_DATA_MODEL_DIR
-            EXPAND_TILDE
-        )
-        message(
-            STATUS
-            "Using provided example-robot-data at: ${EXAMPLE_ROBOT_DATA_MODEL_DIR}"
-        )
-    elseif(
-        EXISTS
-            "${CMAKE_CURRENT_LIST_DIR}/models/example-robot-data/CMakeLists.txt"
-    )
-        set(EXAMPLE_ROBOT_DATA_MODEL_DIR
-            "${PINOCCHIO_MODEL_DIR}/example-robot-data/robots"
-        )
-    else()
-        find_package(example-robot-data REQUIRED CONFIG)
-        get_target_property(
-            EXAMPLE_ROBOT_DATA_MODEL_DIR_DEF
-            example-robot-data::example-robot-data
-            INTERFACE_COMPILE_DEFINITIONS
-        )
-        string(
-            REPLACE "EXAMPLE_ROBOT_DATA_MODEL_DIR="
-            ""
-            EXAMPLE_ROBOT_DATA_MODEL_DIR_QUOTES
-            "${EXAMPLE_ROBOT_DATA_MODEL_DIR_DEF}"
-        )
-        string(
-            REPLACE "\""
-            ""
-            EXAMPLE_ROBOT_DATA_MODEL_DIR
-            "${EXAMPLE_ROBOT_DATA_MODEL_DIR_QUOTES}"
-        )
-        message(
-            STATUS
-            "Using system example-robot-data at: ${EXAMPLE_ROBOT_DATA_MODEL_DIR}"
-        )
-    endif()
-endif()
-
-if(BUILD_WITH_CODEGEN_SUPPORT)
-    set(BUILD_WITH_CPPAD_CODEGEN_SUPPORT TRUE)
-    set(BUILD_WITH_AUTODIFF_SUPPORT ON)
-endif()
-if(BUILD_WITH_AUTODIFF_SUPPORT)
-    set(BUILD_WITH_CPPAD_SUPPORT TRUE)
-endif()
-if(BUILD_WITH_LIBPYTHON)
-    set(BUILD_WITH_PYTHON_PARSER_SUPPORT TRUE)
-endif()
-
-if(INITIALIZE_WITH_NAN)
-    message(STATUS "Initialize with NaN all the Eigen entries.")
-endif(INITIALIZE_WITH_NAN)
-
-if(ENABLE_TEMPLATE_INSTANTIATION)
-    message(STATUS "Template instantiation of the main library")
-endif(ENABLE_TEMPLATE_INSTANTIATION)
-
-macro(TAG_LIBRARY_VERSION target)
-    set_target_properties(${target} PROPERTIES SOVERSION ${PROJECT_VERSION})
-endmacro(TAG_LIBRARY_VERSION)
+jrl_option(PINOCCHIO_BUILD_BINDING_WITH_PCH "Use PCH to accelerate binding build" OFF)
+jrl_option(PINOCCHIO_BUILD_VISUALIZERS "Build the pinocchio visualizers library" ON)
+jrl_option(BUILD_WITH_EXTRA_SUPPORT "Build with extra support" ON)
 
 # ----------------------------------------------------
 # --- DEPENDENCIES -----------------------------------
 # ----------------------------------------------------
-set(CMAKE_MODULE_PATH
-    "${JRL_CMAKE_MODULES}/find-external/CppAD/"
-    ${CMAKE_MODULE_PATH}
+# TODO why not neccessary in Simple
+set(Boost_USE_DEBUG_RUNTIME OFF)
+
+jrl_find_package(Eigen3 CONFIG REQUIRED EXPECTED_TARGETS Eigen3::Eigen)
+jrl_find_package(Boost CONFIG REQUIRED COMPONENTS serialization filesystem
+ EXPECTED_TARGETS Boost::boost Boost::serialization Boost::filesystem
 )
 
-add_project_dependency(Eigen3 REQUIRED)
+if(BUILD_WITH_COLLISION_SUPPORT)
+    jrl_find_package(coal CONFIG REQUIRED)
+endif()
+
+if(BUILD_TESTING)
+    jrl_find_package(Boost CONFIG REQUIRED COMPONENTS unit_test_framework
+      EXPECTED_TARGETS Boost::unit_test_framework
+    )
+endif()
 
 if(BUILD_WITH_URDF_SUPPORT)
-    add_project_dependency(urdfdom_headers REQUIRED)
-    add_project_dependency(urdfdom REQUIRED)
-    set(urdfdom_VERSION ${urdfdom_headers_VERSION})
-
-    if(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
-        check_minimal_cxx_standard(11 ENFORCE)
-        message(
-            STATUS
-            "Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard."
-        )
-    endif()
+    jrl_find_package(urdfdom_headers REQUIRED)
+    jrl_find_package(urdfdom REQUIRED EXPECTED_TARGETS urdfdom::urdf_parser)
+    jrl_find_package(console_bridge CONFIG REQUIRED EXPECTED_TARGETS console_bridge::console_bridge)
 endif()
 
-if(BUILD_WITH_SDF_SUPPORT)
-    include(${JRL_CMAKE_MODULES}/sdformat.cmake)
-    search_for_sdformat(REQUIRED)
-    if(SDFormat_FOUND)
-        check_minimal_cxx_standard(11 REQUIRED)
-        include_directories(${SDFormat_INCLUDE_DIRS})
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SDFormat_CXX_FLAGS}")
-    endif()
-endif()
-
-if(BUILD_WITH_URDF_SUPPORT OR BUILD_WITH_SDF_SUPPORT)
-    set(BUILD_WITH_PARSERS_SUPPORT TRUE)
-else()
-    set(BUILD_WITH_PARSERS_SUPPORT FALSE)
-endif()
-
-# -- tracy (optional)
-if(PINOCCHIO_BUILD_WITH_TRACY)
-    # assume it is installed somewhere
-    add_project_dependency(Tracy REQUIRED)
-    set_target_properties(
-        Tracy::TracyClient
-        PROPERTIES POSITION_INDEPENDENT_CODE True
+if(BUILD_WITH_CODEGEN_SUPPORT)
+    list(
+        APPEND CMAKE_MODULE_PATH
+        "${PROJECT_SOURCE_DIR}/cmake/find-external/CppAD"
     )
-    if(${Tracy_FOUND})
-        message(STATUS "Tracy found on your system at ${Tracy_DIR}")
-    else()
-        message(
-            FATAL_ERROR
-            "Pinocchio support for tracy is enabled, but tracy was not found on your system."
-            " Install it, or set the option PINOCCHIO_DOWNLOAD_TRACY to ON so we can fetch it."
-        )
-    endif()
-endif(PINOCCHIO_BUILD_WITH_TRACY)
+    jrl_find_package(cppadcg REQUIRED EXPECTED_TARGETS cppadcg::cppadcg)
+    set(BUILD_WITH_AUTODIFF_SUPPORT TRUE)
+endif(BUILD_WITH_CODEGEN_SUPPORT)
 
 if(BUILD_WITH_AUTODIFF_SUPPORT)
-    # Check first CppADCodeGen
-    if(BUILD_WITH_CODEGEN_SUPPORT)
-        add_project_dependency(cppadcg 2.4.1 REQUIRED)
-    endif(BUILD_WITH_CODEGEN_SUPPORT)
-
-    add_project_dependency(
-      cppad 20180000.0 REQUIRED
-      FIND_EXTERNAL "CppAD"
+    # TODO remove when jrl v2 provide findcppad in find modules
+    list(
+        APPEND CMAKE_MODULE_PATH
+        "${PROJECT_SOURCE_DIR}/cmake/find-external/CppAD"
     )
-endif(BUILD_WITH_AUTODIFF_SUPPORT)
+    jrl_find_package(cppad REQUIRED EXPECTED_TARGETS cppad::cppad)
+endif()
+
+set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
+jrl_find_package(example-robot-data CONFIG REQUIRED EXPECTED_TARGETS example-robot-data::example-robot-data)
+
+get_target_property(
+    EXAMPLE_ROBOT_DATA_MODEL_DIR_DEF
+    example-robot-data::example-robot-data
+    INTERFACE_COMPILE_DEFINITIONS
+)
+string(
+    REPLACE "EXAMPLE_ROBOT_DATA_MODEL_DIR="
+    ""
+    EXAMPLE_ROBOT_DATA_MODEL_DIR_QUOTES
+    "${EXAMPLE_ROBOT_DATA_MODEL_DIR_DEF}"
+)
+string(
+    REPLACE "\""
+    ""
+    EXAMPLE_ROBOT_DATA_MODEL_DIR
+    "${EXAMPLE_ROBOT_DATA_MODEL_DIR_QUOTES}"
+)
 
 if(BUILD_WITH_CASADI_SUPPORT)
-    add_project_dependency(casadi 3.4.5 REQUIRED)
-
-    # Normalize CasADi link target across versions. Prefer imported target (casadi::casadi), then
-    # legacy target (casadi)
+    jrl_find_package(casadi REQUIRED)
+    # Normalize CasADi link target across versions. 
+    #Prefer imported target (casadi::casadi), then legacy target (casadi)    
     if(NOT TARGET casadi::casadi AND TARGET casadi)
         add_library(casadi::casadi ALIAS casadi)
     endif()
-endif(BUILD_WITH_CASADI_SUPPORT)
-
-if(BUILD_WITH_OPENMP_SUPPORT)
-    add_project_dependency(OpenMP REQUIRED)
 endif()
 
 if(BUILD_WITH_EXTRA_SUPPORT)
-    add_project_dependency(Qhull COMPONENTS qhullcpp qhull_r REQUIRED)
-    message(STATUS "Found Qhull.")
-endif()
-
-set_boost_default_options()
-export_boost_default_options()
-add_project_dependency(Boost REQUIRED COMPONENTS filesystem serialization)
-
-if(Boost_VERSION_STRING VERSION_LESS 1.81)
-    if(BUILD_WITH_URDF_SUPPORT AND "${urdfdom_VERSION}" VERSION_GREATER "0.4.2")
-        check_minimal_cxx_standard(11 ENFORCE)
-        message(
-            STATUS
-            "Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard."
-        )
-    endif()
-else()
-    # Boost.Math will be C++14 starting in July 2023 (Boost 1.82 release)
-    check_minimal_cxx_standard(14 ENFORCE)
-endif()
-
-if(BUILD_PYTHON_INTERFACE)
-    message(
-        STATUS
-        "The Python bindings of Pinocchio will be compiled along the main library. If you want to disable this feature, please set the option BUILD_PYTHON_INTERFACE to OFF."
-    )
-
-    set(PYTHON_COMPONENTS Interpreter Development NumPy)
-    findpython(REQUIRED)
-    add_project_dependency(eigenpy 2.7.10 REQUIRED)
-    if(BUILD_STANDALONE_PYTHON_INTERFACE)
-        add_project_dependency(${PROJECT_NAME} REQUIRED CONFIG)
-    endif()
-
-    if(BUILD_WITH_URDF_SUPPORT)
-        # console_bridge is urdfdom dependency.
-        #
-        # We bind some enum of this library and then must link against it.
-        add_project_dependency(console_bridge REQUIRED)
-    endif()
-else()
-    message(
-        STATUS
-        "Pinocchio won't be compiled with its Python bindings. If you want to enable this feature, please set the option BUILD_PYTHON_INTERFACE to ON."
-    )
-endif()
-
-if(BUILD_WITH_COLLISION_SUPPORT)
-    add_project_dependency(coal REQUIRED)
-endif()
-
-if(BUILD_WITH_ACCELERATE_SUPPORT)
-    if(NOT ${Eigen3_VERSION} VERSION_GREATER_EQUAL "3.4.90")
-        message(
-            FATAL_ERROR
-            "Your version of Eigen is too low. Should be at least 3.4.90. Current version is ${Eigen3_VERSION}."
-        )
-    endif()
-
-    set(CMAKE_MODULE_PATH
-        ${JRL_CMAKE_MODULES}/find-external/Accelerate
-        ${CMAKE_MODULE_PATH}
-    )
-    # FIND_EXTERNAL "Accelerate".
-    #
-    # We don't export yet as there might be an issue on AMR64 platforms.
-    find_package(Accelerate REQUIRED)
-    message(STATUS "Build with Accelerate support framework.")
-    add_definitions(-DPINOCCHIO_WITH_ACCELERATE_SUPPORT)
+    jrl_find_package(Qhull COMPONENTS qhullcpp qhull_r REQUIRED EXPECTED_TARGETS Qhull::qhullcpp Qhull::qhull_r)
 endif()
 
 if(
     PINOCCHIO_BUILD_MPFR_TESTING
     OR BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT
 )
-    message(STATUS "Build with MPFR support")
-    set(CMAKE_MODULE_PATH
-        "${JRL_CMAKE_MODULES}/find-external/GMP"
-        "${JRL_CMAKE_MODULES}/find-external/MPFR"
-        ${CMAKE_MODULE_PATH}
+    list(
+        APPEND CMAKE_MODULE_PATH
+        "${PROJECT_SOURCE_DIR}/cmake/find-external/GMP"
     )
-    find_package(GMP REQUIRED 6.0.0)
-    find_package(MPFR REQUIRED 4.0.0)
+    list(
+        APPEND CMAKE_MODULE_PATH
+        "${PROJECT_SOURCE_DIR}/cmake/find-external/MPFR"
+    )
+
+    jrl_find_package(GMP REQUIRED EXPECTED_TARGETS gmp)
+    jrl_find_package(MPFR REQUIRED EXPECTED_TARGETS mpfr)
 endif()
 
-# Sources definition
-include(sources.cmake)
-
-# Dependency free headers
-list(
-    APPEND ${PROJECT_NAME}_CORE_HEADERS
-    ${${PROJECT_NAME}_CORE_PUBLIC_HEADERS}
-    ${${PROJECT_NAME}_CORE_PRIVATE_HEADERS}
-    ${${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS}
-)
-
-# Casadi, cppad and cppadcg are still installed.
-# User should link by himself with the right library to include them.
-list(
-    APPEND ${PROJECT_NAME}_CORE_HEADERS
-    ${${PROJECT_NAME}_CASADI_PUBLIC_HEADERS}
-    ${${PROJECT_NAME}_CASADI_PRIVATE_HEADERS}
-    ${${PROJECT_NAME}_CPPAD_PUBLIC_HEADERS}
-    ${${PROJECT_NAME}_CPPAD_PRIVATE_HEADERS}
-    ${${PROJECT_NAME}_CPPADCG_PUBLIC_HEADERS}
-    ${${PROJECT_NAME}_CPPADCG_PRIVATE_HEADERS}
-)
-
-# Header only part + deprecated
-if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
-    list(
-        APPEND ${PROJECT_NAME}_CORE_HEADERS
-        ${${PROJECT_NAME}_CORE_DEPRECATED_HEADERS}
-    )
-    list(
-        APPEND ${PROJECT_NAME}_CORE_HEADERS
-        ${${PROJECT_NAME}_CPPADCG_DEPRECATED_HEADERS}
+if(PINOCCHIO_BUILD_WITH_TRACY)
+    # assume it is installed somewhere
+    jrl_find_package(Tracy REQUIRED EXPECTED_TARGETS Tracy::TracyClient)
+    set_target_properties(
+        Tracy::TracyClient
+        PROPERTIES POSITION_INDEPENDENT_CODE True
     )
 endif()
 
-# Template instantiation sources
-if(ENABLE_TEMPLATE_INSTANTIATION)
-    list(
-        APPEND ${PROJECT_NAME}_CORE_SOURCES
-        ${${PROJECT_NAME}_TEMPLATE_INSTANTIATION_SOURCES}
-    )
-endif()
-
-# OpenMP sources
 if(BUILD_WITH_OPENMP_SUPPORT)
-    list(
-        APPEND ${PROJECT_NAME}_PARALLEL_HEADERS
-        ${${PROJECT_NAME}_PARALLEL_PUBLIC_HEADERS}
-        ${${PROJECT_NAME}_PARALLEL_PRIVATE_HEADERS}
-    )
-
-    # OpenMP + deprecated
-    if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
-        list(
-            APPEND ${PROJECT_NAME}_PARALLEL_HEADERS
-            ${${PROJECT_NAME}_PARALLEL_DEPRECATED_HEADERS}
-        )
-    endif()
-
-    # Bindings
-    list(
-        APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
-        ${${PROJECT_NAME}_BINDINGS_PYTHON_PARALLEL_SOURCES}
-    )
-    list(
-        APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
-        ${${PROJECT_NAME}_BINDINGS_PYTHON_PARALLEL_PUBLIC_HEADERS}
-    )
+    jrl_find_package(OpenMP REQUIRED EXPECTED_TARGETS OpenMP::OpenMP_CXX)
 endif()
 
-# Collision sources
-if(BUILD_WITH_COLLISION_SUPPORT)
-    list(
-        APPEND ${PROJECT_NAME}_COLLISION_HEADERS
-        ${${PROJECT_NAME}_COLLISION_PUBLIC_HEADERS}
-        ${${PROJECT_NAME}_COLLISION_PRIVATE_HEADERS}
-    )
+if(BUILD_PYTHON_INTERFACE)
+    jrl_find_python(3.10 REQUIRED COMPONENTS Interpreter Development.Module)
+    jrl_find_package(Boost CONFIG REQUIRED COMPONENTS python EXPECTED_TARGETS Boost::python)
+    jrl_find_package(eigenpy CONFIG REQUIRED EXPECTED_TARGETS eigenpy::eigenpy)
+endif()
+
+# ----------------------------------------------------
+# --- FUNCTIONS  -------------------------------------
+# ----------------------------------------------------
+macro(add_header_and_template_instantiation_targets name)
+    add_library(${name}_headers INTERFACE)
+
+    add_library(${name} INTERFACE)
+    target_link_libraries(${name} INTERFACE ${name}_headers)
+    list(APPEND EXPORTED_TARGETS ${name} ${name}_headers)
 
     if(ENABLE_TEMPLATE_INSTANTIATION)
-        list(
-            APPEND ${PROJECT_NAME}_COLLISION_SOURCES
-            ${${PROJECT_NAME}_COLLISION_TEMPLATE_INSTANTIATION_SOURCES}
+        add_library(${name}_template_instantiation SHARED)
+        target_sources(
+            ${name}_template_instantiation
+            PRIVATE ${PINOCCHIO_CORE_INSTANTIATION_SOURCES}
         )
-    endif()
 
-    # Collision + OpenMP
-    if(BUILD_WITH_OPENMP_SUPPORT)
-        list(
-            APPEND ${PROJECT_NAME}_COLLISION_HEADERS
-            ${${PROJECT_NAME}_COLLISION_PARALLEL_PUBLIC_HEADERS}
-            ${${PROJECT_NAME}_COLLISION_PARALLEL_PRIVATE_HEADERS}
+        target_link_libraries(
+            ${name}_template_instantiation
+            PUBLIC ${name}_headers
         )
-    endif()
 
-    # Collision + Deprecated
-    if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
-        list(
-            APPEND ${PROJECT_NAME}_COLLISION_HEADERS
-            ${${PROJECT_NAME}_COLLISION_DEPRECATED_HEADERS}
+        target_compile_definitions(
+            ${name}_template_instantiation
+            PUBLIC PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
         )
-    endif()
-
-    # Bindings
-    list(
-        APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
-        ${${PROJECT_NAME}_BINDINGS_GRAPH_GEOMETRY_SOURCES}
-    )
-    list(
-        APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
-        ${${PROJECT_NAME}_BINDINGS_PYTHON_COLLISION_SOURCES}
-    )
-    list(
-        APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
-        ${${PROJECT_NAME}_BINDINGS_PYTHON_COLLISION_PUBLIC_HEADERS}
-    )
-    if(BUILD_WITH_OPENMP_SUPPORT)
-        list(
-            APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
-            ${${PROJECT_NAME}_BINDINGS_PYTHON_COLLISION_PARALLEL_SOURCES}
+        # By default DEFINE_SYMBOL add -D${LIB_NAME}_EXPORTS. Don't use ${LIB_NAME}_EXPORTS define since
+        # pinocchio/config.hpp use pinocchio_EXPORTS. This allow to use the same DLLAPI define for all
+        # template instantiation libraries.
+        set_target_properties(
+            ${name}_template_instantiation
+            PROPERTIES DEFINE_SYMBOL "pinocchio_EXPORTS"
         )
-        list(
-            APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
-            ${${PROJECT_NAME}_BINDINGS_PYTHON_COLLISION_PARALLEL_PUBLIC_HEADERS}
-        )
-    endif()
-endif()
+        jrl_target_set_default_compile_options(${name}_template_instantiation PRIVATE)
+        jrl_target_enforce_msvc_conformance(${name}_template_instantiation PUBLIC)
+        target_link_libraries(${name} INTERFACE ${name}_template_instantiation)
 
-# Dependencies free parsers
-if(BUILD_WITH_PARSERS_SUPPORT)
-    list(
-        APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-        ${${PROJECT_NAME}_PARSERS_PUBLIC_HEADERS}
-        ${${PROJECT_NAME}_PARSERS_PRIVATE_HEADERS}
-    )
-
-    if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
-        list(
-            APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-            ${${PROJECT_NAME}_PARSERS_DEPRECATED_HEADERS}
-        )
-    endif()
-
-    # Collision + parsers sources
-    if(BUILD_WITH_COLLISION_SUPPORT)
-        list(
-            APPEND ${PROJECT_NAME}_PARSERS_SOURCES
-            ${${PROJECT_NAME}_GEOMETRY_SOURCES}
-        )
-    endif()
-endif()
-
-# URDF parser sources
-if(BUILD_WITH_URDF_SUPPORT)
-    list(APPEND ${PROJECT_NAME}_PARSERS_SOURCES ${${PROJECT_NAME}_URDF_SOURCES})
-    list(
-        APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-        ${${PROJECT_NAME}_URDF_PUBLIC_HEADERS}
-        ${${PROJECT_NAME}_URDF_PRIVATE_HEADERS}
-    )
-
-    # URDF parsers + deprecated
-    if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
-        list(
-            APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-            ${${PROJECT_NAME}_URDF_DEPRECATED_HEADERS}
-        )
-    endif()
-endif()
-
-# SDF parser sources
-if(BUILD_WITH_SDF_SUPPORT)
-    list(APPEND ${PROJECT_NAME}_PARSERS_SOURCES ${${PROJECT_NAME}_SDF_SOURCES})
-    list(
-        APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-        ${${PROJECT_NAME}_SDF_PUBLIC_HEADERS}
-        ${${PROJECT_NAME}_SDF_PRIVATE_HEADERS}
-    )
-
-    # SDF parsers + deprecated
-    if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
-        list(
-            APPEND ${PROJECT_NAME}_PARSERS_HEADERS
-            ${${PROJECT_NAME}_SDF_DEPRECATED_HEADERS}
-        )
-    endif()
-endif()
-
-# Python parser sources
-if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
-    list(
-        APPEND ${PROJECT_NAME}_PYTHON_PARSER_HEADERS
-        ${${PROJECT_NAME}_PYTHON_PARSER_PUBLIC_HEADERS}
-    )
-endif()
-
-# Extra sources
-if(BUILD_WITH_EXTRA_SUPPORT)
-    list(APPEND ${PROJECT_NAME}_EXTRA_SOURCES ${${PROJECT_NAME}_EXTRA_SOURCES})
-    list(
-        APPEND ${PROJECT_NAME}_EXTRA_HEADERS
-        ${${PROJECT_NAME}_EXTRA_PUBLIC_HEADERS}
-        ${${PROJECT_NAME}_EXTRA_PRIVATE_HEADERS}
-    )
-endif()
-
-list(
-    APPEND ${PROJECT_NAME}_VISUALIZERS_HEADERS
-    ${${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS}
-    ${${PROJECT_NAME}_VISUALIZERS_PRIVATE_HEADERS}
-)
-
-# List headers to install
-list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_CORE_HEADERS})
-
-if(BUILD_WITH_OPENMP_SUPPORT)
-    list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_PARALLEL_HEADERS})
-endif()
-
-if(BUILD_WITH_COLLISION_SUPPORT)
-    list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_COLLISION_HEADERS})
-endif()
-
-if(BUILD_WITH_PARSERS_SUPPORT)
-    list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_PARSERS_HEADERS})
-endif()
-
-if(BUILD_WITH_PYTHON_PARSER_SUPPORT)
-    list(
-        APPEND ${PROJECT_NAME}_HEADERS
-        ${${PROJECT_NAME}_PYTHON_PARSER_HEADERS}
-    )
-endif()
-
-if(BUILD_WITH_EXTRA_SUPPORT)
-    list(APPEND ${PROJECT_NAME}_HEADERS ${${PROJECT_NAME}_EXTRA_HEADERS})
-    list(
-        APPEND ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
-        ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_SOURCES}
-    )
-endif()
-
-list(
-    APPEND ${PROJECT_NAME}_HEADERS
-    ${${PROJECT_NAME}_VISUALIZERS_PUBLIC_HEADERS}
-)
-
-list(
-    APPEND ${PROJECT_NAME}_HEADERS
-    ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS}
-)
-
-# Define PINOCCHIO_WINDOWS_DLL_PATH environment variable on Windows
-function(ADD_WINDOWS_DLL_PATH_TO_TEST TEST_NAME)
-    if(WIN32)
-        get_test_property(${TEST_NAME} ENVIRONMENT ENV_VARIABLES)
-        # TODO don't do this in the future
-        list(
-            APPEND ENV_VARIABLES
-            "PINOCCHIO_WINDOWS_DLL_PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}::${PROJECT_NAME}_default>"
-        )
-        set_tests_properties(
-            ${TEST_NAME}
-            PROPERTIES ENVIRONMENT "${ENV_VARIABLES}"
-        )
-    endif()
-endfunction()
-
-# --- MAIN LIBRARY -------------------------------------------------------------
-if(NOT BUILD_STANDALONE_PYTHON_INTERFACE)
-    add_subdirectory(src)
-endif()
-
-# --- BINDINGS -----------------------------------------------------------------
-if(BUILD_PYTHON_INTERFACE)
-    add_subdirectory(bindings)
-endif()
-
-# --- EXECUTABLES --------------------------------------------------------------
-add_subdirectory(utils)
-
-# --- UNIT TESTS ---------------------------------------------------------------
-add_subdirectory(unittest)
-
-# --- CHECK EXAMPLES -----------------------------------------------------------
-if(BUILD_EXAMPLES)
-    add_subdirectory(examples)
-endif()
-
-# --- BENCHMARKS ---------------------------------------------------------------
-if(BUILD_BENCHMARK AND NOT BUILD_STANDALONE_PYTHON_INTERFACE)
-    add_subdirectory(benchmark)
-endif()
-
-# --- PACKAGING ----------------------------------------------------------------
-# Export variables in CMake module and in parent scope for workspace compatibility
-# PARENT_SCOPE_ONLY: If set: only export in parent scope
-# CONDITION: Condition to setup the variable
-# VAR_NAME: Variable name
-# VAR_VALUE: Varible value
-macro(EXPORT_VARIABLE)
-    set(options PARENT_SCOPE_ONLY)
-    set(oneValueArgs CONDITION VAR_NAME VAR_VALUE)
-    set(multiValueArgs)
-    cmake_parse_arguments(
-        ARGS
-        "${options}"
-        "${oneValueArgs}"
-        "${multiValueArgs}"
-        ${ARGN}
-    )
-
-    if(${ARGS_CONDITION})
-        get_directory_property(has_parent PARENT_DIRECTORY)
-        if(has_parent)
-            set(${ARGS_VAR_NAME} ${ARGS_VAR_VALUE} PARENT_SCOPE)
-        else()
-            set(${ARGS_VAR_NAME} ${ARGS_VAR_VALUE})
-        endif()
-        if(NOT ${ARGS_PARENT_SCOPE_ONLY})
-            string(
-                APPEND PACKAGE_EXTRA_MACROS
-                "\nset(${ARGS_VAR_NAME} ${ARGS_VAR_VALUE})"
-            )
-        endif()
+        list(APPEND EXPORTED_TARGETS ${name}_template_instantiation)
     endif()
 endmacro()
 
-export_variable(CONDITION PINOCCHIO_BUILD_WITH_TRACY
-                VAR_NAME PINOCCHIO_USE_TRACY
-                VAR_VALUE ON
-)
-export_variable(CONDITION BUILD_WITH_URDF_SUPPORT
-                VAR_NAME PINOCCHIO_USE_URDFDOM
-                VAR_VALUE ON
-)
-export_variable(CONDITION BUILD_WITH_COLLISION_SUPPORT
-                VAR_NAME PINOCCHIO_USE_COAL
-                VAR_VALUE ON
-)
-export_variable(CONDITION BUILD_WITH_CPPAD_SUPPORT
-                VAR_NAME PINOCCHIO_USE_CPPAD
-                VAR_VALUE ON
-)
-export_variable(CONDITION BUILD_WITH_CPPAD_CODEGEN_SUPPORT
-                VAR_NAME PINOCCHIO_USE_CPPAD_CODEGEN
-                VAR_VALUE ON
-)
-export_variable(CONDITION BUILD_WITH_CASADI_SUPPORT
-                VAR_NAME PINOCCHIO_USE_CASADI
-                VAR_VALUE ON
-)
-export_variable(CONDITION BUILD_PYTHON_INTERFACE
-                VAR_NAME PINOCCHIO_WITH_PYTHON_INTERFACE
-                VAR_VALUE ON
-)
-export_variable(CONDITION BUILD_WITH_EXTRA_SUPPORT
-                VAR_NAME PINOCCHIO_USE_EXTRA
-                VAR_VALUE ON
-)
-export_variable(CONDITION BUILD_WITH_PYTHON_PARSER_SUPPORT
-                VAR_NAME PINOCCHIO_USE_PYTHON_PARSER
-                VAR_VALUE ON
-)
-export_variable(CONDITION TRUE
-                VAR_NAME pinocchio_VERSION
-                VAR_VALUE ${pinocchio_VERSION}
-                PARENT_SCOPE_ONLY
+set(PINOCCHIO_CORE_INSTANTIATION_SOURCES
+    src/algorithm/cholesky.cpp
+    src/algorithm/aba.cpp
+    src/algorithm/regressor.cpp
+    src/algorithm/contact-dynamics.cpp
+    src/algorithm/frames-derivatives.cpp
+    src/algorithm/impulse-dynamics.cpp
+    src/algorithm/model.cpp
+    src/algorithm/constrained-dynamics.cpp
+    src/algorithm/rnea-derivatives.cpp
+    src/algorithm/compute-all-terms.cpp
+    src/algorithm/jacobian.cpp
+    src/algorithm/energy.cpp
+    src/algorithm/centroidal-derivatives.cpp
+    src/algorithm/frames.cpp
+    src/algorithm/constrained-dynamics-derivatives.cpp
+    src/algorithm/center-of-mass.cpp
+    src/algorithm/geometry.cpp
+    src/algorithm/kinematics.cpp
+    src/algorithm/rnea.cpp
+    src/algorithm/centroidal.cpp
+    src/algorithm/aba-derivatives.cpp
+    src/algorithm/crba.cpp
+    src/algorithm/constraint-cholesky.cpp
+    src/algorithm/joint-configuration.cpp
+    src/algorithm/center-of-mass-derivatives.cpp
+    src/algorithm/solvers/admm-solver.cpp
+    src/algorithm/solvers/pgs-solver.cpp
+    src/algorithm/kinematics-derivatives.cpp
+    src/algorithm/constraints/utils.cpp
+    src/multibody/model.cpp
+    src/multibody/data.cpp
+    src/multibody/sample-models.cpp
 )
 
-setup_project_finalize()
+# ----------------------------------------------------
+# --- MAIN LIBRARY -----------------------------------
+# ----------------------------------------------------
+# Target to link against all pinocchio libraries
+add_library(pinocchio INTERFACE)
+add_library(pinocchio::pinocchio ALIAS pinocchio)
+set(EXPORTED_TARGETS pinocchio)
+
+add_header_and_template_instantiation_targets(pinocchio_default)
+
+target_compile_features(pinocchio_default_headers INTERFACE cxx_std_17)
+jrl_target_generate_config_header(pinocchio_default_headers INTERFACE FILENAME pinocchio/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio)
+jrl_target_generate_warning_header(pinocchio_default_headers INTERFACE FILENAME pinocchio/warning.hpp LIBRARY_NAME pinocchio)
+jrl_target_generate_deprecated_header(pinocchio_default_headers INTERFACE FILENAME pinocchio/deprecated.hpp LIBRARY_NAME pinocchio)
+jrl_target_generate_tracy_header(pinocchio_default_headers INTERFACE FILENAME pinocchio/tracy.hpp  LIBRARY_NAME pinocchio)
+
+target_compile_definitions(
+    pinocchio_default_headers
+    INTERFACE
+        BOOST_MPL_LIMIT_LIST_SIZE=30
+        BOOST_MPL_LIMIT_VECTOR_SIZE=30
+        BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+        BOOST_FUSION_INVOKE_MAX_ARITY=12
+        $<BUILD_INTERFACE:PINOCCHIO_DISABLE_UNSUPPORTED_WARNINGS>
+        $<$<BOOL:${INITIALIZE_WITH_NAN}>:EIGEN_INITIALIZE_MATRICES_BY_NAN>
+)
+
+target_link_libraries(
+    pinocchio_default_headers
+    INTERFACE Eigen3::Eigen Boost::boost Boost::serialization
+)
+
+target_include_directories(
+    pinocchio_default_headers
+    INTERFACE
+        $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+)
+
+# Dependency free headers
+# Root, algorithm, common, containers, math, multibody, serialization, spatial, utils
+jrl_target_headers(pinocchio_default_headers PUBLIC
+    HEADERS
+    include/pinocchio/algorithm/aba-derivatives.hpp
+    include/pinocchio/algorithm/aba.hpp
+    include/pinocchio/algorithm/center-of-mass-derivatives.hpp
+    include/pinocchio/algorithm/center-of-mass.hpp
+    include/pinocchio/algorithm/centroidal-derivatives.hpp
+    include/pinocchio/algorithm/centroidal.hpp
+    include/pinocchio/algorithm/check-base.hpp
+    include/pinocchio/algorithm/check-data.hpp
+    include/pinocchio/algorithm/check-model.hpp
+    include/pinocchio/algorithm/check.hpp
+    include/pinocchio/algorithm/cholesky.hpp
+    include/pinocchio/algorithm/compute-all-terms.hpp
+    include/pinocchio/algorithm/constrained-dynamics-derivatives.hpp
+    include/pinocchio/algorithm/constrained-dynamics.hpp
+    include/pinocchio/algorithm/constraint-cholesky-decl.hpp
+    include/pinocchio/algorithm/constraint-cholesky.hpp
+    include/pinocchio/algorithm/contact-dynamics.hpp
+    include/pinocchio/algorithm/contact-inverse-dynamics.hpp
+    include/pinocchio/algorithm/copy.hpp
+    include/pinocchio/algorithm/crba.hpp
+    include/pinocchio/algorithm/default-check.hpp
+    include/pinocchio/algorithm/delassus-operator.hpp
+    include/pinocchio/algorithm/delassus.hpp
+    include/pinocchio/algorithm/diagonal-preconditioner.hpp
+    include/pinocchio/algorithm/energy.hpp
+    include/pinocchio/algorithm/frames-derivatives.hpp
+    include/pinocchio/algorithm/frames.hpp
+    include/pinocchio/algorithm/fwd.hpp
+    include/pinocchio/algorithm/geometry.hpp
+    include/pinocchio/algorithm/impulse-dynamics-derivatives.hpp
+    include/pinocchio/algorithm/impulse-dynamics.hpp
+    include/pinocchio/algorithm/jacobian.hpp
+    include/pinocchio/algorithm/joint-configuration.hpp
+    include/pinocchio/algorithm/kinematics-derivatives.hpp
+    include/pinocchio/algorithm/kinematics.hpp
+    include/pinocchio/algorithm/loop-constrained-aba.hpp
+    include/pinocchio/algorithm/model.hpp
+    include/pinocchio/algorithm/preconditioner-base.hpp
+    include/pinocchio/algorithm/proximal.hpp
+    include/pinocchio/algorithm/pv.hpp
+    include/pinocchio/algorithm/regressor.hpp
+    include/pinocchio/algorithm/rnea-derivatives.hpp
+    include/pinocchio/algorithm/rnea-second-order-derivatives.hpp
+    include/pinocchio/algorithm/rnea.hpp
+    include/pinocchio/algorithm/solvers/admm-solver.hpp
+    include/pinocchio/algorithm/solvers/anderson-acceleration.hpp
+    include/pinocchio/algorithm/solvers/constraint-solver-base.hpp
+    include/pinocchio/algorithm/solvers/constraint-solver-utils.hpp
+    include/pinocchio/algorithm/solvers/fwd.hpp
+    include/pinocchio/algorithm/solvers/pgs-solver.hpp
+    include/pinocchio/algorithm/utils/force.hpp
+    include/pinocchio/algorithm/utils/motion.hpp
+    include/pinocchio/common/fwd.hpp
+    include/pinocchio/common.hpp
+    include/pinocchio/constraints/fwd.hpp
+    include/pinocchio/constraints.hpp
+    include/pinocchio/container/double-entry-container.hpp
+    include/pinocchio/container/eigen-storage.hpp
+    include/pinocchio/container/matrix-stack.hpp
+    include/pinocchio/context.hpp
+    include/pinocchio/eigen-common.hpp
+    include/pinocchio/fwd.hpp
+    include/pinocchio/geometry.hpp
+    include/pinocchio/geometry/fwd.hpp
+    include/pinocchio/macros.hpp
+    include/pinocchio/math/fwd.hpp
+    include/pinocchio/math/multiprecision-mpfr.hpp
+    include/pinocchio/math/multiprecision.hpp
+    include/pinocchio/math.hpp
+    include/pinocchio/multibody/fwd.hpp
+    include/pinocchio/multibody/joint/fwd.hpp
+    include/pinocchio/multibody/joint-motion-subspace.hpp
+    include/pinocchio/multibody/joint.hpp
+    include/pinocchio/multibody/liegroup/fwd.hpp
+    include/pinocchio/multibody/liegroup.hpp
+    include/pinocchio/multibody/pool/fwd.hpp
+    include/pinocchio/multibody/pool.hpp
+    include/pinocchio/multibody/sample-models.hpp
+    include/pinocchio/multibody/visitor.hpp
+    include/pinocchio/multibody.hpp
+    include/pinocchio/serialization/archive.hpp
+    include/pinocchio/serialization/fwd.hpp
+    include/pinocchio/serialization/eigen.hpp
+    include/pinocchio/serialization/serializable.hpp
+    include/pinocchio/serialization.hpp
+    include/pinocchio/spatial/fwd.hpp
+    include/pinocchio/spatial.hpp
+    include/pinocchio/unsupported.hpp
+    include/pinocchio/utils/alloca.hpp
+    include/pinocchio/utils/cast.hpp
+    include/pinocchio/utils/check.hpp
+    include/pinocchio/utils/eigen-helpers.hpp
+    include/pinocchio/utils/file-io.hpp
+    include/pinocchio/utils/openmp.hpp
+    include/pinocchio/utils/promote-static-eval.hpp
+    include/pinocchio/utils/reference.hpp
+    include/pinocchio/utils/shared-ptr.hpp
+    include/pinocchio/utils/size-in-bytes.hpp
+    include/pinocchio/utils/static-if.hpp
+    include/pinocchio/utils/std-vector.hpp
+    include/pinocchio/utils/string-generator.hpp
+    include/pinocchio/utils/string.hpp
+    include/pinocchio/utils/timer.hpp
+    include/pinocchio/utils/timer2.hpp
+    include/pinocchio/utils/version.hpp
+    BASE_DIRS include
+)
+
+jrl_target_headers(pinocchio_default_headers PUBLIC
+    HEADERS
+    include/pinocchio/src/visualizers/base-visualizer.hxx
+    include/pinocchio/src/common/fwd.hxx
+    include/pinocchio/src/common/model-entity.hxx
+    include/pinocchio/src/common/data-entity.hxx
+    include/pinocchio/src/eigen-macros.hxx
+    include/pinocchio/src/context/generic.hxx
+    include/pinocchio/src/context/default.hxx
+    include/pinocchio/src/multibody/data.hxx
+    include/pinocchio/src/multibody/model-item.hxx
+    include/pinocchio/src/multibody/joint-motion-subspace-base.hxx
+    include/pinocchio/src/multibody/force-set.hxx
+    include/pinocchio/src/multibody/liegroup/vector-space.hxx
+    include/pinocchio/src/multibody/model.hxx
+    include/pinocchio/src/multibody/liegroup/cartesian-product.hxx
+    include/pinocchio/src/multibody/liegroup/liegroup-generic.hxx
+    include/pinocchio/src/multibody/liegroup/liegroup-base.hxx
+    include/pinocchio/src/multibody/fwd.hxx
+    include/pinocchio/src/multibody/joint-motion-subspace-generic.hxx
+    include/pinocchio/src/multibody/frame.hxx
+    include/pinocchio/src/multibody/sample-models.hxx
+    include/pinocchio/src/geometry/fwd.hxx
+    include/pinocchio/src/geometry/coal.hxx
+    include/pinocchio/src/geometry/instance-filter.hxx
+    include/pinocchio/src/geometry/geometry-object.hxx
+    include/pinocchio/src/geometry/geometry.hxx
+    include/pinocchio/src/geometry/geometry-object-filter.hxx
+    include/pinocchio/src/algorithm/delassus-operator-preconditioned.hxx
+    include/pinocchio/src/algorithm/crba.hxx
+    include/pinocchio/src/algorithm/kinematics.hxx
+    include/pinocchio/src/multibody/liegroup/liegroup-algo.hxx
+    include/pinocchio/src/math/matrix-inverse-code-generated.hxx
+    include/pinocchio/src/math/block-diagonal-matrix.hxx
+    include/pinocchio/src/math/quaternion.hxx
+    include/pinocchio/src/algorithm/contact-dynamics.hxx
+    include/pinocchio/src/math/matrix-block-element-base.hxx
+    include/pinocchio/src/math/matrix-inverse.hxx
+    include/pinocchio/src/math/block-diagonal-matrix-base.hxx
+    include/pinocchio/src/math/taylor-expansion.hxx
+    include/pinocchio/src/math/assign-operators.hxx
+    include/pinocchio/src/math/lanczos-decomposition.hxx
+    include/pinocchio/src/eigen-ref.hxx
+    include/pinocchio/src/macros.hxx
+    include/pinocchio/src/fwd.hxx
+    include/pinocchio/src/algorithm/regressor.hxx
+    include/pinocchio/src/algorithm/frames.hxx
+    include/pinocchio/src/math/alias.hxx
+    include/pinocchio/src/math/eigenvalues.hxx
+    include/pinocchio/src/multibody/visitor/joint-unary-visitor.hxx
+    include/pinocchio/src/multibody/visitor/joint-binary-visitor.hxx
+    include/pinocchio/src/multibody/visitor/fusion.hxx
+    include/pinocchio/src/multibody/liegroup/special-orthogonal.hxx
+    include/pinocchio/src/multibody/liegroup/special-euclidean.hxx
+    include/pinocchio/src/multibody/liegroup/cartesian-product-variant.hxx
+    include/pinocchio/src/multibody/liegroup/liegroup-map.hxx
+    include/pinocchio/src/multibody/liegroup/liegroup-collection.hxx
+    include/pinocchio/src/multibody/liegroup/liegroup-joint.hxx
+    include/pinocchio/src/multibody/liegroup/liegroup-variant-visitors.hxx
+    include/pinocchio/src/multibody/liegroup/fwd.hxx
+    include/pinocchio/src/multibody/liegroup/cartesian-product-variant-fwd.hxx
+    include/pinocchio/src/spatial/classic-acceleration.hxx
+    include/pinocchio/src/spatial/motion-dense.hxx
+    include/pinocchio/src/spatial/se3-base.hxx
+    include/pinocchio/src/spatial/cartesian-axis.hxx
+    include/pinocchio/src/spatial/symmetric3.hxx
+    include/pinocchio/src/spatial/spatial-axis.hxx
+    include/pinocchio/src/spatial/log-common.hxx
+    include/pinocchio/src/spatial/se3-tpl.hxx
+    include/pinocchio/src/spatial/motion-zero.hxx
+    include/pinocchio/src/spatial/log.hxx
+    include/pinocchio/src/spatial/inertia.hxx
+    include/pinocchio/src/spatial/se3-common.hxx
+    include/pinocchio/src/algorithm/check-model.hxx
+    include/pinocchio/src/algorithm/rnea.hxx
+    include/pinocchio/src/math/matrix-block-element.hxx
+    include/pinocchio/src/math/matrix-block-type.hxx
+    include/pinocchio/src/math/comparison-operators.hxx
+    include/pinocchio/src/math/multiprecision.hxx
+    include/pinocchio/src/algorithm/joint-configuration.hxx
+    include/pinocchio/src/algorithm/center-of-mass.hxx
+    include/pinocchio/src/spatial/se3-tpl-interpolate.hxx
+    include/pinocchio/src/spatial/force-base.hxx
+    include/pinocchio/src/algorithm/delassus-operator-cholesky-expression.hxx
+    include/pinocchio/src/algorithm/constraint-cholesky-decl.hxx
+    include/pinocchio/src/algorithm/default-check.hxx
+    include/pinocchio/src/spatial/motion-common.hxx
+    include/pinocchio/src/algorithm/jacobian.hxx
+    include/pinocchio/src/algorithm/kinematics-derivatives.hxx
+    include/pinocchio/src/serialization/symmetric3.hxx
+    include/pinocchio/src/algorithm/contact-inverse-dynamics.hxx
+    include/pinocchio/src/algorithm/diagonal-preconditioner.hxx
+    include/pinocchio/src/math/matrix-block-element-operations.hxx
+    include/pinocchio/src/math/fwd.hxx
+    include/pinocchio/src/math/matrix-info.hxx
+    include/pinocchio/src/spatial/motion-tpl.hxx
+    include/pinocchio/src/serialization/constraints-data.hxx
+    include/pinocchio/src/algorithm/rnea-second-order-derivatives.hxx
+    include/pinocchio/src/math/matrix-block.hxx
+    include/pinocchio/src/math/eigen-helpers.hxx
+    include/pinocchio/src/math/matrix-product.hxx
+    include/pinocchio/src/spatial/motion-ref.hxx
+    include/pinocchio/src/context.hxx
+    include/pinocchio/src/eigen-align.hxx
+    include/pinocchio/src/spatial/fwd.hxx
+    include/pinocchio/src/algorithm/delassus-operator-rigid-body-visitors.hxx
+    include/pinocchio/src/math/matrix-block-element-operation.hxx
+    include/pinocchio/src/container/aligned-vector.hxx
+    include/pinocchio/src/container/matrix-stack.hxx
+    include/pinocchio/src/container/double-entry-container.hxx
+    include/pinocchio/src/container/eigen-storage.hxx
+    include/pinocchio/src/algorithm/utils/force.hxx
+    include/pinocchio/src/spatial/act-on-set.hxx
+    include/pinocchio/src/spatial/force-dense.hxx
+    include/pinocchio/src/spatial/force-ref.hxx
+    include/pinocchio/src/spatial/explog-quaternion.hxx
+    include/pinocchio/src/spatial/force-common.hxx
+    include/pinocchio/src/spatial/motion-base.hxx
+    include/pinocchio/src/utils/timer.hxx
+    include/pinocchio/src/spatial/force-tpl.hxx
+    include/pinocchio/src/spatial/skew.hxx
+    include/pinocchio/src/serialization/inertia.hxx
+    include/pinocchio/src/serialization/vector.hxx
+    include/pinocchio/src/spatial/explog.hxx
+    include/pinocchio/src/serialization/force.hxx
+    include/pinocchio/src/serialization/joints-data.hxx
+    include/pinocchio/src/algorithm/utils/motion.hxx
+    include/pinocchio/src/serialization/block-diagonal-matrix.hxx
+    include/pinocchio/src/serialization/eigen.hxx
+    include/pinocchio/src/algorithm/constraint-cholesky-def.hxx
+    include/pinocchio/src/serialization/model.hxx
+    include/pinocchio/src/serialization/eigen-storage.hxx
+    include/pinocchio/src/algorithm/impulse-dynamics.hxx
+    include/pinocchio/src/serialization/motion.hxx
+    include/pinocchio/src/serialization/se3.hxx
+    include/pinocchio/src/algorithm/preconditioner-base.hxx
+    include/pinocchio/src/serialization/static-buffer.hxx
+    include/pinocchio/src/math/gram-schmidt-orthonormalisation.hxx
+    include/pinocchio/src/algorithm/constrained-dynamics.hxx
+    include/pinocchio/src/math/block-diagonal-matrix-inverse.hxx
+    include/pinocchio/src/algorithm/model.hxx
+    include/pinocchio/src/algorithm/rnea-derivatives.hxx
+    include/pinocchio/src/utils/check.hxx
+    include/pinocchio/src/algorithm/centroidal.hxx
+    include/pinocchio/src/math/multiprecision-mpfr.hxx
+    include/pinocchio/src/serialization/frame.hxx
+    include/pinocchio/src/serialization/double-entry-container.hxx
+    include/pinocchio/src/algorithm/delassus.hxx
+    include/pinocchio/src/algorithm/loop-constrained-aba.hxx
+    include/pinocchio/src/algorithm/fwd.hxx
+    include/pinocchio/src/math/arithmetic-operators.hxx
+    include/pinocchio/src/math/tridiagonal-matrix.hxx
+    include/pinocchio/src/math/block-diagonal-matrix-sum.hxx
+    include/pinocchio/src/math/tensor.hxx
+    include/pinocchio/src/serialization/matrix-block-element.hxx
+    include/pinocchio/src/serialization/fwd.hxx
+    include/pinocchio/src/algorithm/proximal.hxx
+    include/pinocchio/src/math/eigenvalues-tridiagonal-matrix.hxx
+    include/pinocchio/src/math/block-diagonal-matrix-expression.hxx
+    include/pinocchio/src/utils/promote-static-eval.hxx
+    include/pinocchio/src/multibody/pool/model.hxx
+    include/pinocchio/src/serialization/delassus.hxx
+    include/pinocchio/src/algorithm/pv.hxx
+    include/pinocchio/src/multibody/pool/fwd.hxx
+    include/pinocchio/src/math/rpy.hxx
+    include/pinocchio/src/utils/string.hxx
+    include/pinocchio/src/serialization/boost-blank.hxx
+    include/pinocchio/src/algorithm/delassus-operator-sparse.hxx
+    include/pinocchio/src/math/sincos.hxx
+    include/pinocchio/src/utils/file-io.hxx
+    include/pinocchio/src/utils/version.hxx
+    include/pinocchio/src/serialization/joints-motion-subspace.hxx
+    include/pinocchio/src/serialization/matrix-stack.hxx
+    include/pinocchio/src/algorithm/constrained-dynamics-derivatives.hxx
+    include/pinocchio/src/algorithm/delassus-operator-dense.hxx
+    include/pinocchio/src/utils/alloca.hxx
+    include/pinocchio/src/multibody/pool/geometry.hxx
+    include/pinocchio/src/math/matrix-block-element-plain.hxx
+    include/pinocchio/src/serialization/geometry.hxx
+    include/pinocchio/src/algorithm/energy.hxx
+    include/pinocchio/src/math/rotation.hxx
+    include/pinocchio/src/utils/string-generator.hxx
+    include/pinocchio/src/serialization/archive.hxx
+    include/pinocchio/src/math/triangular-matrix.hxx
+    include/pinocchio/src/math/matrix.hxx
+    include/pinocchio/src/math/sign.hxx
+    include/pinocchio/src/utils/size-in-bytes.hxx
+    include/pinocchio/src/utils/timer2.hxx
+    include/pinocchio/src/utils/cast.hxx
+    include/pinocchio/src/utils/eigen-helpers.hxx
+    include/pinocchio/src/utils/reference.hxx
+    include/pinocchio/src/utils/static-if.hxx
+    include/pinocchio/src/multibody/joint/joint-universal.hxx
+    include/pinocchio/src/multibody/joint/joint-helical.hxx
+    include/pinocchio/src/multibody/joint/joint-ellipsoid.hxx
+    include/pinocchio/src/math/details/matrix-inverse-9x9.hxx
+    include/pinocchio/src/math/details/matrix-inverse-12x12.hxx
+    include/pinocchio/src/math/details/matrix-inverse-11x11.hxx
+    include/pinocchio/src/utils/openmp.hxx
+    include/pinocchio/src/serialization/joints-motion.hxx
+    include/pinocchio/src/serialization/constraints-model.hxx
+    include/pinocchio/src/utils/eigen-fix.hxx
+    include/pinocchio/src/multibody/joint/joint-composite.hxx
+    include/pinocchio/src/math/details/matrix-inverse-4x4.hxx
+    include/pinocchio/src/math/details/matrix-inverse-3x3.hxx
+    include/pinocchio/src/math/details/matrix-inverse-6x6.hxx
+    include/pinocchio/src/math/details/matrix-inverse-10x10.hxx
+    include/pinocchio/src/math/details/matrix-inverse-5x5.hxx
+    include/pinocchio/src/multibody/joint/joint-revolute-unbounded.hxx
+    include/pinocchio/src/serialization/data.hxx
+    include/pinocchio/src/serialization/coal.hxx
+    include/pinocchio/src/serialization/joints-model.hxx
+    include/pinocchio/src/utils/std-vector.hxx
+    include/pinocchio/src/utils/shared-ptr.hxx
+    include/pinocchio/src/math/details/matrix-inverse-7x7.hxx
+    include/pinocchio/src/serialization/constraints-set.hxx
+    include/pinocchio/src/math/details/matrix-inverse-2x2.hxx
+    include/pinocchio/src/multibody/joint/joint-collection.hxx
+    include/pinocchio/src/serialization/serializable.hxx
+    include/pinocchio/src/math/details/matrix-inverse-8x8.hxx
+    include/pinocchio/src/algorithm/centroidal-derivatives.hxx
+    include/pinocchio/src/algorithm/delassus-operator-base.hxx
+    include/pinocchio/src/multibody/joint/joint-spherical.hxx
+    include/pinocchio/src/math/details/matrix-inverse-1x1.hxx
+    include/pinocchio/src/serialization/common.hxx
+    include/pinocchio/src/serialization/csv.hxx
+    include/pinocchio/src/algorithm/aba-derivatives.hxx
+    include/pinocchio/src/algorithm/aba.hxx
+    include/pinocchio/src/serialization/joints-transform.hxx
+    include/pinocchio/src/algorithm/compute-all-terms.hxx
+    include/pinocchio/src/algorithm/delassus-operator-rigid-body.hxx
+    include/pinocchio/src/algorithm/center-of-mass-derivatives.hxx
+    include/pinocchio/src/algorithm/check-base.hxx
+    include/pinocchio/src/algorithm/check-data.hxx
+    include/pinocchio/src/algorithm/impulse-dynamics-derivatives.hxx
+    include/pinocchio/src/algorithm/copy.hxx
+    include/pinocchio/src/algorithm/cholesky.hxx
+    include/pinocchio/src/algorithm/frames-derivatives.hxx
+    include/pinocchio/src/multibody/joint/joint-spherical-ZYX.hxx
+    include/pinocchio/src/multibody/joint/joint-planar.hxx
+    include/pinocchio/src/algorithm/geometry.hxx
+    include/pinocchio/src/multibody/joint/joint-revolute-unaligned.hxx
+    include/pinocchio/src/algorithm/solvers/anderson-acceleration.hxx
+    include/pinocchio/src/algorithm/solvers/constraint-solver-base.hxx
+    include/pinocchio/src/algorithm/solvers/pgs-solver.hxx
+    include/pinocchio/src/algorithm/solvers/admm-solver.hxx
+    include/pinocchio/src/algorithm/solvers/constraint-solver-utils.hxx
+    include/pinocchio/src/multibody/joint/joint-translation.hxx
+    include/pinocchio/src/multibody/joint/joint-prismatic-unaligned.hxx
+    include/pinocchio/src/multibody/joint/joint-mimic.hxx
+    include/pinocchio/src/multibody/joint/fwd.hxx
+    include/pinocchio/src/multibody/joint/joint-free-flyer.hxx
+    include/pinocchio/src/multibody/joint/joint-common-operations.hxx
+    include/pinocchio/src/multibody/joint/joint-prismatic.hxx
+    include/pinocchio/src/multibody/joint/joint-generic.hxx
+    include/pinocchio/src/multibody/joint/joint-revolute-unbounded-unaligned.h
+    include/pinocchio/src/multibody/joint/joint-helical-unaligned.hxx
+    include/pinocchio/src/multibody/joint/joint-revolute.hxx
+    include/pinocchio/src/multibody/joint/joint-data-base.hxx
+    include/pinocchio/src/multibody/joint/joint-basic-visitors.hxx
+    include/pinocchio/src/multibody/joint/joint-model-base.hxx
+    include/pinocchio/src/constraints/constraint-data-base.hxx
+    include/pinocchio/src/constraints/kinematics-constraint-model-base.hxx
+    include/pinocchio/src/constraints/baumgarte-corrector-parameters.hxx
+    include/pinocchio/src/constraints/point-anchor-constraint.hxx
+    include/pinocchio/src/constraints/constraint-model-common-parameters.hxx
+    include/pinocchio/src/constraints/constraint-collection-default.hxx
+    include/pinocchio/src/constraints/visitors/constraint-model-visitor.hxx
+    include/pinocchio/src/constraints/frame-constraint-data-base.hxx
+    include/pinocchio/src/constraints/point-constraint-data-base.hxx
+    include/pinocchio/src/constraints/binary-kinematics-constraint-model-base.
+    include/pinocchio/src/constraints/constraint-model-base.hxx
+    include/pinocchio/src/constraints/blank-constraint.hxx
+    include/pinocchio/src/constraints/constraint-ordering.hxx
+    include/pinocchio/src/constraints/fwd.hxx
+    include/pinocchio/src/constraints/jointwise-constraint-model-base.hxx
+    include/pinocchio/src/constraints/point-constraint-model-base.hxx
+    include/pinocchio/src/constraints/joint-limit-constraint.hxx
+    include/pinocchio/src/constraints/sets/second-order-cone-jordan-operation.
+    include/pinocchio/src/constraints/sets/full-space-cone.hxx
+    include/pinocchio/src/constraints/sets/orthant-cone.hxx
+    include/pinocchio/src/constraints/sets/orthant-cone-jordan-operation.hxx
+    include/pinocchio/src/constraints/sets/coulomb-friction-cone.hxx
+    include/pinocchio/src/constraints/sets/cone-base.hxx
+    include/pinocchio/src/constraints/sets/zero-cone-jordan-operation.hxx
+    include/pinocchio/src/constraints/sets/box-set.hxx
+    include/pinocchio/src/constraints/sets/zero-cone.hxx
+    include/pinocchio/src/constraints/sets/set-base.hxx
+    include/pinocchio/src/constraints/sets/jordan-operation-helper.hxx
+    include/pinocchio/src/constraints/constraint-data-generic.hxx
+    include/pinocchio/src/constraints/utils.hxx
+    include/pinocchio/src/constraints/frame-constraint-model-base.hxx
+    include/pinocchio/src/constraints/point-contact-constraint.hxx
+    include/pinocchio/src/constraints/frame-anchor-constraint.hxx
+    include/pinocchio/src/constraints/joint-friction-constraint.hxx
+    include/pinocchio/src/constraints/contact-info.hxx
+    include/pinocchio/src/constraints/constraint-model-generic.hxx
+    include/pinocchio/src/constraints/rigid-constraint-conversion.hxx
+  BASE_DIRS include
+)
+
+target_link_libraries(pinocchio INTERFACE pinocchio_default)
+
+if(BUILD_WITH_COLLISION_SUPPORT)
+    add_library(pinocchio_collision SHARED)
+
+    target_sources(
+        pinocchio_collision
+        PRIVATE src/collision/collision.cpp src/collision/distance.cpp
+    )
+
+    jrl_target_headers(pinocchio_collision PUBLIC
+      HEADERS
+        include/pinocchio/collision/broadphase-callbacks.hpp
+        include/pinocchio/collision/broadphase-manager-base.hpp
+        include/pinocchio/collision/broadphase-manager.hpp
+        include/pinocchio/collision/broadphase.hpp
+        include/pinocchio/collision/coal-pinocchio-conversions.hpp
+        include/pinocchio/collision/collision.hpp
+        include/pinocchio/collision/distance.hpp
+        include/pinocchio/collision/pool/broadphase-manager.hpp
+        include/pinocchio/collision/pool/fwd.hpp
+        include/pinocchio/collision/tree-broadphase-manager.hpp
+      BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_collision PUBLIC
+        HEADERS
+            include/pinocchio/src/collision/broadphase-callbacks.hxx
+            include/pinocchio/src/collision/broadphase-manager.hxx
+            include/pinocchio/src/collision/broadphase.hxx
+            include/pinocchio/src/collision/collision.hxx
+            include/pinocchio/src/collision/distance.hxx
+            include/pinocchio/src/collision/pool/broadphase-manager.hxx
+            include/pinocchio/src/collision/pool/fwd.hxx
+            include/pinocchio/src/collision/tree-broadphase-manager.hxx
+        BASE_DIRS include
+    )
+
+    target_link_libraries(
+        pinocchio_collision
+        PUBLIC pinocchio_default coal::coal
+    )
+
+    target_compile_definitions(
+        pinocchio_collision
+        PUBLIC PINOCCHIO_WITH_COLLISION
+        PUBLIC
+            PINOCCHIO_WITH_HPP_FCL # DEPRECATED: Setup back compatibility define
+    )
+
+    jrl_target_set_default_compile_options(pinocchio_collision PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_collision PUBLIC)
+    jrl_target_generate_config_header(pinocchio_collision INTERFACE FILENAME pinocchio/collision/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_collision)
+
+    target_link_libraries(pinocchio INTERFACE pinocchio_collision)
+    list(APPEND EXPORTED_TARGETS pinocchio_collision)
+endif()
+
+# handle parsers
+if(BUILD_WITH_URDF_SUPPORT OR BUILD_WITH_SDF_SUPPORT)
+    set(BUILD_WITH_PARSERS_SUPPORT TRUE)
+else()
+    set(BUILD_WITH_PARSERS_SUPPORT FALSE)
+endif()
+
+if(BUILD_WITH_PARSERS_SUPPORT)
+    add_library(pinocchio_parsers SHARED)
+
+    target_sources(
+        pinocchio_parsers
+        PRIVATE
+            src/parsers/utils/file-explorer.cpp
+            src/parsers/mjcf/mjcf-graph.cpp
+            src/parsers/mjcf/mjcf-graph-geom.cpp
+            src/parsers/graph/model-graph.cpp
+            src/parsers/graph/model-graph-algo.cpp
+    )
+    if(BUILD_WITH_COLLISION_SUPPORT)
+        target_sources(
+            pinocchio_parsers
+            PRIVATE src/parsers/graph/model-graph-algo-geometry.cpp
+        )
+    endif()
+
+    jrl_target_headers(pinocchio_parsers PUBLIC
+        HEADERS
+            include/pinocchio/parsers/graph/fwd.hpp
+            include/pinocchio/parsers/graph.hpp
+            include/pinocchio/parsers/mjcf.hpp
+            include/pinocchio/parsers/srdf.hpp
+            include/pinocchio/parsers/utils.hpp
+        BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_parsers PUBLIC
+        HEADERS
+            include/pinocchio/src/parsers/graph/frames.hxx
+            include/pinocchio/src/parsers/graph/fwd.hxx
+            include/pinocchio/src/parsers/graph/geometries.hxx
+            include/pinocchio/src/parsers/graph/graph-visitor.hxx
+            include/pinocchio/src/parsers/graph/joints.hxx
+            include/pinocchio/src/parsers/graph/model-configuration-converter.hxx
+            include/pinocchio/src/parsers/graph/model-graph-algo-geometry.hxx
+            include/pinocchio/src/parsers/graph/model-graph-algo.hxx
+            include/pinocchio/src/parsers/graph/model-graph.hxx
+            include/pinocchio/src/parsers/meshloader-fwd.hxx
+            include/pinocchio/src/parsers/mjcf/geometry.hxx
+            include/pinocchio/src/parsers/mjcf/mjcf-graph.hxx
+            include/pinocchio/src/parsers/mjcf/mjcf.hxx
+            include/pinocchio/src/parsers/mjcf/model.hxx
+            include/pinocchio/src/parsers/scalar-model.hxx
+            include/pinocchio/src/parsers/srdf/srdf.hxx
+            include/pinocchio/src/parsers/utils/utils.hxx
+            include/pinocchio/src/parsers/utils/file-explorer.hxx
+        BASE_DIRS include
+    )
+
+    if(BUILD_WITH_URDF_SUPPORT)
+        target_sources(
+            pinocchio_parsers
+            PRIVATE
+                src/parsers/urdf/model.cpp
+                src/parsers/urdf/geometry.cpp
+                src/parsers/urdf/utils.cpp
+        )
+
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/parsers/urdf.hpp
+            BASE_DIRS include
+        )
+
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/src/parsers/urdf/geometry.hxx
+                include/pinocchio/src/parsers/urdf/model.hxx
+                include/pinocchio/src/parsers/urdf/urdf.hxx
+                include/pinocchio/src/parsers/urdf/utils.hxx
+            BASE_DIRS include
+        )
+        target_link_libraries(pinocchio_parsers PUBLIC urdfdom::urdf_parser)
+        # Expose urdfdom_headers version
+        string(REPLACE "." ";" _URDFDOM_H_VER "${urdfdom_headers_VERSION}")
+        list(GET _URDFDOM_H_VER 0 _URDFDOM_H_MAJOR)
+        list(GET _URDFDOM_H_VER 1 _URDFDOM_H_MINOR)
+        list(GET _URDFDOM_H_VER 2 _URDFDOM_H_PATCH)
+
+        target_compile_definitions(
+            pinocchio_parsers
+            PUBLIC
+                PINOCCHIO_WITH_URDFDOM
+                PINOCCHIO_URDFDOM_HEADERS_MAJOR_VERSION=${_URDFDOM_H_MAJOR}
+                PINOCCHIO_URDFDOM_HEADERS_MINOR_VERSION=${_URDFDOM_H_MINOR}
+                PINOCCHIO_URDFDOM_HEADERS_PATCH_VERSION=${_URDFDOM_H_PATCH}
+        )
+    endif()
+
+    if(BUILD_WITH_SDF_SUPPORT)
+        target_sources(
+            pinocchio_parsers
+            PRIVATE src/parsers/sdf/model.cpp src/parsers/sdf/geometry.cpp
+        )
+
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/parsers/sdf.hpp
+            BASE_DIRS include
+        )
+
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/src/parsers/sdf/geometry.hxx
+                include/pinocchio/src/parsers/sdf/model.hxx
+                include/pinocchio/src/parsers/sdf/urdf.hxx
+            BASE_DIRS include
+        )
+
+        # the following lines allows to link to SDFormat, indeed SDFormat has its version number in its target until version ==16
+        set(SDF_VERSIONS "15" "13" "12")
+        list(APPEND SDF_VERSIONS "")
+        foreach(version IN LISTS SDF_VERSIONS)
+            find_package(SDFormat${version} QUIET)
+            if(SDFormat${version}_FOUND)
+                set(SDFormat_FOUND True)
+                jrl_find_package(SDFormat${version} CONFIG)
+                message(STATUS "SDFormat${version} Found")
+                add_library(
+                    pinocchio_sdformat
+                    ALIAS sdformat${version}::sdformat${version}
+                )
+                break()
+            endif()
+        endforeach(version)
+        if(NOT SDFormat_FOUND)
+            message(
+                FATAL_ERROR
+                "SDFormat  not found. Accepted versions: ${SDF_VERSIONS}"
+            )
+        endif()
+
+        target_link_libraries(pinocchio_parsers PUBLIC pinocchio_sdformat)
+
+        target_compile_definitions(
+            pinocchio_parsers
+            PUBLIC PINOCCHIO_WITH_SDFORMAT
+        )
+    endif()
+
+    target_link_libraries(
+        pinocchio_parsers
+        PUBLIC pinocchio_default Boost::filesystem
+    )
+
+    if(BUILD_WITH_COLLISION_SUPPORT)
+        target_link_libraries(pinocchio_parsers PUBLIC pinocchio_collision)
+    endif()
+
+    jrl_target_set_default_compile_options(pinocchio_parsers PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_parsers PUBLIC)
+    jrl_target_generate_config_header(pinocchio_parsers INTERFACE FILENAME pinocchio/parsers/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_parsers)
+
+    target_link_libraries(pinocchio INTERFACE pinocchio_parsers)
+    list(APPEND EXPORTED_TARGETS pinocchio_parsers)
+endif()
+
+# handle special scalars
+if(BUILD_WITH_AUTODIFF_SUPPORT)
+    add_header_and_template_instantiation_targets(pinocchio_cppad)
+
+    jrl_target_headers(pinocchio_cppad_headers PUBLIC
+        HEADERS
+            include/pinocchio/autodiff/cppad.hpp
+        BASE_DIRS include
+    )
+    jrl_target_headers(pinocchio_cppad_headers PUBLIC
+        HEADERS
+            include/pinocchio/src/autodiff/cppad/algorithm/aba.hxx
+            include/pinocchio/src/autodiff/cppad/math/quaternion.hxx
+            include/pinocchio/src/autodiff/cppad/math/taylor-series-expansion.hxx
+            include/pinocchio/src/autodiff/cppad/spatial/log.hxx
+            include/pinocchio/src/autodiff/cppad/spatial/se3-tpl.hxx
+            include/pinocchio/src/autodiff/cppad/utils/static-if.hxx
+        BASE_DIRS include
+    )
+
+    target_link_libraries(
+        pinocchio_cppad_headers
+        INTERFACE pinocchio_default_headers cppad::cppad
+    )
+
+    target_compile_definitions(
+        pinocchio_cppad_headers
+        INTERFACE CPPAD_DEBUG_AND_RELEASE
+    )
+
+    target_compile_definitions(
+        pinocchio_cppad
+        INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppad.hxx"
+    )
+
+    if(ENABLE_TEMPLATE_INSTANTIATION)
+        target_compile_definitions(
+            pinocchio_cppad_template_instantiation
+            PRIVATE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppad.hxx"
+        )
+    endif()
+endif()
+
+if(BUILD_WITH_CODEGEN_SUPPORT)
+    add_header_and_template_instantiation_targets(pinocchio_cppadcg)
+
+    jrl_target_headers(pinocchio_cppadcg_headers PUBLIC
+        HEADERS
+            include/pinocchio/codegen/cppadcg-algo.hpp
+            include/pinocchio/codegen/cppadcg.hpp
+        BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_cppadcg_headers PUBLIC
+        HEADERS
+            include/pinocchio/src/codegen/cppadcg/algorithm/code-generator-algo.hxx
+            include/pinocchio/src/codegen/cppadcg/algorithm/code-generator-base.hxx
+            include/pinocchio/src/codegen/cppadcg/math/cast.hxx
+            include/pinocchio/src/codegen/cppadcg/math/taylor-series-expansion.hxx
+        BASE_DIRS include
+    )
+
+    target_link_libraries(
+        pinocchio_cppadcg_headers
+        INTERFACE
+            pinocchio_default_headers cppadcg::cppadcg)
+
+    target_compile_definitions(
+        pinocchio_cppadcg_headers
+        INTERFACE CPPAD_DEBUG_AND_RELEASE
+    )
+
+    target_compile_definitions(
+        pinocchio_cppadcg
+        INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppadcg.hxx"
+    )
+
+    if(ENABLE_TEMPLATE_INSTANTIATION)
+        target_compile_definitions(
+            pinocchio_cppadcg_template_instantiation
+            PRIVATE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/cppadcg.hxx"
+        )
+    endif()
+endif()
+
+if(BUILD_WITH_CASADI_SUPPORT)
+    add_header_and_template_instantiation_targets(pinocchio_casadi)
+
+    jrl_target_headers(pinocchio_casadi_headers PUBLIC
+        HEADERS
+            include/pinocchio/autodiff/casadi-algo.hpp
+            include/pinocchio/autodiff/casadi.hpp
+        BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_casadi_headers PUBLIC
+        HEADERS
+            include/pinocchio/src/autodiff/casadi/algorithm/algo.hxx
+            include/pinocchio/src/autodiff/casadi/math/alias.hxx
+            include/pinocchio/src/autodiff/casadi/math/matrix.hxx
+            include/pinocchio/src/autodiff/casadi/math/quaternion.hxx
+            include/pinocchio/src/autodiff/casadi/math/taylor-series-expansion.hxx
+            include/pinocchio/src/autodiff/casadi/math/triangular-matrix.hxx
+            include/pinocchio/src/autodiff/casadi/spatial/se3-tpl.hxx
+            include/pinocchio/src/autodiff/casadi/utils/static-if.hxx
+      BASE_DIRS include
+    )
+
+    target_link_libraries(
+        pinocchio_casadi_headers
+        INTERFACE pinocchio_default_headers casadi::casadi
+    )
+
+    target_compile_definitions(
+        pinocchio_casadi
+        INTERFACE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/casadi.hxx"
+    )
+
+    if(ENABLE_TEMPLATE_INSTANTIATION)
+        target_compile_definitions(
+            pinocchio_casadi_template_instantiation
+            PRIVATE PINOCCHIO_CONTEXT_FILE="pinocchio/src/context/casadi.hxx"
+        )
+    endif()
+endif()
+
+if(BUILD_WITH_EXTRA_SUPPORT)
+    add_library(pinocchio_extra SHARED)
+
+    target_sources(pinocchio_extra PRIVATE src/extra/reachable-workspace.cpp)
+
+    jrl_target_headers(pinocchio_extra PUBLIC
+      HEADERS
+        include/pinocchio/extra/reachable-workspace.hpp
+      BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_extra PUBLIC
+        HEADERS
+            include/pinocchio/src/extra/reachable-workspace.hxx
+        BASE_DIRS include
+    )
+
+    target_link_libraries(
+        pinocchio_extra
+        PUBLIC pinocchio_default Qhull::qhullcpp Qhull::qhull_r
+    )
+
+    target_compile_definitions(
+        pinocchio_extra
+        PUBLIC PINOCCHIO_WITH_EXTRA_SUPPORT
+    )
+
+    jrl_target_set_default_compile_options(pinocchio_extra PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_extra PUBLIC)
+    jrl_target_generate_config_header(pinocchio_extra INTERFACE FILENAME pinocchio/extra/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_extra)
+
+    target_link_libraries(pinocchio INTERFACE pinocchio_extra)
+    list(APPEND EXPORTED_TARGETS pinocchio_extra)
+endif()
+
+# Define the visualizers target
+if(PINOCCHIO_BUILD_VISUALIZERS)
+    add_library(pinocchio_visualizers SHARED)
+    target_sources(
+        pinocchio_visualizers
+        PRIVATE src/visualizers/base-visualizer.cpp
+    )
+
+    jrl_target_headers(pinocchio_visualizers PUBLIC
+      HEADERS
+        include/pinocchio/visualizers/base-visualizer.hpp
+      BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_visualizers PUBLIC
+        HEADERS
+            include/pinocchio/src/visualizers/base-visualizer.hxx
+        BASE_DIRS include
+    )
+
+    target_link_libraries(pinocchio_visualizers PUBLIC pinocchio_default)
+
+    jrl_target_set_default_compile_options(pinocchio_visualizers PRIVATE)
+    jrl_target_enforce_msvc_conformance(pinocchio_visualizers PUBLIC)
+    jrl_target_generate_config_header(pinocchio_visualizers INTERFACE FILENAME pinocchio/visualizers/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_visualizers)
+
+    target_link_libraries(pinocchio INTERFACE pinocchio_visualizers)
+    list(APPEND EXPORTED_TARGETS pinocchio_visualizers)
+    if(BUILD_WITH_COLLISION_SUPPORT)
+        target_compile_definitions(
+            pinocchio_visualizers
+            PUBLIC PINOCCHIO_WITH_COLLISION
+        )
+        target_link_libraries(pinocchio_visualizers PUBLIC coal::coal)
+    endif()
+endif()
+
+if(PINOCCHIO_BUILD_WITH_TRACY)
+    add_library(pinocchio_tracy INTERFACE)
+    target_link_libraries(pinocchio_tracy INTERFACE Tracy::TracyClient)
+    target_link_libraries(pinocchio_default INTERFACE pinocchio_tracy)
+    list(APPEND EXPORTED_TARGETS pinocchio_tracy)
+endif(PINOCCHIO_BUILD_WITH_TRACY)
+
+# Define the parallel target
+if(BUILD_WITH_OPENMP_SUPPORT)
+    add_library(pinocchio_parallel INTERFACE)
+
+    jrl_target_headers(pinocchio_parallel PUBLIC
+      HEADERS
+        include/pinocchio/algorithm/parallel/aba.hpp
+        include/pinocchio/algorithm/parallel/rnea.hpp
+      BASE_DIRS include
+    )
+
+    jrl_target_headers(pinocchio_parallel PUBLIC
+        HEADERS
+            include/pinocchio/src/algorithm/parallel/aba.hxx
+            include/pinocchio/src/algorithm/parallel/rnea.hxx
+        BASE_DIRS include
+    )
+
+    target_link_libraries(
+        pinocchio_parallel
+        INTERFACE pinocchio_default OpenMP::OpenMP_CXX
+    )
+
+    target_link_libraries(pinocchio INTERFACE pinocchio_parallel)
+    list(APPEND EXPORTED_TARGETS pinocchio_parallel)
+
+    if(BUILD_WITH_COLLISION_SUPPORT)
+        add_library(pinocchio_collision_parallel INTERFACE)
+
+        jrl_target_headers(pinocchio_collision_parallel PUBLIC
+            HEADERS
+                include/pinocchio/collision/parallel/broadphase.hpp
+                include/pinocchio/collision/parallel/geometry.hpp
+            BASE_DIRS include
+        )
+
+        jrl_target_headers(pinocchio_collision_parallel PUBLIC
+            HEADERS
+                include/pinocchio/src/collision/parallel/broadphase.hxx
+                include/pinocchio/src/collision/parallel/geometry.hxx
+            BASE_DIRS include
+        )
+
+        target_link_libraries(
+            pinocchio_collision_parallel
+            INTERFACE pinocchio_collision OpenMP::OpenMP_CXX
+        )
+        target_link_libraries(pinocchio INTERFACE pinocchio_collision_parallel)
+        list(APPEND EXPORTED_TARGETS pinocchio_collision_parallel)
+    endif()
+endif()
+
+# Header only part + deprecated
+if(PINOCCHIO_INSTALL_DEPRECATED_HEADERS)
+    target_include_directories(
+        pinocchio_default_headers
+        INTERFACE
+            $<INSTALL_INTERFACE:include/pinocchio/deprecated>
+            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/pinocchio/deprecated>
+    )
+    jrl_target_headers(pinocchio_default_headers PUBLIC
+        HEADERS
+            include/pinocchio/deprecated/pinocchio/math/gram-schmidt-orthonormalisation.hpp
+            include/pinocchio/deprecated/pinocchio/math/comparison-operators.hpp
+            include/pinocchio/deprecated/pinocchio/math/matrix-inverse-code-generated.hpp
+            include/pinocchio/deprecated/pinocchio/container/boost-container-limits.hpp
+            include/pinocchio/deprecated/pinocchio/container/aligned-vector.hpp
+            include/pinocchio/deprecated/pinocchio/math/tridiagonal-matrix.hpp
+            include/pinocchio/deprecated/pinocchio/math/matrix-product.hpp
+            include/pinocchio/deprecated/pinocchio/math/quaternion.hpp
+            include/pinocchio/deprecated/pinocchio/math/alias.hpp
+            include/pinocchio/deprecated/pinocchio/math/rotation.hpp
+            include/pinocchio/deprecated/pinocchio/math/sincos.hpp
+            include/pinocchio/deprecated/pinocchio/math/sign.hpp
+            include/pinocchio/deprecated/pinocchio/math/lanczos-decomposition.hpp
+            include/pinocchio/deprecated/pinocchio/math/matrix.hpp
+            include/pinocchio/deprecated/pinocchio/math/matrix-block.hpp
+            include/pinocchio/deprecated/pinocchio/math/taylor-expansion.hpp
+            include/pinocchio/deprecated/pinocchio/math/matrix-inverse.hpp
+            include/pinocchio/deprecated/pinocchio/math/rpy.hpp
+            include/pinocchio/deprecated/pinocchio/math/eigenvalues.hpp
+            include/pinocchio/deprecated/pinocchio/math/eigenvalues-tridiagonal-matrix.hpp
+            include/pinocchio/deprecated/pinocchio/math/triangular-matrix.hpp
+            include/pinocchio/deprecated/pinocchio/math/tensor.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/model-item.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/fcl.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/geometry-object.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/geometry-object-filter.hpp
+            include/pinocchio/deprecated/pinocchio/utils/file-explorer.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/se3.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/se3.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/aligned-vector.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/inertia.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/inertia.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/force.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/csv.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/skew.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/motion.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/force.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/cartesian-axis.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints-transform.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/act-on-set.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/spatial.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/symmetric3.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints-data.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/classic-acceleration.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/spatial-axis.hpp
+            include/pinocchio/deprecated/pinocchio/spatial/explog.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/contact-cholesky.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/contact-info.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/contact-jacobian.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/constraints-set.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/motion.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/model.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints-motion.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/block-diagonal-matrix.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/delassus.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints-motion-subspace.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/constraints-model.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/geometry.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/constraints-data.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/coal.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/fcl.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/matrix-block-element.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/symmetric3.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/frame.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/joints-model.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/static-buffer.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/vector.hpp
+            include/pinocchio/deprecated/pinocchio/serialization/data.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/frame.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/data.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/coal.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/geometry.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/model.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/instance-filter.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/constraints/constraint-model-base.hp
+            include/pinocchio/deprecated/pinocchio/multibody/pool/geometry.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/force-set.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/pool/model.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/visitor/fusion.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/constraints/constraint-model-generic
+            include/pinocchio/deprecated/pinocchio/algorithm/constraints/constraint-data-generic.
+            include/pinocchio/deprecated/pinocchio/algorithm/constraints/constraint-data-base.hpp
+            include/pinocchio/deprecated/pinocchio/algorithm/constraints/coulomb-friction-cone.hp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-base.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-algo.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-variant-visitors.h
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/vector-space.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-collection.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/cartesian-product.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-generic.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/special-orthogonal.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup-joint.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/cartesian-product-variant.h
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/liegroup.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/liegroup/special-euclidean.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-basic-visitors.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-planar.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-spherical.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-revolute-unaligned.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-universal.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-common-operations.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-helical-unaligned.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-free-flyer.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-spherical-ZYX.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-prismatic.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-ellipsoid.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-composite.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-translation.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-mimic.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-base.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-revolute-unbounded.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-revolute.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-prismatic-unaligned.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joints.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-generic.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-revolute-unbounded-unali
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-collection.hpp
+            include/pinocchio/deprecated/pinocchio/multibody/joint/joint-helical.hpp
+        BASE_DIRS include
+    )
+
+    if(BUILD_WITH_COLLISION_SUPPORT)
+        jrl_target_headers(pinocchio_collision PUBLIC
+            HEADERS
+                include/pinocchio/deprecated/pinocchio/collision/fcl-pinocchio-conversions.hpp
+            BASE_DIRS include
+        )
+    endif()
+
+    if(BUILD_WITH_CODEGEN_SUPPORT)
+        jrl_target_headers(pinocchio_cppadcg_headers PUBLIC
+            HEADERS
+                include/pinocchio/deprecated/pinocchio/codegen/code-generator-algo.hpp
+            BASE_DIRS include
+        )
+    endif()
+
+    if(BUILD_WITH_PARSERS_SUPPORT)
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/deprecated/pinocchio/parsers/graph/joints.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/model-graph.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/model-configuration-converter.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/graph-visitor.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/model-graph-algo-geometry.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/model-graph-algo.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/frames.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/graph/geometries.hpp
+                include/pinocchio/deprecated/pinocchio/parsers/mjcf/mjcf-graph.hpp
+            BASE_DIRS include
+        )
+    endif()
+
+    if(BUILD_WITH_URDF_SUPPORT)
+        jrl_target_headers(pinocchio_parsers PUBLIC
+            HEADERS
+                include/pinocchio/deprecated/pinocchio/parsers/urdf/utils.hpp
+            BASE_DIRS include
+        )
+    endif()
+
+    if(BUILD_WITH_OPENMP_SUPPORT)
+        jrl_target_headers(pinocchio_parallel PUBLIC
+            HEADERS
+                include/pinocchio/deprecated/pinocchio/algorithm/parallel/omp.hpp
+            BASE_DIRS include
+        )
+    endif()
+endif()
+
+# ----------------------------------------------------
+# --- UNIT TESTS ---------------------------------------
+# ----------------------------------------------------
+if(BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(unittest)
+endif()
+
+# ----------------------------------------------------
+# --- BINDINGS ---------------------------------------
+# ----------------------------------------------------
+if(BUILD_PYTHON_INTERFACE)
+    add_subdirectory(bindings)
+    list(APPEND EXPORTED_TARGETS pinocchio_pywrap_headers)
+endif()
+
+# ----------------------------------------------------
+# --- EXPORT  ----------------------------------------
+# ----------------------------------------------------
+jrl_add_export_component(NAME pinocchio
+  TARGETS
+    ${EXPORTED_TARGETS}
+)
+jrl_export_package()
+
+# Print summaries
+jrl_print_dependencies_summary()
+jrl_print_options_summary()
