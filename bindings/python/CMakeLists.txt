@@ -37,7 +37,10 @@ function(pinocchio_add_python_binding scalar_name)
     if(BUILD_WITH_URDF_SUPPORT)
         # Link directly against console_bridge since we bind some enums and call
         # console_bridge::setLogLevel function.
-        target_link_libraries(${target_name} PUBLIC console_bridge::console_bridge)
+        target_link_libraries(
+            ${target_name}
+            PUBLIC console_bridge::console_bridge
+        )
     endif()
 
     if(BUILD_WITH_COLLISION_SUPPORT)
@@ -167,10 +170,6 @@ jrl_target_headers(pinocchio_pywrap_headers INTERFACE
   BASE_DIRS include
 )
 
-if(BUILD_WITH_COMMIT_VERSION)
-    tag_library_version(python/context/)
-endif()
-
 set(COMMON_SOURCES
     spatial/expose-symmetric3.cpp
     spatial/expose-force.cpp
@@ -248,9 +247,58 @@ set(COMMON_SOURCES
     parsers/graph/expose-model-graph-algo.cpp
     parsers/graph/expose-model-graph.cpp
     parsers/graph/expose-model-configuration-converter.cpp
+    parsers/graph/expose-model-graph-algo-geometry.cpp
     extra/expose-extras.cpp
     module.cpp
 )
+
+if(BUILD_WITH_COLLISION_SUPPORT)
+    jrl_target_headers(pinocchio_pywrap_headers INTERFACE
+        HEADERS
+            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/coal/transform.hpp
+            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/fcl/transform.hpp
+            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/broadphase-manager.hpp
+            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/collision.hpp
+        BASE_DIRS include
+    )
+    list(
+        APPEND COMMON_SOURCES
+        collision/expose-broadphase.cpp
+        collision/expose-broadphase-callbacks.cpp
+        collision/expose-collision.cpp
+        collision/expose-coal.cpp
+    )
+endif()
+
+if(BUILD_WITH_OPENMP_SUPPORT)
+    jrl_target_headers(pinocchio_pywrap_headers INTERFACE
+        HEADERS
+            ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/multibody/pool/model.hpp
+        BASE_DIRS include
+    )
+    list(
+        APPEND COMMON_SOURCES
+        multibody/pool/expose-pool.cpp
+        algorithm/parallel/aba.cpp
+        algorithm/parallel/expose-parallel.cpp
+        algorithm/parallel/rnea.cpp
+    )
+    if(BUILD_WITH_COLLISION_SUPPORT)
+        jrl_target_headers(pinocchio_pywrap_headers INTERFACE
+            HEADERS
+                ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/pool/geometry.hpp
+                ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/collision/pool/broadphase-manager.hpp
+            BASE_DIRS include
+        )
+        list(
+            APPEND COMMON_SOURCES
+            collision/parallel/expose-parallel.cpp
+            collision/parallel/geometry.cpp
+            collision/parallel/broadphase.cpp
+            collision/pool/expose-pool.cpp
+        )
+    endif()
+endif()
 
 if(BUILD_WITH_EXTRA_SUPPORT)
     list(
@@ -357,12 +405,17 @@ if(GENERATE_PYTHON_STUBS)
         MODULE pinocchio.pinocchio_pywrap_default
         OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib/site-packages
         PYTHON_PATH ${CMAKE_BINARY_DIR}/lib/site-packages
-        DEPENDS pinocchio_pywrap ${STUBGEN_DEPENDENCIES}
+        DEPENDS pinocchio_pywrap
         VERBOSE
     )
+    if(STUBGEN_DEPENDENCIES)
+        add_dependencies(pinocchio_pywrap_stubs ${STUBGEN_DEPENDENCIES})
+    endif()
 endif()
 
 # Compile and move in build directory all .py file
+file(COPY pinocchio DESTINATION ${CMAKE_BINARY_DIR}/lib/site-packages)
+
 jrl_python_compile_all(DIRECTORY
     ${CMAKE_BINARY_DIR}/lib/site-packages/pinocchio
     VERBOSE

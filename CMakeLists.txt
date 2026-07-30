@@ -98,6 +98,7 @@ endif()
 if(BUILD_WITH_URDF_SUPPORT)
     jrl_find_package(urdfdom_headers REQUIRED)
     jrl_find_package(urdfdom REQUIRED)
+    jrl_find_package(console_bridge CONFIG REQUIRED EXPECTED_TARGETS console_bridge::console_bridge)
 endif()
 
 if(BUILD_WITH_CODEGEN_SUPPORT)
@@ -121,6 +122,24 @@ endif()
 
 set(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
 jrl_find_package(example-robot-data CONFIG REQUIRED EXPECTED_TARGETS example-robot-data::example-robot-data)
+
+get_target_property(
+    EXAMPLE_ROBOT_DATA_MODEL_DIR_DEF
+    example-robot-data::example-robot-data
+    INTERFACE_COMPILE_DEFINITIONS
+)
+string(
+    REPLACE "EXAMPLE_ROBOT_DATA_MODEL_DIR="
+    ""
+    EXAMPLE_ROBOT_DATA_MODEL_DIR_QUOTES
+    "${EXAMPLE_ROBOT_DATA_MODEL_DIR_DEF}"
+)
+string(
+    REPLACE "\""
+    ""
+    EXAMPLE_ROBOT_DATA_MODEL_DIR
+    "${EXAMPLE_ROBOT_DATA_MODEL_DIR_QUOTES}"
+)
 
 if(BUILD_WITH_CASADI_SUPPORT)
     jrl_find_package(casadi REQUIRED)
