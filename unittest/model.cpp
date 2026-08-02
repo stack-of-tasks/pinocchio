@@ -1293,4 +1293,32 @@ BOOST_AUTO_TEST_CASE(test_colwise_sparsity_pattern_and_span_indexes)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_add_frame_with_zero_inertia_preserves_the_parent_inertia)
+{
+  // A frame carrying no inertia must leave the parent body untouched.
+
+  // The mass matters: masses whose reciprocal round trip is exact (every power of two, and most
+  // short decimals such as 1.0, 0.1, 1.5) never showed the drift. 0.41 does.
+  const double mass = 0.41;
+  BOOST_REQUIRE(mass * (1. / mass) != 1.);
+
+  Model model;
+  const JointIndex joint_id =
+    model.addJoint(0, JointModelFreeFlyer(), SE3::Identity(), "root_joint");
+  model.appendBodyToJoint(
+    joint_id, Inertia(mass, Eigen::Vector3d(0.1, 0.2, 0.3), Eigen::Matrix3d::Identity()),
+    SE3::Identity());
+
+  const Inertia reference = model.inertias[joint_id];
+
+  for (int i = 0; i < 4; ++i)
+  {
+    model.addFrame(
+      Frame("massless_frame" + std::to_string(i), joint_id, 0, SE3::Identity(), OP_FRAME));
+    BOOST_CHECK_EQUAL(model.inertias[joint_id].mass(), reference.mass());
+    BOOST_CHECK(model.inertias[joint_id].lever() == reference.lever());
+    BOOST_CHECK(model.inertias[joint_id].inertia().matrix() == reference.inertia().matrix());
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
