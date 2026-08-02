@@ -1578,7 +1578,7 @@ namespace pinocchio
     }
     // else: we must add a new frames to the current stack
     frames.push_back(frame);
-    if (append_inertia)
+    if (append_inertia && !frame.inertia.isZero(Scalar(0)))
       inertias[frame.parentJoint] += frame.placement.act(frame.inertia);
     nframes++;
     return FrameIndex(nframes - 1);
