@@ -305,6 +305,7 @@ In addition to the core dev team, the following people have also been involved i
 -   [Lucas Joseph](https://github.com/LucasJoseph): Ellipsoid Joint
 -   [Megane Millan](https://github.com/MegMll): core developer (MJCF, joint mimic, etc.)
 -   [Tingfan Wu](https://github.com/tingfan): Viser visualizer mesh-scale bug fix
+-   [Kazuki Sugihara](https://github.com/sugikazu75): addFrame bug fix
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 
