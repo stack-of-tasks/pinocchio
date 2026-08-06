@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Add core single-precision Python bindings through the `pinocchio.float32` module
 - Add `DataTpl::lastChild` deprecation notice in Python binding
 - Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM
 

@@ -222,6 +222,22 @@ if(BUILD_PYTHON_INTERFACE)
     set(PYTHON_LIB_NAME "${PYWRAP}_default")
     set(STUBGEN_DEPENDENCIES "${PYWRAP}_default")
 
+    if(BUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT)
+        pinocchio_python_bindings_specific_type(float32)
+        list(APPEND STUBGEN_DEPENDENCIES "${PYWRAP}_float32")
+
+        if(PINOCCHIO_BUILD_BINDING_WITH_PCH)
+            target_precompile_headers(
+                ${PYWRAP}_float32
+                PRIVATE
+                    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/pch.hpp
+            )
+        endif()
+
+        # --- INSTALL SCRIPTS
+        install_python_files(MODULE float32 FILES __init__.py explog.py utils.py)
+    endif()
+
     if(BUILD_WITH_AUTODIFF_SUPPORT)
         pinocchio_python_bindings_specific_type(cppad cppad)
         # CPPAD_DEBUG_AND_RELEASE allow to mix debug and release versions of CppAD in the same program.

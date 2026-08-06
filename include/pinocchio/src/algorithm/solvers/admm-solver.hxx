@@ -145,7 +145,8 @@ namespace pinocchio
         break;
       }
       case (ADMMUpdateRule::OSQP):
-        admm_update_rule_container.osqp_rule = ADMMOSQPUpdateRule(settings.ratio_primal_dual, 1e-8);
+        admm_update_rule_container.osqp_rule =
+          ADMMOSQPUpdateRule(settings.ratio_primal_dual, Scalar(1e-8));
         break;
       case (ADMMUpdateRule::LINEAR):
         admm_update_rule_container.linear_rule =
@@ -518,7 +519,7 @@ namespace pinocchio
     {
       PINOCCHIO_TRACY_ZONE_SCOPED_N("ADMMConstraintSolverTpl::solve - lanczos");
       workspace.lanczos_decomposition.compute(G);
-      L = ::pinocchio::computeLargestEigenvalue(workspace.lanczos_decomposition.Ts(), 1e-8);
+      L = ::pinocchio::computeLargestEigenvalue(workspace.lanczos_decomposition.Ts(), Scalar(1e-8));
 #ifndef NDEBUG
       const bool enforce_symmetry = true;
       MatrixXs delassus = G.matrix(enforce_symmetry);

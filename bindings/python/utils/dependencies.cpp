@@ -3,6 +3,7 @@
 //
 
 #include <eigenpy/deprecation-policy.hpp>
+#include <eigenpy/registration.hpp>
 
 #include <boost/python.hpp>
 
@@ -65,8 +66,11 @@ namespace pinocchio
 
     void exposeDependencies()
     {
-      bp::class_<DeprecatedBool>("DeprecatedBool", bp::no_init)
-        .def("__bool__", &DeprecatedBool::__bool__);
+      if (!eigenpy::register_symbolic_link_to_registered_type<DeprecatedBool>())
+      {
+        bp::class_<DeprecatedBool>("DeprecatedBool", bp::no_init)
+          .def("__bool__", &DeprecatedBool::__bool__);
+      }
 
       bp::scope().attr("WITH_COLLISION") = WITH_COLLISION;
       // To conserve back compatibility

@@ -875,6 +875,7 @@ set(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/cppad.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/casadi.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/default.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/float32.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/mpfr.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/context/generic.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/bindings/python/fwd.hpp

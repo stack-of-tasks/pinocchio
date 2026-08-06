@@ -127,7 +127,9 @@ namespace pinocchio
           {
             go.parentFrame = parentFrame;
           }
-          go.placement = (pframe_placement * pfMAB) * go.placement;
+          typedef typename GeometryObject::SE3 GeometrySE3;
+          const GeometrySE3 geometry_placement(pframe_placement * pfMAB);
+          go.placement = geometry_placement * go.placement;
           geomModel.addGeometryObject(go);
         }
       }
@@ -843,7 +845,7 @@ namespace pinocchio
         {
           const FrameIndex reduced_frame_id = reduced_model.getFrameId(parent_joint_name);
           reduced_joint_id = reduced_model.frames[reduced_frame_id].parentJoint;
-          relative_placement = reduced_model.frames[reduced_frame_id].placement;
+          relative_placement = SE3(reduced_model.frames[reduced_frame_id].placement);
         }
 
         GeometryObject reduced_geom(geom);
@@ -890,6 +892,7 @@ namespace pinocchio
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef typename Model::JointModel JointModel;
+    typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModelMimic;
 
     output_model = input_model;
 

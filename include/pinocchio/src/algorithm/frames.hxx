@@ -381,6 +381,8 @@ namespace pinocchio
     assert(model.check(data) && "data is not consistent with model.");
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+    typedef typename Model::Frame Frame;
+    typedef typename Model::SE3 SE3;
     typedef InertiaTpl<Scalar, Options> Inertia;
 
     const Frame & frame = model.frames[frame_id];
@@ -419,7 +421,7 @@ namespace pinocchio
       I += data.oMi[j_id].act(model.inertias[j_id]);
     }
 
-    const pinocchio::SE3 oMf = data.oMi[joint_id] * frame.placement;
+    const SE3 oMf = data.oMi[joint_id] * frame.placement;
     return oMf.actInv(I);
   }
 
@@ -430,6 +432,8 @@ namespace pinocchio
     const FrameIndex frame_id)
   {
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+    typedef typename Model::Frame Frame;
+    typedef typename Model::SE3 SE3;
     typedef InertiaTpl<Scalar, Options> Inertia;
     typedef MotionTpl<Scalar, Options> Motion;
     typedef ForceTpl<Scalar, Options> Force;
@@ -439,7 +443,7 @@ namespace pinocchio
 
     // Compute 'in body' forces
     const Inertia fI = computeSupportedInertiaByFrame(model, data, frame_id, false);
-    const pinocchio::SE3 oMf = data.oMi[joint_id] * frame.placement;
+    const SE3 oMf = data.oMi[joint_id] * frame.placement;
     const Motion v = getFrameVelocity(model, data, frame_id, LOCAL);
     const Motion a = getFrameAcceleration(model, data, frame_id, LOCAL);
     Force f = fI.vxiv(v) + fI * (a - oMf.actInv(model.gravity));
