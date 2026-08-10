@@ -379,7 +379,7 @@ if(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
         BASE_DIRS include
     )
     pinocchio_add_python_binding(mpfr ${COMMON_SOURCES} ${PROJECT_SOURCE_DIR}/bindings/python/extra/mpfr/boost_number.cpp)
-    target_link_libraries(pinocchio_pywrap_mpfr PRIVATE MPFR)
+    target_link_libraries(pinocchio_pywrap_mpfr PRIVATE MPFR::MPFR)
     list(APPEND STUBGEN_DEPENDENCIES "pinocchio_pywrap_mpfr")
 endif()
 
@@ -423,6 +423,7 @@ jrl_python_compile_all(DIRECTORY
 
 # Install binding in the right location
 jrl_python_compute_install_dir(python_install_dir)
+install(TARGETS pinocchio_pywrap_default DESTINATION ${python_install_dir}/pinocchio)
 install(
     DIRECTORY
         ${CMAKE_BINARY_DIR}/lib/site-packages/pinocchio
@@ -433,6 +434,4 @@ install(
     PATTERN "*.pyc"
     PATTERN "*.pyi"
     PATTERN "*.typed"
-    PATTERN "*.so"
-    PATTERN "*.pyd"
 )

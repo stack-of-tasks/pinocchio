@@ -48,7 +48,7 @@ if(WIN32)
     target_compile_definitions(cpp2pybind11 PRIVATE -DNOMINMAX)
 endif(WIN32)
 
-pinocchio_python_add_test(test-cpp2pybind11)
+pinocchio_add_python_test(test-cpp2pybind11)
 set_tests_properties(
     "pinocchio-test-py-test-cpp2pybind11"
     PROPERTIES
