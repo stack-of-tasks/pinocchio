@@ -210,6 +210,10 @@ if(BUILD_PYTHON_INTERFACE)
     jrl_find_package(eigenpy CONFIG REQUIRED EXPECTED_TARGETS eigenpy::eigenpy)
 endif()
 
+if(BUILD_BENCHMARK)
+    jrl_find_package(benchmark CONFIG REQUIRED)
+endif()
+
 # ----------------------------------------------------
 # --- FUNCTIONS  -------------------------------------
 # ----------------------------------------------------
@@ -1392,6 +1396,13 @@ endif()
 if(BUILD_PYTHON_INTERFACE)
     add_subdirectory(bindings)
     list(APPEND EXPORTED_TARGETS pinocchio_pywrap_headers)
+endif()
+
+# ----------------------------------------------------
+# --- BENCHMARK --------------------------------------
+# ----------------------------------------------------
+if(BUILD_BENCHMARK)
+    add_subdirectory(benchmark)
 endif()
 
 # ----------------------------------------------------

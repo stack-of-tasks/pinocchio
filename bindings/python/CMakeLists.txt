@@ -247,7 +247,6 @@ set(COMMON_SOURCES
     parsers/graph/expose-model-graph-algo.cpp
     parsers/graph/expose-model-graph.cpp
     parsers/graph/expose-model-configuration-converter.cpp
-    parsers/graph/expose-model-graph-algo-geometry.cpp
     extra/expose-extras.cpp
     module.cpp
 )
@@ -267,6 +266,7 @@ if(BUILD_WITH_COLLISION_SUPPORT)
         collision/expose-broadphase-callbacks.cpp
         collision/expose-collision.cpp
         collision/expose-coal.cpp
+        parsers/graph/expose-model-graph-algo-geometry.cpp
     )
 endif()
 

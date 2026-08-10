@@ -6,154 +6,120 @@
 # ----------------------------------------------------
 # --- BENCHMARK --------------------------------------
 # ----------------------------------------------------
-add_custom_target(${PROJECT_NAME}-benchmarks)
+add_library(pinocchio-benchmarks-resources INTERFACE)
+target_compile_definitions(
+    pinocchio-benchmarks-resources
+    INTERFACE
+        PINOCCHIO_MODEL_DIR=\"${PINOCCHIO_MODEL_DIR}\"
+        EXAMPLE_ROBOT_DATA_MODEL_DIR=\"${EXAMPLE_ROBOT_DATA_MODEL_DIR}\"
+)
 
-add_project_private_dependency(benchmark REQUIRED)
+add_custom_target(pinocchio-benchmarks)
 
-function(ADD_PINOCCHIO_BENCHMARK name)
-    set(options
-        PARSERS
-        COLLISION
-        PARALLEL
-        COLLISION_PARALLEL
-        CPPADCG
-        CPPAD
-        PARSERS_OPTIONAL
-        COLLISION_OPTIONAL
-        PARALLEL_OPTIONAL
-        COLLISION_PARALLEL_OPTIONAL
-        CPPADCG_OPTIONAL
-        CPPAD_OPTIONAL
-    )
-    set(oneValueArgs)
-    set(multiValueArgs)
-    cmake_parse_arguments(
-        bench
-        "${options}"
-        "${oneValueArgs}"
-        "${multiValueArgs}"
-        ${ARGN}
-    )
+function(pinocchio_add_benchmark benchmark_name)
+    set(target_name "pinocchio-benchmark-${benchmark_name}")
+    add_executable(${target_name} ${benchmark_name}.cpp)
 
-    set(bench_name "pinocchio-benchmark-${name}")
-    add_executable(${bench_name} ${name}.cpp)
+    target_link_libraries(${target_name}
+        PRIVATE pinocchio benchmark::benchmark pinocchio-benchmarks-resources)
+    
+    jrl_target_set_default_compile_options(${target_name} PRIVATE)
+    jrl_target_enforce_msvc_conformance(${target_name} PRIVATE)
 
-    target_compile_definitions(
-        ${bench_name}
-        PRIVATE
-            PINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}"
-            "EXAMPLE_ROBOT_DATA_MODEL_DIR=\"${EXAMPLE_ROBOT_DATA_MODEL_DIR}\""
-    )
-
-    target_link_libraries(${bench_name} PRIVATE pinocchio_default)
-    target_link_libraries(${bench_name} PRIVATE benchmark::benchmark)
-
-    modernize_target_link_libraries(
-      ${bench_name}
-      SCOPE PRIVATE
-      TARGETS Boost::filesystem
-      LIBRARIES ${Boost_FILESYSTEM_LIBRARY}
-      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-    )
-
-    set(cppad_special_define OFF)
-
-    if(bench_PARSERS OR (bench_PARSERS_OPTIONAL AND TARGET pinocchio_parsers))
-        target_link_libraries(${bench_name} PRIVATE pinocchio_parsers)
-    endif()
-    if(
-        bench_COLLISION
-        OR (bench_COLLISION_OPTIONAL AND TARGET pinocchio_collision)
-    )
-        target_link_libraries(${bench_name} PRIVATE pinocchio_collision)
-    endif()
-    if(
-        bench_PARALLEL
-        OR (bench_PARALLEL_OPTIONAL AND TARGET pinocchio_parallel)
-    )
-        target_link_libraries(${bench_name} PRIVATE pinocchio_parallel)
-    endif()
-    if(
-        bench_COLLISION_PARALLEL
-        OR (
-            bench_COLLISION_PARALLEL_OPTIONAL
-            AND TARGET pinocchio_collision_parallel
-        )
-    )
-        target_link_libraries(
-            ${bench_name}
-            PRIVATE pinocchio_collision_parallel
-        )
-    endif()
-    if(bench_CPPADCG OR (bench_CPPADCG_OPTIONAL AND TARGET pinocchio_cppadcg))
-        target_link_libraries(${bench_name} PRIVATE pinocchio_cppadcg)
-        set(cppad_special_define ON)
-    endif()
-    if(bench_CPPAD OR (bench_CPPAD_OPTIONAL AND TARGET pinocchio_cppad))
-        target_link_libraries(${bench_name} PRIVATE pinocchio_cppad)
-        set(cppad_special_define ON)
-    endif()
-
-    if(cppad_special_define)
-        target_compile_definitions(
-            ${bench_name}
-            PRIVATE PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\"
-        )
-        target_link_libraries(${bench_name} PRIVATE ${CMAKE_DL_LIBS})
-    endif()
-
-    add_dependencies(${PROJECT_NAME}-benchmarks ${bench_name})
+    add_dependencies(pinocchio-benchmarks ${target_name})
 endfunction()
 
-add_pinocchio_benchmark(spatial-operations)
 
-# timings
-#
-add_pinocchio_benchmark(timings PARSERS)
-if(BUILD_WITH_CODEGEN_SUPPORT)
-    add_pinocchio_benchmark(timings-cg PARSERS CPPADCG)
-endif()
+    # modernize_target_link_libraries(
+    #   ${bench_name}
+    #   SCOPE PRIVATE
+    #   TARGETS Boost::filesystem
+    #   LIBRARIES ${Boost_FILESYSTEM_LIBRARY}
+    #   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+    # )
 
-if(BUILD_WITH_OPENMP_SUPPORT)
-    add_pinocchio_benchmark(timings-parallel PARSERS PARALLEL COLLISION_PARALLEL_OPTIONAL)
-endif()
 
-# timings cholesky
-#
-add_pinocchio_benchmark(timings-cholesky PARSERS)
-add_pinocchio_benchmark(timings-loop-constrained-aba PARSERS)
 
-# timings derivatives
-#
-add_pinocchio_benchmark(timings-derivatives PARSERS)
-if(BUILD_WITH_AUTODIFF_SUPPORT)
-    # timings-cppad-jit
-    add_pinocchio_benchmark(timings-cppad-jit CPPAD)
-endif()
-
+pinocchio_add_benchmark(spatial-operations)
 # timings-eigen
-add_pinocchio_benchmark(timings-eigen)
-
+pinocchio_add_benchmark(timings-eigen)
 # timings-linalg
-add_pinocchio_benchmark(timings-linalg-inverse)
+pinocchio_add_benchmark(timings-linalg-inverse)
 
-# timings-geometry
-#
-if(BUILD_WITH_URDF_SUPPORT AND BUILD_WITH_COLLISION_SUPPORT)
-    add_pinocchio_benchmark(timings-geometry PARSERS COLLISION)
+if (BUILD_WITH_PARSERS_SUPPORT)
+    macro(add_parsers_benchmark benchmark_name)
+        pinocchio_add_benchmark(${benchmark_name})
+        target_link_libraries(pinocchio-benchmark-${benchmark_name}
+            PRIVATE pinocchio_parsers)
+    endmacro()
+    # timings
+    add_parsers_benchmark(timings)
+    # timings cholesky
+    add_parsers_benchmark(timings-cholesky)
+    add_parsers_benchmark(timings-loop-constrained-aba)
+    # timings derivatives
+    add_parsers_benchmark(timings-derivatives)
+    # timings-jacobian
+    add_parsers_benchmark(timings-jacobian)
+    # timings-contact-dynamics
+    add_parsers_benchmark(timings-delassus-operations)
+    add_parsers_benchmark(timings-contact-dynamics)
+    add_parsers_benchmark(timings-constrained-dynamics-derivatives)
+    # timings-impulse-dynamics
+    add_parsers_benchmark(timings-impulse-dynamics)
+    add_parsers_benchmark(timings-impulse-dynamics-derivatives)
+
+    # cppacg
+    if(BUILD_WITH_CODEGEN_SUPPORT)
+        macro(add_cppadcg_benchmark benchmark_name)
+            pinocchio_add_benchmark(${benchmark_name})
+            target_link_libraries(pinocchio-benchmark-${benchmark_name}
+                PRIVATE pinocchio_parsers)
+            target_link_libraries(pinocchio-benchmark-${benchmark_name}
+                PRIVATE pinocchio_cppadcg)
+            target_compile_definitions(pinocchio-benchmark-${benchmark_name}
+                PRIVATE PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\"
+        )
+        endmacro()
+        add_cppadcg_benchmark(timings-cg)
+    endif()
+
+    # parallel
+    if(BUILD_WITH_OPENMP_SUPPORT)
+        macro(add_parallel_benchmark benchmark_name)
+            pinocchio_add_benchmark(${benchmark_name})
+            target_link_libraries(pinocchio-benchmark-${benchmark_name}
+                PRIVATE pinocchio_parsers)
+            target_link_libraries(pinocchio-benchmark-${benchmark_name}
+                PRIVATE pinocchio_parallel)
+        endmacro()
+        add_parallel_benchmark(timings-parallel)
+    endif()
+    
+    # collision
+    if(BUILD_WITH_URDF_SUPPORT AND BUILD_WITH_COLLISION_SUPPORT)
+        macro(add_collision_benchmark benchmark_name)
+            pinocchio_add_benchmark(${benchmark_name})
+            target_link_libraries(pinocchio-benchmark-${benchmark_name}
+                PRIVATE pinocchio_parsers)
+            target_link_libraries(pinocchio-benchmark-${benchmark_name}
+                PRIVATE pinocchio_collision)
+        endmacro()
+        add_collision_benchmark(timings-geometry)
+    endif()
 endif()
 
-# timings-jacobian
-#
-add_pinocchio_benchmark(timings-jacobian PARSERS)
-
-# timings-contact-dynamics
-#
-add_pinocchio_benchmark(timings-delassus-operations PARSERS)
-add_pinocchio_benchmark(timings-contact-dynamics PARSERS)
-add_pinocchio_benchmark(timings-constrained-dynamics-derivatives PARSERS)
-
-# timings-impulse-dynamics
-#
-add_pinocchio_benchmark(timings-impulse-dynamics PARSERS)
-add_pinocchio_benchmark(timings-impulse-dynamics-derivatives PARSERS)
+#cppad
+if(BUILD_WITH_AUTODIFF_SUPPORT)
+macro(add_cppad_benchmark benchmark_name)
+        pinocchio_add_benchmark(${benchmark_name})
+        target_link_libraries(pinocchio-benchmark-${benchmark_name}
+            PRIVATE pinocchio_parsers)
+        target_link_libraries(pinocchio-benchmark-${benchmark_name}
+            PRIVATE pinocchio_cppad)
+        target_compile_definitions(pinocchio-benchmark-${benchmark_name}
+            PRIVATE PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\"
+    )
+    endmacro()    
+    add_cppad_benchmark(timings-cppad-jit)
+endif()
