@@ -188,9 +188,7 @@ if(
         APPEND CMAKE_MODULE_PATH
         "${PROJECT_SOURCE_DIR}/cmake/find-external/MPFR"
     )
-
-    jrl_find_package(GMP REQUIRED EXPECTED_TARGETS gmp)
-    jrl_find_package(MPFR REQUIRED EXPECTED_TARGETS mpfr)
+    jrl_find_package(MPFR REQUIRED EXPECTED_TARGETS MPFR::MPFR)
 endif()
 
 if(PINOCCHIO_BUILD_WITH_TRACY)

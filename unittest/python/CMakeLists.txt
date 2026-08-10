@@ -107,7 +107,8 @@ file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
 # handle casadi
 if(BUILD_WITH_CASADI_SUPPORT)
     pinocchio_python_add_test(bindings_casadi_main_algo)
-    add_subdirectory(casadi)
+    pinocchio_python_add_test(bindings_casadi_explog)
+    add_dependencies(pinocchio-tests pinocchio_pywrap_casadi)
 endif()
 
 # TODO BUILD_ADVANCED_TESTING

@@ -379,7 +379,7 @@ if(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT)
         BASE_DIRS include
     )
     pinocchio_add_python_binding(mpfr ${COMMON_SOURCES} ${PROJECT_SOURCE_DIR}/bindings/python/extra/mpfr/boost_number.cpp)
-    target_link_libraries(pinocchio_pywrap_mpfr PRIVATE gmp mpfr)
+    target_link_libraries(pinocchio_pywrap_mpfr PRIVATE MPFR)
     list(APPEND STUBGEN_DEPENDENCIES "pinocchio_pywrap_mpfr")
 endif()
 
