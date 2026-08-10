@@ -98,7 +98,7 @@ jobs:
           key: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.environment }}_${{ github.sha }}
           restore-keys: ccache-macos-linux-conda-${{ matrix.os }}-${{ matrix.build_type }}-${{ matrix.environment }}_
 
-      - uses: prefix-dev/setup-pixi@v0.10.0
+      - uses: prefix-dev/setup-pixi@v0.10.1
         with:
           cache: true
           environments: ${{ matrix.environment }}
@@ -189,7 +189,7 @@ jobs:
           key: ccache-python-standalone-macos-linux-conda-${{ matrix.os }}-${{ matrix.environment }}_${{ github.sha }}
           restore-keys: ccache-python-standalone-macos-linux-conda-${{ matrix.os }}-${{ matrix.environment }}_
 
-      - uses: prefix-dev/setup-pixi@v0.10.0
+      - uses: prefix-dev/setup-pixi@v0.10.1
         with:
           cache: true
           environments: ${{ matrix.environment }}
@@ -258,7 +258,7 @@ jobs:
   #       with:
   #         submodules: recursive
 
-  #     - uses: prefix-dev/setup-pixi@v0.10.0
+  #     - uses: prefix-dev/setup-pixi@v0.10.1
   #       env:
   #         CMAKE_BUILD_PARALLEL_LEVEL: 2
   #       with:
@@ -287,7 +287,7 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: prefix-dev/setup-pixi@v0.10.0
+      - uses: prefix-dev/setup-pixi@v0.10.1
         with:
           cache: true
 
