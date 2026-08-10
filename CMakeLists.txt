@@ -99,6 +99,31 @@ if(BUILD_WITH_URDF_SUPPORT)
     jrl_find_package(console_bridge CONFIG REQUIRED EXPECTED_TARGETS console_bridge::console_bridge)
 endif()
 
+if(BUILD_WITH_SDF_SUPPORT)
+# the following lines allows to link to SDFormat, indeed SDFormat has its version number in its target until version ==16
+    set(SDF_VERSIONS "15" "13" "12")
+    list(APPEND SDF_VERSIONS "")
+    foreach(version IN LISTS SDF_VERSIONS)
+        find_package(SDFormat${version} QUIET)
+        if(SDFormat${version}_FOUND)
+            set(SDFormat_FOUND True)
+            jrl_find_package(SDFormat${version} CONFIG)
+            message(STATUS "SDFormat${version} Found")
+            add_library(
+                pinocchio_sdformat
+                ALIAS sdformat${version}::sdformat${version}
+            )
+            break()
+        endif()
+    endforeach(version)
+    if(NOT SDFormat_FOUND)
+        message(
+            FATAL_ERROR
+            "SDFormat  not found. Accepted versions: ${SDF_VERSIONS}"
+        )
+    endif()
+endif()
+
 if(BUILD_WITH_CODEGEN_SUPPORT)
     list(
         APPEND CMAKE_MODULE_PATH
@@ -891,29 +916,6 @@ if(BUILD_WITH_PARSERS_SUPPORT)
                 include/pinocchio/src/parsers/sdf/urdf.hxx
             BASE_DIRS include
         )
-
-        # the following lines allows to link to SDFormat, indeed SDFormat has its version number in its target until version ==16
-        set(SDF_VERSIONS "15" "13" "12")
-        list(APPEND SDF_VERSIONS "")
-        foreach(version IN LISTS SDF_VERSIONS)
-            find_package(SDFormat${version} QUIET)
-            if(SDFormat${version}_FOUND)
-                set(SDFormat_FOUND True)
-                jrl_find_package(SDFormat${version} CONFIG)
-                message(STATUS "SDFormat${version} Found")
-                add_library(
-                    pinocchio_sdformat
-                    ALIAS sdformat${version}::sdformat${version}
-                )
-                break()
-            endif()
-        endforeach(version)
-        if(NOT SDFormat_FOUND)
-            message(
-                FATAL_ERROR
-                "SDFormat  not found. Accepted versions: ${SDF_VERSIONS}"
-            )
-        endif()
 
         target_link_libraries(pinocchio_parsers PUBLIC pinocchio_sdformat)
 

@@ -2,56 +2,6 @@
 # Copyright (c) 2015-2025 CNRS INRIA
 #
 
-set(${PROJECT_NAME}_PYTHON_TESTS
-    bindings
-    # Multibody
-    bindings_joint_composite
-    bindings_joints
-    bindings_model
-    bindings_data
-    bindings_geometry_model
-    bindings_liegroups
-    # Spatial
-    bindings_force
-    bindings_frame
-    bindings_inertia
-    bindings_spatial
-    bindings_motion
-    bindings_SE3
-    explog
-    rpy
-    # Algo
-    bindings_com
-    bindings_kinematic_regressor
-    bindings_regressor
-    bindings_dynamics
-    bindings_kinematics
-    bindings_rnea
-    bindings_aba
-    bindings_joint_algorithms
-    # Solvers
-    bindings_pgs
-    bindings_admm
-    # Algo derivatives
-    bindings_kinematics_derivatives
-    bindings_frame_derivatives
-    bindings_forward_dynamics_derivatives
-    bindings_inverse_dynamics_derivatives
-    bindings_centroidal_dynamics_derivatives
-    bindings_com_velocity_derivatives
-    # Parsers
-    bindings_sample_models
-    bindings_mjcf
-    bindings_model_graph
-    # Others
-    robot_wrapper
-    utils
-    serialization
-    version
-    bindings_std_vector
-    bindings_std_map
-)
-
 function(pinocchio_python_add_test name)
     set(test_name "${PROJECT_NAME}-test-py-${name}")
     add_test(
@@ -90,34 +40,73 @@ function(pinocchio_python_add_test name)
     )
 endfunction()
 
+pinocchio_python_add_test(bindings)
+# Multibody
+pinocchio_python_add_test(bindings_joint_composite)
+pinocchio_python_add_test(bindings_joints)
+pinocchio_python_add_test(bindings_model)
+pinocchio_python_add_test(bindings_data)
+pinocchio_python_add_test(bindings_geometry_model)
+pinocchio_python_add_test(bindings_liegroups)
+# Spatial
+pinocchio_python_add_test(bindings_force)
+pinocchio_python_add_test(bindings_frame)
+pinocchio_python_add_test(bindings_inertia)
+pinocchio_python_add_test(bindings_spatial)
+pinocchio_python_add_test(bindings_motion)
+pinocchio_python_add_test(bindings_SE3)
+pinocchio_python_add_test(explog)
+pinocchio_python_add_test(rpy)
+# Algo
+pinocchio_python_add_test(bindings_com)
+pinocchio_python_add_test(bindings_kinematic_regressor)
+pinocchio_python_add_test(bindings_regressor)
+pinocchio_python_add_test(bindings_dynamics)
+pinocchio_python_add_test(bindings_kinematics)
+pinocchio_python_add_test(bindings_rnea)
+pinocchio_python_add_test(bindings_aba)
+pinocchio_python_add_test(bindings_joint_algorithms)
+# Solvers
+pinocchio_python_add_test(bindings_pgs)
+pinocchio_python_add_test(bindings_admm)
+# Algo derivatives
+pinocchio_python_add_test(bindings_kinematics_derivatives)
+pinocchio_python_add_test(bindings_frame_derivatives)
+pinocchio_python_add_test(bindings_forward_dynamics_derivatives)
+pinocchio_python_add_test(bindings_inverse_dynamics_derivatives)
+pinocchio_python_add_test(bindings_centroidal_dynamics_derivatives)
+pinocchio_python_add_test(bindings_com_velocity_derivatives)
+# Parsers
+pinocchio_python_add_test(bindings_sample_models)
+pinocchio_python_add_test(bindings_mjcf)
+pinocchio_python_add_test(bindings_model_graph)
+# Others
+pinocchio_python_add_test(robot_wrapper)
+pinocchio_python_add_test(utils)
+pinocchio_python_add_test(serialization)
+pinocchio_python_add_test(version)
+pinocchio_python_add_test(bindings_std_vector)
+pinocchio_python_add_test(bindings_std_map)
+
 if(BUILD_WITH_COLLISION_SUPPORT)
-    list(
-        APPEND PINOCCHIO_PYTHON_TESTS
-        bindings_geometry_object
-        bindings_coal_transform
-        bindings_constraints
-        bindings_lcaba
-    )
+    pinocchio_python_add_test(bindings_geometry_object)
+    pinocchio_python_add_test(bindings_coal_transform)
+    pinocchio_python_add_test(bindings_constraints)
+    pinocchio_python_add_test(bindings_lcaba)
 endif()
 
 if(urdfdom_FOUND)
-    list(
-        APPEND PINOCCHIO_PYTHON_TESTS
-        bindings_urdf
-        bindings_geometry_model_urdf
-        bindings_contact_inverse_dynamics
-        bindings_viser_visualizer
-    )
+    pinocchio_python_add_test(bindings_urdf)
+    pinocchio_python_add_test(bindings_geometry_model_urdf)
+    pinocchio_python_add_test(bindings_contact_inverse_dynamics)
+    pinocchio_python_add_test(bindings_viser_visualizer)
 endif(urdfdom_FOUND)
-
-foreach(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
-    pinocchio_python_add_test(${TEST})
-endforeach()
 
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
 
 # handle casadi
 if(BUILD_WITH_CASADI_SUPPORT)
+    pinocchio_python_add_test(bindings_casadi_main_algo)
     add_subdirectory(casadi)
 endif()
 
@@ -128,7 +117,7 @@ endif()
 # - add_python_memorycheck_unit_test_v2
 # - add_windows_dll_path_to_test
 if(MEMORYCHECK_COMMAND AND MEMORYCHECK_COMMAND MATCHES ".*valgrind$")
-    set(${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS
+    set(pinocchio_PYTHON_MEMORYCHECK_TESTS
         bindings_build_geom_from_urdf_memorycheck
     )
 
