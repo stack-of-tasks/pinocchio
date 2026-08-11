@@ -423,7 +423,10 @@ jrl_python_compile_all(DIRECTORY
 
 # Install binding in the right location
 jrl_python_compute_install_dir(python_install_dir)
-install(TARGETS pinocchio_pywrap_default DESTINATION ${python_install_dir}/pinocchio)
+install(
+    TARGETS pinocchio_pywrap_default
+    DESTINATION ${python_install_dir}/pinocchio
+)
 install(
     DIRECTORY
         ${CMAKE_BINARY_DIR}/lib/site-packages/pinocchio

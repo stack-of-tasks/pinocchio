@@ -4,7 +4,6 @@
 
 add_custom_target(pinocchio-examples)
 
-
 function(pinocchio_add_cpp_example example_name)
     set(target_name "pinocchio-example-cpp-${example_name}")
     pinocchio_add_cpp_test_or_example(${target_name} ${example_name})
@@ -69,7 +68,10 @@ if(NOT BUILD_STANDALONE_PYTHON_INTERFACE)
     if(BUILD_WITH_CASADI_SUPPORT)
         function(pinocchio_add_casadi_example name)
             pinocchio_add_cpp_example(${name})
-            add_dependencies(pinocchio-example-cpp-casadi pinocchio-example-cpp-${name})
+            add_dependencies(
+                pinocchio-example-cpp-casadi
+                pinocchio-example-cpp-${name}
+            )
             target_compile_definitions(
                 pinocchio-example-cpp-${name}
                 PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\"
@@ -93,7 +95,10 @@ if(NOT BUILD_STANDALONE_PYTHON_INTERFACE)
     if(BUILD_WITH_AUTODIFF_SUPPORT)
         function(pinocchio_add_cppad_example name)
             pinocchio_add_cpp_example(${name})
-            add_dependencies(pinocchio-example-cpp-cppad pinocchio-example-cpp-${name})
+            add_dependencies(
+                pinocchio-example-cpp-cppad
+                pinocchio-example-cpp-${name}
+            )
             target_link_libraries(
                 pinocchio-example-cpp-${name}
                 PRIVATE pinocchio_cppad_headers
@@ -110,17 +115,19 @@ if(NOT BUILD_STANDALONE_PYTHON_INTERFACE)
     if(BUILD_WITH_CODEGEN_SUPPORT AND BUILD_WITH_URDF_SUPPORT)
         function(pinocchio_add_cppadcg_example name)
             pinocchio_add_cpp_example(${name})
-            add_dependencies(pinocchio-example-cpp-cppadcg pinocchio-example-cpp-${name})
+            add_dependencies(
+                pinocchio-example-cpp-cppadcg
+                pinocchio-example-cpp-${name}
+            )
             target_compile_definitions(
                 pinocchio-example-cpp-${name}
                 PUBLIC PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\"
             )
-            
+
             target_link_libraries(
                 pinocchio-example-cpp-${name}
                 PRIVATE pinocchio_cppadcg_headers
             )
-
         endfunction()
         add_custom_target(pinocchio-example-cpp-cppadcg)
         set_target_properties(
@@ -128,41 +135,40 @@ if(NOT BUILD_STANDALONE_PYTHON_INTERFACE)
             PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True
         )
         pinocchio_add_cppadcg_example(codegen-rnea)
-        pinocchio_add_cppadcg_example(codegen-crba)        
+        pinocchio_add_cppadcg_example(codegen-crba)
     endif()
 endif()
 
 if(BUILD_PYTHON_INTERFACE)
-        pinocchio_add_python_example(inverse-kinematics)
-        pinocchio_add_python_example(inverse-kinematics-3d)
-        pinocchio_add_python_example(overview-simple)
-        pinocchio_add_python_example(kinematics-derivatives)
-        pinocchio_add_python_example(forward-dynamics-derivatives)
-        pinocchio_add_python_example(inverse-dynamics-derivatives)
-        pinocchio_add_python_example(model-graph)
-        pinocchio_add_python_example(model-configuration-converter)
-        pinocchio_add_python_example(ellipsoid-joint-kinematics)
-        pinocchio_add_python_example(admm-constraint-solver)
-    
+    pinocchio_add_python_example(inverse-kinematics)
+    pinocchio_add_python_example(inverse-kinematics-3d)
+    pinocchio_add_python_example(overview-simple)
+    pinocchio_add_python_example(kinematics-derivatives)
+    pinocchio_add_python_example(forward-dynamics-derivatives)
+    pinocchio_add_python_example(inverse-dynamics-derivatives)
+    pinocchio_add_python_example(model-graph)
+    pinocchio_add_python_example(model-configuration-converter)
+    pinocchio_add_python_example(ellipsoid-joint-kinematics)
+    pinocchio_add_python_example(admm-constraint-solver)
 
     if(BUILD_WITH_URDF_SUPPORT)
-            pinocchio_add_python_example(overview-urdf)
-            pinocchio_add_python_example(gepetto-viewer)
-            pinocchio_add_python_example(build-reduced-model)
-            pinocchio_add_python_example(robot-wrapper-viewer)
-            pinocchio_add_python_example(geometry-models)
-            pinocchio_add_python_example(constraint-cholesky)
-        
+        pinocchio_add_python_example(overview-urdf)
+        pinocchio_add_python_example(gepetto-viewer)
+        pinocchio_add_python_example(build-reduced-model)
+        pinocchio_add_python_example(robot-wrapper-viewer)
+        pinocchio_add_python_example(geometry-models)
+        pinocchio_add_python_example(constraint-cholesky)
+
         if(BUILD_ADVANCED_TESTING)
             # Set as advanced testing because it need a new
             # example_robot_data release (> 4.4)
             # and because computation is long in Debug
 
-                pinocchio_add_python_example(g1-constraint-simulation)
+            pinocchio_add_python_example(g1-constraint-simulation)
         endif()
     endif()
 
-    if( BUILD_WITH_CASADI_SUPPORT)
+    if(BUILD_WITH_CASADI_SUPPORT)
         pinocchio_add_python_example(quadrotor-ocp)
     endif()
 
@@ -181,7 +187,7 @@ if(BUILD_PYTHON_INTERFACE)
         pinocchio_add_python_example(simulation-closed-kinematic-chains)
         pinocchio_add_python_example(simulation-lcaba)
         pinocchio_add_python_example(model-graph-geometry)
-        
+
         if(BUILD_WITH_URDF_SUPPORT)
             pinocchio_add_python_example(meshcat-viewer)
             pinocchio_add_python_example(meshcat-viewer-dae)
@@ -194,7 +200,7 @@ if(BUILD_PYTHON_INTERFACE)
             pinocchio_add_python_example(static-contact-dynamics)
         endif()
 
-        if( BUILD_WITH_CASADI_SUPPORT)
+        if(BUILD_WITH_CASADI_SUPPORT)
             pinocchio_add_python_example(cartpole)
         endif()
     endif()

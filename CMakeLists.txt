@@ -100,7 +100,7 @@ if(BUILD_WITH_URDF_SUPPORT)
 endif()
 
 if(BUILD_WITH_SDF_SUPPORT)
-# the following lines allows to link to SDFormat, indeed SDFormat has its version number in its target until version ==16
+    # the following lines allows to link to SDFormat, indeed SDFormat has its version number in its target until version ==16
     set(SDF_VERSIONS "15" "13" "12")
     list(APPEND SDF_VERSIONS "")
     foreach(version IN LISTS SDF_VERSIONS)
@@ -165,8 +165,8 @@ string(
 
 if(BUILD_WITH_CASADI_SUPPORT)
     jrl_find_package(casadi REQUIRED)
-    # Normalize CasADi link target across versions. 
-    #Prefer imported target (casadi::casadi), then legacy target (casadi)    
+    # Normalize CasADi link target across versions.
+    #Prefer imported target (casadi::casadi), then legacy target (casadi)
     if(NOT TARGET casadi::casadi AND TARGET casadi)
         add_library(casadi::casadi ALIAS casadi)
     endif()
@@ -1008,8 +1008,8 @@ if(BUILD_WITH_CODEGEN_SUPPORT)
 
     target_link_libraries(
         pinocchio_cppadcg_headers
-        INTERFACE
-            pinocchio_default_headers cppadcg::cppadcg)
+        INTERFACE pinocchio_default_headers cppadcg::cppadcg
+    )
 
     target_compile_definitions(
         pinocchio_cppadcg_headers
