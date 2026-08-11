@@ -36,7 +36,8 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
     MPFR
     REQUIRED_VARS MPFR_LIBRARY MPFR_INCLUDE
-    VERSION_VAR MPFR_VERSION)
+    VERSION_VAR MPFR_VERSION
+)
 
 # mpfr depend of gmp
 find_package(GMP REQUIRED)

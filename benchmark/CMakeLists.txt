@@ -20,25 +20,24 @@ function(pinocchio_add_benchmark benchmark_name)
     set(target_name "pinocchio-benchmark-${benchmark_name}")
     add_executable(${target_name} ${benchmark_name}.cpp)
 
-    target_link_libraries(${target_name}
-        PRIVATE pinocchio benchmark::benchmark pinocchio-benchmarks-resources)
-    
+    target_link_libraries(
+        ${target_name}
+        PRIVATE pinocchio benchmark::benchmark pinocchio-benchmarks-resources
+    )
+
     jrl_target_set_default_compile_options(${target_name} PRIVATE)
     jrl_target_enforce_msvc_conformance(${target_name} PRIVATE)
 
     add_dependencies(pinocchio-benchmarks ${target_name})
 endfunction()
 
-
-    # modernize_target_link_libraries(
-    #   ${bench_name}
-    #   SCOPE PRIVATE
-    #   TARGETS Boost::filesystem
-    #   LIBRARIES ${Boost_FILESYSTEM_LIBRARY}
-    #   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-    # )
-
-
+# modernize_target_link_libraries(
+#   ${bench_name}
+#   SCOPE PRIVATE
+#   TARGETS Boost::filesystem
+#   LIBRARIES ${Boost_FILESYSTEM_LIBRARY}
+#   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+# )
 
 pinocchio_add_benchmark(spatial-operations)
 # timings-eigen
@@ -46,7 +45,7 @@ pinocchio_add_benchmark(timings-eigen)
 # timings-linalg
 pinocchio_add_benchmark(timings-linalg-inverse)
 
-if (BUILD_WITH_PARSERS_SUPPORT)
+if(BUILD_WITH_PARSERS_SUPPORT)
     # timings
     pinocchio_add_benchmark(timings)
     # timings cholesky
@@ -68,11 +67,14 @@ if (BUILD_WITH_PARSERS_SUPPORT)
     if(BUILD_WITH_CODEGEN_SUPPORT)
         macro(pinocchio_add_cppadcg_benchmark benchmark_name)
             pinocchio_add_benchmark(${benchmark_name})
-            target_link_libraries(pinocchio-benchmark-${benchmark_name}
-                PRIVATE pinocchio_cppadcg)
-            target_compile_definitions(pinocchio-benchmark-${benchmark_name}
+            target_link_libraries(
+                pinocchio-benchmark-${benchmark_name}
+                PRIVATE pinocchio_cppadcg
+            )
+            target_compile_definitions(
+                pinocchio-benchmark-${benchmark_name}
                 PRIVATE PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\"
-        )
+            )
         endmacro()
         pinocchio_add_cppadcg_benchmark(timings-cg)
     endif()
@@ -89,15 +91,17 @@ if (BUILD_WITH_PARSERS_SUPPORT)
 
     #cppad
     if(BUILD_WITH_AUTODIFF_SUPPORT)
-    macro(pinocchio_add_cppad_benchmark benchmark_name)
+        macro(pinocchio_add_cppad_benchmark benchmark_name)
             pinocchio_add_benchmark(${benchmark_name})
-            target_link_libraries(pinocchio-benchmark-${benchmark_name}
-                PRIVATE pinocchio_cppad)
-            target_compile_definitions(pinocchio-benchmark-${benchmark_name}
+            target_link_libraries(
+                pinocchio-benchmark-${benchmark_name}
+                PRIVATE pinocchio_cppad
+            )
+            target_compile_definitions(
+                pinocchio-benchmark-${benchmark_name}
                 PRIVATE PINOCCHIO_CXX_COMPILER=\"${CMAKE_CXX_COMPILER}\"
-        )
-        endmacro()    
+            )
+        endmacro()
         pinocchio_add_cppad_benchmark(timings-cppad-jit)
     endif()
 endif()
-
