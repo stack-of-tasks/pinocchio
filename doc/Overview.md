@@ -1,7 +1,7 @@
 # Overview {#mainpage}
 <!--
 //
-// Copyright (c) 2016, 2018 CNRS
+// Copyright (c) 2016, 2018, 2026 CNRS
 // Author: Florent Lamiraux, Justin Carpentier, Guilhem Saurel
 //
 -->
@@ -22,11 +22,17 @@ In this doc, you will find the usual description of the library functionalities,
 
 \section OverviewInstall How to install Pinocchio?
 
-Pinocchio is best installed from APT packaging on Ubuntu 14.04, 16.04 and 18.04, from our repository.
-On Mac OS X, we support the installation of Pinocchio through the Homebrew package manager.
-If you just need the Python bindings, you can directly have access to them through Conda.
-On systems for which binaries are not provided, installation from source should be straightforward.
-Every release is validated in the main Linux distributions and Mac OS X.
+Pinocchio can be installed with different package managers:
+
+- apt: http://robotpkg.openrobots.org/debian.html on the 3 latest Debian & Ubuntu
+- AUR: https://aur.archlinux.org/packages/pinocchio
+- brew: https://formulae.brew.sh/formula/pinocchio
+- conan: https://github.com/conan-io/conan-center-index/tree/master/recipes/pinocchio (community contributed)
+- conda-forge: https://anaconda.org/channels/conda-forge/packages/pinocchio/overview
+- docker: https://github.com/stack-of-tasks/pinocchio/pkgs/container/pinocchio
+- nix: https://search.nixos.org/packages?channel=unstable&query=pinocchio#show=pinocchio
+- pip: https://pypi.org/project/pin/ beware of then name !!!
+- ros: https://index.ros.org/p/pinocchio/
 
 The full installation procedure can be found on the Github Pages of the project:
 http://stack-of-tasks.github.io/pinocchio/download.html.
