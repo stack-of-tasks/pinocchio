@@ -1129,7 +1129,9 @@ namespace pinocchio
           JointIndex parentJoint = mjcfVisitor.model.frames[bodyId].parentJoint;
           for (const auto & site : currentBody.siteChildren)
           {
-            SE3 placement = bodyPose * site.sitePlacement;
+            // Frames are expressed in their supporting joint, which only matches bodyPose when
+            // the body it hangs off sits at that joint's origin.
+            SE3 placement = mjcfVisitor.model.frames[bodyId].placement * site.sitePlacement;
             mjcfVisitor.model.addFrame(
               Frame(site.siteName, parentJoint, bodyId, placement, OP_FRAME));
           }

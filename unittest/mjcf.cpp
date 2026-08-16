@@ -1189,8 +1189,8 @@ BOOST_AUTO_TEST_CASE(build_model_no_root_joint)
   BOOST_CHECK_EQUAL(model_m.nq, 29);
 }
 
-/// @brief test that a fixed-base root body's own pos/quat is not dropped,
-/// and that it is correctly propagated to its children (regression test for #2782)
+/// @brief test that a fixed-base root body's own pos/quat is not dropped, and that it reaches
+/// its inertia, its children and their sites (regression test for #2782)
 /// @param
 BOOST_AUTO_TEST_CASE(build_model_fixed_base_root_body_placement)
 {
@@ -1201,7 +1201,10 @@ BOOST_AUTO_TEST_CASE(build_model_fixed_base_root_body_placement)
             <mujoco model="fixed_base_test">
                 <worldbody>
                     <body name="base" pos="1 2 3" quat="0.7071068 0 0 0.7071068">
-                        <geom type="box" size="0.1 0.1 0.1"/>
+                        <geom type="box" size="0.1 0.2 0.3"/>
+                        <body name="fixedchild" pos="0 0 0.4">
+                            <site name="s_fixed" pos="0 0.1 0"/>
+                        </body>
                         <body name="link1" pos="0 0 0.5">
                             <joint name="j1" type="hinge" axis="0 1 0"/>
                             <geom type="box" size="0.05 0.05 0.2"/>
@@ -1223,18 +1226,25 @@ BOOST_AUTO_TEST_CASE(build_model_fixed_base_root_body_placement)
 
   const pinocchio::SE3 expected_base(rotation_matrix, Vector3(1., 2., 3.));
   const pinocchio::SE3 expected_link1(rotation_matrix, Vector3(1., 2., 3.5));
+  const pinocchio::SE3 expected_fixedchild(rotation_matrix, Vector3(1., 2., 3.4));
+  const pinocchio::SE3 expected_site(rotation_matrix, Vector3(0.9, 2., 3.4));
 
   const pinocchio::FrameIndex baseFrameId = model_m.getFrameId("base", pinocchio::BODY);
   const pinocchio::FrameIndex link1FrameId = model_m.getFrameId("link1", pinocchio::BODY);
+  const pinocchio::FrameIndex fixedchildFrameId = model_m.getFrameId("fixedchild", pinocchio::BODY);
+  const pinocchio::FrameIndex siteFrameId = model_m.getFrameId("s_fixed", pinocchio::OP_FRAME);
 
   BOOST_CHECK(data.oMf[baseFrameId].isApprox(expected_base, 1e-6));
   BOOST_CHECK(data.oMf[link1FrameId].isApprox(expected_link1, 1e-6));
+  BOOST_CHECK(data.oMf[fixedchildFrameId].isApprox(expected_fixedchild, 1e-6));
+  BOOST_CHECK(data.oMf[siteFrameId].isApprox(expected_site, 1e-6));
 
   // The base geom has no offset of its own, so its inertia must be carried by
-  // the exact same placement as the base frame.
-  const double massBase = 1000 * 0.2 * 0.2 * 0.2; // density * volume
+  // the exact same placement as the base frame. The box is deliberately not a cube,
+  // so that a placement applied the wrong way round is caught.
+  const double massBase = 1000 * 0.2 * 0.4 * 0.6; // density * volume
   const pinocchio::Inertia expected_universe_inertia =
-    expected_base.act(pinocchio::Inertia::FromBox(massBase, 0.2, 0.2, 0.2));
+    expected_base.act(pinocchio::Inertia::FromBox(massBase, 0.2, 0.4, 0.6));
 
   BOOST_CHECK(model_m.inertias[0].isApprox(expected_universe_inertia, 1e-6));
 }

@@ -45,13 +45,10 @@ namespace pinocchio
           const boost::optional<const JointModel &> root_joint,
           const boost::optional<const std::string &> root_joint_name)
         {
-          // Base::addRootJoint folds Y into the universe inertia untransformed.
-          const Inertia universe_inertia_before = Base::model.inertias[0];
-
-          Base::addRootJoint(Y, body_name, root_joint, root_joint_name);
-
           if (root_joint.has_value())
           {
+            Base::addRootJoint(Y, body_name, root_joint, root_joint_name);
+
             Eigen::VectorXd qroot(root_joint->template lieGroup<LieGroupMap>().neutral());
 
             // update the reference_config with the size of the root joint
@@ -88,11 +85,12 @@ namespace pinocchio
           }
           else
           {
-            // Unlike URDF, MJCF lets the fixed root body carry its own pos/quat, which
-            // Base::addRootJoint ignores for both the body frame and the universe inertia.
-            const FrameIndex bodyFrameId = Base::model.getFrameId(body_name, BODY);
-            Base::model.inertias[0] = universe_inertia_before + body_placement.act(Y);
-            Base::model.frames[bodyFrameId].placement = body_placement;
+            // Unlike URDF, MJCF lets the fixed root body carry its own pos/quat, so the body
+            // frame cannot simply reuse the universe placement as Base::addRootJoint does.
+            const Frame & parent_frame = Base::model.frames[0];
+            Base::model.addFrame(Frame(
+              body_name, parent_frame.parentJoint, 0, parent_frame.placement * body_placement, BODY,
+              Y));
           }
         }
       };
