@@ -1189,6 +1189,56 @@ BOOST_AUTO_TEST_CASE(build_model_no_root_joint)
   BOOST_CHECK_EQUAL(model_m.nq, 29);
 }
 
+/// @brief test that a fixed-base root body's own pos/quat is not dropped,
+/// and that it is correctly propagated to its children (regression test for #2782)
+/// @param
+BOOST_AUTO_TEST_CASE(build_model_fixed_base_root_body_placement)
+{
+  typedef pinocchio::SE3::Vector3 Vector3;
+  typedef pinocchio::SE3::Matrix3 Matrix3;
+
+  std::istringstream xmlData(R"(
+            <mujoco model="fixed_base_test">
+                <worldbody>
+                    <body name="base" pos="1 2 3" quat="0.7071068 0 0 0.7071068">
+                        <geom type="box" size="0.1 0.1 0.1"/>
+                        <body name="link1" pos="0 0 0.5">
+                            <joint name="j1" type="hinge" axis="0 1 0"/>
+                            <geom type="box" size="0.05 0.05 0.2"/>
+                        </body>
+                    </body>
+                </worldbody>
+            </mujoco>)");
+
+  auto namefile = createTempFile(xmlData);
+
+  pinocchio::Model model_m;
+  pinocchio::mjcf::buildModel(namefile.name(), model_m);
+
+  pinocchio::Data data(model_m);
+  pinocchio::framesForwardKinematics(model_m, data, pinocchio::neutral(model_m));
+
+  Matrix3 rotation_matrix;
+  rotation_matrix << 0., -1., 0., 1., 0., 0., 0., 0., 1.;
+
+  const pinocchio::SE3 expected_base(rotation_matrix, Vector3(1., 2., 3.));
+  const pinocchio::SE3 expected_link1(rotation_matrix, Vector3(1., 2., 3.5));
+
+  const pinocchio::FrameIndex baseFrameId = model_m.getFrameId("base", pinocchio::BODY);
+  const pinocchio::FrameIndex link1FrameId = model_m.getFrameId("link1", pinocchio::BODY);
+
+  BOOST_CHECK(data.oMf[baseFrameId].isApprox(expected_base, 1e-6));
+  BOOST_CHECK(data.oMf[link1FrameId].isApprox(expected_link1, 1e-6));
+
+  // The base geom has no offset of its own, so its inertia must be carried by
+  // the exact same placement as the base frame.
+  const double massBase = 1000 * 0.2 * 0.2 * 0.2; // density * volume
+  const pinocchio::Inertia expected_universe_inertia =
+    expected_base.act(pinocchio::Inertia::FromBox(massBase, 0.2, 0.2, 0.2));
+
+  BOOST_CHECK(model_m.inertias[0].isApprox(expected_universe_inertia, 1e-6));
+}
+
 double degreesToRadian(double degrees)
 {
   return degrees * (M_PI / 180.0);

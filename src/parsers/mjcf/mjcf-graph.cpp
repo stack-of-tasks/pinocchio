@@ -1472,7 +1472,8 @@ namespace pinocchio
           // We only add the root joint if we have a fixed base
           // (first body doesn't have any joint). Otherwise, the root joint is ignored.
           mjcfVisitor.addRootJoint(
-            rootBody.bodyInertia, rootLinkName, referenceConfig, qpos0, rootJoint, rootJointName);
+            rootBody.bodyInertia, rootLinkName, rootBody.bodyPlacement, referenceConfig, qpos0,
+            rootJoint, rootJointName);
         }
         else
         {

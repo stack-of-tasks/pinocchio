@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix `biais` typo in documentation and comments (English is `bias`) ([#2936](https://github.com/stack-of-tasks/pinocchio/pull/2936))
 - Fix GCC 10 compilation of aligned matrix map comparisons ([#2930](https://github.com/stack-of-tasks/pinocchio/issues/2930))
 
+### Fixed
+- Fix MJCF parser dropping the `pos`/`quat` of a fixed base root body, which offset the whole kinematic tree and left its inertia at the origin
+
 ## [4.1.0] - 2026-07-07
 
 ### Added
