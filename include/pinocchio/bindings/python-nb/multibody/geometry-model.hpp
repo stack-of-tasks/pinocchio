@@ -2,10 +2,11 @@
 
 #pragma once
 
-#include "../fwd.hpp"
-#include "../utils/comparable.hpp"
-#include "../utils/copyable.hpp"
-#include "../utils/printable.hpp"
+#include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/utils/comparable.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
+#include "pinocchio/bindings/python-nb/utils/printable.hpp"
+#include "pinocchio/bindings/python-nb/serialization/serializable.hpp"
 
 #include "pinocchio/geometry.hpp"
 
@@ -88,6 +89,7 @@ inline void exposeGeometryModel(nb::module_ m)
     .def(ComparableVisitor<GeometryModel>())
     .def(CopyableVisitor<GeometryModel>())
     // Repr and str
-    .def(PrintableVisitor<GeometryModel>());
+    .def(PrintableVisitor<GeometryModel>())
+    .def(SerializableVisitor<GeometryModel>());
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

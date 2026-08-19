@@ -5,6 +5,7 @@
 #include "pinocchio/bindings/python-nb/constraints/constraint-inheritance.hpp"
 #include "pinocchio/bindings/python-nb/constraints/constraint-derived-models.hpp"
 #include "pinocchio/bindings/python-nb/constraints/constraint-derived-datas.hpp"
+#include "pinocchio/bindings/python-nb/serialization/serializable.hpp"
 
 #include <boost/mpl/for_each.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -44,6 +45,7 @@ struct model_callable
       .def(ConstraintModelBaseVisitor<Derived>())
       .def(ConstraintModelInheritanceVisitor<Derived>())
       .def(ConstraintModelDerivedVisitor())
+      .def(SerializableVisitor<Derived>())
       .def(PrintableVisitor<Derived>());
     auto vecName = "StdVec_" + className;
     nb::bind_vector<std::vector<Derived>, nb::rv_policy::reference_internal>(m, vecName.c_str());
@@ -64,6 +66,7 @@ struct data_callable
       .def(ConstraintDataBaseVisitor<Derived>())
       .def(ConstraintDataInheritanceVisitor<Derived>())
       .def(ConstraintDataDerivedVisitor())
+      .def(SerializableVisitor<Derived>())
       .def(PrintableVisitor<Derived>());
     auto vecName = "StdVec_" + className;
     nb::bind_vector<std::vector<Derived>, nb::rv_policy::reference_internal>(m, vecName.c_str());
