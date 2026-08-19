@@ -32,7 +32,6 @@ set(PYWRAP_SOURCES
     expose-math.cpp
     expose-multibody.cpp
     expose-algorithm.cpp
-    expose-coal.cpp
     expose-parsers.cpp
     expose-rpy.cpp
     algorithm/aba.cpp
@@ -66,10 +65,6 @@ set(PYWRAP_SOURCES
     algorithm/centroidal-derivatives.cpp
     algorithm/rnea-derivatives.cpp
     algorithm/constraint-solvers.cpp
-    collision/broadphase.cpp
-    collision/broadphase-callbacks.cpp
-    collision/collision.cpp
-    collision/pool.cpp
     constraints/constraint-collection.cpp
     constraints/cones.cpp
     multibody/liegroups.cpp
@@ -84,12 +79,22 @@ set(PYWRAP_SOURCES
     parsers/urdf/geometry.cpp
 )
 
+if(BUILD_WITH_COLLISION_SUPPORT)
+      list(APPEND PYWRAP_SOURCES
+          expose-coal.cpp
+          collision/broadphase.cpp
+          collision/broadphase-callbacks.cpp
+          collision/collision.cpp
+      )
+  endif()
+
+
 if(BUILD_WITH_SDF_SUPPORT)
     list(APPEND PYWRAP_SOURCES parsers/sdf/model.cpp parsers/sdf/geometry.cpp)
 endif()
 
 if(BUILD_WITH_OPENMP_SUPPORT)
-    list(APPEND PYWRAP_SOURCES algorithm/parallel.cpp multibody/pool.cpp)
+    list(APPEND PYWRAP_SOURCES algorithm/parallel.cpp multibody/pool.cpp collision/pool.cpp)
 endif()
 
 file(
