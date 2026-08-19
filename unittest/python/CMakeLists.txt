@@ -3,6 +3,12 @@
 #
 include(${JRL_CMAKE_MODULES}/python-helpers.cmake)
 
+if(BINDINGS_FRAMEWORK STREQUAL Boost)
+    set(PYTHON_BINDINGS_MODULE_PATH "bindings/python")
+else()
+    set(PYTHON_BINDINGS_MODULE_PATH "bindings/nanobind")
+endif()
+
 set(${PROJECT_NAME}_PYTHON_TESTS
     bindings
     # Multibody
@@ -114,7 +120,7 @@ function(pinocchio_add_python_cpp_module name)
         WORKING_DIRECTORY $<TARGET_FILE_DIR:${target_name}>
     )
     set(PYTHONPATH)
-    compute_pythonpath(ENV_VARIABLES bindings/python)
+    compute_pythonpath(ENV_VARIABLES ${PYTHON_BINDINGS_MODULE_PATH})
     set_tests_properties(
         ${target_name}
         PROPERTIES ENVIRONMENT "${ENV_VARIABLES}"
@@ -131,7 +137,7 @@ endfunction()
 
 function(pinocchio_add_lib_unit_test name)
     set(TEST_NAME "${PROJECT_NAME}-test-py-${name}")
-    add_python_unit_test(${TEST_NAME} "unittest/python/${name}.py" "bindings/python"
+    add_python_unit_test(${TEST_NAME} "unittest/python/${name}.py" "${PYTHON_BINDINGS_MODULE_PATH}"
                          "unittest/python"
     )
     get_test_property(${TEST_NAME} ENVIRONMENT _ENVIRONMENT)
@@ -169,7 +175,7 @@ endif()
 
 foreach(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
     set(TEST_NAME "${PROJECT_NAME}-test-py-${TEST}")
-    add_python_unit_test(${TEST_NAME} "unittest/python/${TEST}.py" "bindings/python")
+    add_python_unit_test(${TEST_NAME} "unittest/python/${TEST}.py" "${PYTHON_BINDINGS_MODULE_PATH}")
     get_test_property(${TEST_NAME} ENVIRONMENT _ENVIRONMENT)
     set_tests_properties(
         "${TEST_NAME}"
@@ -202,7 +208,7 @@ if(MEMORYCHECK_COMMAND AND MEMORYCHECK_COMMAND MATCHES ".*valgrind$")
           SUPP
           "unittest/python/${TEST}.supp"
           MODULES
-          "bindings/python"
+          "${PYTHON_BINDINGS_MODULE_PATH}"
         )
         get_test_property(${TEST_NAME} ENVIRONMENT _ENVIRONMENT)
         set_tests_properties(

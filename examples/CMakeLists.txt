@@ -5,6 +5,12 @@
 # Compute flags outside the macro to avoid recomputing it for each tests
 cxx_flags_by_compiler_frontend(MSVC _USE_MATH_DEFINES OUTPUT EXAMPLE_PRIVATE_DEFINITIONS)
 
+if(BINDINGS_FRAMEWORK STREQUAL Boost)
+    set(PYTHON_BINDINGS_MODULE_PATH "bindings/python")
+else()
+    set(PYTHON_BINDINGS_MODULE_PATH "bindings/nanobind")
+endif()
+
 function(ADD_PINOCCHIO_CPP_EXAMPLE EXAMPLE)
     if(NOT BUILD_STANDALONE_PYTHON_INTERFACE)
         set(options PARSERS CPPAD CPPADCG CASADI)
@@ -62,7 +68,7 @@ function(ADD_PINOCCHIO_CPP_EXAMPLE EXAMPLE)
         if(WIN32)
             string(REPLACE ";" "\\\;" _PATH "$ENV{PATH}")
             set(ENV_VARIABLES
-                "PATH=${_PATH}\\\;${PROJECT_BINARY_DIR}/src\\\;${PROJECT_BINARY_DIR}/bindings/python/pinocchio"
+                "PATH=${_PATH}\\\;${PROJECT_BINARY_DIR}/src\\\;${PROJECT_BINARY_DIR}/${PYTHON_BINDINGS_MODULE_PATH}/pinocchio"
             )
             set_tests_properties(
                 ${EXAMPLE_NAME}
@@ -178,7 +184,7 @@ if(BUILD_PYTHON_INTERFACE)
 
     foreach(EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
         set(EXAMPLE_NAME "${PROJECT_NAME}-example-py-${EXAMPLE}")
-        add_python_unit_test("${EXAMPLE_NAME}" "examples/${EXAMPLE}.py" "bindings/python")
+        add_python_unit_test("${EXAMPLE_NAME}" "examples/${EXAMPLE}.py" "${PYTHON_BINDINGS_MODULE_PATH}")
         get_test_property(${EXAMPLE_NAME} ENVIRONMENT _ENVIRONMENT)
         set_tests_properties(
             "${EXAMPLE_NAME}"
