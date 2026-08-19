@@ -13,6 +13,18 @@
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 
+namespace details
+{
+  /// Check if matrix method take one or two parameters
+  template<typename, typename = void>
+  constexpr bool is_matrix_bool_bool_method = false;
+
+  template<typename T>
+  constexpr bool
+    is_matrix_bool_bool_method<T, std::void_t<decltype(std::declval<T>().matrix(true, true))>> =
+      true;
+} // namespace details
+
 /// Visitor exposing the common interface of all Delassus operator types.
 template<typename DelassusOperator>
 struct DelassusOperatorBaseVisitor : nb::def_visitor<DelassusOperatorBaseVisitor<DelassusOperator>>
@@ -78,6 +90,16 @@ struct DelassusOperatorBaseVisitor : nb::def_visitor<DelassusOperatorBaseVisitor
       .def("size", &Self::size, "Returns the size of the decomposition.")
       .def("rows", &Self::rows, "Returns the number of rows.")
       .def("cols", &Self::cols, "Returns the number of columns.");
+    if constexpr (details::is_matrix_bool_bool_method<Self>)
+    {
+      cl.def(
+        "matrix",
+        [](const Self & self, bool enforce_symmetry, bool with_damping) -> MatrixXs {
+          return self.matrix(enforce_symmetry, with_damping);
+        },
+        "enforce_symmetry"_a = false, "with_damping"_a = true,
+        "Returns the Delassus expression as a dense matrix.");
+    }
   }
 };
 

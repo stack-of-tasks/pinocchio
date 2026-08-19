@@ -38,7 +38,7 @@ struct ConstraintModelBaseVisitor : nanobind::def_visitor<ConstraintModelBaseVis
   {
     using namespace nb::literals;
     cl.def_rw("name", &Self::name, "Name of the constraint.")
-      .def_static("classname", Self::classname)
+      .def_static("classname", &Self::classname)
       .def("shortname", &Self::shortname, "Short name of the class.")
       .def("createData", &Self::createData, "Create a Data object for the given constraint model.")
       .def(
@@ -301,7 +301,7 @@ struct ConstraintDataBaseVisitor : nanobind::def_visitor<ConstraintDataBaseVisit
   template<class PyClass, class... Extra>
   void execute(PyClass & cl, const Extra &...) const
   {
-    cl.def_static("classname", Self::classname)
+    cl.def_static("classname", &Self::classname)
       .def("shortname", &Self::shortname, "Short name of the class.")
       .def(ComparableVisitor<DataDerived>());
   }
