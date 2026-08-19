@@ -11,6 +11,7 @@
 
 #include <nanobind/stl/bind_vector.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 template<class Frame>
@@ -67,7 +68,17 @@ void exposeFrame(nb::module_ m)
     .def_rw("inertia", &Frame::inertia, "Inertia information attached to the frame.")
     .def(ComparableVisitor<Frame>())
     .def(CopyableVisitor<Frame>())
-    .def(PrintableVisitor<Frame>());
+    .def(PrintableVisitor<Frame>())
+    .def(
+      "__getstate__",
+      [](const Frame & self) {
+        return std::make_tuple(self.name, self.parentJoint, self.parentFrame, self.placement, (int)self.type, self.inertia);
+      })
+    .def("__setstate__",
+    [](Frame & self, const std::tuple<std::string, JointIndex, FrameIndex, SE3, int, Inertia> & t) {
+      new (&self)
+        Frame(std::get<0>(t), std::get<1>(t), std::get<2>(t), std::get<3>(t), (FrameType)std::get<4>(t), std::get<5>(t));
+    });
 
   nb::bind_vector<std::vector<Frame>, nb::rv_policy::reference_internal>(m, "StdVec_Frame");
 };

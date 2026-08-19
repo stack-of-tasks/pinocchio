@@ -11,6 +11,7 @@
 
 #include <nanobind/eigen/dense.h>
 #include <nanobind/stl/bind_vector.h>
+#include <nanobind/stl/tuple.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 template<class Inertia>
@@ -198,7 +199,19 @@ void exposeInertia(nb::module_ m)
       "__array__", [](const Self & self, nb::object, nb::bool_) { return Matrix6(self.matrix()); },
       "dtype"_a = nb::none(), nb::kw_only(), "copy"_a = nb::none())
     // String representation
-    .def(PrintableVisitor<Inertia>());
+    .def(PrintableVisitor<Inertia>())
+    // Pickle
+    .def(
+      "__getstate__",
+      [](const Inertia & self) {
+        return std::make_tuple(
+          self.mass(), Vector3(self.lever()), Matrix3(self.inertia().matrix()));
+      })
+    .def(
+      "__setstate__",
+      [](Inertia & self, const std::tuple<Scalar, Vector3, Matrix3> & t) {
+        new (&self) Inertia(std::get<0>(t), std::get<1>(t), std::get<2>(t));
+      });
 
   nb::bind_vector<std::vector<Inertia>, nb::rv_policy::reference_internal>(m, "StdVec_Inertia");
 }
