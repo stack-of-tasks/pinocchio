@@ -43,7 +43,7 @@ class ContactSolverTestCase(PinocchioTestCase):
         for i in range(n_cubes):
             box_mass = masses[i]
             box_inertia = pin.Inertia.FromBox(
-                box_mass, box_dims[0, 0], box_dims[1, 0], box_dims[2, 0]
+                box_mass, box_dims[0], box_dims[1], box_dims[2]
             )
             joint_id = model.addJoint(
                 0, pin.JointModelFreeFlyer(), pin.SE3.Identity(), "free_flyer_" + str(i)
@@ -66,7 +66,7 @@ class ContactSolverTestCase(PinocchioTestCase):
                 fpcm = pin.PointContactConstraintModel(
                     model, i, local_placement_1, i + 1, local_placement_2
                 )
-                fpcm.set = pin.CoulombFrictionCone(friction_coeff)
+                fpcm.setFriction(friction_coeff)
                 list_cm.append(pin.ConstraintModel(fpcm))
                 rot = R @ rot
 
