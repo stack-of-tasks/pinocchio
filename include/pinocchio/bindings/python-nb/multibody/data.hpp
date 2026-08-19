@@ -4,13 +4,16 @@
 
 #include "pinocchio/multibody.hpp"
 
-#include "../fwd.hpp"
-#include "../utils/comparable.hpp"
-#include "../utils/copyable.hpp"
-#include "../utils/deprecation.hpp"
+#include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/utils/comparable.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
+#include "pinocchio/bindings/python-nb/utils/deprecation.hpp"
+#include "pinocchio/bindings/python-nb/utils/pickle-vector.hpp"
+#include "pinocchio/bindings/python-nb/serialization/serializable.hpp"
 
 #include <nanobind/eigen/dense.h>
 #include <nanobind/stl/bind_vector.h>
+#include <nanobind/stl/string.h>
 
 #define NB_DATA_RW(NAME, DOC) def_rw(#NAME, &Data::NAME, DOC)
 #define NB_DATA_RO(NAME, DOC) def_ro(#NAME, &Data::NAME, DOC)
@@ -216,12 +219,30 @@ void exposeData(nb::module_ m)
     .NB_DATA_RW(potentialEnergyRegressor, "Potential energy regressor.")
     // --- operators
     .def(ComparableVisitor<Data>())
-    .def(CopyableVisitor<Data>());
+    .def(CopyableVisitor<Data>())
+    .def(SerializableVisitor<Data>())
+    .def("__getstate__", [](const Data & self) { return self.saveToString(); })
+    .def("__setstate__", [](Data & self, const std::string & str) {
+      new (&self) Data();
+      self.loadFromString(str);
+    });
 
   using Vector3 = Eigen::Matrix<Scalar, 3, 1>;
   nb::bind_vector<std::vector<int>>(m, "StdVec_Int");
   if (!check_registration_alias<std::vector<Vector3>>(m, "StdVec_Vector3"))
-    nb::bind_vector<std::vector<Vector3>>(m, "StdVec_Vector3");
+    nb::bind_vector<std::vector<Vector3>>(m, "StdVec_Vector3")
+      .def(PickleVectorVisitor<std::vector<Vector3>>())
+      .def("tolist", [](const std::vector<Vector3> & self) {
+        nb::list result;
+        for (const auto & v : self)
+        {
+          nb::list row;
+          for (Eigen::Index i = 0; i < v.size(); ++i)
+            row.append(v[i]);
+          result.append(row);
+        }
+        return result;
+      });
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
 

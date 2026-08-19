@@ -5,10 +5,12 @@
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/algorithm/check-data.hpp"
 
-#include "../fwd.hpp"
-#include "../utils/comparable.hpp"
-#include "../utils/copyable.hpp"
-#include "../utils/printable.hpp"
+#include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/utils/comparable.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
+#include "pinocchio/bindings/python-nb/utils/printable.hpp"
+#include "pinocchio/bindings/python-nb/utils/pickle-map.hpp"
+#include "pinocchio/bindings/python-nb/serialization/serializable.hpp"
 
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/bind_vector.h>
@@ -33,7 +35,9 @@ void exposeModel(nb::module_ m)
     pinocchio::JOINT | pinocchio::FIXED_JOINT | pinocchio::BODY | pinocchio::OP_FRAME
     | pinocchio::SENSOR);
 
-  nb::bind_map<typename Model::ConfigVectorMap>(m, "StdMap_String_VectorXd");
+  nb::bind_map<typename Model::ConfigVectorMap, nb::rv_policy::reference_internal>(
+    m, "StdMap_String_VectorXd")
+    .def(PickleMapVisitor<typename Model::ConfigVectorMap>());
 
   nb::class_<Model>(m, "Model", "Articulated rigid-body model.")
     .def(nb::init<>(), "Default constructor")
@@ -226,7 +230,13 @@ void exposeModel(nb::module_ m)
     // --- operators
     .def(ComparableVisitor<Model>())
     .def(CopyableVisitor<Model>())
-    .def(PrintableVisitor<Model>());
+    .def(PrintableVisitor<Model>())
+    .def(SerializableVisitor<Model>())
+    .def("__getstate__", [](const Model & self) { return self.saveToString(); })
+    .def("__setstate__", [](Model & self, const std::string & str) {
+      new (&self) Model();
+      self.loadFromString(str);
+    });
 
   nb::bind_vector<std::vector<Scalar>>(m, "StdVec_Scalar");
   nb::bind_vector<std::vector<bool>>(m, "StdVec_Bool");
