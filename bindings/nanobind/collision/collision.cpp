@@ -1,5 +1,7 @@
 // Copyright (c) 2026 INRIA
 
+#include <iostream>
+
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 
 #include "pinocchio/collision/collision.hpp"

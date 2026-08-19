@@ -72,11 +72,10 @@ void exposeCOM(nb::module_ m)
     "centerOfMass",
     [](
       const Model & model, Data & data, pinocchio::KinematicLevel kinematic_level,
-      bool compute_subtree_coms) -> const Data::Vector3 & {
+      bool compute_subtree_coms) -> Data::Vector3 {
       return pinocchio::centerOfMass(model, data, kinematic_level, compute_subtree_coms);
     },
     "model"_a, "data"_a, "kinematic_level"_a, "compute_subtree_coms"_a = true,
-    nb::rv_policy::reference_internal,
     "Computes the center of mass position, velocity or acceleration of a given model according "
     "to the current kinematic values contained in data and the requested kinematic_level.\n"
     "If kinematic_level = POSITION, computes the CoM position, if kinematic_level = VELOCITY, "
@@ -87,10 +86,10 @@ void exposeCOM(nb::module_ m)
 
   m.def(
     "centerOfMass",
-    [](const Model & model, Data & data, bool compute_subtree_coms) -> const Data::Vector3 & {
+    [](const Model & model, Data & data, bool compute_subtree_coms) -> Data::Vector3 {
       return pinocchio::centerOfMass(model, data, compute_subtree_coms);
     },
-    "model"_a, "data"_a, "compute_subtree_coms"_a = true, nb::rv_policy::reference_internal,
+    "model"_a, "data"_a, "compute_subtree_coms"_a = true,
     "Computes the center of mass position, velocity and acceleration of a given model "
     "according to the current kinematic values contained in data.\n"
     "If compute_subtree_coms is True, the algorithm also computes the center of mass of "
@@ -99,20 +98,20 @@ void exposeCOM(nb::module_ m)
   m.def(
     "jacobianCenterOfMass",
     [](const Model & model, Data & data, ConstVectorRef q, bool compute_subtree_coms)
-      -> const Data::Matrix3x & {
+      -> Data::Matrix3x {
       return pinocchio::jacobianCenterOfMass(model, data, q, compute_subtree_coms);
     },
-    "model"_a, "data"_a, "q"_a, "compute_subtree_coms"_a = true, nb::rv_policy::reference_internal,
+    "model"_a, "data"_a, "q"_a, "compute_subtree_coms"_a = true,
     "Computes the Jacobian of the center of mass, puts the result in data and return it.\n"
     "If compute_subtree_coms is True, the algorithm also computes the center of mass of the "
     "subtrees.");
 
   m.def(
     "jacobianCenterOfMass",
-    [](const Model & model, Data & data, bool compute_subtree_coms) -> const Data::Matrix3x & {
+    [](const Model & model, Data & data, bool compute_subtree_coms) -> Data::Matrix3x {
       return pinocchio::jacobianCenterOfMass(model, data, compute_subtree_coms);
     },
-    "model"_a, "data"_a, "compute_subtree_coms"_a = true, nb::rv_policy::reference_internal,
+    "model"_a, "data"_a, "compute_subtree_coms"_a = true,
     "Computes the Jacobian of the center of mass, puts the result in data and return it.\n"
     "If compute_subtree_coms is True, the algorithm also computes the center of mass of "
     "the subtrees.");

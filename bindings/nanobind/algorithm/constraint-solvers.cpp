@@ -234,6 +234,7 @@ static void exposeADMM(nb::module_ m)
   nb::class_<ADMMSolver>(
     m, "ADMMConstraintSolver",
     "Alternating Direction Method of Multipliers (ADMM) solver for contact dynamics.")
+    .def(nb::init<>(), "Default constructor.")
     .def(nb::init<std::size_t>(), "problem_size"_a, "Constructor with problem dimension.")
     .def(ConstraintSolverBaseVisitor<ADMMSolver>())
     // ADMM-specific
