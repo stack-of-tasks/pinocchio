@@ -2,11 +2,12 @@
 
 #pragma once
 
-#include "../fwd.hpp"
-#include "../utils/boost-variant.hpp"
-#include "../utils/comparable.hpp"
-#include "../utils/copyable.hpp"
-#include "../utils/printable.hpp"
+#include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/utils/boost-variant.hpp"
+#include "pinocchio/bindings/python-nb/utils/comparable.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
+#include "pinocchio/bindings/python-nb/utils/printable.hpp"
+#include "pinocchio/bindings/python-nb/serialization/serializable.hpp"
 
 #include "pinocchio/geometry.hpp"
 
@@ -212,7 +213,8 @@ inline void exposeGeometryObject(nb::module_ m)
       "Perform a deep copy of this GeometryObject, including the underlying coal geometry.")
     .def(ComparableVisitor<GeometryObject>())
     .def(CopyableVisitor<GeometryObject>())
-    .def(PrintableVisitor<Self>());
+    .def(PrintableVisitor<Self>())
+    .def(SerializableVisitor<GeometryObject>());
 
   nb::bind_vector<std::vector<GeometryObject>, nb::rv_policy::reference_internal>(
     m, "StdVec_GeometryObject");
