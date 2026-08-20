@@ -6,6 +6,7 @@
 #include "pinocchio/math.hpp"
 
 #include <nanobind/eigen/dense.h>
+#include <nanobind/stl/optional.h>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 
@@ -29,9 +30,9 @@ struct ToNumpyArrayVisitor : nb::def_visitor<ToNumpyArrayVisitor<C>>
     using ToVectorPlain = std::decay_t<ToVectorConstReturnType>;
     cl.def(
       "__array__",
-      [](const C & self, nb::object /*dtype*/, nb::bool_ copy) {
+      [](const C & self, nb::object /*dtype*/, std::optional<bool> copy) {
         decltype(auto) v = self.toVector();
-        if (bool(copy))
+        if (copy.value_or(false))
           return nb::cast(ToVectorPlain(v));
         else
           return nb::cast(make_ref(v));
