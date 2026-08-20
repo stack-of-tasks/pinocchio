@@ -1,6 +1,7 @@
 // Copyright (c) 2026 INRIA
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/parsers/graph/model-graph.hpp"
 
 #include <nanobind/stl/bind_vector.h>
 #include <nanobind/stl/filesystem.h>
@@ -28,6 +29,7 @@ void exposeParsers(nb::module_ m)
 
   exposeSRDF(m);
   exposeMJCF(m);
+  exposeGraph(m);
 
 #ifdef PINOCCHIO_WITH_SDFORMAT
   // SDF

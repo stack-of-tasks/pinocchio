@@ -58,9 +58,10 @@ namespace pinocchio
             "convertTangentVector",
             &ModelConfigurationConverter::template convertTangentVector<
               VectorXs, VectorXs, VectorXs>,
-            bp::args("self", "q_source", "q_target"),
-            "Convert q_source configuration vector from source model to q_target configuration "
-            "vector from target model.");
+            bp::args("self", "q_source", "v_source", "v_target"),
+            "Convert q_source configuration vector and v_source tangent vector from source model "
+            "to "
+            "v_target tangent vector from target model.");
           cl.def(
             "convertConfigurationVector",
             &ModelConfigurationConverterVisitor::convert_configuration_vector_proxy,
