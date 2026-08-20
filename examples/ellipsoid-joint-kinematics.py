@@ -183,9 +183,7 @@ def compute_dynamics_example():
 
     q_composite = np.zeros(6)
     q_composite[3:] = q  # Set only rotational part
-    q_composite[:3] = data.oMi[
-        1
-    ].translation  # Set translation to current position on ellipsoid
+    q_composite[:3] = data.oMi[1].translation  # Set translation to current position on ellipsoid
 
     v_composite = np.zeros(6)
     v_composite[3:] = v
@@ -195,9 +193,7 @@ def compute_dynamics_example():
     a_composite[3:] = a
     a_composite[:3] = np.array(data.a[1])[:3]  # Set linear acceleration part
 
-    tau_composite = pin.rnea(
-        composite_model, composite_data, q_composite, v_composite, a_composite
-    )
+    tau_composite = pin.rnea(composite_model, composite_data, q_composite, v_composite, a_composite)
     print(f"\nComposite joint required torques (RNEA): τ = {tau_composite}")
     print("\nComparison of spatial forces at the joint:")
     print(f"  - Ellipsoid joint spatial force: f = {data.f[1]} ")
@@ -233,12 +229,10 @@ def visualize_ellipsoid_motion():
         ellipsoid_geom = pin.GeometryObject(
             "ellipsoid_surface",
             0,  # Universe frame
-            ellipsoid_shape,
             pin.SE3.Identity(),
+            ellipsoid_shape,
         )
-        ellipsoid_geom.meshColor = np.array(
-            [0.8, 0.8, 0.8, 0.3]
-        )  # Semi-transparent gray
+        ellipsoid_geom.meshColor = np.array([0.8, 0.8, 0.8, 0.3])  # Semi-transparent gray
         geom_model.addGeometryObject(ellipsoid_geom)
 
         # 2. Add a small sphere to show the contact point on the ellipsoid
@@ -246,8 +240,8 @@ def visualize_ellipsoid_motion():
         contact_geom = pin.GeometryObject(
             "contact_point",
             model.getJointId("ellipsoid"),
-            contact_sphere,
             pin.SE3.Identity(),  # At the joint frame (on the ellipsoid surface)
+            contact_sphere,
         )
         contact_geom.meshColor = np.array([1.0, 0.0, 0.0, 1.0])  # Red
         geom_model.addGeometryObject(contact_geom)
@@ -257,8 +251,8 @@ def visualize_ellipsoid_motion():
         box_geom = pin.GeometryObject(
             "body_visual",
             model.getJointId("ellipsoid"),
-            box,
             pin.SE3(np.eye(3), np.array([0.0, 0.0, 0.15])),
+            box,
         )
         box_geom.meshColor = np.array([0.2, 0.6, 1.0, 1.0])  # Blue
         geom_model.addGeometryObject(box_geom)
@@ -273,9 +267,7 @@ def visualize_ellipsoid_motion():
         print("  - Red sphere: Contact point on the surface")
         print("  - Blue box: The rigid body attached to the joint")
         print("\nAnimating ellipsoid joint motion...")
-        print(
-            "Open http://127.0.0.1:7000/static/ in your browser to see the animation."
-        )
+        print("Open http://127.0.0.1:7000/static/ in your browser to see the animation.")
 
         # Animate through different configurations
         import time
@@ -298,10 +290,7 @@ def visualize_ellipsoid_motion():
             t += dt
 
             if i % 50 == 0:
-                print(
-                    f"  Frame {i}/500 - Configuration: \n"
-                    f"    [{q[0]:.3f}, {q[1]:.3f}, {q[2]:.3f}]"
-                )
+                print(f"  Frame {i}/500 - Configuration: \n" f"    [{q[0]:.3f}, {q[1]:.3f}, {q[2]:.3f}]")
 
         # create extra motion that slides along the principal axes q0
         for angle in np.linspace(0, 2 * np.pi, 100):
