@@ -199,7 +199,7 @@ to functions in some python shortcuts, also available in RomeoWrapper:
 - The size of the robot configuration is given by `nq`.
 - The dimension of its tangent space (velocity) is `nv`.
 - The index of a joint in the tree can be accessed from its name by index (see above).
-- The classical algorithms are also binded: com, Jcom, mass, biais, joint gravity, position and velocity of each joint.
+- The classical algorithms are also binded: com, Jcom, mass, bias, joint gravity, position and velocity of each joint.
 
 ```py
 q = zero(robot.nq)

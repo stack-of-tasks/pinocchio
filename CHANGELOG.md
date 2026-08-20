@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Fix `ellipsoid-joint-kinematics.py` example
+- Fix `biais` typo in documentation and comments (English is `bias`)
 
 ## [4.1.0] - 2026-07-07
 
