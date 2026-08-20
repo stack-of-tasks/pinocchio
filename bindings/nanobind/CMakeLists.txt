@@ -77,6 +77,13 @@ set(PYWRAP_SOURCES
     parsers/urdf/console-bridge.cpp
     parsers/urdf/model.cpp
     parsers/urdf/geometry.cpp
+    parsers/graph/expose-frames.cpp
+    parsers/graph/expose-geometries.cpp
+    parsers/graph/expose-edges.cpp
+    parsers/graph/expose-model-graph.cpp
+    parsers/graph/expose-model-graph-algo.cpp
+    parsers/graph/expose-model-configuration-converter.cpp
+
 )
 
 if(BUILD_WITH_COLLISION_SUPPORT)
@@ -85,6 +92,7 @@ if(BUILD_WITH_COLLISION_SUPPORT)
           collision/broadphase.cpp
           collision/broadphase-callbacks.cpp
           collision/collision.cpp
+          parsers/graph/expose-model-graph-algo-geometry.cpp
       )
   endif()
 
