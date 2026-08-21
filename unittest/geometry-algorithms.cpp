@@ -122,6 +122,11 @@ BOOST_AUTO_TEST_CASE(test_simple_boxes)
   geomModel.removeGeometryObject("ff2_collision_object");
   geomData = pinocchio::GeometryData(geomModel);
 
+  BOOST_CHECK_EQUAL(
+    geomModel.collisionPairMapping.rows(), static_cast<Eigen::Index>(geomModel.ngeoms));
+  BOOST_CHECK_EQUAL(
+    geomModel.collisionPairMapping.cols(), static_cast<Eigen::Index>(geomModel.ngeoms));
+
   BOOST_CHECK(geomModel.ngeoms == 2);
   BOOST_CHECK(geomModel.geometryObjects.size() == 2);
   BOOST_CHECK(geomModel.collisionPairs.size() == 1);
