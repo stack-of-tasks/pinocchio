@@ -133,6 +133,19 @@ BOOST_AUTO_TEST_CASE(test_simple_boxes)
   BOOST_CHECK(
     (geomModel.collisionPairs[0].first == 0 && geomModel.collisionPairs[0].second == 1)
     || (geomModel.collisionPairs[0].first == 1 && geomModel.collisionPairs[0].second == 0));
+
+  BOOST_CHECK_EQUAL(
+    geomModel.collisionPairMapping(
+      static_cast<Eigen::Index>(geomModel.collisionPairs[0].second),
+      static_cast<Eigen::Index>(geomModel.collisionPairs[0].first)),
+    0);
+  BOOST_CHECK_EQUAL(
+    geomModel.collisionPairMapping(
+      static_cast<Eigen::Index>(geomModel.collisionPairs[0].first),
+      static_cast<Eigen::Index>(geomModel.collisionPairs[0].second)),
+    0);
+  BOOST_CHECK_EQUAL(geomModel.collisionPairMapping(0, 0), -1);
+  BOOST_CHECK_EQUAL(geomModel.collisionPairMapping(1, 1), -1);
   BOOST_CHECK(geomData.activeCollisionPairs.size() == 1);
   BOOST_CHECK(geomData.distanceRequests.size() == 1);
   BOOST_CHECK(geomData.distanceResults.size() == 1);
