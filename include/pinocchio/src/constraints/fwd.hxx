@@ -72,6 +72,13 @@ namespace pinocchio
   typedef PointContactConstraintDataTpl<context::Scalar> PointContactConstraintData;
 
   template<typename Scalar, int Options = 0>
+  struct ConstantLengthConstraintModelTpl;
+  typedef ConstantLengthConstraintModelTpl<context::Scalar> ConstantLengthConstraintModel;
+  template<typename Scalar, int Options = 0>
+  struct ConstantLengthConstraintDataTpl;
+  typedef ConstantLengthConstraintDataTpl<context::Scalar> ConstantLengthConstraintData;
+
+  template<typename Scalar, int Options = 0>
   struct FrameAnchorConstraintModelTpl;
   typedef FrameAnchorConstraintModelTpl<context::Scalar> FrameAnchorConstraintModel;
   template<typename Scalar, int Options = 0>
