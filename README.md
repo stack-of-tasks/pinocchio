@@ -307,6 +307,7 @@ In addition to the core dev team, the following people have also been involved i
 -   [Tingfan Wu](https://github.com/tingfan): Viser visualizer mesh-scale bug fix
 -   [Kazuki Sugihara](https://github.com/sugikazu75): addFrame bug fix
 -   [Sergi Martinez](https://github.com/Sergim96): scalar-generic Python bindings
+-   [tandede](https://github.com/tandede): GCC 10 compatibility for aligned matrix map comparisons
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 
