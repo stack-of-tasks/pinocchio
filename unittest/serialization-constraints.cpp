@@ -157,6 +157,21 @@ struct initConstraint<pinocchio::ConstantLengthConstraintModel, void>
 };
 
 template<>
+struct initConstraint<pinocchio::EllipsoidPointConstraintModel, void>
+{
+  typedef pinocchio::Model Model;
+  typedef pinocchio::EllipsoidPointConstraintModel ConstraintModel;
+
+  static ConstraintModel run(const Model & model)
+  {
+    // Note: For EllipsoidPoint constraints, the radii of the ellipsoid need to be set.
+    ConstraintModel cmodel = PointAndFrameConstraintModelInitializer<ConstraintModel>::run(model);
+    cmodel.setRadii(Eigen::Vector3d(0.083, 0.2, 0.083));
+    return cmodel;
+  }
+};
+
+template<>
 struct initConstraint<pinocchio::FrameAnchorConstraintModel, void>
 {
   typedef pinocchio::Model Model;
