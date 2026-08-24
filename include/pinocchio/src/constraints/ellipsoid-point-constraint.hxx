@@ -903,12 +903,17 @@ namespace pinocchio
 
   protected:
     /// \brief Throws if one of the half-axes is not strictly positive.
+    /// \remarks The components are checked one by one rather than through minCoeff(), which
+    /// needs a boolean comparison and would not compile for symbolic scalars.
     template<typename Vector3Like>
     static void checkRadii(const Eigen::MatrixBase<Vector3Like> & radii)
     {
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(
-        check_expression_if_real<Scalar>(radii.minCoeff() > Scalar(0)),
-        "The radii of the ellipsoid must be strictly positive.");
+      for (Eigen::Index k = 0; k < 3; ++k)
+      {
+        PINOCCHIO_CHECK_INPUT_ARGUMENT(
+          check_expression_if_real<Scalar>(radii.derived()[k] > Scalar(0)),
+          "The radii of the ellipsoid must be strictly positive.");
+      }
     }
 
     /// \brief Adds the apparent inertia induced by the constraint to the augmented articulated
