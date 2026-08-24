@@ -89,6 +89,7 @@
 #include "pinocchio/src/constraints/point-constraint-model-base.hxx"
 #include "pinocchio/src/constraints/point-anchor-constraint.hxx"
 #include "pinocchio/src/constraints/point-contact-constraint.hxx"
+#include "pinocchio/src/constraints/constant-length-constraint.hxx"
 
 #include "pinocchio/src/constraints/frame-constraint-data-base.hxx"
 #include "pinocchio/src/constraints/frame-constraint-model-base.hxx"

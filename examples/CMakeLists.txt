@@ -157,6 +157,7 @@ if(BUILD_PYTHON_INTERFACE)
             model-graph-geometry
             spline-joint
             spline-joint-knee
+            constant-length-constraint-kinematics
         )
         if(BUILD_WITH_URDF_SUPPORT)
             list(
