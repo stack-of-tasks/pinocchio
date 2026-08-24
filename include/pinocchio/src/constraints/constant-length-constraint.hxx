@@ -861,7 +861,10 @@ namespace pinocchio
     MatrixSize6 getA1Impl(const ConstraintData & cdata, ReferenceFrameTag<rf> rft) const
     {
       MatrixSize6 res;
-      res.noalias() = cdata.direction.transpose() * getPointA1(cdata, rft);
+      res.noalias() =
+        cdata.direction.transpose()
+        * internal::relativePointProjector1(
+          cdata.oMc1, cdata.oMc2, this->joint1_placement, cdata.relative_position, rft);
       return res;
     }
 
@@ -870,74 +873,13 @@ namespace pinocchio
     MatrixSize6 getA2Impl(const ConstraintData & cdata, ReferenceFrameTag<rf> rft) const
     {
       MatrixSize6 res;
-      res.noalias() = cdata.direction.transpose() * getPointA2(cdata, rft);
+      res.noalias() = cdata.direction.transpose()
+                      * internal::relativePointProjector2(
+                        cdata.oMc1, cdata.oMc2, cdata.c1Mc2, this->joint2_placement, rft);
       return res;
     }
 
   protected:
-    ///
-    /// \brief Returns the projector mapping a spatial velocity of joint 1 to the time derivative
-    /// of cdata.relative_position. This is the very same quantity as the one returned by
-    /// PointConstraintModelBase::getA1 for a point constraint sharing the same joints and
-    /// placements.
-    ///
-    template<ReferenceFrame rf>
-    Matrix36 getPointA1(const ConstraintData & cdata, ReferenceFrameTag<rf>) const
-    {
-      Matrix36 res;
-
-      if constexpr (std::is_same<ReferenceFrameTag<rf>, WorldFrameTag>::value)
-      {
-        const Matrix3 c1Ro = cdata.oMc1.rotation().transpose();
-        res.template leftCols<3>() = -c1Ro;
-        res.template rightCols<3>().noalias() = c1Ro * skew(cdata.oMc2.translation());
-      }
-      else if constexpr (std::is_same<ReferenceFrameTag<rf>, LocalFrameTag>::value)
-      {
-        const Matrix3 c1Rj1 = this->joint1_placement.rotation().transpose();
-        // Position of the second point expressed in the frame of joint 1.
-        const Vector3 j1_p_c2 = this->joint1_placement.act(cdata.relative_position);
-        res.template leftCols<3>() = -c1Rj1;
-        res.template rightCols<3>().noalias() = c1Rj1 * skew(j1_p_c2);
-      }
-      else
-      {
-        PINOCCHIO_UNREACHABLE();
-      }
-
-      return res;
-    }
-
-    ///
-    /// \brief Returns the projector mapping a spatial velocity of joint 2 to the time derivative
-    /// of cdata.relative_position.
-    ///
-    template<ReferenceFrame rf>
-    Matrix36 getPointA2(const ConstraintData & cdata, ReferenceFrameTag<rf>) const
-    {
-      Matrix36 res;
-
-      if constexpr (std::is_same<ReferenceFrameTag<rf>, WorldFrameTag>::value)
-      {
-        const Matrix3 c1Ro = cdata.oMc1.rotation().transpose();
-        res.template leftCols<3>() = c1Ro;
-        res.template rightCols<3>().noalias() = -c1Ro * skew(cdata.oMc2.translation());
-      }
-      else if constexpr (std::is_same<ReferenceFrameTag<rf>, LocalFrameTag>::value)
-      {
-        const Matrix3 c1Rj2 =
-          cdata.c1Mc2.rotation() * this->joint2_placement.rotation().transpose();
-        res.template leftCols<3>() = c1Rj2;
-        res.template rightCols<3>().noalias() = -c1Rj2 * skew(this->joint2_placement.translation());
-      }
-      else
-      {
-        PINOCCHIO_UNREACHABLE();
-      }
-
-      return res;
-    }
-
     /// \brief Adds the apparent inertia induced by the constraint to the augmented articulated
     /// body inertias and to the joint cross coupling terms stored in data.
     template<int OtherOptions, template<typename, int> class JointCollectionTpl, ReferenceFrame rf>
