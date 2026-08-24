@@ -11,7 +11,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
-- Add `DataTpl::lastChild` deprecation notice in Python binding ([#2928](https://github.com/stack-of-tasks/pinocchio/pull/2927))
+- Add `ConstantLengthConstraintModelTpl`/`ConstantLengthConstraintDataTpl`, a scalar constraint enforcing a
+  constant distance between two material points. It is part of the default constraint collection
+  (`ConstraintModelTpl`/`ConstraintDataTpl` variants) and is exposed to Python, along with two
+  examples visualized with Viser: `examples/constant-length-constraint-kinematics.py` (constrained
+  forward kinematics of a four-bar linkage) and `examples/constant-length-constraint-3d.py`
+  (constrained forward dynamics of a spherical pendulum)
+- Add `DataTpl::lastChild` deprecation notice in Python binding
 
 ### Fixed
 - Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM ([#2929](https://github.com/stack-of-tasks/pinocchio/pull/2929))
