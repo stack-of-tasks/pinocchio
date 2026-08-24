@@ -59,6 +59,30 @@ namespace pinocchio
     }
 
     template<>
+    bp::class_<context::EllipsoidPointConstraintModel> &
+    expose_constraint_model(bp::class_<context::EllipsoidPointConstraintModel> & cl)
+    {
+      typedef context::EllipsoidPointConstraintModel Self;
+      typedef context::SE3 SE3;
+      return cl
+        .def(
+          bp::init<
+            const context::Model &, JointIndex, const SE3 &, JointIndex, const SE3 &,
+            const context::Vector3s &>(
+            (bp::arg("self"), bp::arg("model"), bp::arg("joint1_id"), bp::arg("joint1_placement"),
+             bp::arg("joint2_id"), bp::arg("joint2_placement"), bp::arg("radii")),
+            "Constructor from the ellipsoid -- carried by joint1, with its principal axes given "
+            "by joint1_placement and its half-axes by radii -- and from the material point "
+            "carried by joint2 at joint2_placement."))
+        .def(
+          "getRadii", &Self::getRadii, bp::return_value_policy<bp::copy_const_reference>(),
+          "Get the half-axes of the ellipsoid.")
+        .def(
+          "setRadii", +[](Self & self, const context::Vector3s & radii) { self.setRadii(radii); },
+          bp::args("self", "radii"), "Set the half-axes of the ellipsoid.");
+    }
+
+    template<>
     bp::class_<context::JointFrictionConstraintModel> &
     expose_constraint_model(bp::class_<context::JointFrictionConstraintModel> & cl)
     {

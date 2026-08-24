@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add `DataTpl::lastChild` deprecation notice in Python binding ([#2928](https://github.com/stack-of-tasks/pinocchio/pull/2927))
 - Add spline joint (JointModelSplineTpl) to default joint collection ([#2784](https://github.com/stack-of-tasks/pinocchio/pull/2784))
   - Python example [here](./examples/spline-joint.py) and [here](./examples/spline-joint-knee.py)
+- Add `EllipsoidPointConstraintModelTpl`/`EllipsoidPointConstraintDataTpl`, a scalar constraint keeping a
+  material point on the surface of an ellipsoid. The residual is scaled to be homogeneous to a length (the
+  signed distance to the surface to first order), and its gradient is exact away from the surface too. It is
+  part of the default constraint collection and is exposed to Python, along with the
+  `examples/ellipsoid-point-constraint-kinematics.py` example
 - Add `ConstantLengthConstraintModelTpl`/`ConstantLengthConstraintDataTpl`, a scalar constraint enforcing a
   constant distance between two material points. It is part of the default constraint collection
   (`ConstraintModelTpl`/`ConstraintDataTpl` variants) and is exposed to Python, along with two
