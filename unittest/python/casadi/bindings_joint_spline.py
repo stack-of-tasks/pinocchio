@@ -15,7 +15,6 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 import casadi
 import numpy as np
-import pinocchio as pin
 from casadi import SX
 from pinocchio import casadi as cpin
 from test_case import PinocchioTestCase as TestCase
@@ -34,33 +33,38 @@ PARABOLA_CONTROL_FRAMES = [
     (1.000000, 1.000000),
 ]
 
+PARABOLA_CONTROL_FRAMES_SX = [
+    SX.sym(f"translation_xy_{i}", 2) for i, _ in enumerate(PARABOLA_CONTROL_FRAMES)
+]
+
 
 MIN_Q, MAX_Q = -1.0, 1.0
 
 
-def build_model(degree=3, control_frames=PARABOLA_CONTROL_FRAMES):
+def build_cmodel(degree=3, control_frames=PARABOLA_CONTROL_FRAMES_SX):
     """Single spline joint carrying a unit box, plus the joint model itself."""
+
     frames = [
-        pin.SE3(np.eye(3), np.array([0.0, ty, tz])) for (ty, tz) in control_frames
+        cpin.SE3(SX.eye(3), casadi.vertcat(0.0, sx[0], sx[1])) for sx in control_frames
     ]
     joint = (
-        pin.JointModelSplineBuilder()
+        cpin.JointModelSplineBuilder()
         .withDegree(degree)
         .withControlFrameVector(frames)
         .withOpenUniformKnots(MIN_Q, MAX_Q)
         .build()
     )
-    model = pin.Model()
-    joint_id = model.addJoint(0, joint, pin.SE3.Identity(), "spline")
+    model = cpin.Model()
+    joint_id = model.addJoint(0, joint, cpin.SE3.Identity(), "spline")
     model.appendBodyToJoint(
-        joint_id, pin.Inertia.FromBox(1.0, 1.0, 1.0, 1.0), pin.SE3.Identity()
+        joint_id, cpin.Inertia.FromBox(1.0, 1.0, 1.0, 1.0), cpin.SE3.Identity()
     )
     return model, joint
 
 
 class TestJointSplineCasadi(TestCase):
     def setUp(self):
-        self.model, self.joint = build_model()
+        self.model, self.joint = build_cmodel()
         self.data = self.model.createData()
 
         self.cmodel = cpin.Model(self.model)
@@ -70,73 +74,72 @@ class TestJointSplineCasadi(TestCase):
         self.cv = SX.sym("v", self.cmodel.nv)
         self.ctau = SX.sym("tau", self.cmodel.nv)
 
-    def test_mini_ocp(self):
-        """
-        Slide the box from one side of the parabola to the other.
-        """
-        nodes, dt = 25, 0.04
-        q_init, q_goal = -0.9, 0.9
+    def test_optimize_control_vector(self):
+        """Optimize the control vector to fit the parabola shape."""
 
-        opti = casadi.Opti()
-        qs = opti.variable(1, nodes + 1)
-        vs = opti.variable(1, nodes + 1)
-        taus = opti.variable(1, nodes)
+        x = casadi.vertcat(*PARABOLA_CONTROL_FRAMES_SX)
 
-        # Semi implicit Euler, built once as a CasADi Function and reused.
-        a = cpin.aba(self.cmodel, self.cdata, self.cq, self.cv, self.ctau)
-        v_next = self.cv + dt * a
-        q_next = cpin.integrate(self.cmodel, self.cq, dt * v_next)
-        step = casadi.Function("step", [self.cq, self.cv, self.ctau], [q_next, v_next])
+        q_samples = np.linspace(MIN_Q, MAX_Q, 41)
 
-        opti.minimize(casadi.sumsqr(taus))
+        residuals = []
+        for q_value in q_samples:
+            q = SX([q_value])
 
-        for i in range(nodes):
-            q_i_1, v_i_1 = step(qs[i], vs[i], taus[i])
-            opti.subject_to(qs[i + 1] == q_i_1)
-            opti.subject_to(vs[i + 1] == v_i_1)
+            cpin.forwardKinematics(self.cmodel, self.cdata, q)
 
-        opti.subject_to(qs[0] == q_init)
-        opti.subject_to(vs[0] == 0.0)
-        opti.subject_to(qs[nodes] == q_goal)
-        opti.subject_to(vs[nodes] == 0.0)
+            # Translation of the spline joint in the world frame.
+            translation = self.cdata.oMi[1].translation
 
-        # Outside [min_q, max_q] the calc throws.
-        margin = 1e-6
-        opti.subject_to(
-            opti.bounded(self.joint.min_q + margin, qs, self.joint.max_q - margin)
-        )
-        opti.subject_to(opti.bounded(-50.0, taus, 50.0))
+            # Its translation should follow y = q and z = q**2.
+            target = SX([0.0, q_value, q_value**2])
+            residuals.append(translation - target)
 
-        opti.set_initial(qs, np.linspace(q_init, q_goal, nodes + 1).reshape(1, -1))
-        opti.set_initial(vs, (q_goal - q_init) / (nodes * dt))
-        opti.set_initial(taus, 0.0)
+        residual = casadi.vertcat(*residuals)
+        cost = residual.T @ residual  # L2 norm of the residuals
 
-        opti.solver(
+        # PARABOLA_CONTROL_FRAMES as the initial guess.
+        x0 = np.asarray(PARABOLA_CONTROL_FRAMES, dtype=float).reshape(-1)
+
+        solver = casadi.nlpsol(
+            "solver",
             "ipopt",
-            {"print_time": False},
-            {"print_level": 0, "sb": "yes", "max_iter": 500},
+            {
+                "x": x,
+                "f": cost,
+            },
+            {
+                "ipopt.print_level": 0,
+                "print_time": False,
+            },
         )
-        sol = opti.solve()
-        self.assertTrue(opti.stats()["success"])
 
-        q_sol = np.asarray(sol.value(qs)).ravel()
-        v_sol = np.asarray(sol.value(vs)).ravel()
-        tau_sol = np.atleast_1d(np.asarray(sol.value(taus)).ravel())
+        result = solver(x0=x0)
 
-        # Tolerances here are the solver's
+        self.assertTrue(bool(solver.stats()["success"]))
+
+        optimized = np.asarray(result["x"]).reshape(-1, 2)
+        expected = np.asarray(PARABOLA_CONTROL_FRAMES)
+
         tolerance = 1e-6
-        self.assertApprox(q_sol[0], q_init, tolerance)
-        self.assertApprox(q_sol[-1], q_goal, tolerance)
-        self.assertApprox(v_sol[-1], 0.0, tolerance)
 
-        # Replay the optimal torques on the double precision model.
-        q, v = np.array([q_init]), np.array([0.0])
-        for i in range(nodes):
-            a = pin.aba(self.model, self.data, q, v, np.array([tau_sol[i]]))
-            v = v + dt * a
-            q = pin.integrate(self.model, q, dt * v)
-            self.assertApprox(q[0], q_sol[i + 1], tolerance)
-            self.assertApprox(v[0], v_sol[i + 1], tolerance)
+        np.testing.assert_allclose(
+            optimized,
+            expected,
+            atol=tolerance,
+            rtol=tolerance,
+        )
+
+        gradient = casadi.gradient(cost, x)
+        gradient_fun = casadi.Function("gradient", [x], [gradient])
+
+        grad = np.asarray(gradient_fun(result["x"])).reshape(-1)
+
+        np.testing.assert_allclose(
+            grad,
+            np.zeros_like(grad),
+            atol=tolerance,
+            rtol=tolerance,
+        )
 
 
 if __name__ == "__main__":
