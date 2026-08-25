@@ -235,9 +235,7 @@ def visualize_ellipsoid_motion():
         pin.SE3.Identity(),
         ellipsoid_shape,
     )
-    ellipsoid_geom.meshColor = np.array(
-        [0.8, 0.8, 0.8, 0.3]
-    )  # Semi-transparent gray
+    ellipsoid_geom.meshColor = np.array([0.8, 0.8, 0.8, 0.3])  # Semi-transparent gray
     geom_model.addGeometryObject(ellipsoid_geom)
 
     # 2. Add a small sphere to show the contact point on the ellipsoid
@@ -272,9 +270,7 @@ def visualize_ellipsoid_motion():
     print("  - Red sphere: Contact point on the surface")
     print("  - Blue box: The rigid body attached to the joint")
     print("\nAnimating ellipsoid joint motion...")
-    print(
-        "Open http://127.0.0.1:7000/static/ in your browser to see the animation."
-    )
+    print("Open http://127.0.0.1:7000/static/ in your browser to see the animation.")
 
     # Animate through different configurations
     import time
