@@ -225,109 +225,102 @@ def visualize_ellipsoid_motion():
     model = create_ellipsoid_robot(radius_x, radius_y, radius_z)
 
     # Add visual geometry
-    try:
-        geom_model = pin.GeometryModel()
+    geom_model = pin.GeometryModel()
 
-        # 1. Add the ELLIPSOID SURFACE as a visual object
-        ellipsoid_shape = pin.coal.Ellipsoid(radius_x, radius_y, radius_z)
-        ellipsoid_geom = pin.GeometryObject(
-            "ellipsoid_surface",
-            0,  # Universe frame
-            pin.SE3.Identity(),
-            ellipsoid_shape,
+    # 1. Add the ELLIPSOID SURFACE as a visual object
+    ellipsoid_shape = pin.coal.Ellipsoid(radius_x, radius_y, radius_z)
+    ellipsoid_geom = pin.GeometryObject(
+        "ellipsoid_surface",
+        0,  # Universe frame
+        pin.SE3.Identity(),
+        ellipsoid_shape,
+    )
+    ellipsoid_geom.meshColor = np.array(
+        [0.8, 0.8, 0.8, 0.3]
+    )  # Semi-transparent gray
+    geom_model.addGeometryObject(ellipsoid_geom)
+
+    # 2. Add a small sphere to show the contact point on the ellipsoid
+    contact_sphere = pin.coal.Sphere(0.03)
+    contact_geom = pin.GeometryObject(
+        "contact_point",
+        model.getJointId("ellipsoid"),
+        pin.SE3.Identity(),  # At the joint frame (on the ellipsoid surface)
+        contact_sphere,
+    )
+    contact_geom.meshColor = np.array([1.0, 0.0, 0.0, 1.0])  # Red
+    geom_model.addGeometryObject(contact_geom)
+
+    # 3. Add a box to visualize the body orientation
+    box = pin.coal.Box(0.1, 0.1, 0.3)
+    box_geom = pin.GeometryObject(
+        "body_visual",
+        model.getJointId("ellipsoid"),
+        pin.SE3(np.eye(3), np.array([0.0, 0.0, 0.15])),
+        box,
+    )
+    box_geom.meshColor = np.array([0.2, 0.6, 1.0, 1.0])  # Blue
+    geom_model.addGeometryObject(box_geom)
+
+    # Initialize visualizer
+    viz = MeshcatVisualizer(model, geom_model, geom_model)
+    viz.initViewer(open=True)
+    viz.loadViewerModel()
+
+    print("\n✓ Visualization initialized!")
+    print("  - Gray ellipsoid: The constraint surface")
+    print("  - Red sphere: Contact point on the surface")
+    print("  - Blue box: The rigid body attached to the joint")
+    print("\nAnimating ellipsoid joint motion...")
+    print(
+        "Open http://127.0.0.1:7000/static/ in your browser to see the animation."
+    )
+
+    # Animate through different configurations
+    import time
+
+    t = 0.0
+    dt = 0.02
+
+    for i in range(500):
+        # Create a smooth trajectory on the ellipsoid
+        q = np.array(
+            [
+                0.8 * np.sin(1.0 * t),
+                0.6 * np.sin(1.2 * t + 1.0),
+                0.4 * np.sin(0.8 * t + 0.5),
+            ]
         )
-        ellipsoid_geom.meshColor = np.array(
-            [0.8, 0.8, 0.8, 0.3]
-        )  # Semi-transparent gray
-        geom_model.addGeometryObject(ellipsoid_geom)
 
-        # 2. Add a small sphere to show the contact point on the ellipsoid
-        contact_sphere = pin.coal.Sphere(0.03)
-        contact_geom = pin.GeometryObject(
-            "contact_point",
-            model.getJointId("ellipsoid"),
-            pin.SE3.Identity(),  # At the joint frame (on the ellipsoid surface)
-            contact_sphere,
-        )
-        contact_geom.meshColor = np.array([1.0, 0.0, 0.0, 1.0])  # Red
-        geom_model.addGeometryObject(contact_geom)
+        viz.display(q)
+        time.sleep(dt)
+        t += dt
 
-        # 3. Add a box to visualize the body orientation
-        box = pin.coal.Box(0.1, 0.1, 0.3)
-        box_geom = pin.GeometryObject(
-            "body_visual",
-            model.getJointId("ellipsoid"),
-            pin.SE3(np.eye(3), np.array([0.0, 0.0, 0.15])),
-            box,
-        )
-        box_geom.meshColor = np.array([0.2, 0.6, 1.0, 1.0])  # Blue
-        geom_model.addGeometryObject(box_geom)
-
-        # Initialize visualizer
-        viz = MeshcatVisualizer(model, geom_model, geom_model)
-        viz.initViewer(open=True)
-        viz.loadViewerModel()
-
-        print("\n✓ Visualization initialized!")
-        print("  - Gray ellipsoid: The constraint surface")
-        print("  - Red sphere: Contact point on the surface")
-        print("  - Blue box: The rigid body attached to the joint")
-        print("\nAnimating ellipsoid joint motion...")
-        print(
-            "Open http://127.0.0.1:7000/static/ in your browser to see the animation."
-        )
-
-        # Animate through different configurations
-        import time
-
-        t = 0.0
-        dt = 0.02
-
-        for i in range(500):
-            # Create a smooth trajectory on the ellipsoid
-            q = np.array(
-                [
-                    0.8 * np.sin(1.0 * t),
-                    0.6 * np.sin(1.2 * t + 1.0),
-                    0.4 * np.sin(0.8 * t + 0.5),
-                ]
+        if i % 50 == 0:
+            print(
+                f"  Frame {i}/500 - Configuration: \n"
+                f"    [{q[0]:.3f}, {q[1]:.3f}, {q[2]:.3f}]"
             )
 
-            viz.display(q)
-            time.sleep(dt)
-            t += dt
+    # create extra motion that slides along the principal axes q0
+    for angle in np.linspace(0, 2 * np.pi, 100):
+        q = np.array([0.5 * np.cos(angle), 0.0, 0.0])
+        viz.display(q)
+        time.sleep(dt)
 
-            if i % 50 == 0:
-                print(
-                    f"  Frame {i}/500 - Configuration: \n"
-                    f"    [{q[0]:.3f}, {q[1]:.3f}, {q[2]:.3f}]"
-                )
+    # q1 axis
+    for angle in np.linspace(0, 2 * np.pi, 100):
+        q = np.array([0.0, 0.3 * np.cos(angle), 0.0])
+        viz.display(q)
+        time.sleep(dt)
 
-        # create extra motion that slides along the principal axes q0
-        for angle in np.linspace(0, 2 * np.pi, 100):
-            q = np.array([0.5 * np.cos(angle), 0.0, 0.0])
-            viz.display(q)
-            time.sleep(dt)
+    # q2 axis
+    for angle in np.linspace(0, 2 * np.pi, 100):
+        q = np.array([0.0, 0.0, 3.14 * np.cos(angle)])
+        viz.display(q)
+        time.sleep(dt)
 
-        # q1 axis
-        for angle in np.linspace(0, 2 * np.pi, 100):
-            q = np.array([0.0, 0.3 * np.cos(angle), 0.0])
-            viz.display(q)
-            time.sleep(dt)
-
-        # q2 axis
-        for angle in np.linspace(0, 2 * np.pi, 100):
-            q = np.array([0.0, 0.0, 3.14 * np.cos(angle)])
-            viz.display(q)
-            time.sleep(dt)
-
-        print("\n✓ Animation completed!")
-
-    except Exception as e:
-        print(f"\nVisualization error: {e}")
-        import traceback
-
-        traceback.print_exc()
+    print("\n✓ Animation completed!")
 
 
 def main():
