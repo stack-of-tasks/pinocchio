@@ -172,15 +172,26 @@ namespace pinocchio
     , knots(knotVector)
     , ctrlFrames(controlFrames)
     {
+      if (degree < 2)
+      {
+        PINOCCHIO_THROW_PRETTY(
+          std::invalid_argument,
+          "JointSpline - Spline degree should be at least 2 to have a valid dynamic evaluation.");
+      }
+
       if (controlFrames.size() <= static_cast<std::size_t>(degree))
+      {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument,
           "JointSpline - Number of control frames must be greater than degree of spline.");
+      }
 
       if (knotVector.size() != static_cast<Eigen::Index>(nbCtrlFrames + degree + 1))
+      {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument,
           "JointSpline - Size of knot vector should be nbControlFrames + degree + 1.");
+      }
 
       int knot_multiplicity = 1;
       for (Eigen::Index i = 1; i < knotVector.size(); ++i)
