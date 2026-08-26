@@ -11,7 +11,6 @@ Note: the joint is not purely normal to the ellipsoid surface;
 
 import numpy as np
 import pinocchio as pin
-
 from pinocchio.visualize import MeshcatVisualizer
 
 
