@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add `DataTpl::lastChild` deprecation notice in Python binding
 - Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM
 
+### Fixed
+- Fix `ellipsoid-joint-kinematics.py` example
+
 ## [4.1.0] - 2026-07-07
 
 ### Added
