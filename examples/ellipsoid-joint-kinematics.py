@@ -12,14 +12,7 @@ Note: the joint is not purely normal to the ellipsoid surface;
 import numpy as np
 import pinocchio as pin
 
-# For visualization (optional)
-try:
-    from pinocchio.visualize import MeshcatVisualizer
-
-    VISUALIZE = True
-except ImportError:
-    print("MeshcatVisualizer not available. Skipping visualization.")
-    VISUALIZE = False
+from pinocchio.visualize import MeshcatVisualizer
 
 
 def create_ellipsoid_robot(radius_x=0.5, radius_y=0.3, radius_z=0.2):
@@ -206,11 +199,8 @@ def compute_dynamics_example():
 
 def visualize_ellipsoid_motion():
     """Visualize the ellipsoid joint motion in MeshCat."""
-    if not VISUALIZE:
-        print("\nVisualization skipped (MeshcatVisualizer not available)")
-        return
 
-    if not hasattr(pin, "coal"):
+    if not pin.WITH_COLLISION:
         print("\nVisualization skipped (coal not available)")
         print("Install with: conda install -c conda-forge coal")
         print("Then recompile Pinocchio with -DBUILD_WITH_COLLISION_SUPPORT=ON")
@@ -261,10 +251,14 @@ def visualize_ellipsoid_motion():
     geom_model.addGeometryObject(box_geom)
 
     # Initialize visualizer
-    viz = MeshcatVisualizer(model, geom_model, geom_model)
-    viz.initViewer(open=True)
-    viz.loadViewerModel()
-
+    try:
+        viz = MeshcatVisualizer(model, geom_model, geom_model)
+        viz.initViewer(open=True)
+        viz.loadViewerModel()
+    except ImportError as error:
+        print(error)
+        print("\nVisualization skipped (MeshcatVisualizer not available)")
+        return
     print("\n✓ Visualization initialized!")
     print("  - Gray ellipsoid: The constraint surface")
     print("  - Red sphere: Contact point on the surface")
