@@ -107,6 +107,7 @@ namespace pinocchio
       typedef std::vector<GeometryModel> GeometryModelVector;
       StdVectorPythonVisitor<GeometryModelVector>::expose("StdVec_GeometryModel");
 
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
       bp::def(
         "appendModel",
         (context::Model (*)(
@@ -181,6 +182,7 @@ namespace pinocchio
         "\tlist_of_joints_to_lock: list of joint indexes to lock\n"
         "\treference_configuration: reference configuration to compute the "
         "placement of the locked joints\n");
+#endif // ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
 
       bp::def(
         "findCommonAncestor", findCommonAncestor_proxy, bp::args("model", "joint1_id", "joint2_id"),
@@ -192,6 +194,7 @@ namespace pinocchio
         "Returns a tuple containing the index of the common joint ancestor, the position of this "
         "ancestor in model.supports[joint1_id] and model.supports[joint2_id].\n");
 
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
       bp::def(
         "transformJointIntoMimic",
         transformJointIntoMimic_proxy<Scalar, Options, JointCollectionDefaultTpl>,
@@ -204,6 +207,7 @@ namespace pinocchio
         "\tindex_mimicking: index of the joint that will mimic\n"
         "\tscaling: Scaling of joint velocity and configuration\n"
         "\toffset: Offset of joint configuration\n");
+#endif // ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
     }
 
   } // namespace python
