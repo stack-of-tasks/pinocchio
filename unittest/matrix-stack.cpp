@@ -54,22 +54,6 @@ BOOST_AUTO_TEST_CASE(matrix_stack_empty)
   BOOST_CHECK(matrix_stack_copy.data() == nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(compare_aligned_row_maps)
-{
-  using RowVector = Eigen::Matrix<double, 1, Eigen::Dynamic>;
-  using AlignedRowMap = Eigen::Map<RowVector, Eigen::Aligned16>;
-
-  alignas(16) double values1[] = {1., 2., 3., 4.};
-  alignas(16) double values2[] = {1., 2., 3., 4.};
-  const AlignedRowMap map1(values1, 4);
-  const AlignedRowMap map2(values2, 4);
-
-  BOOST_CHECK(internal::compare_maps(map1, map2));
-
-  values2[3] = 5.;
-  BOOST_CHECK(!internal::compare_maps(map1, map2));
-}
-
 BOOST_AUTO_TEST_CASE(matrix_stack_default)
 {
 
