@@ -13,6 +13,7 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
     context::Model buildSampleModelHumanoidRandom(bool usingFF, bool mimic)
     {
       context::Model model;
@@ -27,14 +28,14 @@ namespace pinocchio
       return model;
     }
 
-#ifdef PINOCCHIO_WITH_COLLISION
+  #ifdef PINOCCHIO_WITH_COLLISION
     GeometryModel buildSampleGeometryModelManipulator(const context::Model & model)
     {
       GeometryModel geom;
       buildModels::manipulatorGeometries(model, geom);
       return geom;
     }
-#endif
+  #endif
 
     context::Model buildSampleModelHumanoid(bool usingFF)
     {
@@ -43,17 +44,19 @@ namespace pinocchio
       return model;
     }
 
-#ifdef PINOCCHIO_WITH_COLLISION
+  #ifdef PINOCCHIO_WITH_COLLISION
     GeometryModel buildSampleGeometryModelHumanoid(const context::Model & model)
     {
       GeometryModel geom;
       buildModels::humanoidGeometries(model, geom);
       return geom;
     }
-#endif
+  #endif
+#endif // ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
 
     void exposeSampleModels()
     {
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
       bp::def(
         "buildSampleModelHumanoidRandom",
         static_cast<context::Model (*)(bool, bool)>(
@@ -67,13 +70,13 @@ namespace pinocchio
         static_cast<context::Model (*)(bool)>(pinocchio::python::buildSampleModelManipulator),
         (bp::arg("mimic") = false), "Generate a (hard-coded) model of a simple manipulator.");
 
-#ifdef PINOCCHIO_WITH_COLLISION
+  #ifdef PINOCCHIO_WITH_COLLISION
       bp::def(
         "buildSampleGeometryModelManipulator",
         static_cast<GeometryModel (*)(const context::Model &)>(
           pinocchio::python::buildSampleGeometryModelManipulator),
         bp::args("model"), "Generate a (hard-coded) geometry model of a simple manipulator.");
-#endif
+  #endif
 
       bp::def(
         "buildSampleModelHumanoid",
@@ -81,13 +84,14 @@ namespace pinocchio
         (bp::arg("using_free_flyer") = true),
         "Generate a (hard-coded) model of a simple humanoid.");
 
-#ifdef PINOCCHIO_WITH_COLLISION
+  #ifdef PINOCCHIO_WITH_COLLISION
       bp::def(
         "buildSampleGeometryModelHumanoid",
         static_cast<GeometryModel (*)(const context::Model &)>(
           pinocchio::python::buildSampleGeometryModelHumanoid),
         bp::args("model"), "Generate a (hard-coded) geometry model of a simple humanoid.");
-#endif
+  #endif
+#endif // ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
     }
   } // namespace python
 
