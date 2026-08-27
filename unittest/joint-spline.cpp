@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(jointConstructor)
   Eigen::VectorXd knotVectorNOkMultiplicity1(10);
   knotVectorNOkMultiplicity1 << 0., 0., 0., 0., 0., 5., 6., 7., 8., 9.;
   Eigen::VectorXd knotVectorNOkMultiplicity2(10);
-  knotVectorNOkMultiplicity1 << 0., 1., 2., 3., 3., 3., 3., 3., 8., 9.;
+  knotVectorNOkMultiplicity2 << 0., 1., 2., 3., 3., 3., 3., 3., 8., 9.;
   Eigen::VectorXd knotVectorNOkMultiplicity3(10);
   knotVectorNOkMultiplicity3 << 0., 1., 2., 3., 4., 9., 9., 9., 9., 9.;
 
