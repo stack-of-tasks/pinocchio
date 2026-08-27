@@ -11,8 +11,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
-- Add `DataTpl::lastChild` deprecation notice in Python binding
-- Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM
+- Add `DataTpl::lastChild` deprecation notice in Python binding ([#2928](https://github.com/stack-of-tasks/pinocchio/pull/2927))
+
+### Fixed
+- Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM ([#2929](https://github.com/stack-of-tasks/pinocchio/pull/2929))
+- Fix scalar-generic Python bindings ([#2939](https://github.com/stack-of-tasks/pinocchio/pull/2939))
 
 ### Fixed
 - Fix `ellipsoid-joint-kinematics.py` example

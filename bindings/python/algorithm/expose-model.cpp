@@ -101,15 +101,18 @@ namespace pinocchio
     void exposeModelAlgo()
     {
       using namespace Eigen;
+      typedef context::Scalar Scalar;
+      using context::Options;
 
       typedef std::vector<GeometryModel> GeometryModelVector;
       StdVectorPythonVisitor<GeometryModelVector>::expose("StdVec_GeometryModel");
 
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
       bp::def(
         "appendModel",
-        (Model (*)(
-          const Model &, const Model &, const FrameIndex,
-          const SE3 &))&appendModel<double, 0, JointCollectionDefaultTpl>,
+        (context::Model (*)(
+          const context::Model &, const context::Model &, const FrameIndex,
+          const context::SE3 &))&appendModel<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("modelA", "modelB", "frame_in_modelA", "aMb"),
         "Append a child model into a parent model, after a specific frame given by its index.\n\n"
         "Parameters:\n"
@@ -119,7 +122,7 @@ namespace pinocchio
         "\taMb: pose of modelB universe joint (index 0) in frameInModelA\n");
 
       bp::def(
-        "appendModel", &appendModel_proxy<double, 0, JointCollectionDefaultTpl>,
+        "appendModel", &appendModel_proxy<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("modelA", "modelB", "geomModelA", "geomModelB", "frame_in_modelA", "aMb"),
         "Append a child (geometry) model into a parent (geometry) model, after a specific frame "
         "given by its index.\n\n"
@@ -133,10 +136,10 @@ namespace pinocchio
 
       bp::def(
         "buildReducedModel",
-        (Model (*)(
-          const Model &, const std::vector<JointIndex> &,
-          const Eigen::MatrixBase<VectorXd> &))&pinocchio::
-          buildReducedModel<double, 0, JointCollectionDefaultTpl, VectorXd>,
+        (context::Model (*)(
+          const context::Model &, const std::vector<JointIndex> &,
+          const Eigen::MatrixBase<context::VectorXs> &))&pinocchio::
+          buildReducedModel<Scalar, Options, JointCollectionDefaultTpl, context::VectorXs>,
         bp::args("model", "list_of_joints_to_lock", "reference_configuration"),
         "Build a reduce model from a given input model and a list of joint to lock.\n\n"
         "Parameters:\n"
@@ -148,9 +151,10 @@ namespace pinocchio
       bp::def(
         "buildReducedModel",
         (bp::tuple (*)(
-          const Model &, const GeometryModel &, const std::vector<JointIndex> &,
+          const context::Model &, const GeometryModel &, const std::vector<JointIndex> &,
           const Eigen::MatrixBase<
-            VectorXd> &))&buildReducedModel<double, 0, JointCollectionDefaultTpl, VectorXd>,
+            context::
+              VectorXs> &))&buildReducedModel<Scalar, Options, JointCollectionDefaultTpl, context::VectorXs>,
         bp::args("model", "geom_model", "list_of_joints_to_lock", "reference_configuration"),
         "Build a reduced model and a reduced geometry model from a given input model,"
         "an input geometry model and a list of joints to lock.\n\n"
@@ -164,9 +168,9 @@ namespace pinocchio
       bp::def(
         "buildReducedModel",
         (bp::tuple (*)(
-          const Model &, const std::vector<GeometryModel> &, const std::vector<JointIndex> &,
-          const Eigen::MatrixBase<VectorXd> &))
-          buildReducedModel<double, 0, JointCollectionDefaultTpl, VectorXd>,
+          const context::Model &, const std::vector<GeometryModel> &,
+          const std::vector<JointIndex> &, const Eigen::MatrixBase<context::VectorXs> &))
+          buildReducedModel<Scalar, Options, JointCollectionDefaultTpl, context::VectorXs>,
         bp::args(
           "model", "list_of_geom_models", "list_of_joints_to_lock", "reference_configuration"),
         "Build a reduced model and the related reduced geometry models from a given "
@@ -178,6 +182,7 @@ namespace pinocchio
         "\tlist_of_joints_to_lock: list of joint indexes to lock\n"
         "\treference_configuration: reference configuration to compute the "
         "placement of the locked joints\n");
+#endif // ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
 
       bp::def(
         "findCommonAncestor", findCommonAncestor_proxy, bp::args("model", "joint1_id", "joint2_id"),
@@ -189,9 +194,10 @@ namespace pinocchio
         "Returns a tuple containing the index of the common joint ancestor, the position of this "
         "ancestor in model.supports[joint1_id] and model.supports[joint2_id].\n");
 
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
       bp::def(
         "transformJointIntoMimic",
-        transformJointIntoMimic_proxy<double, 0, JointCollectionDefaultTpl>,
+        transformJointIntoMimic_proxy<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("input_model", "index_mimicked", "index_mimicking", "scaling", "offset"),
         "Transform of a joint of the model into a mimic joint. Keep the type of the joint as it "
         "was previously. \n\n"
@@ -201,6 +207,7 @@ namespace pinocchio
         "\tindex_mimicking: index of the joint that will mimic\n"
         "\tscaling: Scaling of joint velocity and configuration\n"
         "\toffset: Offset of joint configuration\n");
+#endif // ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
     }
 
   } // namespace python

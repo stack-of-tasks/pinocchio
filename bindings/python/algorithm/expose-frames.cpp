@@ -286,7 +286,7 @@ namespace pinocchio
 
       bp::def(
         "computeSupportedInertiaByFrame",
-        &computeSupportedInertiaByFrame<double, 0, JointCollectionDefaultTpl>,
+        &computeSupportedInertiaByFrame<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model", "data", "frame_id", "with_subtree"),
         "Computes the supported inertia by the frame (given by frame_id) and returns it.\n"
         "The supported inertia corresponds to the sum of the inertias of all the child frames "
@@ -296,7 +296,7 @@ namespace pinocchio
 
       bp::def(
         "computeSupportedForceByFrame",
-        &computeSupportedForceByFrame<double, 0, JointCollectionDefaultTpl>,
+        &computeSupportedForceByFrame<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("model", "data", "frame_id"),
         "Computes the supported force of the frame (given by frame_id) and returns it.\n"
         "The supported force corresponds to the sum of all the forces experienced after the given "
