@@ -153,6 +153,49 @@ BOOST_AUTO_TEST_CASE(test_simple_boxes)
   BOOST_CHECK(geomData.collisionResults.size() == 1);
 }
 
+BOOST_AUTO_TEST_CASE(test_remove_collision_four_geometries)
+{
+  GeometryModel geomModel;
+
+  std::shared_ptr<coal::Box> box(new coal::Box(1, 1, 1));
+  geomModel.addGeometryObject(GeometryObject("geom0", (JointIndex)0, SE3::Identity(), box));
+  geomModel.addGeometryObject(GeometryObject("geom1", (JointIndex)0, SE3::Identity(), box));
+  geomModel.addGeometryObject(GeometryObject("geom2", (JointIndex)0, SE3::Identity(), box));
+  geomModel.addGeometryObject(GeometryObject("geom3", (JointIndex)0, SE3::Identity(), box));
+
+  // collision pairs : (0,1),(0,3),(1,2),(2,3)
+  geomModel.addCollisionPair(CollisionPair(0, 1));
+  geomModel.addCollisionPair(CollisionPair(0, 3));
+  geomModel.addCollisionPair(CollisionPair(1, 2));
+  geomModel.addCollisionPair(CollisionPair(2, 3));
+
+  geomModel.removeGeometryObject("geom1");
+
+  BOOST_CHECK(geomModel.ngeoms == 3);
+  BOOST_CHECK(geomModel.collisionPairs.size() == 2);
+  BOOST_CHECK_EQUAL(
+    geomModel.collisionPairMapping.rows(), static_cast<Eigen::Index>(geomModel.ngeoms));
+  BOOST_CHECK_EQUAL(
+    geomModel.collisionPairMapping.cols(), static_cast<Eigen::Index>(geomModel.ngeoms));
+
+  // Surviving pairs (geom2 -> 1, geom3 -> 2):
+  // old (0,3) -> new (0,2), old (2,3) -> new (1,2)
+  BOOST_CHECK(CollisionPair(0, 2) == geomModel.collisionPairs[0]);
+  BOOST_CHECK(CollisionPair(1, 2) == geomModel.collisionPairs[1]);
+
+  BOOST_CHECK_EQUAL(geomModel.collisionPairMapping(0, 2), 0);
+  BOOST_CHECK_EQUAL(geomModel.collisionPairMapping(2, 0), 0);
+  BOOST_CHECK_EQUAL(geomModel.collisionPairMapping(1, 2), 1);
+  BOOST_CHECK_EQUAL(geomModel.collisionPairMapping(2, 1), 1);
+
+  // old (0,2) -> new (0,1) collision pair does not exist, and the diagonal is never valid.
+  BOOST_CHECK_EQUAL(geomModel.collisionPairMapping(0, 1), -1);
+  BOOST_CHECK_EQUAL(geomModel.collisionPairMapping(1, 0), -1);
+  BOOST_CHECK_EQUAL(geomModel.collisionPairMapping(0, 0), -1);
+  BOOST_CHECK_EQUAL(geomModel.collisionPairMapping(1, 1), -1);
+  BOOST_CHECK_EQUAL(geomModel.collisionPairMapping(2, 2), -1);
+}
+
 #if defined(PINOCCHIO_WITH_URDFDOM)
 BOOST_AUTO_TEST_CASE(loading_model_and_check_distance)
 {
