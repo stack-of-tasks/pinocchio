@@ -12,7 +12,7 @@ from pinocchio.visualize import ViserVisualizer
 
 length_ground = 1.0
 length_crank = 0.35
-length_coupler = 0.9 # not too small so the crank can perform a full revolution.
+length_coupler = 0.9  # not too small so the crank can perform a full revolution.
 length_rocker = 0.8
 
 mass = 1.0
