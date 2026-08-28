@@ -18,7 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix scalar-generic Python bindings ([#2939](https://github.com/stack-of-tasks/pinocchio/pull/2939))
 
 ### Fixed
-- Fix `ellipsoid-joint-kinematics.py` example
+- Fix `ellipsoid-joint-kinematics.py` example ([#2935](https://github.com/stack-of-tasks/pinocchio/pull/2935))
+- Fix `biais` typo in documentation and comments (English is `bias`) ([#2936](https://github.com/stack-of-tasks/pinocchio/pull/2936))
 
 ## [4.1.0] - 2026-07-07
 
