@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(test_remove_collision_four_geometries)
 {
   GeometryModel geomModel;
 
-  std::shared_ptr<coal::Box> box(new coal::Box(1, 1, 1));
+  std::shared_ptr<coal::Box> box = std::make_shared<coal::Box>(1, 1, 1);
   geomModel.addGeometryObject(GeometryObject("geom0", (JointIndex)0, SE3::Identity(), box));
   geomModel.addGeometryObject(GeometryObject("geom1", (JointIndex)0, SE3::Identity(), box));
   geomModel.addGeometryObject(GeometryObject("geom2", (JointIndex)0, SE3::Identity(), box));
