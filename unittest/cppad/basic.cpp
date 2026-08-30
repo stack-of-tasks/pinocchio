@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE(test_eigen_min)
 
   CppAD::Independent(ad_X);
   // Function
-  ad_Y = ad_X.array().min(Scalar(0.));
+  ad_Y = ad_X.array().min(Scalar(CppAD::AD<double>(0.)));
   CppAD::ADFun<Scalar> ad_fun(ad_X, ad_Y);
 
   CPPAD_TESTVECTOR(Scalar) x((size_t)2);
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(test_eigen_max)
 
   CppAD::Independent(ad_X);
   // Function
-  ad_Y = ad_X.array().max(Scalar(0.));
+  ad_Y = ad_X.array().max(Scalar(CppAD::AD<double>(0.)));
   CppAD::ADFun<Scalar> ad_fun(ad_X, ad_Y);
 
   CPPAD_TESTVECTOR(Scalar) x((size_t)2);
