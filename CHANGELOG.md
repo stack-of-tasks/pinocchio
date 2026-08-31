@@ -18,12 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM ([#2929](https://github.com/stack-of-tasks/pinocchio/pull/2929))
 - Fix scalar-generic Python bindings ([#2939](https://github.com/stack-of-tasks/pinocchio/pull/2939))
-
-### Fixed
 - Fix `ellipsoid-joint-kinematics.py` example ([#2935](https://github.com/stack-of-tasks/pinocchio/pull/2935))
 - Fix `biais` typo in documentation and comments (English is `bias`) ([#2936](https://github.com/stack-of-tasks/pinocchio/pull/2936))
-
-### Fixed
 - Fix GCC 10 compilation of aligned matrix map comparisons ([#2930](https://github.com/stack-of-tasks/pinocchio/issues/2930))
 
 ## [4.1.0] - 2026-07-07
