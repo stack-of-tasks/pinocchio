@@ -155,6 +155,7 @@ if(BUILD_PYTHON_INTERFACE)
             simulation-closed-kinematic-chains
             simulation-lcaba
             model-graph-geometry
+            constant-length-constraint-kinematics
         )
         if(BUILD_WITH_URDF_SUPPORT)
             list(

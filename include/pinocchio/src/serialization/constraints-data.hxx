@@ -125,6 +125,35 @@ namespace boost
       ar & make_nvp("base", boost::serialization::base_object<Base>(cdata));
     }
 
+    template<typename Archive, typename Scalar, int Options>
+    void serialize(
+      Archive & ar,
+      ::pinocchio::ConstantLengthConstraintDataTpl<Scalar, Options> & cdata,
+      const unsigned int /*version*/)
+    {
+      typedef ::pinocchio::ConstantLengthConstraintDataTpl<Scalar, Options> Self;
+      typedef typename Self::Base Base;
+      ar & make_nvp("base", boost::serialization::base_object<Base>(cdata));
+
+      ar & make_nvp("constraint_force", cdata.constraint_force);
+      ar & make_nvp("oMc1", cdata.oMc1);
+      ar & make_nvp("oMc2", cdata.oMc2);
+      ar & make_nvp("c1Mc2", cdata.c1Mc2);
+      ar & make_nvp("relative_position", cdata.relative_position);
+      ar & make_nvp("distance", cdata.distance);
+      ar & make_nvp("direction", cdata.direction);
+      ar & make_nvp("constraint_position_error", cdata.constraint_position_error);
+      ar & make_nvp("constraint_velocity_error", cdata.constraint_velocity_error);
+      ar & make_nvp("constraint_acceleration_error", cdata.constraint_acceleration_error);
+      ar & make_nvp("constraint_acceleration_biais_term", cdata.constraint_acceleration_biais_term);
+      ar & make_nvp("A1_world", cdata.A1_world);
+      ar & make_nvp("A2_world", cdata.A2_world);
+      ar & make_nvp("A_world", cdata.A_world);
+      ar & make_nvp("A1_local", cdata.A1_local);
+      ar & make_nvp("A2_local", cdata.A2_local);
+      ar & make_nvp("A_local", cdata.A_local);
+    }
+
     template<typename Archive, typename Derived>
     void serialize(
       Archive & ar,
