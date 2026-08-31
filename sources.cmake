@@ -362,6 +362,7 @@ set(${PROJECT_NAME}_CORE_PRIVATE_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-translation.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-prismatic-unaligned.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-mimic.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-spline.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/fwd.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-free-flyer.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-common-operations.hxx
@@ -373,6 +374,7 @@ set(${PROJECT_NAME}_CORE_PRIVATE_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-data-base.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-basic-visitors.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/joint-model-base.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/src/multibody/joint/spline-utils.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/constraints/constraint-data-base.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/constraints/kinematics-constraint-model-base.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/constraints/baumgarte-corrector-parameters.hxx
@@ -549,6 +551,7 @@ set(${PROJECT_NAME}_CASADI_PRIVATE_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/autodiff/casadi/math/triangular-matrix.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/autodiff/casadi/spatial/se3-tpl.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/autodiff/casadi/utils/static-if.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/src/autodiff/casadi/multibody/joint/spline-utils.hxx
 )
 
 # CPPAD

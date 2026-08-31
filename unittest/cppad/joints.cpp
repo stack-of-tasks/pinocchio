@@ -10,6 +10,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+#include "../utils/joints-init.hpp"
+
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
@@ -104,86 +106,9 @@ struct TestADOnJoints
   template<typename JointModel>
   void operator()(const pinocchio::JointModelBase<JointModel> &) const
   {
-    JointModel jmodel;
-    jmodel.setIndexes(0, 0, 0);
+    auto jmodelWithParams = pinocchio::init<JointModel>::run();
 
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options, int axis>
-  void operator()(const pinocchio::JointModelHelicalTpl<Scalar, Options, axis> &) const
-  {
-    typedef pinocchio::JointModelHelicalTpl<Scalar, Options, axis> JointModel;
-    JointModel jmodel(Scalar(0.4));
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelUniversalTpl<Scalar, Options> &) const
-  {
-    typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::UnitX(), Vector3::UnitY());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> &) const
-  {
-    typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar, Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> &) const
-  {
-    typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> &) const
-  {
-    typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> &) const
-  {
-    typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
-  template<typename Scalar, int Options, template<typename, int> class JointCollection>
-  void operator()(const pinocchio::JointModelTpl<Scalar, Options, JointCollection> &) const
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-    typedef pinocchio::JointModelTpl<Scalar, Options, JointCollection> JointModel;
-    JointModel jmodel((JointModelRX()));
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
+    test(jmodelWithParams.jmodel, jmodelWithParams.lb, jmodelWithParams.ub);
   }
 
   // TODO: implement it
@@ -194,21 +119,11 @@ struct TestADOnJoints
     /* do nothing */
   }
 
-  template<typename Scalar, int Options, template<typename, int> class JointCollection>
-  void operator()(const pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> &) const
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 1> JointModelRY;
-    typedef pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> JointModel;
-    JointModel jmodel((JointModelRX()));
-    jmodel.addJoint(JointModelRY());
-    jmodel.setIndexes(0, 0, 0);
-
-    test(jmodel);
-  }
-
   template<typename JointModel>
-  static void test(const pinocchio::JointModelBase<JointModel> & jmodel)
+  static void test(
+    const pinocchio::JointModelBase<JointModel> & jmodel,
+    const typename JointModel::ConfigVector_t & lb,
+    const typename JointModel::ConfigVector_t & ub)
   {
     using CppAD::AD;
     using CppAD::NearEqual;
@@ -243,8 +158,6 @@ struct TestADOnJoints
     pinocchio::JointDataBase<JointDataAD> & jdata_ad_base = jdata_ad;
 
     ConfigVector q(jmodel.nq());
-    ConfigVector lb(ConfigVector::Constant(jmodel.nq(), -1.));
-    ConfigVector ub(ConfigVector::Constant(jmodel.nq(), 1.));
 
     typedef pinocchio::RandomConfigurationStep<
       pinocchio::LieGroupMap, ConfigVector, ConfigVector, ConfigVector>

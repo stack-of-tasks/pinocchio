@@ -96,6 +96,10 @@ namespace pinocchio
         {
           return {joint, SE3::Identity()};
         }
+        ReturnType operator()(const JointSpline & joint) const
+        {
+          return {joint, SE3::Identity()};
+        }
         ReturnType operator()(const JointComposite & joint) const
         {
           JointComposite jReturn;

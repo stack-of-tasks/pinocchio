@@ -121,6 +121,13 @@ namespace pinocchio
             std::invalid_argument,
             "Graph - Joint Mimic cannot have a q_ref. Please use the joint offset directly.");
         }
+
+        SE3 operator()(const JointSpline &) const
+        {
+          PINOCCHIO_THROW_PRETTY(
+            std::invalid_argument,
+            "Graph - Joint Spline cannot have a q_ref. Please use the joint offset directly.");
+        }
       };
 
       /// Return qref transformation.

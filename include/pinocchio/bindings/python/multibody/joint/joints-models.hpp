@@ -311,6 +311,65 @@ namespace pinocchio
           "Second rotation axis of the JointModelUniversal.");
     }
 
+    // Specialization for JointModelSpline
+    template<>
+    bp::class_<context::JointModelSpline> &
+    expose_joint_model<context::JointModelSpline>(bp::class_<context::JointModelSpline> & cl)
+    {
+      bp::class_<context::JointModelSplineBuilder>(
+        "JointModelSplineBuilder", "JointSpline builder helper.",
+        bp::init<>(bp::args("self"), "Default constructor."))
+        .def(
+          "addControlFrame", &context::JointModelSplineBuilder::addControlFrame,
+          bp::return_self<>(), (bp::arg("self"), bp::arg("frame")), "Add a B-spline control frame")
+        .def(
+          "withControlFrameVector", &context::JointModelSplineBuilder::withControlFrameVector,
+          bp::return_self<>(), (bp::arg("self"), bp::arg("frames")),
+          "Set B-spline control frame vector")
+        .def(
+          "withDegree", &context::JointModelSplineBuilder::withDegree, bp::return_self<>(),
+          (bp::arg("self"), bp::arg("degree")), "Set B-spline degree")
+        .def(
+          "withKnotVector",
+          +[](context::JointModelSplineBuilder & builder, const std::vector<context::Scalar> & k)
+            -> auto { return builder.withKnotVector(k); },
+          bp::return_self<>(), (bp::arg("self"), bp::arg("knots")), "Set B-spline knot vector")
+        .def(
+          "withOpenUniformKnots", &context::JointModelSplineBuilder::withOpenUniformKnots,
+          bp::return_self<>(), (bp::arg("self"), bp::arg("min"), bp::arg("max")),
+          "Set B-spline knot vector as open uniform")
+        .def(
+          "withUniformKnots", &context::JointModelSplineBuilder::withUniformKnots,
+          bp::return_self<>(), (bp::arg("self"), bp::arg("min"), bp::arg("max")),
+          "Set B-spline knot vector as uniform")
+        .def(
+          "build", &context::JointModelSplineBuilder::build, (bp::arg("self")),
+          "Build a JointSpline from provided parameters");
+
+      return cl
+        .def(
+          bp::init<>(
+            bp::args("self"),
+            "Init an empty joint Spline. Default degree of spline basis function is 3."))
+        .def(
+          bp::init<const std::vector<context::SE3> &, context::VectorXs &, int>(
+            bp::args("self", "controlFrames", "knotVector", "degree"),
+            "Init a joint Spline, with a list of controlFrames, a knot vector and the degree of "
+            "the future "
+            "basis functions"))
+        .def_readwrite(
+          "degree", &context::JointModelSpline::degree, "Degree of the spline basis functions")
+        .def_readwrite(
+          "nbCtrlFrames", &context::JointModelSpline::nbCtrlFrames, "Number of control points")
+        .def_readwrite("knots", &context::JointModelSpline::knots, "Knot vector")
+        .def_readwrite("min_q", &context::JointModelSpline::min_q, "Minimum allowed q value")
+        .def_readwrite("max_q", &context::JointModelSpline::max_q, "Maximum allowed q value")
+        .def_readwrite("ctrlFrames", &context::JointModelSpline::ctrlFrames, "Control frames")
+        .def_readwrite(
+          "relativeMotions", &context::JointModelSpline::relativeMotions,
+          "Relative motion between frames");
+    }
+
     // specialization for JointModelComposite
 
     struct JointModelCompositeAddJointVisitor
