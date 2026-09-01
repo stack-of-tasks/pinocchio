@@ -93,6 +93,7 @@ include("${JRL_CMAKE_MODULES}/base.cmake")
 
 compute_project_args(PROJECT_ARGS LANGUAGES CXX)
 project(${PROJECT_NAME} ${PROJECT_ARGS})
+include("${CMAKE_CURRENT_LIST_DIR}/development/cmake/pinocchio-casadi.cmake")
 
 set(INSTALL_PKG_CONFIG_FILE OFF CACHE BOOL "" FORCE)
 
@@ -386,12 +387,7 @@ endif(BUILD_WITH_AUTODIFF_SUPPORT)
 
 if(BUILD_WITH_CASADI_SUPPORT)
     add_project_dependency(casadi 3.4.5 REQUIRED)
-
-    # Normalize CasADi link target across versions. Prefer imported target (casadi::casadi), then
-    # legacy target (casadi)
-    if(NOT TARGET casadi::casadi AND TARGET casadi)
-        add_library(casadi::casadi ALIAS casadi)
-    endif()
+    pinocchio_prepare_casadi_target(PINOCCHIO_CASADI_LINK_TARGET)
 endif(BUILD_WITH_CASADI_SUPPORT)
 
 if(BUILD_WITH_OPENMP_SUPPORT)
