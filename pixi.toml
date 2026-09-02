@@ -51,6 +51,7 @@ extra-args = [
   "-DBUILD_WITH_CODEGEN_SUPPORT=OFF",
   "-DBUILD_WITH_SDF_SUPPORT=OFF",
   "-DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=OFF",
+  "-DBUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT=OFF",
   "-DPINOCCHIO_BUILD_MPFR_TESTING=OFF",
   "-DBUILD_BENCHMARK=OFF",
   "-DBUILD_TESTING_SCIPY=OFF",
@@ -70,6 +71,7 @@ extra-args = [
   "-DBUILD_WITH_CODEGEN_SUPPORT=OFF",
   "-DBUILD_WITH_SDF_SUPPORT=OFF",
   "-DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=OFF",
+  "-DBUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT=OFF",
   "-DPINOCCHIO_BUILD_MPFR_TESTING=OFF",
   "-DBUILD_BENCHMARK=OFF",
   "-DBUILD_TESTING_SCIPY=OFF",
@@ -132,6 +134,7 @@ configure = { cmd = [
   "-DBUILD_WITH_CODEGEN_SUPPORT=$PINOCCHIO_CODEGEN_SUPPORT",
   "-DBUILD_WITH_SDF_SUPPORT=$PINOCCHIO_SDF_SUPPORT",
   "-DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=$PINOCCHIO_MPFR_SUPPORT",
+  "-DBUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT=$PINOCCHIO_FLOAT32_SUPPORT",
   "-DPINOCCHIO_BUILD_MPFR_TESTING=$PINOCCHIO_MPFR_SUPPORT",
   "-DBUILD_BENCHMARK=$PINOCCHIO_BUILD_BENCHMARK",
 ] }
@@ -167,6 +170,7 @@ configure-new-version = { cmd = [
   "-DBUILD_WITH_CODEGEN_SUPPORT=OFF",
   "-DBUILD_WITH_SDF_SUPPORT=OFF",
   "-DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=OFF",
+  "-DBUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT=OFF",
   "-DPINOCCHIO_BUILD_MPFR_TESTING=OFF",
 ] }
 release-new-version = { cmd = "VERSION=$PINOCCHIO_VERSION cmake --build build_new_version --target release", depends-on = [
@@ -209,6 +213,9 @@ activation = { env = { PINOCCHIO_CODEGEN_SUPPORT = "ON" } }
 [feature.mpfr]
 dependencies = { mpfr = ">=4.2.1" }
 activation = { env = { PINOCCHIO_MPFR_SUPPORT = "ON" } }
+
+[feature.float32]
+activation = { env = { PINOCCHIO_FLOAT32_SUPPORT = "ON" } }
 
 [feature.extra.target.win]
 dependencies = { qhull = ">=2020.2" }
@@ -310,6 +317,7 @@ all = { features = [
   "openmp",
   "codegen",
   "mpfr",
+  "float32",
   "sdf",
   "python-latest",
 ], solve-group = "python-latest" }
@@ -321,6 +329,7 @@ all-python-oldest = { features = [
   "openmp",
   "codegen",
   "mpfr",
+  "float32",
   "sdf",
   "python-oldest",
 ], solve-group = "python-oldest" }
@@ -332,6 +341,7 @@ all-clang-cl = { features = [
   "openmp",
   "codegen",
   "mpfr",
+  "float32",
   "sdf",
   "clang-cl",
   "python-latest",
@@ -344,6 +354,7 @@ all-benchmark = { features = [
   "openmp",
   "codegen",
   "mpfr",
+  "float32",
   "sdf",
   "benchmark",
   "python-latest",
@@ -404,6 +415,7 @@ configure = { cmd = [
   "-DBUILD_WITH_CODEGEN_SUPPORT=OFF",
   "-DBUILD_WITH_SDF_SUPPORT=OFF",
   "-DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=OFF",
+  "-DBUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT=OFF",
   "-DPINOCCHIO_BUILD_MPFR_TESTING=OFF",
   "-DBUILD_TESTING_SCIPY=OFF",
 ] }
