@@ -190,7 +190,7 @@ cmake_dependent_option(
 cmake_dependent_option(
     BUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT
     "Build the Python interface with single-precision support"
-    ON
+    OFF
     BUILD_PYTHON_INTERFACE
     OFF
 )
