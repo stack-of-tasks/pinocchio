@@ -686,6 +686,13 @@ namespace pinocchio
     PINOCCHIO_THROW_IF(
       (it == geometryObjects.end()), std::invalid_argument,
       (std::string("Object ") + name + std::string(" does not belong to model")).c_str());
+
+    // Sized for the object about to be removed, and filled in lockstep with collisionPairs
+    // below so surviving pairs land at their post-removal index without a second pass.
+    MatrixXi new_collision_pair_mapping =
+      MatrixXi::Constant((Eigen::Index)ngeoms - 1, (Eigen::Index)ngeoms - 1, -1);
+    int new_pair_index = 0;
+
     // Remove all collision pairs that contain i as first or second index,
     for (CollisionPairVector::iterator itCol = collisionPairs.begin();
          itCol != collisionPairs.end(); ++itCol)
@@ -702,8 +709,14 @@ namespace pinocchio
           itCol->first--;
         if (itCol->second > i)
           itCol->second--;
+
+        new_collision_pair_mapping((Eigen::Index)itCol->second, (Eigen::Index)itCol->first) =
+          new_collision_pair_mapping((Eigen::Index)itCol->first, (Eigen::Index)itCol->second) =
+            new_pair_index++;
       }
     }
+    collisionPairMapping = new_collision_pair_mapping;
+
     geometryObjects.erase(it);
     ngeoms--;
   }
