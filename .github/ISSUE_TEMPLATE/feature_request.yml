@@ -23,8 +23,8 @@ body:
     id: motivation
     attributes:
       label: Motivation
-      description: Outline the motivation for the proposal. Is the request related to a problem? For example, "I'm always frustrated when [...]".
-        If it is related to another GitHub issue, link it here.
+      description: Outline the motivation for the proposal. Is the request related to a problem? For example, "I'm always frustrated when [...]". If it
+        is related to another GitHub issue, link it here.
 
   - type: textarea
     id: alternatives
