@@ -7,7 +7,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        If your question is more about how to use Pinocchio, please open a [discussion](https://github.com/stack-of-tasks/pinocchio/discussions)
+        Follow the [contributing guidelines](../../development/contributing.md).
+
+        If you have a question about how to use Pinocchio, open a [discussion](https://github.com/stack-of-tasks/pinocchio/discussions).
 
   - type: textarea
     id: description
@@ -22,8 +24,9 @@ body:
     attributes:
       label: Reproduction steps
       description: |
-        Steps to reproduce the behavior. Please try to provide a minimal example to reproduce the bug and a DockerFile if it's an installation issue. Error messages and stack traces are also helpful.
-        Please use [Markdown code blocks](https://help.github.com/en/articles/creating-and-highlighting-code-blocks) for both code and stack traces.
+        Steps to reproduce the behavior. Provide a minimal example that reproduces the bug
+        and a Dockerfile if it's an installation issue. Error messages and stack traces are also helpful.
+        Use [Markdown code blocks](https://help.github.com/en/articles/creating-and-highlighting-code-blocks) for code and stack traces.
       value: |
         ```python
         import pinocchio as pin
@@ -33,7 +36,7 @@ body:
     id: traceback
     attributes:
       label: Relevant log output / Error message
-      description: Please copy and paste any relevant log output / error message.
+      description: Copy and paste any relevant log output or error message.
       placeholder: Segmentation fault...
       render: shell
 
@@ -63,6 +66,7 @@ body:
           required: true
         - label: I have provided a minimal and working example to reproduce the bug
           required: true
-        - label: I have used [Markdown code blocks](https://help.github.com/en/articles/creating-and-highlighting-code-blocks) for both code and stack traces/compiler
-            errors.
+        - label: I have used [Markdown code blocks](https://help.github.com/en/articles/creating-and-highlighting-code-blocks) for code, stack traces
+            and compiler errors
           required: true
+        - label: I have used an AI assistant
