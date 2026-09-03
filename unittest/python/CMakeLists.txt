@@ -53,6 +53,10 @@ set(${PROJECT_NAME}_PYTHON_TESTS
     bindings_std_map
 )
 
+if(BUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT)
+    list(APPEND ${PROJECT_NAME}_PYTHON_TESTS bindings_float32)
+endif()
+
 function(pinocchio_add_python_cpp_module name)
     set(target_name "test-ext-${name}")
     string(REPLACE "_" "-" target_name ${target_name})

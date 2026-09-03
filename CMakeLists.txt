@@ -188,6 +188,13 @@ cmake_dependent_option(
     OFF
 )
 cmake_dependent_option(
+    BUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT
+    "Build the Python interface with single-precision support"
+    OFF
+    BUILD_PYTHON_INTERFACE
+    OFF
+)
+cmake_dependent_option(
     BUILD_WITH_LIBPYTHON
     "Build the library with Python format support"
     ON
