@@ -52,6 +52,7 @@ In this case, use the following CMake options:
 - `BUILD_WITH_ACCELERATE_SUPPORT`: Apple Accelerate backend support (macOS only)
 - `BUILD_PYTHON_INTERFACE`: Python bindings
 - `BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT`: MPFR support in the Python bindings
+- `BUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT`: float32 support in the Python bindings
 - `GENERATE_PYTHON_STUBS`: Python stubs generation
 - `BUILD_BENCHMARK`: benchmarks
 
