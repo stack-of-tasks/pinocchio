@@ -84,6 +84,18 @@ In your pull request:
 - Make sure the CI is green. Ask for help if you're stuck on a CI issue.
 - Check all the appropriate items in the pull request template checklist.
 
+### Keeping the pull request up-to-date
+
+You must rebase your work on the upstream `devel` branch.
+
+```bash
+git pull --rebase origin devel
+```
+
+Don't omit the `--rebase` argument or a merge commit will be created.
+Using merge commit to update your pull request is discouraged as it create
+a non linear git history.
+
 ### Running tests
 
 To run the full test suite:
