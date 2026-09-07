@@ -1,86 +1,184 @@
 # Contributing Guidelines
+
 Thank you for your interest in contributing to `pinocchio`.
-Whether it's a bug report, new feature, correction, or additional
-documentation, we greatly value feedback and contributions from our community.
+Whether it's a bug report, a new feature, a fix, or documentation, we value every contribution.
 
-Please read through this document before submitting any issues or pull requests to ensure we have all the necessary
-information to effectively respond to your bug report or contribution.
+Read this document before opening an issue or a pull request.
 
-## Reporting Bugs/Feature Requests
-We welcome you to use the GitHub issue tracker to report bugs or suggest features.
+All communication on this project must follow the [Code of Conduct](../CODE_OF_CONDUCT.md).
 
-When filing an issue, please check [existing open][issues], or [recently closed][closed-issues], issues to make sure
- somebody else hasn't already reported the issue.
-Please try to include as much information as you can. Details like these are incredibly useful:
+## Table of contents
 
-  * A reproducible test case or series of steps
-  * The version of our code being used
-  * Any modifications you've made relevant to the bug
-  * Anything unusual about your environment or deployment
+- [Contributing Guidelines](#contributing-guidelines)
+   * [Reporting bugs and feature requests](#reporting-bugs-and-feature-requests)
+   * [Asking questions](#asking-questions)
+   * [Contributing via pull requests](#contributing-via-pull-requests)
+      + [Choosing an issue](#choosing-an-issue)
+      + [Set up the development environment](#set-up-the-development-environment)
+      + [Pull request content](#pull-request-content)
+      + [Running tests](#running-tests)
+      + [Code style](#code-style)
+      + [Changelog](#changelog)
+   * [AI-assisted contributions](#ai-assisted-contributions)
+      + [Responsibility](#responsibility)
+      + [Disclosure](#disclosure)
+      + [Communication](#communication)
+      + [Translation](#translation)
+      + [AI agent](#ai-agent)
+   * [Licensing](#licensing)
 
-## Contributing via Pull Requests
-The following guidance should be up-to-date, but the documentation as found [here](https://gepetto.github.io/doc/pinocchio/doxygen-html/) should prove as the final say.
+## Reporting bugs and feature requests
 
-Contributions via pull requests are much appreciated.
-Before sending us a pull request, please ensure that:
+Use the GitHub [issue tracker](https://github.com/stack-of-tasks/pinocchio/issues) to report bugs or suggest features.
 
- 1. Limited scope. Your PR should do one thing or one set of things. Avoid adding “random fixes” to PRs. Put those on separate PRs.
- 2. Give your PR a descriptive title. Add a short summary, if required.
- 3. Make sure the pipeline is green.
- 4. Don’t be afraid to request reviews from maintainers.
- 5. New code = new tests. If you are adding new functionality, always make sure to add some tests exercising the code and serving as live documentation of your original intention.
+Before opening an issue, check existing open and closed issues to avoid duplicates.
 
-To send us a pull request, please:
+Use the appropriate template and give as much detail as possible.
+If you don't use the template, maintainers may close your issue without explanation.
 
- 1. Fork the repository.
- 2. Modify the source; please focus on the specific change you are contributing. If you also reformat all the code, it will be hard for us to focus on your change.
- 3. Ensure local tests pass. (`make test`)
- 4. Commit to your fork using clear commit messages.
- 5. Send a pull request, answering any default questions in the pull request interface.
- 6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
+## Asking questions
 
-GitHub provides additional documentation on [forking a repository](https://help.github.com/articles/fork-a-repo/) and [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
+Ask questions in the [discussions section](https://github.com/stack-of-tasks/pinocchio/discussions).
+It separates development topics from community questions.
+Questions posted in the issue tracker will be moved to the discussions section.
 
-## Finding contributions to work on
-Looking at the existing issues is a great way to find something to contribute on.
-As this project, by default, uses the default GitHub issue labels (enhancement/bug/duplicate/help wanted/invalid/question/wontfix), looking at any ['help wanted'][help-wanted] issues is a great place to start.
+## Contributing via pull requests
+
+### Choosing an issue
+
+Every external contributor pull request needs an associated issue.
+Open an issue first. Core developers will review it.
+
+An issue is ready for a pull request when:
+
+- It has the **ready** label.
+- It is not assigned.
+- It does not have the **core developers** label.
+
+Issues with the **core developers** label are reserved for core developers.
+
+If an issue meets these criteria, claim it with a short comment.
+
+### Set up the development environment
+
+The easiest way to set up a development environment is to use pixi, as described in the [build documentation](build.md).
+
+See the CI workflows for examples with other package managers.
+
+### Pull request content
+
+To create a pull request, follow the GitHub guides on
+[forking a repository](https://help.github.com/articles/fork-a-repo/) and
+[creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
+
+In your pull request:
+
+- Use a descriptive title and follow the pull request template.
+- If the pull request is not ready for review, keep it as a draft.
+- Keep it to a single self-contained change. Don't mix unrelated fixes.
+- Follow the [code convention](./convention.md).
+- Keep backward compatibility. Don't break the API.
+- Write tests that cover your changes.
+- Add an entry to the [changelog](../CHANGELOG.md).
+- Make sure code style checks pass (`pixi run lint` or `pre-commit run --all-files`).
+- Make sure the CI is green. Ask for help if you're stuck on a CI issue.
+- Check all the appropriate items in the pull request template checklist.
+
+### Keeping the pull request up-to-date
+
+You must rebase your work on the upstream `devel` branch.
+
+```bash
+git pull --rebase origin devel
+```
+
+Don't omit the `--rebase` argument or a merge commit will be created.
+Using merge commit to update your pull request is discouraged as it create
+a non linear git history.
+
+### Running tests
+
+To run the full test suite:
+
+```bash
+pixi run test
+```
+
+You can also run tests manually with `ctest`. Use the `-R` option to run a single test:
+
+```bash
+ctest --test-dir build --output-on-failure -R <test-name>
+```
+
+### Code style
+
+Code style is enforced with [pre-commit](https://pre-commit.com/) hooks configured in [.pre-commit-config.yaml](../.pre-commit-config.yaml).
+Before pushing your changes, run:
+
+```bash
+pixi run lint
+```
+
+or directly:
+
+```bash
+pre-commit run --all-files
+```
+
+### Changelog
+
+Add changelog entries under the `## [Unreleased]` section,
+in the matching [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+category (`Added`, `Changed`, `Fixed`, `Removed`).
+
+Each entry is a short message followed by the pull request link, e.g.:
+
+```
+- Add spline joint to default joint collection ([#2784](https://github.com/stack-of-tasks/pinocchio/pull/2784))
+```
+
+CI and infra-only changes should not be listed. Use the **no changelog** label in this case.
+
+## AI-assisted contributions
+
+AI-assisted contributions are more and more common.
+To avoid wasting maintainers time, follow the rules below.
+
+AI-assisted contributions (issues, pull requests and discussions) are allowed under these rules.
+Any AI-assisted contribution that doesn't follow them can be closed without explanation.
+
+### Responsibility
+
+You are responsible for the whole contribution.
+Review it, understand it and be able to explain everything the AI assistant produced.
+Don't shift this work to the reviewers.
+
+The standard pull request guidelines apply.
+If some AI-proposed code doesn't look necessary or doesn't address the issue, remove it.
+Some AI assistants write too many tests. Keep only the tests you need, unit test maintenance is costly.
+
+### Disclosure
+
+Disclose that you used an AI assistant.
+Describing what it did is optional.
+
+### Communication
+
+Human-to-human communication matters.
+Never copy-paste AI-generated text into an issue, pull request description or comment.
+Write it yourself, it shows you understand the topic.
+If you want to quote the AI assistant, use a code or quote block.
+
+### Translation
+
+You can use an AI assistant for translation and grammar fixes.
+You are still responsible for everything it produces.
+
+### AI agent
+
+Don't submit contributions automatically with an AI agent.
+It breaks the responsibility and communication rules.
 
 ## Licensing
-Any contribution that you make to this repository will be under the BSD Clause 2 License, as dictated by that [license]:
 
-~~~
-BSD 2-Clause License
-
-Copyright (c) 2014-2021, CNRS
-Copyright (c) 2018-2021, INRIA
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those
-of the authors and should not be interpreted as representing official policies,
-either expressed or implied, of the Pinocchio project.
-~~~
-
-[issues](https://github.com/stack-of-tasks/pinocchio/issues)
-[closed-issues](https://github.com/stack-of-tasks/pinocchio/issues?utf8=%E2%9C%93&q=is%3Aissue%20is%3Aclosed%20)
-[help-wanted](https://github.com/stack-of-tasks/pinocchio/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22)
-[license](https://opensource.org/licenses/BSD-2-Clause)
+All contributions to this repository are under the BSD 2-Clause License, as stated in [LICENSE](../LICENSE).
