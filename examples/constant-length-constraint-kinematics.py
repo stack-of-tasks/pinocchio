@@ -1,14 +1,16 @@
+import sys
 import time
 
 import coal
 import numpy as np
 import pinocchio as pin
-from pinocchio.visualize import ViserVisualizer
+from pinocchio.visualize import MeshcatVisualizer
 
-# Constrained forward kinematics of a four-bar linkage ,modelled as an open kinematic tree:
-# a crank and a rocker, both pinned to the ground, and the coupler is replaced by a single scalar constraint:
-# ConstantLengthConstraintModel keeps the distance between the crank tip and the rocker
-# tip equal to the coupler length. 2 DoF - 1 constraint = 1 DoF: driving the crank determines the rocker.
+# Constrained forward kinematics of a four-bar linkage, modelled as an open kinematic
+# tree: a crank and a rocker, both pinned to the ground, and the coupler is replaced by
+# a single scalar constraint. ConstantLengthConstraintModel keeps the distance between
+# the crank tip and the rocker tip equal to the coupler length. 2 DoF - 1 constraint =
+# 1 DoF: driving the crank determines the rocker.
 
 length_ground = 1.0
 length_crank = 0.35
@@ -22,7 +24,7 @@ radius = 0.022
 RED_COLOR = np.array([0.95, 0.25, 0.15, 1.0])
 BLUE_COLOR = np.array([0.2, 0.55, 0.95, 1.0])
 GREY_COLOR = np.array([0.45, 0.45, 0.45, 1.0])
-COUPLER_COLOR = (240, 190, 40)
+COUPLER_COLOR = 0xF0BE28  # meshcat wants a hexadecimal colour, not an RGB triple
 
 # coal cylinders are aligned with Z and centred, the links point along X.
 # (ViserVisualizer supports Box, Sphere, Cylinder, Convex and meshes -- not Capsule.)
@@ -181,28 +183,32 @@ print(f"constraint Jacobian at theta=0: {np.array2string(J, precision=4)}")
 print(f"admissible velocity           : {np.array2string(v, precision=4)}")
 print(f"J @ v (should vanish)         : {J @ v:.2e}")
 
-# Display the mechanism. `open=True` would block until a browser client connects, so we
-# print the URL instead.
-viz = ViserVisualizer(model, visual_model, visual_model)
-viz.initViewer(open=False)
+# Display the mechanism. meshcat.geometry is imported here rather than at the top so
+# that a missing viewer is caught by the same guard as the visualizer itself.
+try:
+    import meshcat.geometry as mg
+
+    viz = MeshcatVisualizer(model, visual_model, visual_model)
+    viz.initViewer(open=True)
+except ImportError as error:
+    print(error)
+    sys.exit(0)
 viz.loadViewerModel()
 viz.display(configurations[0])
 
-print(f"\nViser: http://{viz.viewer.get_host()}:{viz.viewer.get_port()}")
 print("Red spheres: the two constrained points. Yellow rod: the constraint itself.")
 
 dt = 1.0 / 60.0
 for q in configurations * 3:
     viz.display(q)
     # The coupler is not a body of the model, so it is drawn straight from the two
-    # constrained points. Viser handles are immutable: re-adding under the same name
-    # replaces the node.
+    # constrained points, and redrawn at every frame.
     p1 = (viz.data.oMi[crank_id] * placement_crank_tip).translation
     p2 = (viz.data.oMi[rocker_id] * placement_rocker_tip).translation
-    viz.viewer.scene.add_line_segments(
-        "coupler",
-        points=np.stack([p1, p2])[None].astype(np.float32),
-        colors=COUPLER_COLOR,
-        thickness=0.02,
+    viz.viewer["coupler"].set_object(
+        mg.LineSegments(
+            mg.PointsGeometry(np.stack([p1, p2]).astype(np.float32).T),
+            mg.LineBasicMaterial(color=COUPLER_COLOR, linewidth=4.0),
+        )
     )
     time.sleep(dt)
