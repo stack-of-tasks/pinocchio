@@ -1,9 +1,10 @@
+import sys
 import time
 
 import coal
 import numpy as np
 import pinocchio as pin
-from pinocchio.visualize import ViserVisualizer
+from pinocchio.visualize import MeshcatVisualizer
 
 # Forward dynamics of a ball tethered to a fixed anchor by a cable of constant length:
 # a spherical pendulum, in 3D.
@@ -35,7 +36,7 @@ RED_COLOR = np.array([0.95, 0.25, 0.15, 1.0])
 BLUE_COLOR = np.array([0.2, 0.55, 0.95, 1.0])
 GREY_COLOR = np.array([0.45, 0.45, 0.45, 1.0])
 SPHERE_COLOR = np.array([0.6, 0.6, 0.6, 0.15])
-CABLE_COLOR = (240, 190, 40)
+CABLE_COLOR = 0xF0BE28  # meshcat wants a hexadecimal colour, not an RGB triple
 
 model = pin.Model()
 model.name = "spherical-pendulum"
@@ -168,27 +169,31 @@ print(f"\nworst cable violation over {n_steps * dt:.0f} s : {worst_violation:.3e
 print(f"energy drift (semi-implicit Euler): {energy - energy0:+.3e} J")
 assert worst_violation < 1e-3, "the cable drifted away"
 
-# Display the mechanism. `open=True` would block until a browser client connects, so we
-# print the URL instead.
-viz = ViserVisualizer(model, visual_model, visual_model)
-viz.initViewer(open=False)
+# Display the mechanism. meshcat.geometry is imported here rather than at the top so
+# that a missing viewer is caught by the same guard as the visualizer itself.
+try:
+    import meshcat.geometry as mg
+
+    viz = MeshcatVisualizer(model, visual_model, visual_model)
+    viz.initViewer(open=True)
+except ImportError as error:
+    print(error)
+    sys.exit(0)
 viz.loadViewerModel()
 viz.display(configurations[0])
 
-print(f"\nViser: http://{viz.viewer.get_host()}:{viz.viewer.get_port()}")
 print("Grey sphere: the constraint manifold. The ball never leaves it.")
 
 for q in configurations:
     viz.display(q)
     # The cable is not a body of the model, so it is drawn straight from the two
-    # constrained points. Viser handles are immutable: re-adding under the same name
-    # replaces the node.
+    # constrained points, and redrawn at every frame.
     p_anchor = placement_anchor.translation
     p_ball = (viz.data.oMi[ball_id] * placement_ball).translation
-    viz.viewer.scene.add_line_segments(
-        "cable",
-        points=np.stack([p_anchor, p_ball])[None].astype(np.float32),
-        colors=CABLE_COLOR,
-        thickness=0.012,
+    viz.viewer["cable"].set_object(
+        mg.LineSegments(
+            mg.PointsGeometry(np.stack([p_anchor, p_ball]).astype(np.float32).T),
+            mg.LineBasicMaterial(color=CABLE_COLOR, linewidth=4.0),
+        )
     )
     time.sleep(dt * n_display)
