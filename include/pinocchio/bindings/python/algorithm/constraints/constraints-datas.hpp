@@ -24,6 +24,40 @@ namespace pinocchio
 
     // specialization for ConstraintDatas
     template<>
+    bp::class_<context::ConstantLengthConstraintData> &
+    expose_constraint_data(bp::class_<context::ConstantLengthConstraintData> & cl)
+    {
+      typedef context::ConstantLengthConstraintData Self;
+      return cl
+        .def(
+          bp::init<const typename Self::ConstraintModel &>(
+            bp::args("self", "constraint_model"), "From model constructor."))
+        .PINOCCHIO_ADD_PROPERTY(Self, constraint_force, "Resulting force.")
+        .PINOCCHIO_ADD_PROPERTY(Self, oMc1, "Placement of the constraint frame 1 wrt WORLD.")
+        .PINOCCHIO_ADD_PROPERTY(Self, oMc2, "Placement of the constraint frame 2 wrt WORLD.")
+        .PINOCCHIO_ADD_PROPERTY(Self, c1Mc2, "Placement of the constraint frame 2 wrt frame 1.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, relative_position,
+          "Position of the second point expressed in the frame of the first one.")
+        .PINOCCHIO_ADD_PROPERTY(Self, distance, "Current distance between the two points.")
+        .PINOCCHIO_ADD_PROPERTY(Self, direction, "Unitary direction relative_position / distance.")
+        .PINOCCHIO_ADD_PROPERTY(Self, constraint_position_error, "Constraint position error.")
+        .PINOCCHIO_ADD_PROPERTY(Self, constraint_velocity_error, "Constraint velocity error.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, constraint_acceleration_error, "Constraint acceleration error.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, constraint_acceleration_biais_term, "Constraint acceleration term.")
+        .PINOCCHIO_ADD_PROPERTY(Self, A1_world, "Transform for joint1 in world frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self, A2_world, "Transform for joint2 in world frame.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, A_world, "Relative Transform between joint1 and joint2 in world frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self, A1_local, "Transform for joint1 in local frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self, A2_local, "Transform for joint2 in local frame.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, A_local, "Relative Transform between joint1 and joint2 in local frame.");
+    }
+
+    template<>
     bp::class_<context::JointFrictionConstraintData> &
     expose_constraint_data(bp::class_<context::JointFrictionConstraintData> & cl)
     {
