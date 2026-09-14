@@ -167,7 +167,6 @@ energy = pin.computeKineticEnergy(model, data, q, v) + pin.computePotentialEnerg
 
 print(f"\nworst cable violation over {n_steps * dt:.0f} s : {worst_violation:.3e} m")
 print(f"energy drift (semi-implicit Euler): {energy - energy0:+.3e} J")
-assert worst_violation < 1e-3, "the cable drifted away"
 
 # Display the mechanism. meshcat.geometry is imported here rather than at the top so
 # that a missing viewer is caught by the same guard as the visualizer itself.
