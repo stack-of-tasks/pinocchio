@@ -76,12 +76,12 @@ constraint_model = pin.ConstantLengthConstraintModel(
     model, 0, placement_anchor, ball_id, placement_ball, length_cable
 )
 constraint_model.name = "cable"
-constraint_model.baumgarte_corrector_parameters.Kp = 1e4
-constraint_model.baumgarte_corrector_parameters.Kd = 2.0 * np.sqrt(1e4)
-constraint_data = constraint_model.createData()
+Kp = 1e4
+Kd = 2.0 * np.sqrt(Kp)
 
-Kp = constraint_model.baumgarte_corrector_parameters.Kp
-Kd = constraint_model.baumgarte_corrector_parameters.Kd
+constraint_model.baumgarte_corrector_parameters.Kp = Kp
+constraint_model.baumgarte_corrector_parameters.Kd = Kd
+constraint_data = constraint_model.createData()
 
 print(f"model      : nq={model.nq}, nv={model.nv}")
 print(f"constraint : {constraint_model.shortname()} '{constraint_model.name}'")
