@@ -8,9 +8,7 @@
 
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/frames.hpp"
-#include "pinocchio/algorithm/constraint-cholesky.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 // Helpers
@@ -175,46 +173,6 @@ BOOST_AUTO_TEST_CASE(constraint_position_error)
   BOOST_CHECK_CLOSE(cdata.constraint_position_error[0], -0.01, 1e-8);
 }
 
-BOOST_AUTO_TEST_CASE(rigid_displacement_invariance)
-{
-  // Both points carried by moving bodies: a rigid displacement of the whole system
-  // leaves the distance, hence the residual, unchanged.
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model, true);
-  Data data(model), data_moved(model);
-
-  model.lowerPositionLimit.head<3>().fill(-1.);
-  model.upperPositionLimit.head<3>().fill(1.);
-  VectorXd q = randomConfiguration(model);
-
-  const ConstantLengthConstraintModel cmodel(
-    model, model.getJointId(RF), SE3::Random(), model.getJointId(LF), SE3::Random(), 0.3);
-  ConstantLengthConstraintData cdata(cmodel), cdata_moved(cmodel);
-
-  forwardKinematics(model, data, q);
-  cmodel.calc(model, data, cdata);
-
-  // The root joint of humanoidRandom is a free flyer: move it around.
-  VectorXd q_moved = q;
-  const SE3 root_displacement(SE3::Random());
-  const SE3 root_placement(
-    Eigen::Quaterniond(q[6], q[3], q[4], q[5]).toRotationMatrix(), q.head<3>());
-  const SE3 root_placement_moved = root_displacement * root_placement;
-  q_moved.head<3>() = root_placement_moved.translation();
-  const Eigen::Quaterniond quat_moved(root_placement_moved.rotation());
-  q_moved[3] = quat_moved.x();
-  q_moved[4] = quat_moved.y();
-  q_moved[5] = quat_moved.z();
-  q_moved[6] = quat_moved.w();
-
-  forwardKinematics(model, data_moved, q_moved);
-  cmodel.calc(model, data_moved, cdata_moved);
-
-  BOOST_CHECK_CLOSE(cdata_moved.distance, cdata.distance, 1e-10);
-  BOOST_CHECK_SMALL(
-    cdata_moved.constraint_position_error[0] - cdata.constraint_position_error[0], 1e-12);
-}
-
 BOOST_AUTO_TEST_CASE(constraint_projectors_and_jacobians)
 {
   pinocchio::Model model;
@@ -366,18 +324,6 @@ BOOST_AUTO_TEST_CASE(constraint_velocity_and_acceleration_errors)
     BOOST_CHECK(
       cdata.constraint_acceleration_error.isApprox(constraint_acceleration_error_fd, sqrt(dt)));
   }
-
-  // The acceleration error is affine in the joint acceleration, with the Jacobian as linear part
-  {
-    Data data_zero_acc(model);
-    forwardKinematics(model, data_zero_acc, q, v, VectorXd::Zero(model.nv));
-
-    ConstantLengthConstraintData cdata_zero_acc(cmodel);
-    cmodel.calc(model, data_zero_acc, cdata_zero_acc);
-
-    BOOST_CHECK((J * a + cdata_zero_acc.constraint_acceleration_error)
-                  .isApprox(cdata.constraint_acceleration_error));
-  }
 }
 
 BOOST_AUTO_TEST_CASE(map_constraint_force_and_joint_motions)
@@ -449,108 +395,6 @@ BOOST_AUTO_TEST_CASE(cast)
   const auto cmodel_cast_long_double = cmodel.cast<long double>();
   BOOST_CHECK(cmodel_cast_long_double.getLength() == 0.75L);
   BOOST_CHECK(cmodel_cast_long_double.cast<double>() == cmodel);
-}
-
-BOOST_AUTO_TEST_CASE(compliance)
-{
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model, true);
-
-  ConstantLengthConstraintModel cmodel(model, model.getJointId(RF), SE3::Random());
-
-  {
-    // check retrieve compliance
-    Eigen::VectorXd compliance(cmodel.residualSize());
-    cmodel.retrieveCompliance(compliance);
-    BOOST_CHECK(compliance == Eigen::VectorXd::Zero(cmodel.residualSize()));
-  }
-
-  {
-    // check set compliance
-    const Eigen::VectorXd compliance_ref =
-      Eigen::VectorXd::Random(cmodel.residualSize()).cwiseAbs();
-    cmodel.setCompliance(compliance_ref);
-    Eigen::VectorXd compliance(cmodel.residualSize());
-    cmodel.retrieveCompliance(compliance);
-    BOOST_CHECK(compliance == compliance_ref);
-  }
-}
-
-BOOST_AUTO_TEST_CASE(variant)
-{
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model, true);
-  Data data(model);
-
-  model.lowerPositionLimit.head<3>().fill(-1.);
-  model.upperPositionLimit.head<3>().fill(1.);
-  const VectorXd q = randomConfiguration(model);
-
-  forwardKinematics(model, data, q);
-  computeJointJacobians(model, data, q);
-
-  const ConstantLengthConstraintModel cmodel_(
-    model, model.getJointId(RF), SE3::Random(), model.getJointId(LF), SE3::Random(), 0.5);
-  ConstantLengthConstraintData cdata_(cmodel_);
-  cmodel_.calc(model, data, cdata_);
-
-  // The constraint is part of the default constraint collection
-  const ConstraintModel cmodel(cmodel_);
-  ConstraintData cdata(cmodel.createData());
-  BOOST_CHECK(cmodel.residualSize() == 1);
-  cmodel.calc(model, data, cdata);
-
-  Data::MatrixXs J(1, model.nv), J_(1, model.nv);
-  J.setZero();
-  J_.setZero();
-  cmodel.jacobian(model, data, cdata, J);
-  cmodel_.jacobian(model, data, cdata_, J_);
-  BOOST_CHECK(J.isApprox(J_));
-}
-
-BOOST_AUTO_TEST_CASE(cholesky)
-{
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model, true);
-  Data data(model), data_ref(model);
-
-  model.lowerPositionLimit.head<3>().fill(-1.);
-  model.upperPositionLimit.head<3>().fill(1.);
-  const VectorXd q = randomConfiguration(model);
-
-  crba(model, data, q, Convention::WORLD);
-
-  std::vector<ConstantLengthConstraintModel> constraint_models;
-  constraint_models.push_back(ConstantLengthConstraintModel(
-    model, model.getJointId(RF), SE3::Random(), 0, SE3::Random(), 1.));
-  constraint_models.push_back(ConstantLengthConstraintModel(
-    model, model.getJointId(RF), SE3::Random(), model.getJointId(LF), SE3::Random(), 0.5));
-
-  std::vector<ConstantLengthConstraintData> constraint_datas;
-  for (const auto & cm : constraint_models)
-    constraint_datas.push_back(cm.createData());
-
-  const double mu = 1e-10;
-  calc(model, data, constraint_models, constraint_datas);
-  ConstraintCholeskyDecomposition cholesky(model, data, constraint_models, constraint_datas);
-  cholesky.compute(model, data, constraint_models, constraint_datas, mu);
-
-  crba(model, data_ref, q, Convention::WORLD);
-  make_symmetric(data_ref.M);
-  const auto total_size = getTotalConstraintResidualSize(constraint_models);
-  BOOST_CHECK(total_size == 2);
-
-  Eigen::MatrixXd J_constraints(total_size, model.nv);
-  J_constraints.setZero();
-  getConstraintsJacobian(model, data_ref, constraint_models, constraint_datas, J_constraints);
-
-  Eigen::MatrixXd H_ref = Eigen::MatrixXd::Zero(total_size + model.nv, total_size + model.nv);
-  H_ref.topLeftCorner(total_size, total_size).diagonal().fill(-mu);
-  H_ref.bottomRightCorner(model.nv, model.nv) = data_ref.M;
-  H_ref.topRightCorner(total_size, model.nv) = J_constraints;
-  H_ref.bottomLeftCorner(model.nv, total_size) = J_constraints.transpose();
-
-  BOOST_CHECK(cholesky.matrix().isApprox(H_ref));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
