@@ -165,12 +165,20 @@ class ContactSolverTestCase(PinocchioTestCase):
                             # Compute collision between the geometries.
                             # Only add the collision pair if there is no collision.
                             M1 = geom_data.oMg[i]
+                            Transform3s_M1 = coal.Transform3s(M1.rotation, M1.translation)
                             M2 = geom_data.oMg[j]
+                            Transform3s_M2 = coal.Transform3s(M2.rotation, M2.translation)
+
                             colreq = coal.CollisionRequest()
                             colreq.security_margin = 1e-2  # 1cm of clearance
                             colres = coal.CollisionResult()
                             coal.collide(
-                                gobj_i.geometry, M1, gobj_j.geometry, M2, colreq, colres
+                                gobj_i.geometry,
+                                Transform3s_M1,
+                                gobj_j.geometry,
+                                Transform3s_M2,
+                                colreq,
+                                colres,
                             )
                             if not colres.isCollision():
                                 num_col_pairs += 1
@@ -232,7 +240,7 @@ class ContactSolverTestCase(PinocchioTestCase):
                     contact_model_i = pin.PointContactConstraintModel(
                         model, joint_id2, placement_i2, joint_id1, placement_i1
                     )
-                    contact_model_i.set = pin.CoulombFrictionCone(friction_coeff)
+                    contact_model_i.setFriction(friction_coeff)
                     contact_constraints.append(contact_model_i)
         return contact_constraints
 

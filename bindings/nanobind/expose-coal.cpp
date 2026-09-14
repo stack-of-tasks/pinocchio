@@ -2,6 +2,8 @@
 
 #include "pinocchio/spatial.hpp"
 
+#include <coal/math/transform.h>
+
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 // collision/broadphase.cpp
 void exposeBroadphase(nb::module_ m);
@@ -16,6 +18,9 @@ void exposePoolCollision(nb::module_ m);
 
 void exposeCoal(nb::module_ m)
 {
+  nb::implicitly_convertible<pinocchio::SE3, coal::Transform3s>();
+  nb::implicitly_convertible<coal::Transform3s, pinocchio::SE3>();
+
   exposeBroadphase(m);
   exposeBroadphaseCallbacks(m);
   exposeCollision(m);
