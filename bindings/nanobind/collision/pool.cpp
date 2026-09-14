@@ -60,10 +60,6 @@ static void exposeOneBroadPhasePool(nb::module_ m, const char * base_name, const
 
 void exposePoolCollision(nb::module_ m)
 {
-  nb::bind_vector<GeometryModelVector, nb::rv_policy::reference_internal>(
-    m, "StdVec_GeometryModel");
-  nb::bind_vector<GeometryDataVector, nb::rv_policy::reference_internal>(m, "StdVec_GeometryData");
-
   nb::class_<GeometryPool, ModelPoolTpl<Scalar, Options>>(
     m, "GeometryPool",
     "Pool containing a model + a geometry_model and several datas for parallel computations")

@@ -113,5 +113,8 @@ inline void exposeGeometryData(nb::module_ m)
     // Repr and str
     .def(PrintableVisitor<GeometryData>())
     .def(SerializableVisitor<GeometryData>());
+
+  nb::bind_vector<std::vector<GeometryData>, nb::rv_policy::reference_internal>(
+    m, "StdVec_GeometryData");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

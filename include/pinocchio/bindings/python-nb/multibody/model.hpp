@@ -26,6 +26,7 @@ void exposeModel(nb::module_ m)
   using Index = typename Model::Index;
   using JointIndex = typename Model::JointIndex;
   using IndexVector = typename Model::IndexVector;
+  using EigenIndexVector = typename Model::EigenIndexVector;
   using SE3 = typename Model::SE3;
   using Data = typename Model::Data;
   using JointModel = typename Model::JointModel;
@@ -241,6 +242,7 @@ void exposeModel(nb::module_ m)
   nb::bind_vector<std::vector<Scalar>>(m, "StdVec_Scalar");
   nb::bind_vector<std::vector<bool>>(m, "StdVec_Bool");
   nb::bind_vector<std::vector<Index>>(m, "StdVec_Index");
+  nb::bind_vector<EigenIndexVector>(m, "StdVec_EigenIndex");
   nb::bind_vector<std::vector<IndexVector>, nb::rv_policy::reference_internal>(m, "IndexVecVec");
   nb::bind_vector<std::vector<std::string>>(m, "StdVec_String");
 }
