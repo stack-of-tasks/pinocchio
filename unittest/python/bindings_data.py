@@ -27,7 +27,7 @@ class TestData(TestCase):
         q = pin.neutral(model)
         pin.centerOfMass(model, data, q)
 
-        _com_list = data.com.tolist()
+        _com_list = list(data.com)
         com = data.com[0]
         with self.assertRaises(IndexError):
             com = data.com[len(data.com) + 10]
