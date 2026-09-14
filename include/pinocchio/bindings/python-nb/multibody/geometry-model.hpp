@@ -96,5 +96,8 @@ inline void exposeGeometryModel(nb::module_ m)
       new (&self) GeometryModel();
       self.loadFromString(str);
     });
+
+  nb::bind_vector<std::vector<GeometryModel>, nb::rv_policy::reference_internal>(
+    m, "StdVec_GeometryModel");
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
