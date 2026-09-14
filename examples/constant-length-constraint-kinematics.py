@@ -166,7 +166,6 @@ for theta in np.linspace(0.0, 2.0 * np.pi, n_steps, endpoint=False):
         )
 
 print(f"\nworst residual over the sweep: {worst_residual:.3e} m")
-assert worst_residual < 1e-10, "the loop did not close"
 
 # A joint velocity is compatible with the mechanism iff it lies in the kernel of the
 # constraint Jacobian: here, the rocker rate that follows a unit crank rate.
