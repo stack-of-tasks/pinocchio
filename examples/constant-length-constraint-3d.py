@@ -75,8 +75,13 @@ placement_ball = pin.SE3.Identity()
 constraint_model = pin.ConstantLengthConstraintModel(
     model, 0, placement_anchor, ball_id, placement_ball, length_cable
 )
+
+dt = 1e-3
+n_steps = 12000
+n_display = 16  # keep one configuration out of n_display for the animation
+
 constraint_model.name = "cable"
-Kp = 1e4
+Kp = 10 / dt
 Kd = 2.0 * np.sqrt(Kp)
 
 constraint_model.baumgarte_corrector_parameters.Kp = Kp
@@ -94,7 +99,7 @@ print(f"baumgarte  : Kp={Kp:.0f}, Kd={Kd:.1f}\n")
 # exactly on the sphere and the kick is tangential, so both phi and phid vanish at t=0.
 angle0 = np.deg2rad(60.0)
 direction0 = np.array([np.sin(angle0), 0.0, -np.cos(angle0)])
-speed0 = 1.2
+speed0 = 2.4
 
 q = length_cable * direction0
 v = np.array([0.0, speed0, 0.0])
@@ -103,10 +108,6 @@ tau = np.zeros(model.nv)
 # At t=0 the tension balances the radial acceleration: m (g cos(angle0) + v^2 / L).
 gravity = abs(model.gravity.linear[2])
 tension_ref = mass * (gravity * np.cos(angle0) + speed0**2 / length_cable)
-
-dt = 1e-3
-n_steps = 12000
-n_display = 16  # keep one configuration out of n_display for the animation
 
 configurations = []
 worst_violation = 0.0
