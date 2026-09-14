@@ -214,7 +214,13 @@ inline void exposeGeometryObject(nb::module_ m)
     .def(ComparableVisitor<GeometryObject>())
     .def(CopyableVisitor<GeometryObject>())
     .def(PrintableVisitor<Self>())
-    .def(SerializableVisitor<GeometryObject>());
+    .def(SerializableVisitor<GeometryObject>())
+    .def("__getstate__", [](const GeometryObject & self) { return self.saveToString(); })
+    .def("__setstate__", [](GeometryObject & self, const std::string & str) {
+      new (&self) GeometryObject(
+        "", JointIndex(0), SE3::Identity(), GeometryObject::CollisionGeometryPtr());
+      self.loadFromString(str);
+    });
 
   nb::bind_vector<std::vector<GeometryObject>, nb::rv_policy::reference_internal>(
     m, "StdVec_GeometryObject");

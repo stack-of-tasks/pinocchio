@@ -90,6 +90,11 @@ inline void exposeGeometryModel(nb::module_ m)
     .def(CopyableVisitor<GeometryModel>())
     // Repr and str
     .def(PrintableVisitor<GeometryModel>())
-    .def(SerializableVisitor<GeometryModel>());
+    .def(SerializableVisitor<GeometryModel>())
+    .def("__getstate__", [](const GeometryModel & self) { return self.saveToString(); })
+    .def("__setstate__", [](GeometryModel & self, const std::string & str) {
+      new (&self) GeometryModel();
+      self.loadFromString(str);
+    });
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
