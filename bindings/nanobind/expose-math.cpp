@@ -8,6 +8,7 @@
 #include "pinocchio/math.hpp"
 
 #include <nanobind/eigen/dense.h>
+#include <cstdlib>
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 using namespace nb::literals;
@@ -114,6 +115,9 @@ static void exposeGramSchmidtOrthonormalisation(nb::module_ m)
 
 void exposeMathUtil(nb::module_ m)
 {
+  m.def(
+    "seed", &std::srand, "seed_value"_a,
+    "Initialize the pseudo-random number generator with the argument seed_value.");
 
   exposeLinalg(m);
   exposeLanczosDecomposition(m);
