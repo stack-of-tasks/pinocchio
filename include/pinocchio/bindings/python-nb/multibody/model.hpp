@@ -40,7 +40,7 @@ void exposeModel(nb::module_ m)
     m, "StdMap_String_VectorXd")
     .def(PickleMapVisitor<typename Model::ConfigVectorMap>());
 
-  nb::class_<Model>(m, "Model", "Articulated rigid-body model.")
+  nb::class_<Model>(m, "Model", "Articulated rigid-body model.", nb::dynamic_attr())
     .def(nb::init<>(), "Default constructor")
     .def(nb::init<const Model &>(), "other"_a)
     // --- dimensions
