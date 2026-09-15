@@ -76,12 +76,8 @@ constraint_model = pin.ConstantLengthConstraintModel(
     model, 0, placement_anchor, ball_id, placement_ball, length_cable
 )
 
-dt = 1e-3
-n_steps = 12000
-n_display = 16  # keep one configuration out of n_display for the animation
-
 constraint_model.name = "cable"
-Kp = 10 / dt
+Kp = 20
 Kd = 2.0 * np.sqrt(Kp)
 
 constraint_model.baumgarte_corrector_parameters.Kp = Kp
@@ -116,6 +112,10 @@ pin.forwardKinematics(model, data, q, v)
 energy0 = pin.computeKineticEnergy(model, data, q, v) + pin.computePotentialEnergy(
     model, data, q
 )
+
+dt = 1e-3
+n_steps = 12000
+n_display = 16  # keep one configuration out of n_display for the animation
 
 print("time [s]   |phi| [m]   tension [N]   energy [J]")
 for k in range(n_steps):
