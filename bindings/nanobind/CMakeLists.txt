@@ -177,7 +177,6 @@ set_target_properties(
         LIBRARY_OUTPUT_DIRECTORY "${_NB_OUTPUT_DIRECTORY}"
         # On Windows, shared libraries are treated as binaries
         RUNTIME_OUTPUT_DIRECTORY "${_NB_OUTPUT_DIRECTORY}"
-        VERSION ${PROJECT_VERSION}
 )
 
 if(UNIX)
