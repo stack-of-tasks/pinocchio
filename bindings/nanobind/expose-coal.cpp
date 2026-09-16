@@ -18,6 +18,8 @@ void exposePoolCollision(nb::module_ m);
 
 void exposeCoal(nb::module_ m)
 {
+  m.import_("coal");
+
   // Implicit conversion invokes the destination's Python constructor.
   // Register these after both libraries have exposed their transform types.
   nb::borrow<nb::class_<coal::Transform3s>>(nb::type<coal::Transform3s>())
