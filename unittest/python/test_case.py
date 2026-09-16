@@ -165,18 +165,16 @@ class ContactSolverTestCase(PinocchioTestCase):
                             # Compute collision between the geometries.
                             # Only add the collision pair if there is no collision.
                             M1 = geom_data.oMg[i]
-                            Transform3s_M1 = coal.Transform3s(M1.rotation, M1.translation)
                             M2 = geom_data.oMg[j]
-                            Transform3s_M2 = coal.Transform3s(M2.rotation, M2.translation)
 
                             colreq = coal.CollisionRequest()
                             colreq.security_margin = 1e-2  # 1cm of clearance
                             colres = coal.CollisionResult()
                             coal.collide(
                                 gobj_i.geometry,
-                                Transform3s_M1,
+                                M1,
                                 gobj_j.geometry,
-                                Transform3s_M2,
+                                M2,
                                 colreq,
                                 colres,
                             )
