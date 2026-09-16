@@ -22,6 +22,36 @@ void exposeLieGroups(nb::module_ m);
 void exposePool(nb::module_ m);
 #endif
 
+void exposeJointModelSplineBuilder(nb::module_ m)
+{
+  using namespace nb::literals;
+
+  nb::class_<JointModelSplineBuilder>(m, "JointModelSplineBuilder", "JointSpline builder helper")
+    .def(nb::init<>(), "Default constructor")
+    .def(
+      "addControlFrame", &JointModelSplineBuilder::addControlFrame, nb::rv_policy::reference,
+      "frame"_a, "Add a control frame")
+    .def(
+      "withControlFrameVector", &JointModelSplineBuilder::withControlFrameVector,
+      nb::rv_policy::reference, "frames"_a, "Set control frame")
+    .def(
+      "withDegree", &JointModelSplineBuilder::withDegree, nb::rv_policy::reference, "degree"_a,
+      "Set spline's degree")
+    .def(
+      "withKnotVector",
+      static_cast<JointModelSplineBuilder & (
+        JointModelSplineBuilder::*)(const std::vector<Scalar> &)>(
+        &JointModelSplineBuilder::withKnotVector),
+      nb::rv_policy::reference, "knots"_a, "Set knot vector")
+    .def(
+      "withOpenUniformKnots", &JointModelSplineBuilder::withOpenUniformKnots,
+      nb::rv_policy::reference, "min"_a, "max"_a, "Set spline knot vector as open uniform")
+    .def(
+      "withUniformKnots", &JointModelSplineBuilder::withUniformKnots, nb::rv_policy::reference,
+      "min"_a, "max"_a, "Set spline knot vector as uniform")
+    .def("build", &JointModelSplineBuilder::build, "Build a JointSpline from provided parameters");
+}
+
 void exposeMultibody(nb::module_ m)
 {
   using pinocchio::FrameType;
@@ -48,6 +78,7 @@ void exposeMultibody(nb::module_ m)
   exposeJointModel<pinocchio::JointModel>(m);
   exposeJointData<pinocchio::JointData>(m);
   exposeJointCollection<pinocchio::JointCollectionDefault>(m);
+  exposeJointModelSplineBuilder(m);
 
   // Pool
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP

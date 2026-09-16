@@ -261,6 +261,25 @@ struct JointModelDerivedVisitor : nb::def_visitor<JointModelDerivedVisitor>
         "Find the index of a joint inside a JointModelComposite by name.");
   }
 
+  // ── JointModelSpline
+  template<typename PyClass>
+  static void expose(Tag<JointModelSpline>, PyClass & cl)
+  {
+    cl.def(nb::init<>(), "Init an empty Joint Spline")
+      .def(
+        nb::init<const std::vector<SE3> &, const VectorXs &, int>(), "controlFrames"_a,
+        "knotVector"_a, "degree"_a,
+        "Init  joint Spline from a list of control frames, a knot vector and a degree")
+      .def_rw("degree", &JointModelSpline::degree, "Degree of the spline")
+      .def_rw("nbCtrlFrames", &JointModelSpline::nbCtrlFrames, "Number of control points")
+      .def_rw("knots", &JointModelSpline::knots, "Knot vector")
+      .def_rw("min_q", &JointModelSpline::min_q, "Minimum allowed q value")
+      .def_rw("max_q", &JointModelSpline::max_q, "Maximum allowed q value")
+      .def_rw("ctrlFrames", &JointModelSpline::ctrlFrames, "Control frames.")
+      .def_rw(
+        "relativeMotions", &JointModelSpline::relativeMotions, "Relative motion between frames.");
+  }
+
   // ── JointModelMimic
   template<typename PyClass>
   static void expose(Tag<JointModelMimic>, PyClass & cl)
