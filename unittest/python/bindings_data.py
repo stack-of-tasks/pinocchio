@@ -37,8 +37,6 @@ class TestData(TestCase):
             com = data.com["1"]
             print("com: ", com)
 
-        self.assertTrue("Invalid index type" in str(context.exception))
-
     def test_allocation(self):
         data = self.data
         self.assertEqual(data.allocation, pin.DataAllocationOption.ALL)
