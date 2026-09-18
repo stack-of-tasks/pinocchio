@@ -88,6 +88,15 @@ namespace pinocchio
   };
 
   ///
+  /// \brief List of Data allocation strategy.
+  ///
+  enum struct Allocation
+  {
+    ALL = 0,       ///< Allocate all members, including second-order-derivative tensors
+    NO_TENSORS = 1 ///< Do not allocate Tensor members
+  };
+
+  ///
   /// \brief List of convention to call algorithms.
   ///
   /// The convention will select in witch frame different quantities will be computed.
