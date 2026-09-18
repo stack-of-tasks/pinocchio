@@ -244,7 +244,8 @@ BOOST_AUTO_TEST_CASE(test_rnea_second_order_derivatives_no_tensors_allocation)
   VectorXd v(VectorXd::Random(model.nv));
   VectorXd a(VectorXd::Random(model.nv));
 
-  BOOST_CHECK_THROW(ComputeRNEASecondOrderDerivatives(model, data_no_tensors, q, v, a), std::invalid_argument);
+  BOOST_CHECK_THROW(
+    ComputeRNEASecondOrderDerivatives(model, data_no_tensors, q, v, a), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
