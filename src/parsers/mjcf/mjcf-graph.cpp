@@ -1022,6 +1022,13 @@ namespace pinocchio
         parseGraph();
       }
 
+      void MjcfGraph::parseGraphFromXMLContent(const std::string & xmlStream)
+      {
+        std::istringstream xmlStreamBuf(xmlStream);
+        boost::property_tree::read_xml(xmlStreamBuf, pt);
+        parseGraph();
+      }
+
       template<typename TypeX, typename TypeY, typename TypeZ, typename TypeUnaligned>
       JointModel MjcfGraph::createJoint(const Eigen::Vector3d & axis)
       {

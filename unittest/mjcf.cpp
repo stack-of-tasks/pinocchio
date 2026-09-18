@@ -1397,6 +1397,38 @@ BOOST_AUTO_TEST_CASE(build_model_with_root_joint_name)
   BOOST_CHECK(model_name.names[1] == name_);
 }
 
+BOOST_AUTO_TEST_CASE(build_model_from_xml_content)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.xml");
+
+  boost::filesystem::ifstream file_stream(filename);
+  BOOST_REQUIRE(file_stream.is_open());
+  std::stringstream buffer;
+  buffer << file_stream.rdbuf();
+  const std::string xmlContent = buffer.str();
+
+  pinocchio::Model model_file;
+  pinocchio::mjcf::buildModel(filename, model_file);
+
+  pinocchio::Model model_content;
+  pinocchio::mjcf::buildModelFromXMLContent(xmlContent, model_content);
+  BOOST_CHECK(model_file == model_content);
+
+  pinocchio::Model model_file_root_joint;
+  pinocchio::mjcf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model_file_root_joint);
+
+  pinocchio::Model model_content_root_joint;
+  pinocchio::mjcf::buildModelFromXMLContent(
+    xmlContent, pinocchio::JointModelFreeFlyer(), model_content_root_joint);
+  BOOST_CHECK(model_file_root_joint == model_content_root_joint);
+
+  pinocchio::Model model_content_root_joint_name;
+  const std::string root_joint_name = "freeFlyer_joint";
+  pinocchio::mjcf::buildModelFromXMLContent(
+    xmlContent, pinocchio::JointModelFreeFlyer(), root_joint_name, model_content_root_joint_name);
+  BOOST_CHECK(model_content_root_joint_name.names[1] == root_joint_name);
+}
+
 #ifdef PINOCCHIO_WITH_URDFDOM
 /// @brief Test all the data of the humanoid model (Need to find the urdf yet)
 /// @param
@@ -1538,6 +1570,15 @@ BOOST_AUTO_TEST_CASE(test_geometry_parsing)
   auto * e = dynamic_cast<coal::Ellipsoid *>(geomModel_m.geometryObjects.at(4).geometry.get());
   BOOST_REQUIRE(e);
   BOOST_CHECK(e->radii == sides);
+
+  // Building from the XML content must give the same geometry model as building from the file
+  Model model_content;
+  pinocchio::mjcf::buildModelFromXMLContent(xmlData.str(), model_content);
+
+  GeometryModel geomModel_content;
+  pinocchio::mjcf::buildGeomFromXMLContent(
+    model_content, xmlData.str(), pinocchio::COLLISION, geomModel_content);
+  BOOST_CHECK(geomModel_content == geomModel_m);
 }
 #endif // if defined(PINOCCHIO_WITH_COLLISION)
 

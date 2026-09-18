@@ -18,6 +18,41 @@ class TestMJCFBindings(unittest.TestCase):
         )
         self.assertEqual(len(point_anchor_constraint_models), 4)
 
+    def test_build_model_from_content(self):
+        model_path = Path(__file__).parent / "../../models/simple_humanoid.xml"
+        mjcf_string = model_path.read_text()
+
+        model = pin.buildModelFromMJCFContent(mjcf_string)
+        self.assertEqual(model, pin.buildModelFromMJCF(model_path))
+
+        root_joint = pin.JointModelFreeFlyer()
+        model_root_joint = pin.buildModelFromMJCFContent(mjcf_string, root_joint)
+        self.assertEqual(model_root_joint.names[1], "root_joint")
+        self.assertEqual(
+            model_root_joint,
+            pin.buildModelFromMJCFAndRootJoint(model_path, root_joint),
+        )
+
+        model_root_joint_name = pin.buildModelFromMJCFContent(
+            mjcf_string, root_joint, "floating"
+        )
+        self.assertEqual(model_root_joint_name.names[1], "floating")
+
+    @unittest.skipUnless(pin.WITH_COLLISION, "Needs collision support")
+    def test_build_geom_from_content(self):
+        model_path = Path(__file__).parent / "../models/closed_chain.xml"
+        mjcf_string = model_path.read_text()
+
+        model = pin.buildModelFromMJCFContent(mjcf_string)
+        geom_model = pin.buildGeomFromMJCF(
+            model, model_path, pin.GeometryType.COLLISION
+        )
+        geom_model_content = pin.buildGeomFromMJCFContent(
+            model, mjcf_string, pin.GeometryType.COLLISION
+        )
+        self.assertGreater(len(geom_model_content.geometryObjects), 0)
+        self.assertEqual(geom_model_content, geom_model)
+
 
 @unittest.skipUnless(mujoco_found, "Needs MuJoCo.")
 class TestMJCFBindingsWithMujoco(unittest.TestCase):
