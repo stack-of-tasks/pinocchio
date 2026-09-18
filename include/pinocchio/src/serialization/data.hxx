@@ -29,6 +29,7 @@ namespace boost
       pinocchio::DataTpl<Scalar, Options, JointCollectionTpl> & data,
       const unsigned int /*version*/)
     {
+      PINOCCHIO_MAKE_DATA_NVP(ar, data, allocation);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, joints);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, joints_augmented);
       PINOCCHIO_MAKE_DATA_NVP(ar, data, q_in);

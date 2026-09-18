@@ -79,6 +79,13 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
       .export_values();
   }
 
+  if (!register_symbolic_link_to_registered_type<::pinocchio::Allocation>())
+  {
+    bp::enum_<::pinocchio::Allocation>("Allocation")
+      .value("ALL", ::pinocchio::Allocation::ALL)
+      .value("NO_TENSORS", ::pinocchio::Allocation::NO_TENSORS);
+  }
+
   if (!register_symbolic_link_to_registered_type<::pinocchio::Convention>())
   {
     bp::enum_<::pinocchio::Convention>("Convention")

@@ -265,10 +265,10 @@ namespace pinocchio
             "Add a frame to the vector of frames. If append_inertia set to True, "
             "the inertia value contained in frame will be added to the inertia supported by the "
             "parent joint.")
-
           .def(
-            "createData", &Model::createData, bp::arg("self"),
-            "Create a Data object for the given model.")
+            "createData", &Model::createData,
+            (bp::arg("self"), bp::arg("allocation") = ::pinocchio::Allocation::ALL),
+            "Create a Data object for the given model and allocation")
 
           .def(
             "check", (bool (Model::*)(const Data &) const) & Model::check, bp::args("self", "data"),
