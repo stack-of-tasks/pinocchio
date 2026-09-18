@@ -228,4 +228,23 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO)
   BOOST_CHECK(maq.isApprox(maq2, sqrt(alpha)));
 }
 
+BOOST_AUTO_TEST_CASE(test_rnea_second_order_derivatives_no_tensors_allocation)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model);
+
+  Data data_no_tensors(model, Allocation::NO_TENSORS);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd a(VectorXd::Random(model.nv));
+
+  BOOST_CHECK_THROW(ComputeRNEASecondOrderDerivatives(model, data_no_tensors, q, v, a), std::invalid_argument);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

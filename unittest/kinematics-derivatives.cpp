@@ -1232,4 +1232,20 @@ BOOST_AUTO_TEST_CASE(test_kinematics_hessians_joint_0)
   isZero(kinematic_hessian_lwa, 0.);
 }
 
+BOOST_AUTO_TEST_CASE(test_kinematics_hessians_no_tensors_allocation)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model);
+
+  Data data_no_tensors(model, Allocation::NO_TENSORS);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+
+  BOOST_CHECK_THROW(computeJointKinematicHessians(model, data_no_tensors), std::invalid_argument);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
