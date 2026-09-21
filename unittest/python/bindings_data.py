@@ -46,7 +46,6 @@ class TestData(TestCase):
         self.assertEqual(data.allocation, pin.Allocation.ALL)
 
         self.model = pin.buildSampleModelHumanoidRandom(True, True)
-        q = pin.neutral(self.model)
         data_all = self.model.createData()
 
         data_no_tensors = self.model.createData(pin.Allocation.NO_TENSORS)
