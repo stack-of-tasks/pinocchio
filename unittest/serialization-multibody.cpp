@@ -70,6 +70,16 @@ BOOST_AUTO_TEST_CASE(test_data_serialization)
   generic_test(data_no_tensors, TEST_SERIALIZATION_FOLDER "/Data_NO_TENSORS", "Data");
 }
 
+BOOST_AUTO_TEST_CASE(test_model_serialization)
+{
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model);
+
+  generic_test(model, TEST_SERIALIZATION_FOLDER "/Model", "Model");
+}
+
 BOOST_AUTO_TEST_CASE(test_geometry_object)
 {
   using namespace pinocchio;

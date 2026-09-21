@@ -93,8 +93,9 @@ namespace pinocchio
       {
         cl.def(bp::init<>(bp::arg("self"), "Default constructor."))
           .def(
-            bp::init<const context::Model &, bp::optional<Allocation>>(
-              (bp::arg("self"), bp::arg("model"), bp::arg("allocation")),
+            bp::init<const context::Model &, Allocation>(
+              (bp::arg("self"), bp::arg("model"),
+               bp::arg("allocation") = ::pinocchio::Allocation::ALL),
               "Constructs a data structure from a given model and allocation (optional argument)."))
           .ADD_DATA_PROPERTY_READONLY(allocation, "Allocation strategy")
           .ADD_DATA_PROPERTY(

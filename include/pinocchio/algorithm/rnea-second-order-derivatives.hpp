@@ -162,6 +162,11 @@ namespace pinocchio
     const Eigen::MatrixBase<TangentVectorType1> & v,
     const Eigen::MatrixBase<TangentVectorType2> & a)
   {
+
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(
+      data.allocation == Allocation::ALL,
+      "data was created with Allocation::NO_TENSORS: data.kinematic_hessians is not allocated");
+
     (data.d2tau_dqdq).setZero();
     (data.d2tau_dvdv).setZero();
     (data.d2tau_dqdv).setZero();

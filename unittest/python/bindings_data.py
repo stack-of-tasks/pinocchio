@@ -46,14 +46,18 @@ class TestData(TestCase):
         self.assertEqual(data.allocation, pin.Allocation.ALL)
 
         self.model = pin.buildSampleModelHumanoidRandom(True, True)
+
         data_all = self.model.createData()
+        self.assertEqual(data_all.allocation, pin.Allocation.ALL)
+
+        data_all_2 = pin.Data(self.model)
+        self.assertEqual(data_all_2.allocation, pin.Allocation.ALL)
 
         data_no_tensors = self.model.createData(pin.Allocation.NO_TENSORS)
         self.assertEqual(data_no_tensors.allocation, pin.Allocation.NO_TENSORS)
-        self.assertNotEqual(data_all.allocation, data_no_tensors.allocation)
 
         data_no_tensors_2 = pin.Data(self.model, pin.Allocation.NO_TENSORS)
-        self.assertEqual(data_no_tensors.allocation, data_no_tensors_2.allocation)
+        self.assertEqual(data_no_tensors_2.allocation, pin.Allocation.NO_TENSORS)
 
     def test_pickle(self):
         import pickle

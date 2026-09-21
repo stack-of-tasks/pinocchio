@@ -239,16 +239,6 @@ BOOST_AUTO_TEST_CASE(test_multibody_joints_data_serialization)
   boost::mpl::for_each<JointModelVariant::types>(TestJointData());
 }
 
-BOOST_AUTO_TEST_CASE(test_model_serialization)
-{
-  using namespace pinocchio;
-
-  Model model;
-  buildModels::humanoidRandom(model);
-
-  generic_test(model, TEST_SERIALIZATION_FOLDER "/Model", "Model");
-}
-
 BOOST_AUTO_TEST_CASE(test_throw_extension)
 {
   using namespace pinocchio;
@@ -282,18 +272,6 @@ BOOST_AUTO_TEST_CASE(test_throw_extension)
     const std::string complete_filename = fake_filename + ".bine";
     BOOST_REQUIRE_THROW(loadFromBinary(model, complete_filename), std::invalid_argument);
   }
-}
-
-BOOST_AUTO_TEST_CASE(test_data_serialization)
-{
-  using namespace pinocchio;
-
-  Model model;
-  buildModels::humanoidRandom(model);
-
-  Data data(model);
-
-  generic_test(data, TEST_SERIALIZATION_FOLDER "/Data", "Data");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
