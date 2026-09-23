@@ -279,7 +279,7 @@ namespace pinocchio
       //                                        // else
       //                                        );
 
-      const Scalar beta_alt = (Scalar(1) / Scalar(3) - th_2_squared / Scalar(45)) / Scalar(4);
+      const Scalar beta_alt = (Scalar(1) / Scalar(3) + th_2_squared / Scalar(45)) / Scalar(4);
       const Scalar beta = if_then_else(
         LE, theta, TaylorSeriesExpansion<Scalar>::template precision<3>(),
         static_cast<Scalar>(beta_alt),                                       // then
