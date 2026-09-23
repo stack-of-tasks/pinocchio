@@ -25,6 +25,9 @@ namespace pinocchio
     typedef PointContactConstraintModelTpl<Scalar, Options> PointContactConstraintModel;
     typedef PointContactConstraintDataTpl<Scalar, Options> PointContactConstraintData;
 
+    typedef ConstantLengthConstraintModelTpl<Scalar, Options> ConstantLengthConstraintModel;
+    typedef ConstantLengthConstraintDataTpl<Scalar, Options> ConstantLengthConstraintData;
+
     typedef JointFrictionConstraintModelTpl<Scalar, Options> JointFrictionConstraintModel;
     typedef JointFrictionConstraintDataTpl<Scalar, Options> JointFrictionConstraintData;
 
@@ -38,6 +41,7 @@ namespace pinocchio
       BlankConstraintModel,
       PointAnchorConstraintModel,
       PointContactConstraintModel,
+      ConstantLengthConstraintModel,
       JointFrictionConstraintModel,
       JointLimitConstraintModel,
       FrameAnchorConstraintModel>
@@ -47,6 +51,7 @@ namespace pinocchio
       BlankConstraintData,
       PointAnchorConstraintData,
       PointContactConstraintData,
+      ConstantLengthConstraintData,
       JointFrictionConstraintData,
       JointLimitConstraintData,
       FrameAnchorConstraintData>

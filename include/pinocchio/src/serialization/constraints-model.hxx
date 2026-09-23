@@ -279,6 +279,31 @@ namespace boost
       ar & make_nvp("m_friction", cmodel_.m_friction);
     }
 
+    namespace internal
+    {
+      template<typename Scalar, int Options>
+      struct ConstantLengthConstraintModelAccessor
+      : public ::pinocchio::ConstantLengthConstraintModelTpl<Scalar, Options>
+      {
+        typedef ::pinocchio::ConstantLengthConstraintModelTpl<Scalar, Options> Base;
+        using Base::m_length;
+      };
+    } // namespace internal
+
+    template<typename Archive, typename Scalar, int Options>
+    void serialize(
+      Archive & ar,
+      ::pinocchio::ConstantLengthConstraintModelTpl<Scalar, Options> & cmodel,
+      const unsigned int /*version*/)
+    {
+      typedef ::pinocchio::ConstantLengthConstraintModelTpl<Scalar, Options> Self;
+      typedef typename Self::Base Base;
+      ar & make_nvp("base", boost::serialization::base_object<Base>(cmodel));
+      typedef internal::ConstantLengthConstraintModelAccessor<Scalar, Options> Accessor;
+      auto & cmodel_ = reinterpret_cast<Accessor &>(cmodel);
+      ar & make_nvp("m_length", cmodel_.m_length);
+    }
+
     template<typename Archive, typename Derived>
     void serialize(
       Archive & ar,

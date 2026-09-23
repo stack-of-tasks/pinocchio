@@ -36,6 +36,29 @@ namespace pinocchio
     }
 
     template<>
+    bp::class_<context::ConstantLengthConstraintModel> &
+    expose_constraint_model(bp::class_<context::ConstantLengthConstraintModel> & cl)
+    {
+      typedef context::ConstantLengthConstraintModel Self;
+      typedef context::SE3 SE3;
+      return cl
+        .def(
+          bp::init<
+            const context::Model &, JointIndex, const SE3 &, JointIndex, const SE3 &,
+            context::Scalar>(
+            (bp::arg("self"), bp::arg("model"), bp::arg("joint1_id"), bp::arg("joint1_placement"),
+             bp::arg("joint2_id"), bp::arg("joint2_placement"), bp::arg("length")),
+            "Constructor from the joint indexes and placements of the two points "
+            "implied in the constraint, and from the constant length to enforce between them."))
+        .def(
+          "getLength", &Self::getLength, bp::return_value_policy<bp::copy_const_reference>(),
+          "Get the constant length enforced by the constraint.")
+        .def(
+          "setLength", &Self::setLength, bp::args("self", "length"),
+          "Set the constant length enforced by the constraint.");
+    }
+
+    template<>
     bp::class_<context::JointFrictionConstraintModel> &
     expose_constraint_model(bp::class_<context::JointFrictionConstraintModel> & cl)
     {

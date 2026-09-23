@@ -994,6 +994,27 @@ namespace pinocchio
       }
     };
 
+    // Specialization of compute block_infos for ConstantLength.
+    template<typename Scalar, int Options>
+    struct ComputeBlockDiagonalPatternImpl<ConstantLengthConstraintModelTpl<Scalar, Options>>
+    {
+      typedef ConstantLengthConstraintModelTpl<Scalar, Options> ConstraintModel;
+
+      template<typename BlockInfoVector, BlockDiagonalDispatcherType op>
+      static void run(
+        const ConstraintModel & cmodel,
+        BlockInfoVector & block_infos,
+        BlockDiagonalDispatcherTag<op> dispatcher)
+      {
+        PINOCCHIO_UNUSED_VARIABLE(cmodel);
+        PINOCCHIO_UNUSED_VARIABLE(dispatcher);
+        assert(ConstraintModel::SymmetricConeSize != Eigen::Dynamic);
+
+        // equality constraint -> prox term -> Scalar Identity
+        block_infos.emplace_back(MatrixBlockType::ScalarIdentity, ConstraintModel::Size);
+      }
+    };
+
     // Specialization of compute block_infos for PointContact.
     template<typename Scalar, int Options>
     struct ComputeBlockDiagonalPatternImpl<PointContactConstraintModelTpl<Scalar, Options>>
