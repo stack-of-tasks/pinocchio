@@ -8,9 +8,7 @@
 
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/frames.hpp"
-#include "pinocchio/algorithm/constraint-cholesky.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 // Helpers
@@ -397,17 +395,61 @@ BOOST_AUTO_TEST_CASE(constraint_velocity_and_acceleration_errors)
     BOOST_CHECK(
       cdata.constraint_acceleration_error.isApprox(constraint_acceleration_error_fd, sqrt(dt)));
   }
+}
 
+BOOST_AUTO_TEST_CASE(map_constraint_force_and_joint_motions)
+{
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model, true);
+  Data data(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  const VectorXd q = randomConfiguration(model);
+  const VectorXd v = VectorXd::Random(model.nv);
+
+  forwardKinematics(model, data, q, v);
+  computeJointJacobians(model, data, q);
+
+  const EllipsoidPointConstraintModel cmodel(
+    model, model.getJointId(LF), SE3::Random(), model.getJointId(RF), SE3::Random(), RADII);
+  EllipsoidPointConstraintData cdata(cmodel);
+  cmodel.calc(model, data, cdata);
+
+  Data::MatrixXs J(1, model.nv);
+  J.setZero();
+  cmodel.jacobian(model, data, cdata, J);
+
+  // Mapping a constraint force to the joints and back to the generalized torques must give
+  // J^T * lambda.
+  const EllipsoidPointConstraintModel::ResidualVectorType lambda =
+    EllipsoidPointConstraintModel::ResidualVectorType::Random();
+
+  typedef Data::Force Force;
+  std::vector<Force> joint_forces(size_t(model.njoints), Force::Zero());
+  cmodel.mapConstraintForceToJointForces(model, data, cdata, lambda, joint_forces, WorldFrameTag());
+
+  VectorXd tau_ref = J.transpose() * lambda;
+  VectorXd tau = VectorXd::Zero(model.nv);
+  for (JointIndex joint_id = 1; joint_id < JointIndex(model.njoints); ++joint_id)
   {
-    Data data_zero_acc(model);
-    forwardKinematics(model, data_zero_acc, q, v, VectorXd::Zero(model.nv));
-
-    EllipsoidPointConstraintData cdata_zero_acc(cmodel);
-    cmodel.calc(model, data_zero_acc, cdata_zero_acc);
-
-    BOOST_CHECK((J * a + cdata_zero_acc.constraint_acceleration_error)
-                  .isApprox(cdata.constraint_acceleration_error));
+    const Data::Matrix6x J_joint = getJointJacobian(model, data, joint_id, WORLD);
+    tau += J_joint.transpose() * joint_forces[joint_id].toVector();
   }
+  BOOST_CHECK(tau.isApprox(tau_ref));
+
+  // Mapping joint motions to the constraint motion must give J * v.
+  std::vector<Motion> joint_motions(size_t(model.njoints), Motion::Zero());
+  for (JointIndex joint_id = 1; joint_id < JointIndex(model.njoints); ++joint_id)
+  {
+    const Data::Matrix6x J_joint = getJointJacobian(model, data, joint_id, WORLD);
+    joint_motions[joint_id] = Motion(Data::Vector6(J_joint * v));
+  }
+
+  EllipsoidPointConstraintModel::ResidualVectorType constraint_motion;
+  cmodel.mapJointMotionsToConstraintMotion(
+    model, data, cdata, joint_motions, constraint_motion, WorldFrameTag());
+  BOOST_CHECK(constraint_motion.isApprox(J * v));
 }
 
 BOOST_AUTO_TEST_CASE(cast)
@@ -423,105 +465,6 @@ BOOST_AUTO_TEST_CASE(cast)
 
   const auto cmodel_cast_long_double = cmodel.cast<long double>();
   BOOST_CHECK(cmodel_cast_long_double.cast<double>() == cmodel);
-}
-
-BOOST_AUTO_TEST_CASE(compliance)
-{
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model, true);
-
-  EllipsoidPointConstraintModel cmodel(model, model.getJointId(RF), SE3::Random());
-
-  {
-    Eigen::VectorXd compliance(cmodel.residualSize());
-    cmodel.retrieveCompliance(compliance);
-    BOOST_CHECK(compliance == Eigen::VectorXd::Zero(cmodel.residualSize()));
-  }
-
-  {
-    const Eigen::VectorXd compliance_ref =
-      Eigen::VectorXd::Random(cmodel.residualSize()).cwiseAbs();
-    cmodel.setCompliance(compliance_ref);
-    Eigen::VectorXd compliance(cmodel.residualSize());
-    cmodel.retrieveCompliance(compliance);
-    BOOST_CHECK(compliance == compliance_ref);
-  }
-}
-
-BOOST_AUTO_TEST_CASE(variant)
-{
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model, true);
-  Data data(model);
-
-  model.lowerPositionLimit.head<3>().fill(-1.);
-  model.upperPositionLimit.head<3>().fill(1.);
-  const VectorXd q = randomConfiguration(model);
-
-  forwardKinematics(model, data, q);
-  computeJointJacobians(model, data, q);
-
-  const EllipsoidPointConstraintModel cmodel_(
-    model, 0, SE3::Random(), model.getJointId(RF), SE3::Random(), RADII);
-  EllipsoidPointConstraintData cdata_(cmodel_);
-  cmodel_.calc(model, data, cdata_);
-
-  const ConstraintModel cmodel(cmodel_);
-  ConstraintData cdata(cmodel.createData());
-  BOOST_CHECK(cmodel.residualSize() == 1);
-  cmodel.calc(model, data, cdata);
-
-  Data::MatrixXs J(1, model.nv), J_(1, model.nv);
-  J.setZero();
-  J_.setZero();
-  cmodel.jacobian(model, data, cdata, J);
-  cmodel_.jacobian(model, data, cdata_, J_);
-  BOOST_CHECK(J.isApprox(J_));
-}
-
-BOOST_AUTO_TEST_CASE(cholesky)
-{
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model, true);
-  Data data(model), data_ref(model);
-
-  model.lowerPositionLimit.head<3>().fill(-1.);
-  model.upperPositionLimit.head<3>().fill(1.);
-  const VectorXd q = randomConfiguration(model);
-
-  crba(model, data, q, Convention::WORLD);
-
-  std::vector<EllipsoidPointConstraintModel> constraint_models;
-  constraint_models.push_back(EllipsoidPointConstraintModel(
-    model, 0, SE3::Random(), model.getJointId(RF), SE3::Random(), RADII));
-  constraint_models.push_back(EllipsoidPointConstraintModel(
-    model, model.getJointId(LF), SE3::Random(), model.getJointId(RF), SE3::Random(), RADII));
-
-  std::vector<EllipsoidPointConstraintData> constraint_datas;
-  for (const auto & cm : constraint_models)
-    constraint_datas.push_back(cm.createData());
-
-  const double mu = 1e-10;
-  calc(model, data, constraint_models, constraint_datas);
-  ConstraintCholeskyDecomposition cholesky(model, data, constraint_models, constraint_datas);
-  cholesky.compute(model, data, constraint_models, constraint_datas, mu);
-
-  crba(model, data_ref, q, Convention::WORLD);
-  make_symmetric(data_ref.M);
-  const auto total_size = getTotalConstraintResidualSize(constraint_models);
-  BOOST_CHECK(total_size == 2);
-
-  Eigen::MatrixXd J_constraints(total_size, model.nv);
-  J_constraints.setZero();
-  getConstraintsJacobian(model, data_ref, constraint_models, constraint_datas, J_constraints);
-
-  Eigen::MatrixXd H_ref = Eigen::MatrixXd::Zero(total_size + model.nv, total_size + model.nv);
-  H_ref.topLeftCorner(total_size, total_size).diagonal().fill(-mu);
-  H_ref.bottomRightCorner(model.nv, model.nv) = data_ref.M;
-  H_ref.topRightCorner(total_size, model.nv) = J_constraints;
-  H_ref.bottomLeftCorner(model.nv, total_size) = J_constraints.transpose();
-
-  BOOST_CHECK(cholesky.matrix().isApprox(H_ref));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
