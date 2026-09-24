@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix MJCF parser dropping the `pos`/`quat` of a fixed base root body, which offset the whole kinematic tree and left its inertia at the origin ([#2934](https://github.com/stack-of-tasks/pinocchio/pull/2934))
 - Fix MJCF parser placing the sites of a jointless body relative to its parent body instead of its supporting joint ([#2934](https://github.com/stack-of-tasks/pinocchio/pull/2934))
 - Fix `GeometryModel::collisionPairMapping` not being updated in `removeGeometryObject` ([#2937](https://github.com/stack-of-tasks/pinocchio/pull/2937)
+- Fix `beta_alt` sign flip in small-angle Taylor expansion of quaternion Log map (log6) ([#2955](https://github.com/stack-of-tasks/pinocchio/pull/2955))
 
 ## [4.1.0] - 2026-07-07
 
