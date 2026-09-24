@@ -1,10 +1,10 @@
+import sys
 import time
 
 import coal
 import numpy as np
 import pinocchio as pin
-import trimesh
-from pinocchio.visualize import ViserVisualizer
+from pinocchio.visualize import MeshcatVisualizer
 
 # Constrained forward kinematics with EllipsoidPointConstraintModel: a point held on the
 # surface of an ellipsoid.
@@ -31,7 +31,8 @@ mass = 0.5
 
 RED_COLOR = np.array([0.95, 0.25, 0.15, 1.0])
 BLUE_COLOR = np.array([0.2, 0.55, 0.95, 1.0])
-ELLIPSOID_COLOR = np.array([0.6, 0.6, 0.6, 0.25])
+ELLIPSOID_COLOR = 0x999999  # meshcat wants a hexadecimal colour, not an RGB triple
+ELLIPSOID_OPACITY = 0.25
 
 model = pin.Model()
 model.name = "scapula-on-thorax"
@@ -134,29 +135,29 @@ print(
     f"||grad phi|| on the surface    : {np.linalg.norm(constraint_data.gradient):.6f}"
 )
 
-# Display the mechanism. `open=True` would block until a browser client connects, so we
-# print the URL instead.
-viz = ViserVisualizer(model, visual_model, visual_model)
-viz.initViewer(open=False)
+# Display the mechanism. meshcat.geometry is imported here rather than at the top so
+# that a missing viewer is caught by the same guard as the visualizer itself.
+try:
+    import meshcat.geometry as mg
+
+    viz = MeshcatVisualizer(model, visual_model, visual_model)
+    viz.initViewer(open=True)
+except ImportError as error:
+    print(error)
+    sys.exit(0)
 viz.loadViewerModel()
 viz.display(configurations[0])
 
 # The ellipsoid is not a body of the model -- it belongs to the constraint -- and
-# ViserVisualizer only handles Box, Sphere, Cylinder, Convex and meshes anyway. Draw it
-# straight through the viser server, from a unit sphere scaled by the radii.
-unit_sphere = trimesh.creation.icosphere(subdivisions=4, radius=1.0)
-ellipsoid_vertices = np.asarray(unit_sphere.vertices) * radii
-ellipsoid_vertices = ellipsoid_vertices @ placement_ellipsoid.rotation.T
-ellipsoid_vertices += placement_ellipsoid.translation
-viz.viewer.scene.add_mesh_simple(
-    "thorax",
-    ellipsoid_vertices,
-    np.asarray(unit_sphere.faces),
-    color=ELLIPSOID_COLOR[:3],
-    opacity=ELLIPSOID_COLOR[3],
+# MeshcatVisualizer does not handle coal.Ellipsoid anyway: draw it through the viewer.
+viz.viewer["thorax"].set_object(
+    mg.Ellipsoid(radii),
+    mg.MeshLambertMaterial(
+        color=ELLIPSOID_COLOR, transparent=True, opacity=ELLIPSOID_OPACITY
+    ),
 )
+viz.viewer["thorax"].set_transform(placement_ellipsoid.homogeneous)
 
-print(f"\nViser: http://{viz.viewer.get_host()}:{viz.viewer.get_port()}")
 print("Grey ellipsoid: the constraint manifold. The red point never leaves it.")
 
 dt = 6.0 / 60.0

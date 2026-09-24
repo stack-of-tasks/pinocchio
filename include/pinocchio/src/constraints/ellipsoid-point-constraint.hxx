@@ -186,9 +186,6 @@ namespace pinocchio
     using typename Base::SE3;
     using typename Base::Vector3;
 
-    // Useful types ------------------------------------------------
-    typedef Eigen::Matrix<Scalar, Size, Size, Options> MatrixSize;
-
     // -------------------------------
     // METHODS SPECIFIC TO CLASS
     // -------------------------------
@@ -854,21 +851,13 @@ namespace pinocchio
         appendConstraintInertias(model, data, cdata, Scalar(1), reference_frame);
         break;
       }
-      case internal::MatrixBlockType::ScalarIdentity: {
+      // The block holds a single coefficient: whether it is stored as a scalar identity, a
+      // diagonal or a plain matrix, its value sits at (0, 0).
+      case internal::MatrixBlockType::ScalarIdentity:
+      case internal::MatrixBlockType::Diagonal:
+      case internal::MatrixBlockType::Plain: {
         appendConstraintInertias(
           model, data, cdata, constraint_inertia.container()(0, 0), reference_frame);
-        break;
-      }
-      case internal::MatrixBlockType::Diagonal: {
-        ResidualVectorType cinertia;
-        constraint_inertia.diagonal(cinertia);
-        appendConstraintInertias(model, data, cdata, cinertia[0], reference_frame);
-        break;
-      }
-      case internal::MatrixBlockType::Plain: {
-        MatrixSize cinertia;
-        constraint_inertia.matrix(cinertia);
-        appendConstraintInertias(model, data, cdata, cinertia(0, 0), reference_frame);
         break;
       }
       default:
