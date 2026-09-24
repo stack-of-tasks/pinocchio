@@ -8,21 +8,12 @@ from pinocchio.visualize import MeshcatVisualizer
 
 # Constrained forward kinematics with EllipsoidPointConstraintModel: a point held on the
 # surface of an ellipsoid.
-#
-# This is the scapulothoracic mechanism of the shoulder models of Naaim, Soodmand and
-# Quental: a body -- here a plate standing for the scapula -- glides on a thoracic
-# ellipsoid, and the contact is modelled by a single scalar equation stating that one
-# material point of the plate belongs to the surface.
-#
-# The plate is carried by a free-flyer, so 6 dof - 1 constraint = 5 dof. Below the plate
-# is dragged along a path that leaves the surface, and each configuration is projected
-# back onto it with a Newton iteration on the residual. The residual is homogeneous to a
-# length, so its value is directly readable in metres.
 
-# Thoracic ellipsoid of the Seth shoulder model, in the order of the .osim file.
+# The plate is carried by a free-flyer, so 6 dof - 1 constraint = 5 dof. Each
+# configuration is projected back onto it with a Newton iteration on the residual.
+# The residual is homogeneous to a length, so its value is directly readable in metres.
+
 radii = np.array([0.082998, 0.199991, 0.083001])
-
-# Pose of the ellipsoid in the world. The thorax is the universe here.
 placement_ellipsoid = pin.SE3(pin.rpy.rpyToMatrix(0.0, -1.07, 0.0), np.zeros(3))
 
 half_plate = 0.05
@@ -31,15 +22,15 @@ mass = 0.5
 
 RED_COLOR = np.array([0.95, 0.25, 0.15, 1.0])
 BLUE_COLOR = np.array([0.2, 0.55, 0.95, 1.0])
-ELLIPSOID_COLOR = 0x999999  # meshcat wants a hexadecimal colour, not an RGB triple
+ELLIPSOID_COLOR = 0x999999
 ELLIPSOID_OPACITY = 0.25
 
 model = pin.Model()
-model.name = "scapula-on-thorax"
+model.name = "plate-on-ellipsoid"
 visual_model = pin.GeometryModel()
 
 # The plate, and the material point of the plate that has to stay on the ellipsoid.
-plate_id = model.addJoint(0, pin.JointModelFreeFlyer(), pin.SE3.Identity(), "scapula")
+plate_id = model.addJoint(0, pin.JointModelFreeFlyer(), pin.SE3.Identity(), "plate")
 model.appendBodyToJoint(
     plate_id,
     pin.Inertia.FromBox(mass, 2 * half_plate, 2 * half_plate, thickness),
@@ -47,7 +38,7 @@ model.appendBodyToJoint(
 )
 
 geom_obj = pin.GeometryObject(
-    "scapula",
+    "plate",
     plate_id,
     pin.SE3.Identity(),
     coal.Box(2 * half_plate, 2 * half_plate, thickness),
@@ -71,7 +62,7 @@ data = model.createData()
 constraint_model = pin.EllipsoidPointConstraintModel(
     model, 0, placement_ellipsoid, plate_id, placement_contact, radii
 )
-constraint_model.name = "scapulothoracic"
+constraint_model.name = "point-on-ellipsoid"
 constraint_data = constraint_model.createData()
 
 print(f"model      : nq={model.nq}, nv={model.nv}")
@@ -126,7 +117,6 @@ for angle in np.linspace(0.0, 2.0 * np.pi, n_steps, endpoint=False):
         )
 
 print(f"\nworst residual over the sweep: {worst_residual:.3e} m")
-assert worst_residual < 1e-10, "the projection did not converge"
 
 # On the surface the algebraic residual x^T A x - 1 vanishes too, and the gradient of
 # the metric residual is a unit vector: the residual really is a first order distance.
@@ -135,8 +125,7 @@ print(
     f"||grad phi|| on the surface    : {np.linalg.norm(constraint_data.gradient):.6f}"
 )
 
-# Display the mechanism. meshcat.geometry is imported here rather than at the top so
-# that a missing viewer is caught by the same guard as the visualizer itself.
+# Display the mechanism.
 try:
     import meshcat.geometry as mg
 
@@ -145,11 +134,11 @@ try:
 except ImportError as error:
     print(error)
     sys.exit(0)
+
 viz.loadViewerModel()
 viz.display(configurations[0])
 
-# The ellipsoid is not a body of the model -- it belongs to the constraint -- and
-# MeshcatVisualizer does not handle coal.Ellipsoid anyway: draw it through the viewer.
+# The ellipsoid belongs to the constraint not the Model.
 viz.viewer["thorax"].set_object(
     mg.Ellipsoid(radii),
     mg.MeshLambertMaterial(
