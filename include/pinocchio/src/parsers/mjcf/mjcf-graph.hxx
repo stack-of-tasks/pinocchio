@@ -600,6 +600,10 @@ namespace pinocchio
         /// @param xmlStr xml file name
         void parseGraphFromXML(const std::string & xmlStr);
 
+        /// @brief parse the mjcf model content into a graph
+        /// @param xmlStream xml file content
+        void parseGraphFromXMLContent(const std::string & xmlStream);
+
         /// @brief Create a joint to add to the joint composite if needed
         /// @tparam TypeX joint with axis X
         /// @tparam TypeY joint with axis Y

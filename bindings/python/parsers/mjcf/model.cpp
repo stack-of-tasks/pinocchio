@@ -35,6 +35,23 @@ namespace pinocchio
       return model;
     }
 
+    Model buildModelFromMJCFContent(const std::string & mjcf_string)
+    {
+      Model model;
+      ::pinocchio::mjcf::buildModelFromXMLContent(mjcf_string, model);
+      return model;
+    }
+
+    Model buildModelFromMJCFContentAndRootJoint(
+      const std::string & mjcf_string,
+      const JointModel & root_joint,
+      const std::string & root_joint_name)
+    {
+      Model model;
+      ::pinocchio::mjcf::buildModelFromXMLContent(mjcf_string, root_joint, root_joint_name, model);
+      return model;
+    }
+
     bp::tuple buildModelFromMJCFAndRootJointDeprecated(
       const bp::object & filename,
       const JointModel & root_joint,
@@ -107,6 +124,17 @@ namespace pinocchio
         (bp::args("mjcf_filename"), bp::args("root_joint"),
          bp::args("root_joint_name") = "root_joint"),
         "Parse the MJCF file and return a pinocchio Model with the given root Joint.");
+
+      bp::def(
+        "buildModelFromMJCFContent", pinocchio::python::buildModelFromMJCFContent,
+        bp::arg("mjcf_string"),
+        "Parse the MJCF string given in input and return a pinocchio Model.");
+
+      bp::def(
+        "buildModelFromMJCFContent", pinocchio::python::buildModelFromMJCFContentAndRootJoint,
+        (bp::arg("mjcf_string"), bp::arg("root_joint"), bp::arg("root_joint_name") = "root_joint"),
+        "Parse the MJCF string and return a pinocchio Model with the given root Joint and its "
+        "specified name.");
 
       bp::def(
         "buildModelFromMJCF", pinocchio::python::buildModelFromMJCFAndRootJointDeprecated,
