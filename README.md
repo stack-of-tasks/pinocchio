@@ -313,6 +313,7 @@ In addition to the core dev team, the following people have also been involved i
 -   [tandede](https://github.com/tandede): GCC 10 compatibility for aligned matrix map comparisons
 -   [Amane Inoue](https://github.com/isaka1022): MJCF parser bug fixes
 -   [Benjamin Delpech](https://github.com/benjiiDELPECH): collisionPairMapping bug fix
+-   [Beichen Zhuo](https://github.com/BeichenZhuo): quaternion Log map sign flip bug fix
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 
