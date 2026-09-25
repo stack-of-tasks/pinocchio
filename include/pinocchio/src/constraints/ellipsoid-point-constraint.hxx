@@ -18,22 +18,22 @@ namespace pinocchio
   // Cast
   // --------------------------------------------------------------
   template<typename NewScalar, typename Scalar, int Options>
-  struct CastType<NewScalar, ConstantLengthConstraintModelTpl<Scalar, Options>>
+  struct CastType<NewScalar, EllipsoidPointConstraintModelTpl<Scalar, Options>>
   {
-    typedef ConstantLengthConstraintModelTpl<NewScalar, Options> type;
+    typedef EllipsoidPointConstraintModelTpl<NewScalar, Options> type;
   };
 
   // --------------------------------------------------------------
   // Traits
   // --------------------------------------------------------------
   template<typename _Scalar, int _Options>
-  struct traits<ConstantLengthConstraintModelTpl<_Scalar, _Options>>
+  struct traits<EllipsoidPointConstraintModelTpl<_Scalar, _Options>>
   {
     // --------------------------------------------------------------
     // Traits referencing the constraint and associated types
     // --------------------------------------------------------------
-    typedef ConstantLengthConstraintModelTpl<_Scalar, _Options> ConstraintModel;
-    typedef ConstantLengthConstraintDataTpl<_Scalar, _Options> ConstraintData;
+    typedef EllipsoidPointConstraintModelTpl<_Scalar, _Options> ConstraintModel;
+    typedef EllipsoidPointConstraintDataTpl<_Scalar, _Options> ConstraintData;
 
     typedef ConstraintModel Model;
     typedef ConstraintData Data;
@@ -99,36 +99,46 @@ namespace pinocchio
   };
 
   template<typename _Scalar, int _Options>
-  struct traits<ConstantLengthConstraintDataTpl<_Scalar, _Options>>
-  : traits<ConstantLengthConstraintModelTpl<_Scalar, _Options>>
+  struct traits<EllipsoidPointConstraintDataTpl<_Scalar, _Options>>
+  : traits<EllipsoidPointConstraintModelTpl<_Scalar, _Options>>
   {
   };
 
   ///
-  /// \brief Constraint model enforcing a constant distance between two material points.
+  /// \brief Constraint model keeping a material point on the surface of an ellipsoid.
   ///
-  /// The first point is rigidly attached to joint1 (at joint1_placement), the second one to
-  /// joint2 (at joint2_placement). Denoting by \f$ x \f$ the position of the second point
-  /// expressed in the frame of the first one, the (scalar) constraint residual reads
+  /// The ellipsoid is carried by joint 1: joint1_placement gives the pose of its principal axes
+  /// in the frame of that joint, and the radii are the half-axes along those axes. Joint 1 may be
+  /// the universe. The material point is carried by joint 2, at joint2_placement.
+  ///
+  /// Denoting by \f$ x \f$ the position of the point expressed in the frame of the ellipsoid and
+  /// by \f$ A = \mathrm{diag}(1/a_i^2) \f$, the surface is \f$ x^T A x = 1 \f$ and the constraint
+  /// residual reads
   /// \f[
-  ///   \varphi(q) = \| x(q) \| - L - \delta
+  ///   \varphi(q) = \frac{x^T A x - 1}{2 \| A x \|} - \delta
   /// \f]
-  /// where \f$ L \f$ is the constant length of the constraint and \f$ \delta \f$ is the
-  /// generic desired_constraint_offset inherited from the binary kinematics constraints.
-  /// The residual is homogeneous to a length (in meters), which makes it directly comparable
-  /// to the other position level quantities of the model.
+  /// where \f$ \delta \f$ is the generic desired_constraint_offset inherited from the binary
+  /// kinematics constraints.
   ///
-  /// \remarks The constraint is singular when the two points are coincident (\f$ \|x\| = 0 \f$).
+  /// The division by \f$ 2 \| A x \| \f$ makes the residual homogeneous to a length: it is the
+  /// signed distance to the surface to first order, positive outside, negative inside, and
+  /// exactly zero on the surface. The raw algebraic residual \f$ x^T A x - 1 \f$ would be
+  /// dimensionless and badly scaled -- on a 83 x 200 x 83 mm ellipsoid a 5 mm violation gives
+  /// 0.11, some twenty times the metric residual -- which matters as soon as the residual is
+  /// compared with, or summed against, other length-valued quantities.
+  ///
+  /// \remarks The constraint is singular at the centre of the ellipsoid only, where
+  /// \f$ \| A x \| = 0 \f$.
   ///
   template<typename _Scalar, int _Options>
-  struct ConstantLengthConstraintModelTpl
-  : BinaryKinematicsConstraintModelBase<ConstantLengthConstraintModelTpl<_Scalar, _Options>>
+  struct EllipsoidPointConstraintModelTpl
+  : BinaryKinematicsConstraintModelBase<EllipsoidPointConstraintModelTpl<_Scalar, _Options>>
   {
     // --------------------------------------------------------------
     // Type defs
     // --------------------------------------------------------------
     // CRTP related types -------------------------------------------
-    typedef ConstantLengthConstraintModelTpl Self;
+    typedef EllipsoidPointConstraintModelTpl Self;
     typedef BinaryKinematicsConstraintModelBase<Self> Base;
     typedef ConstraintModelCommonParameters<Self> BaseCommonParameters;
     typedef ConstraintModelBase<Self> RootBase;
@@ -159,7 +169,7 @@ namespace pinocchio
 
     // Friendship ---------------------------------------------------
     template<typename NewScalar, int NewOptions>
-    friend struct ConstantLengthConstraintModelTpl;
+    friend struct EllipsoidPointConstraintModelTpl;
 
     // Base usage ---------------------------------------------------
     using Base::joint1_id;
@@ -197,122 +207,108 @@ namespace pinocchio
     // Constructors ------------------
 
     ///
-    /// \brief Default constructor. The length is set to zero.
+    /// \brief Default constructor. The ellipsoid is the unit sphere.
     ///
-    ConstantLengthConstraintModelTpl()
+    EllipsoidPointConstraintModelTpl()
     : Base()
-    , m_length(Scalar(0))
+    , m_radii(Vector3::Ones())
     {
     }
 
     ///
-    /// \brief Constructor from the model only. The length is set to zero.
+    /// \brief Constructor from the model only. The ellipsoid is the unit sphere.
     ///
     /// \param[in] model Kinematic tree.
     ///
     template<int OtherOptions, template<typename, int> class JointCollectionTpl>
-    explicit ConstantLengthConstraintModelTpl(
+    explicit EllipsoidPointConstraintModelTpl(
       const ModelTpl<Scalar, OtherOptions, JointCollectionTpl> & model)
     : Base(model)
-    , m_length(Scalar(0))
+    , m_radii(Vector3::Ones())
     {
     }
 
     ///
-    /// \brief Constructor from joint indexes, placements and length.
+    /// \brief Constructor from the ellipsoid and the material point.
     ///
     /// \param[in] model Model associated to the constraint.
-    /// \param[in] joint1_id Index of the joint 1 in the model tree.
-    /// \param[in] joint1_placement Placement of the first point w.r.t the frame of joint1.
-    /// \param[in] joint2_id Index of the joint 2 in the model tree.
-    /// \param[in] joint2_placement Placement of the second point w.r.t the frame of joint2.
-    /// \param[in] length Constant distance enforced between the two points.
+    /// \param[in] joint1_id Index of the joint carrying the ellipsoid (0 for the universe).
+    /// \param[in] joint1_placement Pose of the principal axes of the ellipsoid w.r.t joint1.
+    /// \param[in] joint2_id Index of the joint carrying the material point.
+    /// \param[in] joint2_placement Placement of the material point w.r.t the frame of joint2.
+    /// \param[in] radii Half-axes of the ellipsoid, along the axes of joint1_placement.
     ///
-    template<int OtherOptions, template<typename, int> class JointCollectionTpl>
-    ConstantLengthConstraintModelTpl(
+    template<
+      int OtherOptions,
+      template<typename, int> class JointCollectionTpl,
+      typename Vector3Like>
+    EllipsoidPointConstraintModelTpl(
       const ModelTpl<Scalar, OtherOptions, JointCollectionTpl> & model,
       const JointIndex joint1_id,
       const SE3 & joint1_placement,
       const JointIndex joint2_id,
       const SE3 & joint2_placement,
-      const Scalar length)
+      const Eigen::MatrixBase<Vector3Like> & radii)
     : Base(model, joint1_id, joint1_placement, joint2_id, joint2_placement)
-    , m_length(length)
+    , m_radii(radii)
     {
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(
-        check_expression_if_real<Scalar>(length >= Scalar(0)), "The length must be non negative.");
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Vector3Like, Vector3);
+      checkRadii(m_radii);
     }
 
     ///
-    /// \brief Constructor from joint indexes and placements. The length is set to zero.
-    ///
-    /// \param[in] model Model associated to the constraint.
-    /// \param[in] joint1_id Index of the joint 1 in the model tree.
-    /// \param[in] joint1_placement Placement of the first point w.r.t the frame of joint1.
-    /// \param[in] joint2_id Index of the joint 2 in the model tree.
-    /// \param[in] joint2_placement Placement of the second point w.r.t the frame of joint2.
+    /// \brief Constructor from joint indexes and placements. The ellipsoid is the unit sphere.
     ///
     template<int OtherOptions, template<typename, int> class JointCollectionTpl>
-    ConstantLengthConstraintModelTpl(
+    EllipsoidPointConstraintModelTpl(
       const ModelTpl<Scalar, OtherOptions, JointCollectionTpl> & model,
       const JointIndex joint1_id,
       const SE3 & joint1_placement,
       const JointIndex joint2_id,
       const SE3 & joint2_placement)
     : Base(model, joint1_id, joint1_placement, joint2_id, joint2_placement)
-    , m_length(Scalar(0))
+    , m_radii(Vector3::Ones())
     {
     }
 
     ///
-    /// \brief Constructor from joint1_id and placement. The length is set to zero.
-    ///
-    /// \param[in] model Kinematic tree.
-    /// \param[in] joint1_id Index of the joint 1 in the model tree.
-    /// \param[in] joint1_placement Placement of the first point w.r.t the frame of joint1.
+    /// \brief Constructor from joint1_id and placement. The ellipsoid is the unit sphere.
     ///
     /// \remarks The second joint id (joint2_id) is set to be 0 (the universe).
     ///
     template<int OtherOptions, template<typename, int> class JointCollectionTpl>
-    ConstantLengthConstraintModelTpl(
+    EllipsoidPointConstraintModelTpl(
       const ModelTpl<Scalar, OtherOptions, JointCollectionTpl> & model,
       const JointIndex joint1_id,
       const SE3 & joint1_placement)
     : Base(model, joint1_id, joint1_placement)
-    , m_length(Scalar(0))
+    , m_radii(Vector3::Ones())
     {
     }
 
     ///
-    /// \brief Constructor from joint ids. The length is set to zero.
-    ///
-    /// \param[in] model Kinematic tree.
-    /// \param[in] joint1_id Index of the joint 1 in the model tree.
-    /// \param[in] joint2_id Index of the joint 2 in the model tree.
+    /// \brief Constructor from joint ids. The ellipsoid is the unit sphere.
     ///
     template<int OtherOptions, template<typename, int> class JointCollectionTpl>
-    ConstantLengthConstraintModelTpl(
+    EllipsoidPointConstraintModelTpl(
       const ModelTpl<Scalar, OtherOptions, JointCollectionTpl> & model,
       const JointIndex joint1_id,
       const JointIndex joint2_id)
     : Base(model, joint1_id, joint2_id)
-    , m_length(Scalar(0))
+    , m_radii(Vector3::Ones())
     {
     }
 
     ///
-    /// \brief Constructor from joint1_id. The length is set to zero.
-    ///
-    /// \param[in] model Kinematic tree.
-    /// \param[in] joint1_id Index of the joint 1 in the model tree.
+    /// \brief Constructor from joint1_id. The ellipsoid is the unit sphere.
     ///
     /// \remarks The second joint id (joint2_id) is set to be 0 (the universe).
     ///
     template<int OtherOptions, template<typename, int> class JointCollectionTpl>
-    ConstantLengthConstraintModelTpl(
+    EllipsoidPointConstraintModelTpl(
       const ModelTpl<Scalar, OtherOptions, JointCollectionTpl> & model, const JointIndex joint1_id)
     : Base(model, joint1_id)
-    , m_length(Scalar(0))
+    , m_radii(Vector3::Ones())
     {
     }
 
@@ -320,49 +316,46 @@ namespace pinocchio
 
     /// \brief Cast operator
     template<typename NewScalar>
-    typename CastType<NewScalar, ConstantLengthConstraintModelTpl>::type cast() const
+    typename CastType<NewScalar, EllipsoidPointConstraintModelTpl>::type cast() const
     {
-      typedef typename CastType<NewScalar, ConstantLengthConstraintModelTpl>::type ReturnType;
+      typedef typename CastType<NewScalar, EllipsoidPointConstraintModelTpl>::type ReturnType;
       ReturnType res;
       Base::template cast<NewScalar>(res);
-      res.m_length = static_cast<NewScalar>(m_length);
+      res.m_radii = m_radii.template cast<NewScalar>();
       return res;
     }
 
     ///
     /// \brief Comparison operator
     ///
-    /// \param[in] other Other ConstantLengthConstraintModelTpl to compare with.
-    ///
-    bool operator==(const ConstantLengthConstraintModelTpl & other) const
+    bool operator==(const EllipsoidPointConstraintModelTpl & other) const
     {
-      return base() == other.base() && m_length == other.m_length;
+      return base() == other.base() && m_radii == other.m_radii;
     }
 
     ///
     /// \brief Opposite of the comparison operator.
     ///
-    /// \param[in] other Other ConstantLengthConstraintModelTpl to compare with.
-    ///
-    bool operator!=(const ConstantLengthConstraintModelTpl & other) const
+    bool operator!=(const EllipsoidPointConstraintModelTpl & other) const
     {
       return !(*this == other);
     }
 
     // Accessors ---------------------
 
-    /// \brief Returns the constant length enforced by the constraint.
-    const Scalar & getLength() const
+    /// \brief Returns the half-axes of the ellipsoid.
+    const Vector3 & getRadii() const
     {
-      return m_length;
+      return m_radii;
     }
 
-    /// \brief Sets the constant length enforced by the constraint.
-    void setLength(const Scalar & length)
+    /// \brief Sets the half-axes of the ellipsoid.
+    template<typename Vector3Like>
+    void setRadii(const Eigen::MatrixBase<Vector3Like> & radii)
     {
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(
-        check_expression_if_real<Scalar>(length >= Scalar(0)), "The length must be non negative.");
-      m_length = length;
+      EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Vector3Like, Vector3);
+      checkRadii(radii.derived());
+      m_radii = radii;
     }
 
     // -------------------------------
@@ -374,7 +367,7 @@ namespace pinocchio
     /// \copydoc RootBase::classname
     static std::string classnameImpl()
     {
-      return std::string("ConstantLengthConstraintModel");
+      return std::string("EllipsoidPointConstraintModel");
     }
 
     /// \copydoc RootBase::shortname
@@ -421,48 +414,68 @@ namespace pinocchio
       cdata.c1Mc2 = cdata.oMc1.actInv(cdata.oMc2);
       const Matrix3 & _1R2_ = cdata.c1Mc2.rotation();
 
-      // Position of the second point expressed in the frame of the first one, and its norm.
+      // Position of the material point expressed in the frame of the ellipsoid.
       cdata.relative_position = cdata.c1Mc2.translation();
-      const Vector3 & relative_position = cdata.relative_position;
+      const Vector3 & x = cdata.relative_position;
 
-      cdata.distance = relative_position.norm();
+      // A = diag(1/a_i^2), so Ax = x / a^2 and A2x = A (A x).
+      const Vector3 inv_radii_squared = m_radii.cwiseProduct(m_radii).cwiseInverse();
+      const Vector3 Ax = x.cwiseProduct(inv_radii_squared);
+      const Vector3 A2x = Ax.cwiseProduct(inv_radii_squared);
+
+      cdata.norm_Ax = Ax.norm();
       assert(
-        check_expression_if_real<Scalar>(cdata.distance > Scalar(0))
-        && "The two points of the constraint are coincident: the constraint is singular.");
+        check_expression_if_real<Scalar>(cdata.norm_Ax > Scalar(0))
+        && "The point is at the centre of the ellipsoid: the constraint is singular.");
 
-      cdata.direction = relative_position / cdata.distance;
-      const Vector3 & direction = cdata.direction;
+      cdata.algebraic_error = x.dot(Ax) - Scalar(1);
 
-      cdata.constraint_position_error[0] =
-        cdata.distance - m_length - this->desired_constraint_offset[0];
+      const Scalar & s = cdata.algebraic_error;
+      const Scalar & n = cdata.norm_Ax;
+      const Scalar n2 = n * n, n3 = n2 * n, n5 = n3 * n2;
 
-      // First order time derivative of relative_position.
+      // grad phi = A x / ||A x||  -  phi_alg * A^2 x / (2 ||A x||^3)
+      cdata.gradient = Ax / n - (s / (Scalar(2) * n3)) * A2x;
+      const Vector3 & gradient = cdata.gradient;
+
+      cdata.constraint_position_error[0] = s / (Scalar(2) * n) - this->desired_constraint_offset[0];
+
+      // First order time derivative of the relative position.
       const Motion vf1 = this->joint1_placement.actInv(data.v[this->joint1_id]);
       const Motion vf2 = this->joint2_placement.actInv(data.v[this->joint2_id]);
 
       const Vector3 relative_velocity_component1 = _1R2_ * vf2.linear() - vf1.linear();
       Vector3 relative_velocity = relative_velocity_component1;
-      relative_velocity -= vf1.angular().cross(relative_position);
+      relative_velocity -= vf1.angular().cross(x);
 
-      // d/dt ||x|| = u . xdot
-      const Scalar radial_velocity = direction.dot(relative_velocity);
-      cdata.constraint_velocity_error[0] = radial_velocity - this->desired_constraint_velocity[0];
+      cdata.constraint_velocity_error[0] =
+        gradient.dot(relative_velocity) - this->desired_constraint_velocity[0];
 
-      // Second order time derivative of relative_position.
+      // Second order time derivative of the relative position.
       const Motion af1 = this->joint1_placement.actInv(data.a[this->joint1_id]);
       const Motion af2 = this->joint2_placement.actInv(data.a[this->joint2_id]);
 
       Vector3 relative_acceleration = _1R2_ * (af2.linear() + vf2.angular().cross(vf2.linear()))
                                       - (af1.linear() + vf1.angular().cross(vf1.linear()));
-      relative_acceleration -= af1.angular().cross(relative_position);
-      relative_acceleration += vf1.angular().cross(vf1.angular().cross(relative_position));
+      relative_acceleration -= af1.angular().cross(x);
+      relative_acceleration += vf1.angular().cross(vf1.angular().cross(x));
       relative_acceleration -= Scalar(2) * vf1.angular().cross(relative_velocity_component1);
 
-      // d^2/dt^2 ||x|| = u . xddot + (||xdot||^2 - (u . xdot)^2) / ||x||
-      cdata.constraint_acceleration_error[0] =
-        direction.dot(relative_acceleration)
-        + (relative_velocity.squaredNorm() - radial_velocity * radial_velocity) / cdata.distance
-        - this->desired_constraint_acceleration[0];
+      // d^2/dt^2 phi = grad phi . xddot + xdot^T (hessian phi) xdot, the quadratic form being
+      //   xd^T A xd / n  -  2 (Ax.xd)(A2x.xd) / n^3
+      //   + 3 phi_alg (A2x.xd)^2 / (2 n^5)  -  phi_alg xd^T A^2 xd / (2 n^3)
+      const Vector3 A_xdot = relative_velocity.cwiseProduct(inv_radii_squared);
+      const Scalar q1 = A_xdot.dot(relative_velocity);
+      const Scalar q2 = Ax.dot(relative_velocity);
+      const Scalar q3 = A2x.dot(relative_velocity);
+      const Scalar q4 = A_xdot.cwiseProduct(inv_radii_squared).dot(relative_velocity);
+
+      const Scalar quadratic_form = q1 / n - Scalar(2) * q2 * q3 / n3
+                                    + Scalar(3) * s * q3 * q3 / (Scalar(2) * n5)
+                                    - s * q4 / (Scalar(2) * n3);
+
+      cdata.constraint_acceleration_error[0] = gradient.dot(relative_acceleration) + quadratic_form
+                                               - this->desired_constraint_acceleration[0];
 
       cdata.A1_world = this->getA1(cdata, WorldFrameTag());
       cdata.A2_world = this->getA2(cdata, WorldFrameTag());
@@ -494,7 +507,7 @@ namespace pinocchio
       const SE3 & oMc2 = cdata.oMc2;
       const SE3 & c1Mc2 = cdata.c1Mc2;
       const Vector3 & relative_position = cdata.relative_position;
-      const Vector3 & direction = cdata.direction;
+      const Vector3 & gradient = cdata.gradient;
 
       for (Eigen::Index jj = 0; jj < model.nv; ++jj)
       {
@@ -519,7 +532,7 @@ namespace pinocchio
             relative_position_jacobian_col += c1Mc2.rotation() * Jcol_local.linear();
           }
 
-          jacobian_matrix(0, jj) = direction.dot(relative_position_jacobian_col);
+          jacobian_matrix(0, jj) = gradient.dot(relative_position_jacobian_col);
         }
       }
     }
@@ -751,8 +764,6 @@ namespace pinocchio
 
     ///
     /// \brief This function computes the spatial inertias associated with the constraint.
-    /// This function is useful to express the constraint inertia associated with the constraint
-    /// for AL-based approaches.
     ///
     template<
       typename Matrix6LikeOut1,
@@ -852,7 +863,7 @@ namespace pinocchio
       default:
         assert(false && "Should never happened");
         PINOCCHIO_THROW_PRETTY(
-          std::invalid_argument, "Invalid MatrixBlockType for ConstantLengthConstraintModelTpl.");
+          std::invalid_argument, "Invalid MatrixBlockType for EllipsoidPointConstraintModelTpl.");
       }
     }
 
@@ -862,7 +873,7 @@ namespace pinocchio
     {
       MatrixSize6 res;
       res.noalias() =
-        cdata.direction.transpose()
+        cdata.gradient.transpose()
         * internal::relativePointProjector1(
           cdata.oMc1, cdata.oMc2, this->joint1_placement, cdata.relative_position, rft);
       return res;
@@ -873,13 +884,27 @@ namespace pinocchio
     MatrixSize6 getA2Impl(const ConstraintData & cdata, ReferenceFrameTag<rf> rft) const
     {
       MatrixSize6 res;
-      res.noalias() = cdata.direction.transpose()
+      res.noalias() = cdata.gradient.transpose()
                       * internal::relativePointProjector2(
                         cdata.oMc1, cdata.oMc2, cdata.c1Mc2, this->joint2_placement, rft);
       return res;
     }
 
   protected:
+    /// \brief Throws if one of the half-axes is not strictly positive.
+    /// \remarks The components are checked one by one rather than through minCoeff(), which
+    /// needs a boolean comparison and would not compile for symbolic scalars.
+    template<typename Vector3Like>
+    static void checkRadii(const Eigen::MatrixBase<Vector3Like> & radii)
+    {
+      for (Eigen::Index k = 0; k < 3; ++k)
+      {
+        PINOCCHIO_CHECK_INPUT_ARGUMENT(
+          check_expression_if_real<Scalar>(radii.derived()[k] > Scalar(0)),
+          "The radii of the ellipsoid must be strictly positive.");
+      }
+    }
+
     /// \brief Adds the apparent inertia induced by the constraint to the augmented articulated
     /// body inertias and to the joint cross coupling terms stored in data.
     template<int OtherOptions, template<typename, int> class JointCollectionTpl, ReferenceFrame rf>
@@ -925,23 +950,23 @@ namespace pinocchio
     // MEMBERS
     // ------------------------------
 
-    /// \brief Constant distance enforced between the two points of the constraint.
-    Scalar m_length;
+    /// \brief Half-axes of the ellipsoid, along the axes of joint1_placement.
+    Vector3 m_radii;
 
-  }; // struct ConstantLengthConstraintModelTpl
+  }; // struct EllipsoidPointConstraintModelTpl
 
   ///
-  /// \brief Data structure associated with ConstantLengthConstraintModelTpl.
+  /// \brief Data structure associated with EllipsoidPointConstraintModelTpl.
   ///
   template<typename _Scalar, int _Options>
-  struct ConstantLengthConstraintDataTpl
-  : ConstraintDataBase<ConstantLengthConstraintDataTpl<_Scalar, _Options>>
+  struct EllipsoidPointConstraintDataTpl
+  : ConstraintDataBase<EllipsoidPointConstraintDataTpl<_Scalar, _Options>>
   {
     // --------------------------------------------------------------
     // Type defs
     // --------------------------------------------------------------
     // CRTP related types -------------------------------------------
-    typedef ConstantLengthConstraintDataTpl Self;
+    typedef EllipsoidPointConstraintDataTpl Self;
     typedef ConstraintDataBase<Self> Base;
 
     // Retrieving traits --------------------------------------------
@@ -984,14 +1009,15 @@ namespace pinocchio
     // Constructors ------------------
 
     /// \brief Default constructor
-    ConstantLengthConstraintDataTpl()
+    EllipsoidPointConstraintDataTpl()
     : constraint_force(ResidualVectorType::Zero())
     , oMc1(SE3::Identity())
     , oMc2(SE3::Identity())
     , c1Mc2(SE3::Identity())
     , relative_position(Vector3::Zero())
-    , distance(Scalar(0))
-    , direction(Vector3::Zero())
+    , algebraic_error(Scalar(0))
+    , norm_Ax(Scalar(0))
+    , gradient(Vector3::Zero())
     , constraint_position_error(ResidualVectorType::Zero())
     , constraint_velocity_error(ResidualVectorType::Zero())
     , constraint_acceleration_error(ResidualVectorType::Zero())
@@ -1006,11 +1032,8 @@ namespace pinocchio
     }
 
     /// \brief Constructor from a given ConstraintModel
-    ///
-    /// \param[in] cmodel input constraint model
-    ///
-    explicit ConstantLengthConstraintDataTpl(const ConstraintModel & cmodel)
-    : ConstantLengthConstraintDataTpl()
+    explicit EllipsoidPointConstraintDataTpl(const ConstraintModel & cmodel)
+    : EllipsoidPointConstraintDataTpl()
     {
       PINOCCHIO_UNUSED_VARIABLE(cmodel);
     }
@@ -1018,11 +1041,12 @@ namespace pinocchio
     // Operators ---------------------
 
     /// \brief Comparison operator
-    bool operator==(const ConstantLengthConstraintDataTpl & other) const
+    bool operator==(const EllipsoidPointConstraintDataTpl & other) const
     {
       return constraint_force == other.constraint_force && oMc1 == other.oMc1 && oMc2 == other.oMc2
              && c1Mc2 == other.c1Mc2 && relative_position == other.relative_position
-             && distance == other.distance && direction == other.direction
+             && algebraic_error == other.algebraic_error && norm_Ax == other.norm_Ax
+             && gradient == other.gradient
              && constraint_position_error == other.constraint_position_error
              && constraint_velocity_error == other.constraint_velocity_error
              && constraint_acceleration_error == other.constraint_acceleration_error
@@ -1033,7 +1057,7 @@ namespace pinocchio
     }
 
     /// \brief Comparison operator
-    bool operator!=(const ConstantLengthConstraintDataTpl & other) const
+    bool operator!=(const EllipsoidPointConstraintDataTpl & other) const
     {
       return !(*this == other);
     }
@@ -1045,7 +1069,7 @@ namespace pinocchio
     /// \copydoc Base::classname
     static std::string classnameImpl()
     {
-      return std::string("ConstantLengthConstraintData");
+      return std::string("EllipsoidPointConstraintData");
     }
 
     /// \copydoc Base::shortname
@@ -1059,26 +1083,29 @@ namespace pinocchio
     // ------------------------------
     // note: data is always public - use at your own risk
 
-    /// \brief Resulting constraint force, aligned with cdata.direction.
+    /// \brief Resulting constraint force, aligned with cdata.gradient.
     ResidualVectorType constraint_force;
 
-    /// \brief Placement of the constraint frame 1 with respect to the WORLD frame
+    /// \brief Placement of the ellipsoid frame with respect to the WORLD frame
     SE3 oMc1;
 
-    /// \brief Placement of the constraint frame 2 with respect to the WORLD frame
+    /// \brief Placement of the material point frame with respect to the WORLD frame
     SE3 oMc2;
 
     /// \brief Relative displacement between the two frames
     SE3 c1Mc2;
 
-    /// \brief Position of the second point expressed in the frame of the first one
+    /// \brief Position of the material point expressed in the frame of the ellipsoid
     Vector3 relative_position;
 
-    /// \brief Norm of relative_position, i.e. the current distance between the two points
-    Scalar distance;
+    /// \brief Algebraic residual x^T A x - 1, dimensionless
+    Scalar algebraic_error;
 
-    /// \brief Unitary direction relative_position / distance
-    Vector3 direction;
+    /// \brief Norm of A x, i.e. of the outward normal of the level set at the current point
+    Scalar norm_Ax;
+
+    /// \brief Gradient of the residual with respect to relative_position
+    Vector3 gradient;
 
     /// \brief Constraint position error
     ResidualVectorType constraint_position_error;
@@ -1099,6 +1126,6 @@ namespace pinocchio
     MatrixSize6 A1_local;
     MatrixSize6 A2_local;
     MatrixSize6 A_local; // A1 + A2
-  }; // struct ConstantLengthConstraintDataTpl
+  }; // struct EllipsoidPointConstraintDataTpl
 
 } // namespace pinocchio
