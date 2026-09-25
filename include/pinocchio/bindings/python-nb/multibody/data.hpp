@@ -30,7 +30,11 @@ void exposeData(nb::module_ m)
     "Articulated rigid body data related to a Model.\n"
     "It contains all the data that can be modified by the Pinocchio algorithms.")
     .def(nb::init<>(), "Default constructor.")
-    .def(nb::init<const Model &>(), "model"_a, "Constructs a data structure from a given model.")
+    .def(
+      nb::init<const Model &, DataAllocationOption>(), "model"_a,
+      "allocation"_a = ::pinocchio::DataAllocationOption::ALL,
+      "Constructs a data structure from a given model and allocation (optional argument.")
+    .NB_DATA_RO(allocation, "DataAllocationOption strategy")
     // --- joint data
     .NB_DATA_RW(
       joints, "Vector of JointData associated to each JointModel stored in the related model.")

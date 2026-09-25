@@ -215,7 +215,9 @@ void exposeModel(nb::module_ m)
     .def(
       "addFrame", &Model::addFrame, "frame"_a, "append_inertia"_a = true,
       "Add a frame to the vector of frames.")
-    .def("createData", &Model::createData, "Create a Data object for the given model.")
+    .def(
+      "createData", &Model::createData, "allocation"_a = ::pinocchio::DataAllocationOption::ALL,
+      "Create a Data object for the given model.")
     .def(
       "check", [](const Model & self, const Data & data) { return self.check(data); }, "data"_a,
       "Check consistency of data wrt the model.")

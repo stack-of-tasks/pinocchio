@@ -92,6 +92,10 @@ NB_MODULE(PINOCCHIO_PYTHON_MODULE_NAME, m)
     .value("ACCELERATION", pinocchio::ACCELERATION)
     .export_values();
 
+  nb::enum_<pinocchio::DataAllocationOption>(m, "DataAllocationOption")
+    .value("ALL", pinocchio::DataAllocationOption::ALL)
+    .value("NO_TENSORS", pinocchio::DataAllocationOption::NO_TENSORS);
+
   nb::enum_<pinocchio::Convention>(m, "Convention")
     .value("WORLD", pinocchio::Convention::WORLD)
     .value("LOCAL", pinocchio::Convention::LOCAL);
