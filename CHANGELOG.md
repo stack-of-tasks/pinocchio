@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Add allocation argument to DataTpl to handle heavy memory allocation due to tensors ([#2953] (https://github.com/stack-of-tasks/pinocchio/pull/2953))
 - Add functions to load MJCF from XML content ([#2952](https://github.com/stack-of-tasks/pinocchio/pull/2952))
 - Add core single-precision Python bindings through the `pinocchio.float32` module ([#2942](https://github.com/stack-of-tasks/pinocchio/pull/2942))
 - Add `DataTpl::lastChild` deprecation notice in Python binding ([#2928](https://github.com/stack-of-tasks/pinocchio/pull/2927))

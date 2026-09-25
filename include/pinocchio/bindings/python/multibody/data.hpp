@@ -93,9 +93,11 @@ namespace pinocchio
       {
         cl.def(bp::init<>(bp::arg("self"), "Default constructor."))
           .def(
-            bp::init<const context::Model &>(
-              bp::args("self", "model"), "Constructs a data structure from a given model."))
-
+            bp::init<const context::Model &, DataAllocationOption>(
+              (bp::arg("self"), bp::arg("model"),
+               bp::arg("allocation") = ::pinocchio::DataAllocationOption::ALL),
+              "Constructs a data structure from a given model and allocation (optional argument)."))
+          .ADD_DATA_PROPERTY_READONLY(allocation, "DataAllocationOption strategy")
           .ADD_DATA_PROPERTY(
             joints,
             "Vector of JointData associated to each JointModel stored in the related model.")

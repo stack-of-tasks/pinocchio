@@ -112,7 +112,7 @@ print(f"Total constraint residual size: {total_residual_size}")
 
 # ─── 4. Setup and run the simulation loop ────────────────────────────────────
 
-data = model.createData()
+data = model.createData(pin.DataAllocationOption.NO_TENSORS)
 fext = [pin.Force.Zero() for _ in range(model.njoints)]
 
 # Initialise constraint data

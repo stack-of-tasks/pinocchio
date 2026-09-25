@@ -90,6 +90,9 @@ namespace pinocchio
 
     typedef ConstraintCholeskyDecompositionTpl<Scalar, Options> ConstraintCholeskyDecomposition;
 
+    /// \brief Data allocation strategy
+    DataAllocationOption allocation = DataAllocationOption::ALL;
+
     /// \brief Vector of pinocchio::JointData associated to the pinocchio::JointModel stored in
     /// model
     JointDataVector joints;
@@ -626,7 +629,8 @@ namespace pinocchio
     ///
     /// \param[in] model The model structure of the rigid body system.
     ///
-    explicit DataTpl(const Model & model);
+    explicit DataTpl(
+      const Model & model, const DataAllocationOption allocation = DataAllocationOption::ALL);
 
     ///
     /// \brief Default constructor
@@ -661,8 +665,10 @@ namespace pinocchio
   PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
   PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
-  DataTpl<Scalar, Options, JointCollectionTpl>::DataTpl(const Model & model)
-  : q_in(neutral(model))
+  DataTpl<Scalar, Options, JointCollectionTpl>::DataTpl(
+    const Model & model, const DataAllocationOption allocation)
+  : allocation(allocation)
+  , q_in(neutral(model))
   , v_in(VectorXs::Zero(model.nv))
   , a_in(VectorXs::Zero(model.nv))
   , tau_in(VectorXs::Zero(model.nv))
@@ -773,13 +779,8 @@ namespace pinocchio
   , par_cons_ind((std::size_t)model.njoints, 0)
   , a_bias((std::size_t)model.njoints, Motion::Zero())
   , KAS((std::size_t)model.njoints, MatrixXs::Zero(0, 0))
-  , kinematic_hessians(6, model.nv, model.nv)
   , constraint_chol()
   , contact_chol(constraint_chol)
-  , d2tau_dqdq(model.nv, model.nv, model.nv)
-  , d2tau_dvdv(model.nv, model.nv, model.nv)
-  , d2tau_dqdv(model.nv, model.nv, model.nv)
-  , d2tau_dadq(model.nv, model.nv, model.nv)
   , extended_motion_propagator((std::size_t)model.njoints, Matrix6::Zero())
   , extended_motion_propagator2((std::size_t)model.njoints, Matrix6::Zero())
   , spatial_inv_inertia((std::size_t)model.njoints, Matrix6::Zero())
@@ -826,11 +827,20 @@ namespace pinocchio
     /* Init universe states relatively to itself */
     a_gf[0] = -model.gravity;
 
-    kinematic_hessians.setZero();
-    d2tau_dqdq.setZero();
-    d2tau_dvdv.setZero();
-    d2tau_dqdv.setZero();
-    d2tau_dadq.setZero();
+    if (allocation == DataAllocationOption::ALL)
+    {
+      kinematic_hessians.resize(6, model.nv, model.nv);
+      d2tau_dqdq.resize(model.nv, model.nv, model.nv);
+      d2tau_dvdv.resize(model.nv, model.nv, model.nv);
+      d2tau_dqdv.resize(model.nv, model.nv, model.nv);
+      d2tau_dadq.resize(model.nv, model.nv, model.nv);
+
+      kinematic_hessians.setZero();
+      d2tau_dqdq.setZero();
+      d2tau_dvdv.setZero();
+      d2tau_dqdv.setZero();
+      d2tau_dadq.setZero();
+    }
   }
   PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
@@ -992,24 +1002,24 @@ namespace pinocchio
     const DataTpl<Scalar, Options, JointCollectionTpl> & data2)
   {
     bool value =
-      data1.joints == data2.joints && data1.joints_augmented == data2.joints_augmented
-      && data1.q_in == data2.q_in && data1.v_in == data2.v_in && data1.a_in == data2.a_in
-      && data1.tau_in == data2.tau_in && data1.a == data2.a && data1.oa == data2.oa
-      && data1.oa_drift == data2.oa_drift && data1.oa_augmented == data2.oa_augmented
-      && data1.a_gf == data2.a_gf && data1.oa_gf == data2.oa_gf && data1.v == data2.v
-      && data1.ov == data2.ov && data1.f == data2.f && data1.of == data2.of
-      && data1.of_augmented == data2.of_augmented && data1.h == data2.h && data1.oh == data2.oh
-      && data1.oMi == data2.oMi && data1.liMi == data2.liMi && data1.tau == data2.tau
-      && data1.nle == data2.nle && data1.g == data2.g && data1.oMf == data2.oMf
-      && data1.Ycrb == data2.Ycrb && data1.dYcrb == data2.dYcrb && data1.M == data2.M
-      && data1.Minv == data2.Minv && data1.C == data2.C && data1.dHdq == data2.dHdq
-      && data1.dFdq == data2.dFdq && data1.dFdv == data2.dFdv && data1.dFda == data2.dFda
-      && data1.SDinv == data2.SDinv && data1.UDinv == data2.UDinv && data1.IS == data2.IS
-      && data1.vxI == data2.vxI && data1.Ivx == data2.Ivx && data1.oinertias == data2.oinertias
-      && data1.oYcrb == data2.oYcrb && data1.doYcrb == data2.doYcrb && data1.ddq == data2.ddq
-      && data1.Yaba == data2.Yaba && data1.oYaba == data2.oYaba
-      && data1.oYaba_augmented == data2.oYaba_augmented && data1.oL == data2.oL
-      && data1.oK == data2.oK && data1.u == data2.u && data1.Ag == data2.Ag
+      data1.allocation == data2.allocation && data1.joints == data2.joints
+      && data1.joints_augmented == data2.joints_augmented && data1.q_in == data2.q_in
+      && data1.v_in == data2.v_in && data1.a_in == data2.a_in && data1.tau_in == data2.tau_in
+      && data1.a == data2.a && data1.oa == data2.oa && data1.oa_drift == data2.oa_drift
+      && data1.oa_augmented == data2.oa_augmented && data1.a_gf == data2.a_gf
+      && data1.oa_gf == data2.oa_gf && data1.v == data2.v && data1.ov == data2.ov
+      && data1.f == data2.f && data1.of == data2.of && data1.of_augmented == data2.of_augmented
+      && data1.h == data2.h && data1.oh == data2.oh && data1.oMi == data2.oMi
+      && data1.liMi == data2.liMi && data1.tau == data2.tau && data1.nle == data2.nle
+      && data1.g == data2.g && data1.oMf == data2.oMf && data1.Ycrb == data2.Ycrb
+      && data1.dYcrb == data2.dYcrb && data1.M == data2.M && data1.Minv == data2.Minv
+      && data1.C == data2.C && data1.dHdq == data2.dHdq && data1.dFdq == data2.dFdq
+      && data1.dFdv == data2.dFdv && data1.dFda == data2.dFda && data1.SDinv == data2.SDinv
+      && data1.UDinv == data2.UDinv && data1.IS == data2.IS && data1.vxI == data2.vxI
+      && data1.Ivx == data2.Ivx && data1.oinertias == data2.oinertias && data1.oYcrb == data2.oYcrb
+      && data1.doYcrb == data2.doYcrb && data1.ddq == data2.ddq && data1.Yaba == data2.Yaba
+      && data1.oYaba == data2.oYaba && data1.oYaba_augmented == data2.oYaba_augmented
+      && data1.oL == data2.oL && data1.oK == data2.oK && data1.u == data2.u && data1.Ag == data2.Ag
       && data1.dAg == data2.dAg && data1.hg == data2.hg && data1.dhg == data2.dhg
       && data1.Ig == data2.Ig && data1.Fcrb == data2.Fcrb && data1.lastChild == data2.lastChild
       && data1.nvSubtree == data2.nvSubtree
@@ -1059,12 +1069,16 @@ namespace pinocchio
       && data1.projected_joint_cross_coupling == data2.projected_joint_cross_coupling
       && data1.joint_apparent_inertia == data2.joint_apparent_inertia;
 
-    // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a boolean
-    value &= Tensor<bool, 0>((data1.kinematic_hessians == data2.kinematic_hessians).all())(0)
-             && Tensor<bool, 0>((data1.d2tau_dqdq == data2.d2tau_dqdq).all())(0)
-             && Tensor<bool, 0>((data1.d2tau_dvdv == data2.d2tau_dvdv).all())(0)
-             && Tensor<bool, 0>((data1.d2tau_dqdv == data2.d2tau_dqdv).all())(0)
-             && Tensor<bool, 0>((data1.d2tau_dadq == data2.d2tau_dadq).all())(0);
+    if (value && data1.allocation == DataAllocationOption::ALL)
+    {
+      // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a
+      // boolean
+      value &= Tensor<bool, 0>((data1.kinematic_hessians == data2.kinematic_hessians).all())(0)
+               && Tensor<bool, 0>((data1.d2tau_dqdq == data2.d2tau_dqdq).all())(0)
+               && Tensor<bool, 0>((data1.d2tau_dvdv == data2.d2tau_dvdv).all())(0)
+               && Tensor<bool, 0>((data1.d2tau_dqdv == data2.d2tau_dqdv).all())(0)
+               && Tensor<bool, 0>((data1.d2tau_dadq == data2.d2tau_dadq).all())(0);
+    }
 
     return value;
   }
@@ -1080,9 +1094,10 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   typename ModelTpl<Scalar, Options, JointCollectionTpl>::Data
-  ModelTpl<Scalar, Options, JointCollectionTpl>::createData() const
+  ModelTpl<Scalar, Options, JointCollectionTpl>::createData(
+    const DataAllocationOption allocation) const
   {
-    return Data(*this);
+    return Data(*this, allocation);
   }
 
 } // namespace pinocchio
@@ -1096,7 +1111,8 @@ namespace pinocchio
   DataTpl<context::Scalar, context::Options, JointCollectionDefaultTpl>::DataTpl();
 
   extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI
-  DataTpl<context::Scalar, context::Options, JointCollectionDefaultTpl>::DataTpl(const Model &);
+  DataTpl<context::Scalar, context::Options, JointCollectionDefaultTpl>::DataTpl(
+    const Model &, const DataAllocationOption);
 
 } // namespace pinocchio
 

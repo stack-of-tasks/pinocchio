@@ -12,6 +12,7 @@ namespace pinocchio
   DataTpl<context::Scalar, context::Options, JointCollectionDefaultTpl>::DataTpl();
 
   template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI
-  DataTpl<context::Scalar, context::Options, JointCollectionDefaultTpl>::DataTpl(const Model &);
+  DataTpl<context::Scalar, context::Options, JointCollectionDefaultTpl>::DataTpl(
+    const Model &, const DataAllocationOption);
 
 } // namespace pinocchio
