@@ -1240,7 +1240,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_hessians_no_tensors_allocation)
   Model model;
   buildModels::humanoidRandom(model);
 
-  Data data_no_tensors(model, Allocation::NO_TENSORS);
+  Data data_no_tensors(model, DataAllocationOption::NO_TENSORS);
   Model::JointIndex idx(1);
 
   BOOST_CHECK_THROW(computeJointKinematicHessians(model, data_no_tensors), std::invalid_argument);

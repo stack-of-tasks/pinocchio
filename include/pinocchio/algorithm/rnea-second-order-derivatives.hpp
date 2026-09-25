@@ -164,8 +164,9 @@ namespace pinocchio
   {
 
     PINOCCHIO_CHECK_INPUT_ARGUMENT(
-      data.allocation == Allocation::ALL,
-      "data was created with Allocation::NO_TENSORS: data.kinematic_hessians is not allocated");
+      data.allocation == DataAllocationOption::ALL,
+      "data was created with DataAllocationOption::NO_TENSORS: tensors are not "
+      "allocated");
 
     (data.d2tau_dqdq).setZero();
     (data.d2tau_dvdv).setZero();

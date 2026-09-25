@@ -90,7 +90,7 @@ namespace pinocchio
   ///
   /// \brief List of Data allocation strategy.
   ///
-  enum struct Allocation
+  enum struct DataAllocationOption
   {
     ALL = 0,       ///< Allocate all members, including second-order-derivative tensors
     NO_TENSORS = 1 ///< Do not allocate Tensor members

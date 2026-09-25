@@ -72,7 +72,7 @@ namespace pinocchio
     CHECK_DATA(data.dq_after.size() == model.nv);
     // CHECK_DATA( data.impulse_c.size()== model.nv );
 
-    if (data.allocation == Allocation::ALL)
+    if (data.allocation == DataAllocationOption::ALL)
     {
       CHECK_DATA(data.kinematic_hessians.dimension(0) == 6);
       CHECK_DATA(data.kinematic_hessians.dimension(1) == model.nv);

@@ -150,12 +150,12 @@ BOOST_AUTO_TEST_CASE(test_copy_and_equal_op)
 
 BOOST_AUTO_TEST_CASE(test_allocation)
 {
-  // check Allocation::ALL
+  // check DataAllocationOption::ALL
   Model model;
   buildModels::humanoidRandom(model);
-  Data data_all(model, Allocation::ALL);
+  Data data_all(model, DataAllocationOption::ALL);
 
-  BOOST_CHECK(data_all.allocation == Allocation::ALL);
+  BOOST_CHECK(data_all.allocation == DataAllocationOption::ALL);
   BOOST_CHECK(data_all.kinematic_hessians.dimension(0) == 6);
   BOOST_CHECK(data_all.kinematic_hessians.dimension(1) == model.nv);
   BOOST_CHECK(data_all.kinematic_hessians.dimension(2) == model.nv);
@@ -165,10 +165,10 @@ BOOST_AUTO_TEST_CASE(test_allocation)
   BOOST_CHECK(data_all.d2tau_dadq.dimension(0) == model.nv);
   BOOST_CHECK(model.check(data_all));
 
-  // check Allocation::NO_TENSORS
-  Data data_no_tensors(model, Allocation::NO_TENSORS);
+  // check DataAllocationOption::NO_TENSORS
+  Data data_no_tensors(model, DataAllocationOption::NO_TENSORS);
 
-  BOOST_CHECK(data_no_tensors.allocation == Allocation::NO_TENSORS);
+  BOOST_CHECK(data_no_tensors.allocation == DataAllocationOption::NO_TENSORS);
   BOOST_CHECK(data_no_tensors.kinematic_hessians.dimension(0) == 0);
   BOOST_CHECK(data_no_tensors.d2tau_dqdq.size() == 0);
   BOOST_CHECK(data_no_tensors.d2tau_dvdv.size() == 0);
@@ -177,14 +177,16 @@ BOOST_AUTO_TEST_CASE(test_allocation)
   BOOST_CHECK(model.check(data_no_tensors));
 
   // check equal
-  Data data_no_tensors_2(model, Allocation::NO_TENSORS);
+  Data data_no_tensors_2(model, DataAllocationOption::NO_TENSORS);
 
   BOOST_CHECK(data_all != data_no_tensors);
   BOOST_CHECK(data_no_tensors == data_no_tensors_2);
 
   // check createData
-  BOOST_CHECK(model.createData().allocation == Allocation::ALL);
-  BOOST_CHECK(model.createData(Allocation::NO_TENSORS).allocation == Allocation::NO_TENSORS);
+  BOOST_CHECK(model.createData().allocation == DataAllocationOption::ALL);
+  BOOST_CHECK(
+    model.createData(DataAllocationOption::NO_TENSORS).allocation
+    == DataAllocationOption::NO_TENSORS);
 }
 
 BOOST_AUTO_TEST_CASE(test_std_vector_of_Data)

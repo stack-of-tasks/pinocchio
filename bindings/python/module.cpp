@@ -79,11 +79,11 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
       .export_values();
   }
 
-  if (!register_symbolic_link_to_registered_type<::pinocchio::Allocation>())
+  if (!register_symbolic_link_to_registered_type<::pinocchio::DataAllocationOption>())
   {
-    bp::enum_<::pinocchio::Allocation>("Allocation")
-      .value("ALL", ::pinocchio::Allocation::ALL)
-      .value("NO_TENSORS", ::pinocchio::Allocation::NO_TENSORS);
+    bp::enum_<::pinocchio::DataAllocationOption>("DataAllocationOption")
+      .value("ALL", ::pinocchio::DataAllocationOption::ALL)
+      .value("NO_TENSORS", ::pinocchio::DataAllocationOption::NO_TENSORS);
   }
 
   if (!register_symbolic_link_to_registered_type<::pinocchio::Convention>())

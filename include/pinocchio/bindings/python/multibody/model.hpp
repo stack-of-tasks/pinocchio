@@ -267,7 +267,7 @@ namespace pinocchio
             "parent joint.")
           .def(
             "createData", &Model::createData,
-            (bp::arg("self"), bp::arg("allocation") = ::pinocchio::Allocation::ALL),
+            (bp::arg("self"), bp::arg("allocation") = ::pinocchio::DataAllocationOption::ALL),
             "Create a Data object for the given model and allocation")
 
           .def(

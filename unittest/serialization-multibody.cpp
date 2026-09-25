@@ -63,10 +63,10 @@ BOOST_AUTO_TEST_CASE(test_data_serialization)
   Model model;
   buildModels::humanoid(model);
 
-  Data data_all(model, Allocation::ALL);
+  Data data_all(model, DataAllocationOption::ALL);
   generic_test(data_all, TEST_SERIALIZATION_FOLDER "/Data_ALL", "Data");
 
-  Data data_no_tensors(model, Allocation::NO_TENSORS);
+  Data data_no_tensors(model, DataAllocationOption::NO_TENSORS);
   generic_test(data_no_tensors, TEST_SERIALIZATION_FOLDER "/Data_NO_TENSORS", "Data");
 }
 

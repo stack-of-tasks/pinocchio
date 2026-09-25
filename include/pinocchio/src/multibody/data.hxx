@@ -91,7 +91,7 @@ namespace pinocchio
     typedef ConstraintCholeskyDecompositionTpl<Scalar, Options> ConstraintCholeskyDecomposition;
 
     /// \brief Data allocation strategy
-    Allocation allocation = Allocation::ALL;
+    DataAllocationOption allocation = DataAllocationOption::ALL;
 
     /// \brief Vector of pinocchio::JointData associated to the pinocchio::JointModel stored in
     /// model
@@ -629,7 +629,8 @@ namespace pinocchio
     ///
     /// \param[in] model The model structure of the rigid body system.
     ///
-    explicit DataTpl(const Model & model, const Allocation allocation = Allocation::ALL);
+    explicit DataTpl(
+      const Model & model, const DataAllocationOption allocation = DataAllocationOption::ALL);
 
     ///
     /// \brief Default constructor
@@ -665,7 +666,7 @@ namespace pinocchio
   PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   DataTpl<Scalar, Options, JointCollectionTpl>::DataTpl(
-    const Model & model, const Allocation allocation)
+    const Model & model, const DataAllocationOption allocation)
   : allocation(allocation)
   , q_in(neutral(model))
   , v_in(VectorXs::Zero(model.nv))
@@ -826,7 +827,7 @@ namespace pinocchio
     /* Init universe states relatively to itself */
     a_gf[0] = -model.gravity;
 
-    if (allocation == Allocation::ALL)
+    if (allocation == DataAllocationOption::ALL)
     {
       kinematic_hessians.resize(6, model.nv, model.nv);
       d2tau_dqdq.resize(model.nv, model.nv, model.nv);
@@ -1068,7 +1069,7 @@ namespace pinocchio
       && data1.projected_joint_cross_coupling == data2.projected_joint_cross_coupling
       && data1.joint_apparent_inertia == data2.joint_apparent_inertia;
 
-    if (value && data1.allocation == Allocation::ALL)
+    if (value && data1.allocation == DataAllocationOption::ALL)
     {
       // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a
       // boolean
@@ -1093,7 +1094,8 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   typename ModelTpl<Scalar, Options, JointCollectionTpl>::Data
-  ModelTpl<Scalar, Options, JointCollectionTpl>::createData(const Allocation allocation) const
+  ModelTpl<Scalar, Options, JointCollectionTpl>::createData(
+    const DataAllocationOption allocation) const
   {
     return Data(*this, allocation);
   }
@@ -1110,7 +1112,7 @@ namespace pinocchio
 
   extern template PINOCCHIO_EXPLICIT_INSTANTIATION_DECLARATION_DLLAPI
   DataTpl<context::Scalar, context::Options, JointCollectionDefaultTpl>::DataTpl(
-    const Model &, const Allocation);
+    const Model &, const DataAllocationOption);
 
 } // namespace pinocchio
 
