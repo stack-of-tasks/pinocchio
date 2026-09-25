@@ -66,6 +66,7 @@ namespace pinocchio
   struct ConstraintModelBase
   : NumericalBase<Derived>
   , ModelEntity<Derived>
+  , pinocchio::serialization::Serializable<Derived>
   {
     // --------------------------------------------------------------
     // Type defs

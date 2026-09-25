@@ -187,6 +187,14 @@ cmake_dependent_option(
     BUILD_PYTHON_INTERFACE
     OFF
 )
+if(BUILD_PYTHON_INTERFACE)
+    set(BINDINGS_FRAMEWORK
+        "Boost"
+        CACHE STRING
+        "Python bindings framework to use."
+    )
+    set_property(CACHE BINDINGS_FRAMEWORK PROPERTY STRINGS "Boost" "Nanobind")
+endif()
 cmake_dependent_option(
     BUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT
     "Build the Python interface with single-precision support"
@@ -304,7 +312,7 @@ endif()
 if(BUILD_WITH_AUTODIFF_SUPPORT)
     set(BUILD_WITH_CPPAD_SUPPORT TRUE)
 endif()
-if(BUILD_WITH_LIBPYTHON)
+if(BUILD_WITH_LIBPYTHON AND BINDINGS_FRAMEWORK STREQUAL Boost)
     set(BUILD_WITH_PYTHON_PARSER_SUPPORT TRUE)
 endif()
 
@@ -435,7 +443,9 @@ if(BUILD_PYTHON_INTERFACE)
 
     set(PYTHON_COMPONENTS Interpreter Development NumPy)
     findpython(REQUIRED)
-    add_project_dependency(eigenpy 2.7.10 REQUIRED)
+    if(BINDINGS_FRAMEWORK STREQUAL Boost)
+        add_project_dependency(eigenpy 2.7.10 REQUIRED)
+    endif()
     if(BUILD_STANDALONE_PYTHON_INTERFACE)
         add_project_dependency(${PROJECT_NAME} REQUIRED CONFIG)
     endif()

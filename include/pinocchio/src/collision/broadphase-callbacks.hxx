@@ -46,6 +46,8 @@ namespace pinocchio
     ///        The default implementation does nothing.
     virtual void done() {};
 
+    virtual ~CollisionCallBackBase() = default;
+
   protected:
     /// @brief Geometry model associated to the callback
     const GeometryModel * geometry_model_ptr;

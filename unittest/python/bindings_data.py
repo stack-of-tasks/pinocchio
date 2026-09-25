@@ -27,19 +27,15 @@ class TestData(TestCase):
         q = pin.neutral(model)
         pin.centerOfMass(model, data, q)
 
-        _com_list = data.com.tolist()
+        _com_list = list(data.com)
         com = data.com[0]
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(IndexError):
             com = data.com[len(data.com) + 10]
             print("com: ", com)
 
-        self.assertTrue("Index out of range" in str(context.exception))
-
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(TypeError):
             com = data.com["1"]
             print("com: ", com)
-
-        self.assertTrue("Invalid index type" in str(context.exception))
 
     def test_allocation(self):
         data = self.data

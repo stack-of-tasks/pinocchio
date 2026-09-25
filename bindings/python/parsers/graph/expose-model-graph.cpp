@@ -36,7 +36,8 @@ namespace pinocchio
           "addGeometry", &ModelGraph::addGeometry, (bp::arg("body_name"), bp::arg("geometry")),
           "Add a geometry to the vertex associated with body_name")
         .def(
-          "addGeometries", &ModelGraph::addGeometry, (bp::arg("body_name"), bp::arg("geometries")),
+          "addGeometries", &ModelGraph::addGeometries,
+          (bp::arg("body_name"), bp::arg("geometries")),
           "Add a vector of geometry to the vertex associated with body_name")
         .def(
           "geometryBuilder", &ModelGraph::geometryBuilder, bp::arg("self"),
