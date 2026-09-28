@@ -53,7 +53,10 @@ def isapprox(a, b, epsilon=1e-6):
     if isinstance(a, (np.ndarray, list)) and isinstance(b, (np.ndarray, list)):
         a = np.squeeze(np.array(a))
         b = np.squeeze(np.array(b))
-        return np.allclose(a, b, epsilon)
+        # epsilon is an absolute tolerance, matching the scalar branch below.
+        # The third positional argument of allclose is a relative tolerance, so
+        # [1e6] and [1e6 + 0.5] used to compare equal.
+        return np.allclose(a, b, rtol=0.0, atol=epsilon)
     return abs(a - b) < epsilon
 
 
