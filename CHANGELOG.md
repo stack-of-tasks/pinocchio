@@ -39,7 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix doxygen documentation generation ([#2970](https://github.com/stack-of-tasks/pinocchio/pull/2970))
 - Fix the use of spline joint with more joints in the model ([#2975](https://github.com/stack-of-tasks/pinocchio/pull/2975))
 - Reject missing joint frames during model reduction instead of reading past the frame vector ([#2960](https://github.com/stack-of-tasks/pinocchio/pull/2960))
-- Fix MJCF body-based connect constraints to express body-local anchors in supporting-joint coordinates.
+- Fix MJCF body-based connect constraints to express body-local anchors in supporting-joint coordinates ([#2961](https://github.com/stack-of-tasks/pinocchio/pull/2961)).
 
 ## [4.1.0] - 2026-07-07
 
