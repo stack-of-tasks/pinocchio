@@ -525,6 +525,17 @@ namespace pinocchio
     // Sort indexes
     std::sort(list_of_joints_to_lock.begin(), list_of_joints_to_lock.end());
 
+    const auto get_reduced_parent_frame = [&](const Frame & input_frame) {
+      const Frame & parent_frame = input_model.frames[input_frame.parentFrame];
+      FrameType parent_type = parent_frame.type;
+      if (
+        parent_type == JOINT && parent_frame.name == input_model.names[parent_frame.parentJoint]
+        && std::binary_search(
+          list_of_joints_to_lock.begin(), list_of_joints_to_lock.end(), parent_frame.parentJoint))
+        parent_type = FIXED_JOINT;
+      return reduced_model.getFrameId(parent_frame.name, parent_type);
+    };
+
     typename Model::FrameVector::const_iterator frame_it = input_model.frames.begin();
 
     // Check that they are not two identical elements
@@ -571,15 +582,17 @@ namespace pinocchio
       const JointIndex reduced_parent_joint_index =
         exist_parent_joint
           ? reduced_model.getJointId(parent_joint_name)
-          : reduced_model.frames[reduced_model.getFrameId(parent_joint_name)].parentJoint;
+          : reduced_model.frames[reduced_model.getFrameId(parent_joint_name, FIXED_JOINT)]
+              .parentJoint;
 
       const SE3 parent_frame_placement =
         exist_parent_joint
           ? SE3::Identity()
-          : reduced_model.frames[reduced_model.getFrameId(parent_joint_name)].placement;
+          : reduced_model.frames[reduced_model.getFrameId(parent_joint_name, FIXED_JOINT)]
+              .placement;
 
       const FrameIndex reduced_previous_frame_index =
-        exist_parent_joint ? 0 : reduced_model.getFrameId(parent_joint_name);
+        exist_parent_joint ? 0 : reduced_model.getFrameId(parent_joint_name, FIXED_JOINT);
 
       if (joint_id == joint_id_to_lock)
       {
@@ -599,19 +612,19 @@ namespace pinocchio
           if (support_joint_it != list_of_joints_to_lock.end())
           {
             if (
-              input_frame.type == JOINT && reduced_model.existFrame(input_frame.name)
+              input_frame.type == JOINT && reduced_model.existFrame(input_frame.name, FIXED_JOINT)
               && support_joint_name == input_frame.name)
               continue; // this means that the Joint is now fixed and has been replaced by a Frame.
                         // No need to add a new one.
 
             // The joint has been removed and replaced by a Frame
-            const FrameIndex joint_frame_id = reduced_model.getFrameId(support_joint_name);
+            const FrameIndex joint_frame_id =
+              reduced_model.getFrameId(support_joint_name, FIXED_JOINT);
             const Frame & joint_frame = reduced_model.frames[joint_frame_id];
             Frame reduced_frame = input_frame;
             reduced_frame.placement = joint_frame.placement * input_frame.placement;
             reduced_frame.parentJoint = joint_frame.parentJoint;
-            reduced_frame.parentFrame =
-              reduced_model.getFrameId(input_model.frames[input_frame.parentFrame].name);
+            reduced_frame.parentFrame = get_reduced_parent_frame(input_frame);
             reduced_model.addFrame(reduced_frame, false);
           }
           else
@@ -619,8 +632,7 @@ namespace pinocchio
             Frame reduced_frame = input_frame;
             reduced_frame.parentJoint =
               reduced_model.getJointId(input_model.names[input_frame.parentJoint]);
-            reduced_frame.parentFrame =
-              reduced_model.getFrameId(input_model.frames[input_frame.parentFrame].name);
+            reduced_frame.parentFrame = get_reduced_parent_frame(input_frame);
             reduced_model.addFrame(reduced_frame, false);
           }
         }
@@ -749,19 +761,18 @@ namespace pinocchio
       if (support_joint_it != list_of_joints_to_lock.end())
       {
         if (
-          input_frame.type == JOINT && reduced_model.existFrame(input_frame.name)
+          input_frame.type == JOINT && reduced_model.existFrame(input_frame.name, FIXED_JOINT)
           && support_joint_name == input_frame.name)
           continue; // this means that the Joint is now fixed and has been replaced by a Frame. No
                     // need to add a new one.
 
         // The joint has been removed and replaced by a Frame
-        const FrameIndex joint_frame_id = reduced_model.getFrameId(support_joint_name);
+        const FrameIndex joint_frame_id = reduced_model.getFrameId(support_joint_name, FIXED_JOINT);
         const Frame & joint_frame = reduced_model.frames[joint_frame_id];
         Frame reduced_frame = input_frame;
         reduced_frame.placement = joint_frame.placement * input_frame.placement;
         reduced_frame.parentJoint = joint_frame.parentJoint;
-        reduced_frame.parentFrame =
-          reduced_model.getFrameId(input_model.frames[input_frame.parentFrame].name);
+        reduced_frame.parentFrame = get_reduced_parent_frame(input_frame);
         reduced_model.addFrame(reduced_frame, false);
       }
       else
@@ -769,8 +780,7 @@ namespace pinocchio
         Frame reduced_frame = input_frame;
         reduced_frame.parentJoint =
           reduced_model.getJointId(input_model.names[input_frame.parentJoint]);
-        reduced_frame.parentFrame =
-          reduced_model.getFrameId(input_model.frames[input_frame.parentFrame].name);
+        reduced_frame.parentFrame = get_reduced_parent_frame(input_frame);
         reduced_model.addFrame(reduced_frame, false);
       }
     }

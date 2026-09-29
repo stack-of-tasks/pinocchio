@@ -626,6 +626,90 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel_empty)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_buildReducedModel_shared_frame_names)
+{
+  Model model;
+  FrameIndex parent_frame = 0;
+  for (JointIndex joint_id = 1; joint_id <= 3; ++joint_id)
+  {
+    const std::string name = "joint" + std::to_string(joint_id);
+    const SE3 joint_placement(
+      Eigen::AngleAxisd(0.2, Eigen::Vector3d::UnitY()).toRotationMatrix(),
+      Eigen::Vector3d(0.1, 0.2, 0.3));
+    const JointIndex parent_joint = joint_id == 3 ? 1 : joint_id - 1;
+    if (joint_id == 3)
+      parent_frame = model.getFrameId("joint1", BODY);
+    model.addJoint(parent_joint, JointModelRZ(), joint_placement, name);
+    const FrameIndex joint_frame = model.addJointFrame(joint_id, (int)parent_frame);
+    const SE3 body_placement(
+      Eigen::AngleAxisd(-0.3, Eigen::Vector3d::UnitX()).toRotationMatrix(),
+      Eigen::Vector3d(0.4, 0.5, 0.6));
+    parent_frame = model.addBodyFrame(name, joint_id, body_placement, (int)joint_frame);
+    if (joint_id == 1)
+    {
+      parent_frame =
+        model.addFrame(Frame("fixed", joint_id, parent_frame, body_placement, FIXED_JOINT));
+      parent_frame = model.addBodyFrame("fixed", joint_id, joint_placement, (int)parent_frame);
+    }
+  }
+
+  const Eigen::Vector3d q(0.2, -0.3, 0.4);
+  Data data(model);
+  framesForwardKinematics(model, data, q);
+  const std::vector<std::vector<JointIndex>> reductions = {{}, {2}, {1, 2}};
+  for (const std::vector<JointIndex> & joints_to_lock : reductions)
+  {
+    const Model reduced_model = buildReducedModel(model, joints_to_lock, q);
+    BOOST_CHECK_EQUAL(reduced_model.nframes, model.nframes);
+    if (joints_to_lock.empty())
+      BOOST_CHECK(reduced_model.frames == model.frames);
+
+    Eigen::VectorXd reduced_q(reduced_model.nq);
+    for (JointIndex joint_id = 1; joint_id < (JointIndex)reduced_model.njoints; ++joint_id)
+    {
+      const JointIndex input_joint_id = model.getJointId(reduced_model.names[joint_id]);
+      reduced_model.joints[joint_id].jointConfigSelector(reduced_q) =
+        model.joints[input_joint_id].jointConfigSelector(q);
+    }
+    Data reduced_data(reduced_model);
+    framesForwardKinematics(reduced_model, reduced_data, reduced_q);
+
+    for (FrameIndex frame_id = 1; frame_id < (FrameIndex)model.nframes; ++frame_id)
+    {
+      const Frame & frame = model.frames[frame_id];
+      const bool locked = std::find(joints_to_lock.begin(), joints_to_lock.end(), frame.parentJoint)
+                          != joints_to_lock.end();
+      const FrameType type = locked && frame.type == JOINT ? FIXED_JOINT : frame.type;
+      const FrameIndex reduced_frame_id = reduced_model.getFrameId(frame.name, type);
+      BOOST_REQUIRE(reduced_frame_id < (FrameIndex)reduced_model.nframes);
+      const Frame & reduced_frame = reduced_model.frames[reduced_frame_id];
+      JointIndex support_joint = frame.parentJoint;
+      while (std::find(joints_to_lock.begin(), joints_to_lock.end(), support_joint)
+             != joints_to_lock.end())
+        support_joint = model.parents[support_joint];
+      BOOST_CHECK_EQUAL(
+        reduced_frame.parentJoint, reduced_model.getJointId(model.names[support_joint]));
+      if (locked && frame.type == JOINT)
+        BOOST_CHECK_EQUAL(reduced_frame.parentFrame, reduced_frame_id);
+      else
+      {
+        const Frame & parent = model.frames[frame.parentFrame];
+        const bool parent_locked =
+          std::find(joints_to_lock.begin(), joints_to_lock.end(), parent.parentJoint)
+          != joints_to_lock.end();
+        const FrameType parent_type =
+          parent_locked && parent.type == JOINT ? FIXED_JOINT : parent.type;
+        BOOST_CHECK_EQUAL(
+          reduced_frame.parentFrame, reduced_model.getFrameId(parent.name, parent_type));
+      }
+      BOOST_CHECK(reduced_data.oMf[reduced_frame_id].isApprox(data.oMf[frame_id]));
+      BOOST_CHECK(
+        (reduced_frame.placement.inverse() * data.oMi[support_joint].inverse() * data.oMf[frame_id])
+          .isIdentity());
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_buildReducedModel)
 {
   Model humanoid_model;

@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   (constrained forward dynamics of a spherical pendulum)
 
 ### Fixed
+- Preserve frame types in `buildReducedModel` when joint and body frames share a name ([#2313](https://github.com/stack-of-tasks/pinocchio/issues/2313)).
 - Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM ([#2929](https://github.com/stack-of-tasks/pinocchio/pull/2929))
 - Fix scalar-generic Python bindings ([#2939](https://github.com/stack-of-tasks/pinocchio/pull/2939))
 - Fix `ellipsoid-joint-kinematics.py` example ([#2935](https://github.com/stack-of-tasks/pinocchio/pull/2935))
