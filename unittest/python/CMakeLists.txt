@@ -1,67 +1,154 @@
 #
 # Copyright (c) 2015-2025 CNRS INRIA
 #
-include(${JRL_CMAKE_MODULES}/python-helpers.cmake)
 
-set(${PROJECT_NAME}_PYTHON_TESTS
-    bindings
-    # Multibody
-    bindings_joint_composite
-    bindings_joints
-    bindings_model
-    bindings_data
-    bindings_geometry_model
-    bindings_liegroups
-    # Spatial
-    bindings_force
-    bindings_frame
-    bindings_inertia
-    bindings_spatial
-    bindings_motion
-    bindings_SE3
-    explog
-    rpy
-    # Algo
-    bindings_com
-    bindings_kinematic_regressor
-    bindings_regressor
-    bindings_dynamics
-    bindings_kinematics
-    bindings_rnea
-    bindings_aba
-    bindings_joint_algorithms
-    # Solvers
-    bindings_pgs
-    bindings_admm
-    # Algo derivatives
-    bindings_kinematics_derivatives
-    bindings_frame_derivatives
-    bindings_forward_dynamics_derivatives
-    bindings_inverse_dynamics_derivatives
-    bindings_centroidal_dynamics_derivatives
-    bindings_com_velocity_derivatives
-    # Parsers
-    bindings_sample_models
-    bindings_mjcf
-    bindings_model_graph
-    # Others
-    robot_wrapper
-    utils
-    serialization
-    version
-    bindings_std_vector
-    bindings_std_map
-)
+function(pinocchio_add_python_test_or_example target_name file_name)
+    add_test(
+        NAME ${target_name}
+        COMMAND
+            $<TARGET_FILE:Python::Interpreter>
+            ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
+    )
+    set_tests_properties(
+        ${target_name}
+        PROPERTIES
+            ENVIRONMENT
+                "PYTHONPATH=$<TARGET_FILE_DIR:pinocchio_pywrap_default>/.."
+            LABELS "python"
+    )
+    # TODO: Remove this once coal and example-robot-data also use jrl-v2.
+    # (Only meaningful when Pinocchio is built in-tree inside the
+    #  simple-workspace superbuild; empty/no-op in a standalone build.)
+    string(
+        REPLACE ";"
+        ":"
+        _pythonpath
+        "${PROJECT_PYTHON_PACKAGES_IN_WORKSPACE}"
+    )
+    set_tests_properties(
+        ${target_name}
+        PROPERTIES
+            ENVIRONMENT_MODIFICATION
+                "EXAMPLE_ROBOT_DATA_MODEL_DIR=set:${EXAMPLE_ROBOT_DATA_MODEL_DIR};PYTHONPATH=path_list_prepend:${_pythonpath}"
+    )
+endfunction()
 
-if(BUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT)
-    list(APPEND ${PROJECT_NAME}_PYTHON_TESTS bindings_float32)
+function(pinocchio_add_python_test name)
+    pinocchio_add_python_test_or_example("${PROJECT_NAME}-test-py-${name}" "${name}")
+endfunction()
+
+pinocchio_add_python_test(bindings)
+pinocchio_add_python_test(bindings_float32)
+# Multibody
+pinocchio_add_python_test(bindings_joint_composite)
+pinocchio_add_python_test(bindings_joints)
+pinocchio_add_python_test(bindings_model)
+pinocchio_add_python_test(bindings_data)
+pinocchio_add_python_test(bindings_geometry_model)
+pinocchio_add_python_test(bindings_liegroups)
+# Spatial
+pinocchio_add_python_test(bindings_force)
+pinocchio_add_python_test(bindings_frame)
+pinocchio_add_python_test(bindings_inertia)
+pinocchio_add_python_test(bindings_spatial)
+pinocchio_add_python_test(bindings_motion)
+pinocchio_add_python_test(bindings_SE3)
+pinocchio_add_python_test(explog)
+pinocchio_add_python_test(rpy)
+# Algo
+pinocchio_add_python_test(bindings_com)
+pinocchio_add_python_test(bindings_kinematic_regressor)
+pinocchio_add_python_test(bindings_regressor)
+pinocchio_add_python_test(bindings_dynamics)
+pinocchio_add_python_test(bindings_kinematics)
+pinocchio_add_python_test(bindings_rnea)
+pinocchio_add_python_test(bindings_aba)
+pinocchio_add_python_test(bindings_joint_algorithms)
+# Solvers
+pinocchio_add_python_test(bindings_pgs)
+pinocchio_add_python_test(bindings_admm)
+# Algo derivatives
+pinocchio_add_python_test(bindings_kinematics_derivatives)
+pinocchio_add_python_test(bindings_frame_derivatives)
+pinocchio_add_python_test(bindings_forward_dynamics_derivatives)
+pinocchio_add_python_test(bindings_inverse_dynamics_derivatives)
+pinocchio_add_python_test(bindings_centroidal_dynamics_derivatives)
+pinocchio_add_python_test(bindings_com_velocity_derivatives)
+# Parsers
+pinocchio_add_python_test(bindings_sample_models)
+pinocchio_add_python_test(bindings_mjcf)
+pinocchio_add_python_test(bindings_model_graph)
+# Others
+pinocchio_add_python_test(robot_wrapper)
+pinocchio_add_python_test(utils)
+pinocchio_add_python_test(serialization)
+pinocchio_add_python_test(version)
+pinocchio_add_python_test(bindings_std_vector)
+pinocchio_add_python_test(bindings_std_map)
+
+if(BUILD_WITH_COLLISION_SUPPORT)
+    pinocchio_add_python_test(bindings_geometry_object)
+    pinocchio_add_python_test(bindings_coal_transform)
+    pinocchio_add_python_test(bindings_constraints)
+    pinocchio_add_python_test(bindings_lcaba)
+endif()
+
+if(urdfdom_FOUND)
+    pinocchio_add_python_test(bindings_urdf)
+    pinocchio_add_python_test(bindings_geometry_model_urdf)
+    pinocchio_add_python_test(bindings_contact_inverse_dynamics)
+    pinocchio_add_python_test(bindings_viser_visualizer)
+endif(urdfdom_FOUND)
+
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
+
+# handle casadi
+if(BUILD_WITH_CASADI_SUPPORT)
+    pinocchio_add_python_test(bindings_casadi_main_algo)
+    pinocchio_add_python_test(bindings_casadi_explog)
+    add_dependencies(pinocchio-tests pinocchio_pywrap_casadi)
+endif()
+
+# TODO BUILD_ADVANCED_TESTING
+
+# TODO(jrl-v2 migration):
+# add
+# - add_python_memorycheck_unit_test_v2
+# - add_windows_dll_path_to_test
+if(MEMORYCHECK_COMMAND AND MEMORYCHECK_COMMAND MATCHES ".*valgrind$")
+    set(pinocchio_PYTHON_MEMORYCHECK_TESTS
+        bindings_build_geom_from_urdf_memorycheck
+    )
+
+    # foreach(TEST ${${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS})
+    #     set(TEST_NAME "${PROJECT_NAME}-test-py-memory-${TEST}")
+    #     add_python_memorycheck_unit_test_v2(
+    #       NAME
+    #       ${TEST_NAME}
+    #       SOURCE
+    #       "unittest/python/${TEST}.py"
+    #       SUPP
+    #       "unittest/python/${TEST}.supp"
+    #       MODULES
+    #       "bindings/python"
+    #     )
+    #     get_test_property(${TEST_NAME} ENVIRONMENT _ENVIRONMENT)
+    #     set_tests_properties(
+    #         "${TEST_NAME}"
+    #         PROPERTIES
+    #             ENVIRONMENT
+    #                 "${_ENVIRONMENT};EXAMPLE_ROBOT_DATA_MODEL_DIR=${EXAMPLE_ROBOT_DATA_MODEL_DIR}"
+    #     )
+    #     add_windows_dll_path_to_test(${TEST_NAME})
+    # endforeach()
+else()
+    message(STATUS "Valgrind not found, memory checks are disabled")
 endif()
 
 function(pinocchio_add_python_cpp_module name)
     set(target_name "test-ext-${name}")
     string(REPLACE "_" "-" target_name ${target_name})
     string(REPLACE "-" "_" module_name ${target_name})
-    set(source_file "${name}.cpp")
     set(options)
     set(oneValueArgs)
     set(multiValueArgs "PIN_TARGETS")
@@ -72,146 +159,59 @@ function(pinocchio_add_python_cpp_module name)
         "${multiValueArgs}"
         ${ARGN}
     )
+
     if(BUILD_TESTING)
         set(_exclude)
     else()
         set(_exclude EXCLUDE_FROM_ALL)
     endif()
 
-    add_library(${target_name} MODULE ${_exclude} ${source_file})
+    python_add_library(
+        ${target_name}
+        MODULE
+        ${_exclude}
+        WITH_SOABI
+        "${name}.cpp"
+    )
     target_compile_definitions(
         ${target_name}
         PRIVATE EXT_MODULE_NAME=${module_name}
     )
-    target_link_libraries(
-        ${target_name}
-        PRIVATE pinocchio::pinocchio_default eigenpy::eigenpy
-    )
+    target_link_libraries(${target_name} PRIVATE pinocchio eigenpy::eigenpy)
     foreach(_dep ${ARGS_PIN_TARGETS})
         target_link_libraries(${target_name} PRIVATE ${_dep})
     endforeach()
     set_target_properties(
         ${target_name}
         PROPERTIES
-            PREFIX ""
-            SUFFIX "${PYTHON_EXT_SUFFIX}"
             LIBRARY_OUTPUT_NAME ${module_name}
             RUNTIME_OUTPUT_NAME ${module_name}
     )
 
     add_test(
         NAME ${target_name}
-        COMMAND ${PYTHON_EXECUTABLE} -c "import ${module_name}"
+        COMMAND $<TARGET_FILE:Python::Interpreter> -c "import ${module_name}"
         WORKING_DIRECTORY $<TARGET_FILE_DIR:${target_name}>
     )
-    set(PYTHONPATH)
-    compute_pythonpath(ENV_VARIABLES bindings/python)
     set_tests_properties(
         ${target_name}
-        PROPERTIES ENVIRONMENT "${ENV_VARIABLES}"
-    )
-
-    add_dependencies(build_tests ${target_name})
-    if(NOT BUILD_TESTING)
-        set_tests_properties(
-            ${target_name}
-            PROPERTIES DEPENDS ctest_build_tests
-        )
-    endif()
-endfunction()
-
-function(pinocchio_add_lib_unit_test name)
-    set(TEST_NAME "${PROJECT_NAME}-test-py-${name}")
-    add_python_unit_test(${TEST_NAME} "unittest/python/${name}.py" "bindings/python"
-                         "unittest/python"
-    )
-    get_test_property(${TEST_NAME} ENVIRONMENT _ENVIRONMENT)
-    set_tests_properties(
-        "${TEST_NAME}"
         PROPERTIES
             ENVIRONMENT
-                "${_ENVIRONMENT};EXAMPLE_ROBOT_DATA_MODEL_DIR=${EXAMPLE_ROBOT_DATA_MODEL_DIR}"
+                "PYTHONPATH=$<TARGET_FILE_DIR:pinocchio_pywrap_default>/.."
     )
-    add_windows_dll_path_to_test(${TEST_NAME})
+
+    add_dependencies(pinocchio-tests ${target_name})
 endfunction()
-
-if(BUILD_WITH_COLLISION_SUPPORT)
-    set(${PROJECT_NAME}_PYTHON_TESTS
-        ${${PROJECT_NAME}_PYTHON_TESTS}
-        bindings_geometry_object
-        bindings_coal_transform
-        bindings_constraints
-        bindings_lcaba
-    )
-endif()
-
-if(urdfdom_FOUND)
-    set(${PROJECT_NAME}_PYTHON_TESTS
-        ${${PROJECT_NAME}_PYTHON_TESTS}
-        bindings_urdf
-        bindings_geometry_model_urdf
-        bindings_contact_inverse_dynamics
-        bindings_viser_visualizer
-    )
-endif(urdfdom_FOUND)
-
-if(TARGET build_tests)
-    add_dependencies(build_tests ${PROJECT_NAME}-python)
-endif()
-
-foreach(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
-    set(TEST_NAME "${PROJECT_NAME}-test-py-${TEST}")
-    add_python_unit_test(${TEST_NAME} "unittest/python/${TEST}.py" "bindings/python")
-    get_test_property(${TEST_NAME} ENVIRONMENT _ENVIRONMENT)
-    set_tests_properties(
-        "${TEST_NAME}"
-        PROPERTIES
-            ENVIRONMENT
-                "${_ENVIRONMENT};EXAMPLE_ROBOT_DATA_MODEL_DIR=${EXAMPLE_ROBOT_DATA_MODEL_DIR}"
-    )
-    add_windows_dll_path_to_test(${TEST_NAME})
-endforeach(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
-
-make_directory("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
-
-if(BUILD_WITH_CASADI_SUPPORT)
-    add_subdirectory(casadi)
-endif(BUILD_WITH_CASADI_SUPPORT)
-
-# TODO BUILD_ADVANCED_TESTING
-if(MEMORYCHECK_COMMAND AND MEMORYCHECK_COMMAND MATCHES ".*valgrind$")
-    set(${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS
-        bindings_build_geom_from_urdf_memorycheck
-    )
-
-    foreach(TEST ${${PROJECT_NAME}_PYTHON_MEMORYCHECK_TESTS})
-        set(TEST_NAME "${PROJECT_NAME}-test-py-memory-${TEST}")
-        add_python_memorycheck_unit_test_v2(
-          NAME
-          ${TEST_NAME}
-          SOURCE
-          "unittest/python/${TEST}.py"
-          SUPP
-          "unittest/python/${TEST}.supp"
-          MODULES
-          "bindings/python"
-        )
-        get_test_property(${TEST_NAME} ENVIRONMENT _ENVIRONMENT)
-        set_tests_properties(
-            "${TEST_NAME}"
-            PROPERTIES
-                ENVIRONMENT
-                    "${_ENVIRONMENT};EXAMPLE_ROBOT_DATA_MODEL_DIR=${EXAMPLE_ROBOT_DATA_MODEL_DIR}"
-        )
-        add_windows_dll_path_to_test(${TEST_NAME})
-    endforeach()
-else()
-    message(STATUS "Valgrind not found, memory checks are disabled")
-endif()
 
 # TODO @jorisv: reenable these on windows when we normalize paths to lib/bin like on eigenpy
 if(NOT WIN32 AND PINOCCHIO_BUILD_VISUALIZERS)
-    pinocchio_add_python_cpp_module(bindings_visualizer PIN_TARGETS pinocchio::pinocchio_visualizers)
-    pinocchio_add_lib_unit_test(bindings_visualizer)
+    pinocchio_add_python_cpp_module(bindings_visualizer PIN_TARGETS pinocchio_visualizers)
+    pinocchio_add_python_test(bindings_visualizer)
+    set_tests_properties(
+        "pinocchio-test-py-bindings_visualizer"
+        PROPERTIES
+            ENVIRONMENT_MODIFICATION
+                "PYTHONPATH=path_list_prepend:$<TARGET_FILE_DIR:test-ext-bindings-visualizer>"
+    )
     add_subdirectory(pybind11)
 endif()
