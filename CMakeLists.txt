@@ -132,20 +132,11 @@ if(BUILD_WITH_SDF_SUPPORT)
 endif()
 
 if(BUILD_WITH_CODEGEN_SUPPORT)
-    list(
-        APPEND CMAKE_MODULE_PATH
-        "${PROJECT_SOURCE_DIR}/cmake/find-external/CppAD"
-    )
     jrl_find_package(cppadcg REQUIRED EXPECTED_TARGETS cppadcg::cppadcg)
     set(BUILD_WITH_AUTODIFF_SUPPORT TRUE)
 endif(BUILD_WITH_CODEGEN_SUPPORT)
 
 if(BUILD_WITH_AUTODIFF_SUPPORT)
-    # TODO remove when jrl v2 provide findcppad in find modules
-    list(
-        APPEND CMAKE_MODULE_PATH
-        "${PROJECT_SOURCE_DIR}/cmake/find-external/CppAD"
-    )
     jrl_find_package(cppad REQUIRED EXPECTED_TARGETS cppad::cppad)
 endif()
 
@@ -187,14 +178,6 @@ if(
     PINOCCHIO_BUILD_MPFR_TESTING
     OR BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT
 )
-    list(
-        APPEND CMAKE_MODULE_PATH
-        "${PROJECT_SOURCE_DIR}/cmake/find-external/GMP"
-    )
-    list(
-        APPEND CMAKE_MODULE_PATH
-        "${PROJECT_SOURCE_DIR}/cmake/find-external/MPFR"
-    )
     jrl_find_package(MPFR REQUIRED EXPECTED_TARGETS MPFR::MPFR)
 endif()
 

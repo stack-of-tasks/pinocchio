@@ -193,6 +193,13 @@ function(pinocchio_add_python_cpp_module name)
         COMMAND $<TARGET_FILE:Python::Interpreter> -c "import ${module_name}"
         WORKING_DIRECTORY $<TARGET_FILE_DIR:${target_name}>
     )
+    set_tests_properties(
+        ${target_name}
+        PROPERTIES
+            ENVIRONMENT
+                "PYTHONPATH=$<TARGET_FILE_DIR:pinocchio_pywrap_default>/.."
+    )
+
     add_dependencies(pinocchio-tests ${target_name})
 endfunction()
 
