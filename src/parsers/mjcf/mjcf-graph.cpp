@@ -1404,9 +1404,9 @@ namespace pinocchio
             const SE3 & oMi2 = data.oMi[joint2];
             if (eq.type == "connect")
             {
-              // For connect, anchor is relative to joint1
+              // Express the body-local anchor in the supporting joint frame.
               i1Mc.setIdentity();
-              i1Mc.translation() = eq.anchor;
+              i1Mc.translation() = mjcfVisitor.getBodyFrame(eq.body1).placement.act(eq.anchor);
               // Constaint relative to joint 2 is obtaint thanks to qref pose
               i2Mc = (joint2 == 0) ? oMi1 * i1Mc : oMi2.inverse() * oMi1 * i1Mc;
             }

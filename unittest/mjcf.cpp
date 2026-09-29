@@ -1622,6 +1622,67 @@ BOOST_AUTO_TEST_CASE(test_contact_parsing)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_connect_body_anchor_coordinates)
+{
+  std::istringstream xmlData(R"(<mujoco model="connect_body_anchors">
+    <worldbody>
+      <body name="base">
+        <body name="first" pos="10 0 0">
+          <joint name="first_joint" type="hinge" pos="1 0 0"/>
+          <geom type="sphere" size="0.1"/>
+          <body name="offset" pos="0 2 0" quat="1 0 0 1"/>
+        </body>
+        <body name="second" pos="0 10 0" quat="1 0 0 1">
+          <joint name="second_joint" type="hinge" pos="0 1 0"/>
+          <geom type="sphere" size="0.1"/>
+          <body name="second_offset" pos="3 0 0" quat="1 1 0 0"/>
+        </body>
+      </body>
+    </worldbody>
+    <equality>
+      <connect name="a" body1="first" body2="second_offset" anchor="1 2 3"/>
+      <connect name="b" body1="first" anchor="1 2 3"/>
+      <connect name="c" body1="offset" body2="second_offset" anchor="1 2 3"/>
+      <connect name="d" body1="offset" anchor="1 2 3"/>
+    </equality>
+  </mujoco>)");
+  auto namefile = createTempFile(xmlData);
+  pinocchio::Model model;
+  std::vector<pinocchio::PointAnchorConstraintModel> constraints;
+  std::vector<pinocchio::FrameAnchorConstraintModel> frame_constraints;
+  pinocchio::mjcf::buildModel(namefile.name(), model, constraints, frame_constraints);
+
+  BOOST_REQUIRE_EQUAL(constraints.size(), 4);
+  BOOST_CHECK(frame_constraints.empty());
+  const pinocchio::JointIndex first_joint = model.getJointId("first_joint");
+  const pinocchio::JointIndex second_joint = model.getJointId("second_joint");
+  const Eigen::Vector3d expected_first[] = {
+    Eigen::Vector3d(0, 2, 3), Eigen::Vector3d(0, 2, 3), Eigen::Vector3d(-3, 3, 3),
+    Eigen::Vector3d(-3, 3, 3)};
+  const Eigen::Vector3d expected_second[] = {
+    Eigen::Vector3d(-8, -12, 3), Eigen::Vector3d(11, 2, 3), Eigen::Vector3d(-7, -9, 3),
+    Eigen::Vector3d(8, 3, 3)};
+  // The anchor is body-local: the fixed offset body rotates it 90 degrees about Z.
+  const Eigen::Vector3d expected_world[] = {
+    Eigen::Vector3d(11, 2, 3), Eigen::Vector3d(11, 2, 3), Eigen::Vector3d(8, 3, 3),
+    Eigen::Vector3d(8, 3, 3)};
+
+  pinocchio::Data data(model);
+  pinocchio::forwardKinematics(model, data, model.referenceConfigurations.at("qpos0"));
+  for (std::size_t i = 0; i < constraints.size(); ++i)
+  {
+    const auto & constraint = constraints[i];
+    BOOST_CHECK_EQUAL(constraint.joint1_id, first_joint);
+    BOOST_CHECK_EQUAL(constraint.joint2_id, i % 2 == 0 ? second_joint : 0);
+    BOOST_CHECK(constraint.joint1_placement.translation().isApprox(expected_first[i]));
+    BOOST_CHECK(constraint.joint2_placement.translation().isApprox(expected_second[i]));
+    const pinocchio::SE3 oMc1 = data.oMi[constraint.joint1_id] * constraint.joint1_placement;
+    const pinocchio::SE3 oMc2 = data.oMi[constraint.joint2_id] * constraint.joint2_placement;
+    BOOST_CHECK(oMc1.translation().isApprox(expected_world[i]));
+    BOOST_CHECK(oMc2.translation().isApprox(expected_world[i]));
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_default_eulerseq)
 {
   std::istringstream xmlData(R"(<mujoco model="arm">
