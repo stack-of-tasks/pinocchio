@@ -922,6 +922,10 @@ if(BUILD_WITH_PARSERS_SUPPORT)
         PUBLIC pinocchio_default Boost::filesystem
     )
 
+    if(BUILD_WITH_COLLISION_SUPPORT)
+        target_link_libraries(pinocchio_parsers PUBLIC pinocchio_collision)
+    endif()
+
     jrl_target_set_default_compile_options(pinocchio_parsers PRIVATE)
     jrl_target_enforce_msvc_conformance(pinocchio_parsers PUBLIC)
     jrl_target_generate_config_header(pinocchio_parsers INTERFACE FILENAME pinocchio/parsers/config.hpp VERSION ${PROJECT_VERSION} LIBRARY_NAME pinocchio_parsers)

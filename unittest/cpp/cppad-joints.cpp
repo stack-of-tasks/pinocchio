@@ -11,7 +11,7 @@
 
 #include <boost/utility/binary.hpp>
 
-#include "../utils/joints-init.hpp"
+#include "utils/joints-init.hpp"
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)

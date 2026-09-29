@@ -317,10 +317,6 @@ endif()
 
 if(BUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT)
     pinocchio_add_python_binding(float32 ${COMMON_SOURCES})
-    endif()
-    # --- INSTALL SCRIPTS
-    install_python_files(MODULE float32 FILES __init__.py explog.py utils.py)
-
     list(APPEND STUBGEN_DEPENDENCIES "pinocchio_pywrap_float32")
 endif()
 

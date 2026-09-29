@@ -17,13 +17,9 @@
 
 #include <boost/utility/binary.hpp>
 
-<<<<<<< HEAD
 #include "utils/joints-init.hpp"
 
-BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
-=======
 #include <boost/test/unit_test.hpp>
->>>>>>> e12b7013d (cmake:Port unit test)
 
 struct TestJointModel
 {
