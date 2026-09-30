@@ -5,7 +5,7 @@ Whether it's a bug report, a new feature, a fix, or documentation, we value ever
 
 Read this document before opening an issue or a pull request.
 
-All communication on this project must follow the [Code of Conduct](../CODE_OF_CONDUCT.md).
+All communication on this project must follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Table of contents
 
@@ -61,7 +61,7 @@ If an issue meets these criteria, claim it with a short comment.
 
 ### Set up the development environment
 
-The easiest way to set up a development environment is to use pixi, as described in the [build documentation](build.md).
+The easiest way to set up a development environment is to use pixi, as described in the [build documentation](development/build.md).
 
 See the CI workflows for examples with other package managers.
 
@@ -76,10 +76,10 @@ In your pull request:
 - Use a descriptive title and follow the pull request template.
 - If the pull request is not ready for review, keep it as a draft.
 - Keep it to a single self-contained change. Don't mix unrelated fixes.
-- Follow the [code convention](./convention.md).
+- Follow the [code convention](development/convention.md).
 - Keep backward compatibility. Don't break the API.
 - Write tests that cover your changes.
-- Add an entry to the [changelog](../CHANGELOG.md).
+- Add an entry to the [changelog](CHANGELOG.md).
 - Make sure code style checks pass (`pixi run lint` or `pre-commit run --all-files`).
 - Make sure the CI is green. Ask for help if you're stuck on a CI issue.
 - Check all the appropriate items in the pull request template checklist.
@@ -112,7 +112,7 @@ ctest --test-dir build --output-on-failure -R <test-name>
 
 ### Code style
 
-Code style is enforced with [pre-commit](https://pre-commit.com/) hooks configured in [.pre-commit-config.yaml](../.pre-commit-config.yaml).
+Code style is enforced with [pre-commit](https://pre-commit.com/) hooks configured in [.pre-commit-config.yaml](.pre-commit-config.yaml).
 Before pushing your changes, run:
 
 ```bash
@@ -181,4 +181,4 @@ It breaks the responsibility and communication rules.
 
 ## Licensing
 
-All contributions to this repository are under the BSD 2-Clause License, as stated in [LICENSE](../LICENSE).
+All contributions to this repository are under the BSD 2-Clause License, as stated in [LICENSE](LICENSE).
