@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Follow the [contributing guidelines](../../development/contributing.md).
+        Follow the [contributing guidelines](https://github.com/stack-of-tasks/pinocchio/blob/devel/CONTRIBUTING.md).
 
         If you have a question about how to use Pinocchio, open a [discussion](https://github.com/stack-of-tasks/pinocchio/discussions).
 
@@ -59,6 +59,8 @@ body:
     attributes:
       label: Checklist
       options:
+        - label: I have read the [contributing guidelines](https://github.com/stack-of-tasks/pinocchio/blob/devel/CONTRIBUTING.md)
+          required: true
         - label: I have checked that all my packages are installed from the same package manager (conda-forge, Nix, PyPI, robotpkg, ROS, ...)
           required: true
         - label: I have checked that there is no similar [issue](https://github.com/stack-of-tasks/pinocchio/issues)/[discussion](https://github.com/stack-of-tasks/pinocchio/discussions)
