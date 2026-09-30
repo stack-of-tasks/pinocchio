@@ -1,5 +1,5 @@
 <!--
-Follow the [contributing guidelines](../development/contributing.md).
+Follow the [contributing guidelines](https://github.com/stack-of-tasks/pinocchio/blob/devel/CONTRIBUTING.md).
 -->
 
 ## Description
@@ -13,7 +13,7 @@ If the pull request fixes an issue, link it with "Fixes #issue_number".
 
 ## Checklist
 
-- [ ] I have read the [contributing guidelines](../development/contributing.md)
+- [ ] I have read the [contributing guidelines](https://github.com/stack-of-tasks/pinocchio/blob/devel/CONTRIBUTING.md)
 - [ ] I have run `pre-commit run --all-files` or `pixi run lint`
 - [ ] I have reviewed my own code
 - [ ] I have followed the [code convention](../development/convention.md)
