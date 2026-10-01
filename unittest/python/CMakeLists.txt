@@ -3,6 +3,12 @@
 #
 include(${JRL_CMAKE_MODULES}/python-helpers.cmake)
 
+if(BINDINGS_FRAMEWORK STREQUAL Boost)
+    set(PYTHON_BINDINGS_MODULE_PATH "bindings/python")
+else()
+    set(PYTHON_BINDINGS_MODULE_PATH "bindings/nanobind")
+endif()
+
 set(${PROJECT_NAME}_PYTHON_TESTS
     bindings
     # Multibody
@@ -83,13 +89,26 @@ function(pinocchio_add_python_cpp_module name)
         ${target_name}
         PRIVATE EXT_MODULE_NAME=${module_name}
     )
+    message(
+        " > Adding unittest extension module ${target_name} (framework=${BINDINGS_FRAMEWORK})"
+    )
+    if(BINDINGS_FRAMEWORK STREQUAL Boost)
+        target_link_libraries(${target_name} PRIVATE eigenpy::eigenpy)
+        target_compile_definitions(${target_name} PRIVATE BINDINGS_USE_BOOST)
+    else()
+        target_link_libraries(${target_name} PRIVATE nanobind-static)
+        nanobind_opt_size(${target_name})
+        nanobind_set_visibility(${target_name})
+        nanobind_strip(${target_name})
+        nanobind_disable_stack_protector(${target_name})
+        nanobind_extension(${target_name})
+        nanobind_compile_options(${target_name})
+        nanobind_link_options(${target_name})
+    endif()
     target_link_libraries(
         ${target_name}
-        PRIVATE pinocchio::pinocchio_default eigenpy::eigenpy
+        PRIVATE pinocchio::pinocchio_default ${ARGS_PIN_TARGETS}
     )
-    foreach(_dep ${ARGS_PIN_TARGETS})
-        target_link_libraries(${target_name} PRIVATE ${_dep})
-    endforeach()
     set_target_properties(
         ${target_name}
         PROPERTIES
@@ -105,7 +124,7 @@ function(pinocchio_add_python_cpp_module name)
         WORKING_DIRECTORY $<TARGET_FILE_DIR:${target_name}>
     )
     set(PYTHONPATH)
-    compute_pythonpath(ENV_VARIABLES bindings/python)
+    compute_pythonpath(ENV_VARIABLES ${PYTHON_BINDINGS_MODULE_PATH})
     set_tests_properties(
         ${target_name}
         PROPERTIES ENVIRONMENT "${ENV_VARIABLES}"
@@ -122,7 +141,7 @@ endfunction()
 
 function(pinocchio_add_lib_unit_test name)
     set(TEST_NAME "${PROJECT_NAME}-test-py-${name}")
-    add_python_unit_test(${TEST_NAME} "unittest/python/${name}.py" "bindings/python"
+    add_python_unit_test(${TEST_NAME} "unittest/python/${name}.py" "${PYTHON_BINDINGS_MODULE_PATH}"
                          "unittest/python"
     )
     get_test_property(${TEST_NAME} ENVIRONMENT _ENVIRONMENT)
@@ -161,7 +180,7 @@ endif()
 
 foreach(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
     set(TEST_NAME "${PROJECT_NAME}-test-py-${TEST}")
-    add_python_unit_test(${TEST_NAME} "unittest/python/${TEST}.py" "bindings/python")
+    add_python_unit_test(${TEST_NAME} "unittest/python/${TEST}.py" "${PYTHON_BINDINGS_MODULE_PATH}")
     get_test_property(${TEST_NAME} ENVIRONMENT _ENVIRONMENT)
     set_tests_properties(
         "${TEST_NAME}"
@@ -194,7 +213,7 @@ if(MEMORYCHECK_COMMAND AND MEMORYCHECK_COMMAND MATCHES ".*valgrind$")
           SUPP
           "unittest/python/${TEST}.supp"
           MODULES
-          "bindings/python"
+          "${PYTHON_BINDINGS_MODULE_PATH}"
         )
         get_test_property(${TEST_NAME} ENVIRONMENT _ENVIRONMENT)
         set_tests_properties(
@@ -213,5 +232,8 @@ endif()
 if(NOT WIN32 AND PINOCCHIO_BUILD_VISUALIZERS)
     pinocchio_add_python_cpp_module(bindings_visualizer PIN_TARGETS pinocchio::pinocchio_visualizers)
     pinocchio_add_lib_unit_test(bindings_visualizer)
-    add_subdirectory(pybind11)
+    # pybind11 unit tests not compatible yet with Nanobind bindings
+    if(BINDINGS_FRAMEWORK STREQUAL Boost)
+        add_subdirectory(pybind11)
+    endif()
 endif()

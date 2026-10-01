@@ -9,7 +9,7 @@ class TestJointsAlgo(TestCase):
     def setUp(self):
         self.model = pin.buildSampleModelHumanoidRandom()
 
-        qmax = np.full((self.model.nq, 1), np.pi)
+        qmax = np.full(self.model.nq, np.pi)
         self.q = pin.randomConfiguration(self.model, -qmax, qmax)
         self.v = np.random.rand(self.model.nv)
 
