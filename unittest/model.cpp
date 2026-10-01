@@ -626,6 +626,45 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel_empty)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_buildReducedModel_missing_joint_frames)
+{
+  Model model;
+  const JointIndex joint1 = model.addJoint(0, JointModelPX(), SE3::Identity(), "joint1");
+  const JointIndex joint2 = model.addJoint(joint1, JointModelPY(), SE3::Identity(), "joint2");
+  Eigen::VectorXd q(2);
+  q << 0.2, -0.3;
+
+  const std::vector<JointIndex> empty_joints_to_lock;
+  BOOST_CHECK_NO_THROW(buildReducedModel(model, empty_joints_to_lock, q));
+
+  const std::vector<JointIndex> joints_to_lock{joint1, joint2};
+  BOOST_CHECK_EXCEPTION(
+    buildReducedModel(model, joints_to_lock, q), std::invalid_argument,
+    [](const std::invalid_argument & error) {
+      return std::string(error.what()).find("joint1") != std::string::npos;
+    });
+
+  model.addJointFrame(joint1);
+  BOOST_CHECK_NO_THROW(buildReducedModel(model, std::vector<JointIndex>{joint1}, q));
+  BOOST_CHECK_EXCEPTION(
+    buildReducedModel(model, joints_to_lock, q), std::invalid_argument,
+    [](const std::invalid_argument & error) {
+      return std::string(error.what()).find("joint2") != std::string::npos;
+    });
+
+  model.addJointFrame(joint2);
+  const Model reduced_model = buildReducedModel(model, joints_to_lock, q);
+  BOOST_CHECK_EQUAL(reduced_model.njoints, 1);
+  const FrameIndex frame1 = reduced_model.getFrameId("joint1", FIXED_JOINT);
+  const FrameIndex frame2 = reduced_model.getFrameId("joint2", FIXED_JOINT);
+  BOOST_REQUIRE(frame1 < reduced_model.frames.size());
+  BOOST_REQUIRE(frame2 < reduced_model.frames.size());
+  BOOST_CHECK(
+    reduced_model.frames[frame1].placement.translation().isApprox(Eigen::Vector3d(0.2, 0., 0.)));
+  BOOST_CHECK(
+    reduced_model.frames[frame2].placement.translation().isApprox(Eigen::Vector3d(0.2, -0.3, 0.)));
+}
+
 BOOST_AUTO_TEST_CASE(test_buildReducedModel)
 {
   Model humanoid_model;

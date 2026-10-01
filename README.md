@@ -314,6 +314,7 @@ In addition to the core dev team, the following people have also been involved i
 -   [Amane Inoue](https://github.com/isaka1022): MJCF parser bug fixes
 -   [Benjamin Delpech](https://github.com/benjiiDELPECH): collisionPairMapping bug fix
 -   [Beichen Zhuo](https://github.com/BeichenZhuo): quaternion Log map sign flip bug fix
+-   [Marvel Harisson](https://github.com/INo-xious): bug fixes
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 
