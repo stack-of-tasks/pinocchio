@@ -58,6 +58,44 @@ namespace pinocchio
     }
 
     template<>
+    bp::class_<context::EllipsoidPointConstraintData> &
+    expose_constraint_data(bp::class_<context::EllipsoidPointConstraintData> & cl)
+    {
+      typedef context::EllipsoidPointConstraintData Self;
+      return cl
+        .def(
+          bp::init<const typename Self::ConstraintModel &>(
+            bp::args("self", "constraint_model"), "From model constructor."))
+        .PINOCCHIO_ADD_PROPERTY(Self, constraint_force, "Resulting force.")
+        .PINOCCHIO_ADD_PROPERTY(Self, oMc1, "Placement of the ellipsoid frame wrt WORLD.")
+        .PINOCCHIO_ADD_PROPERTY(Self, oMc2, "Placement of the material point wrt WORLD.")
+        .PINOCCHIO_ADD_PROPERTY(Self, c1Mc2, "Placement of the point wrt the ellipsoid frame.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, relative_position,
+          "Position of the material point expressed in the frame of the ellipsoid.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, algebraic_error, "Algebraic residual x^T A x - 1, dimensionless.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, norm_Ax, "Norm of A x, i.e. of the outward normal of the level set.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, gradient, "Gradient of the residual with respect to relative_position.")
+        .PINOCCHIO_ADD_PROPERTY(Self, constraint_position_error, "Constraint position error.")
+        .PINOCCHIO_ADD_PROPERTY(Self, constraint_velocity_error, "Constraint velocity error.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, constraint_acceleration_error, "Constraint acceleration error.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, constraint_acceleration_biais_term, "Constraint acceleration term.")
+        .PINOCCHIO_ADD_PROPERTY(Self, A1_world, "Transform for joint1 in world frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self, A2_world, "Transform for joint2 in world frame.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, A_world, "Relative Transform between joint1 and joint2 in world frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self, A1_local, "Transform for joint1 in local frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self, A2_local, "Transform for joint2 in local frame.")
+        .PINOCCHIO_ADD_PROPERTY(
+          Self, A_local, "Relative Transform between joint1 and joint2 in local frame.");
+    }
+
+    template<>
     bp::class_<context::JointFrictionConstraintData> &
     expose_constraint_data(bp::class_<context::JointFrictionConstraintData> & cl)
     {
