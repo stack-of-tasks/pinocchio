@@ -55,9 +55,10 @@ the following example.
 
 ```py
 import numpy as np
+
 A = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])  # Define a 2x4 matrix
 b = np.zeros([4, 1])  # Define a 4 vector (ie a 4x1 matrix) initialized with 0
-c = A @ b             # Obtain c by multiplying A by b.
+c = A @ b  # Obtain c by multiplying A by b.
 ```
 
 A bunch of useful functions are packaged in the utils of pinocchio.
@@ -66,15 +67,16 @@ A bunch of useful functions are packaged in the utils of pinocchio.
 import pinocchio as pin
 from pinocchio.utils import *
 import numpy as np
-eye(6)                      # Return a 6x6 identity matrix
-zero(6)                     # Return a zero 6x1 vector
-zero([6, 4])                # Return az zero 6x4 matrix
-rand(6)                     # Random 6x1 vector
+
+eye(6)  # Return a 6x6 identity matrix
+zero(6)  # Return a zero 6x1 vector
+zero([6, 4])  # Return az zero 6x4 matrix
+rand(6)  # Random 6x1 vector
 isapprox(zero(6), rand(6))  # Test epsilon equality
-mprint(rand([6, 6]))        # Matlab-style print
-pin.skew(rand(3))               # Skew "cross-product" 3x3 matrix from a 3x1 vector
-np.cross(rand(3), rand(3))     # Cross product of R^3
-rotate('x', 0.4)            # Build a rotation matrix of 0.4rad around X.
+mprint(rand([6, 6]))  # Matlab-style print
+pin.skew(rand(3))  # Skew "cross-product" 3x3 matrix from a 3x1 vector
+np.cross(rand(3), rand(3))  # Cross product of R^3
+rotate("x", 0.4)  # Build a rotation matrix of 0.4rad around X.
 ```
 
 Specific classes are defined to represent objects of \f$SE(3)\f$, \f$se(3)\f$ and
@@ -83,6 +85,7 @@ the class `SE3`.
 
 ```py
 import pinocchio as pin
+
 R = eye(3)
 p = zero(3)
 M0 = pin.SE3(R, p)
@@ -163,7 +166,7 @@ and are available in the correponding class dictionnary.
 
 ```py
 for name, function in robot.model.__class__.__dict__.items():
-    print(' **** %s: %s' % (name, function.__doc__))
+    print(" **** %s: %s" % (name, function.__doc__))
 ```
 
 Similarly, the robot data are available in `robot.data`. All the variables
@@ -182,7 +185,7 @@ placement:
 ```py
 # Get index of end effector
 
-idx = robot.index('wrist_3_joint')
+idx = robot.index("wrist_3_joint")
 
 # Compute and get the placement of joint number idx
 
@@ -241,9 +244,13 @@ You can access the visual object composing the robot model by
 `robot.visual_model.geometryObject`.
 
 ```py
-visualObj = robot.visual_model.geometryObjects[4]  # 3D object representing the robot forarm
-visualName = visualObj.name                        # Name associated to this object
-visualRef = robot.getViewerNodeName(visualObj, pin.GeometryType.VISUAL)    # Viewer reference (string) representing this object
+visualObj = robot.visual_model.geometryObjects[
+    4
+]  # 3D object representing the robot forarm
+visualName = visualObj.name  # Name associated to this object
+visualRef = robot.getViewerNodeName(
+    visualObj, pin.GeometryType.VISUAL
+)  # Viewer reference (string) representing this object
 ```
 
 Moving one object
@@ -258,7 +265,7 @@ Additional objects can be created, like a sphere as follows.
 
 ```py
 rgbt = [1.0, 0.2, 0.2, 1.0]  # red, green, blue, transparency
-robot.viewer.gui.addSphere("world/sphere", .1, rgbt)  # .1 is the radius
+robot.viewer.gui.addSphere("world/sphere", 0.1, rgbt)  # .1 is the radius
 ```
 
 The exhaustive list of the object that can be created is available in
@@ -276,7 +283,7 @@ Say we have a target at position `[.5, .1, .2]` and we would like the
 robot to grasp it.
 
 ```py
-robot.viewer.gui.applyConfiguration("world/sphere", (.5, .1, .2, 1.,0.,0.,0. ))
+robot.viewer.gui.applyConfiguration("world/sphere", (0.5, 0.1, 0.2, 1.0, 0.0, 0.0, 0.0))
 robot.viewer.gui.refresh()  # Refresh the window.
 ```
 

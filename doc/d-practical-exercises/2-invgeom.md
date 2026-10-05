@@ -40,40 +40,56 @@ least-square only when constraints are really needed.
 import numpy as np
 from scipy.optimize import fmin_bfgs, fmin_slsqp
 
+
 def cost(x):
-    '''Cost f(x, y) = x² + 2y² - 2xy - 2x '''
+    """Cost f(x, y) = x² + 2y² - 2xy - 2x"""
     x0, x1 = x
-    return -(2 * x0 * x1 + 2 * x0 - x0 ** 2 - 2 * x1 ** 2)
+    return -(2 * x0 * x1 + 2 * x0 - x0**2 - 2 * x1**2)
+
 
 def constraint_eq(x):
-    ''' Constraint x³ = y '''
-    return np.array([ x[0] ** 3 - x[1] ])
+    """Constraint x³ = y"""
+    return np.array([x[0] ** 3 - x[1]])
+
 
 def constraint_ineq(x):
-   '''Constraint x >= 2, y >= 2'''
-   return np.array([ x[0] - 2, x[1] - 2 ])
+    """Constraint x >= 2, y >= 2"""
+    return np.array([x[0] - 2, x[1] - 2])
+
 
 class CallbackLogger:
     def __init__(self):
         self.nfeval = 1
 
-    def __call__(self,x):
-        print('===CBK=== {0:4d} {1: 3.6f} {2: 3.6f} {3: 3.6f}'.format(self.nfeval, x[0], x[1], cost(x)))
+    def __call__(self, x):
+        print(
+            "===CBK=== {0:4d} {1: 3.6f} {2: 3.6f} {3: 3.6f}".format(
+                self.nfeval, x[0], x[1], cost(x)
+            )
+        )
         self.nfeval += 1
+
 
 x0 = np.array([0.0, 0.0])  # Optimize cost without any constraints in BFGS, with traces.
 xopt_bfgs = fmin_bfgs(cost, x0, callback=CallbackLogger())
-print('*** Xopt in BFGS =', xopt_bfgs)
+print("*** Xopt in BFGS =", xopt_bfgs)
 
 # Optimize cost without any constraints in CLSQ
 
 xopt_lsq = fmin_slsqp(cost, [-1.0, 1.0], iprint=2, full_output=1)
-print('*** Xopt in LSQ =', xopt_lsq)
+print("*** Xopt in LSQ =", xopt_lsq)
 
 # Optimize cost with equality and inequality constraints in CLSQ
 
-xopt_clsq = fmin_slsqp(cost, [-1.0, 1.0], f_eqcons=constraint_eq, f_ieqcons=constraint_ineq, iprint=2, full_output=1)
-print('*** Xopt in c-lsq =', xopt_clsq)
+xopt_clsq = fmin_slsqp(
+    cost,
+    [-1.0, 1.0],
+    f_eqcons=constraint_eq,
+    f_ieqcons=constraint_ineq,
+    iprint=2,
+    full_output=1,
+)
+print("*** Xopt in c-lsq =", xopt_clsq)
 ```
 
 Take care that all *SciPy*
@@ -84,6 +100,7 @@ from a SciPy-like vector to a Pinocchio-like vector using:
 
 ```py
 import numpy as np
+
 x = np.array([1.0, 2.0, 3.0])
 q = np.array(x)
 x = q.getA()[:, 0]
@@ -108,12 +125,12 @@ if interactivePlot:
 # Build numpy array for x axis
 x = 1e-3 * np.array(range(100))
 # Build numpy array for y axis
-y = x ** 2
+y = x**2
 
 fig = plt.figure()
-ax = fig.add_subplot('111')
+ax = fig.add_subplot("111")
 ax.plot(x, y)
-ax.legend(("x^2", ))
+ax.legend(("x^2",))
 
 if not interactivePlot:
     # Display all the plots and block the shell.
@@ -142,8 +159,8 @@ from os.path import join
 import pinocchio as se3
 from pinocchio.romeo_wrapper import RomeoWrapper
 
-PKG = '/opt/openrobots/share'
-URDF = join(PKG, 'romeo_description/urdf/romeo.urdf')
+PKG = "/opt/openrobots/share"
+URDF = join(PKG, "romeo_description/urdf/romeo.urdf")
 
 robot = RomeoWrapper(URDF, [PKG])  # Load urdf model
 robot.initViewer(loadModel=True)
@@ -165,6 +182,7 @@ position `q` can be access by the following two lines of code:
 ```py
 # Compute all joint placements and put the position of joint "i" in variable "p".
 import pinocchio as se3
+
 se3.forwardKinematics(robot.model, robot.data, q)
 p = robot.data.oMi[i].translation
 ```
@@ -226,6 +244,7 @@ module.
 ```py
 from pinocchio.explog import log
 from pinocchio import SE3
+
 nu = log(SE3.Random())
 nu_vec = nu.vector
 ```

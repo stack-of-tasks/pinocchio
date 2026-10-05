@@ -141,8 +141,8 @@ inline boost::optional<ExtraArgs> parseExtraArgs(int argc, char ** argv)
     }                                                                                              \
     GLOBAL_SETUP(*extra_args);                                                                     \
                                                                                                    \
-    ::benchmark ::RunSpecifiedBenchmarks();                                                        \
-    ::benchmark ::Shutdown();                                                                      \
+    ::benchmark::RunSpecifiedBenchmarks();                                                         \
+    ::benchmark::Shutdown();                                                                       \
     return 0;                                                                                      \
   }                                                                                                \
   int main(int, char **)

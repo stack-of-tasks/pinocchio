@@ -172,8 +172,8 @@ namespace pinocchio
 
       bp::def(
         "jacobianCenterOfMass",
-        (const context::Data::Matrix3x & (*)(const context::Model &, context::Data &,
-                                             const Eigen::MatrixBase<VectorXs> &, bool))
+        (const context::Data::Matrix3x & (*)(
+          const context::Model &, context::Data &, const Eigen::MatrixBase<VectorXs> &, bool))
           & jacobianCenterOfMass<Scalar, Options, JointCollectionDefaultTpl, VectorXs>,
         (bp::arg("model"), bp::arg("data"), bp::arg("q"), bp::arg("compute_subtree_coms") = true),
         "Computes the Jacobian of the center of mass, puts the result in context::Data and return "
