@@ -74,7 +74,6 @@ class TestADMM(TestCase):
         # adding friction on joints
         active_joints_friction = [i for i in range(1, model.njoints)]
         fjcm = pin.JointFrictionConstraintModel(model, active_joints_friction)
-        fjcm.set = pin.BoxSet(model.lowerDryFrictionLimit, model.upperDryFrictionLimit)
         constraint_models.append(pin.ConstraintModel(fjcm))
 
         # Adding constraints from points contacts
