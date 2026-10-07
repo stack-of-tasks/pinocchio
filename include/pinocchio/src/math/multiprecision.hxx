@@ -64,15 +64,15 @@ namespace Eigen
     enum
     {
       IsComplex = boost::multiprecision::number_category<self_type>::value
-                  == boost::multiprecision::number_kind_complex,
+        == boost::multiprecision::number_kind_complex,
       IsInteger = boost::multiprecision::number_category<self_type>::value
-                  == boost::multiprecision::number_kind_integer,
+        == boost::multiprecision::number_kind_integer,
       ReadCost = 1,
       AddCost = 4,
       MulCost = 8,
       IsSigned = std::numeric_limits<self_type>::is_specialized
-                   ? std::numeric_limits<self_type>::is_signed
-                   : true,
+        ? std::numeric_limits<self_type>::is_signed
+        : true,
       RequireInitialization = 1
     };
     EIGEN_DEVICE_FUNC EIGEN_CONSTEXPR static inline Real epsilon()
