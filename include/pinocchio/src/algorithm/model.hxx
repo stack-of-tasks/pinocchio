@@ -588,6 +588,9 @@ namespace pinocchio
         while ((*frame_it).name != joint_name)
         {
           ++frame_it;
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(
+            frame_it != input_model.frames.end(),
+            "The frame for joint '" + joint_name + "' could not be found in the input model.");
           const Frame & input_frame = *frame_it;
           if (input_frame.name == joint_name)
             break;
