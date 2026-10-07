@@ -304,6 +304,31 @@ namespace boost
       ar & make_nvp("m_length", cmodel_.m_length);
     }
 
+    namespace internal
+    {
+      template<typename Scalar, int Options>
+      struct EllipsoidPointConstraintModelAccessor
+      : public ::pinocchio::EllipsoidPointConstraintModelTpl<Scalar, Options>
+      {
+        typedef ::pinocchio::EllipsoidPointConstraintModelTpl<Scalar, Options> Base;
+        using Base::m_radii;
+      };
+    } // namespace internal
+
+    template<typename Archive, typename Scalar, int Options>
+    void serialize(
+      Archive & ar,
+      ::pinocchio::EllipsoidPointConstraintModelTpl<Scalar, Options> & cmodel,
+      const unsigned int /*version*/)
+    {
+      typedef ::pinocchio::EllipsoidPointConstraintModelTpl<Scalar, Options> Self;
+      typedef typename Self::Base Base;
+      ar & make_nvp("base", boost::serialization::base_object<Base>(cmodel));
+      typedef internal::EllipsoidPointConstraintModelAccessor<Scalar, Options> Accessor;
+      auto & cmodel_ = reinterpret_cast<Accessor &>(cmodel);
+      ar & make_nvp("m_radii", cmodel_.m_radii);
+    }
+
     template<typename Archive, typename Derived>
     void serialize(
       Archive & ar,
