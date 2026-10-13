@@ -178,6 +178,11 @@ namespace pinocchio
       typedef ConstantLengthConstraintDataTpl<Scalar, Options> ConstantLengthConstraintData;
       typedef std::vector<ConstantLengthConstraintData> ConstantLengthConstraintDataVector;
 
+      typedef EllipsoidPointConstraintModelTpl<Scalar, Options> EllipsoidPointConstraintModel;
+      typedef std::vector<EllipsoidPointConstraintModel> EllipsoidPointConstraintModelVector;
+      typedef EllipsoidPointConstraintDataTpl<Scalar, Options> EllipsoidPointConstraintData;
+      typedef std::vector<EllipsoidPointConstraintData> EllipsoidPointConstraintDataVector;
+
       typedef JointFrictionConstraintModelTpl<Scalar, Options> JointFrictionConstraintModel;
       typedef std::vector<JointFrictionConstraintModel> JointFrictionConstraintModelVector;
       typedef JointFrictionConstraintDataTpl<Scalar, Options> JointFrictionConstraintData;

@@ -49,7 +49,8 @@ namespace pinocchio
         const bool has_joint_friction = false,
         const bool has_point_anchor = false,
         const bool has_frame_anchor = false,
-        const bool has_constant_length = false)
+        const bool has_constant_length = false,
+        const bool has_ellipsoid_point = false)
       : model()
       , data()
       {
@@ -165,6 +166,40 @@ namespace pinocchio
             cm_RF_LF.setCompliance(VectorXs::Random(cm_RF_LF.residualSize()).cwiseAbs());
             constraint_models.push_back(cm_RF_LF);
             constraint_datas.push_back(cm_RF_LF.createData());
+          }
+          else
+          {
+            PINOCCHIO_THROW(std::runtime_error, "Joint does not exist");
+          }
+        }
+
+        if (has_ellipsoid_point)
+        {
+          if (model.existJointName(RF) && model.existJointName(LF))
+          {
+            typedef EllipsoidPointConstraintModelTpl<Scalar, Options> EllipsoidPointConstraintModel;
+
+            const typename Model::JointIndex RF_id = model.getJointId(RF);
+            const typename Model::JointIndex LF_id = model.getJointId(LF);
+            const Eigen::Matrix<Scalar, 3, 1, Options> radii(Scalar(0.1), Scalar(0.2), Scalar(0.1));
+
+            // A point of the right foot on an ellipsoid of the universe.
+            EllipsoidPointConstraintModel cm_RF(
+              model, 0, SE3Tpl<Scalar, Options>::Random(), RF_id, SE3Tpl<Scalar, Options>::Random(),
+              radii);
+            cm_RF.setCompliance(VectorXs::Random(cm_RF.residualSize()).cwiseAbs());
+            constraint_models.push_back(cm_RF);
+            constraint_datas.push_back(cm_RF.createData());
+
+            // A point of the right foot on an ellipsoid carried by the left foot, closing a
+            // kinematic loop between two moving bodies: this is what exercises the joint cross
+            // coupling terms of appendCouplingConstraintInertias.
+            EllipsoidPointConstraintModel cm_LF_RF(
+              model, LF_id, SE3Tpl<Scalar, Options>::Random(), RF_id,
+              SE3Tpl<Scalar, Options>::Random(), radii);
+            cm_LF_RF.setCompliance(VectorXs::Random(cm_LF_RF.residualSize()).cwiseAbs());
+            constraint_models.push_back(cm_LF_RF);
+            constraint_datas.push_back(cm_LF_RF.createData());
           }
           else
           {
