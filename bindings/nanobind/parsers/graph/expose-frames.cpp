@@ -3,6 +3,7 @@
 //
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 #include "pinocchio/parsers/graph.hpp"
 
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
@@ -21,17 +22,20 @@ void exposeFramesGraph(nb::module_ m)
     .def_rw(
       "inertia", &BodyFrame::inertia,
       "Spatial inertia of the body, expressed at its center of mass (CoM).")
-    .def_rw("f_type", &BodyFrame::f_type, "Type of the frame (e.g., pinocchio.FrameType.BODY).");
+    .def_rw("f_type", &BodyFrame::f_type, "Type of the frame (e.g., pinocchio.FrameType.BODY).")
+    .def(CopyableVisitor<BodyFrame>());
 
   nb::class_<SensorFrame>(m, "SensorFrame", "Represents a sensor frame in the model graph.")
     .def(nb::init<>(), "Default constructor.")
     .def_rw(
-      "f_type", &SensorFrame::f_type, "Type of the frame (should be pinocchio.FrameType.SENSOR).");
+      "f_type", &SensorFrame::f_type, "Type of the frame (should be pinocchio.FrameType.SENSOR).")
+    .def(CopyableVisitor<SensorFrame>());
 
   nb::class_<OpFrame>(m, "OpFrame", "Represents an operational (task) frame in the model graph.")
     .def(nb::init<>(), "Default constructor.")
     .def_rw(
-      "f_type", &OpFrame::f_type, "Type of the frame (should be pinocchio.FrameType.OP_FRAME).");
+      "f_type", &OpFrame::f_type, "Type of the frame (should be pinocchio.FrameType.OP_FRAME).")
+    .def(CopyableVisitor<OpFrame>());
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END

@@ -72,14 +72,21 @@ void exposeFrame(nb::module_ m)
     .def(
       "__getstate__",
       [](const Frame & self) {
-        return std::make_tuple(self.name, self.parentJoint, self.parentFrame, self.placement, (int)self.type, self.inertia);
+        return std::make_tuple(
+          self.name, self.parentJoint, self.parentFrame, self.placement, (int)self.type,
+          self.inertia);
       })
-    .def("__setstate__",
-    [](Frame & self, const std::tuple<std::string, JointIndex, FrameIndex, SE3, int, Inertia> & t) {
-      new (&self)
-        Frame(std::get<0>(t), std::get<1>(t), std::get<2>(t), std::get<3>(t), (FrameType)std::get<4>(t), std::get<5>(t));
-    });
+    .def(
+      "__setstate__",
+      [](
+        Frame & self,
+        const std::tuple<std::string, JointIndex, FrameIndex, SE3, int, Inertia> & t) {
+        new (&self) Frame(
+          std::get<0>(t), std::get<1>(t), std::get<2>(t), std::get<3>(t), (FrameType)std::get<4>(t),
+          std::get<5>(t));
+      });
 
-  nb::bind_vector<std::vector<Frame>, nb::rv_policy::reference_internal>(m, "StdVec_Frame");
+  nb::bind_vector<std::vector<Frame>, nb::rv_policy::reference_internal>(m, "StdVec_Frame")
+    .def(CopyableVisitor<std::vector<Frame>>());
 };
 PINOCCHIO_PYTHON_NAMESPACE_END

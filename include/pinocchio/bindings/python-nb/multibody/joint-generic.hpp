@@ -6,6 +6,7 @@
 #include "pinocchio/bindings/python-nb/utils/printable.hpp"
 #include "pinocchio/bindings/python-nb/utils/boost-variant.hpp"
 #include "pinocchio/bindings/python-nb/multibody/joint-crtp-base.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 
 #include "pinocchio/multibody/joint.hpp"
 
@@ -30,7 +31,8 @@ void exposeJointModel(nb::module_ m)
     .def(PrintableVisitor<JointModel>());
 
   nb::bind_vector<std::vector<JointModel>, nb::rv_policy::reference_internal>(
-    m, "StdVec_JointModel");
+    m, "StdVec_JointModel")
+    .def(CopyableVisitor<std::vector<JointModel>>());
 }
 
 /// Expose generic JointData.
@@ -45,6 +47,7 @@ void exposeJointData(nb::module_ m)
     .def(JointDataBaseVisitor<JointData>())
     .def(PrintableVisitor<JointData>());
 
-  nb::bind_vector<std::vector<JointData>, nb::rv_policy::reference_internal>(m, "StdVec_JointData");
+  nb::bind_vector<std::vector<JointData>, nb::rv_policy::reference_internal>(m, "StdVec_JointData")
+    .def(CopyableVisitor<std::vector<JointData>>());
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

@@ -108,6 +108,7 @@ void exposeForce(nb::module_ m)
     .def(ToNumpyArrayVisitor<Force>())
     .def(PrintableVisitor<Force>());
 
-  nb::bind_vector<std::vector<Force>, nb::rv_policy::reference_internal>(m, "StdVec_Force");
+  nb::bind_vector<std::vector<Force>, nb::rv_policy::reference_internal>(m, "StdVec_Force")
+    .def(CopyableVisitor<std::vector<Force>>());
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

@@ -4,6 +4,7 @@
 #include "pinocchio/bindings/python-nb/utils/printable.hpp"
 #include "pinocchio/bindings/python-nb/utils/boost-variant.hpp"
 #include "pinocchio/bindings/python-nb/constraints/constraint-crtp-base.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/bind_vector.h>
@@ -26,7 +27,8 @@ static void exposeBaumgarteParameters(nb::module_ m)
     .def(nb::init<Scalar, Scalar>(), "Kp"_a, "Kd"_a)
     .def_rw("Kp", &BaumgarteCorrectorParameters::Kp, "Proportional corrector gain value.")
     .def_rw("Kd", &BaumgarteCorrectorParameters::Kd, "Damping corrector gain value.")
-    .def(ComparableVisitor<BaumgarteCorrectorParameters>());
+    .def(ComparableVisitor<BaumgarteCorrectorParameters>())
+    .def(CopyableVisitor<BaumgarteCorrectorParameters>());
 }
 
 static void exposeConstraintGeneric(nb::module_ m)
@@ -40,7 +42,8 @@ static void exposeConstraintGeneric(nb::module_ m)
     .def(PrintableVisitor<ConstraintModel>());
 
   nb::bind_vector<std::vector<ConstraintModel>, nb::rv_policy::reference_internal>(
-    m, "StdVec_ConstraintModel");
+    m, "StdVec_ConstraintModel")
+    .def(CopyableVisitor<std::vector<ConstraintModel>>());
 
   nb::class_<ConstraintData>(m, "ConstraintData", "Generic constraint data.")
     .def(nb::init<>(), "Default constructor.")
@@ -51,7 +54,8 @@ static void exposeConstraintGeneric(nb::module_ m)
     .def(PrintableVisitor<ConstraintData>());
 
   nb::bind_vector<std::vector<ConstraintData>, nb::rv_policy::reference_internal>(
-    m, "StdVec_ConstraintData");
+    m, "StdVec_ConstraintData")
+    .def(CopyableVisitor<std::vector<ConstraintData>>());
 }
 
 void exposeConstraints(nb::module_ m)

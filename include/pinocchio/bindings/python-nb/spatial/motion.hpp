@@ -152,6 +152,7 @@ void exposeMotion(nb::module_ m)
     .def(ToNumpyArrayVisitor<Motion>())
     .def(PrintableVisitor<Motion>());
 
-  nb::bind_vector<std::vector<Motion>, nb::rv_policy::reference_internal>(m, "StdVec_Motion");
+  nb::bind_vector<std::vector<Motion>, nb::rv_policy::reference_internal>(m, "StdVec_Motion")
+    .def(CopyableVisitor<std::vector<Motion>>());
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

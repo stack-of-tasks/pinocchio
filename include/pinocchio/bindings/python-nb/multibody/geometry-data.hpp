@@ -31,7 +31,8 @@ inline void exposeGeometryData(nb::module_ m)
     .def(PrintableVisitor<CollisionPair>());
 
   nb::bind_vector<std::vector<CollisionPair>, nb::rv_policy::reference_internal>(
-    m, "StdVec_CollisionPair");
+    m, "StdVec_CollisionPair")
+    .def(CopyableVisitor<std::vector<CollisionPair>>());
 
   nb::class_<GeometryData>(
     m, "GeometryData", "Geometry data linked to a GeometryModel and a Data struct.")
@@ -115,6 +116,7 @@ inline void exposeGeometryData(nb::module_ m)
     .def(SerializableVisitor<GeometryData>());
 
   nb::bind_vector<std::vector<GeometryData>, nb::rv_policy::reference_internal>(
-    m, "StdVec_GeometryData");
+    m, "StdVec_GeometryData")
+    .def(CopyableVisitor<std::vector<GeometryData>>());
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

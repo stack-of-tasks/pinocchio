@@ -98,6 +98,7 @@ inline void exposeGeometryModel(nb::module_ m)
     });
 
   nb::bind_vector<std::vector<GeometryModel>, nb::rv_policy::reference_internal>(
-    m, "StdVec_GeometryModel");
+    m, "StdVec_GeometryModel")
+    .def(CopyableVisitor<std::vector<GeometryModel>>());
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

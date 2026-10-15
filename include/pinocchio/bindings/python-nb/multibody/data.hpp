@@ -232,21 +232,24 @@ void exposeData(nb::module_ m)
     });
 
   using Vector3 = Eigen::Matrix<Scalar, 3, 1>;
-  nb::bind_vector<std::vector<int>>(m, "StdVec_Int");
+  nb::bind_vector<std::vector<int>>(m, "StdVec_Int").def(CopyableVisitor<std::vector<int>>());
   if (!check_registration_alias<std::vector<Vector3>>(m, "StdVec_Vector3"))
     nb::bind_vector<std::vector<Vector3>>(m, "StdVec_Vector3")
       .def(PickleVectorVisitor<std::vector<Vector3>>())
-      .def("tolist", [](const std::vector<Vector3> & self) {
-        nb::list result;
-        for (const auto & v : self)
-        {
-          nb::list row;
-          for (Eigen::Index i = 0; i < v.size(); ++i)
-            row.append(v[i]);
-          result.append(row);
-        }
-        return result;
-      });
+      .def(
+        "tolist",
+        [](const std::vector<Vector3> & self) {
+          nb::list result;
+          for (const auto & v : self)
+          {
+            nb::list row;
+            for (Eigen::Index i = 0; i < v.size(); ++i)
+              row.append(v[i]);
+            result.append(row);
+          }
+          return result;
+        })
+      .def(CopyableVisitor<std::vector<Vector3>>());
 }
 PINOCCHIO_PYTHON_NAMESPACE_END
 

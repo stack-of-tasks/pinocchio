@@ -2,6 +2,7 @@
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 #include "pinocchio/bindings/python-nb/utils/boost-variant.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 
 #include "pinocchio/parsers/graph.hpp"
 
@@ -19,31 +20,36 @@ void exposeGeometriesVariant(nb::module_ m)
   nb::class_<Mesh>(m, "Mesh", "Represents a mesh geometry.")
     .def(nb::init<>(), "Default constructor.")
     .def(nb::init<const std::string &>(), "path"_a, "Constructor from mesh file path.")
-    .def_rw("path", &Mesh::path, "Path to the mesh file.");
+    .def_rw("path", &Mesh::path, "Path to the mesh file.")
+    .def(CopyableVisitor<Mesh>());
 
   nb::class_<Box>(m, "Box", "Represents a box.")
     .def(nb::init<>(), "Default constructor.")
     .def(nb::init<const Eigen::Vector3d &>(), "size"_a, "Constructor from 3D size vector.")
-    .def_rw("size", &Box::size, "Size of the box.");
+    .def_rw("size", &Box::size, "Size of the box.")
+    .def(CopyableVisitor<Box>());
 
   nb::class_<Cylinder>(m, "Cylinder", "Represents a cylinder.")
     .def(nb::init<>(), "Default constructor.")
     .def(
       nb::init<const Eigen::Vector2d &>(), "size"_a,
       "Constructor from 2D size vector (radius, height).")
-    .def_rw("size", &Cylinder::size, "Size of the cylinder (radius, height).");
+    .def_rw("size", &Cylinder::size, "Size of the cylinder (radius, height).")
+    .def(CopyableVisitor<Cylinder>());
 
   nb::class_<Capsule>(m, "Capsule", "Represents a capsule.")
     .def(nb::init<>(), "Default constructor.")
     .def(
       nb::init<const Eigen::Vector2d &>(), "size"_a,
       "Constructor from 2D size vector (radius, length).")
-    .def_rw("size", &Capsule::size, "Size of the capsule (radius, length).");
+    .def_rw("size", &Capsule::size, "Size of the capsule (radius, length).")
+    .def(CopyableVisitor<Capsule>());
 
   nb::class_<Sphere>(m, "Sphere", "Represents a sphere.")
     .def(nb::init<>(), "Default constructor.")
     .def(nb::init<const double>(), "radius"_a, "Constructor from radius.")
-    .def_rw("radius", &Sphere::radius, "Radius of the sphere.");
+    .def_rw("radius", &Sphere::radius, "Radius of the sphere.")
+    .def(CopyableVisitor<Sphere>());
 }
 
 void exposeGeometryGraph(nb::module_ m)
@@ -71,9 +77,11 @@ void exposeGeometryGraph(nb::module_ m)
     .def_rw("color", &Geometry::color, "RGBA color.")
     .def_rw(
       "placement", &Geometry::placement, "SE3 placement (pose) of the geometry wrt to the body.")
-    .def_rw("geometry", &Geometry::geometry, "The actual geometric primitive.");
+    .def_rw("geometry", &Geometry::geometry, "The actual geometric primitive.")
+    .def(CopyableVisitor<Geometry>());
 
-  nb::bind_vector<std::vector<Geometry>>(m, "StdVec_Geometry");
+  nb::bind_vector<std::vector<Geometry>>(m, "StdVec_Geometry")
+    .def(CopyableVisitor<std::vector<Geometry>>());
 }
 
 void exposeGeometryBuilder(nb::module_ m)

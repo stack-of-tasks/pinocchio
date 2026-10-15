@@ -207,13 +207,12 @@ void exposeInertia(nb::module_ m)
         return std::make_tuple(
           self.mass(), Vector3(self.lever()), Matrix3(self.inertia().matrix()));
       })
-    .def(
-      "__setstate__",
-      [](Inertia & self, const std::tuple<Scalar, Vector3, Matrix3> & t) {
-        new (&self) Inertia(std::get<0>(t), std::get<1>(t), std::get<2>(t));
-      });
+    .def("__setstate__", [](Inertia & self, const std::tuple<Scalar, Vector3, Matrix3> & t) {
+      new (&self) Inertia(std::get<0>(t), std::get<1>(t), std::get<2>(t));
+    });
 
-  nb::bind_vector<std::vector<Inertia>, nb::rv_policy::reference_internal>(m, "StdVec_Inertia");
+  nb::bind_vector<std::vector<Inertia>, nb::rv_policy::reference_internal>(m, "StdVec_Inertia")
+    .def(CopyableVisitor<std::vector<Inertia>>());
 }
 
 template<class PseudoInertia>

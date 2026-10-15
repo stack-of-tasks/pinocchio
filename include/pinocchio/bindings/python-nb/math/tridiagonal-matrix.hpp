@@ -4,6 +4,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 
 #include "pinocchio/math.hpp"
 
@@ -86,7 +87,8 @@ void exposeTridiagonalMatrix(nb::module_ m)
         return PlainMatrix(mat * self);
       },
       nb::is_operator())
-    .def(ComparableVisitor<TridiagonalMatrix>());
+    .def(ComparableVisitor<TridiagonalMatrix>())
+    .def(CopyableVisitor<TridiagonalMatrix>());
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END
