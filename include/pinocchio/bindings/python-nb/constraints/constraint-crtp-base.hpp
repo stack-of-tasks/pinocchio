@@ -4,6 +4,7 @@
 
 #include "../fwd.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 
 #include "pinocchio/constraints.hpp"
 
@@ -265,7 +266,8 @@ struct ConstraintModelBaseVisitor : nanobind::def_visitor<ConstraintModelBaseVis
         },
         "model"_a, "data"_a, "constraint_data"_a, "diagonal_constraint_inertia"_a,
         "reference_frame"_a = LOCAL, "Append to data the apparent inertia due to the constraint.")
-      .def(ComparableVisitor<ModelDerived>());
+      .def(ComparableVisitor<ModelDerived>())
+      .def(CopyableVisitor<ModelDerived>());
 
     if constexpr (has_baumgarte_corrector)
     {
@@ -303,7 +305,8 @@ struct ConstraintDataBaseVisitor : nanobind::def_visitor<ConstraintDataBaseVisit
   {
     cl.def_static("classname", &Self::classname)
       .def("shortname", &Self::shortname, "Short name of the class.")
-      .def(ComparableVisitor<DataDerived>());
+      .def(ComparableVisitor<DataDerived>())
+      .def(CopyableVisitor<DataDerived>());
   }
 };
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "../fwd.hpp"
+#include "../utils/copyable.hpp"
 
 #include "pinocchio/algorithm/solvers/constraint-solver-base.hpp"
 
@@ -36,7 +37,8 @@ struct ConstraintSolverSettingsBaseVisitor
         "Whether to solve the NCP. If false, the equivalent CCP is solved.")
       .def_rw("measure_timings", &Settings::measure_timings, "Whether to measure solve timings.")
       .def_rw("stat_record", &Settings::stat_record, "Whether to record per-iteration stats.")
-      .def("checkValidity", &Settings::checkValidity, "Throw if the settings are not valid.");
+      .def("checkValidity", &Settings::checkValidity, "Throw if the settings are not valid.")
+      .def(CopyableVisitor<Settings>());
   }
 }; // struct ConstraintSolverSettingsBaseVisitor
 
@@ -94,7 +96,8 @@ struct ConstraintSolverResultBaseVisitor
         "velocity_guess"_a, "Set the constraint velocity warmstart guess for the next solve call.")
       .def(
         "clearConstraintVelocityGuess", &Result::clearConstraintVelocityGuess,
-        "Clear the constraint velocity warmstart guess.");
+        "Clear the constraint velocity warmstart guess.")
+      .def(CopyableVisitor<Result>());
   }
 }; // struct ConstraintSolverResultBaseVisitor
 
@@ -124,7 +127,8 @@ struct ConstraintSolverStatsBaseVisitor
       .def(
         "reserve", &Stats::reserve, "max_iterations"_a,
         "Reserve storage for up to max_iterations iterations.")
-      .def("reset", &Stats::reset, "Clear all history and reset the iteration counter to zero.");
+      .def("reset", &Stats::reset, "Clear all history and reset the iteration counter to zero.")
+      .def(CopyableVisitor<Stats>());
   }
 }; // struct ConstraintSolverStatsBaseVisitor
 
@@ -137,7 +141,8 @@ struct ConstraintSolverBaseVisitor : nanobind::def_visitor<ConstraintSolverBaseV
     cl.def("reset", &Solver::reset, "Reset the solver to its initial state.")
       .def(
         "getElapsedTime", &Solver::getElapsedTime,
-        "Return last solve call elapsed time in microseconds.");
+        "Return last solve call elapsed time in microseconds.")
+      .def(CopyableVisitor<Solver>());
   }
 }; // struct ConstraintSolverBaseVisitor
 
