@@ -164,6 +164,11 @@ if(BUILD_WITH_COLLISION_SUPPORT)
     )
 endif()
 
+# copy(), copy.copy and copy.deepcopy are only bound by the nanobind bindings.
+if(BINDINGS_FRAMEWORK STREQUAL Nanobind)
+    list(APPEND ${PROJECT_NAME}_PYTHON_TESTS bindings_copy)
+endif()
+
 if(urdfdom_FOUND)
     set(${PROJECT_NAME}_PYTHON_TESTS
         ${${PROJECT_NAME}_PYTHON_TESTS}
