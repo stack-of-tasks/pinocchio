@@ -2,6 +2,7 @@
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 #include "pinocchio/bindings/python-nb/parsers/graph/model-graph.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 
 #include <nanobind/stl/bind_vector.h>
 #include <nanobind/stl/filesystem.h>
@@ -39,7 +40,8 @@ void exposeParsers(nb::module_ m)
   }
 #endif
 
-  nb::bind_vector<std::vector<std::filesystem::path>>(m, "StdVec_Path");
+  nb::bind_vector<std::vector<std::filesystem::path>>(m, "StdVec_Path")
+    .def(CopyableVisitor<std::vector<std::filesystem::path>>());
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END

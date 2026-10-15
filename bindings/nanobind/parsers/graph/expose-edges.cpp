@@ -2,6 +2,7 @@
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 #include "pinocchio/bindings/python-nb/utils/boost-variant.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 
 #include "pinocchio/parsers/graph.hpp"
 
@@ -23,41 +24,48 @@ void exposeJointsGraph(nb::module_ m)
     .def(nb::init<const pinocchio::SE3 &>(), "pose"_a, "Constructor with joint offset.")
     .def_rw("joint_offset", &JointFixed::joint_offset, "Offset of the joint.")
     .def_ro_static("nq", &JointFixed::nq, "Number of configuration variables.")
-    .def_ro_static("nv", &JointFixed::nv, "Number of tangent variables.");
+    .def_ro_static("nv", &JointFixed::nv, "Number of tangent variables.")
+    .def(CopyableVisitor<JointFixed>());
 
   nb::class_<JointRevolute>(m, "JointRevolute", "Represents a revolute joint.")
     .def(nb::init<const Eigen::Vector3d &>(), "axis"_a, "Constructor with rotation axis.")
     .def_rw("axis", &JointRevolute::axis, "Rotation axis.")
     .def_ro_static("nq", &JointRevolute::nq, "Number of configuration variables.")
-    .def_ro_static("nv", &JointRevolute::nv, "Number of tangent variables.");
+    .def_ro_static("nv", &JointRevolute::nv, "Number of tangent variables.")
+    .def(CopyableVisitor<JointRevolute>());
 
   nb::class_<JointRevoluteUnbounded>(
     m, "JointRevoluteUnbounded", "Represents an unbounded revolute joint.")
     .def(nb::init<const Eigen::Vector3d &>(), "axis"_a, "Constructor with rotation axis.")
     .def_rw("axis", &JointRevoluteUnbounded::axis, "Rotation axis.")
     .def_ro_static("nq", &JointRevoluteUnbounded::nq, "Number of configuration variables.")
-    .def_ro_static("nv", &JointRevoluteUnbounded::nv, "Number of tangent variables.");
+    .def_ro_static("nv", &JointRevoluteUnbounded::nv, "Number of tangent variables.")
+    .def(CopyableVisitor<JointRevoluteUnbounded>());
 
   nb::class_<JointPrismatic>(m, "JointPrismatic", "Represents a prismatic joint.")
     .def(nb::init<const Eigen::Vector3d &>(), "axis"_a, "Constructor with translation axis.")
     .def_rw("axis", &JointPrismatic::axis, "Translation axis.")
     .def_ro_static("nq", &JointPrismatic::nq, "Number of configuration variables.")
-    .def_ro_static("nv", &JointPrismatic::nv, "Number of tangent variables.");
+    .def_ro_static("nv", &JointPrismatic::nv, "Number of tangent variables.")
+    .def(CopyableVisitor<JointPrismatic>());
 
   nb::class_<JointFreeFlyer>(m, "JointFreeFlyer", "Represents a free-flyer joint.")
     .def(nb::init<>(), "Default constructor.")
     .def_ro_static("nq", &JointFreeFlyer::nq, "Number of configuration variables.")
-    .def_ro_static("nv", &JointFreeFlyer::nv, "Number of tangent variables.");
+    .def_ro_static("nv", &JointFreeFlyer::nv, "Number of tangent variables.")
+    .def(CopyableVisitor<JointFreeFlyer>());
 
   nb::class_<JointSpherical>(m, "JointSpherical", "Represents a spherical joint.")
     .def(nb::init<>(), "Default constructor.")
     .def_ro_static("nq", &JointSpherical::nq, "Number of configuration variables.")
-    .def_ro_static("nv", &JointSpherical::nv, "Number of tangent variables.");
+    .def_ro_static("nv", &JointSpherical::nv, "Number of tangent variables.")
+    .def(CopyableVisitor<JointSpherical>());
 
   nb::class_<JointSphericalZYX>(m, "JointSphericalZYX", "Represents a spherical ZYX joint.")
     .def(nb::init<>(), "Default constructor.")
     .def_ro_static("nq", &JointSphericalZYX::nq, "Number of configuration variables.")
-    .def_ro_static("nv", &JointSphericalZYX::nv, "Number of tangent variables.");
+    .def_ro_static("nv", &JointSphericalZYX::nv, "Number of tangent variables.")
+    .def(CopyableVisitor<JointSphericalZYX>());
 
   nb::class_<JointEllipsoid>(m, "JointEllipsoid", "Represents an ellipsoidal joint.")
     .def(nb::init<>(), "Default constructor.")
@@ -68,17 +76,20 @@ void exposeJointsGraph(nb::module_ m)
     .def_rw("radius_y", &JointEllipsoid::radius_y, "Semi-axis length in the y direction.")
     .def_rw("radius_z", &JointEllipsoid::radius_z, "Semi-axis length in the z direction.")
     .def_ro_static("nq", &JointEllipsoid::nq, "Number of configuration variables.")
-    .def_ro_static("nv", &JointEllipsoid::nv, "Number of tangent variables.");
+    .def_ro_static("nv", &JointEllipsoid::nv, "Number of tangent variables.")
+    .def(CopyableVisitor<JointEllipsoid>());
 
   nb::class_<JointTranslation>(m, "JointTranslation", "Represents a translation joint.")
     .def(nb::init<>(), "Default constructor.")
     .def_ro_static("nq", &JointTranslation::nq, "Number of configuration variables.")
-    .def_ro_static("nv", &JointTranslation::nv, "Number of tangent variables.");
+    .def_ro_static("nv", &JointTranslation::nv, "Number of tangent variables.")
+    .def(CopyableVisitor<JointTranslation>());
 
   nb::class_<JointPlanar>(m, "JointPlanar", "Represents a planar joint.")
     .def(nb::init<>(), "Default constructor.")
     .def_ro_static("nq", &JointPlanar::nq, "Number of configuration variables ")
-    .def_ro_static("nv", &JointPlanar::nv, "Number of tangent variables ");
+    .def_ro_static("nv", &JointPlanar::nv, "Number of tangent variables ")
+    .def(CopyableVisitor<JointPlanar>());
 
   nb::class_<JointHelical>(m, "JointHelical", "Represents a helical joint.")
     .def(
@@ -87,7 +98,8 @@ void exposeJointsGraph(nb::module_ m)
     .def_rw("axis", &JointHelical::axis, "Axis of the helical joint.")
     .def_rw("pitch", &JointHelical::pitch, "Pitch of the helical joint.")
     .def_ro_static("nq", &JointHelical::nq, "Number of configuration variables.")
-    .def_ro_static("nv", &JointHelical::nv, "Number of tangent variables.");
+    .def_ro_static("nv", &JointHelical::nv, "Number of tangent variables.")
+    .def(CopyableVisitor<JointHelical>());
 
   nb::class_<JointUniversal>(m, "JointUniversal", "Represents a universal joint.")
     .def(
@@ -96,7 +108,8 @@ void exposeJointsGraph(nb::module_ m)
     .def_rw("axis1", &JointUniversal::axis1, "First axis of the universal joint.")
     .def_rw("axis2", &JointUniversal::axis2, "Second axis of the universal joint.")
     .def_ro_static("nq", &JointUniversal::nq, "Number of configuration variables.")
-    .def_ro_static("nv", &JointUniversal::nv, "Number of tangent variables.");
+    .def_ro_static("nv", &JointUniversal::nv, "Number of tangent variables.")
+    .def(CopyableVisitor<JointUniversal>());
 
   nb::class_<JointComposite>(m, "JointComposite", "Represents a composite joint.")
     .def(nb::init<>(), "Default constructor.")
@@ -115,7 +128,8 @@ void exposeJointsGraph(nb::module_ m)
       "nv", &JointComposite::nv, "Total number of configuration variables for the composite joint.")
     .def(
       "addJoint", &JointComposite::addJoint, "joint_model"_a, "pose"_a = pinocchio::SE3::Identity(),
-      "Adds a joint to the composite joint with an optional placement.");
+      "Adds a joint to the composite joint with an optional placement.")
+    .def(CopyableVisitor<JointComposite>());
 
   nb::class_<JointMimic>(m, "JointMimic", "Represents a mimic joint.")
     .def(nb::init<>(), "Default constructor.")
@@ -133,10 +147,11 @@ void exposeJointsGraph(nb::module_ m)
       "nq", &JointMimic::nq,
       "Number of configuration variables (0 for mimic, as it depends on primary).")
     .def_ro_static(
-      "nv", &JointMimic::nv,
-      "Number of tangent variables (0 for mimic, as it depends on primary).");
+      "nv", &JointMimic::nv, "Number of tangent variables (0 for mimic, as it depends on primary).")
+    .def(CopyableVisitor<JointMimic>());
 
-  nb::bind_vector<std::vector<JointVariant>>(m, "StdVec_JointVariant");
+  nb::bind_vector<std::vector<JointVariant>>(m, "StdVec_JointVariant")
+    .def(CopyableVisitor<std::vector<JointVariant>>());
 }
 
 void exposeJointLimits(nb::module_ m)
@@ -155,7 +170,8 @@ void exposeJointLimits(nb::module_ m)
     .def_rw("frictionLoss", &JointLimits::frictionLoss, "Dry friction loss ")
     .def(
       "append", &JointLimits::append, "jlimit"_a, "nq"_a, "nv"_a,
-      "Appends data from another JointLimits object.");
+      "Appends data from another JointLimits object.")
+    .def(CopyableVisitor<JointLimits>());
 }
 
 void exposeEdgesAlgo(nb::module_ m)
@@ -192,7 +208,8 @@ void exposeEdgesAlgo(nb::module_ m)
     .def_rw("q_ref", &EdgeParameters::q_ref, "Optional reference configuration for the joint.")
     .def_rw(
       "joint", &EdgeParameters::joint, "Type of the joint (e.g., fixed, revolute, prismatic).")
-    .def_rw("jlimit", &EdgeParameters::jlimit, "Limits of the joint");
+    .def_rw("jlimit", &EdgeParameters::jlimit, "Limits of the joint")
+    .def(CopyableVisitor<EdgeParameters>());
 
   nb::class_<EdgeBuilder>(
     m, "EdgeBuilder",

@@ -18,8 +18,10 @@ void exposePool(nb::module_ m)
   using ModelVector = ModelPool::ModelVector;
   using DataVector = ModelPool::DataVector;
 
-  nb::bind_vector<ModelVector, nb::rv_policy::reference_internal>(m, "StdVec_Model");
-  nb::bind_vector<DataVector, nb::rv_policy::reference_internal>(m, "StdVec_Data");
+  nb::bind_vector<ModelVector, nb::rv_policy::reference_internal>(m, "StdVec_Model")
+    .def(CopyableVisitor<ModelVector>());
+  nb::bind_vector<DataVector, nb::rv_policy::reference_internal>(m, "StdVec_Data")
+    .def(CopyableVisitor<DataVector>());
 
   nb::class_<ModelPool>(
     m, "ModelPool", "Pool containing a model and several datas for parallel computations.")

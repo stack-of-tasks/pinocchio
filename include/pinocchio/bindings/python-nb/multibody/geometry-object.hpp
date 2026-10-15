@@ -38,7 +38,8 @@ namespace details
       m, "GeometryNoMaterial", "Tag type indicating that a geometry has no associated material.")
       .def(nb::init<>(), "Default constructor.")
       .def(nb::init<const GeometryNoMaterial &>(), "other"_a, "Copy constructor.")
-      .def(ComparableVisitor<GeometryNoMaterial>());
+      .def(ComparableVisitor<GeometryNoMaterial>())
+      .def(CopyableVisitor<GeometryNoMaterial>());
 
     nb::class_<GeometryPhongMaterial>(
       m, "GeometryPhongMaterial",
@@ -59,7 +60,8 @@ namespace details
       .def_rw(
         "meshShininess", &GeometryPhongMaterial::meshShininess,
         "Shininess factor for the specular lighting model (normalized between 0 and 1).")
-      .def(ComparableVisitor<GeometryPhongMaterial>());
+      .def(ComparableVisitor<GeometryPhongMaterial>())
+      .def(CopyableVisitor<GeometryPhongMaterial>());
   }
 
   inline void exposePhysicsMaterialType(nb::module_ m)
@@ -89,7 +91,8 @@ namespace details
       .def_rw("materialType", &PhysicsMaterial::materialType, "Type of the material.")
       .def_rw("compliance", &PhysicsMaterial::compliance, "Compliance of the material.")
       .def_rw("elasticity", &PhysicsMaterial::elasticity, "Elasticity of the material.")
-      .def(ComparableVisitor<PhysicsMaterial>());
+      .def(ComparableVisitor<PhysicsMaterial>())
+      .def(CopyableVisitor<PhysicsMaterial>());
   }
 
   inline void exposeFrictionCoefficientMatrix(nb::module_ m)
@@ -106,7 +109,8 @@ namespace details
       .def(
         "getFrictionFromMaterialPair", &FrictionCoefficientMatrix::getFrictionFromMaterialPair,
         "type1"_a, "type2"_a,
-        "Return the static friction coefficient for the given pair of material types.");
+        "Return the static friction coefficient for the given pair of material types.")
+      .def(CopyableVisitor<FrictionCoefficientMatrix>());
 
     m.def(
       "getFrictionCoefficientMatrix", &getFrictionCoefficientMatrix, nb::rv_policy::reference,
@@ -217,13 +221,14 @@ inline void exposeGeometryObject(nb::module_ m)
     .def(SerializableVisitor<GeometryObject>())
     .def("__getstate__", [](const GeometryObject & self) { return self.saveToString(); })
     .def("__setstate__", [](GeometryObject & self, const std::string & str) {
-      new (&self) GeometryObject(
-        "", JointIndex(0), SE3::Identity(), GeometryObject::CollisionGeometryPtr());
+      new (&self)
+        GeometryObject("", JointIndex(0), SE3::Identity(), GeometryObject::CollisionGeometryPtr());
       self.loadFromString(str);
     });
 
   nb::bind_vector<std::vector<GeometryObject>, nb::rv_policy::reference_internal>(
-    m, "StdVec_GeometryObject");
+    m, "StdVec_GeometryObject")
+    .def(CopyableVisitor<std::vector<GeometryObject>>());
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END

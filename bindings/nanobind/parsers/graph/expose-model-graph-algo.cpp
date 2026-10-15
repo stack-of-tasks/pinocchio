@@ -2,6 +2,7 @@
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 #include "pinocchio/bindings/python-nb/utils/boost-variant.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 
 #include "pinocchio/parsers/graph.hpp"
 
@@ -40,7 +41,8 @@ void exposeModelGraphAlgo(nb::module_ m)
     "merging_joint_name"_a = "merging_joint",
     "Merge two ModelGraphs together by adding an edge between specified bodies.");
 
-  nb::bind_vector<std::vector<Eigen::VectorXd>>(m, "StdVec_VectorXs");
+  nb::bind_vector<std::vector<Eigen::VectorXd>>(m, "StdVec_VectorXs")
+    .def(CopyableVisitor<std::vector<Eigen::VectorXd>>());
 
   m.def(
     "lockJoints", &pinocchio::graph::lockJoints, "graph"_a, "joints_to_lock"_a,

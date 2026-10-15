@@ -2,6 +2,7 @@
 
 #include "pinocchio/bindings/python-nb/fwd.hpp"
 #include "pinocchio/bindings/python-nb/utils/boost-variant.hpp"
+#include "pinocchio/bindings/python-nb/utils/copyable.hpp"
 
 #include "pinocchio/parsers/graph.hpp"
 
@@ -18,7 +19,8 @@ void exposeModelGraph(nb::module_ m)
   nb::class_<ModelGraphBuildInfo>(
     m, "ModelGraphBuildInfo",
     "Contains information about how buildModel walked the ModelGraph to construct a Model")
-    .def(nb::init<>(), "Default constructor.");
+    .def(nb::init<>(), "Default constructor.")
+    .def(CopyableVisitor<ModelGraphBuildInfo>());
 
   nb::class_<ModelGraph>(m, "ModelGraph", "Represents multibody model as a bidirectional graph.")
     .def(nb::init<>(), "Default constructor.")
@@ -54,7 +56,8 @@ void exposeModelGraph(nb::module_ m)
     .def(
       "appendGraph", &ModelGraph::appendGraph, "g"_a,
       "Copies another ModelGraph into this one. Use with caution, because no edges are created "
-      "to connect the new graph to itself.");
+      "to connect the new graph to itself.")
+    .def(CopyableVisitor<ModelGraph>());
 }
 
 PINOCCHIO_PYTHON_NAMESPACE_END

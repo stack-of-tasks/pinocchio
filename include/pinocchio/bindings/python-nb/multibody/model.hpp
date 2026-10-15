@@ -38,7 +38,8 @@ void exposeModel(nb::module_ m)
 
   nb::bind_map<typename Model::ConfigVectorMap, nb::rv_policy::reference_internal>(
     m, "StdMap_String_VectorXd")
-    .def(PickleMapVisitor<typename Model::ConfigVectorMap>());
+    .def(PickleMapVisitor<typename Model::ConfigVectorMap>())
+    .def(CopyableVisitor<typename Model::ConfigVectorMap>());
 
   nb::class_<Model>(m, "Model", "Articulated rigid-body model.", nb::dynamic_attr())
     .def(nb::init<>(), "Default constructor")
@@ -241,11 +242,15 @@ void exposeModel(nb::module_ m)
       self.loadFromString(str);
     });
 
-  nb::bind_vector<std::vector<Scalar>>(m, "StdVec_Scalar");
-  nb::bind_vector<std::vector<bool>>(m, "StdVec_Bool");
-  nb::bind_vector<std::vector<Index>>(m, "StdVec_Index");
-  nb::bind_vector<EigenIndexVector>(m, "StdVec_EigenIndex");
-  nb::bind_vector<std::vector<IndexVector>, nb::rv_policy::reference_internal>(m, "IndexVecVec");
-  nb::bind_vector<std::vector<std::string>>(m, "StdVec_String");
+  nb::bind_vector<std::vector<Scalar>>(m, "StdVec_Scalar")
+    .def(CopyableVisitor<std::vector<Scalar>>());
+  nb::bind_vector<std::vector<bool>>(m, "StdVec_Bool").def(CopyableVisitor<std::vector<bool>>());
+  nb::bind_vector<std::vector<Index>>(m, "StdVec_Index").def(CopyableVisitor<std::vector<Index>>());
+  nb::bind_vector<EigenIndexVector>(m, "StdVec_EigenIndex")
+    .def(CopyableVisitor<EigenIndexVector>());
+  nb::bind_vector<std::vector<IndexVector>, nb::rv_policy::reference_internal>(m, "IndexVecVec")
+    .def(CopyableVisitor<std::vector<IndexVector>>());
+  nb::bind_vector<std::vector<std::string>>(m, "StdVec_String")
+    .def(CopyableVisitor<std::vector<std::string>>());
 }
 PINOCCHIO_PYTHON_NAMESPACE_END

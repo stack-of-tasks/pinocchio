@@ -61,12 +61,15 @@ static void exposeProximalSettings(nb::module_ m)
       "iter", &ProximalSettings::iter,
       "Final number of iteration of the algorithm when it has converged or "
       "reached the maximal number of allowed iterations.")
-    .def("__repr__", [](const ProximalSettings & self) {
-      std::ostringstream ss;
-      ss << "ProximalSettings(" << self.absolute_accuracy << ", " << self.relative_accuracy << ", "
-         << self.mu << ", " << self.max_iter << ")";
-      return ss.str();
-    });
+    .def(
+      "__repr__",
+      [](const ProximalSettings & self) {
+        std::ostringstream ss;
+        ss << "ProximalSettings(" << self.absolute_accuracy << ", " << self.relative_accuracy
+           << ", " << self.mu << ", " << self.max_iter << ")";
+        return ss.str();
+      })
+    .def(CopyableVisitor<ProximalSettings>());
 }
 
 static void exposeConstraintCholesky(nb::module_ m)
@@ -274,7 +277,8 @@ static void exposeConstraintCholesky(nb::module_ m)
     m, "DelassusOperatorDense", "Delassus dense operator built from a dense matrix.")
     .def(
       nb::init<const Eigen::Ref<const MatrixXs>>(), "matrix"_a, "Build from a given dense matrix.")
-    .def(DelassusOperatorBaseVisitor<DelassusOperatorDense>());
+    .def(DelassusOperatorBaseVisitor<DelassusOperatorDense>())
+    .def(CopyableVisitor<DelassusOperatorDense>());
 
   // --- DelassusOperatorSparse ---
   {
@@ -444,10 +448,12 @@ static void exposeRigidConstraint(nb::module_ m)
         self.baumgarte_corrector_parameters() = copy;
       },
       "Baumgarte parameters associated with the constraint.")
-    .def(ComparableVisitor<RigidConstraintModel>());
+    .def(ComparableVisitor<RigidConstraintModel>())
+    .def(CopyableVisitor<RigidConstraintModel>());
 
   nb::bind_vector<RigidConstraintModelVector, nb::rv_policy::reference_internal>(
-    m, "StdVec_RigidConstraintModel");
+    m, "StdVec_RigidConstraintModel")
+    .def(CopyableVisitor<RigidConstraintModelVector>());
 
   nb::class_<RigidConstraintData>(
     m, "RigidConstraintData",
@@ -507,13 +513,16 @@ static void exposeRigidConstraint(nb::module_ m)
       "extended_motion_propagators_joint2",
       &RigidConstraintData::extended_motion_propagators_joint2,
       "Extended force/motion propagators for joint 2.")
-    .def(ComparableVisitor<RigidConstraintData>());
+    .def(ComparableVisitor<RigidConstraintData>())
+    .def(CopyableVisitor<RigidConstraintData>());
 
   nb::bind_vector<RigidConstraintDataVector, nb::rv_policy::reference_internal>(
-    m, "StdVec_RigidConstraintData");
+    m, "StdVec_RigidConstraintData")
+    .def(CopyableVisitor<RigidConstraintDataVector>());
 
   using VectorOfMatrix6 = RigidConstraintData::VectorOfMatrix6;
-  nb::bind_vector<VectorOfMatrix6, nb::rv_policy::reference_internal>(m, "StdVec_Matrix6_");
+  nb::bind_vector<VectorOfMatrix6, nb::rv_policy::reference_internal>(m, "StdVec_Matrix6_")
+    .def(CopyableVisitor<VectorOfMatrix6>());
 
   m.def(
     "convertToRigidConstraintModel",
