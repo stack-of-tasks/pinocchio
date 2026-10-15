@@ -5,6 +5,7 @@
 #include "../fwd.hpp"
 #include "../utils/printable.hpp"
 #include "../utils/comparable.hpp"
+#include "../utils/copyable.hpp"
 
 #include "pinocchio/multibody.hpp"
 
@@ -98,7 +99,8 @@ struct JointModelBaseVisitor : nb::def_visitor<JointModelBaseVisitor<Derived>>
         "\n\t- JointModelSphericalZYX: Spherical joint (3D rotation)"
         "\n\t- JointModelTranslation: Translation joint (3D translation)"
         "\n\t- JointModelFreeFlyer: Joint enabling 3D rotation and translations.")
-      .def(ComparableVisitor<Derived>());
+      .def(ComparableVisitor<Derived>())
+      .def(CopyableVisitor<Derived>());
   }
 };
 
@@ -122,7 +124,8 @@ struct JointDataBaseVisitor : nb::def_visitor<JointDataBaseVisitor<Derived>>
       .def_prop_ro("Dinv", [](const Derived & self) { return self.Dinv_accessor(); })
       .def_prop_ro("UDinv", [](const Derived & self) { return self.UDinv_accessor(); })
       .def("shortname", &Derived::shortname)
-      .def(ComparableVisitor<Derived>());
+      .def(ComparableVisitor<Derived>())
+      .def(CopyableVisitor<Derived>());
   }
 };
 
