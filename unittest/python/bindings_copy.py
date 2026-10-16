@@ -1,8 +1,13 @@
 import copy
+import importlib.util
 import unittest
 
 import numpy as np
 import pinocchio as pin
+
+coal_found = importlib.util.find_spec("coal") is not None
+if coal_found:
+    import coal
 
 COPY_ROUTES = {
     "copy()": lambda obj: obj.copy(),
@@ -152,6 +157,34 @@ class TestCopy(unittest.TestCase):
             lambda c: c.__setitem__(0, pin.SE3.Random()),
             lambda c: c[0].homogeneous,
         )
+
+    @unittest.skipUnless(coal_found, "needs coal")
+    def test_geometry(self):
+        """copy() and copy.copy share the coal geometry, copy.deepcopy clones it."""
+        geom_object = pin.GeometryObject(
+            "box", self.joint_id, pin.SE3.Identity(), coal.Box(1.0, 1.0, 1.0)
+        )
+        geom_model = pin.GeometryModel()
+        geom_model.addGeometryObject(geom_object)
+
+        def objectBox(obj):
+            return obj.geometry
+
+        def modelBox(model):
+            return model.geometryObjects[0].geometry
+
+        for obj, box in ((geom_object, objectBox), (geom_model, modelBox)):
+            for route, copy_fn in COPY_ROUTES.items():
+                with self.subTest(cls=type(obj).__name__, route=route):
+                    other = copy_fn(obj)
+                    self.assertIs(type(other), type(obj))
+                    self.assertTrue(other == obj)
+                    box(other).halfSide = np.full(3, 2.0)
+                    shared = route != "copy.deepcopy"
+                    self.assertEqual(
+                        sameValue(box(obj).halfSide, np.full(3, 2.0)), shared
+                    )
+                    box(obj).halfSide = np.full(3, 0.5)
 
     def test_delassus_dense(self):
         self.assertCopies(
