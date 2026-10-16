@@ -57,7 +57,6 @@ namespace pinocchio
       typedef typename Motion::Vector6 Vector6;
       typedef typename Motion::Vector3 Vector3;
 
-      typedef typename Eigen::Map<Vector3> MapVector3;
       typedef typename Eigen::Ref<Vector3> RefVector3;
 
     public:

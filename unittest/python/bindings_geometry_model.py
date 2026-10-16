@@ -1,9 +1,23 @@
 import unittest
+from pathlib import Path
 
 import pinocchio as pin
 
 
 class TestGeometryModelBindings(unittest.TestCase):
+    def test_pickle(self):
+        import pickle
+
+        geom_model = pin.GeometryModel()
+        filename = Path("geometry_model.pickle")
+        with filename.open("wb") as f:
+            pickle.dump(geom_model, f)
+
+        with filename.open("rb") as f:
+            geom_model_copy = pickle.load(f)
+
+        self.assertTrue(geom_model == geom_model_copy)
+
     def test_pair_equals(self):
         c1 = pin.CollisionPair(1, 2)
         c2 = pin.CollisionPair(1, 2)

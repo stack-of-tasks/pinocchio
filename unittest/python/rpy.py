@@ -4,8 +4,8 @@ from random import random
 
 import numpy as np
 import pinocchio as pin
-from eigenpy import AngleAxis
 from numpy.linalg import inv
+from pinocchio import AngleAxis
 from pinocchio.rpy import (
     computeRpyJacobian,
     computeRpyJacobianInverse,
@@ -43,7 +43,10 @@ class TestRPY(TestCase):
 
         try:
             rotate("toto", 10.0)
-        except ValueError:
+        except (
+            ValueError,  # boost bindings
+            TypeError,  # nanobind rejects conversion (not a char)
+        ):
             self.assertTrue(True)
         else:
             self.assertTrue(False)
@@ -81,7 +84,7 @@ class TestRPY(TestCase):
     def test_matrixToRpy(self):
         n = 100
         for _ in range(n):
-            quat = pin.Quaternion(np.random.rand(4, 1)).normalized()
+            quat = pin.Quaternion(np.random.rand(4)).normalized()
             R = quat.toRotationMatrix()
 
             v = matrixToRpy(R)
