@@ -24,6 +24,7 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
 {
   bp::docstring_options module_docstring_options(true, true, false);
 
+  bp::scope().attr("__bindings_framework__") = bp::str("Boost.Python");
   bp::scope().attr("__version__") = pinocchio::printVersion();
   bp::scope().attr("__raw_version__") = bp::str(PINOCCHIO_VERSION);
   eigenpy::enableEigenPy();
@@ -50,16 +51,6 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
 #endif
 
   bp::scope().attr("ScalarType") = getScalarType();
-
-  bp::scope().attr("XAxis") = bp::object(
-    bp::handle<>(
-      eigenpy::EigenToPy<context::Vector3s>::convert(pinocchio::XAxis::vector<context::Scalar>())));
-  bp::scope().attr("YAxis") = bp::object(
-    bp::handle<>(
-      eigenpy::EigenToPy<context::Vector3s>::convert(pinocchio::YAxis::vector<context::Scalar>())));
-  bp::scope().attr("ZAxis") = bp::object(
-    bp::handle<>(
-      eigenpy::EigenToPy<context::Vector3s>::convert(pinocchio::ZAxis::vector<context::Scalar>())));
 
   if (!register_symbolic_link_to_registered_type<::pinocchio::ReferenceFrame>())
   {

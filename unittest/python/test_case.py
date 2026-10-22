@@ -39,11 +39,11 @@ class ContactSolverTestCase(PinocchioTestCase):
     def buildStackOfCubesModel(self, masses):
         model = pin.Model()
         n_cubes = len(masses)
-        box_dims = np.ones((3, 1))
+        box_dims = np.ones(3)
         for i in range(n_cubes):
             box_mass = masses[i]
             box_inertia = pin.Inertia.FromBox(
-                box_mass, box_dims[0, 0], box_dims[1, 0], box_dims[2, 0]
+                box_mass, box_dims[0], box_dims[1], box_dims[2]
             )
             joint_id = model.addJoint(
                 0, pin.JointModelFreeFlyer(), pin.SE3.Identity(), "free_flyer_" + str(i)
@@ -66,7 +66,7 @@ class ContactSolverTestCase(PinocchioTestCase):
                 fpcm = pin.PointContactConstraintModel(
                     model, i, local_placement_1, i + 1, local_placement_2
                 )
-                fpcm.set = pin.CoulombFrictionCone(friction_coeff)
+                fpcm.setFriction(friction_coeff)
                 list_cm.append(pin.ConstraintModel(fpcm))
                 rot = R @ rot
 
@@ -166,11 +166,17 @@ class ContactSolverTestCase(PinocchioTestCase):
                             # Only add the collision pair if there is no collision.
                             M1 = geom_data.oMg[i]
                             M2 = geom_data.oMg[j]
+
                             colreq = coal.CollisionRequest()
                             colreq.security_margin = 1e-2  # 1cm of clearance
                             colres = coal.CollisionResult()
                             coal.collide(
-                                gobj_i.geometry, M1, gobj_j.geometry, M2, colreq, colres
+                                gobj_i.geometry,
+                                M1,
+                                gobj_j.geometry,
+                                M2,
+                                colreq,
+                                colres,
                             )
                             if not colres.isCollision():
                                 num_col_pairs += 1
@@ -232,7 +238,7 @@ class ContactSolverTestCase(PinocchioTestCase):
                     contact_model_i = pin.PointContactConstraintModel(
                         model, joint_id2, placement_i2, joint_id1, placement_i1
                     )
-                    contact_model_i.set = pin.CoulombFrictionCone(friction_coeff)
+                    contact_model_i.setFriction(friction_coeff)
                     contact_constraints.append(contact_model_i)
         return contact_constraints
 
