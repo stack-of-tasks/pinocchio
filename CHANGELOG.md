@@ -35,6 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix MJCF parser placing the sites of a jointless body relative to its parent body instead of its supporting joint ([#2934](https://github.com/stack-of-tasks/pinocchio/pull/2934))
 - Fix `GeometryModel::collisionPairMapping` not being updated in `removeGeometryObject` ([#2937](https://github.com/stack-of-tasks/pinocchio/pull/2937)
 - Fix `beta_alt` sign flip in small-angle Taylor expansion of quaternion Log map (log6) ([#2955](https://github.com/stack-of-tasks/pinocchio/pull/2955))
+- Fix doxygen documentation generation ([#2970](https://github.com/stack-of-tasks/pinocchio/pull/2970))
 
 ## [4.1.0] - 2026-07-07
 
