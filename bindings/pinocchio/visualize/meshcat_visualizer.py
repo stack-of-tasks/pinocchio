@@ -9,7 +9,6 @@ from typing import ClassVar, Union
 import numpy as np
 
 from .. import pinocchio_pywrap_default as pin
-from ..deprecation import DeprecatedWarning
 from ..utils import npToTuple
 from . import BaseVisualizer
 
@@ -915,7 +914,7 @@ class MeshcatVisualizer(BaseVisualizer):
                 "The 'color' argument is deprecated and will be removed in a "
                 "future version of Pinocchio. Consider using "
                 "'collision_color' and 'visual_color' instead.",
-                category=DeprecatedWarning,
+                category=DeprecationWarning,
             )
             collision_color = color
             visual_color = color
