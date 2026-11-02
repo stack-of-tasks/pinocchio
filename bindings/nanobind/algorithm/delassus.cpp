@@ -4,6 +4,8 @@
 
 #include "pinocchio/algorithm/delassus.hpp"
 
+#include <nanobind/eigen/dense.h>
+
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 
 void exposeDelassus(nb::module_ m)

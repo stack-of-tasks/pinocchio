@@ -4,6 +4,8 @@
 
 #include "pinocchio/algorithm/energy.hpp"
 
+#include <nanobind/eigen/dense.h>
+
 PINOCCHIO_PYTHON_NAMESPACE_BEGIN
 using namespace nb::literals;
 
