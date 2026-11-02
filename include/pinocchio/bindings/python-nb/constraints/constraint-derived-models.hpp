@@ -21,6 +21,7 @@ struct ConstraintModelDerivedVisitor : nb::def_visitor<ConstraintModelDerivedVis
   using PointContactConstraintModel = PointContactConstraintModelTpl<Scalar, Options>;
   using JointFrictionConstraintModel = JointFrictionConstraintModelTpl<Scalar, Options>;
   using JointLimitConstraintModel = JointLimitConstraintModelTpl<Scalar, Options>;
+  using ConstantLengthConstraintModel = ConstantLengthConstraintModelTpl<Scalar, Options>;
 
   // ── default: nothing extra
   template<typename T, typename PyClass>
@@ -42,6 +43,25 @@ struct ConstraintModelDerivedVisitor : nb::def_visitor<ConstraintModelDerivedVis
         "geom1_id", &PointContactConstraintModel::geom1_id, "Index of the first geometry object.")
       .def_rw(
         "geom2_id", &PointContactConstraintModel::geom2_id, "Index of the second geometry object.");
+  }
+
+  // ── ConstantLengthConstraintModel
+  template<typename PyClass>
+  static void expose(Tag<ConstantLengthConstraintModel>, PyClass & cl)
+  {
+    using namespace nb::literals;
+    using Self = ConstantLengthConstraintModel;
+
+    cl.def(
+        nb::init<const Model &, JointIndex, const SE3 &, JointIndex, const SE3 &, Scalar>(),
+        "model"_a, "joint1_id"_a, "joint1_placement"_a, "joint2_id"_a, "joint2_placement"_a,
+        "length"_a,
+        "Constructor from the joint indexes and placements of the two points implied in the "
+        "constraint, and from the constant length to enforce between them.")
+      .def("getLength", &Self::getLength, "Get the constant length enforced by the constraint.")
+      .def(
+        "setLength", &Self::setLength, "length"_a,
+        "Set the constant length enforced by the constraint.");
   }
 
   // ── JointFrictionConstraintModel

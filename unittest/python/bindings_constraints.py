@@ -287,6 +287,26 @@ class TestJointsAlgo(TestCase):
             fpd = fp.createData()
             assert fpd
 
+    def test_constant_length(self):
+        placement1 = pin.SE3(np.eye(3), np.array([0.1, 0.0, 0.0]))
+        placement2 = pin.SE3(np.eye(3), np.array([0.0, 0.0, 1.0]))
+        cmodel = pin.ConstantLengthConstraintModel(
+            self.model, 1, placement1, 0, placement2, 0.5
+        )
+        self.assertEqual(cmodel.getLength(), 0.5)
+        cmodel.setLength(0.25)
+        self.assertEqual(cmodel.getLength(), 0.25)
+
+        q = pin.neutral(self.model)
+        q[:3] = [0.3, -0.2, 0.4]
+        pin.forwardKinematics(self.model, self.data, q)
+        cdata = cmodel.createData()
+        cmodel.calc(self.model, self.data, cdata)
+        point1 = (self.data.oMi[1] * placement1).translation
+        expected_distance = np.linalg.norm(placement2.translation - point1)
+        self.assertAlmostEqual(cdata.distance, expected_distance)
+        self.assertTrue(np.allclose(cdata.direction * cdata.distance, cdata.relative_position))
+
     def test_joint_friction(self):
         jfcd = self.jfc.createData()
         assert jfcd
