@@ -405,7 +405,7 @@ configure = { cmd = [
   "-DBUILD_TESTING=ON",
   "-DBUILD_BENCHMARK=OFF",
   "-DBUILD_WITH_RTSAN=ON",
-  "-DBUILD_WITH_COLLISION_SUPPORT=ON",
+  "-DBUILD_WITH_COLLISION_SUPPORT=OFF",
   "-DGENERATE_PYTHON_STUBS=OFF",
   "-DBUILD_WITH_ACCELERATE_SUPPORT=OFF",
   "-DBUILD_WITH_CASADI_SUPPORT=OFF",
@@ -418,6 +418,7 @@ configure = { cmd = [
   "-DBUILD_PYTHON_BINDINGS_WITH_FLOAT32_SUPPORT=OFF",
   "-DPINOCCHIO_BUILD_MPFR_TESTING=OFF",
   "-DBUILD_TESTING_SCIPY=OFF",
+  "-DBUILD_PYTHON_INTERFACE=OFF",
 ] }
 build = { cmd = "cmake --build build --target pinocchio-test-cpp-dynamic-allocations", depends-on = [
   "configure",
@@ -427,5 +428,5 @@ test = { cmd = "ctest --test-dir build --output-on-failure -R pinocchio-test-cpp
 ] }
 
 [environments.sanitizers]
-features = ["clang-sanitizers", "collision", "benchmark"]
+features = ["clang-sanitizers"]
 no-default-feature = true
