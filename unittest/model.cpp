@@ -1257,6 +1257,71 @@ BOOST_AUTO_TEST_CASE(test_append_model_universe_with_inertia_issue_2805)
   BOOST_CHECK(new_model.inertias[1].isApprox(expected_model.inertias[1]));
 }
 
+// Non regression test for: https://github.com/stack-of-tasks/pinocchio/issues/2973
+// The name and the gravity of the appended model are inherited from the parent model (modelA).
+BOOST_AUTO_TEST_CASE(test_append_model_name_and_gravity_issue_2973)
+{
+  const Inertia inertia(1., Eigen::Vector3d::Zero(), Eigen::Matrix3d::Identity());
+
+  Model model_a;
+  model_a.name = "modelA";
+  model_a.gravity = Motion(Eigen::Vector3d::Zero(), Eigen::Vector3d(0., -9.81, 0.));
+  const JointIndex joint_a = model_a.addJoint(
+    0, pinocchio::JointModelRevoluteUnaligned(Eigen::Vector3d::UnitY()), SE3::Identity(),
+    "joint_A");
+  model_a.appendBodyToJoint(joint_a, inertia, SE3::Identity());
+
+  // modelB has a name and a gravity different from modelA
+  Model model_b;
+  model_b.name = "modelB";
+  model_b.gravity = Motion(Eigen::Vector3d::Zero(), Eigen::Vector3d(0., 0., -9.81));
+  const JointIndex joint_b = model_b.addJoint(
+    0, pinocchio::JointModelRevoluteUnaligned(Eigen::Vector3d::UnitY()), SE3::Identity(),
+    "joint_B");
+  model_b.appendBodyToJoint(joint_b, inertia, SE3::Identity());
+
+  const Model appended_model = appendModel(model_a, model_b, 0, SE3::Identity());
+
+  BOOST_CHECK(appended_model.name == model_a.name);
+  BOOST_CHECK(appended_model.gravity.isApprox(model_a.gravity));
+}
+
+// Non regression test for: https://github.com/stack-of-tasks/pinocchio/issues/2973
+// The armature of the joints of both models must be reported in the appended model.
+BOOST_AUTO_TEST_CASE(test_append_model_armature_issue_2973)
+{
+  const Inertia inertia(1., Eigen::Vector3d::Zero(), Eigen::Matrix3d::Identity());
+
+  Model model_a, model_b;
+
+  const JointIndex joint_a = model_a.addJoint(
+    0, pinocchio::JointModelRevoluteUnaligned(Eigen::Vector3d::UnitY()), SE3::Identity(),
+    "joint_A");
+  model_a.appendBodyToJoint(joint_a, inertia, SE3::Identity());
+
+  const JointIndex joint_b = model_b.addJoint(
+    0, pinocchio::JointModelRevoluteUnaligned(Eigen::Vector3d::UnitY()), SE3::Identity(),
+    "joint_B");
+  model_b.appendBodyToJoint(joint_b, inertia, SE3::Identity());
+
+  model_a.armature.setConstant(0.1);
+  model_b.armature.setConstant(0.2);
+
+  const Model appended_model = appendModel(model_a, model_b, 0, SE3::Identity());
+
+  BOOST_CHECK(appended_model.armature.size() == (Eigen::Index)(model_a.nv + model_b.nv));
+
+  const JointIndex appended_joint_a_id = appended_model.getJointId("joint_A");
+  const JointIndex appended_joint_b_id = appended_model.getJointId("joint_B");
+
+  BOOST_CHECK(
+    appended_model.joints[appended_joint_a_id].jointVelocitySelector(appended_model.armature)
+    == model_a.joints[joint_a].jointVelocitySelector(model_a.armature));
+  BOOST_CHECK(
+    appended_model.joints[appended_joint_b_id].jointVelocitySelector(appended_model.armature)
+    == model_b.joints[joint_b].jointVelocitySelector(model_b.armature));
+}
+
 BOOST_AUTO_TEST_CASE(test_colwise_sparsity_pattern_and_span_indexes)
 {
   // --- Exact value check on a simple sequential 1-DOF chain ---

@@ -46,6 +46,8 @@ namespace pinocchio
    *    - joints of modelA up to the parent of FrameInModelA,
    *    - all the descendents of parent of FrameInModelA,
    *    - the remaining joints of modelA.
+   *
+   *  The name and the gravity of the resulting model are inherited from modelA.
    */
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   void appendModel(
@@ -69,6 +71,8 @@ namespace pinocchio
    *    - joints of modelA up to the parent of FrameInModelA,
    *    - all the descendents of parent of FrameInModelA,
    *    - the remaining joints of modelA.
+   *
+   *  The name and the gravity of the resulting model are inherited from modelA.
    */
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   ModelTpl<Scalar, Options, JointCollectionTpl> appendModel(
@@ -96,6 +100,8 @@ namespace pinocchio
    *  \param[in] aMb pose of modelB universe joint (index 0) in frameInModelA.
    *  \param[out] model the resulting model.
    *  \param[out] geomModel the resulting geometry model.
+   *
+   *  The name and the gravity of the resulting model are inherited from modelA.
    */
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   void appendModel(
