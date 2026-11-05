@@ -1480,6 +1480,7 @@ BOOST_AUTO_TEST_CASE(rangeCheckNotFirstJoint)
 
   q << 0.5, 2.; // spline coordinate outside [0, 1]
   BOOST_CHECK_THROW(forwardKinematics(model, data, q), std::invalid_argument);
+  BOOST_CHECK_THROW(forwardKinematics(model, data, q, v), std::invalid_argument);
 }
 
 /// @brief Test S and bias c computation via finite differences.
