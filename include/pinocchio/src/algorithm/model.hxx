@@ -234,6 +234,8 @@ namespace pinocchio
           jmodel_in.jointVelocitySelector(modelAB.rotorInertia);
         jmodel_out.jointVelocitySelector(model.rotorGearRatio) =
           jmodel_in.jointVelocitySelector(modelAB.rotorGearRatio);
+        jmodel_out.jointVelocitySelector(model.armature) =
+          jmodel_in.jointVelocitySelector(modelAB.armature);
         // Add all frames whose parent is this joint.
         for (FrameIndex fid = 1; fid < modelAB.frames.size(); ++fid)
         {
@@ -355,6 +357,10 @@ namespace pinocchio
     model.frames.reserve((size_t)nframes);
 
     geomModel.geometryObjects.reserve(geomModelA.ngeoms + geomModelB.ngeoms);
+
+    // The name and the gravity of the appended model are inherited from the parent model (modelA)
+    model.name = modelA.name;
+    model.gravity = modelA.gravity;
 
     details::appendUniverseToModel(modelA, geomModelA, 0, id, model, geomModel);
     // Compute joints of A that should be added before and after joints of B

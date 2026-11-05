@@ -115,6 +115,7 @@ namespace pinocchio
           const context::SE3 &))&appendModel<Scalar, Options, JointCollectionDefaultTpl>,
         bp::args("modelA", "modelB", "frame_in_modelA", "aMb"),
         "Append a child model into a parent model, after a specific frame given by its index.\n\n"
+        "The name and the gravity of the resulting model are inherited from modelA.\n\n"
         "Parameters:\n"
         "\tmodelA: the parent model\n"
         "\tmodelB: the child model\n"
@@ -126,6 +127,7 @@ namespace pinocchio
         bp::args("modelA", "modelB", "geomModelA", "geomModelB", "frame_in_modelA", "aMb"),
         "Append a child (geometry) model into a parent (geometry) model, after a specific frame "
         "given by its index.\n\n"
+        "The name and the gravity of the resulting model are inherited from modelA.\n\n"
         "Parameters:\n"
         "\tmodelA: the parent model\n"
         "\tmodelB: the child model\n"
