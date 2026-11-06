@@ -159,6 +159,7 @@ if(BUILD_PYTHON_INTERFACE)
             spline-joint-knee
             constant-length-constraint-kinematics
             constant-length-constraint-3d
+            ellipsoid-point-constraint-kinematics
         )
         if(BUILD_WITH_URDF_SUPPORT)
             list(
