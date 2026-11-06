@@ -88,7 +88,7 @@ def main():
     qs, _ = sim_loop(model, dt)
 
     for theta in qs:
-        viz.display(np.array([theta]))
+        viz.display(theta)
         solid_pose = viz.data.oMi[joint_id]
         for tracer in tracers:
             tracer.add(solid_pose)
