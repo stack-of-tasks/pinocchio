@@ -251,7 +251,7 @@ namespace pinocchio
     template<typename ConfigVector>
     void calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      if (check_expression_if_real<Scalar, false>(qs[0] < min_q || qs[0] > max_q))
+      if (check_expression_if_real<Scalar, false>(qs[idx_q()] < min_q || qs[idx_q()] > max_q))
       {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "Spline joint configuration (q) must be between min_q and max_q.");
@@ -270,7 +270,7 @@ namespace pinocchio
       const Eigen::MatrixBase<ConfigVector> & qs,
       const Eigen::MatrixBase<TangentVector> & vs) const
     {
-      if (check_expression_if_real<Scalar, false>(qs[0] < min_q || qs[0] > max_q))
+      if (check_expression_if_real<Scalar, false>(qs[idx_q()] < min_q || qs[idx_q()] > max_q))
       {
         PINOCCHIO_THROW_PRETTY(
           std::invalid_argument, "Spline joint configuration (q) must be between min_q and max_q.");

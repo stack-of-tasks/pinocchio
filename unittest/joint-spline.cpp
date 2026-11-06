@@ -4,6 +4,7 @@
 
 #include "pinocchio/spatial.hpp"
 #include "pinocchio/multibody/joint/joints.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 
@@ -1452,6 +1453,34 @@ BOOST_AUTO_TEST_CASE(abaVSrnea)
   aAba = pinocchio::aba(modelSpline, dataSplineAba, q, vq, tauRnea);
 
   BOOST_CHECK(aq.isApprox(aAba));
+}
+
+/// @brief The range check must use the spline's own coordinate, not q[0].
+BOOST_AUTO_TEST_CASE(rangeCheckNotFirstJoint)
+{
+  std::vector<SE3> ctrlFrames;
+  getTrajectory(ctrlFrames);
+
+  Model model;
+  addJointAndBody(model, JointModelRZ(), 0, SE3::Identity(), "rz", Inertia::Identity());
+  addJointAndBody(
+    model,
+    JointModelSplineBuilder()
+      .withControlFrameVector(ctrlFrames)
+      .withDegree(3)
+      .withOpenUniformKnots(0., 1.)
+      .build(),
+    1, SE3::Identity(), "spline", Inertia::Identity());
+  Data data(model);
+
+  Eigen::VectorXd q(2), v(Eigen::VectorXd::Zero(2));
+  q << 2., 0.5; // rz outside [0, 1], spline coordinate inside
+  BOOST_CHECK_NO_THROW(forwardKinematics(model, data, q));
+  BOOST_CHECK_NO_THROW(forwardKinematics(model, data, q, v));
+
+  q << 0.5, 2.; // spline coordinate outside [0, 1]
+  BOOST_CHECK_THROW(forwardKinematics(model, data, q), std::invalid_argument);
+  BOOST_CHECK_THROW(forwardKinematics(model, data, q, v), std::invalid_argument);
 }
 
 /// @brief Test S and bias c computation via finite differences.
