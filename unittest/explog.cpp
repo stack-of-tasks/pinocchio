@@ -146,6 +146,34 @@ BOOST_AUTO_TEST_CASE(log)
   BOOST_CHECK(quaternion::log3(quat_map).isApprox(log3(quat_map.toRotationMatrix())));
 }
 
+BOOST_AUTO_TEST_CASE(log3_near_identity)
+{
+  // Regression test for https://github.com/stack-of-tasks/pinocchio/issues/2768
+  // This is the exact rotation from the reporter's diff.bin: a near-identity
+  // rotation whose renormalized trace rounds to slightly more than 3 in
+  // floating point on the reporter's platform, so that cos_value = (tr - 1) / 2
+  // is slightly larger than 1 and both acos(cos_value) and
+  // sqrt(2 * (1 - cos_value) + eps * eps) evaluate to NaN.
+  // (On some platforms the trace rounds to exactly 3 instead, so the NaN does
+  // not show up there; the clamp in log3_impl guards the domain error on all
+  // of them.)
+  SE3::Matrix3 R;
+  R << 1., -1.5278791648531964e-08, 2.9121233757756215e-09, 1.5278791724859797e-08,
+    0.9999999999999998, -1.920215850215179e-08, -2.9121230704642898e-09, 1.9202158585418516e-08,
+    0.9999999999999998;
+  SE3::Vector3 p(-2.85716784339421e-07, 2.4195246445509355e-07, -1.6028326697828443e-07);
+
+  SE3::Vector3 omega = log3(R);
+  BOOST_CHECK(omega.allFinite());
+  BOOST_CHECK(omega.norm() < 1e-6);
+  BOOST_CHECK(exp3(omega).isApprox(R, 1e-9));
+
+  SE3 M(R, p);
+  Motion v = log6(M);
+  BOOST_CHECK(v.toVector().allFinite());
+  BOOST_CHECK(v.angular().isApprox(omega));
+}
+
 BOOST_AUTO_TEST_CASE(explog3)
 {
   SE3 M(SE3::Random());
