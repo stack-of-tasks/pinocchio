@@ -22,7 +22,7 @@ using namespace pinocchio::unittest;
 BOOST_AUTO_TEST_CASE(delassus_dense_rebuild)
 {
   // scene
-  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true);
+  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true, true);
   const Eigen::Index size = scene.delassus_matrix_gt.rows();
   Eigen::VectorXd compliance = scene.compliance;
   BOOST_CHECK(compliance.minCoeff() >= 0);
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(delassus_dense_rebuild)
 BOOST_AUTO_TEST_CASE(delassus_dense_diag_operations)
 {
   // scene
-  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true);
+  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true, true);
   const Eigen::Index size = scene.delassus_matrix_gt.rows();
   Eigen::VectorXd compliance = scene.compliance;
   BOOST_CHECK(compliance.minCoeff() >= 0);
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(delassus_dense_diag_operations)
 BOOST_AUTO_TEST_CASE(delassus_dense_block_operations)
 {
   // scene
-  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true);
+  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true, true);
   const Eigen::Index size = scene.delassus_matrix_gt.rows();
   Eigen::VectorXd compliance = scene.compliance;
   BOOST_CHECK(compliance.minCoeff() >= 0);
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(delassus_dense_block_operations)
 BOOST_AUTO_TEST_CASE(delassus_rigid_body_rebuild)
 {
   // scene
-  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true);
+  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true, true);
   Eigen::VectorXd compliance = scene.compliance;
   BOOST_CHECK(compliance.minCoeff() >= 0);
   const double damping_val = 1e-4;
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE(delassus_rigid_body_rebuild)
 BOOST_AUTO_TEST_CASE(delassus_rigid_body_diag_operations)
 {
   // scene
-  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true);
+  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true, true);
   const Eigen::Index size = scene.delassus_matrix_gt.rows();
   Eigen::VectorXd compliance = scene.compliance;
   BOOST_CHECK(compliance.minCoeff() >= 0);
@@ -455,7 +455,7 @@ BOOST_AUTO_TEST_CASE(delassus_rigid_body_diag_operations)
 BOOST_AUTO_TEST_CASE(delassus_rigid_body_block_operations)
 {
   // scene
-  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true);
+  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true, true);
   const Eigen::Index size = scene.delassus_matrix_gt.rows();
   Eigen::VectorXd compliance = scene.compliance;
   BOOST_CHECK(compliance.minCoeff() >= 0);
@@ -570,7 +570,7 @@ BOOST_AUTO_TEST_CASE(delassus_rigid_body_block_operations)
 BOOST_AUTO_TEST_CASE(delassus_cholesky_expression_diag_operations)
 {
   // scene
-  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true);
+  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true, true);
   const Eigen::Index size = scene.delassus_matrix_gt.rows();
   Eigen::VectorXd compliance = scene.compliance;
   BOOST_CHECK(compliance.minCoeff() >= 0);
@@ -672,7 +672,7 @@ BOOST_AUTO_TEST_CASE(delassus_cholesky_expression_diag_operations)
 BOOST_AUTO_TEST_CASE(delassus_cholesky_expression_block_operations)
 {
   // scene
-  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true);
+  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true, true);
   const Eigen::Index size = scene.delassus_matrix_gt.rows();
   Eigen::VectorXd compliance = scene.compliance;
   BOOST_CHECK(compliance.minCoeff() >= 0);
@@ -798,7 +798,7 @@ BOOST_AUTO_TEST_CASE(delassus_cholesky_expression_block_operations)
 BOOST_AUTO_TEST_CASE(delassus_cholesky_expression_unsafe)
 {
   // scene
-  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true);
+  ConstrainedHumanoidScene<double> scene(true, true, true, true, true, true, true);
   const Eigen::Index size = scene.delassus_matrix_gt.rows();
   Eigen::VectorXd compliance = scene.compliance;
   const double damping_val = 1e-4;
