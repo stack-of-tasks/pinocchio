@@ -19,7 +19,7 @@ class TestMainAlgos(TestCase):
         self.cmodel = cpin.Model(self.model)
         self.cdata = self.cmodel.createData()
 
-        qmax = np.full((self.model.nq, 1), np.pi)
+        qmax = np.full(self.model.nq, np.pi)
         self.q = pin.randomConfiguration(self.model, -qmax, qmax)
         self.v = np.random.rand(self.model.nv)
         self.a = np.random.rand(self.model.nv)

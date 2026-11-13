@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 import numpy as np
 import pinocchio as pin
@@ -9,6 +10,19 @@ class TestGeometryObjectBindings(unittest.TestCase):
     def setUp(self):
         self.model = pin.buildSampleModelHumanoid()
         self.collision_model = pin.buildSampleGeometryModelHumanoid(self.model)
+
+    def test_pickle(self):
+        import pickle
+
+        col = self.collision_model.geometryObjects[0]
+        filename = Path("geometry_object.pickle")
+        with filename.open("wb") as f:
+            pickle.dump(col, f)
+
+        with filename.open("rb") as f:
+            col_copy = pickle.load(f)
+
+        self.assertTrue(col == col_copy)
 
     def test_name_get_set(self):
         col = self.collision_model.geometryObjects[0]

@@ -103,7 +103,6 @@ namespace pinocchio
   struct ConstraintModelTpl
   : ConstraintModelBase<ConstraintModelTpl<_Scalar, _Options, ConstraintCollectionTpl>>
   , ConstraintCollectionTpl<_Scalar, _Options>::ConstraintModelVariant
-  , serialization::Serializable<ConstraintModelTpl<_Scalar, _Options, ConstraintCollectionTpl>>
   {
     // --------------------------------------------------------------
     // Type defs
