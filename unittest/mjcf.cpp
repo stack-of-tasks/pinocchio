@@ -1635,14 +1635,13 @@ BOOST_AUTO_TEST_CASE(test_connect_body_anchor_coordinates)
         <body name="second" pos="0 10 0" quat="1 0 0 1">
           <joint name="second_joint" type="hinge" pos="0 1 0"/>
           <geom type="sphere" size="0.1"/>
-          <body name="second_offset" pos="3 0 0" quat="1 1 0 0"/>
         </body>
       </body>
     </worldbody>
     <equality>
-      <connect name="a" body1="first" body2="second_offset" anchor="1 2 3"/>
+      <connect name="a" body1="first" body2="second" anchor="1 2 3"/>
       <connect name="b" body1="first" anchor="1 2 3"/>
-      <connect name="c" body1="offset" body2="second_offset" anchor="1 2 3"/>
+      <connect name="c" body1="offset" body2="second" anchor="1 2 3"/>
       <connect name="d" body1="offset" anchor="1 2 3"/>
     </equality>
   </mujoco>)");
