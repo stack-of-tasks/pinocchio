@@ -25,8 +25,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   (constrained forward dynamics of a spherical pendulum)
 
 ### Fixed
-- Forward the model name, the gravity (inherited from the parent model) and the joint armature in `appendModel` ([#2976](https://github.com/stack-of-tasks/pinocchio/pull/2976))
-- Reject missing joint frames during model reduction instead of reading past the frame vector ([#2960](https://github.com/stack-of-tasks/pinocchio/pull/2960))
 - Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM ([#2929](https://github.com/stack-of-tasks/pinocchio/pull/2929))
 - Fix scalar-generic Python bindings ([#2939](https://github.com/stack-of-tasks/pinocchio/pull/2939))
 - Fix `ellipsoid-joint-kinematics.py` example ([#2935](https://github.com/stack-of-tasks/pinocchio/pull/2935))
@@ -38,6 +36,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix `beta_alt` sign flip in small-angle Taylor expansion of quaternion Log map (log6) ([#2955](https://github.com/stack-of-tasks/pinocchio/pull/2955))
 - Fix doxygen documentation generation ([#2970](https://github.com/stack-of-tasks/pinocchio/pull/2970))
 - Fix the use of spline joint with more joints in the model ([#2975](https://github.com/stack-of-tasks/pinocchio/pull/2975))
+- Reject missing joint frames during model reduction instead of reading past the frame vector ([#2960](https://github.com/stack-of-tasks/pinocchio/pull/2960))
+- Forward the model name, the gravity (inherited from the parent model) and the joint armature in `appendModel` ([#2976](https://github.com/stack-of-tasks/pinocchio/pull/2976))
+- Fix MJCF body-based connect constraints to express body-local anchors in supporting-joint coordinates ([#2961](https://github.com/stack-of-tasks/pinocchio/pull/2961)).
 
 ## [4.1.0] - 2026-07-07
 
