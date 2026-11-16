@@ -87,7 +87,15 @@ namespace pinocchio
       const Matrix3 Rnormed = renormalize_rotation_matrix(R);
 
       const Scalar tr = Rnormed.trace();
-      const Scalar cos_value = (tr - Scalar(1)) / Scalar(2);
+      // Clamp cos_value to [-1, 1]: for a near-identity rotation, floating-point
+      // round-off can make tr slightly larger than 3, hence cos_value slightly
+      // larger than 1. Without the clamp, both math::acos(cos_value) and
+      // sqrt(2 * (1 - cos_value) + eps * eps) below evaluate to NaN
+      // (see https://github.com/stack-of-tasks/pinocchio/issues/2768).
+      // math::min/max are overloaded for autodiff scalar types, so the clamp
+      // stays valid for CppAD and CasADi instantiations as well.
+      const Scalar cos_value =
+        math::max(Scalar(-1), math::min(Scalar(1), (tr - Scalar(1)) / Scalar(2)));
 
       const Scalar prec = TaylorSeriesExpansion<Scalar>::template precision<2>();
       // Singular cases when theta == PI
