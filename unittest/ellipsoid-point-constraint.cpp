@@ -350,6 +350,42 @@ BOOST_AUTO_TEST_CASE(jacobian_away_from_the_surface)
   }
 }
 
+BOOST_AUTO_TEST_CASE(jacobian_inside_the_surface)
+{
+  // Same check as jacobian_away_from_the_surface, for points strictly inside the ellipsoid. The
+  // centre itself (scale == -1) is excluded: ||A x|| vanishes there and the gradient is undefined.
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model, true);
+  Data data(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  const VectorXd q = randomConfiguration(model);
+  forwardKinematics(model, data, q);
+  computeJointJacobians(model, data, q);
+
+  const double eps_fd = 1e-8;
+  const Vector3d u = Vector3d(0.4, 0.6, -0.7).normalized();
+  const JointIndex joint_id = model.getJointId(RF);
+
+  // The point is placed at 1 + scale times the radius along u: a negative scale is inside.
+  for (const double scale : {-0.006, -0.06, -0.5})
+  {
+    const SE3 point_placement = placementOnEllipsoid(u, RADII, 1.0 + scale);
+    const EllipsoidPointConstraintModel cmodel(
+      model, 0, SE3::Random(), joint_id, point_placement, RADII);
+    EllipsoidPointConstraintData cdata(cmodel);
+    cmodel.calc(model, data, cdata);
+
+    Data::MatrixXs J(1, model.nv);
+    J.setZero();
+    cmodel.jacobian(model, data, cdata, J);
+
+    const auto J_fd = compute_jacobian_fd(model, cmodel, q, eps_fd);
+    BOOST_CHECK(J.isApprox(J_fd, sqrt(eps_fd)));
+  }
+}
+
 BOOST_AUTO_TEST_CASE(constraint_velocity_and_acceleration_errors)
 {
   pinocchio::Model model;
