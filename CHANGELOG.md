@@ -39,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Reject missing joint frames during model reduction instead of reading past the frame vector ([#2960](https://github.com/stack-of-tasks/pinocchio/pull/2960))
 - Forward the model name, the gravity (inherited from the parent model) and the joint armature in `appendModel` ([#2976](https://github.com/stack-of-tasks/pinocchio/pull/2976))
 - Fix MJCF body-based connect constraints to express body-local anchors in supporting-joint coordinates ([#2961](https://github.com/stack-of-tasks/pinocchio/pull/2961)).
+- Fix `RobotWrapper.buildReducedRobot` crash when called with a RobotWrapper without visual and geometry model ([#2981](https://github.com/stack-of-tasks/pinocchio/pull/2981))
 
 ## [4.1.0] - 2026-07-07
 
