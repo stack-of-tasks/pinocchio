@@ -412,7 +412,6 @@ namespace pinocchio
 
       // Compute relative placement
       cdata.c1Mc2 = cdata.oMc1.actInv(cdata.oMc2);
-      const Matrix3 & _1R2_ = cdata.c1Mc2.rotation();
 
       // Position of the material point expressed in the frame of the ellipsoid.
       cdata.relative_position = cdata.c1Mc2.translation();
@@ -440,26 +439,15 @@ namespace pinocchio
 
       cdata.constraint_position_error[0] = s / (Scalar(2) * n) - this->desired_constraint_offset[0];
 
-      // First order time derivative of the relative position.
-      const Motion vf1 = this->joint1_placement.actInv(data.v[this->joint1_id]);
-      const Motion vf2 = this->joint2_placement.actInv(data.v[this->joint2_id]);
-
-      const Vector3 relative_velocity_component1 = _1R2_ * vf2.linear() - vf1.linear();
-      Vector3 relative_velocity = relative_velocity_component1;
-      relative_velocity -= vf1.angular().cross(x);
+      // First and second order time derivatives of the relative position.
+      Vector3 relative_velocity, relative_acceleration;
+      internal::relativePointKinematics(
+        this->joint1_placement, this->joint2_placement, cdata.c1Mc2, data.v[this->joint1_id],
+        data.v[this->joint2_id], data.a[this->joint1_id], data.a[this->joint2_id],
+        relative_velocity, relative_acceleration);
 
       cdata.constraint_velocity_error[0] =
         gradient.dot(relative_velocity) - this->desired_constraint_velocity[0];
-
-      // Second order time derivative of the relative position.
-      const Motion af1 = this->joint1_placement.actInv(data.a[this->joint1_id]);
-      const Motion af2 = this->joint2_placement.actInv(data.a[this->joint2_id]);
-
-      Vector3 relative_acceleration = _1R2_ * (af2.linear() + vf2.angular().cross(vf2.linear()))
-                                      - (af1.linear() + vf1.angular().cross(vf1.linear()));
-      relative_acceleration -= af1.angular().cross(x);
-      relative_acceleration += vf1.angular().cross(vf1.angular().cross(x));
-      relative_acceleration -= Scalar(2) * vf1.angular().cross(relative_velocity_component1);
 
       // d^2/dt^2 phi = grad phi . xddot + xdot^T (hessian phi) xdot, the quadratic form being
       //   xd^T A xd / n  -  2 (Ax.xd)(A2x.xd) / n^3
@@ -497,40 +485,21 @@ namespace pinocchio
       const ConstraintData & cdata,
       const Eigen::MatrixBase<JacobianMatrix> & _jacobian_matrix) const
     {
-      typedef DataTpl<Scalar, OtherOptions, JointCollectionTpl> Data;
       JacobianMatrix & jacobian_matrix = _jacobian_matrix.const_cast_derived();
 
       const auto & colwise_joint1_sparsity = model.sparsity_pattern_vector[joint1_id];
       const auto & colwise_joint2_sparsity = model.sparsity_pattern_vector[joint2_id];
 
-      const SE3 & oMc1 = cdata.oMc1;
-      const SE3 & oMc2 = cdata.oMc2;
-      const SE3 & c1Mc2 = cdata.c1Mc2;
-      const Vector3 & relative_position = cdata.relative_position;
       const Vector3 & gradient = cdata.gradient;
 
       for (Eigen::Index jj = 0; jj < model.nv; ++jj)
       {
         if (colwise_joint1_sparsity[jj] || colwise_joint2_sparsity[jj])
         {
-          typedef typename Data::Matrix6x::ConstColXpr ConstColXpr;
-          const ConstColXpr Jcol = data.J.col(jj);
-          const MotionRef<const ConstColXpr> Jcol_motion(Jcol);
-
           // Jacobian of relative_position along the jj-th degree of freedom.
-          Vector3 relative_position_jacobian_col = Vector3::Zero();
-          if (colwise_joint1_sparsity[jj])
-          {
-            const Motion Jcol_local(oMc1.actInv(Jcol_motion));
-            relative_position_jacobian_col -= Jcol_local.linear();
-            relative_position_jacobian_col -= Jcol_local.angular().cross(relative_position);
-          }
-
-          if (colwise_joint2_sparsity[jj])
-          {
-            const Motion Jcol_local(oMc2.actInv(Jcol_motion));
-            relative_position_jacobian_col += c1Mc2.rotation() * Jcol_local.linear();
-          }
+          const Vector3 relative_position_jacobian_col = internal::relativePointJacobianColumn(
+            cdata.oMc1, cdata.oMc2, cdata.c1Mc2, data.J.col(jj), colwise_joint1_sparsity[jj],
+            colwise_joint2_sparsity[jj]);
 
           jacobian_matrix(0, jj) = gradient.dot(relative_position_jacobian_col);
         }

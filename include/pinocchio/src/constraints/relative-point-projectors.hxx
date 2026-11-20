@@ -114,5 +114,100 @@ namespace pinocchio
       return res;
     }
 
+    ///
+    /// \brief First and second order time derivatives of the position of the second point
+    /// expressed in the frame of the first one.
+    ///
+    /// Shared by the scalar constraints built on top of a pair of points, which then contract
+    /// these vectors with the gradient and the Hessian of their residual.
+    ///
+    /// \param[in] joint1_placement Placement of the first point with respect to joint 1.
+    /// \param[in] joint2_placement Placement of the second point with respect to joint 2.
+    /// \param[in] c1Mc2 Relative placement of the second point frame w.r.t. the first one.
+    /// \param[in] v1 Spatial velocity of joint 1, expressed in the frame of joint 1.
+    /// \param[in] v2 Spatial velocity of joint 2, expressed in the frame of joint 2.
+    /// \param[in] a1 Spatial acceleration of joint 1, expressed in the frame of joint 1.
+    /// \param[in] a2 Spatial acceleration of joint 2, expressed in the frame of joint 2.
+    /// \param[out] relative_velocity Time derivative of c1Mc2.translation().
+    /// \param[out] relative_acceleration Second order time derivative of c1Mc2.translation().
+    ///
+    template<typename Scalar, int Options, int MotionOptions>
+    void relativePointKinematics(
+      const SE3Tpl<Scalar, Options> & joint1_placement,
+      const SE3Tpl<Scalar, Options> & joint2_placement,
+      const SE3Tpl<Scalar, Options> & c1Mc2,
+      const MotionTpl<Scalar, MotionOptions> & v1,
+      const MotionTpl<Scalar, MotionOptions> & v2,
+      const MotionTpl<Scalar, MotionOptions> & a1,
+      const MotionTpl<Scalar, MotionOptions> & a2,
+      Eigen::Matrix<Scalar, 3, 1, Options> & relative_velocity,
+      Eigen::Matrix<Scalar, 3, 1, Options> & relative_acceleration)
+    {
+      typedef Eigen::Matrix<Scalar, 3, 3, Options> Matrix3;
+      typedef Eigen::Matrix<Scalar, 3, 1, Options> Vector3;
+      typedef MotionTpl<Scalar, Options> Motion;
+
+      const Matrix3 & _1R2_ = c1Mc2.rotation();
+      const Vector3 & relative_position = c1Mc2.translation();
+
+      const Motion vf1 = joint1_placement.actInv(v1);
+      const Motion vf2 = joint2_placement.actInv(v2);
+
+      const Vector3 relative_velocity_component1 = _1R2_ * vf2.linear() - vf1.linear();
+      relative_velocity = relative_velocity_component1;
+      relative_velocity -= vf1.angular().cross(relative_position);
+
+      const Motion af1 = joint1_placement.actInv(a1);
+      const Motion af2 = joint2_placement.actInv(a2);
+
+      relative_acceleration = _1R2_ * (af2.linear() + vf2.angular().cross(vf2.linear()))
+                              - (af1.linear() + vf1.angular().cross(vf1.linear()));
+      relative_acceleration -= af1.angular().cross(relative_position);
+      relative_acceleration += vf1.angular().cross(vf1.angular().cross(relative_position));
+      relative_acceleration -= Scalar(2) * vf1.angular().cross(relative_velocity_component1);
+    }
+
+    ///
+    /// \brief Column of the Jacobian of the position of the second point expressed in the frame
+    /// of the first one, along a single degree of freedom.
+    ///
+    /// \param[in] oMc1 Placement of the first point frame with respect to the WORLD frame.
+    /// \param[in] oMc2 Placement of the second point frame with respect to the WORLD frame.
+    /// \param[in] c1Mc2 Relative placement of the second point frame w.r.t. the first one.
+    /// \param[in] Jcol Column of the joint Jacobian (data.J), expressed in the WORLD frame.
+    /// \param[in] moves_joint1 Whether the degree of freedom supports joint 1.
+    /// \param[in] moves_joint2 Whether the degree of freedom supports joint 2.
+    ///
+    template<typename Scalar, int Options, typename JacobianColumn>
+    Eigen::Matrix<Scalar, 3, 1, Options> relativePointJacobianColumn(
+      const SE3Tpl<Scalar, Options> & oMc1,
+      const SE3Tpl<Scalar, Options> & oMc2,
+      const SE3Tpl<Scalar, Options> & c1Mc2,
+      const Eigen::MatrixBase<JacobianColumn> & Jcol,
+      const bool moves_joint1,
+      const bool moves_joint2)
+    {
+      typedef Eigen::Matrix<Scalar, 3, 1, Options> Vector3;
+      typedef MotionTpl<Scalar, Options> Motion;
+
+      const MotionRef<const JacobianColumn> Jcol_motion(Jcol.derived());
+
+      Vector3 res = Vector3::Zero();
+      if (moves_joint1)
+      {
+        const Motion Jcol_local(oMc1.actInv(Jcol_motion));
+        res -= Jcol_local.linear();
+        res -= Jcol_local.angular().cross(c1Mc2.translation());
+      }
+
+      if (moves_joint2)
+      {
+        const Motion Jcol_local(oMc2.actInv(Jcol_motion));
+        res += c1Mc2.rotation() * Jcol_local.linear();
+      }
+
+      return res;
+    }
+
   } // namespace internal
 } // namespace pinocchio
