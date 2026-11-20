@@ -553,26 +553,21 @@ namespace pinocchio
 
       const MatrixSize6 & A1 = cdata.A1_world;
       const MatrixSize6 & A2 = cdata.A2_world;
-      const MatrixSize6 & A = cdata.A_world;
 
       const auto & colwise_joint1_sparsity = model.sparsity_pattern_vector[joint1_id];
       const auto & colwise_joint2_sparsity = model.sparsity_pattern_vector[joint2_id];
 
       for (Eigen::Index jj = 0; jj < model.nv; ++jj)
       {
-        if (!(colwise_joint1_sparsity[jj] || colwise_joint2_sparsity[jj]))
+        // A dof supporting both joints moves the two points rigidly, so it leaves the relative
+        // position unchanged: A1_world + A2_world == 0.
+        if (colwise_joint1_sparsity[jj] == colwise_joint2_sparsity[jj])
           continue;
 
         typedef typename Data::Matrix6x::ConstColXpr ConstColXpr;
         const ConstColXpr Jcol = data.J.col(jj);
 
-        Scalar AxSi;
-        if (colwise_joint1_sparsity[jj] && colwise_joint2_sparsity[jj])
-          AxSi = A.dot(Jcol);
-        else if (colwise_joint1_sparsity[jj])
-          AxSi = A1.dot(Jcol);
-        else
-          AxSi = A2.dot(Jcol);
+        const Scalar AxSi = colwise_joint1_sparsity[jj] ? A1.dot(Jcol) : A2.dot(Jcol);
 
         if constexpr (std::is_same<AssignmentOperatorTag<op>, RmTo>::value)
           res.noalias() -= AxSi * mat.row(jj);
@@ -629,26 +624,21 @@ namespace pinocchio
 
       const MatrixSize6 & A1 = cdata.A1_world;
       const MatrixSize6 & A2 = cdata.A2_world;
-      const MatrixSize6 & A = cdata.A_world;
 
       const auto & colwise_joint1_sparsity = model.sparsity_pattern_vector[joint1_id];
       const auto & colwise_joint2_sparsity = model.sparsity_pattern_vector[joint2_id];
 
       for (Eigen::Index jj = 0; jj < model.nv; ++jj)
       {
-        if (!(colwise_joint1_sparsity[jj] || colwise_joint2_sparsity[jj]))
+        // A dof supporting both joints moves the two points rigidly, so it leaves the relative
+        // position unchanged: A1_world + A2_world == 0.
+        if (colwise_joint1_sparsity[jj] == colwise_joint2_sparsity[jj])
           continue;
 
         typedef typename Data::Matrix6x::ConstColXpr ConstColXpr;
         const ConstColXpr Jcol = data.J.col(jj);
 
-        Scalar AxSi;
-        if (colwise_joint1_sparsity[jj] && colwise_joint2_sparsity[jj])
-          AxSi = A.dot(Jcol);
-        else if (colwise_joint1_sparsity[jj])
-          AxSi = A1.dot(Jcol);
-        else
-          AxSi = A2.dot(Jcol);
+        const Scalar AxSi = colwise_joint1_sparsity[jj] ? A1.dot(Jcol) : A2.dot(Jcol);
 
         if constexpr (std::is_same<AssignmentOperatorTag<op>, RmTo>::value)
           res.row(jj).noalias() -= AxSi * mat;
