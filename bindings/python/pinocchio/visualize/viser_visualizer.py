@@ -199,6 +199,18 @@ class ViserVisualizer(BaseVisualizer):
                 color=color_override[:3],
                 opacity=color_override[3],
             )
+        elif isinstance(geom, coal.Capsule):
+            mesh = trimesh.creation.capsule(
+                radius=geom.radius,
+                height=geom.halfLength * 2.0,
+            )
+            frame = self.viewer.scene.add_mesh_simple(
+                name,
+                mesh.vertices,
+                mesh.faces,
+                color=color_override[:3],
+                opacity=color_override[3],
+            )
         elif isinstance(geom, MESH_TYPES):
             frame = self._add_mesh_from_path(
                 name,
