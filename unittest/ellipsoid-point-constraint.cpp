@@ -217,6 +217,19 @@ BOOST_AUTO_TEST_CASE(sphere_case)
   }
 }
 
+BOOST_AUTO_TEST_CASE(singular_at_the_centre)
+{
+  pinocchio::Model model;
+  Data data(model);
+  forwardKinematics(model, data, VectorXd::Zero(0));
+
+  const SE3 M(SE3::Random());
+  const EllipsoidPointConstraintModel cmodel(model, 0, M, 0, M, RADII);
+  EllipsoidPointConstraintData cdata(cmodel);
+
+  BOOST_CHECK_THROW(cmodel.calc(model, data, cdata), std::runtime_error);
+}
+
 BOOST_AUTO_TEST_CASE(constraint_projectors_and_jacobians)
 {
   pinocchio::Model model;
