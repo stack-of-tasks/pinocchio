@@ -11,6 +11,21 @@
   #include "pinocchio/constraints.hpp"
 #endif // PINOCCHIO_LSP
 
+///
+/// \file
+/// \brief Kinematics of a pair of points, shared by the scalar constraints built on top of them.
+///
+/// Such a constraint has a residual phi(q) = f(x(q)), with x the position of the second point
+/// expressed in the frame of the first one. This file gathers what they all need to differentiate
+/// it, so that each constraint only contracts these quantities with the gradient and the Hessian
+/// of f:
+///  - the projectors relativePointProjector1 and relativePointProjector2, mapping the spatial
+///    velocities of the two joints to the time derivative of x;
+///  - the relative velocity and acceleration of the two points, see relativePointKinematics;
+///  - the column of the Jacobian of x along one degree of freedom, see
+///    relativePointJacobianColumn.
+///
+
 namespace pinocchio
 {
   namespace internal
@@ -19,9 +34,7 @@ namespace pinocchio
     /// \brief Projector mapping a spatial velocity of joint 1 to the time derivative of the
     /// position of the second point expressed in the frame of the first one.
     ///
-    /// This is the very same matrix as PointConstraintModelBase::getA1. It is factored out here
-    /// so that the scalar constraints built on top of a pair of points -- constant length, point
-    /// on an ellipsoid, ... -- all share a single implementation: such a constraint whose
+    /// This is the very same matrix as PointConstraintModelBase::getA1. A scalar constraint whose
     /// residual reads phi(q) = f(x(q)), with x the relative position of the two points, has
     /// A1 = grad f(x)^T * A1_point.
     ///
