@@ -105,6 +105,57 @@ class TestRobotWrapper(unittest.TestCase):
         )
         self.assertEqual(robot.model.names[1], name_)
 
+    # Non regression test for this issue: https://github.com/stack-of-tasks/pinocchio/issues/2980
+    # Following 4 tests cover all cases:
+    # - No geometry
+    # - Only visual
+    # - Only collision
+    # - Both
+    def test_build_reduced_model_no_geoms(self):
+        robot = pin.RobotWrapper(model=pin.buildSampleModelManipulator())
+        reduced_robot = robot.buildReducedRobot([2])
+        assert reduced_robot.visual_model is None
+        assert reduced_robot.collision_model is None
+
+    @unittest.skipUnless(pin.WITH_COLLISION, "Needs collision support")
+    def test_build_reduced_model_visual_geoms(self):
+        model = pin.buildSampleModelManipulator()
+        robot = pin.RobotWrapper(
+            model=model,
+            visual_model=pin.buildSampleGeometryModelManipulator(model),
+        )
+        reduced_robot = robot.buildReducedRobot([2])
+        assert reduced_robot.visual_model is not None
+        assert reduced_robot.collision_model is None
+
+    @unittest.skipUnless(pin.WITH_COLLISION, "Needs collision support")
+    def test_build_reduced_model_collision_geoms(self):
+        model = pin.buildSampleModelManipulator()
+        robot = pin.RobotWrapper(
+            model=model,
+            collision_model=pin.buildSampleGeometryModelManipulator(model),
+        )
+        reduced_robot = robot.buildReducedRobot([2])
+        assert reduced_robot.visual_model is None
+        assert reduced_robot.collision_model is not None
+
+    @unittest.skipUnless(pin.WITH_COLLISION, "Needs collision support")
+    def test_build_reduced_model_all_geoms(self):
+        model = pin.buildSampleModelManipulator()
+        robot = pin.RobotWrapper(
+            model=model,
+            visual_model=pin.buildSampleGeometryModelManipulator(model),
+            collision_model=pin.buildSampleGeometryModelManipulator(model),
+        )
+        # Modify collision_model to check they are not mixed-up
+        robot.collision_model.addAllCollisionPairs()
+
+        reduced_robot = robot.buildReducedRobot([2])
+        assert reduced_robot.visual_model is not None
+        assert len(reduced_robot.visual_model.collisionPairs) == 0
+        assert reduced_robot.collision_model is not None
+        assert len(reduced_robot.collision_model.collisionPairs) > 0
+
 
 if __name__ == "__main__":
     unittest.main()
