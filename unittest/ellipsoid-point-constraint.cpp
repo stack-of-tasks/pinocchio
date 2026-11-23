@@ -48,11 +48,21 @@ namespace
     return (x.dot(Ax) - 1.0) / (2.0 * Ax.norm());
   }
 
-  /// \brief Places the material point at `scale` times the radius along the direction `u`, so
-  /// that scale == 1 puts it exactly on the surface.
-  SE3 placementOnEllipsoid(const Vector3d & u, const Vector3d & radii, const double scale)
+  /// \brief Placement, in the frame of joint 2, of a material point located at `scale` times the
+  /// radius along the direction `u` of the ellipsoid frame. scale == 1 puts it on the surface,
+  /// and the algebraic residual x^T A x - 1 is then scale^2 - 1 at the current configuration.
+  SE3 placementOnEllipsoid(
+    const Data & data,
+    const JointIndex joint1_id,
+    const SE3 & M_ellipsoid,
+    const JointIndex joint2_id,
+    const Vector3d & u,
+    const Vector3d & radii,
+    const double scale)
   {
-    return SE3(Matrix3d::Identity(), scale * radii.cwiseProduct(u.normalized()));
+    const Vector3d x = scale * radii.cwiseProduct(u.normalized());
+    const SE3 oMc1 = data.oMi[joint1_id] * M_ellipsoid;
+    return SE3(Matrix3d::Identity(), data.oMi[joint2_id].actInv(oMc1.act(x)));
   }
 
   template<typename VectorLike>
@@ -141,8 +151,7 @@ BOOST_AUTO_TEST_CASE(residual_on_the_surface)
   for (int k = 0; k < 50; ++k)
   {
     const Vector3d u = Vector3d::Random().normalized();
-    const Vector3d x_on_surface = RADII.cwiseProduct(u);
-    const SE3 point_placement(Matrix3d::Identity(), M_ellipsoid.act(x_on_surface));
+    const SE3 point_placement = placementOnEllipsoid(data, 0, M_ellipsoid, 0, u, RADII, 1.0);
 
     const EllipsoidPointConstraintModel cmodel(model, 0, M_ellipsoid, 0, point_placement, RADII);
     EllipsoidPointConstraintData cdata(cmodel);
@@ -164,8 +173,7 @@ BOOST_AUTO_TEST_CASE(residual_sign_and_reference_value)
 
   // Outside the ellipsoid -> positive, inside -> negative.
   {
-    const Vector3d x_outside = 1.3 * RADII.cwiseProduct(u);
-    const SE3 point_placement(Matrix3d::Identity(), M_ellipsoid.act(x_outside));
+    const SE3 point_placement = placementOnEllipsoid(data, 0, M_ellipsoid, 0, u, RADII, 1.3);
     const EllipsoidPointConstraintModel cmodel(model, 0, M_ellipsoid, 0, point_placement, RADII);
     EllipsoidPointConstraintData cdata(cmodel);
     cmodel.calc(model, data, cdata);
@@ -175,8 +183,7 @@ BOOST_AUTO_TEST_CASE(residual_sign_and_reference_value)
       cdata.constraint_position_error[0], computeResidual(data, cmodel, RADII), 1e-8);
   }
   {
-    const Vector3d x_inside = 0.7 * RADII.cwiseProduct(u);
-    const SE3 point_placement(Matrix3d::Identity(), M_ellipsoid.act(x_inside));
+    const SE3 point_placement = placementOnEllipsoid(data, 0, M_ellipsoid, 0, u, RADII, 0.7);
     const EllipsoidPointConstraintModel cmodel(model, 0, M_ellipsoid, 0, point_placement, RADII);
     EllipsoidPointConstraintData cdata(cmodel);
     cmodel.calc(model, data, cdata);
@@ -246,14 +253,19 @@ BOOST_AUTO_TEST_CASE(constraint_projectors_and_jacobians)
   computeJointJacobians(model, data, q);
 
   const double eps_fd = 1e-8;
+  const SE3 M_ellipsoid(SE3::Random());
+  const Vector3d u = Vector3d(0.4, 0.6, -0.7).normalized();
+  const JointIndex joint1_id = model.getJointId(LF), joint2_id = model.getJointId(RF);
 
   std::vector<EllipsoidPointConstraintModel> cmodels;
   // Ellipsoid carried by the universe, point on a moving body
   cmodels.push_back(EllipsoidPointConstraintModel(
-    model, 0, SE3::Random(), model.getJointId(RF), SE3::Random(), RADII));
+    model, 0, M_ellipsoid, joint2_id,
+    placementOnEllipsoid(data, 0, M_ellipsoid, joint2_id, u, RADII, 1.2), RADII));
   // Both the ellipsoid and the point carried by moving bodies
   cmodels.push_back(EllipsoidPointConstraintModel(
-    model, model.getJointId(LF), SE3::Random(), model.getJointId(RF), SE3::Random(), RADII));
+    model, joint1_id, M_ellipsoid, joint2_id,
+    placementOnEllipsoid(data, joint1_id, M_ellipsoid, joint2_id, u, RADII, 1.2), RADII));
 
   for (const EllipsoidPointConstraintModel & cmodel : cmodels)
   {
@@ -342,17 +354,21 @@ BOOST_AUTO_TEST_CASE(jacobian_away_from_the_surface)
   computeJointJacobians(model, data, q);
 
   const double eps_fd = 1e-8;
+  const SE3 M_ellipsoid(SE3::Random());
   const Vector3d u = Vector3d(0.4, 0.6, -0.7).normalized();
   const JointIndex joint_id = model.getJointId(RF);
 
   // The point is placed at 1 + scale times the radius along u: 0 is on the surface.
   for (const double scale : {0.0, 0.006, 0.06, 0.6})
   {
-    const SE3 point_placement = placementOnEllipsoid(u, RADII, 1.0 + scale);
+    const double radial_scale = 1.0 + scale;
+    const SE3 point_placement =
+      placementOnEllipsoid(data, 0, M_ellipsoid, joint_id, u, RADII, radial_scale);
     const EllipsoidPointConstraintModel cmodel(
-      model, 0, SE3::Random(), joint_id, point_placement, RADII);
+      model, 0, M_ellipsoid, joint_id, point_placement, RADII);
     EllipsoidPointConstraintData cdata(cmodel);
     cmodel.calc(model, data, cdata);
+    BOOST_CHECK_SMALL(cdata.algebraic_error - (radial_scale * radial_scale - 1.0), 1e-12);
 
     Data::MatrixXs J(1, model.nv);
     J.setZero();
@@ -378,17 +394,22 @@ BOOST_AUTO_TEST_CASE(jacobian_inside_the_surface)
   computeJointJacobians(model, data, q);
 
   const double eps_fd = 1e-8;
+  const SE3 M_ellipsoid(SE3::Random());
   const Vector3d u = Vector3d(0.4, 0.6, -0.7).normalized();
   const JointIndex joint_id = model.getJointId(RF);
 
   // The point is placed at 1 + scale times the radius along u: a negative scale is inside.
   for (const double scale : {-0.006, -0.06, -0.5})
   {
-    const SE3 point_placement = placementOnEllipsoid(u, RADII, 1.0 + scale);
+    const double radial_scale = 1.0 + scale;
+    const SE3 point_placement =
+      placementOnEllipsoid(data, 0, M_ellipsoid, joint_id, u, RADII, radial_scale);
     const EllipsoidPointConstraintModel cmodel(
-      model, 0, SE3::Random(), joint_id, point_placement, RADII);
+      model, 0, M_ellipsoid, joint_id, point_placement, RADII);
     EllipsoidPointConstraintData cdata(cmodel);
     cmodel.calc(model, data, cdata);
+    BOOST_CHECK(cdata.constraint_position_error[0] < 0.);
+    BOOST_CHECK_SMALL(cdata.algebraic_error - (radial_scale * radial_scale - 1.0), 1e-12);
 
     Data::MatrixXs J(1, model.nv);
     J.setZero();
@@ -414,8 +435,12 @@ BOOST_AUTO_TEST_CASE(constraint_velocity_and_acceleration_errors)
   forwardKinematics(model, data, q, v, a);
   computeJointJacobians(model, data, q);
 
+  const SE3 M_ellipsoid(SE3::Random());
+  const Vector3d u = Vector3d(0.4, 0.6, -0.7).normalized();
+  const JointIndex joint1_id = model.getJointId(LF), joint2_id = model.getJointId(RF);
   const EllipsoidPointConstraintModel cmodel(
-    model, model.getJointId(LF), SE3::Random(), model.getJointId(RF), SE3::Random(), RADII);
+    model, joint1_id, M_ellipsoid, joint2_id,
+    placementOnEllipsoid(data, joint1_id, M_ellipsoid, joint2_id, u, RADII, 1.2), RADII);
   EllipsoidPointConstraintData cdata(cmodel);
   cmodel.calc(model, data, cdata);
 
@@ -460,8 +485,12 @@ BOOST_AUTO_TEST_CASE(map_constraint_force_and_joint_motions)
   forwardKinematics(model, data, q, v);
   computeJointJacobians(model, data, q);
 
+  const SE3 M_ellipsoid(SE3::Random());
+  const Vector3d u = Vector3d(0.4, 0.6, -0.7).normalized();
+  const JointIndex joint1_id = model.getJointId(LF), joint2_id = model.getJointId(RF);
   const EllipsoidPointConstraintModel cmodel(
-    model, model.getJointId(LF), SE3::Random(), model.getJointId(RF), SE3::Random(), RADII);
+    model, joint1_id, M_ellipsoid, joint2_id,
+    placementOnEllipsoid(data, joint1_id, M_ellipsoid, joint2_id, u, RADII, 1.2), RADII);
   EllipsoidPointConstraintData cdata(cmodel);
   cmodel.calc(model, data, cdata);
 
