@@ -90,7 +90,7 @@
 #include "pinocchio/src/constraints/point-anchor-constraint.hxx"
 #include "pinocchio/src/constraints/point-contact-constraint.hxx"
 
-#include "pinocchio/src/constraints/relative-point-projectors.hxx"
+#include "pinocchio/src/constraints/relative-point-kinematics.hxx"
 #include "pinocchio/src/constraints/constant-length-constraint.hxx"
 #include "pinocchio/src/constraints/ellipsoid-point-constraint.hxx"
 
