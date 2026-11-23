@@ -425,9 +425,9 @@ namespace pinocchio
       const Vector3 & relative_position = cdata.relative_position;
 
       cdata.distance = relative_position.norm();
-      assert(
-        check_expression_if_real<Scalar>(cdata.distance > Scalar(0))
-        && "The two points of the constraint are coincident: the constraint is singular.");
+      PINOCCHIO_THROW_PRETTY_IF(
+        !check_expression_if_real<Scalar>(cdata.distance > Scalar(0)), std::runtime_error,
+        "The two points of the constraint are coincident: the constraint is singular.");
 
       cdata.direction = relative_position / cdata.distance;
       const Vector3 & direction = cdata.direction;

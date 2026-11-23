@@ -423,9 +423,9 @@ namespace pinocchio
       const Vector3 A2x = Ax.cwiseProduct(inv_radii_squared);
 
       cdata.norm_Ax = Ax.norm();
-      assert(
-        check_expression_if_real<Scalar>(cdata.norm_Ax > Scalar(0))
-        && "The point is at the centre of the ellipsoid: the constraint is singular.");
+      PINOCCHIO_THROW_PRETTY_IF(
+        !check_expression_if_real<Scalar>(cdata.norm_Ax > Scalar(0)), std::runtime_error,
+        "The point is at the centre of the ellipsoid: the constraint is singular.");
 
       cdata.algebraic_error = x.dot(Ax) - Scalar(1);
 
