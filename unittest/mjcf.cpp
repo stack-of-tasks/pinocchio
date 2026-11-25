@@ -1682,6 +1682,87 @@ BOOST_AUTO_TEST_CASE(test_connect_body_anchor_coordinates)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_weld_body_anchor_coordinates)
+{
+  std::istringstream xmlData(R"(<mujoco model="weld_body_anchors">
+    <worldbody>
+      <body name="base">
+        <body name="first" pos="10 0 0">
+          <joint name="first_joint" type="hinge" pos="1 0 0"/>
+          <geom type="sphere" size="0.1"/>
+          <body name="offset" pos="0 2 0" quat="1 0 0 1"/>
+        </body>
+        <body name="second" pos="0 10 0" quat="1 0 0 1">
+          <joint name="second_joint" type="hinge" pos="0 1 0"/>
+          <geom type="sphere" size="0.1"/>
+          <body name="second_offset" pos="3 0 0" quat="1 1 0 0"/>
+        </body>
+      </body>
+    </worldbody>
+    <equality>
+      <weld name="a" body1="first" body2="second_offset" anchor="1 2 3" relpose="5 5 5 0 0 0 0"/>
+      <weld name="b" body1="first" anchor="1 2 3" />
+      <weld name="c" body1="offset" body2="second_offset" anchor="1 2 3" relpose="12 7 2 1 1 0 0"/>
+      <weld name="d" body1="offset" anchor="1 2 3" relpose="0 9 3 1 0 0 -1"/>
+    </equality>
+  </mujoco>)");
+
+  // a, b: c1 built from c2 at qref
+  // (a: explicit zero quaternion,its relpose position is ignored; b: no relpose)
+  // c, d: explicit relpose set to the value MuJoCo computes at qref, so they match a, b
+
+  auto namefile = createTempFile(xmlData);
+  pinocchio::Model model;
+  std::vector<pinocchio::PointAnchorConstraintModel> constraints;
+  std::vector<pinocchio::FrameAnchorConstraintModel> frame_constraints;
+  pinocchio::mjcf::buildModel(namefile.name(), model, constraints, frame_constraints);
+
+  BOOST_REQUIRE_EQUAL(frame_constraints.size(), 4);
+  BOOST_CHECK(constraints.empty());
+  const pinocchio::JointIndex first_joint = model.getJointId("first_joint");
+  const pinocchio::JointIndex second_joint = model.getJointId("second_joint");
+
+  using Matrix3 = pinocchio::SE3::Matrix3;
+  using Vector3 = pinocchio::SE3::Vector3;
+  const Matrix3 I = Matrix3::Identity();
+  const Matrix3 Rx = Eigen::AngleAxisd(M_PI / 2, Vector3::UnitX()).toRotationMatrix();
+  const Matrix3 RzRx =
+    (Eigen::AngleAxisd(M_PI / 2, Vector3::UnitZ()) * Eigen::AngleAxisd(M_PI / 2, Vector3::UnitX()))
+      .toRotationMatrix();
+
+  // joint1_placement: pose of c1 in the joint1 frame. a/c and b/d are equal
+  const pinocchio::SE3 expected_first[] = {
+    pinocchio::SE3(RzRx, Vector3(-8, 14, 2)), pinocchio::SE3(I, Vector3(-10, 2, 3)),
+    pinocchio::SE3(RzRx, Vector3(-8, 14, 2)), pinocchio::SE3(I, Vector3(-10, 2, 3))};
+
+  // joint2_placement :pose of c1 in the joint1 frame. a/c and b/d are equal
+  const pinocchio::SE3 expected_second[] = {
+    pinocchio::SE3(Rx, Vector3(4, -4, 2)), pinocchio::SE3(I, Vector3(1, 2, 3)),
+    pinocchio::SE3(Rx, Vector3(4, -4, 2)), pinocchio::SE3(I, Vector3(1, 2, 3))};
+
+  // World pose of c1 and c2 at qpos0: they coincide in all four cases.
+  const pinocchio::SE3 expected_world[] = {
+    pinocchio::SE3(RzRx, Vector3(3, 14, 2)), pinocchio::SE3(I, Vector3(1, 2, 3)),
+    pinocchio::SE3(RzRx, Vector3(3, 14, 2)), pinocchio::SE3(I, Vector3(1, 2, 3))};
+
+  pinocchio::Data data(model);
+  pinocchio::forwardKinematics(model, data, model.referenceConfigurations.at("qpos0"));
+  for (std::size_t i = 0; i < frame_constraints.size(); ++i)
+  {
+    const auto & constraint = frame_constraints[i];
+    BOOST_CHECK_EQUAL(constraint.joint1_id, first_joint);
+    BOOST_CHECK_EQUAL(constraint.joint2_id, i % 2 == 0 ? second_joint : 0);
+
+    BOOST_CHECK(constraint.joint1_placement.isApprox(expected_first[i]));
+    BOOST_CHECK(constraint.joint2_placement.isApprox(expected_second[i]));
+
+    const pinocchio::SE3 oMc1 = data.oMi[constraint.joint1_id] * constraint.joint1_placement;
+    const pinocchio::SE3 oMc2 = data.oMi[constraint.joint2_id] * constraint.joint2_placement;
+    BOOST_CHECK(oMc1.isApprox(expected_world[i]));
+    BOOST_CHECK(oMc2.isApprox(expected_world[i]));
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_default_eulerseq)
 {
   std::istringstream xmlData(R"(<mujoco model="arm">

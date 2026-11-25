@@ -1346,20 +1346,19 @@ namespace pinocchio
         Eigen::VectorXd qref;
         if (!model.referenceConfigurations.empty())
         {
-          // If possible, it's always preferable to select qpos0 to construct the point anchor
-          // constraints as the mujoco equality constraints are defined w.r.t the default
-          // configuration of the model (qpos0).
+          // MuJoCo equality constraints (connect, weld) are defined at qpos0. It is used when
+          // available
           if (model.referenceConfigurations.find("qpos0") != model.referenceConfigurations.end())
           {
             mjcfVisitor << "Using qpos0 (default configuration defined by the XML file) to "
-                           "construct point anchor constraints.\n";
+                           "construct anchor constraints.\n";
             qref = model.referenceConfigurations.at("qpos0");
           }
           else
           {
             mjcfVisitor << "Could not find qpos0 in referenceConfigurations. Using keyframe "
                         << model.referenceConfigurations.begin()->first
-                        << " to construct point anchor constraints.\n";
+                        << " to construct anchor constraints.\n";
             qref = model.referenceConfigurations.begin()->second;
           }
         }
@@ -1367,15 +1366,16 @@ namespace pinocchio
         {
           mjcfVisitor << "WARNING: Could not find qpos0 nor other keyframes in "
                          "referenceConfigurations.\n"
-                      << "This is unexpected and may lead to issues for point anchor constraints.\n"
-                      << "Using ::pinocchio::neutral to construct point anchor constraints.\n";
+                      << "This is unexpected and may lead to issues for anchor constraints.\n"
+                      << "Using ::pinocchio::neutral to construct anchor constraints.\n";
           qref = ::pinocchio::neutral(model);
         }
+        // Joint poses at qref, used to build the constraint frames
         ::pinocchio::forwardKinematics(model, data, qref);
         for (const auto & entry : mapOfEqualities)
         {
           const MjcfEquality & eq = entry.second;
-          // Retireve parent joints and relative pose
+          // Retrieve parent joints and constraints pose relative to these joints
           SE3 i1Mc, i2Mc;
           JointIndex joint1, joint2;
           if (eq.body1 == "")
@@ -1407,22 +1407,29 @@ namespace pinocchio
               // Express the body-local anchor in the supporting joint frame.
               i1Mc.setIdentity();
               i1Mc.translation() = mjcfVisitor.getBodyFrame(eq.body1).placement.act(eq.anchor);
-              // Constaint relative to joint 2 is obtaint thanks to qref pose
+              // The body2 point is the one that coincides with the anchor at qref
               i2Mc = (joint2 == 0) ? oMi1 * i1Mc : oMi2.inverse() * oMi1 * i1Mc;
             }
             else if (eq.type == "weld")
             {
-              // For weld constraint, anchor is relative to joint2
-              i2Mc.setIdentity();
-              i2Mc.translation() = eq.anchor;
-              // Constraint location relative to joint 1: i1Mc is calculated using i2Mc and given
-              // the relative pose i1Mi2.
-              // Using weird default behavior of mujoco, use qref relative pose if quat is four 0
-              // and relpose argument otherwise
-              SE3 i1Mi2 = eq.use_qref_relpose
-                            ? ((joint2 == 0) ? oMi1.inverse() : oMi1.inverse() * oMi2)
-                            : eq.relpose;
-              i1Mc = i1Mi2 * i2Mc;
+              // anchor is the position of c2 in body2 frame
+              SE3 b2Mc;
+              b2Mc.setIdentity();
+              b2Mc.translation() = eq.anchor;
+
+              // c2 in joint2 frame (no body2: body2 is the world, so i2Mc = b2Mc)
+              i2Mc = (eq.body2 == "") ? b2Mc : mjcfVisitor.getBodyFrame(eq.body2).placement * b2Mc;
+
+              // relpose quaternion omitted (all zeros): MuJoCo builds c1 so that c1 = c2 at qref.
+              // Otherwise relpose is b1 <- c1, expressed here in joint1 frame.
+              if (eq.use_qref_relpose)
+              {
+                i1Mc = ((joint2 == 0) ? oMi1.inverse() : oMi1.inverse() * oMi2) * i2Mc;
+              }
+              else
+              {
+                i1Mc = mjcfVisitor.getBodyFrame(eq.body1).placement * eq.relpose;
+              }
             }
           }
 
