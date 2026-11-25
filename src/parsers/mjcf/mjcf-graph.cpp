@@ -1408,7 +1408,7 @@ namespace pinocchio
               i1Mc.setIdentity();
               i1Mc.translation() = mjcfVisitor.getBodyFrame(eq.body1).placement.act(eq.anchor);
               // The body2 point is the one that coincides with the anchor at qref
-              i2Mc = (joint2 == 0) ? oMi1 * i1Mc : oMi2.inverse() * oMi1 * i1Mc;
+              i2Mc = oMi2.inverse() * oMi1 * i1Mc;
             }
             else if (eq.type == "weld")
             {
@@ -1420,11 +1420,11 @@ namespace pinocchio
               // c2 in joint2 frame (no body2: body2 is the world, so i2Mc = b2Mc)
               i2Mc = (eq.body2 == "") ? b2Mc : mjcfVisitor.getBodyFrame(eq.body2).placement * b2Mc;
 
-              // relpose quaternion omitted (all zeros): MuJoCo builds c1 so that c1 = c2 at qref.
-              // Otherwise relpose is b1 <- c1, expressed here in joint1 frame.
+              // relpose absent or with a zero quaternion: c1 is built so that c1=c2 at qref
+              //  Otherwise relpose is b1 <- c1, expressed here in joint1 frame.
               if (eq.use_qref_relpose)
               {
-                i1Mc = ((joint2 == 0) ? oMi1.inverse() : oMi1.inverse() * oMi2) * i2Mc;
+                i1Mc = oMi1.inverse() * oMi2 * i2Mc;
               }
               else
               {
