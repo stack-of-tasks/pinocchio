@@ -173,6 +173,19 @@ BOOST_AUTO_TEST_CASE(constraint_position_error)
   BOOST_CHECK_CLOSE(cdata.constraint_position_error[0], -0.01, 1e-8);
 }
 
+BOOST_AUTO_TEST_CASE(singular_when_points_are_coincident)
+{
+  pinocchio::Model model;
+  Data data(model);
+  forwardKinematics(model, data, VectorXd::Zero(0));
+
+  const SE3 M(SE3::Random());
+  const ConstantLengthConstraintModel cmodel(model, 0, M, 0, M, 1.);
+  ConstantLengthConstraintData cdata(cmodel);
+
+  BOOST_CHECK_THROW(cmodel.calc(model, data, cdata), std::runtime_error);
+}
+
 BOOST_AUTO_TEST_CASE(constraint_projectors_and_jacobians)
 {
   pinocchio::Model model;

@@ -419,16 +419,15 @@ namespace pinocchio
 
       // Compute relative placement
       cdata.c1Mc2 = cdata.oMc1.actInv(cdata.oMc2);
-      const Matrix3 & _1R2_ = cdata.c1Mc2.rotation();
 
       // Position of the second point expressed in the frame of the first one, and its norm.
       cdata.relative_position = cdata.c1Mc2.translation();
       const Vector3 & relative_position = cdata.relative_position;
 
       cdata.distance = relative_position.norm();
-      assert(
-        check_expression_if_real<Scalar>(cdata.distance > Scalar(0))
-        && "The two points of the constraint are coincident: the constraint is singular.");
+      PINOCCHIO_THROW_PRETTY_IF(
+        !check_expression_if_real<Scalar>(cdata.distance > Scalar(0)), std::runtime_error,
+        "The two points of the constraint are coincident: the constraint is singular.");
 
       cdata.direction = relative_position / cdata.distance;
       const Vector3 & direction = cdata.direction;
@@ -436,27 +435,16 @@ namespace pinocchio
       cdata.constraint_position_error[0] =
         cdata.distance - m_length - this->desired_constraint_offset[0];
 
-      // First order time derivative of relative_position.
-      const Motion vf1 = this->joint1_placement.actInv(data.v[this->joint1_id]);
-      const Motion vf2 = this->joint2_placement.actInv(data.v[this->joint2_id]);
-
-      const Vector3 relative_velocity_component1 = _1R2_ * vf2.linear() - vf1.linear();
-      Vector3 relative_velocity = relative_velocity_component1;
-      relative_velocity -= vf1.angular().cross(relative_position);
+      // First and second order time derivatives of relative_position.
+      Vector3 relative_velocity, relative_acceleration;
+      internal::relativePointKinematics(
+        this->joint1_placement, this->joint2_placement, cdata.c1Mc2, data.v[this->joint1_id],
+        data.v[this->joint2_id], data.a[this->joint1_id], data.a[this->joint2_id],
+        relative_velocity, relative_acceleration);
 
       // d/dt ||x|| = u . xdot
       const Scalar radial_velocity = direction.dot(relative_velocity);
       cdata.constraint_velocity_error[0] = radial_velocity - this->desired_constraint_velocity[0];
-
-      // Second order time derivative of relative_position.
-      const Motion af1 = this->joint1_placement.actInv(data.a[this->joint1_id]);
-      const Motion af2 = this->joint2_placement.actInv(data.a[this->joint2_id]);
-
-      Vector3 relative_acceleration = _1R2_ * (af2.linear() + vf2.angular().cross(vf2.linear()))
-                                      - (af1.linear() + vf1.angular().cross(vf1.linear()));
-      relative_acceleration -= af1.angular().cross(relative_position);
-      relative_acceleration += vf1.angular().cross(vf1.angular().cross(relative_position));
-      relative_acceleration -= Scalar(2) * vf1.angular().cross(relative_velocity_component1);
 
       // d^2/dt^2 ||x|| = u . xddot + (||xdot||^2 - (u . xdot)^2) / ||x||
       cdata.constraint_acceleration_error[0] =
@@ -484,40 +472,21 @@ namespace pinocchio
       const ConstraintData & cdata,
       const Eigen::MatrixBase<JacobianMatrix> & _jacobian_matrix) const
     {
-      typedef DataTpl<Scalar, OtherOptions, JointCollectionTpl> Data;
       JacobianMatrix & jacobian_matrix = _jacobian_matrix.const_cast_derived();
 
       const auto & colwise_joint1_sparsity = model.sparsity_pattern_vector[joint1_id];
       const auto & colwise_joint2_sparsity = model.sparsity_pattern_vector[joint2_id];
 
-      const SE3 & oMc1 = cdata.oMc1;
-      const SE3 & oMc2 = cdata.oMc2;
-      const SE3 & c1Mc2 = cdata.c1Mc2;
-      const Vector3 & relative_position = cdata.relative_position;
       const Vector3 & direction = cdata.direction;
 
       for (Eigen::Index jj = 0; jj < model.nv; ++jj)
       {
         if (colwise_joint1_sparsity[jj] || colwise_joint2_sparsity[jj])
         {
-          typedef typename Data::Matrix6x::ConstColXpr ConstColXpr;
-          const ConstColXpr Jcol = data.J.col(jj);
-          const MotionRef<const ConstColXpr> Jcol_motion(Jcol);
-
           // Jacobian of relative_position along the jj-th degree of freedom.
-          Vector3 relative_position_jacobian_col = Vector3::Zero();
-          if (colwise_joint1_sparsity[jj])
-          {
-            const Motion Jcol_local(oMc1.actInv(Jcol_motion));
-            relative_position_jacobian_col -= Jcol_local.linear();
-            relative_position_jacobian_col -= Jcol_local.angular().cross(relative_position);
-          }
-
-          if (colwise_joint2_sparsity[jj])
-          {
-            const Motion Jcol_local(oMc2.actInv(Jcol_motion));
-            relative_position_jacobian_col += c1Mc2.rotation() * Jcol_local.linear();
-          }
+          const Vector3 relative_position_jacobian_col = internal::relativePointJacobianColumn(
+            cdata.oMc1, cdata.oMc2, cdata.c1Mc2, data.J.col(jj), colwise_joint1_sparsity[jj],
+            colwise_joint2_sparsity[jj]);
 
           jacobian_matrix(0, jj) = direction.dot(relative_position_jacobian_col);
         }
@@ -571,26 +540,21 @@ namespace pinocchio
 
       const MatrixSize6 & A1 = cdata.A1_world;
       const MatrixSize6 & A2 = cdata.A2_world;
-      const MatrixSize6 & A = cdata.A_world;
 
       const auto & colwise_joint1_sparsity = model.sparsity_pattern_vector[joint1_id];
       const auto & colwise_joint2_sparsity = model.sparsity_pattern_vector[joint2_id];
 
       for (Eigen::Index jj = 0; jj < model.nv; ++jj)
       {
-        if (!(colwise_joint1_sparsity[jj] || colwise_joint2_sparsity[jj]))
+        // A dof supporting both joints moves the two points rigidly, so it leaves the relative
+        // position unchanged: A1_world + A2_world == 0.
+        if (colwise_joint1_sparsity[jj] == colwise_joint2_sparsity[jj])
           continue;
 
         typedef typename Data::Matrix6x::ConstColXpr ConstColXpr;
         const ConstColXpr Jcol = data.J.col(jj);
 
-        Scalar AxSi;
-        if (colwise_joint1_sparsity[jj] && colwise_joint2_sparsity[jj])
-          AxSi = A.dot(Jcol);
-        else if (colwise_joint1_sparsity[jj])
-          AxSi = A1.dot(Jcol);
-        else
-          AxSi = A2.dot(Jcol);
+        const Scalar AxSi = colwise_joint1_sparsity[jj] ? A1.dot(Jcol) : A2.dot(Jcol);
 
         if constexpr (std::is_same<AssignmentOperatorTag<op>, RmTo>::value)
           res.noalias() -= AxSi * mat.row(jj);
@@ -647,26 +611,21 @@ namespace pinocchio
 
       const MatrixSize6 & A1 = cdata.A1_world;
       const MatrixSize6 & A2 = cdata.A2_world;
-      const MatrixSize6 & A = cdata.A_world;
 
       const auto & colwise_joint1_sparsity = model.sparsity_pattern_vector[joint1_id];
       const auto & colwise_joint2_sparsity = model.sparsity_pattern_vector[joint2_id];
 
       for (Eigen::Index jj = 0; jj < model.nv; ++jj)
       {
-        if (!(colwise_joint1_sparsity[jj] || colwise_joint2_sparsity[jj]))
+        // A dof supporting both joints moves the two points rigidly, so it leaves the relative
+        // position unchanged: A1_world + A2_world == 0.
+        if (colwise_joint1_sparsity[jj] == colwise_joint2_sparsity[jj])
           continue;
 
         typedef typename Data::Matrix6x::ConstColXpr ConstColXpr;
         const ConstColXpr Jcol = data.J.col(jj);
 
-        Scalar AxSi;
-        if (colwise_joint1_sparsity[jj] && colwise_joint2_sparsity[jj])
-          AxSi = A.dot(Jcol);
-        else if (colwise_joint1_sparsity[jj])
-          AxSi = A1.dot(Jcol);
-        else
-          AxSi = A2.dot(Jcol);
+        const Scalar AxSi = colwise_joint1_sparsity[jj] ? A1.dot(Jcol) : A2.dot(Jcol);
 
         if constexpr (std::is_same<AssignmentOperatorTag<op>, RmTo>::value)
           res.row(jj).noalias() -= AxSi * mat;
@@ -861,7 +820,10 @@ namespace pinocchio
     MatrixSize6 getA1Impl(const ConstraintData & cdata, ReferenceFrameTag<rf> rft) const
     {
       MatrixSize6 res;
-      res.noalias() = cdata.direction.transpose() * getPointA1(cdata, rft);
+      res.noalias() =
+        cdata.direction.transpose()
+        * internal::relativePointProjector1(
+          cdata.oMc1, cdata.oMc2, this->joint1_placement, cdata.relative_position, rft);
       return res;
     }
 
@@ -870,74 +832,13 @@ namespace pinocchio
     MatrixSize6 getA2Impl(const ConstraintData & cdata, ReferenceFrameTag<rf> rft) const
     {
       MatrixSize6 res;
-      res.noalias() = cdata.direction.transpose() * getPointA2(cdata, rft);
+      res.noalias() = cdata.direction.transpose()
+                      * internal::relativePointProjector2(
+                        cdata.oMc1, cdata.oMc2, cdata.c1Mc2, this->joint2_placement, rft);
       return res;
     }
 
   protected:
-    ///
-    /// \brief Returns the projector mapping a spatial velocity of joint 1 to the time derivative
-    /// of cdata.relative_position. This is the very same quantity as the one returned by
-    /// PointConstraintModelBase::getA1 for a point constraint sharing the same joints and
-    /// placements.
-    ///
-    template<ReferenceFrame rf>
-    Matrix36 getPointA1(const ConstraintData & cdata, ReferenceFrameTag<rf>) const
-    {
-      Matrix36 res;
-
-      if constexpr (std::is_same<ReferenceFrameTag<rf>, WorldFrameTag>::value)
-      {
-        const Matrix3 c1Ro = cdata.oMc1.rotation().transpose();
-        res.template leftCols<3>() = -c1Ro;
-        res.template rightCols<3>().noalias() = c1Ro * skew(cdata.oMc2.translation());
-      }
-      else if constexpr (std::is_same<ReferenceFrameTag<rf>, LocalFrameTag>::value)
-      {
-        const Matrix3 c1Rj1 = this->joint1_placement.rotation().transpose();
-        // Position of the second point expressed in the frame of joint 1.
-        const Vector3 j1_p_c2 = this->joint1_placement.act(cdata.relative_position);
-        res.template leftCols<3>() = -c1Rj1;
-        res.template rightCols<3>().noalias() = c1Rj1 * skew(j1_p_c2);
-      }
-      else
-      {
-        PINOCCHIO_UNREACHABLE();
-      }
-
-      return res;
-    }
-
-    ///
-    /// \brief Returns the projector mapping a spatial velocity of joint 2 to the time derivative
-    /// of cdata.relative_position.
-    ///
-    template<ReferenceFrame rf>
-    Matrix36 getPointA2(const ConstraintData & cdata, ReferenceFrameTag<rf>) const
-    {
-      Matrix36 res;
-
-      if constexpr (std::is_same<ReferenceFrameTag<rf>, WorldFrameTag>::value)
-      {
-        const Matrix3 c1Ro = cdata.oMc1.rotation().transpose();
-        res.template leftCols<3>() = c1Ro;
-        res.template rightCols<3>().noalias() = -c1Ro * skew(cdata.oMc2.translation());
-      }
-      else if constexpr (std::is_same<ReferenceFrameTag<rf>, LocalFrameTag>::value)
-      {
-        const Matrix3 c1Rj2 =
-          cdata.c1Mc2.rotation() * this->joint2_placement.rotation().transpose();
-        res.template leftCols<3>() = c1Rj2;
-        res.template rightCols<3>().noalias() = -c1Rj2 * skew(this->joint2_placement.translation());
-      }
-      else
-      {
-        PINOCCHIO_UNREACHABLE();
-      }
-
-      return res;
-    }
-
     /// \brief Adds the apparent inertia induced by the constraint to the augmented articulated
     /// body inertias and to the joint cross coupling terms stored in data.
     template<int OtherOptions, template<typename, int> class JointCollectionTpl, ReferenceFrame rf>
