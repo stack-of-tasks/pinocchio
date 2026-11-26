@@ -1682,6 +1682,119 @@ BOOST_AUTO_TEST_CASE(test_connect_body_anchor_coordinates)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_weld_body_anchor_coordinates)
+{
+  std::istringstream xmlData(R"(<mujoco model="weld_body_anchors">
+    <worldbody>
+      <body name="base">
+        <body name="first" pos="10 0 0">
+          <joint name="first_joint" type="hinge" pos="1 0 0"/>
+          <geom type="sphere" size="0.1"/>
+          <body name="offset" pos="0 2 0" axisangle="0 0 1 90"/>
+        </body>
+        <body name="second" pos="0 10 0" axisangle="0 0 1 90">
+          <joint name="second_joint" type="hinge" pos="0 1 0" ref="-45"/>
+          <geom type="sphere" size="0.1"/>
+          <body name="second_offset" pos="3 0 0" axisangle="1 0 0 90"/>
+        </body>
+        <body name="fixed" pos="0 0 1" axisangle="1 0 0 90"/>
+      </body>
+    </worldbody>
+    <equality>
+      <weld name="a" body1="first" body2="second_offset" anchor="1 2 3" relpose="5 5 5 0 0 0 0"/>
+      <weld name="b" body1="first" anchor="1 2 3" />
+      <weld name="c" body1="offset" body2="second_offset" anchor="1 2 3" relpose="12 7 2 1 1 0 0"/>
+      <weld name="d" body1="offset" anchor="1 2 3" relpose="0 9 3 1 0 0 -1"/>
+      <weld name="e" body1="first" body2="fixed" anchor="1 2 3"/>
+    </equality>
+  </mujoco>)");
+
+  // a, b: no usable relpose. c1 built from c2 at qref
+  // (a: explicit zero quaternion, its relpose position is ignored; b: no relpose)
+  // c, d: explicit relpose = pose of c1 in the body1 frame. It is set to the value computed at
+  // qref, so they match a, b
+
+  auto namefile = createTempFile(xmlData);
+  pinocchio::Model model;
+  std::vector<pinocchio::PointAnchorConstraintModel> constraints;
+  std::vector<pinocchio::FrameAnchorConstraintModel> frame_constraints;
+  pinocchio::mjcf::buildModel(namefile.name(), model, constraints, frame_constraints);
+
+  BOOST_REQUIRE_EQUAL(frame_constraints.size(), 5);
+  BOOST_CHECK(constraints.empty());
+  const pinocchio::JointIndex first_joint = model.getJointId("first_joint");
+  const pinocchio::JointIndex second_joint = model.getJointId("second_joint");
+
+  using SE3 = pinocchio::SE3;
+  using Matrix3 = SE3::Matrix3;
+  using Vector3 = SE3::Vector3;
+  const Matrix3 I = Matrix3::Identity();
+  const Matrix3 Rx = Eigen::AngleAxisd(M_PI / 2, Vector3::UnitX()).toRotationMatrix();
+  const Matrix3 Rz = Eigen::AngleAxisd(M_PI / 2, Vector3::UnitZ()).toRotationMatrix();
+
+  // Poses read from XML
+  const SE3 oMfirst(I, Vector3(10, 0, 0));
+  const SE3 firstMj1(I, Vector3(1, 0, 0));
+  const SE3 firstMoffset(Rz, Vector3(0, 2, 0));
+  const SE3 oMsecond(Rz, Vector3(0, 10, 0));
+  const SE3 secondMj2(I, Vector3(0, 1, 0));
+  const SE3 secondMsecond_offset(Rx, Vector3(3, 0, 0));
+  const SE3 b2Mc2(I, Vector3(1, 2, 3)); // anchor
+  const SE3 relpose_c(Rx, Vector3(12, 7, 2));
+  const SE3 relpose_d(Rz.transpose(), Vector3(0, 9, 3));
+
+  // compute c2 in joint 2 frame and in the world frame
+  // a, c: body2 = second_offset. b, d: no body2, body2 is the world.
+  const SE3 j2Mc2_ac = secondMj2.inverse() * secondMsecond_offset * b2Mc2;
+  const SE3 j2Mc2_bd = b2Mc2;
+  const SE3 oMj2 = oMsecond * secondMj2;
+  const SE3 oMc2_ac = oMj2 * j2Mc2_ac;
+  const SE3 oMc2_bd = j2Mc2_bd;
+
+  // e: body2 is a named body fixed to the world, so joint2 = 0.
+  // Its placement must still be applied to the anchor.
+  const SE3 oMfixed(Rx, Vector3(0, 0, 1));
+  const SE3 j2Mc2_e = oMfixed * b2Mc2;
+  const SE3 oMc2_e = j2Mc2_e;
+
+  // relposes of c and d are computed at qpos0: c1=c2 in the body1 (offset) frame
+  const SE3 oMoffset = oMfirst * firstMoffset;
+  BOOST_CHECK(relpose_c.isApprox(oMoffset.inverse() * oMc2_ac));
+  BOOST_CHECK(relpose_d.isApprox(oMoffset.inverse() * oMc2_bd));
+
+  // joint1_placement: pose of c1 in the joint1 frame.
+  const SE3 oMj1 = oMfirst * firstMj1;
+  const SE3 j1Moffset = firstMj1.inverse() * firstMoffset;
+
+  const SE3 expected_first[] = {
+    oMj1.inverse() * oMc2_ac, // a: built from c2 at qpos0
+    oMj1.inverse() * oMc2_bd, // b: built from c2 at qpos0
+    j1Moffset * relpose_c,    // c: read from relpose
+    j1Moffset * relpose_d,    // d: read from relpose
+    oMj1.inverse() * oMc2_e}; // e: built from c2 at qpos0
+
+  // joint2_placement: pose of c2 in the joint2 frame
+  const SE3 expected_second[] = {j2Mc2_ac, j2Mc2_bd, j2Mc2_ac, j2Mc2_bd, j2Mc2_e};
+  const pinocchio::JointIndex expected_joint2[] = {second_joint, 0, second_joint, 0, 0};
+
+  pinocchio::Data data(model);
+  pinocchio::forwardKinematics(model, data, model.referenceConfigurations.at("qpos0"));
+  for (std::size_t i = 0; i < frame_constraints.size(); ++i)
+  {
+    const auto & constraint = frame_constraints[i];
+    BOOST_CHECK_EQUAL(constraint.joint1_id, first_joint);
+    BOOST_CHECK_EQUAL(constraint.joint2_id, expected_joint2[i]);
+
+    BOOST_CHECK(constraint.joint1_placement.isApprox(expected_first[i]));
+    BOOST_CHECK(constraint.joint2_placement.isApprox(expected_second[i]));
+
+    // The weld is satisfied at qpos0: c1 and c2 coincide in the world.
+    const SE3 oMc1 = data.oMi[constraint.joint1_id] * constraint.joint1_placement;
+    const SE3 oMc2 = data.oMi[constraint.joint2_id] * constraint.joint2_placement;
+    BOOST_CHECK(oMc1.isApprox(oMc2));
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_default_eulerseq)
 {
   std::istringstream xmlData(R"(<mujoco model="arm">
