@@ -683,6 +683,7 @@ namespace pinocchio
       configVectorAffineTransform(
         m_jmodel_mimicking, jdata.joint_q, m_scaling, m_offset, jdata.joint_q_transformed);
       m_jmodel_mimicking.calc(jdata.m_jdata_mimicking, jdata.joint_q_transformed);
+      updateMotionSubspace(jdata);
     }
 
     template<typename ConfigVector, typename TangentVector>
@@ -699,6 +700,14 @@ namespace pinocchio
 
       m_jmodel_mimicking.calc(
         jdata.m_jdata_mimicking, jdata.joint_q_transformed, jdata.joint_v_transformed);
+      updateMotionSubspace(jdata);
+    }
+
+    /// The scaled subspace holds a copy of the motion subspace of the mimicking joint, which
+    /// may depend on its configuration: refresh it after each calc.
+    static void updateMotionSubspace(JointDataDerived & jdata)
+    {
+      jdata.S.constraint().matrix() = jdata.m_jdata_mimicking.S().matrix();
     }
 
     template<typename VectorLike, typename Matrix6Like>

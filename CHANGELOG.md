@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add capsule geometry support to `ViserVisualizer` ([#2982](https://github.com/stack-of-tasks/pinocchio/pull/2982))
 
 ### Fixed
+- Fix `JointModelMimicTpl::calc`, which left the motion subspace of the mimic joint at its `createData()` value: it is now refreshed from the mimicking joint at every call (wrong accelerations, torques and mass matrix for a mimicked spline joint)
 - Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM ([#2929](https://github.com/stack-of-tasks/pinocchio/pull/2929))
 - Fix scalar-generic Python bindings ([#2939](https://github.com/stack-of-tasks/pinocchio/pull/2939))
 - Fix `ellipsoid-joint-kinematics.py` example ([#2935](https://github.com/stack-of-tasks/pinocchio/pull/2935))
