@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Make the spline joint (`JointModelSplineTpl`) mimicable: its configuration is mapped linearly by `JointModelMimicTpl`
 - Add allocation argument to DataTpl to handle heavy memory allocation due to tensors ([#2953] (https://github.com/stack-of-tasks/pinocchio/pull/2953))
 - Add functions to load MJCF from XML content ([#2952](https://github.com/stack-of-tasks/pinocchio/pull/2952))
 - Add core single-precision Python bindings through the `pinocchio.float32` module ([#2942](https://github.com/stack-of-tasks/pinocchio/pull/2942))
