@@ -9,7 +9,7 @@ source: Lee, S. H., & Terzopoulos, D. (2008).
 Spline joints for multibody dynamics. In ACM SIGGRAPH 2008 papers (pp. 1-8).
 
 The patella is a second spline joint, child of the tibia, that mimics the knee:
-it has no degree of freedom of its own, its spline parameter is the knee angle
+it has no degree of freedom of its own, its spline parameter is the knee angle.
 Its motion subspace depends on the knee angle.
 
 All the control frames were fit offline (least squares on SE(3), degree=3,
@@ -173,6 +173,7 @@ def main():
     tibia_frame.set_object(mg.triad(0.08))
 
     # Sweep the physical knee angle (+10 deg hyperextension to -120 deg flexion),
+    angles = np.linspace(10.0, -120.0, 120)
     angles = np.concatenate([angles, angles[::-1]])
     for _ in range(5):
         for theta_deg in angles:
