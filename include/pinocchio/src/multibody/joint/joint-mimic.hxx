@@ -727,8 +727,8 @@ namespace pinocchio
     /// may depend on its configuration: refresh it after each calc.
     static void updateMotionSubspace(JointDataDerived & jdata)
     {
-      typedef typename std::remove_reference<decltype(jdata.S.constraint().matrix())>::type
-        MatrixType;
+      typedef
+        typename std::remove_reference<decltype(jdata.S.constraint().matrix())>::type MatrixType;
       CopyMotionSubspaceVisitor<MatrixType> visitor(jdata.S.constraint().matrix());
       boost::apply_visitor(visitor, jdata.m_jdata_mimicking);
     }
