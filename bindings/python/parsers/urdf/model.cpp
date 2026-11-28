@@ -176,8 +176,9 @@ namespace pinocchio
 
       bp::def(
         "buildModelFromUrdf",
-        static_cast<Model & (*)(const bp::object &, const JointModel &, const std::string &,
-                                Model &, const bool)>(pinocchio::python::buildModelFromUrdf),
+        static_cast<Model & (*)(
+          const bp::object &, const JointModel &, const std::string &, Model &, const bool)>(
+          pinocchio::python::buildModelFromUrdf),
         (bp::arg("urdf_filename"), bp::arg("root_joint"), bp::arg("root_joint_name"),
          bp::arg("model"), bp::arg("mimic") = false),
         "Append to a given model a URDF structure given by its filename and the root joint with "
@@ -216,8 +217,9 @@ namespace pinocchio
 
       bp::def(
         "buildModelFromXML",
-        static_cast<Model & (*)(const std::string &, const JointModel &, const std::string &,
-                                Model &, const bool)>(pinocchio::python::buildModelFromXML),
+        static_cast<Model & (*)(
+          const std::string &, const JointModel &, const std::string &, Model &, const bool)>(
+          pinocchio::python::buildModelFromXML),
         (bp::arg("urdf_xml_stream"), bp::arg("root_joint"), bp::arg("root_joint_name"),
          bp::arg("model"), bp::arg("mimic") = false),
         "Parse the URDF XML stream given in input and append it to the input model with the "

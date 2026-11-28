@@ -142,6 +142,21 @@ struct initConstraint<pinocchio::PointContactConstraintModel, void>
 };
 
 template<>
+struct initConstraint<pinocchio::ConstantLengthConstraintModel, void>
+{
+  typedef pinocchio::Model Model;
+  typedef pinocchio::ConstantLengthConstraintModel ConstraintModel;
+
+  static ConstraintModel run(const Model & model)
+  {
+    // Note: For ConstantLength constraints, the length to enforce needs to be set.
+    ConstraintModel cmodel = PointAndFrameConstraintModelInitializer<ConstraintModel>::run(model);
+    cmodel.setLength(0.4321);
+    return cmodel;
+  }
+};
+
+template<>
 struct initConstraint<pinocchio::FrameAnchorConstraintModel, void>
 {
   typedef pinocchio::Model Model;

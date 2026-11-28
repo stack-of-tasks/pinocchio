@@ -2,6 +2,8 @@
 # Copyright (c) 2015-2020 CNRS INRIA
 #
 
+import functools
+
 from . import pinocchio_pywrap_default as pin
 from . import utils
 from .shortcuts import (
@@ -307,15 +309,40 @@ class RobotWrapper:
         if reference_configuration is None:
             reference_configuration = pin.neutral(self.model)
 
+        list_of_geom_models = []
+
+        # list_of_geom_models getter to retrive
+        # visual and geometry model when building a new
+        # RobotWrapper
+        def model_getter_none(x):
+            return None
+
+        def model_getter_index(index, x):
+            return x[index]
+
+        visual_model_getter = model_getter_none
+        if self.visual_model is not None:
+            list_of_geom_models.append(self.visual_model)
+            visual_model_getter = functools.partial(model_getter_index, 0)
+
+        collision_model_getter = model_getter_none
+        if self.collision_model is not None:
+            list_of_geom_models.append(self.collision_model)
+            collision_model_getter = functools.partial(
+                model_getter_index, len(list_of_geom_models) - 1
+            )
+
         model, geom_models = pin.buildReducedModel(
             model=self.model,
-            list_of_geom_models=[self.visual_model, self.collision_model],
+            list_of_geom_models=list_of_geom_models,
             list_of_joints_to_lock=lockjoints_idx,
             reference_configuration=reference_configuration,
         )
 
         return RobotWrapper(
-            model=model, visual_model=geom_models[0], collision_model=geom_models[1]
+            model=model,
+            visual_model=visual_model_getter(geom_models),
+            collision_model=collision_model_getter(geom_models),
         )
 
     def getFrameJacobian(self, frame_id, rf_frame=pin.ReferenceFrame.LOCAL):

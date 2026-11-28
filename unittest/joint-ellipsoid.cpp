@@ -525,7 +525,7 @@ BOOST_AUTO_TEST_CASE(testSdotFiniteDifferences)
   BOOST_CHECK(Sdot_ref.isApprox(Sdot_fd, sqrt(eps)));
 }
 
-/// @brief Test that biais term equals Sdot * v
+/// @brief Test that bias term equals Sdot * v
 BOOST_AUTO_TEST_CASE(testBiaisVsSdotTimesVelocity)
 {
   using namespace pinocchio;

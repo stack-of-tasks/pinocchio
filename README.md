@@ -49,23 +49,26 @@ or via pip (currently only available on Linux):
 
 ## Table of contents
 
-  - [Table of contents](#table-of-contents)
-  - [Pinocchio main features](#pinocchio-main-features)
-  - [Documentation](#documentation)
-  - [Examples](#examples)
-  - [Tutorials](#tutorials)
-  - [Pinocchio continuous integrations](#pinocchio-continuous-integrations)
-  - [Performances](#performances)
-  - [Ongoing developments](#ongoing-developments)
-  - [Installation](#installation)
-    - [ROS](#ros)
-  - [Visualization](#visualization)
-  - [Citing Pinocchio](#citing-pinocchio)
-  - [Questions and Issues](#questions-and-issues)
-  - [Core-dev team](#core-dev-team)
-  - [Credits](#credits)
-  - [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
-  - [Acknowledgments](#acknowledgments)
+- [Table of contents](#table-of-contents)
+- [Pinocchio main features](#pinocchio-main-features)
+- [Documentation](#documentation)
+- [Examples](#examples)
+- [Tutorials](#tutorials)
+- [Pinocchio continuous integrations](#pinocchio-continuous-integrations)
+- [Performances](#performances)
+- [Ongoing developments](#ongoing-developments)
+- [Installation](#installation)
+   * [Conda](#conda)
+   * [Docker](#docker)
+   * [ROS](#ros)
+- [Visualization](#visualization)
+- [Citing Pinocchio](#citing-pinocchio)
+- [Citing specific algorithmic contributions](#citing-specific-algorithmic-contributions)
+- [Contribution](#contribution)
+- [Core-dev team](#core-dev-team)
+- [Credits](#credits)
+- [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
+- [Acknowledgments](#acknowledgments)
 
 ## Pinocchio main features
 
@@ -258,9 +261,9 @@ If you use these algorithms, please consider citing them in your research articl
 - Carpentier, J., Budhiraja, R., & Mansard, N. (2021, July). [Proximal and sparse resolution of constrained dynamic equations](https://hal.science/hal-03271811/). In Robotics: Science and Systems (RSS 2021).
 - Carpentier, J., & Mansard, N. (2018, June). [Analytical derivatives of rigid body dynamics algorithms](https://hal.science/hal-01790971/). In Robotics: Science and Systems (RSS 2018).
 
-## Questions and Issues
+## Contribution
 
-Do you have a question or an issue? You may either directly open a [new question](https://github.com/stack-of-tasks/pinocchio/discussions/new?category=q-a) or a [new issue](https://github.com/stack-of-tasks/pinocchio/issues) or, directly contact us via the mailing list <pinocchio@inria.fr>.
+If you want to ask a question, report a bug, request a new feature or contributing with a pull requests please, follow the [contribution guideline](./CONTRIBUTING.md).
 
 ## Core-dev team
 
@@ -305,6 +308,13 @@ In addition to the core dev team, the following people have also been involved i
 -   [Lucas Joseph](https://github.com/LucasJoseph): Ellipsoid Joint
 -   [Megane Millan](https://github.com/MegMll): core developer (MJCF, joint mimic, etc.)
 -   [Tingfan Wu](https://github.com/tingfan): Viser visualizer mesh-scale bug fix
+-   [Kazuki Sugihara](https://github.com/sugikazu75): addFrame bug fix
+-   [Sergi Martinez](https://github.com/Sergim96): scalar-generic Python bindings
+-   [tandede](https://github.com/tandede): GCC 10 compatibility for aligned matrix map comparisons
+-   [Amane Inoue](https://github.com/isaka1022): MJCF parser bug fixes
+-   [Benjamin Delpech](https://github.com/benjiiDELPECH): collisionPairMapping bug fix
+-   [Beichen Zhuo](https://github.com/BeichenZhuo): quaternion Log map sign flip bug fix
+-   [Marvel Harisson](https://github.com/INo-xious): bug fixes
 
 If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 

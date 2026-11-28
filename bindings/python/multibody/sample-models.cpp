@@ -3,6 +3,7 @@
 //
 
 #include "pinocchio/multibody/sample-models.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
 
 #include <boost/python.hpp>
 
@@ -12,80 +13,85 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    Model buildSampleModelHumanoidRandom(bool usingFF, bool mimic)
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
+    context::Model buildSampleModelHumanoidRandom(bool usingFF, bool mimic)
     {
-      Model model;
+      context::Model model;
       buildModels::humanoidRandom(model, usingFF, mimic);
       return model;
     }
 
-    Model buildSampleModelManipulator(bool mimic)
+    context::Model buildSampleModelManipulator(bool mimic)
     {
-      Model model;
+      context::Model model;
       buildModels::manipulator(model, mimic);
       return model;
     }
 
-#ifdef PINOCCHIO_WITH_COLLISION
-    GeometryModel buildSampleGeometryModelManipulator(const Model & model)
+  #ifdef PINOCCHIO_WITH_COLLISION
+    GeometryModel buildSampleGeometryModelManipulator(const context::Model & model)
     {
       GeometryModel geom;
       buildModels::manipulatorGeometries(model, geom);
       return geom;
     }
-#endif
+  #endif
 
-    Model buildSampleModelHumanoid(bool usingFF)
+    context::Model buildSampleModelHumanoid(bool usingFF)
     {
-      Model model;
+      context::Model model;
       buildModels::humanoid(model, usingFF);
       return model;
     }
 
-#ifdef PINOCCHIO_WITH_COLLISION
-    GeometryModel buildSampleGeometryModelHumanoid(const Model & model)
+  #ifdef PINOCCHIO_WITH_COLLISION
+    GeometryModel buildSampleGeometryModelHumanoid(const context::Model & model)
     {
       GeometryModel geom;
       buildModels::humanoidGeometries(model, geom);
       return geom;
     }
-#endif
+  #endif
+#endif // ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
 
     void exposeSampleModels()
     {
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
       bp::def(
         "buildSampleModelHumanoidRandom",
-        static_cast<Model (*)(bool, bool)>(pinocchio::python::buildSampleModelHumanoidRandom),
+        static_cast<context::Model (*)(bool, bool)>(
+          pinocchio::python::buildSampleModelHumanoidRandom),
         (bp::arg("using_free_flyer") = true, bp::arg("mimic") = false),
         "Generate a (hard-coded) model of a humanoid robot with 6-DOF limbs and random joint "
         "placements.\nOnly meant for unit tests.");
 
       bp::def(
         "buildSampleModelManipulator",
-        static_cast<Model (*)(bool)>(pinocchio::python::buildSampleModelManipulator),
+        static_cast<context::Model (*)(bool)>(pinocchio::python::buildSampleModelManipulator),
         (bp::arg("mimic") = false), "Generate a (hard-coded) model of a simple manipulator.");
 
-#ifdef PINOCCHIO_WITH_COLLISION
+  #ifdef PINOCCHIO_WITH_COLLISION
       bp::def(
         "buildSampleGeometryModelManipulator",
-        static_cast<GeometryModel (*)(const Model &)>(
+        static_cast<GeometryModel (*)(const context::Model &)>(
           pinocchio::python::buildSampleGeometryModelManipulator),
         bp::args("model"), "Generate a (hard-coded) geometry model of a simple manipulator.");
-#endif
+  #endif
 
       bp::def(
         "buildSampleModelHumanoid",
-        static_cast<Model (*)(bool)>(pinocchio::python::buildSampleModelHumanoid),
+        static_cast<context::Model (*)(bool)>(pinocchio::python::buildSampleModelHumanoid),
         (bp::arg("using_free_flyer") = true),
         "Generate a (hard-coded) model of a simple humanoid.");
 
-#ifdef PINOCCHIO_WITH_COLLISION
+  #ifdef PINOCCHIO_WITH_COLLISION
       bp::def(
         "buildSampleGeometryModelHumanoid",
-        static_cast<GeometryModel (*)(const Model &)>(
+        static_cast<GeometryModel (*)(const context::Model &)>(
           pinocchio::python::buildSampleGeometryModelHumanoid),
         bp::args("model"), "Generate a (hard-coded) geometry model of a simple humanoid.");
-#endif
+  #endif
+#endif // ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
     }
   } // namespace python
 

@@ -48,7 +48,8 @@ namespace pinocchio
         const bool has_joint_limits = false,
         const bool has_joint_friction = false,
         const bool has_point_anchor = false,
-        const bool has_frame_anchor = false)
+        const bool has_frame_anchor = false,
+        const bool has_constant_length = false)
       : model()
       , data()
       {
@@ -130,6 +131,40 @@ namespace pinocchio
             cm_LF.setCompliance(VectorXs::Random(cm_LF.residualSize()).cwiseAbs());
             constraint_models.push_back(cm_LF);
             constraint_datas.push_back(cm_LF.createData());
+          }
+          else
+          {
+            PINOCCHIO_THROW(std::runtime_error, "Joint does not exist");
+          }
+        }
+
+        if (has_constant_length)
+        {
+          if (model.existJointName(RF) && model.existJointName(LF))
+          {
+            typedef ConstantLengthConstraintModelTpl<Scalar, Options> ConstantLengthConstraintModel;
+
+            const typename Model::JointIndex RF_id = model.getJointId(RF);
+            const typename Model::JointIndex LF_id = model.getJointId(LF);
+            const Scalar length = Scalar(0.5);
+
+            // A cable between the right foot and a point of the universe.
+            ConstantLengthConstraintModel cm_RF(
+              model, RF_id, SE3Tpl<Scalar, Options>::Random(), 0, SE3Tpl<Scalar, Options>::Random(),
+              length);
+            cm_RF.setCompliance(VectorXs::Random(cm_RF.residualSize()).cwiseAbs());
+            constraint_models.push_back(cm_RF);
+            constraint_datas.push_back(cm_RF.createData());
+
+            // A rod between the two feet, closing a kinematic loop between two moving bodies:
+            // this is what exercises the joint cross coupling terms of
+            // appendCouplingConstraintInertias.
+            ConstantLengthConstraintModel cm_RF_LF(
+              model, RF_id, SE3Tpl<Scalar, Options>::Random(), LF_id,
+              SE3Tpl<Scalar, Options>::Random(), length);
+            cm_RF_LF.setCompliance(VectorXs::Random(cm_RF_LF.residualSize()).cwiseAbs());
+            constraint_models.push_back(cm_RF_LF);
+            constraint_datas.push_back(cm_RF_LF.createData());
           }
           else
           {

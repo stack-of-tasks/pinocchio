@@ -39,6 +39,7 @@ HPP-FCL has been replaced by coal:
 Constraints API changes:
   - Add `std::vector<ConstraintData, ConstraintDataAllocator> contact_datas` in `initConstraintDynamics` method
   - Change `BaumgarteCorrectorParametersTpl` constructor: scalars are used for the gains instead of vectors
+  - `constraint_data` should be computed by `constaint_model.calc` call before calling `getConstraintJacobian`
 
 `RigidConstraintModel` internal API has changed:
   - Remove `colwise_joint1_sparsity`
@@ -53,15 +54,23 @@ ConstraintCholeskyDecompositionTpl changes :
 - Deprecate `ConstraintCholeskyDecompositionTpl::allocate` replaced by `ConstraintCholeskyDecompositionTpl::rebuild`
   - Add `std::vector<ConstraintModel, ConstraintModelAllocator>`
   - Add `std::vector<ConstraintData, ConstraintDataAllocator>`
+  - `constraint_datas` should be computed by the associated model
 - ConstraintCholeskyDecompositionTpl constructor :
   - Add `DataTpl<S1, O1, JointCollectionTpl>`
   - Add `std::vector<ConstraintData, ConstraintDataAllocator>`
+- `ConstraintCholeskyDecompositionTpl::compute`:
+  - `constraint_datas` should be computed by the associated model
 
 Utility API changes:
 - Remove `gettimeofday` definition on Windows
 - Remove `operator-(timeval, timeval)` definition
 - Remove `deprecated-macros.hpp` and `deprecated-namespaces.hpp`
 - Remove `pinocchio/deprecation.hpp` replaced by `pinocchio/deprecated.hpp`
+
+DataTpl API changes:
+- Deprecate `DataTpl::lastChild` replaced by `ModelTpl::children`:
+  - If joint `index` doesn't have any child it can be checked with `model.children[index].empty()`
+  - In other case `data.lastChild[index]` can be replaced by `model.children[index].back()`
 
 Python bindings API changes:
 - Deprecate `pinocchio/bindings/python/multibody/joint/joint.hpp` replaced by `pinocchio/bindings/python/multibody/joint/joint-model.hpp`

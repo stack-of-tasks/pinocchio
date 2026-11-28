@@ -575,7 +575,7 @@ namespace pinocchio
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(MatRet);
 
-        typedef MotionRef<Mat> MotionRefOnMat;
+        typedef MotionRef<const Mat> MotionRefOnMat;
         typedef MotionRef<MatRet> MotionRefOnMatRet;
 
         MotionRefOnMat min(iV.derived());

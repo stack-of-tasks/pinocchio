@@ -103,6 +103,9 @@ namespace pinocchio
           ModelTpl<Scalar, Options, JointCollectionTpl>::SE3::Random(),
         bool setRandomLimits = true)
       {
+        typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+        typedef typename Model::Inertia Inertia;
+        typedef typename Model::SE3 SE3;
         typedef typename JointModel::ConfigVector_t CV;
         typedef typename JointModel::TangentVector_t TV;
 
@@ -220,7 +223,7 @@ namespace pinocchio
         model.addBodyFrame(pre + "effector_body", joint_id);
         const int nq = mimic ? 5 : 6;
 
-        const JointModel & base_joint = model.joints[root_joint_id];
+        const typename Model::JointModel & base_joint = model.joints[root_joint_id];
         const int idx_q = base_joint.idx_q();
         const int idx_v = base_joint.idx_v();
 
@@ -255,7 +258,7 @@ namespace pinocchio
       {
         typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
         typedef typename Model::FrameIndex FrameIndex;
-        typedef typename Model::SE3 SE3;
+        typedef typename GeometryObject::SE3 SE3;
 
         const Eigen::Vector4d meshColor(1., 1., 0.78, 1.0);
 
@@ -512,7 +515,7 @@ namespace pinocchio
     {
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       typedef typename Model::FrameIndex FrameIndex;
-      typedef typename Model::SE3 SE3;
+      typedef typename GeometryObject::SE3 SE3;
 
       details::addManipulatorGeometries(model, geom, "rleg_");
       details::addManipulatorGeometries(model, geom, "lleg_");

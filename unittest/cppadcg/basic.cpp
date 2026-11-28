@@ -101,15 +101,17 @@ BOOST_AUTO_TEST_CASE(test_eigen_support)
 
 BOOST_AUTO_TEST_CASE(test_cast)
 {
-  typedef CppAD::cg::CG<double> CGScalar;
-  typedef CppAD::AD<double> ADScalar;
-  typedef CppAD::AD<float> ADFloat;
-  typedef pinocchio::ModelTpl<CGScalar> CGModel;
+  using namespace CppAD;
+  using namespace CppAD::cg;
+
+  typedef CG<double> CGD;
+  typedef AD<CGD> ADCG;
+  typedef pinocchio::ModelTpl<ADCG> ADCGModel;
 
   pinocchio::SE3 M(pinocchio::SE3::Random());
-  typedef pinocchio::SE3Tpl<CGScalar> CGSE3;
+  typedef pinocchio::SE3Tpl<ADCG> CGSE3;
 
-  CGSE3 cg_M = M.cast<CGScalar>();
+  CGSE3 cg_M = M.cast<ADCG>();
   BOOST_CHECK(cg_M.cast<double>().isApprox(M));
 
   pinocchio::SE3::Vector3 axis(1., 1., 1.);
@@ -117,34 +119,15 @@ BOOST_AUTO_TEST_CASE(test_cast)
   BOOST_CHECK(axis.isUnitary());
 
   pinocchio::JointModelPrismaticUnaligned jmodel_prismatic(axis);
-  typedef pinocchio::JointModelPrismaticUnalignedTpl<CGScalar> CGJointModelPrismaticUnaligned;
+  typedef pinocchio::JointModelPrismaticUnalignedTpl<ADCG> ADCGJointModelPrismaticUnaligned;
 
-  CGScalar cg_value;
-  cg_value = -1.;
-  ADScalar ad_value;
-  ad_value = -1.;
-  ADFloat ad_float;
-  ad_float = -1.;
-  abs(ad_value);
-  abs(ad_float);
-  abs(cg_value);
-
-  CPPAD_TESTVECTOR(ADScalar) ad_x(3);
-  CGJointModelPrismaticUnaligned cg_jmodel_prismatic(axis.cast<CGScalar>());
+  CPPAD_TESTVECTOR(ADCG) ad_x(3);
+  ADCGJointModelPrismaticUnaligned cg_jmodel_prismatic(axis.cast<ADCG>());
 
   pinocchio::Model model;
   pinocchio::buildModels::humanoidRandom(model);
 
-  CGModel cg_model = model.cast<CGScalar>();
-
-  {
-    CppAD::AD<double> ad_value(-1.);
-    abs(ad_value); // works perfectly
-
-    CppAD::cg::CG<double> cg_value(-1.);
-    abs(cg_value); // does not compile because abs<double>(const CppAD::cg::CG<double>&) is defined
-                   // in namespace CppAD and not CppAD::cg
-  }
+  ADCGModel cg_model = model.cast<ADCG>();
 }
 
 BOOST_AUTO_TEST_CASE(test_dynamic_link)

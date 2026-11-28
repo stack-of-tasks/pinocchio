@@ -72,9 +72,25 @@ namespace pinocchio
     CHECK_DATA(data.dq_after.size() == model.nv);
     // CHECK_DATA( data.impulse_c.size()== model.nv );
 
-    CHECK_DATA(data.kinematic_hessians.dimension(0) == 6);
-    CHECK_DATA(data.kinematic_hessians.dimension(1) == model.nv);
-    CHECK_DATA(data.kinematic_hessians.dimension(2) == model.nv);
+    if (data.allocation == DataAllocationOption::ALL)
+    {
+      CHECK_DATA(data.kinematic_hessians.dimension(0) == 6);
+      CHECK_DATA(data.kinematic_hessians.dimension(1) == model.nv);
+      CHECK_DATA(data.kinematic_hessians.dimension(2) == model.nv);
+
+      CHECK_DATA(data.d2tau_dqdq.dimension(0) == model.nv);
+      CHECK_DATA(data.d2tau_dqdq.dimension(1) == model.nv);
+      CHECK_DATA(data.d2tau_dqdq.dimension(2) == model.nv);
+      CHECK_DATA(data.d2tau_dvdv.dimension(0) == model.nv);
+      CHECK_DATA(data.d2tau_dvdv.dimension(1) == model.nv);
+      CHECK_DATA(data.d2tau_dvdv.dimension(2) == model.nv);
+      CHECK_DATA(data.d2tau_dqdv.dimension(0) == model.nv);
+      CHECK_DATA(data.d2tau_dqdv.dimension(1) == model.nv);
+      CHECK_DATA(data.d2tau_dqdv.dimension(2) == model.nv);
+      CHECK_DATA(data.d2tau_dadq.dimension(0) == model.nv);
+      CHECK_DATA(data.d2tau_dadq.dimension(1) == model.nv);
+      CHECK_DATA(data.d2tau_dadq.dimension(2) == model.nv);
+    }
 
     CHECK_DATA((int)data.oMf.size() == model.nframes);
 

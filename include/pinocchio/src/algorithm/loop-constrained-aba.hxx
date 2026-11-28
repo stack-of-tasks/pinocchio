@@ -282,6 +282,7 @@ namespace pinocchio
 
     typedef std::pair<JointIndex, JointIndex> JointPair;
     typedef typename Data::Matrix6 Matrix6;
+    typedef typename Data::Force Force;
 
     typedef boost::fusion::vector<const Model &, Data &> ArgsType;
 
@@ -293,6 +294,7 @@ namespace pinocchio
       Data & data)
     {
       typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Force Force;
       typedef typename Data::Matrix6x Matrix6x;
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
@@ -337,6 +339,7 @@ namespace pinocchio
 
     typedef std::pair<JointIndex, JointIndex> JointPair;
     typedef typename Data::Matrix6 Matrix6;
+    typedef typename Data::Force Force;
 
     typedef boost::fusion::vector<const Model &, Data &> ArgsType;
 
@@ -411,6 +414,7 @@ namespace pinocchio
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Matrix6 Matrix6;
         typedef typename ConstraintModel::Matrix36 Matrix36;
+        typedef typename ConstraintData::Motion Motion;
 
         cdata.contact_force.setZero();
 
@@ -600,6 +604,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     typedef typename ConstraintModel::Matrix36 Matrix36;
+    typedef typename ConstraintData::Force Force;
 
     data.u = tau;
     data.oa_gf[0] = -model.gravity;
@@ -680,7 +685,7 @@ namespace pinocchio
             contact_acc_err =
               cdata.oMc1.actInv((data.oa[joint1_id])) - cdata.contact_acceleration_desired;
 
-          const auto mu_lambda = Force(mu * contact_acc_err.toVector());
+          const Force mu_lambda = Force(mu * contact_acc_err.toVector());
           cdata.contact_force += mu_lambda;
 
           if (joint1_id > 0)
@@ -698,7 +703,7 @@ namespace pinocchio
             contact_acc_err.linear() -=
               cdata.c1Mc2.rotation() * cdata.oMc2.actInv(data.oa[joint2_id]).linear();
 
-          const auto mu_lambda = Force(mu * contact_acc_err.toVector());
+          const Force mu_lambda = Force(mu * contact_acc_err.toVector());
           cdata.contact_force.linear() += mu_lambda.linear();
 
           if (joint1_id > 0)

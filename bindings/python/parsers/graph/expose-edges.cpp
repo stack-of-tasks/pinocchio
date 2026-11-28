@@ -53,6 +53,9 @@ namespace pinocchio
 
     const int JointMimic::nq;
     const int JointMimic::nv;
+
+    const int JointSpline::nq;
+    const int JointSpline::nv;
   } // namespace graph
 
   namespace python
@@ -159,6 +162,49 @@ namespace pinocchio
         .def_readwrite("axis2", &JointUniversal::axis2, "Second axis of the universal joint.")
         .def_readonly("nq", &JointUniversal::nq, "Number of configuration variables.")
         .def_readonly("nv", &JointUniversal::nv, "Number of tangent variables.");
+
+      bp::class_<JointSpline>(
+        "JointSpline", "Represents a spline-based joint.",
+        bp::init<>(bp::args("self"), "Default constructor."))
+        .def(
+          bp::init<const std::vector<SE3> &, const Eigen::VectorXd &, std::size_t>(
+            bp::args("self", "ctrlFrame", "knots", "degree"),
+            "Constructor with a single control frame and degree."))
+        .def_readwrite("ctrlFrames", &JointSpline::ctrlFrames, "Control frames of the spline.")
+        .def_readwrite("knots", &JointSpline::knots, "Control frames of the spline.")
+        .def_readwrite("degree", &JointSpline::degree, "Degree of the spline.")
+        .def_readonly("nq", &JointSpline::nq, "Number of configuration variables.")
+        .def_readonly("nv", &JointSpline::nv, "Number of tangent variables.");
+
+      bp::class_<JointSplineBuilder>(
+        "JointSplineBuilder", "JointSpline builder helper.",
+        bp::init<>(bp::args("self"), "Default constructor."))
+        .def(
+          "addControlFrame", &JointSplineBuilder::addControlFrame, bp::return_self<>(),
+          (bp::arg("self"), bp::arg("frame")), "Add a B-spline control frame")
+        .def(
+          "withControlFrameVector", &JointSplineBuilder::withControlFrameVector,
+          bp::return_self<>(), (bp::arg("self"), bp::arg("frames")),
+          "Set B-spline control frame vector")
+        .def(
+          "withDegree", &JointSplineBuilder::withDegree, bp::return_self<>(),
+          (bp::arg("self"), bp::arg("degree")), "Set B-spline degree")
+        .def(
+          "withKnotVector",
+          +[](JointSplineBuilder & builder, const std::vector<double> & k) -> auto {
+            return builder.withKnotVector(k);
+          },
+          bp::return_self<>(), (bp::arg("self"), bp::arg("knots")), "Set B-spline knot vector")
+        .def(
+          "withOpenUniformKnots", &JointSplineBuilder::withOpenUniformKnots, bp::return_self<>(),
+          (bp::arg("self"), bp::arg("min"), bp::arg("max")),
+          "Set B-spline knot vector as open uniform")
+        .def(
+          "withUniformKnots", &JointSplineBuilder::withUniformKnots, bp::return_self<>(),
+          (bp::arg("self"), bp::arg("min"), bp::arg("max")), "Set B-spline knot vector as uniform")
+        .def(
+          "build", &JointSplineBuilder::build, (bp::arg("self")),
+          "Build a JointSpline from provided parameters");
 
       bp::class_<JointComposite>(
         "JointComposite", "Represents a composite joint.",

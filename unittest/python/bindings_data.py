@@ -41,6 +41,28 @@ class TestData(TestCase):
 
         self.assertTrue("Invalid index type" in str(context.exception))
 
+    def test_allocation(self):
+        data = self.data
+        self.assertEqual(data.allocation, pin.DataAllocationOption.ALL)
+
+        self.model = pin.buildSampleModelHumanoidRandom(True, True)
+
+        data_all = self.model.createData()
+        self.assertEqual(data_all.allocation, pin.DataAllocationOption.ALL)
+
+        data_all_2 = pin.Data(self.model)
+        self.assertEqual(data_all_2.allocation, pin.DataAllocationOption.ALL)
+
+        data_no_tensors = self.model.createData(pin.DataAllocationOption.NO_TENSORS)
+        self.assertEqual(
+            data_no_tensors.allocation, pin.DataAllocationOption.NO_TENSORS
+        )
+
+        data_no_tensors_2 = pin.Data(self.model, pin.DataAllocationOption.NO_TENSORS)
+        self.assertEqual(
+            data_no_tensors_2.allocation, pin.DataAllocationOption.NO_TENSORS
+        )
+
     def test_pickle(self):
         import pickle
 

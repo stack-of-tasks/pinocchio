@@ -46,6 +46,8 @@ namespace pinocchio
    *    - joints of modelA up to the parent of FrameInModelA,
    *    - all the descendents of parent of FrameInModelA,
    *    - the remaining joints of modelA.
+   *
+   *  The name and the gravity of the resulting model are inherited from modelA.
    */
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   void appendModel(
@@ -69,6 +71,8 @@ namespace pinocchio
    *    - joints of modelA up to the parent of FrameInModelA,
    *    - all the descendents of parent of FrameInModelA,
    *    - the remaining joints of modelA.
+   *
+   *  The name and the gravity of the resulting model are inherited from modelA.
    */
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   ModelTpl<Scalar, Options, JointCollectionTpl> appendModel(
@@ -96,6 +100,8 @@ namespace pinocchio
    *  \param[in] aMb pose of modelB universe joint (index 0) in frameInModelA.
    *  \param[out] model the resulting model.
    *  \param[out] geomModel the resulting geometry model.
+   *
+   *  The name and the gravity of the resulting model are inherited from modelA.
    */
   template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
   void appendModel(
@@ -116,6 +122,9 @@ namespace pinocchio
    *  \param[in] list_of_joints_to_lock list of joints to lock in the input model.
    *  \param[in] reference_configuration reference configuration.
    *  \param[out] reduced_model the reduced model.
+   *
+   *  \throws std::invalid_argument if the frame search reaches the end of model.frames before
+   *  finding a frame named after a joint to lock.
    *
    *  \remarks All the joints that have been set to be fixed in the new reduced_model now appear in
    * the kinematic tree as a Frame as FIXED_JOINT.
@@ -144,6 +153,9 @@ namespace pinocchio
    *  \param[in] reference_configuration reference configuration.
    *
    *  \returns A reduce model of the input model.
+   *
+   *  \throws std::invalid_argument if the frame search reaches the end of model.frames before
+   *  finding a frame named after a joint to lock.
    *
    *  \remarks All the joints that have been set to be fixed in the new reduced_model now appear in
    * the kinematic tree as a Frame as FIXED_JOINT.
@@ -179,6 +191,9 @@ namespace pinocchio
    *  \param[out] reduced_model the reduced model.
    *  \param[out] reduced_geom_model the reduced geometry model.
    *
+   *  \throws std::invalid_argument if the frame search reaches the end of model.frames before
+   *  finding a frame named after a joint to lock.
+   *
    *  \remarks All the joints that have been set to be fixed in the new reduced_model now appear in
    * the kinematic tree as a Frame as FIXED_JOINT.
    *
@@ -207,6 +222,9 @@ namespace pinocchio
    *  \param[in] reference_configuration reference configuration.
    *  \param[out] reduced_model the reduced model.
    *  \param[out] list_of_reduced_geom_models the list of reduced geometry models.
+   *
+   *  \throws std::invalid_argument if the frame search reaches the end of model.frames before
+   *  finding a frame named after a joint to lock.
    *
    *  \remarks All the joints that have been set to be fixed in the new reduced_model now appear in
    * the kinematic tree as a Frame as FIXED_JOINT.

@@ -127,7 +127,9 @@ namespace pinocchio
           {
             go.parentFrame = parentFrame;
           }
-          go.placement = (pframe_placement * pfMAB) * go.placement;
+          typedef typename GeometryObject::SE3 GeometrySE3;
+          const GeometrySE3 geometry_placement(pframe_placement * pfMAB);
+          go.placement = geometry_placement * go.placement;
           geomModel.addGeometryObject(go);
         }
       }
@@ -232,6 +234,8 @@ namespace pinocchio
           jmodel_in.jointVelocitySelector(modelAB.rotorInertia);
         jmodel_out.jointVelocitySelector(model.rotorGearRatio) =
           jmodel_in.jointVelocitySelector(modelAB.rotorGearRatio);
+        jmodel_out.jointVelocitySelector(model.armature) =
+          jmodel_in.jointVelocitySelector(modelAB.armature);
         // Add all frames whose parent is this joint.
         for (FrameIndex fid = 1; fid < modelAB.frames.size(); ++fid)
         {
@@ -353,6 +357,10 @@ namespace pinocchio
     model.frames.reserve((size_t)nframes);
 
     geomModel.geometryObjects.reserve(geomModelA.ngeoms + geomModelB.ngeoms);
+
+    // The name and the gravity of the appended model are inherited from the parent model (modelA)
+    model.name = modelA.name;
+    model.gravity = modelA.gravity;
 
     details::appendUniverseToModel(modelA, geomModelA, 0, id, model, geomModel);
     // Compute joints of A that should be added before and after joints of B
@@ -586,6 +594,9 @@ namespace pinocchio
         while ((*frame_it).name != joint_name)
         {
           ++frame_it;
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(
+            frame_it != input_model.frames.end(),
+            "The frame for joint '" + joint_name + "' could not be found in the input model.");
           const Frame & input_frame = *frame_it;
           if (input_frame.name == joint_name)
             break;
@@ -843,7 +854,7 @@ namespace pinocchio
         {
           const FrameIndex reduced_frame_id = reduced_model.getFrameId(parent_joint_name);
           reduced_joint_id = reduced_model.frames[reduced_frame_id].parentJoint;
-          relative_placement = reduced_model.frames[reduced_frame_id].placement;
+          relative_placement = SE3(reduced_model.frames[reduced_frame_id].placement);
         }
 
         GeometryObject reduced_geom(geom);
@@ -890,6 +901,7 @@ namespace pinocchio
 
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef typename Model::JointModel JointModel;
+    typedef JointModelMimicTpl<Scalar, Options, JointCollectionTpl> JointModelMimic;
 
     output_model = input_model;
 

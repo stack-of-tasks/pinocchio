@@ -2,6 +2,8 @@
 // Copyright (c) 2015-2019 CNRS INRIA
 //
 
+#include "utils/joints-init.hpp"
+
 #include "pinocchio/multibody.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 
@@ -164,112 +166,6 @@ struct SimpleBinaryVisitor4 : public pinocchio::fusion::JointBinaryVisitorBase<S
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
-template<typename JointModel_>
-struct init;
-
-template<typename JointModel_>
-struct init
-{
-  static JointModel_ run(const pinocchio::Model & /* model*/)
-  {
-    JointModel_ jmodel;
-    return jmodel;
-  }
-};
-
-template<typename Scalar, int Options>
-struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options>>
-{
-  typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar, Options> JointModel;
-
-  static JointModel run(const pinocchio::Model & /* model*/)
-  {
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-
-    return jmodel;
-  }
-};
-
-template<typename Scalar, int Options>
-struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options>>
-{
-  typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar, Options> JointModel;
-
-  static JointModel run(const pinocchio::Model & /* model*/)
-  {
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-
-    return jmodel;
-  }
-};
-
-template<typename Scalar, int Options>
-struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options>>
-{
-  typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar, Options> JointModel;
-
-  static JointModel run(const pinocchio::Model & /* model*/)
-  {
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-
-    return jmodel;
-  }
-};
-
-template<typename Scalar, int Options, template<typename, int> class JointCollection>
-struct init<pinocchio::JointModelTpl<Scalar, Options, JointCollection>>
-{
-  typedef pinocchio::JointModelTpl<Scalar, Options, JointCollection> JointModel;
-
-  static JointModel run(const pinocchio::Model & /* model*/)
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-    JointModel jmodel((JointModelRX()));
-
-    return jmodel;
-  }
-};
-
-template<typename Scalar, int Options, template<typename, int> class JointCollection>
-struct init<pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection>>
-{
-  typedef pinocchio::JointModelCompositeTpl<Scalar, Options, JointCollection> JointModel;
-
-  static JointModel run(const pinocchio::Model & /* model*/)
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 1> JointModelRY;
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 2> JointModelRZ;
-
-    JointModel jmodel(JointModelRX(), pinocchio::SE3::Random());
-    jmodel.addJoint(JointModelRY(), pinocchio::SE3::Random());
-    jmodel.addJoint(JointModelRZ(), pinocchio::SE3::Random());
-
-    return jmodel;
-  }
-};
-
-template<typename Scalar, int Options, template<typename, int> class JointCollection>
-struct init<pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection>>
-{
-  typedef pinocchio::JointModelMimicTpl<Scalar, Options, JointCollection> JointModel;
-
-  static JointModel run(const pinocchio::Model & model)
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar, Options, 0> JointModelRX;
-    JointModelRX jmodel_ref = init<JointModelRX>::run(model);
-    jmodel_ref.setIndexes(0, 0, 0, 0);
-
-    JointModel jmodel(jmodel_ref, 1., 0.);
-    jmodel.setIndexes(1, 0, 0, 0);
-
-    return jmodel;
-  }
-};
-
 struct AppendJointToModel
 {
   AppendJointToModel(pinocchio::Model & model)
@@ -280,7 +176,7 @@ struct AppendJointToModel
   template<typename JointModel>
   void operator()(const pinocchio::JointModelBase<JointModel> &) const
   {
-    JointModel jmodel = init<JointModel>::run(model);
+    auto jmodel = pinocchio::init<JointModel>::run().jmodel;
     model.addJoint(model.joints.size() - 1, jmodel, pinocchio::SE3::Random(), jmodel.classname());
   }
 

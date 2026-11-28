@@ -11,8 +11,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
-
+- Add allocation argument to DataTpl to handle heavy memory allocation due to tensors ([#2953] (https://github.com/stack-of-tasks/pinocchio/pull/2953))
+- Add functions to load MJCF from XML content ([#2952](https://github.com/stack-of-tasks/pinocchio/pull/2952))
+- Add core single-precision Python bindings through the `pinocchio.float32` module ([#2942](https://github.com/stack-of-tasks/pinocchio/pull/2942))
+- Add `DataTpl::lastChild` deprecation notice in Python binding ([#2928](https://github.com/stack-of-tasks/pinocchio/pull/2927))
+- Add spline joint (JointModelSplineTpl) to default joint collection ([#2784](https://github.com/stack-of-tasks/pinocchio/pull/2784))
+  - Python example [here](./examples/spline-joint.py) and [here](./examples/spline-joint-knee.py)
+- Add `ConstantLengthConstraintModelTpl`/`ConstantLengthConstraintDataTpl`, a scalar constraint enforcing a
+  constant distance between two material points. It is part of the default constraint collection
+  (`ConstraintModelTpl`/`ConstraintDataTpl` variants) and is exposed to Python, along with two
+  examples visualized with Viser: `examples/constant-length-constraint-kinematics.py` (constrained
+  forward kinematics of a four-bar linkage) and `examples/constant-length-constraint-3d.py`
+  (constrained forward dynamics of a spherical pendulum)
+- Add capsule geometry support to `ViserVisualizer` ([#2982](https://github.com/stack-of-tasks/pinocchio/pull/2982))
 - Add second-order partial derivatives of the Articulated Body Algorithm (forward dynamics) with respect to joint configuration, velocity and torque ([#2891](https://github.com/stack-of-tasks/pinocchio/pull/2891))
+
+### Fixed
+- Fix `addFrame` to ignore frame without inertial to preserse parent body's CoM ([#2929](https://github.com/stack-of-tasks/pinocchio/pull/2929))
+- Fix scalar-generic Python bindings ([#2939](https://github.com/stack-of-tasks/pinocchio/pull/2939))
+- Fix `ellipsoid-joint-kinematics.py` example ([#2935](https://github.com/stack-of-tasks/pinocchio/pull/2935))
+- Fix `biais` typo in documentation and comments (English is `bias`) ([#2936](https://github.com/stack-of-tasks/pinocchio/pull/2936))
+- Fix GCC 10 compilation of aligned matrix map comparisons ([#2930](https://github.com/stack-of-tasks/pinocchio/issues/2930))
+- Fix MJCF parser dropping the `pos`/`quat` of a fixed base root body, which offset the whole kinematic tree and left its inertia at the origin ([#2934](https://github.com/stack-of-tasks/pinocchio/pull/2934))
+- Fix MJCF parser placing the sites of a jointless body relative to its parent body instead of its supporting joint ([#2934](https://github.com/stack-of-tasks/pinocchio/pull/2934))
+- Fix `GeometryModel::collisionPairMapping` not being updated in `removeGeometryObject` ([#2937](https://github.com/stack-of-tasks/pinocchio/pull/2937)
+- Fix `beta_alt` sign flip in small-angle Taylor expansion of quaternion Log map (log6) ([#2955](https://github.com/stack-of-tasks/pinocchio/pull/2955))
+- Fix doxygen documentation generation ([#2970](https://github.com/stack-of-tasks/pinocchio/pull/2970))
+- Fix the use of spline joint with more joints in the model ([#2975](https://github.com/stack-of-tasks/pinocchio/pull/2975))
+- Reject missing joint frames during model reduction instead of reading past the frame vector ([#2960](https://github.com/stack-of-tasks/pinocchio/pull/2960))
+- Forward the model name, the gravity (inherited from the parent model) and the joint armature in `appendModel` ([#2976](https://github.com/stack-of-tasks/pinocchio/pull/2976))
+- Fix MJCF body-based connect constraints to express body-local anchors in supporting-joint coordinates ([#2961](https://github.com/stack-of-tasks/pinocchio/pull/2961)).
+- Fix `RobotWrapper.buildReducedRobot` crash when called with a RobotWrapper without visual and geometry model ([#2981](https://github.com/stack-of-tasks/pinocchio/pull/2981))
+- Fix MJCF body-based weld constraints to express them in supporting-joint coordinates ([#2984](https://github.com/stack-of-tasks/pinocchio/pull/2984)).
 
 ## [4.1.0] - 2026-07-07
 

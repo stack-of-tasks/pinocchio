@@ -74,7 +74,11 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar, 3, 3, Options> Matrix3;
     typedef Eigen::Matrix<Scalar, 6, 6, Options> Matrix6;
     typedef Eigen::Matrix<Scalar, 3, 6, Options> Matrix36;
-    typedef Eigen::Matrix<Scalar, Size, 6, Options> MatrixSize6;
+    /// \remarks Eigen only accepts a row major storage order for 1 x N matrices with N != 1, hence
+    /// the storage order of MatrixSize6 depends on Size.
+    typedef Eigen::
+      Matrix<Scalar, Size, 6, (Size == 1) ? int(Options) | int(Eigen::RowMajor) : int(Options)>
+        MatrixSize6;
 
     // -------------------------------
     // METHODS SPECIFIC TO CLASS

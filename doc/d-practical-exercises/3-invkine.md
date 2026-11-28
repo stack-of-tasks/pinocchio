@@ -26,6 +26,7 @@ from pinocchio.utils import *
 from os.path import dirname, join, abspath
 from mobilerobot import MobileRobotWrapper
 import time
+
 # Starting gepetto server and give a time
 import gepetto.corbaserver
 
@@ -64,14 +65,16 @@ def place(name, M):
     robot.viewer.gui.applyConfiguration(name, pin.SE3ToXYZQUAT(M).tolist())
     robot.viewer.gui.refresh()
 
+
 def Rquat(x, y, z, w):
     q = pin.Quaternion(x, y, z, w)
     q.normalize()
     return q.matrix()
 
-Mgoal = pin.SE3(Rquat(.4, .02, -.5, .7), np.array([.2, -.4, .7]))
-robot.viewer.gui.addXYZaxis('world/framegoal', [1., 0., 0., 1.], .015, 4)
-place('world/framegoal', Mgoal)
+
+Mgoal = pin.SE3(Rquat(0.4, 0.02, -0.5, 0.7), np.array([0.2, -0.4, 0.7]))
+robot.viewer.gui.addXYZaxis("world/framegoal", [1.0, 0.0, 0.0, 1.0], 0.015, 4)
+place("world/framegoal", Mgoal)
 ```
 
 The current placement of the tool at configuration `q` is available as
@@ -79,7 +82,9 @@ follows:
 
 ```py
 pin.forwardKinematics(robot.model, robot.data, q)  # Compute joint placements
-pin.updateFramePlacements(robot.model, robot.data)      # Also compute operational frame placements
+pin.updateFramePlacements(
+    robot.model, robot.data
+)  # Also compute operational frame placements
 Mtool = robot.data.oMf[IDX_TOOL]  # Get placement from world frame o to frame f oMf
 ```
 

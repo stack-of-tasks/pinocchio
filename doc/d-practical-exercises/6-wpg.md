@@ -27,10 +27,12 @@ verbose output of BFGS. For example, the robot can track a target moving
 vertically using the following example:
 
 ```py
-cost.Mdes = se3.SE3(eye(3), np.array([0.2, 0, 0.1 + t / 100.]))  # Reference target at time 0.
+cost.Mdes = se3.SE3(
+    eye(3), np.array([0.2, 0, 0.1 + t / 100.0])
+)  # Reference target at time 0.
 q = np.copy(robot.q0)
 for t in range(100):
-    cost.Mdes.translation = np.array([0.2, 0, 0.1 + t / 100.])
+    cost.Mdes.translation = np.array([0.2, 0, 0.1 + t / 100.0])
     q = fmin_bfgs(cost, q, maxiter=10, disp=False)
     robot.display(q)
 ```
@@ -49,20 +51,20 @@ can be used to define, store and access to the footstep plan.
 ```py
 # Define 6 steps forward, starting with the left foot and stoping at the same forward position.
 
-footsteps = FootSteps([.0, -.1] ,[.0, .1])
-footsteps.add_phase(.3, 'none')
-footsteps.add_phase(.7, 'left', [.1, .1])
-footsteps.add_phase(.1, 'none')
-footsteps.add_phase(.7, 'right', [.2, -.1])
-footsteps.add_phase(.1, 'none')
-footsteps.add_phase(.7, 'left', [.3, .1])
-footsteps.add_phase(.1, 'none')
-footsteps.add_phase(.7, 'right', [.4, -.1])
-footsteps.add_phase(.1, 'none')
-footsteps.add_phase(.7, 'left', [.5, .1])
-footsteps.add_phase(.1, 'none')
-footsteps.add_phase(.7, 'right', [.5, -.1])
-footsteps.add_phase(.5, 'none')
+footsteps = FootSteps([0.0, -0.1], [0.0, 0.1])
+footsteps.add_phase(0.3, "none")
+footsteps.add_phase(0.7, "left", [0.1, 0.1])
+footsteps.add_phase(0.1, "none")
+footsteps.add_phase(0.7, "right", [0.2, -0.1])
+footsteps.add_phase(0.1, "none")
+footsteps.add_phase(0.7, "left", [0.3, 0.1])
+footsteps.add_phase(0.1, "none")
+footsteps.add_phase(0.7, "right", [0.4, -0.1])
+footsteps.add_phase(0.1, "none")
+footsteps.add_phase(0.7, "left", [0.5, 0.1])
+footsteps.add_phase(0.1, "none")
+footsteps.add_phase(0.7, "right", [0.5, -0.1])
+footsteps.add_phase(0.5, "none")
 ```
 
 A phase 'none' defines a double support phase (no foot moving). A phase
@@ -83,7 +85,7 @@ interval                            |                           |  
 ```py
 # Example of use
 
-footsteps.get_phase_type(.4)  # return 'left'
+footsteps.get_phase_type(0.4)  # return 'left'
 footsteps.get_left_position(0.4)  # return 0,0.1
 footsteps.get_left_next_position(0.4)  # return 0.1,0.1
 footsteps.get_phase_start(0.4)  # return 0.3

@@ -26,6 +26,7 @@ module.exports = async ({github, context, core}) => {
         'build_extra',
         'build_openmp',
         'build_mpfr',
+        'build_float32',
         'build_sdf',
         'build_accelerate'
       ];
@@ -68,7 +69,8 @@ The possible extra labels are:
 - **build_autodiff** (build Pinocchio with CppAD support)
 - **build_codegen** (build Pinocchio with CppADCodeGen support)
 - **build_extra** (build Pinocchio with extra algorithms)
-- **build_mpfr** (build Pinocchio with Boost.Multiprecision support)
+- **build_mpfr** (build Pinocchio Python interface with Boost.Multiprecision support)
+- **build_float32** (build Pinocchio Python interface with singe-precision support)
 - **build_sdf** (build Pinocchio with SDF parser)
 - **build_accelerate** (build Pinocchio with APPLE Accelerate framework support)
 - **build_all** (build Pinocchio with ALL the options stated above)

@@ -32,8 +32,8 @@ namespace pinocchio
     OP_FRAME = 0x1 << 0, ///< operational frame: user-defined frames that are defined at runtime
     JOINT = 0x1 << 1, ///< joint frame: attached to the child body of a joint (a.k.a. child frame)
     FIXED_JOINT = 0x1 << 2, ///< fixed joint frame: joint frame but for a fixed joint
-    BODY =
-      0x1 << 3, ///< body frame: attached to the collision, inertial or visual properties of a link
+    BODY = 0x1
+      << 3, ///< body frame: attached to the collision, inertial or visual properties of a link
     SENSOR = 0x1 << 4 ///< sensor frame: defined in a sensor element
   };
 

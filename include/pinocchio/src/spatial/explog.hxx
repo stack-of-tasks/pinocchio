@@ -278,16 +278,16 @@ namespace pinocchio
     Scalar ctheta, stheta;
     SINCOS(theta, &stheta, &ctheta);
 
-    Scalar denom = .5 / (1 - ctheta), a = theta * stheta * denom,
+    Scalar denom = Scalar(.5) / (Scalar(1.) - ctheta), a = theta * stheta * denom,
            da_dt = (stheta - theta) * denom, // da / dtheta
-      b = (1 - a) / (theta * theta),
+      b = (Scalar(1.) - a) / (theta * theta),
            // db_dt = - (2 * (1 - a) / theta + da_dt ) / theta**2; // db / dtheta
-      db_dt = -(2 / theta - (theta + stheta) * denom) / (theta * theta); // db / dtheta
+      db_dt = -(Scalar(2.) / theta - (theta + stheta) * denom) / (theta * theta); // db / dtheta
 
     // Compute dl_dv_v = Jlog * v
     // Jlog = a I3 + .5 [ log ] + b * log * log^T
     // if v == log, then Jlog * v == v
-    Vector3 dl_dv_v(a * v + .5 * log.cross(v) + b * log * log.transpose() * v);
+    Vector3 dl_dv_v(a * v + Scalar(.5) * log.cross(v) + b * log * log.transpose() * v);
 
     Scalar dt_dv_v = log.dot(dl_dv_v) / theta;
 
@@ -296,7 +296,7 @@ namespace pinocchio
     vt_Hlog_.noalias() += b * dl_dv_v * log.transpose();
     vt_Hlog_.noalias() += b * log * dl_dv_v.transpose();
     // Derivative of .5 * [ log ]
-    addSkew(.5 * dl_dv_v, vt_Hlog_);
+    addSkew(Scalar(.5) * dl_dv_v, vt_Hlog_);
     // Derivative of a * I3
     vt_Hlog_.diagonal().array() += da_dt * dt_dv_v;
   }

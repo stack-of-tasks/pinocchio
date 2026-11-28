@@ -77,7 +77,7 @@ anchor_joint_id = anchor_frame.parentJoint  # 23 = left_wrist_yaw_joint
 
 # Placement of the anchor point in the universe (world) frame at q0.
 # Note: run forward kinematics once at q0 to get the world pose of the left hand.
-data_init = model.createData()
+data_init = model.createData(pin.DataAllocationOption.NO_TENSORS)
 pin.forwardKinematics(model, data_init, q0)
 pin.updateFramePlacements(model, data_init)
 anchor_world_pos = data_init.oMf[anchor_fid].translation.copy()

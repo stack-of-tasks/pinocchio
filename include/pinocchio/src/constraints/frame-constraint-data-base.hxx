@@ -166,7 +166,7 @@ namespace pinocchio
     /// \brief Constraint acceleration error
     Vector6 constraint_acceleration_error;
 
-    /// \brief Constraint acceleration biais
+    /// \brief Constraint acceleration bias
     Vector6 constraint_acceleration_biais_term;
 
     Matrix6 A1_world;

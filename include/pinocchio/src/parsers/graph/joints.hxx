@@ -248,6 +248,140 @@ namespace pinocchio
       }
     };
 
+    struct JointSpline
+    {
+      std::vector<SE3> ctrlFrames;
+      Eigen::VectorXd knots;
+      int degree = 3;
+
+      static constexpr int nq = 1;
+      static constexpr int nv = 1;
+
+      JointSpline() = default;
+      JointSpline(int degree)
+      : degree(degree)
+      {
+      }
+
+      JointSpline(const std::vector<SE3> & ctrlFrames, const Eigen::VectorXd & knots, int degree)
+      : ctrlFrames(ctrlFrames)
+      , knots(knots)
+      , degree(degree)
+      {
+      }
+
+      bool operator==(const JointSpline & other) const
+      {
+        return ctrlFrames == other.ctrlFrames && knots == other.knots && degree == other.degree;
+      }
+    };
+
+    struct JointSplineBuilder
+    {
+      using JointModelSplineBuilder = JointModelSplineBuilderTpl<double>;
+      using KnotPolicy = typename JointModelSplineBuilder::KnotPolicy;
+
+      JointSplineBuilder()
+      : degree(3)
+      , min_q(0)
+      , max_q(1)
+      , knot_policy(KnotPolicy::OpenUniform)
+      {
+      }
+
+      JointSplineBuilder & addControlFrame(const SE3 & frame)
+      {
+        ctrlFrames.push_back(frame);
+        return *this;
+      }
+
+      JointSplineBuilder & withControlFrameVector(const std::vector<SE3> & frames)
+      {
+        ctrlFrames = frames;
+        return *this;
+      }
+
+      JointSplineBuilder & withDegree(int p_degree)
+      {
+        degree = p_degree;
+        return *this;
+      }
+
+      JointSplineBuilder & withKnotVector(const Eigen::VectorXd & p_knots)
+      {
+        knots = p_knots;
+        knot_policy = KnotPolicy::Custom;
+
+        return *this;
+      }
+
+      JointSplineBuilder & withKnotVector(const std::vector<double> & p_knots)
+      {
+        knots.resize(static_cast<Eigen::Index>(p_knots.size()));
+        for (std::size_t i = 0; i < p_knots.size(); ++i)
+        {
+          knots[static_cast<Eigen::Index>(i)] = p_knots[i];
+        }
+        knot_policy = KnotPolicy::Custom;
+
+        return *this;
+      }
+
+      JointSplineBuilder & withOpenUniformKnots(double p_min_q, double p_max_q)
+      {
+        knot_policy = KnotPolicy::OpenUniform;
+        min_q = p_min_q;
+        max_q = p_max_q;
+
+        return *this;
+      }
+
+      JointSplineBuilder & withUniformKnots(double p_min_q, double p_max_q)
+      {
+        knot_policy = KnotPolicy::Uniform;
+        min_q = p_min_q;
+        max_q = p_max_q;
+
+        return *this;
+      }
+
+      JointSpline build() const
+      {
+        Eigen::VectorXd joint_knots;
+
+        const int nCtrl = static_cast<int>(ctrlFrames.size());
+        switch (knot_policy)
+        {
+        case KnotPolicy::OpenUniform:
+          joint_knots = pinocchio::internal::generateOpenUniformKnots(min_q, max_q, nCtrl, degree);
+          break;
+
+        case KnotPolicy::Uniform:
+          joint_knots = pinocchio::internal::generateUniformKnots(min_q, max_q, nCtrl, degree);
+          break;
+
+        case KnotPolicy::Custom:
+          joint_knots = knots;
+          break;
+        default:
+          break;
+        }
+
+        return JointSpline(ctrlFrames, joint_knots, degree);
+      }
+
+    private:
+      std::vector<SE3> ctrlFrames;
+
+      int degree;
+
+      double min_q;
+      double max_q;
+
+      Eigen::VectorXd knots;
+      KnotPolicy knot_policy;
+    };
+
     // Forward declare
     struct JointComposite;
     struct JointMimic;
@@ -265,6 +399,7 @@ namespace pinocchio
       JointPlanar,
       JointHelical,
       JointUniversal,
+      JointSpline,
       boost::recursive_wrapper<JointComposite>,
       boost::recursive_wrapper<JointMimic>>
       JointVariant;

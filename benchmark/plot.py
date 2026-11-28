@@ -40,7 +40,7 @@ class Variance:
 class Data:
     """Benchmarks data"""
 
-    def __init__(self, name: str, times: list[TimeNS], variance: None | Variance):
+    def __init__(self, name: str, times: list[TimeNS], variance: Variance | None):
         self.name = name
         self.times = times
         self.variance = variance

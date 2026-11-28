@@ -15,6 +15,41 @@ namespace pinocchio
 {
   namespace mjcf
   {
+    namespace details
+    {
+      // Fills `model` from a graph whose MJCF content has already been parsed.
+      template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+      ModelTpl<Scalar, Options, JointCollectionTpl> &
+      buildModelFromGraph(MjcfGraph & graph, ModelTpl<Scalar, Options, JointCollectionTpl> & model)
+      {
+        graph.parseRootTree();
+
+        model = graph.mjcfVisitor.model;
+        return model;
+      }
+
+      template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+      ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromGraph(
+        MjcfGraph & graph,
+        const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+        const std::string & rootJointName,
+        ModelTpl<Scalar, Options, JointCollectionTpl> & model)
+      {
+        typedef ::pinocchio::parsers::JointModel JointModel;
+        if (rootJointName.empty())
+          throw std::invalid_argument(
+            "rootJoint was given without a name. Please fill the argument rootJointName");
+
+        JointModel root_joint = rootJoint;
+        boost::optional<const JointModel &> root_joint_opt(root_joint);
+        boost::optional<const std::string &> root_joint_name_opt(rootJointName);
+        graph.parseRootTree(root_joint_opt, root_joint_name_opt);
+
+        model = graph.mjcfVisitor.model;
+        return model;
+      }
+    } // namespace details
+
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     ModelTpl<Scalar, Options, JointCollectionTpl> & buildModel(
       const std::string & filename,
@@ -34,20 +69,15 @@ namespace pinocchio
 
       Model mjcf_model = model;
       ::pinocchio::mjcf::details::MjcfVisitor visitor(mjcf_model);
+      if (verbose)
+        visitor.log = &std::cout;
 
       typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
       MjcfGraph graph(visitor, filename);
-      if (verbose)
-        visitor.log = &std::cout;
-
       graph.parseGraphFromXML(filename);
 
-      // Use the Mjcf graph to create the model
-      graph.parseRootTree();
-
-      model = visitor.model;
-      return model;
+      return details::buildModelFromGraph(graph, model);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
@@ -90,31 +120,73 @@ namespace pinocchio
       const bool verbose)
     {
       typedef ::pinocchio::parsers::Model Model;
-      typedef ::pinocchio::parsers::JointModel JointModel;
-      if (rootJointName.empty())
-        throw std::invalid_argument(
-          "rootJoint was given without a name. Please fill the argument rootJointName");
 
       Model mjcf_model = model;
-      JointModel root_joint = rootJoint;
-
       ::pinocchio::mjcf::details::MjcfVisitor visitor(mjcf_model);
+      if (verbose)
+        visitor.log = &std::cout;
 
       typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
       MjcfGraph graph(visitor, filename);
+      graph.parseGraphFromXML(filename);
+
+      return details::buildModelFromGraph(graph, rootJoint, rootJointName, model);
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXMLContent(
+      const std::string & xmlStream,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      typedef ::pinocchio::parsers::Model Model;
+
+      Model mjcf_model = model;
+      ::pinocchio::mjcf::details::MjcfVisitor visitor(mjcf_model);
       if (verbose)
         visitor.log = &std::cout;
 
-      graph.parseGraphFromXML(filename);
+      typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
 
-      // Use the Mjcf graph to create the model
-      boost::optional<const JointModel &> root_joint_opt(root_joint);
-      boost::optional<const std::string &> root_joint_name_opt(rootJointName);
-      graph.parseRootTree(root_joint_opt, root_joint_name_opt);
+      // No file path is available: relative mesh and texture paths are kept as is
+      MjcfGraph graph(visitor, "");
+      graph.parseGraphFromXMLContent(xmlStream);
 
-      model = visitor.model;
-      return model;
+      return details::buildModelFromGraph(graph, model);
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXMLContent(
+      const std::string & xmlStream,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      return buildModelFromXMLContent(xmlStream, rootJoint, "root_joint", model, verbose);
+    }
+
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXMLContent(
+      const std::string & xmlStream,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose)
+    {
+      typedef ::pinocchio::parsers::Model Model;
+
+      Model mjcf_model = model;
+      ::pinocchio::mjcf::details::MjcfVisitor visitor(mjcf_model);
+      if (verbose)
+        visitor.log = &std::cout;
+
+      typedef ::pinocchio::mjcf::details::MjcfGraph MjcfGraph;
+
+      MjcfGraph graph(visitor, "");
+      graph.parseGraphFromXMLContent(xmlStream);
+
+      return details::buildModelFromGraph(graph, rootJoint, rootJointName, model);
     }
 
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>

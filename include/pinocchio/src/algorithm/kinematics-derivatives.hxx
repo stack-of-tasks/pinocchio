@@ -1079,7 +1079,10 @@ namespace pinocchio
   {
     assert(model.check(data) && "data is not consistent with model.");
     assert(model.check(MimicChecker()) && "Function does not support mimic joints");
-
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(
+      data.allocation == DataAllocationOption::ALL,
+      "data was created with DataAllocationOption::NO_TENSORS: data.kinematic_hessians is not "
+      "allocated");
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 
@@ -1202,6 +1205,10 @@ namespace pinocchio
     assert(
       joint_id < model.joints.size()
       && "joint_id is outside the valid index for a joint in model.joints");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(
+      data.allocation == DataAllocationOption::ALL,
+      "data was created with DataAllocationOption::NO_TENSORS: data.kinematic_hessians is not "
+      "allocated");
 
     typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
     typedef typename Data::SE3 SE3;

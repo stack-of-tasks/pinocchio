@@ -340,13 +340,13 @@ namespace pinocchio
 
   private:
     template<typename Config>
-    typename Config ::template ConstFixedSegmentReturnType<LieGroup1::NQ>::Type
+    typename Config::template ConstFixedSegmentReturnType<LieGroup1::NQ>::Type
     Q1(const Eigen::MatrixBase<Config> & q) const
     {
       return q.derived().template head<LieGroup1::NQ>(lg1.nq());
     }
     template<typename Config>
-    typename Config ::template ConstFixedSegmentReturnType<LieGroup2::NQ>::Type
+    typename Config::template ConstFixedSegmentReturnType<LieGroup2::NQ>::Type
     Q2(const Eigen::MatrixBase<Config> & q) const
     {
       return q.derived().template tail<LieGroup2::NQ>(lg2.nq());
@@ -365,13 +365,13 @@ namespace pinocchio
     }
 
     template<typename Config>
-    typename Config ::template FixedSegmentReturnType<LieGroup1::NQ>::Type
+    typename Config::template FixedSegmentReturnType<LieGroup1::NQ>::Type
     Qo1(const Eigen::MatrixBase<Config> & q) const
     {
       return PINOCCHIO_EIGEN_CONST_CAST(Config, q).template head<LieGroup1::NQ>(lg1.nq());
     }
     template<typename Config>
-    typename Config ::template FixedSegmentReturnType<LieGroup2::NQ>::Type
+    typename Config::template FixedSegmentReturnType<LieGroup2::NQ>::Type
     Qo2(const Eigen::MatrixBase<Config> & q) const
     {
       return PINOCCHIO_EIGEN_CONST_CAST(Config, q).template tail<LieGroup2::NQ>(lg2.nq());

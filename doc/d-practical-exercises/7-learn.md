@@ -37,13 +37,13 @@ from pendulum import Pendulum
 from pinocchio.utils import *
 
 env = Pendulum(1)  # Continuous pendulum
-NX = env.nobs      # ... training converges with q,qdot with 2x more neurones.
-NU = env.nu        # Control is dim-1: joint torque
+NX = env.nobs  # ... training converges with q,qdot with 2x more neurones.
+NU = env.nu  # Control is dim-1: joint torque
 
-x = env.reset()    # Sample an initial state
-u = rand(NU)       # Sample a control
-x, reward = env.step(u)   # Integrate simulator for control u and get reward.
-env.render()       # Display model at state env.x
+x = env.reset()  # Sample an initial state
+u = rand(NU)  # Sample a control
+x, reward = env.step(u)  # Integrate simulator for control u and get reward.
+env.render()  # Display model at state env.x
 ```
 
 A second version of the same model is provided with a discrete dynamics,

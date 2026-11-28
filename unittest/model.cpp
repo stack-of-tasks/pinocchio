@@ -626,6 +626,45 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel_empty)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_buildReducedModel_missing_joint_frames)
+{
+  Model model;
+  const JointIndex joint1 = model.addJoint(0, JointModelPX(), SE3::Identity(), "joint1");
+  const JointIndex joint2 = model.addJoint(joint1, JointModelPY(), SE3::Identity(), "joint2");
+  Eigen::VectorXd q(2);
+  q << 0.2, -0.3;
+
+  const std::vector<JointIndex> empty_joints_to_lock;
+  BOOST_CHECK_NO_THROW(buildReducedModel(model, empty_joints_to_lock, q));
+
+  const std::vector<JointIndex> joints_to_lock{joint1, joint2};
+  BOOST_CHECK_EXCEPTION(
+    buildReducedModel(model, joints_to_lock, q), std::invalid_argument,
+    [](const std::invalid_argument & error) {
+      return std::string(error.what()).find("joint1") != std::string::npos;
+    });
+
+  model.addJointFrame(joint1);
+  BOOST_CHECK_NO_THROW(buildReducedModel(model, std::vector<JointIndex>{joint1}, q));
+  BOOST_CHECK_EXCEPTION(
+    buildReducedModel(model, joints_to_lock, q), std::invalid_argument,
+    [](const std::invalid_argument & error) {
+      return std::string(error.what()).find("joint2") != std::string::npos;
+    });
+
+  model.addJointFrame(joint2);
+  const Model reduced_model = buildReducedModel(model, joints_to_lock, q);
+  BOOST_CHECK_EQUAL(reduced_model.njoints, 1);
+  const FrameIndex frame1 = reduced_model.getFrameId("joint1", FIXED_JOINT);
+  const FrameIndex frame2 = reduced_model.getFrameId("joint2", FIXED_JOINT);
+  BOOST_REQUIRE(frame1 < reduced_model.frames.size());
+  BOOST_REQUIRE(frame2 < reduced_model.frames.size());
+  BOOST_CHECK(
+    reduced_model.frames[frame1].placement.translation().isApprox(Eigen::Vector3d(0.2, 0., 0.)));
+  BOOST_CHECK(
+    reduced_model.frames[frame2].placement.translation().isApprox(Eigen::Vector3d(0.2, -0.3, 0.)));
+}
+
 BOOST_AUTO_TEST_CASE(test_buildReducedModel)
 {
   Model humanoid_model;
@@ -1218,6 +1257,71 @@ BOOST_AUTO_TEST_CASE(test_append_model_universe_with_inertia_issue_2805)
   BOOST_CHECK(new_model.inertias[1].isApprox(expected_model.inertias[1]));
 }
 
+// Non regression test for: https://github.com/stack-of-tasks/pinocchio/issues/2973
+// The name and the gravity of the appended model are inherited from the parent model (modelA).
+BOOST_AUTO_TEST_CASE(test_append_model_name_and_gravity_issue_2973)
+{
+  const Inertia inertia(1., Eigen::Vector3d::Zero(), Eigen::Matrix3d::Identity());
+
+  Model model_a;
+  model_a.name = "modelA";
+  model_a.gravity = Motion(Eigen::Vector3d::Zero(), Eigen::Vector3d(0., -9.81, 0.));
+  const JointIndex joint_a = model_a.addJoint(
+    0, pinocchio::JointModelRevoluteUnaligned(Eigen::Vector3d::UnitY()), SE3::Identity(),
+    "joint_A");
+  model_a.appendBodyToJoint(joint_a, inertia, SE3::Identity());
+
+  // modelB has a name and a gravity different from modelA
+  Model model_b;
+  model_b.name = "modelB";
+  model_b.gravity = Motion(Eigen::Vector3d::Zero(), Eigen::Vector3d(0., 0., -9.81));
+  const JointIndex joint_b = model_b.addJoint(
+    0, pinocchio::JointModelRevoluteUnaligned(Eigen::Vector3d::UnitY()), SE3::Identity(),
+    "joint_B");
+  model_b.appendBodyToJoint(joint_b, inertia, SE3::Identity());
+
+  const Model appended_model = appendModel(model_a, model_b, 0, SE3::Identity());
+
+  BOOST_CHECK(appended_model.name == model_a.name);
+  BOOST_CHECK(appended_model.gravity.isApprox(model_a.gravity));
+}
+
+// Non regression test for: https://github.com/stack-of-tasks/pinocchio/issues/2973
+// The armature of the joints of both models must be reported in the appended model.
+BOOST_AUTO_TEST_CASE(test_append_model_armature_issue_2973)
+{
+  const Inertia inertia(1., Eigen::Vector3d::Zero(), Eigen::Matrix3d::Identity());
+
+  Model model_a, model_b;
+
+  const JointIndex joint_a = model_a.addJoint(
+    0, pinocchio::JointModelRevoluteUnaligned(Eigen::Vector3d::UnitY()), SE3::Identity(),
+    "joint_A");
+  model_a.appendBodyToJoint(joint_a, inertia, SE3::Identity());
+
+  const JointIndex joint_b = model_b.addJoint(
+    0, pinocchio::JointModelRevoluteUnaligned(Eigen::Vector3d::UnitY()), SE3::Identity(),
+    "joint_B");
+  model_b.appendBodyToJoint(joint_b, inertia, SE3::Identity());
+
+  model_a.armature.setConstant(0.1);
+  model_b.armature.setConstant(0.2);
+
+  const Model appended_model = appendModel(model_a, model_b, 0, SE3::Identity());
+
+  BOOST_CHECK(appended_model.armature.size() == (Eigen::Index)(model_a.nv + model_b.nv));
+
+  const JointIndex appended_joint_a_id = appended_model.getJointId("joint_A");
+  const JointIndex appended_joint_b_id = appended_model.getJointId("joint_B");
+
+  BOOST_CHECK(
+    appended_model.joints[appended_joint_a_id].jointVelocitySelector(appended_model.armature)
+    == model_a.joints[joint_a].jointVelocitySelector(model_a.armature));
+  BOOST_CHECK(
+    appended_model.joints[appended_joint_b_id].jointVelocitySelector(appended_model.armature)
+    == model_b.joints[joint_b].jointVelocitySelector(model_b.armature));
+}
+
 BOOST_AUTO_TEST_CASE(test_colwise_sparsity_pattern_and_span_indexes)
 {
   // --- Exact value check on a simple sequential 1-DOF chain ---
@@ -1290,6 +1394,34 @@ BOOST_AUTO_TEST_CASE(test_colwise_sparsity_pattern_and_span_indexes)
     // Every span index maps to a true entry in the pattern
     for (const auto idx : span_idx)
       BOOST_CHECK(pattern[idx]);
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_add_frame_with_zero_inertia_preserves_the_parent_inertia)
+{
+  // A frame carrying no inertia must leave the parent body untouched.
+
+  // The mass matters: masses whose reciprocal round trip is exact (every power of two, and most
+  // short decimals such as 1.0, 0.1, 1.5) never showed the drift. 0.41 does.
+  const double mass = 0.41;
+  BOOST_REQUIRE(mass * (1. / mass) != 1.);
+
+  Model model;
+  const JointIndex joint_id =
+    model.addJoint(0, JointModelFreeFlyer(), SE3::Identity(), "root_joint");
+  model.appendBodyToJoint(
+    joint_id, Inertia(mass, Eigen::Vector3d(0.1, 0.2, 0.3), Eigen::Matrix3d::Identity()),
+    SE3::Identity());
+
+  const Inertia reference = model.inertias[joint_id];
+
+  for (int i = 0; i < 4; ++i)
+  {
+    model.addFrame(
+      Frame("massless_frame" + std::to_string(i), joint_id, 0, SE3::Identity(), OP_FRAME));
+    BOOST_CHECK_EQUAL(model.inertias[joint_id].mass(), reference.mass());
+    BOOST_CHECK(model.inertias[joint_id].lever() == reference.lever());
+    BOOST_CHECK(model.inertias[joint_id].inertia().matrix() == reference.inertia().matrix());
   }
 }
 

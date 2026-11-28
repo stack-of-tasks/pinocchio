@@ -35,6 +35,7 @@ namespace pinocchio
     struct JointUniversal;
     struct JointComposite;
     struct JointMimic;
+    struct JointSpline;
 
     // frames.hpp
     struct BodyFrame;

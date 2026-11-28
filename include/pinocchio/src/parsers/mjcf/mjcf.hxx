@@ -99,6 +99,57 @@ namespace pinocchio
       const bool verbose = false);
 
     ///
+    /// \brief Build the model from MJCF string content with a fixed joint as root of the model
+    /// tree.
+    ///
+    /// \param[in] xml_stream The MJCF model given as XML string content.
+    /// \param[in] verbose Print parsing info.
+    /// \param[out] model Reference model in which put the parsed information.
+    /// \return Return the reference on argument model for convenience.
+    ///
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXMLContent(
+      const std::string & xml_stream,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose = false);
+
+    ///
+    /// \brief Build the model from MJCF string content with a particular joint as root of the
+    /// model tree inside the model given as reference argument.
+    ///
+    /// \param[in] xml_stream The MJCF model given as XML string content.
+    /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] verbose Print parsing info.
+    /// \param[out] model Reference model in which to put the parsed information.
+    /// \return Return the reference on argument model for convenience.
+    ///
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXMLContent(
+      const std::string & xml_stream,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose = false);
+
+    ///
+    /// \brief Build the model from MJCF string content with a particular joint as root of the
+    /// model tree inside the model given as reference argument.
+    ///
+    /// \param[in] xml_stream The MJCF model given as an XML string content.
+    /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] rootJointName Name of the rootJoint.
+    /// \param[in] verbose Print parsing info.
+    /// \param[out] model Reference model in which to put the parsed information.
+    /// \return Return the reference on argument model for convenience.
+    ///
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    ModelTpl<Scalar, Options, JointCollectionTpl> & buildModelFromXMLContent(
+      const std::string & xml_stream,
+      const typename ModelTpl<Scalar, Options, JointCollectionTpl>::JointModel & rootJoint,
+      const std::string & rootJointName,
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const bool verbose = false);
+
+    ///
     /// \brief Build the model from a MJCF file with a fixed joint as root of the model tree and
     /// with point and frame anchor cosntraints.
     //
@@ -278,6 +329,35 @@ namespace pinocchio
     GeometryModel & buildGeom(
       ModelTpl<Scalar, Options, JointCollectionTpl> & model,
       const std::string & filename,
+      const GeometryType type,
+      GeometryModel & geom_model,
+      ::coal::MeshLoaderPtr mesh_loader = ::coal::MeshLoaderPtr());
+
+    /**
+     * @brief      Build The GeometryModel from MJCF string content
+     *
+     * @param[in]  model         The model of the robot, built with
+     *                           mjcf::buildModel or mjcf::buildModelFromXMLContent
+     * @param[in]  xml_stream    The MJCF model given as XML string content
+     * @param[in]   type         The type of objects that must be loaded (must be VISUAL or
+     * COLLISION)
+     * @param[in]   mesh_loader   object used to load meshes: coal::MeshLoader [default] or
+     * coal::CachedMeshLoader.
+     * @param[out]  geom_model    Reference geometry model in which to put the parsed information.
+     *
+     * @return      Returns the reference on geom model for convenience.
+     *
+     * \note       Without a file path, relative mesh and texture paths are resolved from the
+     * current working directory.
+     *
+     * \warning     If coal has not been found during compilation, COLLISION objects can not be
+     * loaded
+     *
+     */
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    GeometryModel & buildGeomFromXMLContent(
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model,
+      const std::string & xml_stream,
       const GeometryType type,
       GeometryModel & geom_model,
       ::coal::MeshLoaderPtr mesh_loader = ::coal::MeshLoaderPtr());

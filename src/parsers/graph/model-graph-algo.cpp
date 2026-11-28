@@ -127,6 +127,9 @@ namespace pinocchio
         // Joint Universal
         typedef typename JointCollectionDefault::JointModelUniversal JointModelUniversal;
 
+        // JointSpline
+        typedef typename JointCollectionDefault::JointModelSpline JointModelSpline;
+
         typedef JointModel ReturnType;
 
         ReturnType operator()(const JointFixed & /*joint*/) const
@@ -242,6 +245,10 @@ namespace pinocchio
         ReturnType operator()(const JointMimic & joint) const
         {
           return boost::apply_visitor(*this, joint.secondary_joint);
+        }
+        ReturnType operator()(const JointSpline & joint) const
+        {
+          return JointModelSpline(joint.ctrlFrames, joint.knots, joint.degree);
         }
         ReturnType operator()(const JointComposite & joint) const
         {
@@ -368,6 +375,17 @@ namespace pinocchio
           // The ellipsoid joint cannot be reversed because of the way the motion subspace is
           // defined. The motion subspace is defined in the parent frame, So reversing the joint
           // would require to change the motion subspace accordingly.
+
+          addJointBetweenBodies(joint, b_f);
+        }
+
+        void operator()(const JointSpline & joint, const BodyFrame & b_f)
+        {
+          if (!edge.forward)
+            PINOCCHIO_THROW_PRETTY(
+              std::invalid_argument, "Graph - JointSpline cannot be reversed.");
+          // The spline joint cannot be reversed because it's not trivial to generate
+          // a spline that will generate the inverse transform of the forward spline
 
           addJointBetweenBodies(joint, b_f);
         }

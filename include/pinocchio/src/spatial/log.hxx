@@ -29,9 +29,12 @@ namespace pinocchio
       static const long i1 = (i0 + 1) % 3;
       static const long i2 = (i0 + 2) % 3;
       Vector3 & axis = _axis.const_cast_derived();
-
+      // boost::multiprecision return an expression that can't
+      // be a math::sqrt input.
+      // To overcome this issue we force the expression to be evaluated in a Scalar.
+      Scalar sqrt_input = val + eps + eps * eps;
       const Scalar s =
-        math::sqrt(val + eps + eps * eps)
+        math::sqrt(sqrt_input)
         * if_then_else(
           GE, R.coeff(i2, i1), R.coeff(i1, i2), Scalar(1.),
           Scalar(-1.)); // Ensure value in sqrt is non negative and that s is non zero
@@ -276,7 +279,7 @@ namespace pinocchio
       //                                        // else
       //                                        );
 
-      const Scalar beta_alt = (Scalar(1) / Scalar(3) - th_2_squared / Scalar(45)) / Scalar(4);
+      const Scalar beta_alt = (Scalar(1) / Scalar(3) + th_2_squared / Scalar(45)) / Scalar(4);
       const Scalar beta = if_then_else(
         LE, theta, TaylorSeriesExpansion<Scalar>::template precision<3>(),
         static_cast<Scalar>(beta_alt),                                       // then

@@ -307,7 +307,7 @@ RECURSIVE              = YES
 # *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx
 # *.hpp *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm *.py *.f90
 
-FILE_PATTERNS          = *.cc *.cpp *.h *.hpp *.hh *.dox *.md *.py
+FILE_PATTERNS          = *.cc *.cpp *.h *.hpp *.hxx *.hh *.dox *.md *.py
 
 # The EXCLUDE tag can be used to specify files and/or directories that should be
 # excluded from the INPUT source files. This way you can easily exclude a

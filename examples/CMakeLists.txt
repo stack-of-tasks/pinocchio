@@ -155,6 +155,10 @@ if(BUILD_PYTHON_INTERFACE)
             simulation-closed-kinematic-chains
             simulation-lcaba
             model-graph-geometry
+            spline-joint
+            spline-joint-knee
+            constant-length-constraint-kinematics
+            constant-length-constraint-3d
         )
         if(BUILD_WITH_URDF_SUPPORT)
             list(

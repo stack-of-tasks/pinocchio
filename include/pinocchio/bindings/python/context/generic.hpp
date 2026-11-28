@@ -135,6 +135,10 @@ namespace pinocchio
       typedef JointModelUniversalTpl<Scalar> JointModelUniversal;
       typedef JointDataUniversalTpl<Scalar> JointDataUniversal;
 
+      typedef JointModelSplineTpl<Scalar> JointModelSpline;
+      typedef JointModelSplineBuilderTpl<Scalar> JointModelSplineBuilder;
+      typedef JointDataSplineTpl<Scalar> JointDataSpline;
+
       typedef JointModelTranslationTpl<Scalar> JointModelTranslation;
       typedef JointDataTranslationTpl<Scalar> JointDataTranslation;
 
@@ -168,6 +172,11 @@ namespace pinocchio
       typedef std::vector<PointContactConstraintModel> PointContactConstraintModelVector;
       typedef PointContactConstraintDataTpl<Scalar, Options> PointContactConstraintData;
       typedef std::vector<PointContactConstraintData> PointContactConstraintDataVector;
+
+      typedef ConstantLengthConstraintModelTpl<Scalar, Options> ConstantLengthConstraintModel;
+      typedef std::vector<ConstantLengthConstraintModel> ConstantLengthConstraintModelVector;
+      typedef ConstantLengthConstraintDataTpl<Scalar, Options> ConstantLengthConstraintData;
+      typedef std::vector<ConstantLengthConstraintData> ConstantLengthConstraintDataVector;
 
       typedef JointFrictionConstraintModelTpl<Scalar, Options> JointFrictionConstraintModel;
       typedef std::vector<JointFrictionConstraintModel> JointFrictionConstraintModelVector;

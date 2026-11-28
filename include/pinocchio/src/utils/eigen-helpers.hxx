@@ -138,9 +138,8 @@ namespace pinocchio
 
     } // namespace helper
 
-    template<typename D1, int Level1, typename D2, int Level2>
-    bool
-    compare_maps(const Eigen::MapBase<D1, Level1> & map1, const Eigen::MapBase<D2, Level2> & map2)
+    template<typename D1, typename D2>
+    bool compare_maps(const Eigen::MatrixBase<D1> & map1, const Eigen::MatrixBase<D2> & map2)
     {
       if ((map1.rows() != map2.rows()) || (map1.cols() != map2.cols()))
         return false;

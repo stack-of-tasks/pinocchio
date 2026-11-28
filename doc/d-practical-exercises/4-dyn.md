@@ -132,16 +132,17 @@ points. A method can also be used to display them.
 
 ```py
 from robot_hand import Robot
+
 robot = Robot()
 robot.display(robot.q0)
 
 # Create 10 witness points in the rendering window
 
 for i in range(10):
-    robot.viewer.viewer.gui.addCylinder('world/wa%i' % i, .01, .003, [1, 0, 0, 1])
-    robot.viewer.viewer.gui.addCylinder('world/wb%i' % i, .01, .003, [1, 0, 0, 1])
-    robot.viewer.viewer.gui.setVisibility('world/wa%i' % i, 'OFF')
-    robot.viewer.viewer.gui.setVisibility('world/wb%i' % i, 'OFF')
+    robot.viewer.viewer.gui.addCylinder("world/wa%i" % i, 0.01, 0.003, [1, 0, 0, 1])
+    robot.viewer.viewer.gui.addCylinder("world/wb%i" % i, 0.01, 0.003, [1, 0, 0, 1])
+    robot.viewer.viewer.gui.setVisibility("world/wa%i" % i, "OFF")
+    robot.viewer.viewer.gui.setVisibility("world/wb%i" % i, "OFF")
 
 # Add 4 pairs between finger tips and palm
 
