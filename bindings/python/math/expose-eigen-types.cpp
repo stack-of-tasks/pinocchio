@@ -78,6 +78,12 @@ namespace pinocchio
       eigenpy::enableEigenPySpecific<Matrix76s>();
       eigenpy::enableEigenPySpecific<Matrix43s>();
       eigenpy::enableEigenPySpecific<Vector2s>();
+
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
+      // Row-major tensors are used to return tensors with the C++ indexing (see toRowMajorTensor).
+      typedef Eigen::Tensor<context::Scalar, 3, Eigen::RowMajor, Eigen::Index> RowMajorTensor3s;
+      eigenpy::enableEigenPySpecific<RowMajorTensor3s>();
+#endif // ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
     }
 
   } // namespace python

@@ -4,6 +4,7 @@
 # Root, algorithm, common, containers, math, multibody, serialization, spatial, utils
 set(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/aba-derivatives.hpp
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/aba-second-order-derivatives.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/aba.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/center-of-mass-derivatives.hpp
     ${PROJECT_SOURCE_DIR}/include/pinocchio/algorithm/center-of-mass.hpp
@@ -339,6 +340,7 @@ set(${PROJECT_NAME}_CORE_PRIVATE_HEADERS
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/serialization/common.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/serialization/csv.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/algorithm/aba-derivatives.hxx
+    ${PROJECT_SOURCE_DIR}/include/pinocchio/src/algorithm/aba-second-order-derivatives.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/algorithm/aba.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/serialization/joints-transform.hxx
     ${PROJECT_SOURCE_DIR}/include/pinocchio/src/algorithm/compute-all-terms.hxx

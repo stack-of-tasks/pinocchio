@@ -63,6 +63,20 @@ class TestData(TestCase):
             data_no_tensors_2.allocation, pin.DataAllocationOption.NO_TENSORS
         )
 
+        nv = self.model.nv
+        for name in (
+            "d2tau_dqdq",
+            "d2tau_dvdv",
+            "d2tau_dqdv",
+            "d2tau_dadq",
+            "d2ddq_dqdq",
+            "d2ddq_dvdv",
+            "d2ddq_dqdv",
+            "d2ddq_dtaudq",
+        ):
+            self.assertEqual(getattr(data_all, name).shape, (nv, nv, nv))
+            self.assertEqual(getattr(data_no_tensors, name).size, 0)
+
     def test_pickle(self):
         import pickle
 

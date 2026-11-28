@@ -90,7 +90,27 @@ namespace pinocchio
       CHECK_DATA(data.d2tau_dadq.dimension(0) == model.nv);
       CHECK_DATA(data.d2tau_dadq.dimension(1) == model.nv);
       CHECK_DATA(data.d2tau_dadq.dimension(2) == model.nv);
+
+      CHECK_DATA(data.d2ddq_dqdq.dimension(0) == model.nv);
+      CHECK_DATA(data.d2ddq_dqdq.dimension(1) == model.nv);
+      CHECK_DATA(data.d2ddq_dqdq.dimension(2) == model.nv);
+      CHECK_DATA(data.d2ddq_dvdv.dimension(0) == model.nv);
+      CHECK_DATA(data.d2ddq_dvdv.dimension(1) == model.nv);
+      CHECK_DATA(data.d2ddq_dvdv.dimension(2) == model.nv);
+      CHECK_DATA(data.d2ddq_dqdv.dimension(0) == model.nv);
+      CHECK_DATA(data.d2ddq_dqdv.dimension(1) == model.nv);
+      CHECK_DATA(data.d2ddq_dqdv.dimension(2) == model.nv);
+      CHECK_DATA(data.d2ddq_dtaudq.dimension(0) == model.nv);
+      CHECK_DATA(data.d2ddq_dtaudq.dimension(1) == model.nv);
+      CHECK_DATA(data.d2ddq_dtaudq.dimension(2) == model.nv);
     }
+
+    CHECK_DATA(data.Ftmp1.cols() == model.nv);
+    CHECK_DATA(data.Ftmp2.cols() == model.nv);
+    CHECK_DATA(data.MXtmp1.rows() == model.nv);
+    CHECK_DATA(data.MXtmp1.cols() == model.nv);
+    CHECK_DATA(data.MXtmp2.rows() == model.nv);
+    CHECK_DATA(data.MXtmp2.cols() == model.nv);
 
     CHECK_DATA((int)data.oMf.size() == model.nframes);
 

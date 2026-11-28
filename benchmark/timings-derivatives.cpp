@@ -9,6 +9,7 @@
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/rnea-second-order-derivatives.hpp"
+#include "pinocchio/algorithm/aba-second-order-derivatives.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -133,6 +134,15 @@ struct DerivativesFixture : ModelFixture
     dtau2_dv.setZero();
     dtau2_dqv.setZero();
     dtau_dadq.setZero();
+
+    d2ddq_dqdq = Tensor3x(model.nv, model.nv, model.nv);
+    d2ddq_dvdv = Tensor3x(model.nv, model.nv, model.nv);
+    d2ddq_dqdv = Tensor3x(model.nv, model.nv, model.nv);
+    d2ddq_dtaudq = Tensor3x(model.nv, model.nv, model.nv);
+    d2ddq_dqdq.setZero();
+    d2ddq_dvdv.setZero();
+    d2ddq_dqdv.setZero();
+    d2ddq_dtaudq.setZero();
   }
 
   PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(Eigen::MatrixXd) drnea_dq;
@@ -147,6 +157,11 @@ struct DerivativesFixture : ModelFixture
   Tensor3x dtau2_dv;
   Tensor3x dtau2_dqv;
   Tensor3x dtau_dadq;
+
+  Tensor3x d2ddq_dqdq;
+  Tensor3x d2ddq_dvdv;
+  Tensor3x d2ddq_dqdv;
+  Tensor3x d2ddq_dtaudq;
 
   void TearDown(benchmark::State & st)
   {
@@ -271,6 +286,33 @@ BENCHMARK_DEFINE_F(DerivativesFixture, COMUTE_RNEA_SECOND_ORDER_DERIVATIVES)(ben
   }
 }
 BENCHMARK_REGISTER_F(DerivativesFixture, COMUTE_RNEA_SECOND_ORDER_DERIVATIVES)
+  ->Apply(CustomArguments);
+
+// COMPUTE_ABA_SECOND_ORDER_DERIVATIVES
+
+PINOCCHIO_DONT_INLINE static void computeABASecondOrderDerivativesCall(
+  const pinocchio::Model & model,
+  pinocchio::Data & data,
+  const Eigen::VectorXd & q,
+  const Eigen::VectorXd & v,
+  const Eigen::VectorXd & tau,
+  const Tensor3x & d2ddq_dqdq,
+  const Tensor3x & d2ddq_dvdv,
+  const Tensor3x & d2ddq_dqdv,
+  const Tensor3x & d2ddq_dtaudq)
+{
+  ComputeABASecondOrderDerivatives(
+    model, data, q, v, tau, d2ddq_dqdq, d2ddq_dvdv, d2ddq_dqdv, d2ddq_dtaudq);
+}
+BENCHMARK_DEFINE_F(DerivativesFixture, COMPUTE_ABA_SECOND_ORDER_DERIVATIVES)(benchmark::State & st)
+{
+  for (auto _ : st)
+  {
+    computeABASecondOrderDerivativesCall(
+      model, data, q, v, tau, d2ddq_dqdq, d2ddq_dvdv, d2ddq_dqdv, d2ddq_dtaudq);
+  }
+}
+BENCHMARK_REGISTER_F(DerivativesFixture, COMPUTE_ABA_SECOND_ORDER_DERIVATIVES)
   ->Apply(CustomArguments);
 
 // COMPUTE_RNEA_FD_DERIVATIVES

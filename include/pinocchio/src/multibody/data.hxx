@@ -349,6 +349,16 @@ namespace pinocchio
     /// \brief Temporary of size NV used in Cholesky Decomposition.
     VectorXs tmp;
 
+    /// \brief Temporaries of size 6 x NV, used as workspace in
+    /// pinocchio::ComputeABASecondOrderDerivatives.
+    Matrix6x Ftmp1;
+    Matrix6x Ftmp2;
+
+    /// \brief Temporaries of size NV x NV, used as workspace in
+    /// pinocchio::ComputeABASecondOrderDerivatives.
+    MatrixXs MXtmp1;
+    MatrixXs MXtmp2;
+
     /// \brief First previous non-zero row in M (used in Cholesky Decomposition).
     std::vector<int> parents_fromRow;
 
@@ -582,6 +592,29 @@ namespace pinocchio
     /// configuration.
     Tensor3x d2tau_dadq;
 
+    /// \brief SO Partial derivative of the joint acceleration vector with
+    /// respect to the joint configuration: d2ddq_dqdq(i,j,k) = d^2 ddq_i / (dq_j dq_k),
+    /// where dq_j is the inner and dq_k the outer derivative (computed by
+    /// pinocchio::ComputeABASecondOrderDerivatives).
+    Tensor3x d2ddq_dqdq;
+
+    /// \brief SO Partial derivative of the joint acceleration vector with
+    /// respect to the joint velocity: d2ddq_dvdv(i,j,k) = d^2 ddq_i / (dv_j dv_k)
+    /// (computed by pinocchio::ComputeABASecondOrderDerivatives).
+    Tensor3x d2ddq_dvdv;
+
+    /// \brief SO Cross-Partial derivative of the joint acceleration vector
+    /// with respect to the joint configuration/velocity:
+    /// d2ddq_dqdv(i,j,k) = d^2 ddq_i / (dq_j dv_k) (computed by
+    /// pinocchio::ComputeABASecondOrderDerivatives).
+    Tensor3x d2ddq_dqdv;
+
+    /// \brief SO Cross-Partial derivative of the joint acceleration vector
+    /// with respect to the joint torque/configuration:
+    /// d2ddq_dtaudq(i,j,k) = d^2 ddq_i / (dtau_j dq_k) = d Minv(i,j) / dq_k
+    /// (computed by pinocchio::ComputeABASecondOrderDerivatives).
+    Tensor3x d2ddq_dtaudq;
+
 #if defined(_MSC_VER)
   #pragma warning(default : 4554) // C4554 enabled after tensor definition
 #endif
@@ -731,6 +764,10 @@ namespace pinocchio
   , D(VectorXs::Zero(model.nv))
   , Dinv(VectorXs::Zero(model.nv))
   , tmp(VectorXs::Zero(model.nv))
+  , Ftmp1(Matrix6x::Zero(6, model.nv))
+  , Ftmp2(Matrix6x::Zero(6, model.nv))
+  , MXtmp1(MatrixXs::Zero(model.nv, model.nv))
+  , MXtmp2(MatrixXs::Zero(model.nv, model.nv))
   , parents_fromRow((std::size_t)model.nvExtended, -1)
   , mimic_parents_fromRow((std::size_t)model.nvExtended, -1)
   , non_mimic_parents_fromRow((std::size_t)model.nvExtended, -1)
@@ -834,12 +871,20 @@ namespace pinocchio
       d2tau_dvdv.resize(model.nv, model.nv, model.nv);
       d2tau_dqdv.resize(model.nv, model.nv, model.nv);
       d2tau_dadq.resize(model.nv, model.nv, model.nv);
+      d2ddq_dqdq.resize(model.nv, model.nv, model.nv);
+      d2ddq_dvdv.resize(model.nv, model.nv, model.nv);
+      d2ddq_dqdv.resize(model.nv, model.nv, model.nv);
+      d2ddq_dtaudq.resize(model.nv, model.nv, model.nv);
 
       kinematic_hessians.setZero();
       d2tau_dqdq.setZero();
       d2tau_dvdv.setZero();
       d2tau_dqdv.setZero();
       d2tau_dadq.setZero();
+      d2ddq_dqdq.setZero();
+      d2ddq_dvdv.setZero();
+      d2ddq_dqdv.setZero();
+      d2ddq_dtaudq.setZero();
     }
   }
   PINOCCHIO_COMPILER_DIAGNOSTIC_POP
@@ -1077,7 +1122,11 @@ namespace pinocchio
                && Tensor<bool, 0>((data1.d2tau_dqdq == data2.d2tau_dqdq).all())(0)
                && Tensor<bool, 0>((data1.d2tau_dvdv == data2.d2tau_dvdv).all())(0)
                && Tensor<bool, 0>((data1.d2tau_dqdv == data2.d2tau_dqdv).all())(0)
-               && Tensor<bool, 0>((data1.d2tau_dadq == data2.d2tau_dadq).all())(0);
+               && Tensor<bool, 0>((data1.d2tau_dadq == data2.d2tau_dadq).all())(0)
+               && Tensor<bool, 0>((data1.d2ddq_dqdq == data2.d2ddq_dqdq).all())(0)
+               && Tensor<bool, 0>((data1.d2ddq_dvdv == data2.d2ddq_dvdv).all())(0)
+               && Tensor<bool, 0>((data1.d2ddq_dqdv == data2.d2ddq_dqdv).all())(0)
+               && Tensor<bool, 0>((data1.d2ddq_dtaudq == data2.d2ddq_dtaudq).all())(0);
     }
 
     return value;

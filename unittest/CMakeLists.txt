@@ -266,6 +266,7 @@ add_pinocchio_unit_test(contact-dynamics-derivatives)
 # endif()
 add_pinocchio_unit_test(impulse-dynamics-derivatives)
 add_pinocchio_unit_test(rnea-second-order-derivatives)
+add_pinocchio_unit_test(aba-second-order-derivatives)
 
 # # Pinocchio features
 add_pinocchio_unit_test(spatial)

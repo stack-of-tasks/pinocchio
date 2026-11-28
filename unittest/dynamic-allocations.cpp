@@ -10,6 +10,8 @@
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
+#include "pinocchio/algorithm/rnea-second-order-derivatives.hpp"
+#include "pinocchio/algorithm/aba-second-order-derivatives.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
@@ -175,6 +177,42 @@ void runDerivativesTest(const Model & model, Data & data)
 
   [&]() noexcept [[clang::nonblocking]] {
     computeABADerivatives(model, data, q, v, tau, aba_partial_dq, aba_partial_dv, aba_partial_dtau);
+  }();
+}
+
+void runSecondOrderDerivativesTest(const Model & model, Data & data)
+{
+  const Eigen::VectorXd q = randomConfiguration(model);
+  const Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+  const Eigen::VectorXd a = Eigen::VectorXd::Random(model.nv);
+  const Eigen::VectorXd tau = Eigen::VectorXd::Random(model.nv);
+
+  // RNEA second-order derivatives
+  Data::Tensor3x d2tau_dqdq(model.nv, model.nv, model.nv);
+  Data::Tensor3x d2tau_dvdv(model.nv, model.nv, model.nv);
+  Data::Tensor3x d2tau_dqdv(model.nv, model.nv, model.nv);
+  Data::Tensor3x d2tau_dadq(model.nv, model.nv, model.nv);
+  d2tau_dqdq.setZero();
+  d2tau_dvdv.setZero();
+  d2tau_dqdv.setZero();
+  d2tau_dadq.setZero();
+
+  [&]() noexcept [[clang::nonblocking]] {
+    ComputeRNEASecondOrderDerivatives(model, data, q, v, a);
+    ComputeRNEASecondOrderDerivatives(
+      model, data, q, v, a, d2tau_dqdq, d2tau_dvdv, d2tau_dqdv, d2tau_dadq);
+  }();
+
+  // ABA second-order derivatives
+  Data::Tensor3x d2ddq_dqdq(model.nv, model.nv, model.nv);
+  Data::Tensor3x d2ddq_dvdv(model.nv, model.nv, model.nv);
+  Data::Tensor3x d2ddq_dqdv(model.nv, model.nv, model.nv);
+  Data::Tensor3x d2ddq_dtaudq(model.nv, model.nv, model.nv);
+
+  [&]() noexcept [[clang::nonblocking]] {
+    ComputeABASecondOrderDerivatives(model, data, q, v, tau);
+    ComputeABASecondOrderDerivatives(
+      model, data, q, v, tau, d2ddq_dqdq, d2ddq_dvdv, d2ddq_dqdv, d2ddq_dtaudq);
   }();
 }
 
@@ -482,6 +520,7 @@ void runDynamicAllocationsTest(const Model & model)
   runABATest(model, data);
   runCenterOfMassDerivativesTest(model, data);
   runDerivativesTest(model, data);
+  runSecondOrderDerivativesTest(model, data);
   runCentroidalDynamicsTest(model, data);
   runComputeAllTermsTest(model, data);
   runEnergyTest(model, data);

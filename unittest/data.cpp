@@ -163,6 +163,10 @@ BOOST_AUTO_TEST_CASE(test_allocation)
   BOOST_CHECK(data_all.d2tau_dvdv.dimension(0) == model.nv);
   BOOST_CHECK(data_all.d2tau_dqdv.dimension(0) == model.nv);
   BOOST_CHECK(data_all.d2tau_dadq.dimension(0) == model.nv);
+  BOOST_CHECK(data_all.d2ddq_dqdq.dimension(0) == model.nv);
+  BOOST_CHECK(data_all.d2ddq_dvdv.dimension(0) == model.nv);
+  BOOST_CHECK(data_all.d2ddq_dqdv.dimension(0) == model.nv);
+  BOOST_CHECK(data_all.d2ddq_dtaudq.dimension(0) == model.nv);
   BOOST_CHECK(model.check(data_all));
 
   // check DataAllocationOption::NO_TENSORS
@@ -174,6 +178,10 @@ BOOST_AUTO_TEST_CASE(test_allocation)
   BOOST_CHECK(data_no_tensors.d2tau_dvdv.size() == 0);
   BOOST_CHECK(data_no_tensors.d2tau_dqdv.size() == 0);
   BOOST_CHECK(data_no_tensors.d2tau_dadq.size() == 0);
+  BOOST_CHECK(data_no_tensors.d2ddq_dqdq.size() == 0);
+  BOOST_CHECK(data_no_tensors.d2ddq_dvdv.size() == 0);
+  BOOST_CHECK(data_no_tensors.d2ddq_dqdv.size() == 0);
+  BOOST_CHECK(data_no_tensors.d2ddq_dtaudq.size() == 0);
   BOOST_CHECK(model.check(data_no_tensors));
 
   // check equal
