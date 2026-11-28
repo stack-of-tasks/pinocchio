@@ -349,6 +349,16 @@ namespace pinocchio
     /// \brief Temporary of size NV used in Cholesky Decomposition.
     VectorXs tmp;
 
+    /// \brief Temporaries of size 6 x NV, used as workspace in
+    /// pinocchio::ComputeABASecondOrderDerivatives.
+    Matrix6x Ftmp1;
+    Matrix6x Ftmp2;
+
+    /// \brief Temporaries of size NV x NV, used as workspace in
+    /// pinocchio::ComputeABASecondOrderDerivatives.
+    MatrixXs MXtmp1;
+    MatrixXs MXtmp2;
+
     /// \brief First previous non-zero row in M (used in Cholesky Decomposition).
     std::vector<int> parents_fromRow;
 
@@ -583,19 +593,26 @@ namespace pinocchio
     Tensor3x d2tau_dadq;
 
     /// \brief SO Partial derivative of the joint acceleration vector with
-    /// respect to the joint configuration.
+    /// respect to the joint configuration: d2ddq_dqdq(i,j,k) = d^2 ddq_i / (dq_j dq_k),
+    /// where dq_j is the inner and dq_k the outer derivative (computed by
+    /// pinocchio::ComputeABASecondOrderDerivatives).
     Tensor3x d2ddq_dqdq;
 
     /// \brief SO Partial derivative of the joint acceleration vector with
-    /// respect to the joint velocity.
+    /// respect to the joint velocity: d2ddq_dvdv(i,j,k) = d^2 ddq_i / (dv_j dv_k)
+    /// (computed by pinocchio::ComputeABASecondOrderDerivatives).
     Tensor3x d2ddq_dvdv;
 
     /// \brief SO Cross-Partial derivative of the joint acceleration vector
-    /// with respect to the joint configuration/velocity.
+    /// with respect to the joint configuration/velocity:
+    /// d2ddq_dqdv(i,j,k) = d^2 ddq_i / (dq_j dv_k) (computed by
+    /// pinocchio::ComputeABASecondOrderDerivatives).
     Tensor3x d2ddq_dqdv;
 
     /// \brief SO Cross-Partial derivative of the joint acceleration vector
-    /// with respect to the joint torque/configuration.
+    /// with respect to the joint torque/configuration:
+    /// d2ddq_dtaudq(i,j,k) = d^2 ddq_i / (dtau_j dq_k) = d Minv(i,j) / dq_k
+    /// (computed by pinocchio::ComputeABASecondOrderDerivatives).
     Tensor3x d2ddq_dtaudq;
 
 #if defined(_MSC_VER)
@@ -747,6 +764,10 @@ namespace pinocchio
   , D(VectorXs::Zero(model.nv))
   , Dinv(VectorXs::Zero(model.nv))
   , tmp(VectorXs::Zero(model.nv))
+  , Ftmp1(Matrix6x::Zero(6, model.nv))
+  , Ftmp2(Matrix6x::Zero(6, model.nv))
+  , MXtmp1(MatrixXs::Zero(model.nv, model.nv))
+  , MXtmp2(MatrixXs::Zero(model.nv, model.nv))
   , parents_fromRow((std::size_t)model.nvExtended, -1)
   , mimic_parents_fromRow((std::size_t)model.nvExtended, -1)
   , non_mimic_parents_fromRow((std::size_t)model.nvExtended, -1)
