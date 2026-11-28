@@ -16,6 +16,7 @@
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/utils/macros.hpp"
+#include "pinocchio/bindings/python/utils/eigen.hpp"
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
@@ -76,6 +77,14 @@ namespace pinocchio
       typedef typename Data::Matrix6x Matrix6x;
       typedef typename Data::Matrix3x Matrix3x;
       typedef typename Data::Vector3 Vector3;
+      typedef typename Data::Tensor3x Tensor3x;
+
+      template<Tensor3x Data::* tensor>
+      static Eigen::Tensor<typename Data::Scalar, 3, Eigen::RowMajor, typename Tensor3x::Index>
+      getRowMajorTensor(const Data & self)
+      {
+        return toRowMajorTensor(self.*tensor);
+      }
 
     public:
 #define ADD_DATA_PROPERTY(NAME, DOC) PINOCCHIO_ADD_PROPERTY(Data, NAME, DOC)
@@ -325,6 +334,53 @@ namespace pinocchio
           .def(bp::self != bp::self)
 #endif
           ;
+
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
+        // The second-order derivative tensors are returned as row-major copies, so that the numpy
+        // arrays follow the C++ indexing (see toRowMajorTensor).
+        cl.add_property(
+            "d2tau_dqdq", &getRowMajorTensor<&Data::d2tau_dqdq>,
+            "Second-order partial derivative of the joint torque vector with respect to the joint "
+            "configuration: d2tau_dqdq[i,j,k] = d^2 tau_i / (dq_j dq_k) (copy, see "
+            "computeRNEASecondOrderDerivatives).")
+          .add_property(
+            "d2tau_dvdv", &getRowMajorTensor<&Data::d2tau_dvdv>,
+            "Second-order partial derivative of the joint torque vector with respect to the joint "
+            "velocity: d2tau_dvdv[i,j,k] = d^2 tau_i / (dv_j dv_k) (copy, see "
+            "computeRNEASecondOrderDerivatives).")
+          .add_property(
+            "d2tau_dqdv", &getRowMajorTensor<&Data::d2tau_dqdv>,
+            "Second-order cross partial derivative of the joint torque vector with respect to the "
+            "joint configuration and velocity: d2tau_dqdv[i,j,k] = d^2 tau_i / (dq_j dv_k) (copy, "
+            "see computeRNEASecondOrderDerivatives).")
+          .add_property(
+            "d2tau_dadq", &getRowMajorTensor<&Data::d2tau_dadq>,
+            "Second-order cross partial derivative of the joint torque vector with respect to the "
+            "joint acceleration and configuration, i.e. dM/dq: d2tau_dadq[i,j,k] = d M[i,j] / dq_k "
+            "(copy, see computeRNEASecondOrderDerivatives).")
+          .add_property(
+            "d2ddq_dqdq", &getRowMajorTensor<&Data::d2ddq_dqdq>,
+            "Second-order partial derivative of the joint acceleration vector with respect to the "
+            "joint configuration: d2ddq_dqdq[i,j,k] = d^2 ddq_i / (dq_j dq_k) (copy, see "
+            "computeABASecondOrderDerivatives).")
+          .add_property(
+            "d2ddq_dvdv", &getRowMajorTensor<&Data::d2ddq_dvdv>,
+            "Second-order partial derivative of the joint acceleration vector with respect to the "
+            "joint velocity: d2ddq_dvdv[i,j,k] = d^2 ddq_i / (dv_j dv_k) (copy, see "
+            "computeABASecondOrderDerivatives).")
+          .add_property(
+            "d2ddq_dqdv", &getRowMajorTensor<&Data::d2ddq_dqdv>,
+            "Second-order cross partial derivative of the joint acceleration vector with respect "
+            "to "
+            "the joint configuration and velocity: d2ddq_dqdv[i,j,k] = d^2 ddq_i / (dq_j dv_k) "
+            "(copy, see computeABASecondOrderDerivatives).")
+          .add_property(
+            "d2ddq_dtaudq", &getRowMajorTensor<&Data::d2ddq_dtaudq>,
+            "Second-order cross partial derivative of the joint acceleration vector with respect "
+            "to "
+            "the joint torque and configuration, i.e. dMinv/dq: d2ddq_dtaudq[i,j,k] = "
+            "d Minv[i,j] / dq_k (copy, see computeABASecondOrderDerivatives).");
+#endif // ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
 
         bp::register_ptr_to_python<std::shared_ptr<Data>>();
       }
