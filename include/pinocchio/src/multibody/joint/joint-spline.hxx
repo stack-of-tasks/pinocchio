@@ -47,7 +47,7 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar, NQ, 1, Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar, NV, 1, Options> TangentVector_t;
 
-    typedef boost::mpl::false_ is_mimicable_t;
+    typedef std::true_type is_mimicable_t;
 
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
@@ -487,6 +487,14 @@ namespace pinocchio
     Vector knots_;
     KnotPolicy knot_policy_;
   }; // struct JointModelSplineBuilder
+
+  /// The configuration of a spline joint is a Euclidean scalar: a mimic maps it linearly. The
+  /// mimicked configuration must stay within [min_q, max_q], otherwise calc throws.
+  template<typename Scalar, int Options>
+  struct ConfigVectorAffineTransform<JointSplineTpl<Scalar, Options>>
+  {
+    typedef LinearAffineTransform Type;
+  };
 
 } // namespace pinocchio
 

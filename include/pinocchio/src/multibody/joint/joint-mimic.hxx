@@ -683,6 +683,7 @@ namespace pinocchio
       configVectorAffineTransform(
         m_jmodel_mimicking, jdata.joint_q, m_scaling, m_offset, jdata.joint_q_transformed);
       m_jmodel_mimicking.calc(jdata.m_jdata_mimicking, jdata.joint_q_transformed);
+      updateMotionSubspace(jdata);
     }
 
     template<typename ConfigVector, typename TangentVector>
@@ -699,6 +700,37 @@ namespace pinocchio
 
       m_jmodel_mimicking.calc(
         jdata.m_jdata_mimicking, jdata.joint_q_transformed, jdata.joint_v_transformed);
+      updateMotionSubspace(jdata);
+    }
+
+    /// Copies the motion subspace of the visited joint data into a matrix with a fixed maximal
+    /// size. Visiting the concrete joint data avoids the dynamic subspace that
+    /// JointDataTpl::S() allocates.
+    template<typename MatrixType>
+    struct CopyMotionSubspaceVisitor : boost::static_visitor<void>
+    {
+      explicit CopyMotionSubspaceVisitor(MatrixType & dest)
+      : dest(dest)
+      {
+      }
+
+      template<typename JointDataDerived_>
+      void operator()(const JointDataBase<JointDataDerived_> & jdata) const
+      {
+        dest = jdata.S().matrix();
+      }
+
+      MatrixType & dest;
+    };
+
+    /// The scaled subspace holds a copy of the motion subspace of the mimicking joint, which
+    /// may depend on its configuration: refresh it after each calc.
+    static void updateMotionSubspace(JointDataDerived & jdata)
+    {
+      typedef
+        typename std::remove_reference<decltype(jdata.S.constraint().matrix())>::type MatrixType;
+      CopyMotionSubspaceVisitor<MatrixType> visitor(jdata.S.constraint().matrix());
+      boost::apply_visitor(visitor, jdata.m_jdata_mimicking);
     }
 
     template<typename VectorLike, typename Matrix6Like>

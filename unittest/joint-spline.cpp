@@ -7,6 +7,7 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/aba.hpp"
+#include "pinocchio/algorithm/crba.hpp"
 
 #include <boost/test/unit_test.hpp>
 
@@ -1567,6 +1568,69 @@ BOOST_AUTO_TEST_CASE(vsFiniteDifference)
 
     BOOST_CHECK(c_ref.isApprox(c_fd, 1e-6));
     BOOST_CHECK(c_full.isApprox(c_fd, 1e-6));
+  }
+}
+
+/// A spline joint mimicking a revolute joint, q_spline = scaling * q + offset, against the same
+/// tree where the spline coordinate is free: the kinematics agree for (q, scaling * q + offset),
+/// and the generalized forces and the mass matrix project with G = [1; scaling]. The motion
+/// subspace of the spline depends on its configuration, so the mimic must use the subspace at the
+/// current one.
+BOOST_AUTO_TEST_CASE(mimic)
+{
+  std::vector<SE3> ctrlFrames;
+  for (int k = 0; k < 5; k++)
+    ctrlFrames.push_back(SE3::Random());
+  const JointModelSpline spline = JointModelSplineBuilder()
+                                    .withControlFrameVector(ctrlFrames)
+                                    .withDegree(3)
+                                    .withOpenUniformKnots(0., 1.)
+                                    .build();
+
+  // q in [-1, 1] maps into [0.1, 0.9], inside the spline domain [0, 1].
+  const double scaling = 0.4, offset = 0.5;
+  const SE3 p1 = SE3::Random(), p2 = SE3::Random();
+  const Inertia Y1 = Inertia::Random(), Y2 = Inertia::Random();
+
+  Model model_mimic, model_full;
+  JointIndex j = model_mimic.addJoint(0, JointModelRX(), p1, "rx");
+  model_mimic.appendBodyToJoint(j, Y1);
+  j = model_mimic.addJoint(
+    j, JointModelMimic(spline, model_mimic.joints[1], scaling, offset), p2, "spline");
+  model_mimic.appendBodyToJoint(j, Y2);
+
+  j = model_full.addJoint(0, JointModelRX(), p1, "rx");
+  model_full.appendBodyToJoint(j, Y1);
+  j = model_full.addJoint(j, spline, p2, "spline");
+  model_full.appendBodyToJoint(j, Y2);
+
+  BOOST_CHECK_EQUAL(model_mimic.nq, 1);
+  Data data_mimic(model_mimic), data_full(model_full);
+
+  Eigen::MatrixXd G(2, 1);
+  G << 1., scaling;
+  for (int trial = 0; trial < 5; ++trial)
+  {
+    const Eigen::VectorXd q = Eigen::VectorXd::Random(1), v = Eigen::VectorXd::Random(1),
+                          a = Eigen::VectorXd::Random(1);
+    const Eigen::Vector2d qf(q[0], scaling * q[0] + offset);
+    const Eigen::VectorXd vf = G * v, af = G * a;
+
+    forwardKinematics(model_mimic, data_mimic, q, v, a);
+    forwardKinematics(model_full, data_full, qf, vf, af);
+    BOOST_CHECK(data_mimic.oMi[2].isApprox(data_full.oMi[2]));
+    BOOST_CHECK(data_mimic.v[2].isApprox(data_full.v[2]));
+    BOOST_CHECK(data_mimic.a[2].isApprox(data_full.a[2]));
+
+    const Eigen::VectorXd tau = rnea(model_mimic, data_mimic, q, v, a);
+    const Eigen::VectorXd tau_full = rnea(model_full, data_full, qf, vf, af);
+    BOOST_CHECK(tau.isApprox(G.transpose() * tau_full, 1e-10));
+
+    crba(model_mimic, data_mimic, q, Convention::WORLD);
+    crba(model_full, data_full, qf, Convention::WORLD);
+    data_full.M.triangularView<Eigen::StrictlyLower>() =
+      data_full.M.transpose().triangularView<Eigen::StrictlyLower>();
+    BOOST_CHECK(data_mimic.M.isApprox(G.transpose() * data_full.M * G, 1e-10));
   }
 }
 
